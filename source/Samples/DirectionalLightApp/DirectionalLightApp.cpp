@@ -320,7 +320,9 @@ MaterialPtr DirectionalLightApp::buildMaterial()
     ShaderKeyword pkeyword(vkeyword);
     
     // vertex shader
-    const String rendererName = T3D_AGENT.getActiveRHIRenderer()->getName();
+    RHIRendererPtr renderer = T3D_AGENT.getActiveRHIRenderer();
+    const String rendererName = renderer->getName();
+    const SHADER_LANGUAGE shadingLang = renderer->getShadingLanguage();
     const char *vsCode = nullptr;
     size_t vsSize = 0;
 
@@ -370,6 +372,7 @@ MaterialPtr DirectionalLightApp::buildMaterial()
 
     ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vsCode, vsSize);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
+    vshader->setLanguage(shadingLang);
 
     // pixel shader
     const char *psCode = nullptr;
@@ -421,6 +424,7 @@ MaterialPtr DirectionalLightApp::buildMaterial()
 
     ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), psCode, psSize);
     pshader->setShaderStage(SHADER_STAGE::kPixel);
+    pshader->setLanguage(shadingLang);
 
     // render state
     RenderStatePtr renderState = RenderState::create();

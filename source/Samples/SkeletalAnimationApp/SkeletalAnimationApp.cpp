@@ -396,6 +396,8 @@ void SkeletalAnimationApp::buildCamera(Transform3D *parent)
 
 PassPtr SkeletalAnimationApp::buildShadowPass(const char *vs, size_t vsSize, const char *vs4GPU, size_t vs4GPUSize)
 {
+    const SHADER_LANGUAGE shadingLang = T3D_AGENT.getActiveRHIRenderer()->getShadingLanguage();
+
     // CPU_SKIN keyword for shadow pass
     ShaderKeyword keyCPUSkin;
     keyCPUSkin.addKeyword("");
@@ -404,6 +406,7 @@ PassPtr SkeletalAnimationApp::buildShadowPass(const char *vs, size_t vsSize, con
     // vertex shader for shadow pass
     ShaderVariantPtr vshader = ShaderVariant::create(std::move(keyCPUSkin), vs, vsSize);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
+    vshader->setLanguage(shadingLang);
 
     // GPU_SKIN keyword for shadow pass
     ShaderKeyword keyGPUSkin;
@@ -413,6 +416,7 @@ PassPtr SkeletalAnimationApp::buildShadowPass(const char *vs, size_t vsSize, con
     // GPU skin vertex shader for shadow pass
     ShaderVariantPtr vshader4GPU = ShaderVariant::create(std::move(keyGPUSkin), vs4GPU, vs4GPUSize);
     vshader4GPU->setShaderStage(SHADER_STAGE::kVertex);
+    vshader4GPU->setLanguage(shadingLang);
 
     // shadow pass
     PassPtr pass = Pass::create("ShadowCaster");
@@ -445,6 +449,9 @@ PassPtr SkeletalAnimationApp::buildShadowPass(const char *vs, size_t vsSize, con
 
 PassPtr SkeletalAnimationApp::buildForwardPass(const char *vs, size_t vsSize, const char *vs4GPU, size_t vs4GPUSize)
 {
+    RHIRendererPtr renderer = T3D_AGENT.getActiveRHIRenderer();
+    const SHADER_LANGUAGE shadingLang = renderer->getShadingLanguage();
+
     // vertex & pixel shader keyword for forward pass
     ShaderKeyword keyCPUSkin;
     keyCPUSkin.addKeyword("");
@@ -454,6 +461,7 @@ PassPtr SkeletalAnimationApp::buildForwardPass(const char *vs, size_t vsSize, co
     // vertex shader for forward pass 
     ShaderVariantPtr vshader = ShaderVariant::create(std::move(keyCPUSkin), vs, vsSize);
     vshader->setShaderStage(SHADER_STAGE::kVertex);
+    vshader->setLanguage(shadingLang);
 
     // GPU_SKIN keyword for forward pass
     ShaderKeyword keyGPUSkin;
@@ -463,9 +471,10 @@ PassPtr SkeletalAnimationApp::buildForwardPass(const char *vs, size_t vsSize, co
     // GPU skin vertex shader for forward pass
     ShaderVariantPtr vshader4GPU = ShaderVariant::create(std::move(keyGPUSkin), vs4GPU, vs4GPUSize);
     vshader4GPU->setShaderStage(SHADER_STAGE::kVertex);
+    vshader4GPU->setLanguage(shadingLang);
 
     // pixel shader for forward pass
-    const String rendererName = T3D_AGENT.getActiveRHIRenderer()->getName();
+    const String rendererName = renderer->getName();
     const char *psCode = nullptr;
     size_t psSize = 0;
 
@@ -515,6 +524,7 @@ PassPtr SkeletalAnimationApp::buildForwardPass(const char *vs, size_t vsSize, co
 
     ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), psCode, psSize);
     pshader->setShaderStage(SHADER_STAGE::kPixel);
+    pshader->setLanguage(shadingLang);
 
     // forward pass
     PassPtr pass = Pass::create("ForwardBase");
