@@ -33,6 +33,7 @@
 #include "Component/T3DRenderable.h"
 #include "Component/T3DTransform3D.h"
 #include "Component/T3DComponent.h"
+#include "Component/T3DBehaviour.h"
 #include "Component/T3DGeometry.h"
 #include "Component/T3DSkinnedGeometry.h"
 #include "Light/T3DLight.h"
@@ -46,6 +47,15 @@
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    // 脚本组件是否应在本帧执行：受组件级 enabled 与 Play/Edit 模式约束。
+    // 所属 GameObject 的 active 已在 visitActive 遍历层过滤，此处仅补充判定。
+    static inline bool behaviourExecutable(Behaviour *b)
+    {
+        return b->isEnabled() && (T3D_AGENT.isPlaying() || b->executeInEditMode());
+    }
+
     //--------------------------------------------------------------------------
 
 // #if defined (T3D_DEBUG)
@@ -183,9 +193,17 @@ namespace Tiny3D
                     newGO->mTransformNode = static_cast<TransformNode*>(newComp.get());
                 }
 
-                newComp->onStart();
+                // 内置组件保持原「克隆即 onStart」；Behaviour 待所有组件就位后统一 Awake/Start
+                if (newComp->asBehaviour() == nullptr)
+                {
+                    newComp->onStart();
+                }
             }
         }
+
+        // 所有组件就位后，对本对象上的 Behaviour 统一 Awake + OnEnable + 投递 Start，
+        // 使脚本 onAwake 时可可靠访问兄弟组件（对齐实例化语义，见设计文档 §10-5）
+        newGO->awakeBehaviours(T3D_SCENE_MGR.getCurrentScene());
 
         return newGO;
     }
@@ -331,13 +349,134 @@ namespace Tiny3D
         {
             for (auto component : item.second)
             {
-                component->onUpdate();
+                Behaviour *b = component->asBehaviour();
+                if (b == nullptr || behaviourExecutable(b))
+                {
+                    component->onUpdate();
+                }
             }
         }
 
         for (auto item : mUpdateComponents2)
         {
-            item.second->onUpdate();
+            Behaviour *b = item.second->asBehaviour();
+            if (b == nullptr || behaviourExecutable(b))
+            {
+                item.second->onUpdate();
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GameObject::onLateUpdate()
+    {
+        for (auto item : mUpdateComponents)
+        {
+            for (auto component : item.second)
+            {
+                Behaviour *b = component->asBehaviour();
+                if (b != nullptr && behaviourExecutable(b))
+                {
+                    b->onLateUpdate();
+                }
+            }
+        }
+
+        for (auto item : mUpdateComponents2)
+        {
+            Behaviour *b = item.second->asBehaviour();
+            if (b != nullptr && behaviourExecutable(b))
+            {
+                b->onLateUpdate();
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GameObject::onFixedUpdate()
+    {
+        for (auto item : mUpdateComponents)
+        {
+            for (auto component : item.second)
+            {
+                Behaviour *b = component->asBehaviour();
+                if (b != nullptr && behaviourExecutable(b))
+                {
+                    b->onFixedUpdate();
+                }
+            }
+        }
+
+        for (auto item : mUpdateComponents2)
+        {
+            Behaviour *b = item.second->asBehaviour();
+            if (b != nullptr && behaviourExecutable(b))
+            {
+                b->onFixedUpdate();
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GameObject::lateUpdate()
+    {
+        TransformNodePtr node = getComponent<TransformNode>();
+        if (node != nullptr)
+        {
+            node->visitActive([](int32_t depth, TransformNode *node)
+            {
+                node->getGameObject()->onLateUpdate();
+            });
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GameObject::fixedUpdate()
+    {
+        TransformNodePtr node = getComponent<TransformNode>();
+        if (node != nullptr)
+        {
+            node->visitActive([](int32_t depth, TransformNode *node)
+            {
+                node->getGameObject()->onFixedUpdate();
+            });
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GameObject::awakeBehaviours(Scene *scene)
+    {
+        // 第一趟：本对象所有 Behaviour 同步 Awake（此刻兄弟组件已就位）
+        for (const auto &item : mComponents)
+        {
+            Behaviour *b = item.second->asBehaviour();
+            if (b != nullptr)
+            {
+                b->invokeAwake();
+            }
+        }
+
+        // 第二趟：Awake 完成后补发 OnEnable，并投递 pending-start（Start 延迟）
+        for (const auto &item : mComponents)
+        {
+            Behaviour *b = item.second->asBehaviour();
+            if (b != nullptr)
+            {
+                b->refreshActiveState();
+                if (scene != nullptr)
+                {
+                    scene->enqueuePendingStart(b);
+                }
+                else
+                {
+                    b->invokeStart();
+                }
+            }
         }
     }
 
@@ -442,28 +581,39 @@ namespace Tiny3D
 
     void GameObject::putUpdatingQueue(const RTTRType &type, Component *component)
     {
-        do
+        const ComponentSettings &settings = T3D_AGENT.getSettings().componentSettins;
+
+        // 1) 先按精确类名匹配预设更新顺序；同时记录 "Behaviour" 段位下标
+        int32_t i = 0;
+        int32_t behaviourSlot = -1;
+        for (auto it = settings.updateOrders.begin(); it != settings.updateOrders.end(); ++it, ++i)
         {
-            const ComponentSettings &settings = T3D_AGENT.getSettings().componentSettins;
-            int32_t i = 0;
-            for (auto it = settings.updateOrders.begin(); it != settings.updateOrders.end(); ++it, ++i)
+            if (*it == "Behaviour")
             {
-                if (*it == type.get_name())
-                {
-                    auto itUpdate = mUpdateComponents.find(i);
-                    T3D_ASSERT(itUpdate != mUpdateComponents.end());
-                    itUpdate->second.emplace_back(component);
-                    break;
-                }
+                behaviourSlot = i;
             }
 
-            int32_t orderCount = (int32_t)settings.updateOrders.size();
-            if (i == orderCount)
+            if (*it == type.get_name())
             {
-                // 不在预设序列里面，直接放到乱序更新队列
-                mUpdateComponents2.emplace(type.get_name(), component);
+                auto itUpdate = mUpdateComponents.find(i);
+                T3D_ASSERT(itUpdate != mUpdateComponents.end());
+                itUpdate->second.emplace_back(component);
+                return;
             }
-        } while (false);
+        }
+
+        // 2) 脚本组件（Behaviour 派生）统一落入 "Behaviour" 段位，获得确定更新次序，
+        //    而不是落入无序队列（见设计文档 §4.4）
+        if (behaviourSlot >= 0 && type.is_derived_from<Behaviour>())
+        {
+            auto itUpdate = mUpdateComponents.find(behaviourSlot);
+            T3D_ASSERT(itUpdate != mUpdateComponents.end());
+            itUpdate->second.emplace_back(component);
+            return;
+        }
+
+        // 3) 其它不在预设序列里的组件，放入无序更新队列
+        mUpdateComponents2.emplace(type.get_name(), component);
     }
 
     //--------------------------------------------------------------------------
@@ -476,7 +626,14 @@ namespace Tiny3D
             mComponents.emplace(type, item.second);
             item.second->setGameObject(this);
             putUpdatingQueue(type, item.second);
-            item.second->onStart();
+
+            // 内置组件保持原「就位即 onStart」行为；Behaviour 的 Awake/Start
+            // 改由 Scene::onPostLoad 在整树 setupHierarchy 之后统一触发，
+            // 保证 Awake 时兄弟组件 + 父子层级都已就位（见设计文档 §4.2 / §10-3）。
+            if (item.second->asBehaviour() == nullptr)
+            {
+                item.second->onStart();
+            }
         }
     }
 
@@ -544,8 +701,30 @@ namespace Tiny3D
 
             // 放入组件更新队列
             putUpdatingQueue(type, component);
-            
-            component->onStart();
+
+            Behaviour *b = component->asBehaviour();
+            if (b != nullptr)
+            {
+                // 脚本组件：单加语义与 Unity 一致——此刻尚未添加的兄弟组件本就拿不到。
+                // 同步 Awake + OnEnable，Start 延迟到首帧 update 前统一 flush。
+                b->invokeAwake();
+                b->refreshActiveState();
+
+                Scene *scene = T3D_SCENE_MGR.getCurrentScene();
+                if (scene != nullptr)
+                {
+                    scene->enqueuePendingStart(b);
+                }
+                else
+                {
+                    b->invokeStart();
+                }
+            }
+            else
+            {
+                // 内置组件保持原路径：addComponent 即 onStart
+                component->onStart();
+            }
         } while (false);
 
         return component;
@@ -557,6 +736,12 @@ namespace Tiny3D
     {
         for (auto itr = mComponents.begin(); itr != mComponents.end(); ++itr)
         {
+            // 销毁前对已 Awake 且处于运行态的 Behaviour 补发 onDisable（配对 onEnable）
+            Behaviour *b = itr->second->asBehaviour();
+            if (b != nullptr && b->wasAwaked())
+            {
+                b->invokeDisable();
+            }
             destroyComponent(itr->second);
         }
 
@@ -591,7 +776,13 @@ namespace Tiny3D
             {
                 mTransformNode = nullptr;
             }
-            
+
+            Behaviour *b = itr->second->asBehaviour();
+            if (b != nullptr && b->wasAwaked())
+            {
+                b->invokeDisable();
+            }
+
             destroyComponent(itr->second);
             mComponents.erase(itr);
             mComponentObjects.erase(it);
@@ -621,7 +812,13 @@ namespace Tiny3D
                 {
                     mTransformNode = nullptr;
                 }
-                
+
+                Behaviour *b = itr->second->asBehaviour();
+                if (b != nullptr && b->wasAwaked())
+                {
+                    b->invokeDisable();
+                }
+
                 destroyComponent(itr->second);
                 mComponents.erase(itr);
             }

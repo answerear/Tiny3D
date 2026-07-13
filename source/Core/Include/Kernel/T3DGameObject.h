@@ -78,6 +78,12 @@ namespace Tiny3D
 
         virtual void update();
 
+        /// LateUpdate 遍历入口：在所有 onUpdate 之后，对整棵激活子树分发 onLateUpdate
+        virtual void lateUpdate();
+
+        /// FixedUpdate 遍历入口：由 Agent 的固定步长循环驱动，分发 onFixedUpdate
+        virtual void fixedUpdate();
+
         virtual void frustumCulling(Camera *camera, RenderPipeline *pipeline) const;
 
         virtual void setupLights(RenderPipeline *pipeline) const;
@@ -264,6 +270,15 @@ namespace Tiny3D
         virtual void onDestroy();
 
         void onUpdate();
+
+        /// 本对象组件的 LateUpdate 分发（仅 Behaviour）
+        void onLateUpdate();
+
+        /// 本对象组件的 FixedUpdate 分发（仅 Behaviour）
+        void onFixedUpdate();
+
+        /// 对本对象上所有 Behaviour 组件同步 Awake + OnEnable，并向指定 scene 投递 pending-start
+        void awakeBehaviours(Scene *scene);
 
         static void destroyComponent(Component *component);
 

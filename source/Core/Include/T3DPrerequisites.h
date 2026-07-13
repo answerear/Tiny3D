@@ -80,6 +80,7 @@ namespace Tiny3D
 
     // Kernel
     class Agent;
+    class Time;
     class GameObject;
     class SceneObject;
     class Plugin;
@@ -164,6 +165,7 @@ namespace Tiny3D
 
     // Component
     class Component;
+    class Behaviour;
     class Camera;
     class TransformNode;
     class Transform3D;

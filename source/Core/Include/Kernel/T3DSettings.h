@@ -116,7 +116,26 @@ namespace Tiny3D
             updateOrders.emplace_back("Transform3D");
             updateOrders.emplace_back("Camera");
             updateOrders.emplace_back("Geometry");
+            // 脚本组件段位：让继承自 Behaviour 的脚本具有确定的更新次序，
+            // 而不是落入无序更新队列（见 Behaviour 设计文档 §4.4）
+            updateOrders.emplace_back("Behaviour");
         }
+    };
+
+    TSTRUCT()
+    struct TimeSettings
+    {
+        /// 固定步长(ms)，默认 20ms = 50Hz，供 Behaviour::onFixedUpdate 使用
+        TPROPERTY()
+        uint64_t fixedDeltaTimeMS = 20;
+
+        /// 每帧 deltaTime 的上限(ms)，用于断点/后台切回等墙钟跳变时钳制
+        TPROPERTY()
+        uint64_t maximumDeltaTimeMS = 333;
+
+        /// 初始时间缩放，千分比，1000 = 1.0x
+        TPROPERTY()
+        uint32_t timeScalePermille = 1000;
     };
 
     TSTRUCT()
@@ -133,6 +152,9 @@ namespace Tiny3D
 
         TPROPERTY()
         ComponentSettings   componentSettins {};
+
+        TPROPERTY()
+        TimeSettings        timeSettings {};
     };
 }
 

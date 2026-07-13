@@ -100,6 +100,14 @@ namespace Tiny3D
 
         bool runForEditor(const EditorRunningData &updateData);
 
+        /// 是否处于播放态。默认 true（运行时）；Behaviour 生命周期 / onUpdate
+        /// 默认仅在播放态执行（对齐 Unity 播放态，见设计文档 §6.1）
+        bool isPlaying() const { return mIsPlaying; }
+
+        void enterPlayMode() { mIsPlaying = true; }
+
+        void exitPlayMode() { mIsPlaying = false; }
+
         void renderOneFrame();
 
         void appDidEnterBackground();
@@ -189,6 +197,9 @@ namespace Tiny3D
         TResult initRenderer();
 
         TResult initSceneManager();
+
+        /// 创建并配置全局 Time 单例（读取 Settings.timeSettings 注入步长 / 上限 / 缩放）
+        void initTime();
 
         TResult initRenderThread();
 
@@ -287,6 +298,11 @@ namespace Tiny3D
 
         /// 引擎配置项
         Settings                mSettings {};
+
+        /// 全局时间单例（引擎持有，负责创建 / 销毁）
+        Time                   *mTime {nullptr};
+        /// 是否处于播放态（运行时默认 true）
+        bool                    mIsPlaying {true};
 
         /// 渲染线程
         RunnableThread          mRHIThread {};

@@ -51,6 +51,13 @@ namespace Tiny3D
         
         virtual ComponentPtr clone() const = 0;
 
+        /**
+         * \brief 运行时快速判定组件是否为 Behaviour（脚本组件）
+         * \return 若是 Behaviour 返回自身指针，否则返回 nullptr
+         * \note 用于更新热路径避免 rttr_cast 开销；Behaviour 覆写为返回 this
+         */
+        virtual Behaviour *asBehaviour() { return nullptr; }
+
         TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="getter", "Description"="UUID value")
         const UUID &getUUID() const { return mUUID; }
 

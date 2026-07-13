@@ -97,7 +97,88 @@ namespace Tiny3D
 
     void Scene::update()
     {
-        mRootGameObject->update();
+        if (mRootGameObject != nullptr)
+        {
+            // ① 普通 Update（DFS visitActive）
+            mRootGameObject->update();
+            // ② LateUpdate（跨对象，在所有 Update 之后）
+            mRootGameObject->lateUpdate();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Scene::fixedUpdate()
+    {
+        if (mRootGameObject != nullptr)
+        {
+            mRootGameObject->fixedUpdate();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Scene::enqueuePendingStart(Behaviour *b)
+    {
+        if (b != nullptr)
+        {
+            mPendingStart.emplace_back(b);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Scene::flushPendingStart()
+    {
+        if (mPendingStart.empty())
+        {
+            return;
+        }
+
+        // 用交换避免 onStart 内再 addComponent 造成的迭代失效（本帧新增留到下帧）
+        TList<BehaviourPtr> batch;
+        batch.swap(mPendingStart);
+
+        for (auto &b : batch)
+        {
+            if (b->wasStarted())
+            {
+                continue;
+            }
+
+            if (b->isActiveAndEnabled())
+            {
+                b->invokeStart();
+            }
+            else if (b->getGameObject() != nullptr)
+            {
+                // 尚未进入运行态且未被销毁：保留到后续帧，待其激活时再 Start
+                mPendingStart.emplace_back(b);
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Scene::awakeHierarchy(GameObject *root)
+    {
+        if (root == nullptr)
+        {
+            return;
+        }
+
+        TransformNode *node = root->getTransformNode();
+        if (node != nullptr)
+        {
+            node->visitAll([this](int32_t depth, TransformNode *n)
+            {
+                n->getGameObject()->awakeBehaviours(this);
+            });
+        }
+        else
+        {
+            root->awakeBehaviours(this);
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -223,6 +304,11 @@ namespace Tiny3D
         {
             item.second->setupHierarchy();
         }
+
+        // 层级 + 组件全部就位后，按 DFS 对整树 Behaviour 同步 Awake → OnEnable，
+        // 并投递 pending-start（Start 仍延迟到首帧 update 前）。此时兄弟组件与
+        // 父子层级均已就绪，脚本 onAwake 内 getComponent 可靠（见设计文档 §4.2 路径1）
+        awakeHierarchy(mRootGameObject);
     }
 
     //--------------------------------------------------------------------------

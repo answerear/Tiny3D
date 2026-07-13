@@ -27,6 +27,7 @@
 
 
 #include "Component/T3DTransformNode.h"
+#include "Component/T3DBehaviour.h"
 #include "Resource/T3DResource.h"
 #include "Kernel/T3DGameObject.h"
 
@@ -51,6 +52,15 @@ namespace Tiny3D
         virtual Transform3D *getRootTransform() const { return mRootTransform; }
 
         virtual void update();
+
+        /// 固定步长遍历入口，由 Agent 的 FixedUpdate 循环调用
+        virtual void fixedUpdate();
+
+        /// Behaviour 在 Awake 后入队，等待首帧 update 前 flush 调用 onStart（Start 延迟）
+        void enqueuePendingStart(Behaviour *b);
+
+        /// flush pending-start 队列：对已就绪的 Behaviour 调用一次 onStart
+        void flushPendingStart();
 
         virtual TResult addCamera(Camera *camera);
 
@@ -116,7 +126,11 @@ namespace Tiny3D
 
     private:
         using GameObjects = TUnorderedMap<UUID, GameObjectPtr, UUIDHash, UUIDEqual>;
-        
+
+        /// 反序列化 / 实例化后，对整棵子树的 Behaviour 同步 Awake + OnEnable，
+        /// 并投递 pending-start（Start 仍延迟到首帧 update 前）
+        void awakeHierarchy(GameObject *root);
+
         Scene() : Scene("") {}
 
         TPROPERTY(RTTRFuncName="RootGameObject", RTTRFuncType="getter")
@@ -142,6 +156,8 @@ namespace Tiny3D
         UUID            mRootGameObjectUUID {};
         /// 所有属于这个场景的 game object
         GameObjects     mGameObjects {};
+        /// 等待首帧调用 onStart 的 Behaviour（承载「Start 延迟」）
+        TList<BehaviourPtr> mPendingStart {};
     };
 
 #if defined (T3D_EDITOR)

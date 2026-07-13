@@ -24,6 +24,7 @@
 
 #include "T3DConfig.h"
 #include "Kernel/T3DAgent.h"
+#include "Kernel/T3DTime.h"
 #include "Kernel/T3DArchive.h"
 #include "Kernel/T3DArchiveManager.h"
 #include "Serializer/T3DSerializerManager.h"
@@ -65,6 +66,9 @@ namespace Tiny3D
     #define T3D_VERSION_STR                 T3D_VERSION_0_0_0_1_STR
     #define T3D_VERSION_VAL                 T3D_VERSION_0_0_0_1_VAL
     #define T3D_VERSION_NAME                T3D_VERSION_0_0_0_1_NAME
+
+    /// 单帧内 FixedUpdate 的最大步数，防"死亡螺旋"（一帧过卡导致 fixed 次数暴涨）
+    static const uint32_t kMaxFixedStepsPerFrame = 8;
 
     typedef TResult (*DLL_START_PLUGIN)(void);
     typedef TResult (*DLL_STOP_PLUGIN)(void);
@@ -223,6 +227,9 @@ namespace Tiny3D
         mArchiveMgr = nullptr;
         mAniPlayerMgr = nullptr;
         
+        // 销毁全局 Time 单例（在场景 / 组件清理之后，确保销毁回调仍可读取时间）
+        T3D_SAFE_DELETE(mTime);
+
         T3D_SAFE_DELETE(mEventMgr);
 
         if (mObjTracer != nullptr)
@@ -364,6 +371,9 @@ namespace Tiny3D
                 break;
             }
 
+            // 配置就绪后创建全局 Time 单例
+            initTime();
+
             // 加载配置文件中指定的插件
             ret = loadPlugins();
             if (T3D_FAILED(ret))
@@ -429,6 +439,9 @@ namespace Tiny3D
             }
 
             mSettings = settings;
+
+            // 配置就绪后创建全局 Time 单例
+            initTime();
 
             mArchiveMgr = ArchiveManager::create();
 
@@ -683,8 +696,30 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void Agent::initTime()
+    {
+        if (mTime == nullptr)
+        {
+            // 构造即注册 Singleton（Singleton<Time> 在构造函数写入 m_pInstance）
+            mTime = new Time();
+        }
+
+        // 即便 Agent 是 Time 友元，也一律走 setter 注入，保持不变量 / 校验的单一入口
+        mTime->setFixedDeltaTime(mSettings.timeSettings.fixedDeltaTimeMS);
+        mTime->setMaximumDeltaTime(mSettings.timeSettings.maximumDeltaTimeMS);
+        mTime->setTimeScale(mSettings.timeSettings.timeScalePermille);
+        mTime->start();
+    }
+
+    //--------------------------------------------------------------------------
+
     void Agent::beginFrame()
     {
+        // 每帧最先推进时间，保证本帧 update() 读到的 dt 已就绪
+        if (Time::getInstancePtr() != nullptr)
+        {
+            T3D_TIME.tick();
+        }
 #if (T3D_ENABLE_RHI_THREAD)
         T3D_RHI_THREAD.resume();
 #endif
@@ -697,10 +732,26 @@ namespace Tiny3D
         // 事件系统派发事件
         T3D_EVENT_MGR.dispatchEvent();
 
-        // 更新场景树
-        if (mSceneMgr != nullptr && mSceneMgr->getCurrentScene() != nullptr)
+        // 更新场景树。由 Agent 编排帧内调度（stepFixed 为 Time 私有、仅 Agent 友元可调）
+        Scene *scene = nullptr;
+        if (mSceneMgr != nullptr)
         {
-            mSceneMgr->getCurrentScene()->update();
+            scene = mSceneMgr->getCurrentScene();
+        }
+        if (scene != nullptr)
+        {
+            // 首帧前统一 flush onStart
+            scene->flushPendingStart();
+
+            // 固定步长循环（含单帧步数上限）→ Behaviour::onFixedUpdate
+            uint32_t steps = 0;
+            while (T3D_TIME.stepFixed() && steps++ < kMaxFixedStepsPerFrame)
+            {
+                scene->fixedUpdate();
+            }
+
+            // 普通 Update + LateUpdate（Scene 内部编排）
+            scene->update();
         }
     }
 

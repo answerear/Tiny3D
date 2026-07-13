@@ -115,6 +115,7 @@ namespace Tiny3D
 
     // Component
     T3D_DECLARE_SMART_PTR(Component);
+    T3D_DECLARE_SMART_PTR(Behaviour);
     T3D_DECLARE_SMART_PTR(Camera);
     T3D_DECLARE_SMART_PTR(TransformNode);
     T3D_DECLARE_SMART_PTR(Transform3D);
