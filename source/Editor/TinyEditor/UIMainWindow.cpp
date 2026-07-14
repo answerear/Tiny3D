@@ -291,7 +291,7 @@ namespace Tiny3D
         // Rename
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_RENAME, STR(TXT_RENAME), "", "", queryDisableDefault, nullptr, nullptr)
         // Delete
-        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_DELETE, STR(TXT_DELETE), "", "", queryDisableDefault, nullptr, nullptr)
+        IM_MENU_ITEM_DATA_DEFAULT(ImMenuItemType::kNormal, ID_MENU_ITEM_DELETE, STR(TXT_DELETE), "", "")
 
         // Frame Selected
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MEHU_ITEM_FRAME_SELECTED, STR(TXT_FRAME_SELECTED), "F", "", queryDisableDefault, nullptr, nullptr)

@@ -89,12 +89,21 @@ namespace Tiny3D
         bool onMenuItemEnabledCreateCube(uint32_t id, ImWidget *menuItem);
         /// 创建 cube 菜单响应
         bool onMenuItemCreateCube(uint32_t id, ImWidget *menuItem);
-        
+
+        /// 查询创建 sphere 菜单状态
+        bool onMenuItemEnabledCreateSphere(uint32_t id, ImWidget *menuItem);
+        /// 创建 sphere 菜单响应
         bool onMenuItemCreateSphere(uint32_t id, ImWidget *menuItem);
+
+        /// 查询删除 game object 菜单状态
+        bool onMenuItemEnabledDelete(uint32_t id, ImWidget *menuItem);
+        /// 删除 game object 菜单响应
+        bool onMenuItemDelete(uint32_t id, ImWidget *menuItem);
 
         TResult createTreeNode(TransformNode *node, const ImTreeNode::CallbackData &callbacks, const ImTreeNodeDestroyCallback &onDestroy);
 
         TResult createCube(GameObject *go);
+        TResult createSphere(GameObject *go);
         void createCubeAABB(Mesh *mesh, SubMesh *submesh, AabbBound *bound);
         
     protected:

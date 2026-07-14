@@ -117,6 +117,8 @@ namespace Tiny3D
     public:
         static const char *BUILTIN_CUBE_MESH_NAME;
         static const char *BUILTIN_CUBE_SUBMESH_NAME;
+        static const char *BUILTIN_SPHERE_MESH_NAME;
+        static const char *BUILTIN_SPHERE_SUBMESH_NAME;
         
         ProjectManager();
 

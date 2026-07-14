@@ -279,6 +279,8 @@ namespace Tiny3D
         vkeyword.addKeyword("");
         vkeyword.generate();
         ShaderKeyword pkeyword(vkeyword);
+
+        const SHADER_LANGUAGE shadingLang = T3D_AGENT.getActiveRHIRenderer()->getShadingLanguage();
         
         // vertex shader
         const String vs =
@@ -337,6 +339,7 @@ namespace Tiny3D
         
         ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vs);
         vshader->setShaderStage(SHADER_STAGE::kVertex);
+        vshader->setLanguage(shadingLang);
 
         // pixel shader
         const String ps =
@@ -362,6 +365,7 @@ namespace Tiny3D
         
         ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), ps);
         pshader->setShaderStage(SHADER_STAGE::kPixel);
+        pshader->setLanguage(shadingLang);
 
         // render state
         RenderStatePtr renderState = RenderState::create();

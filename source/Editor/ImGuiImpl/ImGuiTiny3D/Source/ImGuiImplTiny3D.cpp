@@ -287,6 +287,7 @@ namespace Tiny3D
             // 根据当前渲染器类型选择着色器源码
             RHIRendererPtr renderer = T3D_AGENT.getActiveRHIRenderer();
             const String &rendererName = renderer->getName();
+            const SHADER_LANGUAGE shadingLang = renderer->getShadingLanguage();
             const char *vsSource = nullptr;
             const char *psSource = nullptr;
 
@@ -307,10 +308,12 @@ namespace Tiny3D
             ShaderKeyword vsKeyword;
             mVertexShader = ShaderVariant::create(std::move(vsKeyword), vsSource);
             mVertexShader->setShaderStage(SHADER_STAGE::kVertex);
+            mVertexShader->setLanguage(shadingLang);
 
             ShaderKeyword psKeyword;
             mPixelShader = ShaderVariant::create(std::move(psKeyword), psSource);
             mPixelShader->setShaderStage(SHADER_STAGE::kPixel);
+            mPixelShader->setLanguage(shadingLang);
 
             // 2. 创建 Pass，添加 ShaderVariant（自动设置 variant->setPass(this)）
             mImGuiPass = Pass::create("0");
