@@ -29,6 +29,7 @@
 #include "T3DBuiltinMaterials.h"
 #include "T3DBuiltinCube.h"
 #include "T3DBuiltinCylinder.h"
+#include "T3DBuiltinSphere.h"
 
 
 namespace Tiny3D
@@ -134,7 +135,28 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mesh);
 
         // Sphere
-        
+        mesh = T3D_NEW BuiltinSphere();
+        ret = mesh->build();
+        if (T3D_FAILED(ret))
+        {
+            BGEN_LOG_ERROR("Build sphere mesh failed ! ERROR [%d]", ret);
+        }
+        else
+        {
+            BGEN_LOG_INFO("Build sphere mesh ok !");
+
+            ret = mesh->save(meshPath);
+            if (T3D_FAILED(ret))
+            {
+                BGEN_LOG_ERROR("Generated sphere mesh failed ! ERROR [%d]", ret);
+            }
+            else
+            {
+                BGEN_LOG_INFO("Generated sphere mesh ok !");
+            }
+        }
+        T3D_SAFE_DELETE(mesh);
+
         return ret;
     }
 
