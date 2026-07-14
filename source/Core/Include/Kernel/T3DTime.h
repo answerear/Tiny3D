@@ -52,7 +52,7 @@ namespace Tiny3D
 
     public:
         Time() = default;
-        ~Time() = default;
+        ~Time() override = default;
 
         // —— 实例只读访问（单位：毫秒 ms；帧内固定值）——
 
@@ -122,6 +122,8 @@ namespace Tiny3D
     };
 
     #define T3D_TIME    Time::getInstance()
+
+    T3D_EXTERN_SINGLETON(Time)
 }
 
 
