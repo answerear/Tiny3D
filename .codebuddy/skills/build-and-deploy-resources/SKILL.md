@@ -76,6 +76,8 @@ python .codebuddy/skills/build-pipeline/scripts/build_pipeline.py --workspace D:
 | `assets/editor/` | `source/bin/Windows/Debug/Editor/` |
 | `assets/samples/` | `source/bin/Windows/Debug/Assets/samples/` |
 
+Deploy step for samples first runs `bundlebuilder` (`meshes` → `assets/samples/bundle`, cwd = exe dir), then copies. Use `--skip-bundle` on the deploy script to reuse an existing bundle.
+
 ## When to Run
 
 - After modifying any builtin or sample resources and wanting to immediately test in the application
@@ -89,6 +91,7 @@ python .codebuddy/skills/build-pipeline/scripts/build_pipeline.py --workspace D:
 - `BuiltinGenerator.exe` must be built (`source/bin/Windows/Debug/BuiltinGenerator.exe`)
 - `scc.exe` must be built (`source/bin/Windows/Debug/scc.exe`)
 - `mconv.exe` must be built (`source/bin/Windows/Debug/mconv.exe`)
+- `bundlebuilder.exe` must be built (`source/bin/Windows/Debug/bundlebuilder.exe`) for the deploy step's samples bundle rebuild
 - Python 3.8+
 
 ## Behavior
@@ -97,7 +100,7 @@ python .codebuddy/skills/build-pipeline/scripts/build_pipeline.py --workspace D:
 - **Fail-fast**: If any step fails, the pipeline stops immediately and reports the error
 - Each step prints its status and execution time
 - A summary is printed at the end showing all step results
-- The deploy step copies ALL files from source directories, preserving directory structure
+- The deploy step rebuilds `assets/samples/bundle` via BundleBuilder, then copies ALL files from source directories, preserving directory structure
 - If no FBX files exist in `assets/samples/raw/`, the mesh-converter step is gracefully skipped
 
 ## Notes

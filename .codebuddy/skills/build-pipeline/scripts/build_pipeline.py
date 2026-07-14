@@ -37,7 +37,7 @@ TIMEOUTS = {
     "sync-builtin-to-samples": 120,
     "mesh-converter": 600,
     "shader-compile-embed": 300,
-    "deploy-assets-to-debug": 120,
+    "deploy-assets-to-debug": 600,  # includes BundleBuilder for samples bundle
 }
 
 

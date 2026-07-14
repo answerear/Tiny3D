@@ -4,6 +4,9 @@ Deploy Assets to Debug Build Script
 Copies asset files from the project's assets/ source directories to the
 Debug build output directory.
 
+For samples: first runs bundlebuilder to rebuild assets/samples/bundle
+from assets/samples/meshes (same as ResourceApp POST_BUILD), then copies.
+
 Mapping:
     assets/editor/       -> source/bin/Windows/Debug/Editor/
     assets/samples/      -> source/bin/Windows/Debug/Assets/samples/
@@ -12,12 +15,14 @@ Usage:
     python deploy_assets.py --workspace D:/private/Tiny3D
     python deploy_assets.py --workspace D:/private/Tiny3D --target editor
     python deploy_assets.py --workspace D:/private/Tiny3D --clean --exclude "*.fbx,*.FBX"
+    python deploy_assets.py --workspace D:/private/Tiny3D --skip-bundle
 """
 
 import argparse
 import fnmatch
 import os
 import shutil
+import subprocess
 import sys
 
 
@@ -32,6 +37,10 @@ TARGET_KEYS = {
     "samples": [1],
     "all": [0, 1],
 }
+
+DEFAULT_BUNDLEBUILDER = os.path.join("source", "bin", "Windows", "Debug", "bundlebuilder.exe")
+DEFAULT_MESHES_DIR = os.path.join("assets", "samples", "meshes")
+DEFAULT_BUNDLE_DIR = os.path.join("assets", "samples", "bundle")
 
 
 def should_exclude(filename, exclude_patterns):
@@ -66,9 +75,7 @@ def copy_tree(src, dst, exclude_patterns, dry_run=False):
             dst_file = os.path.join(dest_dir, filename)
 
             if dry_run:
-                rel_src = os.path.relpath(src_file, os.path.dirname(src))
-                rel_dst = os.path.relpath(dst_file, os.path.dirname(dst))
-                print(f"  [DRY-RUN] {rel_src} -> {rel_dst}")
+                print(f"  [DRY-RUN] {src_file} -> {dst_file}")
                 copied += 1
                 continue
 
@@ -80,6 +87,49 @@ def copy_tree(src, dst, exclude_patterns, dry_run=False):
                 failed += 1
 
     return copied, skipped, failed
+
+
+def build_samples_bundle(workspace, bundlebuilder, meshes_rel, bundle_rel,
+                         keep_languages=None, dry_run=False):
+    """
+    Run bundlebuilder to generate assets/samples/bundle from meshes.
+
+    Working directory must be the exe directory so editor plugins load via
+    pluginPath="." (same requirement as ResourceApp POST_BUILD).
+    """
+    exe = bundlebuilder if os.path.isabs(bundlebuilder) else os.path.join(workspace, bundlebuilder)
+    meshes_dir = os.path.join(workspace, meshes_rel)
+    bundle_dir = os.path.join(workspace, bundle_rel)
+
+    if not os.path.isfile(exe):
+        print(f"ERROR: bundlebuilder not found: {exe}")
+        print("  Please build BundleBuilder first (source/bin/Windows/Debug/bundlebuilder.exe).")
+        return False
+
+    if not os.path.isdir(meshes_dir):
+        print(f"ERROR: Samples meshes directory not found: {meshes_dir}")
+        return False
+
+    cmd = [exe, "--assets", meshes_dir, "--out", bundle_dir]
+    if keep_languages:
+        cmd.extend(["--keep-languages", keep_languages])
+
+    exe_dir = os.path.dirname(exe)
+    print(f"\n{'[DRY-RUN] ' if dry_run else ''}Building samples bundle:")
+    print(f"  Command: {' '.join(cmd)}")
+    print(f"  CWD:     {exe_dir}")
+
+    if dry_run:
+        return True
+
+    os.makedirs(bundle_dir, exist_ok=True)
+    result = subprocess.run(cmd, cwd=exe_dir)
+    if result.returncode != 0:
+        print(f"ERROR: bundlebuilder failed with exit code {result.returncode}")
+        return False
+
+    print(f"  Bundle ready: {bundle_dir}")
+    return True
 
 
 def main():
@@ -106,6 +156,26 @@ def main():
         "--exclude", default="",
         help="Comma-separated glob patterns to exclude (e.g., '*.fbx,*.FBX')"
     )
+    parser.add_argument(
+        "--skip-bundle", action="store_true",
+        help="Skip BundleBuilder step (use existing assets/samples/bundle as-is)"
+    )
+    parser.add_argument(
+        "--bundlebuilder", default=DEFAULT_BUNDLEBUILDER,
+        help="Path to bundlebuilder.exe (relative to workspace or absolute)"
+    )
+    parser.add_argument(
+        "--meshes-dir", default=DEFAULT_MESHES_DIR,
+        help="Input meshes directory for BundleBuilder (relative to workspace)"
+    )
+    parser.add_argument(
+        "--bundle-dir", default=DEFAULT_BUNDLE_DIR,
+        help="Output bundle directory for BundleBuilder (relative to workspace)"
+    )
+    parser.add_argument(
+        "--keep-languages", default="",
+        help="Pass-through to bundlebuilder --keep-languages (e.g. hlsl,glsl,spirv)"
+    )
     args = parser.parse_args()
 
     workspace = os.path.abspath(args.workspace)
@@ -115,6 +185,23 @@ def main():
 
     exclude_patterns = [p.strip() for p in args.exclude.split(",") if p.strip()]
     indices = TARGET_KEYS[args.target]
+    deploy_samples = 1 in indices
+
+    # Samples: rebuild bundle before copy (matches ResourceApp POST_BUILD)
+    if deploy_samples and not args.skip_bundle:
+        keep = args.keep_languages.strip() or None
+        ok = build_samples_bundle(
+            workspace,
+            args.bundlebuilder,
+            args.meshes_dir,
+            args.bundle_dir,
+            keep_languages=keep,
+            dry_run=args.dry_run,
+        )
+        if not ok:
+            sys.exit(1)
+    elif deploy_samples and args.skip_bundle:
+        print("\nSkipping BundleBuilder (--skip-bundle); using existing samples/bundle.")
 
     total_copied = 0
     total_skipped = 0
@@ -129,7 +216,6 @@ def main():
             print(f"WARNING: Source directory not found, skipping: {src_dir}")
             continue
 
-        label = src_rel
         print(f"\n{'[DRY-RUN] ' if args.dry_run else ''}Deploying: {src_rel} -> {dst_rel}")
 
         if args.clean and not args.dry_run:
