@@ -40,6 +40,7 @@
 #include <Kernel/T3DSettings.h>
 #include <Kernel/T3DGameObject.h>
 #include <Kernel/T3DTransform.h>
+#include <Kernel/T3DTime.h>
 
 // Resource
 #include <Resource/T3DResource.h>
@@ -82,6 +83,7 @@
 
 // Component
 #include <Component/T3DComponent.h>
+#include <Component/T3DBehaviour.h>
 #include <Component/T3DCamera.h>
 #include <Component/T3DTransformNode.h>
 #include <Component/T3DTransform3D.h>
