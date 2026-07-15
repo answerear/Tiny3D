@@ -129,6 +129,17 @@ namespace Tiny3D
         
     protected:
         SerializerPtr createSerializer();
+
+        /**
+         * @brief 按文件头 magic 自动选择反序列化器。
+         * @param [in,out] stream : 数据流（会 peek 头部若干字节后回退到原位置）
+         * @return 'T3DB' 头返回二进制反序列化器，否则返回 JSON 反序列化器。
+         * @remarks 使运行时能透明读取二进制(T3DB) bundle 产物，编辑器 JSON 源
+         *          资产照常读取，且兼容同一 bundle 内混合格式，无需调用方预设
+         *          FileMode。若流不支持 peek/回退（tell/seek 失败），回退到当前
+         *          mFileMode 对应的 mSerializer。
+         */
+        SerializerPtr pickDeserializer(DataStream &stream);
         
         TResult serializeObjectWithoutType(DataStream &stream, const RTTRObject &obj);
 

@@ -75,11 +75,41 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    SerializerPtr SerializerManager::pickDeserializer(DataStream &stream)
+    {
+        // 记录当前读位置，peek 头 4 字节后回退，做到对调用方透明。
+        const long_t pos = stream.tell();
+        if (pos < 0)
+        {
+            // 无法定位的流，无法 peek，退回当前 FileMode 对应的序列化器。
+            return mSerializer;
+        }
+
+        uint8_t magic[4] = { 0, 0, 0, 0 };
+        const size_t n = stream.read(magic, sizeof(magic));
+        stream.seek(pos, false);   // 绝对定位回原读位置
+
+        // 二进制(T3DB) magic 为 'T','3','D','B'；JSON 源资产以 '{' 起始，二者
+        // 头部不会冲突。
+        const bool isBinary = (n == sizeof(magic)
+            && magic[0] == 'T' && magic[1] == '3'
+            && magic[2] == 'D' && magic[3] == 'B');
+
+        if (isBinary)
+        {
+            return BinSerializer::create();
+        }
+        return JsonSerializer::create();
+    }
+
+    //--------------------------------------------------------------------------
+
     RTTRObject SerializerManager::deserializeObject(DataStream &stream)
     {
-        if (mSerializer != nullptr)
+        SerializerPtr serializer = pickDeserializer(stream);
+        if (serializer != nullptr)
         {
-            return mSerializer->deserialize(stream);
+            return serializer->deserialize(stream);
         }
 
         return RTTRObject{};
@@ -91,9 +121,10 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        if (mSerializer != nullptr)
+        SerializerPtr serializer = pickDeserializer(stream);
+        if (serializer != nullptr)
         {
-            ret = mSerializer->deserialize(stream, obj);
+            ret = serializer->deserialize(stream, obj);
         }
 
         return ret;
