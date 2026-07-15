@@ -24,6 +24,7 @@
 // 用法 : --assets <资源目录> [--assets <附加目录> ...] --out <输出目录>
 // 例子 : --assets $(SolutionDir)..\..\assets\samples --assets $(SolutionDir)..\..\Temp\shaders --out $(SolutionDir)..\..\assets\samples\bundle
 // 例子 : --assets $(SolutionDir)..\..\assets\editor\builtin --out $(SolutionDir)..\..\assets\editor\builtin\bundle
+// For Test : --assets $(SolutionDir)..\..\assets\samples\meshes --out $(SolutionDir)..\..\assets\samples\bundle --binary --verify
 
 
 int main(int argc, char *argv[])

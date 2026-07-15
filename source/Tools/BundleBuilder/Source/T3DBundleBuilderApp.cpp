@@ -26,9 +26,11 @@
 #include "Material/T3DPass.h"
 #include "Material/T3DShaderVariantSet.h"
 #include "Material/T3DShaderVariant.h"
+#include "Serializer/T3DSerializerManager.h"
 
 #include <string>
 #include <cctype>
+#include <cstdio>
 
 
 Tiny3D::BundleBuilderApp theApp;
@@ -64,6 +66,10 @@ namespace Tiny3D
         printf("                         hlsl,glsl,essl,spirv,msl. Default: keep all.\n");
         printf("                         The set must cover every render backend the\n");
         printf("                         distribution may switch to at runtime.\n");
+        printf("  --binary               Convert resources to binary (T3DB) format on\n");
+        printf("                         export (default: copy source JSON as-is).\n");
+        printf("  --verify               Round-trip check each binary output (implies\n");
+        printf("                         --binary). Reports PASS/FAIL per resource.\n");
         printf("\n");
         printf("Note: Tiny3D.cfg is NOT packed into the bundle.\n");
     }
@@ -180,6 +186,15 @@ namespace Tiny3D
                 {
                     return false;
                 }
+            }
+            else if (arg == "--binary")
+            {
+                mBinaryOutput = true;
+            }
+            else if (arg == "--verify")
+            {
+                mVerify = true;
+                mBinaryOutput = true;   // 自检需要先产出二进制
             }
             else if (arg == "-h" || arg == "--help")
             {
@@ -373,14 +388,48 @@ namespace Tiny3D
                 break;
             }
 
-            // 普通资源：拷贝字节为以 UUID 命名的散列文件
+            // 普通资源：拷贝字节为以 UUID 命名的散列文件；
+            // 若开启 --binary 则反序列化 JSON 后以二进制(T3DB)重新写出。
             String dst = mOutDir + Dir::getNativeSeparator() + uuid.toString();
-            if (!Dir::copy(filePath, dst, true))
+            bool exported = false;
+
+            if (mBinaryOutput && isSerializableType((int32_t)type))
             {
-                BB_LOG_ERROR("Copy resource failed: %s -> %s",
-                    filePath.c_str(), dst.c_str());
-                ret = T3D_ERR_FAIL;
-                break;
+                if (convertToBinary(filePath, dst))
+                {
+                    ++mConvertedCount;
+                    exported = true;
+
+                    if (mVerify)
+                    {
+                        if (verifyRoundtrip(dst))
+                        {
+                            ++mVerifyPass;
+                        }
+                        else
+                        {
+                            ++mVerifyFail;
+                            BB_LOG_ERROR("Round-trip verify FAILED: %s",
+                                relativePath.c_str());
+                        }
+                    }
+                }
+                else
+                {
+                    BB_LOG_WARNING("Binary convert failed, fallback to raw copy: %s",
+                        filePath.c_str());
+                }
+            }
+
+            if (!exported)
+            {
+                if (!Dir::copy(filePath, dst, true))
+                {
+                    BB_LOG_ERROR("Copy resource failed: %s -> %s",
+                        filePath.c_str(), dst.c_str());
+                    ret = T3D_ERR_FAIL;
+                    break;
+                }
             }
 
             ++mExportedCount;
@@ -464,6 +513,8 @@ namespace Tiny3D
         do
         {
             // 直接用序列化器反序列化（不走 ShaderManager::load，避免触发运行时编译）
+            // 源 .tshader 为 JSON，确保以 kText 读取
+            T3D_SERIALIZER_MGR.setFileMode(SerializerManager::FileMode::kText);
             FileDataStream fs;
             if (!fs.open(filePath.c_str(), FileDataStream::E_MODE_READ_ONLY))
             {
@@ -505,24 +556,51 @@ namespace Tiny3D
                     relativePath.c_str());
             }
 
-            // 序列化裁剪后的 Shader 到以 UUID 命名的散列文件
+            // 序列化裁剪后的 Shader 到以 UUID 命名的散列文件。
+            // --binary 时用二进制(T3DB)且不加文本模式，避免换行翻译破坏二进制。
             String dst = mOutDir + Dir::getNativeSeparator() + uuid.toString();
             FileDataStream out;
             uint32_t mode = FileDataStream::E_MODE_TRUNCATE
-                | FileDataStream::E_MODE_READ_WRITE
-                | FileDataStream::E_MODE_TEXT;
+                | FileDataStream::E_MODE_READ_WRITE;
+            if (!mBinaryOutput)
+            {
+                mode |= FileDataStream::E_MODE_TEXT;
+            }
+            T3D_SERIALIZER_MGR.setFileMode(mBinaryOutput
+                ? SerializerManager::FileMode::kBinary
+                : SerializerManager::FileMode::kText);
             if (!out.open(dst.c_str(), mode))
             {
                 BB_LOG_ERROR("Open output shader for writing failed: %s", dst.c_str());
+                T3D_SERIALIZER_MGR.setFileMode(SerializerManager::FileMode::kText);
                 ret = T3D_ERR_FILE_NOT_EXIST;
                 break;
             }
             ret = T3D_SERIALIZER_MGR.serialize(out, shader.get());
             out.close();
+            T3D_SERIALIZER_MGR.setFileMode(SerializerManager::FileMode::kText);
             if (T3D_FAILED(ret))
             {
                 BB_LOG_ERROR("Serialize pruned shader failed: %s", dst.c_str());
                 break;
+            }
+
+            if (mBinaryOutput)
+            {
+                ++mConvertedCount;
+                if (mVerify)
+                {
+                    if (verifyRoundtrip(dst))
+                    {
+                        ++mVerifyPass;
+                    }
+                    else
+                    {
+                        ++mVerifyFail;
+                        BB_LOG_ERROR("Round-trip verify FAILED: %s",
+                            relativePath.c_str());
+                    }
+                }
             }
 
             ++mExportedCount;
@@ -531,6 +609,124 @@ namespace Tiny3D
         } while (false);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    long_t BundleBuilderApp::fileSize(const String &path)
+    {
+        FileDataStream fs;
+        if (!fs.open(path.c_str(), FileDataStream::E_MODE_READ_ONLY))
+        {
+            return -1;
+        }
+        long_t s = fs.size();
+        fs.close();
+        return s;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool BundleBuilderApp::isSerializableType(int32_t type)
+    {
+        switch ((Meta::Type)type)
+        {
+        case Meta::kMaterial:
+        case Meta::kTexture:
+        case Meta::kShader:
+        case Meta::kMesh:
+        case Meta::kPrefab:
+        case Meta::kScene:
+        case Meta::kAnimation:
+        case Meta::kSkeleton:
+            return true;
+        default:
+            // kUnknown/kFolder/kFile/kTxt/kBin/kDylib/kShaderLab 等：
+            // 原始字节或非 RTTR 对象，原样拷贝，不做二进制转换。
+            return false;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool BundleBuilderApp::convertToBinary(const String &srcPath,
+        const String &dstPath)
+    {
+        bool ok = false;
+
+        // 读：源资源为 JSON，使用 kText 反序列化为类型无关的 RTTRObject。
+        // 注意：必须以二进制(READ_ONLY, 不加 TEXT)打开——JsonStream 依赖 seek(-1)
+        // 回退，文本模式下 CRLF 翻译会破坏偏移，与既有 meta/shader 读取保持一致。
+        T3D_SERIALIZER_MGR.setFileMode(SerializerManager::FileMode::kText);
+        FileDataStream in;
+        if (in.open(srcPath.c_str(), FileDataStream::E_MODE_READ_ONLY))
+        {
+            RTTRObject obj = T3D_SERIALIZER_MGR.deserializeObject(in);
+            in.close();
+
+            if (obj.is_valid())
+            {
+                // 写：二进制(T3DB)，不加文本模式，避免换行翻译破坏二进制字节
+                T3D_SERIALIZER_MGR.setFileMode(SerializerManager::FileMode::kBinary);
+                FileDataStream out;
+                uint32_t mode = FileDataStream::E_MODE_TRUNCATE
+                    | FileDataStream::E_MODE_READ_WRITE;
+                if (out.open(dstPath.c_str(), mode))
+                {
+                    TResult r = T3D_SERIALIZER_MGR.serializeObject(out, obj);
+                    out.close();
+                    ok = !T3D_FAILED(r);
+                }
+            }
+        }
+
+        // 恢复默认，后续 meta 读取等仍走 JSON
+        T3D_SERIALIZER_MGR.setFileMode(SerializerManager::FileMode::kText);
+        return ok;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool BundleBuilderApp::verifyRoundtrip(const String &binPath)
+    {
+        // 说明：本引擎存在 unordered_map 属性（如 Material 常量表），其元素在
+        // 重建后迭代顺序不保证与原先一致，因此逐字节比较会误报。这里改用对顺序
+        // 不敏感的判据：二进制可被成功反序列化，且把还原对象重新序列化后的字节
+        // 总长度与原二进制文件一致（同一对象图的二进制编码长度与元素顺序无关）。
+        long_t s1 = fileSize(binPath);
+        if (s1 < 0)
+        {
+            return false;
+        }
+
+        bool ok = false;
+
+        T3D_SERIALIZER_MGR.setFileMode(SerializerManager::FileMode::kBinary);
+        FileDataStream in;
+        if (in.open(binPath.c_str(), FileDataStream::E_MODE_READ_ONLY))
+        {
+            RTTRObject obj = T3D_SERIALIZER_MGR.deserializeObject(in);
+            in.close();
+
+            if (obj.is_valid())
+            {
+                String tmp = binPath + ".verify";
+                FileDataStream out;
+                uint32_t mode = FileDataStream::E_MODE_TRUNCATE
+                    | FileDataStream::E_MODE_READ_WRITE;
+                if (out.open(tmp.c_str(), mode))
+                {
+                    TResult r = T3D_SERIALIZER_MGR.serializeObject(out, obj);
+                    long_t s2 = out.tell();
+                    out.close();
+                    std::remove(tmp.c_str());
+                    ok = (!T3D_FAILED(r)) && (s1 == s2);
+                }
+            }
+        }
+
+        T3D_SERIALIZER_MGR.setFileMode(SerializerManager::FileMode::kText);
+        return ok;
     }
 
     //--------------------------------------------------------------------------
@@ -637,9 +833,20 @@ namespace Tiny3D
 
             manifest.close();
 
-            BB_LOG_INFO("Bundle build done. exported files: %zu (pruned shaders: %zu), "
-                "manifest entries: %zu, out: %s",
-                mExportedCount, mPrunedShaderCount, mEntryCount, mOutDir.c_str());
+            BB_LOG_INFO("Bundle build done. exported files: %zu (pruned shaders: %zu, "
+                "binary converted: %zu), manifest entries: %zu, out: %s",
+                mExportedCount, mPrunedShaderCount, mConvertedCount, mEntryCount,
+                mOutDir.c_str());
+
+            if (mVerify)
+            {
+                BB_LOG_INFO("Round-trip verify: %zu passed, %zu failed.",
+                    mVerifyPass, mVerifyFail);
+                if (mVerifyFail > 0)
+                {
+                    ret = T3D_ERR_FAIL;
+                }
+            }
         } while (false);
 
         return ret;

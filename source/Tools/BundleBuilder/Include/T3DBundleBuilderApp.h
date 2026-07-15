@@ -99,6 +99,23 @@ namespace Tiny3D
         void pruneShaderLanguages(const ShaderPtr &shader,
             TSet<SHADER_LANGUAGE> &present, bool &hasEmptySet);
 
+        /// 把 JSON 源资源文件反序列化后以二进制(T3DB)格式写到目标路径。
+        /// 读用 kText、写用 kBinary（不加文本模式，避免换行翻译破坏二进制），
+        /// 结束后恢复 kText 供后续 meta 读取。成功返回 true。
+        bool convertToBinary(const String &srcPath, const String &dstPath);
+
+        /// 往返回归自检：反序列化二进制产物成功、且再次序列化后的字节长度与原
+        /// 二进制文件一致（对 unordered_map 元素顺序不敏感，避免误报）。
+        bool verifyRoundtrip(const String &binPath);
+
+        /// 获取文件字节大小，失败返回 -1
+        static long_t fileSize(const String &path);
+
+        /// 判断某资源类型是否为 RTTR 驱动的可序列化类型（Material/Mesh/Scene 等）。
+        /// 仅这些类型才走 JSON->二进制(T3DB) 转换；kFile/kTxt/kBin 等原始字节资源
+        /// （如 .cginc 头文件）应原样拷贝，避免对非 RTTR 内容尝试反序列化。
+        static bool isSerializableType(int32_t type);
+
     protected:
         /// 资源根目录列表
         TArray<String>  mAssetRoots {};
@@ -106,10 +123,19 @@ namespace Tiny3D
         String          mOutDir {};
         /// 需要保留的语言白名单（空 = 全部保留，不裁剪）
         TSet<SHADER_LANGUAGE>   mKeepLanguages {};
+        /// 是否把资源转换为二进制(T3DB)格式导出（默认否，原样拷贝 JSON）
+        bool            mBinaryOutput {false};
+        /// 是否对二进制产物做往返回归自检（隐含开启 mBinaryOutput）
+        bool            mVerify {false};
         /// 已导出资源计数
         size_t          mExportedCount {0};
         /// 经过语言裁剪导出的 shader 计数
         size_t          mPrunedShaderCount {0};
+        /// 转换为二进制导出的资源计数
+        size_t          mConvertedCount {0};
+        /// 往返自检通过 / 失败计数
+        size_t          mVerifyPass {0};
+        size_t          mVerifyFail {0};
         /// 写入清单的条目数
         size_t          mEntryCount {0};
     };
