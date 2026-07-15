@@ -110,7 +110,7 @@ def build_samples_bundle(workspace, bundlebuilder, meshes_rel, bundle_rel,
         print(f"ERROR: Samples meshes directory not found: {meshes_dir}")
         return False
 
-    cmd = [exe, "--assets", meshes_dir, "--out", bundle_dir]
+    cmd = [exe, "--assets", meshes_dir, "--out", bundle_dir, "--binary"]
     if keep_languages:
         cmd.extend(["--keep-languages", keep_languages])
 
