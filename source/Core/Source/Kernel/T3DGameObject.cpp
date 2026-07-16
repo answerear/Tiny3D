@@ -24,6 +24,7 @@
 
 
 #include "Kernel/T3DGameObject.h"
+#include "Serializer/T3DSerializerManager.h"
 #include "Resource/T3DMaterialManager.h"
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DSkeletalAnimation.h"
@@ -620,17 +621,27 @@ namespace Tiny3D
 
     void GameObject::setupComponents()
     {
+        // 工具态（关闭生命周期回调）：只做纯数据反序列化，不建立组件->宿主的反向
+        // 强引用(setGameObject)，避免 GameObject 与 Component 之间的智能指针循环引用
+        // ——离线场景（如 BundleBuilder）不经显式销毁流程，建了环就无人断链而泄漏；
+        // 同时不跑 onStart（无渲染设备的离线环境不需要，且部分组件 onStart 依赖运行
+        // 时资源）。序列化输出只依赖 mComponentObjects，与这些运行时接线无关。
+        const bool wire = T3D_SERIALIZER_MGR.isInvokeLifecycleCallbacks();
+
         for (const auto &item : mComponentObjects)
         {
             RTTRType type = RTTRType::get_by_name(item.first);
             mComponents.emplace(type, item.second);
-            item.second->setGameObject(this);
+            if (wire)
+            {
+                item.second->setGameObject(this);
+            }
             putUpdatingQueue(type, item.second);
 
             // 内置组件保持原「就位即 onStart」行为；Behaviour 的 Awake/Start
             // 改由 Scene::onPostLoad 在整树 setupHierarchy 之后统一触发，
             // 保证 Awake 时兄弟组件 + 父子层级都已就位（见设计文档 §4.2 / §10-3）。
-            if (item.second->asBehaviour() == nullptr)
+            if (wire && item.second->asBehaviour() == nullptr)
             {
                 item.second->onStart();
             }

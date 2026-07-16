@@ -82,6 +82,8 @@ namespace Tiny3D
     public:
         static Texture1DPtr create(const String &name, uint32_t width, PixelFormat format, uint32_t mipmaps, const Buffer &data);
 
+        ~Texture1D() override;
+
         TEXTURE_TYPE getTextureType() const override;
 
         const uint8_t * const getData() const { return mDesc.buffer.Data; }
@@ -126,8 +128,8 @@ namespace Tiny3D
         const Buffer &getBuffer() const { return mDesc.buffer; }
 
         TPROPERTY(RTTRFuncName="Data", RTTRFuncType="setter")
-        void setBuffer(const Buffer &data) { mDesc.buffer = data; }
-        
+        void setBuffer(const Buffer &data);
+
     protected:
         /// 像素缓冲区描述
         PixelBuffer1DDesc   mDesc {};
@@ -145,6 +147,8 @@ namespace Tiny3D
         static Texture2DPtr create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data);
 
         static Texture2DPtr create(const String &name, Image *iamge, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality);
+
+        ~Texture2D() override;
 
         TEXTURE_TYPE getTextureType() const override;
 
@@ -205,8 +209,8 @@ namespace Tiny3D
         const Buffer &getBuffer() const { return mDesc.buffer; }
 
         TPROPERTY(RTTRFuncName="Data", RTTRFuncType="setter")
-        void setBuffer(const Buffer &data) { mDesc.buffer = data; }
-        
+        void setBuffer(const Buffer &data);
+
     protected:
         /// 像素缓冲区描述
         PixelBuffer2DDesc   mDesc {};
@@ -254,6 +258,8 @@ namespace Tiny3D
 
     public:
         static Texture3DPtr create(const String &name, uint32_t width, uint32_t height, uint32_t depth, PixelFormat format, uint32_t mipmaps, const Buffer &data);
+
+        ~Texture3D() override;
 
         TEXTURE_TYPE getTextureType() const override;
 
@@ -311,8 +317,8 @@ namespace Tiny3D
         const Buffer &getBuffer() const { return mDesc.buffer; }
 
         TPROPERTY(RTTRFuncName="Data", RTTRFuncType="setter")
-        void setBuffer(const Buffer &data) { mDesc.buffer = data; }
-        
+        void setBuffer(const Buffer &data);
+
     protected:
         /// 像素缓冲区描述
         PixelBuffer3DDesc   mDesc {};

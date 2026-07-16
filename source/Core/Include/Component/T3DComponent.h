@@ -90,7 +90,13 @@ namespace Tiny3D
     protected:
         /// 唯一 ID
         UUID    mUUID {UUID::INVALID};
-        /// 绑定的 game object
+        /// 绑定的 game object。
+        /// 注意：这是强引用，会与 GameObject（通过组件表强持有组件）构成智能指针
+        /// 循环引用。运行时靠显式销毁流程（removeAllComponents/onDestroy）断链；
+        /// 纯反序列化的离线场景（如 BundleBuilder）不走卸载流程，改为在
+        /// GameObject::setupComponents() 里按 SerializerManager 的生命周期开关跳过
+        /// setGameObject 接线来避免建环（切勿为省事把它改成裸指针——见该处说明与
+        /// 编辑器 unmanaged 根节点等依赖组件保活宿主的场景）。
         GameObjectPtr   mGameObject {nullptr};
 
         using Components = TUnorderedMap<UUID, ComponentPtr, UUIDHash, UUIDEqual>;

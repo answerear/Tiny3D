@@ -77,8 +77,8 @@ namespace Tiny3D
         void setMaterialUUID(const UUID &uuid) { mMaterialUUID = uuid; }
         
         TPROPERTY(RTTRFuncName="Indices", RTTRFuncType="setter")
-        void setIndices(const Buffer &indices) { mIndices = indices; }
-        
+        void setIndices(const Buffer &indices);
+
         TPROPERTY(RTTRFuncName="Is16Bits", RTTRFuncType="setter")
         void enable16Bits(bool is16Bits) { mIs16Bits = is16Bits; }
         

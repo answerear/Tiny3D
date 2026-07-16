@@ -55,7 +55,30 @@ namespace Tiny3D
 
     SubMesh::~SubMesh()
     {
-        
+        // 索引数据所有权与 Mesh 顶点数据一致：kVRAM 等非 kBoth 模式下 RenderBuffer
+        // 直接接管 mIndices.Data 指针（见 RenderBuffer 构造），其数据由 index buffer
+        // 析构时释放，SubMesh 不再重复释放；其余情况（例如无渲染设备的工具/离线环境，
+        // 反序列化后未调用 generateRenderResource 生成渲染资源，mIB 为空）则由 SubMesh
+        // 释放自身持有的索引数据，避免泄漏。
+        const bool ownedByIB = (mIB != nullptr)
+            && (mIndices.Data == mIB->getBuffer().Data);
+
+        if (!ownedByIB)
+        {
+            mIndices.release();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SubMesh::setIndices(const Buffer &indices)
+    {
+        // 浅拷贝接管指针前先丢掉旧块，避免重复 set 时泄漏上一份 Data。
+        if (mIndices.Data != indices.Data)
+        {
+            mIndices.release();
+        }
+        mIndices = indices;
     }
 
     //--------------------------------------------------------------------------

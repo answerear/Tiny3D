@@ -58,18 +58,45 @@ namespace Tiny3D
 
     Mesh::~Mesh()
     {
-        T3D_ASSERT(mVertices.size() == mVBuffers.size());
         for (size_t i = 0; i < mVertices.size(); i++)
         {
             auto &vertices = mVertices[i];
-            auto &vbo = mVBuffers[i];
-            if (vertices.Data != vbo->getBuffer().Data)
+
+            // 仅当存在对应的顶点缓冲、且其底层数据与 CPU 端顶点数据是同一指针时，
+            // 该数据的所有权已交由 RenderBuffer，析构时由其释放，Mesh 不再重复释放。
+            // 其余情况（例如无渲染设备的工具/离线环境，反序列化后未生成渲染资源，
+            // mVBuffers 为空或对应项为 null）则由 Mesh 释放自身持有的顶点数据。
+            // 注意：不能假设 mVBuffers 与 mVertices 一一对应，否则会越界访问空缓冲。
+            const bool ownedByVBO = (i < mVBuffers.size())
+                && (mVBuffers[i] != nullptr)
+                && (vertices.Data == mVBuffers[i]->getBuffer().Data);
+
+            if (!ownedByVBO)
             {
                 vertices.release();
             }
         }
     }
-    
+
+    //--------------------------------------------------------------------------
+
+    void Mesh::setVertices(const Vertices &vertices)
+    {
+        // 浅拷贝接管前释放旧块，避免重复赋值时泄漏。
+        for (size_t i = 0; i < mVertices.size(); ++i)
+        {
+            auto &old = mVertices[i];
+            const bool ownedByVBO = (i < mVBuffers.size())
+                && (mVBuffers[i] != nullptr)
+                && (old.Data == mVBuffers[i]->getBuffer().Data);
+            if (!ownedByVBO)
+            {
+                old.release();
+            }
+        }
+        mVertices = vertices;
+    }
+
     //--------------------------------------------------------------------------
 
     Mesh::Mesh(const String &name)

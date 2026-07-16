@@ -59,6 +59,30 @@ namespace Tiny3D
         }
 
         /**
+         * \brief 是否在(反)序列化时触发对象生命周期回调
+         *        （onPostLoad / onAddComponentForLoadingResource 等）。
+         */
+        bool isInvokeLifecycleCallbacks() const
+        {
+            return mInvokeLifecycleCallbacks;
+        }
+
+        /**
+         * \brief 设置(反)序列化时是否触发对象生命周期回调。
+         * \remarks 反序列化时序列化器会调用 onPostLoad 重建运行时关系（如骨架/场景/
+         *          预制件的父子层级），其中父子节点以智能指针互相持有形成引用环，
+         *          仅由运行时卸载(onUnload)负责断开。像 BundleBuilder 这类只做格式
+         *          转换、不经资源管理器加载/卸载生命周期的离线工具，一旦触发这些回调
+         *          就会因引用环无法释放而泄漏，且 onPreSave/onPostLoad 对扁平层级表的
+         *          重采集还可能破坏字节级往返一致性。这些场景应关闭此开关，做纯数据
+         *          直通的读写。默认开启以保持运行时加载行为不变。
+         */
+        void setInvokeLifecycleCallbacks(bool invoke)
+        {
+            mInvokeLifecycleCallbacks = invoke;
+        }
+
+        /**
          * @brief 序列化对象到数据流对象中
          * @param [in,out] stream   : 数据流对象
          * @param [in] obj          : 要序列化的可反射对象
@@ -148,6 +172,8 @@ namespace Tiny3D
     protected:
         FileMode        mFileMode = FileMode::kText;
         SerializerPtr   mSerializer;
+        /// (反)序列化时是否触发对象生命周期回调，默认开启（见 setter 说明）
+        bool            mInvokeLifecycleCallbacks = true;
     };
 
     #define T3D_SERIALIZER_MGR      (SerializerManager::getInstance())

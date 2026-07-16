@@ -93,6 +93,31 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    Texture1D::~Texture1D()
+    {
+        // 与 Mesh/SubMesh 一致：kVRAM 下 PixelBuffer 接管 Data 指针并由其析构释放；
+        // 离线/工具态未生成渲染资源时由 Texture 释放自身持有的 CPU 像素数据。
+        const bool ownedByPB = (mPixelBuffer != nullptr)
+            && (mDesc.buffer.Data == mPixelBuffer->getBuffer().Data);
+        if (!ownedByPB)
+        {
+            mDesc.buffer.release();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Texture1D::setBuffer(const Buffer &data)
+    {
+        if (mDesc.buffer.Data != data.Data)
+        {
+            mDesc.buffer.release();
+        }
+        mDesc.buffer = data;
+    }
+
+    //--------------------------------------------------------------------------
+
     TEXTURE_TYPE Texture1D::getTextureType() const
     {
         return TEXTURE_TYPE::TT_1D;
@@ -173,6 +198,31 @@ namespace Tiny3D
         mDesc.sampleDesc.Quality = MSAAQuality;
         mDesc.buffer = data;
         mDesc.shaderReadable = shaderReadable;
+    }
+
+    //--------------------------------------------------------------------------
+
+    Texture2D::~Texture2D()
+    {
+        // 与 Mesh/SubMesh 一致：kVRAM 下 PixelBuffer 接管 Data 指针并由其析构释放；
+        // 离线/工具态未生成渲染资源时由 Texture 释放自身持有的 CPU 像素数据。
+        const bool ownedByPB = (mPixelBuffer != nullptr)
+            && (mDesc.buffer.Data == mPixelBuffer->getBuffer().Data);
+        if (!ownedByPB)
+        {
+            mDesc.buffer.release();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Texture2D::setBuffer(const Buffer &data)
+    {
+        if (mDesc.buffer.Data != data.Data)
+        {
+            mDesc.buffer.release();
+        }
+        mDesc.buffer = data;
     }
 
     //--------------------------------------------------------------------------
@@ -367,6 +417,31 @@ namespace Tiny3D
         mDesc.depth = depth;
         mDesc.format = format;
         mDesc.mipmaps = mipmaps;
+        mDesc.buffer = data;
+    }
+
+    //--------------------------------------------------------------------------
+
+    Texture3D::~Texture3D()
+    {
+        // 与 Mesh/SubMesh 一致：kVRAM 下 PixelBuffer 接管 Data 指针并由其析构释放；
+        // 离线/工具态未生成渲染资源时由 Texture 释放自身持有的 CPU 像素数据。
+        const bool ownedByPB = (mPixelBuffer != nullptr)
+            && (mDesc.buffer.Data == mPixelBuffer->getBuffer().Data);
+        if (!ownedByPB)
+        {
+            mDesc.buffer.release();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Texture3D::setBuffer(const Buffer &data)
+    {
+        if (mDesc.buffer.Data != data.Data)
+        {
+            mDesc.buffer.release();
+        }
         mDesc.buffer = data;
     }
 

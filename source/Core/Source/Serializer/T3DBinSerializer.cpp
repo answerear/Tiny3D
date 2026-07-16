@@ -23,6 +23,7 @@
  ******************************************************************************/
 
 #include "Serializer/T3DBinSerializer.h"
+#include "Serializer/T3DSerializerManager.h"
 #include "Resource/T3DResource.h"
 #include "Component/T3DComponent.h"
 #include "Object/T3DBuffer.h"
@@ -1034,7 +1035,12 @@ namespace Tiny3D
             }
         }
 
-        if (klass.is_derived_from<Object>())
+        // 生命周期回调可能重建运行时关系（如层级）并形成智能指针引用环，离线格式
+        // 转换工具可关闭以避免引用环泄漏与字节往返不一致（见 SerializerManager）。
+        const bool invokeLifecycle =
+            T3D_SERIALIZER_MGR.isInvokeLifecycleCallbacks();
+
+        if (invokeLifecycle && klass.is_derived_from<Object>())
         {
             auto postLoad = klass.get_method("onPostLoad");
             if (postLoad)
@@ -1043,7 +1049,7 @@ namespace Tiny3D
             }
         }
 
-        if (mObj != nullptr && klass.is_derived_from<Component>())
+        if (invokeLifecycle && mObj != nullptr && klass.is_derived_from<Component>())
         {
             auto addComponent =
                 mObj->get_type().get_method("onAddComponentForLoadingResource");
@@ -1203,7 +1209,12 @@ namespace Tiny3D
             ? topInst.get_wrapped_instance() : topInst;
         const type topType = topInst2.get_derived_type();
 
-        if (topType.is_derived_from<Object>())
+        // 见 SerializerManager：离线纯数据直通写出时关闭生命周期回调，避免
+        // onPreSave 对扁平层级表的重采集破坏字节往返一致性。
+        const bool invokeLifecycle =
+            T3D_SERIALIZER_MGR.isInvokeLifecycleCallbacks();
+
+        if (invokeLifecycle && topType.is_derived_from<Object>())
         {
             auto preSave = topType.get_method("onPreSave");
             if (preSave)
@@ -1215,7 +1226,7 @@ namespace Tiny3D
         writeKind(stream, BinKind::Object);
         RTTRObjectBinWriter::WriteObject(stream, obj);
 
-        if (topType.is_derived_from<Object>())
+        if (invokeLifecycle && topType.is_derived_from<Object>())
         {
             auto postSave = topType.get_method("onPostSave");
             if (postSave)

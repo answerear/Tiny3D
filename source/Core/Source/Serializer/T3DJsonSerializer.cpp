@@ -24,6 +24,7 @@
 
 
 #include "Serializer/T3DJsonSerializer.h"
+#include "Serializer/T3DSerializerManager.h"
 #define RAPIDJSON_HAS_STDSTRING 1
 #include <prettywriter.h>
 #include <document.h>
@@ -788,7 +789,12 @@ namespace Tiny3D
                     }
                 }
 
-                if (klass.is_derived_from<Tiny3D::Object>())
+                // 生命周期回调可能重建运行时关系（如层级）并形成智能指针引用环，
+                // 离线格式转换工具可关闭以避免引用环泄漏（见 SerializerManager）。
+                const bool invokeLifecycle =
+                    T3D_SERIALIZER_MGR.isInvokeLifecycleCallbacks();
+
+                if (invokeLifecycle && klass.is_derived_from<Tiny3D::Object>())
                 {
                     // Tiny3D::Object
                     auto postLoad = klass.get_method("onPostLoad");
@@ -798,7 +804,8 @@ namespace Tiny3D
                     }
                 }
 
-                if (mObj != nullptr && klass.is_derived_from<Tiny3D::Component>())
+                if (invokeLifecycle && mObj != nullptr
+                    && klass.is_derived_from<Tiny3D::Component>())
                 {
                     // Tiny3D::Component in Tiny3D:Prefab
                     auto addComponent = mObj->get_type().get_method("onAddComponentForLoadingResource");

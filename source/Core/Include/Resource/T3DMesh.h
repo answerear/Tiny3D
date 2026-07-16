@@ -79,7 +79,7 @@ namespace Tiny3D
         const Vertices &getVertices() const { return mVertices; }
 
         TPROPERTY(RTTRFuncName="Vertices", RTTRFuncType="setter")
-        void setVertices(const Vertices &vertices) { mVertices = vertices; }
+        void setVertices(const Vertices &vertices);
 
         TPROPERTY(RTTRFuncName="VertexAttributes", RTTRFuncType="getter")
         const VertexAttributes &getVertexAttributes() const { return mVertexAttributes; }
