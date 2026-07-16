@@ -103,6 +103,7 @@ if (TINY3D_OS_WINDOWS)
         COMMAND $<TARGET_FILE:BundleBuilder>
             --assets "${SAMPLES_MESHES_DIR}"
             --out    "${SAMPLES_BUNDLE_DIR}"
+            --binary
         WORKING_DIRECTORY $<TARGET_FILE_DIR:BundleBuilder>
         COMMENT "Building bundle from assets/samples/meshes")
 
@@ -151,6 +152,7 @@ elseif (TINY3D_OS_ANDROID)
             COMMAND "${TINY3D_HOST_BUNDLEBUILDER}"
                 --assets "${CMAKE_SOURCE_DIR}/../assets/samples/meshes"
                 --out    "${CMAKE_SOURCE_DIR}/../assets/samples/bundle"
+                --binary
             WORKING_DIRECTORY "${HOST_BB_DIR}"
             COMMENT "Building bundle (host bundlebuilder) before APK packaging")
     else()
