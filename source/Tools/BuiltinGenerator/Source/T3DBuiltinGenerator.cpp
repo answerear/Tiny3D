@@ -30,6 +30,7 @@
 #include "T3DBuiltinCube.h"
 #include "T3DBuiltinCylinder.h"
 #include "T3DBuiltinSphere.h"
+#include "T3DBuiltinCapsule.h"
 
 
 namespace Tiny3D
@@ -153,6 +154,29 @@ namespace Tiny3D
             else
             {
                 BGEN_LOG_INFO("Generated sphere mesh ok !");
+            }
+        }
+        T3D_SAFE_DELETE(mesh);
+
+        // Capsule
+        mesh = T3D_NEW BuiltinCapsule();
+        ret = mesh->build(meshPath);
+        if (T3D_FAILED(ret))
+        {
+            BGEN_LOG_ERROR("Build capsule mesh failed ! ERROR [%d]", ret);
+        }
+        else
+        {
+            BGEN_LOG_INFO("Build capsule mesh ok !");
+
+            ret = mesh->save(meshPath);
+            if (T3D_FAILED(ret))
+            {
+                BGEN_LOG_ERROR("Generated capsule mesh failed ! ERROR [%d]", ret);
+            }
+            else
+            {
+                BGEN_LOG_INFO("Generated capsule mesh ok !");
             }
         }
         T3D_SAFE_DELETE(mesh);
