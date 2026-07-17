@@ -24,6 +24,7 @@
 
 
 #include "T3DBuiltinCube.h"
+#include "T3DBuiltinGuidUtil.h"
 
 
 namespace Tiny3D
@@ -36,7 +37,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult BuiltinCube::build()
+    TResult BuiltinCube::build(const String &path)
     {
         // 
         // 正方体顶点定义如下：
@@ -347,13 +348,18 @@ namespace Tiny3D
         
         auto strides2 = strides;
         auto offsets2 = offsets;
-        mMesh = T3D_MESH_MGR.createMesh(MESH_NAME, std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes));
+        // 复用已有资源的 guid，避免重生成导致引用失效：创建时即传入旧 guid
+        UUID cubeUUID = BuiltinGuidUtil::readExistingMetaUUID(path, String(MESH_NAME) + "." + Resource::EXT_MESH + ".meta");
+        mMesh = T3D_MESH_MGR.createMesh(MESH_NAME, std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes),
+            Vector3::ZERO, Quaternion::IDENTITY, Vector3::UNIT_SCALE, "", cubeUUID);
 
         material = buildTestMaterial();
         submesh = SubMesh::create(name, material->getUUID(), PrimitiveType::kTriangleList, std::move(indexBuffer2), true);
         SubMeshes subMeshes2;
         subMeshes2.emplace(name, submesh);
-        mTestMesh = T3D_MESH_MGR.createMesh(TEST_MESH_NAME, std::move(attributes2), std::move(vertexBuffers2), std::move(strides2), std::move(offsets2), std::move(subMeshes2));
+        UUID testCubeUUID = BuiltinGuidUtil::readExistingMetaUUID(path, String(TEST_MESH_NAME) + "." + Resource::EXT_MESH + ".meta");
+        mTestMesh = T3D_MESH_MGR.createMesh(TEST_MESH_NAME, std::move(attributes2), std::move(vertexBuffers2), std::move(strides2), std::move(offsets2), std::move(subMeshes2),
+            Vector3::ZERO, Quaternion::IDENTITY, Vector3::UNIT_SCALE, "", testCubeUUID);
         
         return T3D_OK;
     }
@@ -366,53 +372,68 @@ namespace Tiny3D
 
         do
         {
-            // Builtin cube mesh file
-            String filename = String(MESH_NAME) + "." + Resource::EXT_MESH;
             ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
             T3D_ASSERT(archive != nullptr);
-            ret = T3D_MESH_MGR.saveMesh(archive, filename, mMesh);
-            if (T3D_FAILED(ret))
-            {
-                BGEN_LOG_ERROR("Failed to save mesh %s ! ERROR [%d]", filename.c_str(), ret);
-            }
 
-            // Builtin cube mesh meta file
-            filename = filename + ".meta";
-            ret = archive->write(filename,
-                [this](DataStream &stream, const String &filename, void *userData)
-                {
-                    MetaMeshPtr meta = MetaMesh::create(mMesh->getUUID());
-                    return T3D_SERIALIZER_MGR.serialize(stream, meta);
-                },
-                nullptr);
-            if (T3D_FAILED(ret))
+            // Builtin cube mesh file
+            if (mMesh != nullptr)
             {
-                BGEN_LOG_ERROR("Failed to generate meta file (%s) for cube mesh ! ERROR [%d]", filename.c_str(), ret);
+                String filename = String(MESH_NAME) + "." + Resource::EXT_MESH;
+
+                ret = T3D_MESH_MGR.saveMesh(archive, filename, mMesh);
+                if (T3D_FAILED(ret))
+                {
+                    BGEN_LOG_ERROR("Failed to save mesh %s ! ERROR [%d]", filename.c_str(), ret);
+                }
+
+                // Builtin cube mesh meta file
+                filename = filename + ".meta";
+                ret = archive->write(filename,
+                    [this](DataStream &stream, const String &filename, void *userData)
+                    {
+                        MetaMeshPtr meta = MetaMesh::create(mMesh->getUUID());
+                        return T3D_SERIALIZER_MGR.serialize(stream, meta);
+                    },
+                    nullptr);
+                if (T3D_FAILED(ret))
+                {
+                    BGEN_LOG_ERROR("Failed to generate meta file (%s) for cube mesh ! ERROR [%d]", filename.c_str(), ret);
+                }
+            }
+            else
+            {
+                BGEN_LOG_WARNING("Cube mesh is null, skip saving cube mesh !");
             }
 
             // Builtin cube mesh for testing
-            filename = String(TEST_MESH_NAME) + "." + Resource::EXT_MESH;
-            // archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
-            // T3D_ASSERT(archive != nullptr);
-            ret = T3D_MESH_MGR.saveMesh(archive, filename, mTestMesh);
-            if (T3D_FAILED(ret))
+            if (mTestMesh != nullptr)
             {
-                BGEN_LOG_ERROR("Failed to save mesh %s ! ERROR [%d]", filename.c_str(), ret);
-            }
+                String filename = String(TEST_MESH_NAME) + "." + Resource::EXT_MESH;
 
-            // Builtin cube mesh meta file for testing
-            MetaMeshPtr meta = MetaMesh::create(mTestMesh->getUUID());
-            filename = filename + ".meta";
-            ret = archive->write(filename,
-                [](DataStream &stream, const String &filename, void *userData)
+                ret = T3D_MESH_MGR.saveMesh(archive, filename, mTestMesh);
+                if (T3D_FAILED(ret))
                 {
-                    MetaMesh *meta = static_cast<MetaMesh *>(userData);
-                    return T3D_SERIALIZER_MGR.serialize(stream, meta);
-                },
-                meta.get());
-            if (T3D_FAILED(ret))
+                    BGEN_LOG_ERROR("Failed to save mesh %s ! ERROR [%d]", filename.c_str(), ret);
+                }
+
+                // Builtin cube mesh meta file for testing
+                MetaMeshPtr meta = MetaMesh::create(mTestMesh->getUUID());
+                filename = filename + ".meta";
+                ret = archive->write(filename,
+                    [](DataStream &stream, const String &filename, void *userData)
+                    {
+                        MetaMesh *meta = static_cast<MetaMesh *>(userData);
+                        return T3D_SERIALIZER_MGR.serialize(stream, meta);
+                    },
+                    meta.get());
+                if (T3D_FAILED(ret))
+                {
+                    BGEN_LOG_ERROR("Failed to generate meta file (%s) for testing cube mesh ! ERROR [%d]", filename.c_str(), ret);
+                }
+            }
+            else
             {
-                BGEN_LOG_ERROR("Failed to generate meta file (%s) for testing cube mesh ! ERROR [%d]", filename.c_str(), ret);
+                BGEN_LOG_WARNING("Test cube mesh is null, skip saving test cube mesh !");
             }
         } while (false);
         

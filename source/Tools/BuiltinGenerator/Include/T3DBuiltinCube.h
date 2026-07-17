@@ -38,7 +38,7 @@ namespace Tiny3D
 
         ~BuiltinCube() override = default;
 
-        TResult build() override;
+        TResult build(const String &path) override;
 
         TResult save(const String &path) override;
 

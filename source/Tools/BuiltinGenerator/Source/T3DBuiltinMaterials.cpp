@@ -25,6 +25,7 @@
 
 #include "T3DBuiltinMaterials.h"
 #include "T3DBuiltinShaders.h"
+#include "T3DBuiltinGuidUtil.h"
 
 
 namespace Tiny3D
@@ -77,8 +78,12 @@ namespace Tiny3D
             auto shaderData = T3D_BUILTIN_SHADERS.getShaderData(shaderName);
             T3D_ASSERT(shaderData.shader != nullptr);
             String materialName = title + "." + Resource::EXT_MATERIAL;
-            MaterialPtr material = T3D_MATERIAL_MGR.createMaterial(title, shaderData.shader);
             String path = rootPath + Dir::getNativeSeparator() + "materials";
+
+            // 复用已有资源的 guid，避免重生成导致引用失效：创建时即传入旧 guid
+            UUID existingUUID = BuiltinGuidUtil::readExistingMetaUUID(path, materialName + ".meta");
+            MaterialPtr material = T3D_MATERIAL_MGR.createMaterial(title, shaderData.shader, existingUUID);
+
             ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
             T3D_ASSERT(archive);
 

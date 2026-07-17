@@ -30,8 +30,9 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    TResult BuiltinCylinder::build()
+    TResult BuiltinCylinder::build(const String &path)
     {
+        (void)path;
         return T3D_OK;
     }
 

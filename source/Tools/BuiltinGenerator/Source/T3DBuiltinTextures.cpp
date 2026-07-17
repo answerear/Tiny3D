@@ -24,6 +24,7 @@
 
 
 #include "T3DBuiltinTextures.h"
+#include "T3DBuiltinGuidUtil.h"
 
 
 namespace Tiny3D
@@ -82,7 +83,9 @@ namespace Tiny3D
         String name = "white";
         String filename = name + "." + Resource::EXT_TEXTURE;
         
-        TexturePtr texture = T3D_TEXTURE_MGR.createTexture2D(name, w, h, PixelFormat::E_PF_B8G8R8X8, texData);
+        // 复用已有资源的 guid，避免重生成导致引用失效：创建时即传入旧 guid
+        UUID existingUUID = BuiltinGuidUtil::readExistingMetaUUID(outputPath, filename + ".meta");
+        TexturePtr texture = T3D_TEXTURE_MGR.createTexture2D(name, w, h, PixelFormat::E_PF_B8G8R8X8, texData, 1, 1, 0, existingUUID);
 
         SamplerDesc samplerDesc;
         texture->setSamplerDesc(samplerDesc);
@@ -210,7 +213,10 @@ namespace Tiny3D
         // Testing texture
         String name = "Test";
         String filename = name + "." + Resource::EXT_TEXTURE;
-        Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D(name, width, height, PixelFormat::E_PF_B8G8R8X8, texData);
+        // 复用已有资源的 guid，避免重生成导致引用失效：创建时即传入旧 guid
+        UUID existingUUID = BuiltinGuidUtil::readExistingMetaUUID(outputPath, filename + ".meta");
+        Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D(name, width, height, PixelFormat::E_PF_B8G8R8X8, texData, 1, 1, 0, existingUUID);
+
         SamplerDesc desc;
         texture->setSamplerDesc(desc);
         ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
@@ -276,7 +282,10 @@ namespace Tiny3D
                     ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, name);
                     T3D_ASSERT(image != nullptr);
                     name = title + "." + Resource::EXT_TEXTURE;
-                    TexturePtr texture = T3D_TEXTURE_MGR.createTexture2D(name, image);
+
+                    // 复用已有资源的 guid，避免重生成导致引用失效：创建时即传入旧 guid
+                    UUID existingUUID = BuiltinGuidUtil::readExistingMetaUUID(outputPath, name + ".meta");
+                    TexturePtr texture = T3D_TEXTURE_MGR.createTexture2D(name, image, 1, 1, 0, existingUUID);
                     T3D_ASSERT(texture != nullptr);
 
                     archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);

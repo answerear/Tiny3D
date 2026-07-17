@@ -90,7 +90,7 @@ namespace Tiny3D
 
         // Cube
         BuiltinMesh *mesh = T3D_NEW BuiltinCube();
-        ret = mesh->build();
+        ret = mesh->build(meshPath);
         if (T3D_FAILED(ret))
         {
             BGEN_LOG_ERROR("Build cube mesh failed ! ERROR [%d]", ret);
@@ -113,7 +113,7 @@ namespace Tiny3D
 
         // Cylinder
         mesh = T3D_NEW BuiltinCylinder();
-        ret = mesh->build();
+        ret = mesh->build(meshPath);
         if (T3D_FAILED(ret))
         {
             BGEN_LOG_ERROR("Build cylinder mesh failed ! ERROR [%d]", ret);
@@ -136,7 +136,7 @@ namespace Tiny3D
 
         // Sphere
         mesh = T3D_NEW BuiltinSphere();
-        ret = mesh->build();
+        ret = mesh->build(meshPath);
         if (T3D_FAILED(ret))
         {
             BGEN_LOG_ERROR("Build sphere mesh failed ! ERROR [%d]", ret);

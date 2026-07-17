@@ -24,6 +24,7 @@
 
 
 #include "T3DBuiltinShaders.h"
+#include "T3DBuiltinGuidUtil.h"
 
 
 namespace Tiny3D
@@ -112,11 +113,31 @@ namespace Tiny3D
         do
         {
             BGEN_LOG_INFO("Begin compiling shader (%s) ...", filePath.c_str());
-                
+
+            String path, title, ext;
+            Dir::parsePath(filePath, path, title, ext);
+
+            // 复用已有 ShaderLab meta（*.shader.meta）里的两个 guid：
+            //   1) ShaderLab meta 自身 guid；2) 其引用的已编译 shader 的 guid。
+            // 避免重生成导致材质等引用失效。
+            String shaderLabMetaName = title + "." + ext + ".meta";
+            UUID shaderLabUUID = UUID::INVALID;
+            UUID shaderUUID = UUID::INVALID;
+            BuiltinGuidUtil::readExistingShaderLabMeta(path, shaderLabMetaName, shaderLabUUID, shaderUUID);
+            if (shaderLabUUID == UUID::INVALID)
+            {
+                shaderLabUUID = UUID::generate();
+            }
+
             // 使用 shader cross compiler 工具生成临时编译生成的 shader 文件
 #if defined (T3D_OS_WINDOWS)
             String appPath = Dir::getAppPath() + Dir::getNativeSeparator() + "scc.exe";
             String cmdLine =  filePath + " -t hlsl" + " -o " + outputPath;
+            // 把旧的 shader guid 传给 scc，让它编译出相同 guid 的 shader，保持引用稳定
+            if (shaderUUID != UUID::INVALID)
+            {
+                cmdLine += " -u " + shaderUUID.toString();
+            }
 #elif defined (T3D_OS_LINUX)
 #elif defined (T3D_OS_MAC)
 #endif
@@ -145,9 +166,6 @@ namespace Tiny3D
                 break;
             }
 
-            String path, title, ext;
-            Dir::parsePath(filePath, path, title, ext);
-            
             // 读取编译后的 shader
             ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kRead);
             T3D_ASSERT(archive != nullptr);
@@ -171,9 +189,9 @@ namespace Tiny3D
                 BGEN_LOG_ERROR("Failed to generate shader meta file (%s) ! ERROR [%d]", metaName.c_str(), ret);
             }
 
-            // 给 shader lab 的 shader 生成 meta 文件
-            MetaShaderLabPtr metaShaderLab = MetaShaderLab::create(UUID::generate(), shader->getUUID());
-            metaName = title + "." + ext + ".meta";
+            // 给 shader lab 的 shader 生成 meta 文件（guid 已在前面从旧 meta 复用）
+            metaName = shaderLabMetaName;
+            MetaShaderLabPtr metaShaderLab = MetaShaderLab::create(shaderLabUUID, shader->getUUID());
             archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
             T3D_ASSERT(archive != nullptr);
             ret = archive->write(metaName,

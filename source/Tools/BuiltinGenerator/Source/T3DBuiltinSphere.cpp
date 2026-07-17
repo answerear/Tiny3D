@@ -24,6 +24,7 @@
 
 
 #include "T3DBuiltinSphere.h"
+#include "T3DBuiltinGuidUtil.h"
 
 
 namespace Tiny3D
@@ -35,8 +36,8 @@ namespace Tiny3D
         const char *SUB_MESH_NAME = "#0";
         const char *MESH_NAME = "sphere";
 
-        const size_t MAX_STACKS = 18;
-        const size_t MAX_SLICES = 18;
+        const size_t MAX_STACKS = 50;
+        const size_t MAX_SLICES = 50;
         const size_t MAX_VERTICES = (MAX_STACKS + 1) * (MAX_SLICES + 1);
         const size_t MAX_TRIANGLES = MAX_STACKS * MAX_SLICES * 2;
         const size_t MAX_INDICES = MAX_TRIANGLES * 3;
@@ -44,7 +45,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult BuiltinSphere::build()
+    TResult BuiltinSphere::build(const String &path)
     {
         // Diameter = 1, center at model origin.
         const Real radius = Real(0.5);
@@ -170,7 +171,10 @@ namespace Tiny3D
         SubMeshes subMeshes;
         subMeshes.emplace(name, submesh);
 
-        mMesh = T3D_MESH_MGR.createMesh(MESH_NAME, std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes));
+        // 复用已有资源的 guid，避免重生成导致引用失效：创建时即传入旧 guid
+        UUID sphereUUID = BuiltinGuidUtil::readExistingMetaUUID(path, String(MESH_NAME) + "." + Resource::EXT_MESH + ".meta");
+        mMesh = T3D_MESH_MGR.createMesh(MESH_NAME, std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes),
+            Vector3::ZERO, Quaternion::IDENTITY, Vector3::UNIT_SCALE, "", sphereUUID);
 
         return T3D_OK;
     }
@@ -183,10 +187,17 @@ namespace Tiny3D
 
         do
         {
+            if (mMesh == nullptr)
+            {
+                BGEN_LOG_WARNING("Sphere mesh is null, skip saving sphere mesh !");
+                break;
+            }
+
             // Builtin sphere mesh file
             String filename = String(MESH_NAME) + "." + Resource::EXT_MESH;
             ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
             T3D_ASSERT(archive != nullptr);
+
             ret = T3D_MESH_MGR.saveMesh(archive, filename, mMesh);
             if (T3D_FAILED(ret))
             {

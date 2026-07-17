@@ -30,7 +30,7 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    TResult BuiltinQuad::build()
+    TResult BuiltinQuad::build(const String &path)
     {
         return T3D_OK;
     }
