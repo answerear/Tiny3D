@@ -74,6 +74,17 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void ResourceManager::applyCreationUUID(const ResourcePtr &resource, const UUID &uuid)
+    {
+        // 仅在资源刚创建、尚未加入缓存时调用。此时直接改 UUID 不会造成缓存索引不一致。
+        if (resource != nullptr && uuid != UUID::INVALID)
+        {
+            resource->setUUID(uuid);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     Resource *ResourceManager::lookup(const String &filename) const
     {
         Resource *res = nullptr;

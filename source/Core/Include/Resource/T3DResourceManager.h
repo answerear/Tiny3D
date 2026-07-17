@@ -120,6 +120,15 @@ namespace Tiny3D
          * @return 调用成功返回新建资源对象，否则返回 nullptr
          */
         virtual ResourcePtr newResource(const String &name, int32_t argc, va_list args) = 0;
+
+        /**
+         * @brief 在资源创建阶段用指定 UUID 覆盖默认生成的 UUID
+         * @param [in] resource : 刚创建、尚未加入缓存的资源对象
+         * @param [in] uuid : 要使用的 UUID，为 UUID::INVALID 时保持默认生成的 UUID
+         * @note 供各子类 newResource 在“保留已有资源 guid”场景下调用。必须在资源被
+         *       加入缓存(insertCache)之前设置，保证缓存索引与资源 UUID 一致。
+         */
+        void applyCreationUUID(const ResourcePtr &resource, const UUID &uuid);
         
         /**
          * @brief 根据文件名，同步加载资源

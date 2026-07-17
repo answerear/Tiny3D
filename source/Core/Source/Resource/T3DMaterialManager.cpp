@@ -39,9 +39,14 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    MaterialPtr MaterialManager::createMaterial(const String &name,  Shader *shader)
+    MaterialPtr MaterialManager::createMaterial(const String &name,  Shader *shader, const UUID &uuid/* = UUID::INVALID*/)
     {
+#if defined (T3D_EDITOR)
+        // 编辑器/工具环境下允许指定 UUID（用于保留已有资源 guid），创建时即设好
+        return smart_pointer_cast<Material>(createResource(name, 2, shader, &uuid));
+#else
         return smart_pointer_cast<Material>(createResource(name, 1, shader));
+#endif
     }
 
     //--------------------------------------------------------------------------
@@ -76,9 +81,17 @@ namespace Tiny3D
 
     ResourcePtr MaterialManager::newResource(const String &name, int32_t argc, va_list args)
     {
-        T3D_ASSERT(argc == 1);
+        T3D_ASSERT(argc == 1 || argc == 2);
         Shader *shader = va_arg(args, Shader*);
-        return Material::create(name, shader);
+        ResourcePtr material = Material::create(name, shader);
+#if defined (T3D_EDITOR)
+        if (argc == 2)
+        {
+            const UUID *uuid = va_arg(args, const UUID*);
+            applyCreationUUID(material, uuid != nullptr ? *uuid : UUID::INVALID);
+        }
+#endif
+        return material;
     }
 
     //--------------------------------------------------------------------------

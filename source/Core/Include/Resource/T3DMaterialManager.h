@@ -47,7 +47,7 @@ namespace Tiny3D
          * @param [in] shader : 材质对应的着色器对象 
          * @return 调用成功返回材质对象，否则返回 nullptr
          */
-        MaterialPtr createMaterial(const String &name, Shader *shader);
+        MaterialPtr createMaterial(const String &name, Shader *shader, const UUID &uuid = UUID::INVALID);
 
         /**
          * @brief 根据文件名，加载材质对象
