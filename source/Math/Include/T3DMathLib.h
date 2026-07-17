@@ -48,6 +48,7 @@
 #include <T3DPlane.h>
 #include <T3DTriangle.h>
 #include <T3DSphere.h>
+#include <T3DCapsule.h>
 #include <T3DAabb.h>
 #include <T3DObb.h>
 #include <T3DFrustum.h>
@@ -127,6 +128,7 @@ namespace Tiny3D
     using Triangle = TTriangle<Real>;
     using Plane = TPlane<Real>;
     using Sphere = TSphere<Real>;
+    using Capsule = TCapsule<Real>;
     using Aabb = TAabb<Real>;
     using Obb = TObb<Real>;
     using Frustum = TFrustum<Real>;
