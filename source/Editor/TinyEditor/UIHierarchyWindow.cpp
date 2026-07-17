@@ -203,11 +203,13 @@ namespace Tiny3D
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_CREATE_EMPTY, UIHierarchyView::onMenuItemCreateEmpty);
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_CREATE_CUBE, UIHierarchyView::onMenuItemCreateCube);
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_CREATE_SPHERE, UIHierarchyView::onMenuItemCreateSphere);
+            ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_CREATE_CAPSULE, UIHierarchyView::onMenuItemCreateCapsule);
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_DELETE, UIHierarchyView::onMenuItemDelete);
 
             ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_CREATE_EMPTY, UIHierarchyView::onMenuItemEnabledCreateEmpty);
             ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_CREATE_CUBE, UIHierarchyView::onMenuItemEnabledCreateCube);
             ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_CREATE_SPHERE, UIHierarchyView::onMenuItemEnabledCreateSphere);
+            ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_CREATE_CAPSULE, UIHierarchyView::onMenuItemEnabledCreateCapsule);
             ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_DELETE, UIHierarchyView::onMenuItemEnabledDelete);
             
             T3D_ASSERT(mTreeWidget == nullptr);
@@ -427,6 +429,18 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool UIHierarchyView::onMenuItemEnabledCreateSphere(uint32_t id, ImWidget *menuItem)
+    {
+        if (mTreeWidget != nullptr && mTreeWidget->getSelection() != nullptr)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIHierarchyView::onMenuItemEnabledCreateCapsule(uint32_t id, ImWidget *menuItem)
     {
         if (mTreeWidget != nullptr && mTreeWidget->getSelection() != nullptr)
         {
@@ -712,6 +726,135 @@ namespace Tiny3D
             }
             
             SubMesh *submesh = mesh->getSubMesh(ProjectManager::BUILTIN_SPHERE_SUBMESH_NAME);
+            geometry->setMeshObject(mesh, submesh);
+
+            // aabb bound component
+            AabbBoundPtr bound = go->addComponent<AabbBound>();
+            createCubeAABB(mesh, submesh, bound);
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIHierarchyView::onMenuItemCreateCapsule(uint32_t id, ImWidget *menuItem)
+    {
+        do
+        {
+            if (mTreeWidget == nullptr)
+            {
+                EDITOR_LOG_WARNING("Tree widget has not created !");
+                break;
+            }
+
+            ImTreeNode *selection = mTreeWidget->getSelection();
+
+            if (selection == nullptr)
+            {
+                EDITOR_LOG_WARNING("There was no selection !");
+                break;
+            }
+
+            TransformNode *parent = static_cast<TransformNode*>(selection->getUserData());
+            if (parent == nullptr)
+            {
+                EDITOR_LOG_WARNING("The parent of selection is nullptr !");
+                break;
+            }
+
+            // 创建 game object
+            GameObjectPtr go = GameObject::create("Capsule");
+            if (go == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to create GameObject !");
+                break;
+            }
+
+            // 创建 transform node 组件
+            Transform3DPtr node = go->addComponent<Transform3D>();
+            if (node == nullptr)
+            {
+                EDITOR_LOG_WARNING("Failed to add Transform3D component !");
+                break;
+            }
+            
+            parent->addChild(node);
+
+            // 加载胶囊体相关的 geometry 组件
+            TResult ret = createCapsule(go);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_WARNING("Failed to create capsule ! ERROR [%d]", ret);
+                break;
+            }
+
+            // 创建层次结构树节点
+            const auto treeNodeClicked = std::bind(&UIHierarchyView::treeNodeClicked, this, std::placeholders::_1);
+            const auto treeNodeRClicked = std::bind(&UIHierarchyView::treeNodeRClicked, this, std::placeholders::_1);
+            const auto treeNodeDestroy = std::bind(&UIHierarchyView::onTreeNodeDestroy, this, std::placeholders::_1);
+
+            ImTreeNode::CallbackData callbacks(treeNodeClicked, treeNodeRClicked);
+
+            createTreeNode(node, callbacks, treeNodeDestroy);
+
+            // 展开上层节点，聚焦到该节点
+            ImTreeNode *uiNode = static_cast<ImTreeNode*>(parent->getUserData());
+            T3D_ASSERT(uiNode != nullptr);
+            uiNode->expand(false);
+
+            // 通知修改了场景
+            EventParamModifyScene param(true);
+            sendEvent(kEvtModifyScene, &param);
+        } while (false);
+
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult UIHierarchyView::createCapsule(GameObject *go)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            // geometry component
+            GeometryPtr geometry = go->addComponent<Geometry>();
+
+            const String &path = PROJECT_MGR.getBuiltinPath();
+            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kRead);
+            T3D_ASSERT(archive != nullptr);
+            MeshPtr mesh = T3D_MESH_MGR.loadMesh(archive, ProjectManager::BUILTIN_CAPSULE_MESH_NAME);
+            if (mesh == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to load capsule mesh assets !");
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
+            
+            StringArray enableKeywrods;
+            enableKeywrods.push_back("");
+            StringArray disableKeywords;
+            for (auto submesh : mesh->getSubMeshes())
+            {
+                Material *material = static_cast<Material *>(T3D_MATERIAL_MGR.getResource(submesh.second->getMaterialUUID()));
+                T3D_ASSERT(material != nullptr);
+                ret = material->switchKeywords(enableKeywrods, disableKeywords);
+                if (T3D_FAILED(ret))
+                {
+                    EDITOR_LOG_ERROR("Failed to switch keywords (submesh : %s) ! ERROR [%d]", submesh.second->getName().c_str(), ret);
+                    break;
+                }
+            }
+
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to switch keywords ! ERROR [%d]", ret);
+                break;
+            }
+            
+            SubMesh *submesh = mesh->getSubMesh(ProjectManager::BUILTIN_CAPSULE_SUBMESH_NAME);
             geometry->setMeshObject(mesh, submesh);
 
             // aabb bound component

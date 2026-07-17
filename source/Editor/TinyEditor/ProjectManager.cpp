@@ -42,6 +42,8 @@ namespace Tiny3D
     const char *ProjectManager::BUILTIN_CUBE_SUBMESH_NAME = "#0";
     const char *ProjectManager::BUILTIN_SPHERE_MESH_NAME = "sphere.tmesh";
     const char *ProjectManager::BUILTIN_SPHERE_SUBMESH_NAME = "#0";
+    const char *ProjectManager::BUILTIN_CAPSULE_MESH_NAME = "capsule.tmesh";
+    const char *ProjectManager::BUILTIN_CAPSULE_SUBMESH_NAME = "#0";
     
     //--------------------------------------------------------------------------
 
