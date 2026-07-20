@@ -121,6 +121,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool AabbBound::testCapsule(const Capsule &capsule) const
+    {
+        IntrCapsuleAabb intr(&capsule, &mAabb);
+        return intr.test();
+    }
+
+    //--------------------------------------------------------------------------
+
     bool AabbBound::testFrustum(const Frustum &frustum) const
     {
         IntrFrustumAabb intr(&frustum, &mAabb);

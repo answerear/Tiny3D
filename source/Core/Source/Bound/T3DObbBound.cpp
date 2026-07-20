@@ -119,6 +119,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool ObbBound::testCapsule(const Capsule &capsule) const
+    {
+        IntrCapsuleObb intr(&capsule, &mObb);
+        return intr.test();
+    }
+
+    //--------------------------------------------------------------------------
+
     bool ObbBound::testFrustum(const Frustum &frustum) const
     {
         IntrFrustumObb intr(&frustum, &mObb);

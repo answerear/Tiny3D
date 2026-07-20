@@ -58,6 +58,8 @@ namespace Tiny3D
             AABB,
             /// 有向包围盒碰撞体
             OBB,
+            /// 胶囊体碰撞体
+            CAPSULE,
             /// 视锥体碰撞体
             FRUSTUM,
         };
@@ -100,6 +102,8 @@ namespace Tiny3D
         virtual bool testAabb(const Aabb &aabb) const = 0;
 
         virtual bool testObb(const Obb &obb) const = 0;
+
+        virtual bool testCapsule(const Capsule &capsule) const = 0;
 
         virtual bool testFrustum(const Frustum &frustum) const = 0;
 

@@ -179,6 +179,7 @@ namespace Tiny3D
     class SphereBound;
     class AabbBound;
     class ObbBound;
+    class CapsuleBound;
     class FrustumBound;
 
     // Light

@@ -23,8 +23,8 @@
  ******************************************************************************/
 
 
-#ifndef __T3D_AABB_BOUND_H__
-#define __T3D_AABB_BOUND_H__
+#ifndef __T3D_CAPSULE_BOUND_H__
+#define __T3D_CAPSULE_BOUND_H__
 
 
 #include "Bound/T3DBound.h"
@@ -33,39 +33,48 @@
 namespace Tiny3D
 {
     TCLASS()
-    class T3D_ENGINE_API AabbBound : public Bound
+    class T3D_ENGINE_API CapsuleBound : public Bound
     {
-         TRTTI_ENABLE(Bound)
-         TRTTI_FRIEND
+        TRTTI_ENABLE(Bound)
+        TRTTI_FRIEND
 
     public:
-        static AabbBoundPtr create();
+        static CapsuleBoundPtr create();
 
-        ~AabbBound() override;
+        ~CapsuleBound() override;
 
-        TFUNCTION("Description"="Bound Type")
+        TFUNCTION()
         Type getType() const override;
 
         ComponentPtr clone() const override;
 
-        TPROPERTY(RTTRFuncName="AABB", RTTRFuncType="getter", "Description"="Aligned Axis Bounding Box")
-        const Aabb &getAabb() const { return mAabb; }
-
-        TPROPERTY(RTTRFuncName="originalAABB", RTTRFuncType="getter", "Description"="Original Aligned Axis Bounding Box")
-        const Aabb& getOriginalAabb() const { return mOriginalAabb; }
-
         TFUNCTION()
-        void setParams(Real minX, Real maxX, Real minY, Real maxY, Real minZ, Real maxZ)
+        void setParams(const Vector3 &p0, const Vector3 &p1, Real radius)
         {
-            mOriginalAabb.setParam(Vector3(minX, minY, minZ), Vector3(maxX, maxY, maxZ));
+            mOriginalCapsule = Capsule(p0, p1, radius);
+            mCapsule = mOriginalCapsule;
         }
 
-        Renderable *getRenderable() override;
-        
-    protected:
-        AabbBound() = default;
+        TFUNCTION()
+        void setParams(const Vector3 &center, Real cylinderHalfHeight,
+            Real radius, const Vector3 &axis)
+        {
+            mOriginalCapsule = Capsule(center, cylinderHalfHeight, radius, axis);
+            mCapsule = mOriginalCapsule;
+        }
 
-        AabbBound(const UUID &uuid);
+        TPROPERTY(RTTRFuncName="capsule", RTTRFuncType="getter", "Description"="Capsule")
+        const Capsule &getCapsule() const { return mCapsule; }
+
+        TPROPERTY(RTTRFuncName="originalCapsule", RTTRFuncType="getter", "Description"="OriginalCapsule")
+        const Capsule &getOriginalCapsule() const { return mOriginalCapsule; }
+
+        Renderable *getRenderable() override;
+
+    protected:
+        CapsuleBound() = default;
+
+        CapsuleBound(const UUID &uuid);
 
         bool testSphere(const Sphere &sphere) const override;
 
@@ -78,24 +87,24 @@ namespace Tiny3D
         bool testFrustum(const Frustum &frustum) const override;
 
         TResult cloneProperties(const Component * const src) override;
-        
+
         void update();
 
         void onUpdate() override;
 
     private:
-        TPROPERTY(RTTRFuncName="AABB", RTTRFuncType="setter", "Description"="Aligned Axis Bounding Box")
-        void setAabb(const Aabb &aabb) { mAabb = aabb; }
+        TPROPERTY(RTTRFuncName="capsule", RTTRFuncType="setter", "Description"="Capsule")
+        void setCapsule(const Capsule &capsule) { mCapsule = capsule; }
 
-        TPROPERTY(RTTRFuncName="originalAABB", RTTRFuncType="setter", "Description"="Original Aligned Axis Bounding Box")
-        void setOriginalAabb(const Aabb &aabb) { mOriginalAabb = aabb; }
+        TPROPERTY(RTTRFuncName="originalCapsule", RTTRFuncType="setter", "Description"="OriginalCapsule")
+        void setOriginalCapsule(const Capsule &capsule) { mOriginalCapsule = capsule; }
 
     private:
-        /// 实时变换的AABB
-        Aabb    mAabb {};
-        /// 不参与变换的原始AABB
-        Aabb    mOriginalAabb {};
+        /// 原始胶囊体（局部）
+        Capsule mOriginalCapsule {};
+        /// 用于快速检测相交性的胶囊体（世界）
+        Capsule mCapsule {};
     };
 }
 
-#endif  /*__T3D_AABB_BOUND_H__*/
+#endif  /*__T3D_CAPSULE_BOUND_H__*/

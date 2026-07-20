@@ -77,6 +77,8 @@ namespace Tiny3D
 
         bool testObb(const Obb &obb) const override;
 
+        bool testCapsule(const Capsule &capsule) const override;
+
         bool testFrustum(const Frustum &frustum) const override;
 
         TResult cloneProperties(const Component * const src) override;

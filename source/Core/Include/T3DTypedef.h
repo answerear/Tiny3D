@@ -129,6 +129,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(SphereBound);
     T3D_DECLARE_SMART_PTR(AabbBound);
     T3D_DECLARE_SMART_PTR(ObbBound);
+    T3D_DECLARE_SMART_PTR(CapsuleBound);
     T3D_DECLARE_SMART_PTR(FrustumBound);
 
     // Light

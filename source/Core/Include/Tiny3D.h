@@ -105,6 +105,7 @@
 #include <Bound/T3DSphereBound.h>
 #include <Bound/T3DAabbBound.h>
 #include <Bound/T3DObbBound.h>
+#include <Bound/T3DCapsuleBound.h>
 #include <Bound/T3DFrustumBound.h>
 
 // Performance

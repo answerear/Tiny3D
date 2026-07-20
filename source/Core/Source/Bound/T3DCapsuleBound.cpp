@@ -23,7 +23,7 @@
  ******************************************************************************/
 
 
-#include "Bound/T3DSphereBound.h"
+#include "Bound/T3DCapsuleBound.h"
 #include "Component/T3DTransform3D.h"
 
 
@@ -31,37 +31,36 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    SphereBoundPtr SphereBound::create()
+    CapsuleBoundPtr CapsuleBound::create()
     {
-        return T3D_NEW SphereBound();
+        return T3D_NEW CapsuleBound();
     }
 
     //--------------------------------------------------------------------------
 
-    SphereBound::SphereBound(const UUID &uuid)
+    CapsuleBound::CapsuleBound(const UUID &uuid)
         : Bound(uuid)
     {
-        
     }
-    
+
     //--------------------------------------------------------------------------
-    
-    SphereBound::~SphereBound()
+
+    CapsuleBound::~CapsuleBound()
     {
     }
 
     //--------------------------------------------------------------------------
 
-    Bound::Type SphereBound::getType() const
+    Bound::Type CapsuleBound::getType() const
     {
-        return Type::SPHERE;
+        return Type::CAPSULE;
     }
 
     //--------------------------------------------------------------------------
 
-    ComponentPtr SphereBound::clone() const
+    ComponentPtr CapsuleBound::clone() const
     {
-        SphereBoundPtr newObj = T3D_NEW SphereBound();
+        CapsuleBoundPtr newObj = T3D_NEW CapsuleBound();
         if (T3D_FAILED(newObj->cloneProperties(this)))
         {
             newObj = nullptr;
@@ -71,15 +70,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult SphereBound::cloneProperties(const Component * const src)
+    TResult CapsuleBound::cloneProperties(const Component * const src)
     {
         TResult ret = Bound::cloneProperties(src);
 
         if (ret == T3D_OK)
         {
-            const SphereBound * const sphereBound = static_cast<const SphereBound* const>(src);
-            mOriginalSphere = sphereBound->mOriginalSphere;
-            mSphere = sphereBound->mSphere;
+            const CapsuleBound * const capsuleBound
+                = static_cast<const CapsuleBound * const>(src);
+            mOriginalCapsule = capsuleBound->mOriginalCapsule;
+            mCapsule = capsuleBound->mCapsule;
         }
 
         return ret;
@@ -87,83 +87,79 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Renderable *SphereBound::getRenderable()
+    Renderable *CapsuleBound::getRenderable()
     {
         return nullptr;
     }
 
     //--------------------------------------------------------------------------
 
-    bool SphereBound::testSphere(const Sphere &sphere) const
+    bool CapsuleBound::testSphere(const Sphere &sphere) const
     {
-        IntrSphereSphere intr(&mSphere, &sphere);
+        IntrCapsuleSphere intr(&mCapsule, &sphere);
         return intr.test();
     }
 
     //--------------------------------------------------------------------------
 
-    bool SphereBound::testAabb(const Aabb &aabb) const
+    bool CapsuleBound::testAabb(const Aabb &aabb) const
     {
-        IntrSphereAabb intr(&mSphere, &aabb);
+        IntrCapsuleAabb intr(&mCapsule, &aabb);
         return intr.test();
     }
 
     //--------------------------------------------------------------------------
 
-    bool SphereBound::testObb(const Obb &obb) const
+    bool CapsuleBound::testObb(const Obb &obb) const
     {
-        IntrSphereObb intr(&mSphere, &obb);
+        IntrCapsuleObb intr(&mCapsule, &obb);
         return intr.test();
     }
 
     //--------------------------------------------------------------------------
 
-    bool SphereBound::testCapsule(const Capsule &capsule) const
+    bool CapsuleBound::testCapsule(const Capsule &capsule) const
     {
-        IntrCapsuleSphere intr(&capsule, &mSphere);
+        IntrCapsuleCapsule intr(&mCapsule, &capsule);
         return intr.test();
     }
 
     //--------------------------------------------------------------------------
 
-    bool SphereBound::testFrustum(const Frustum &frustum) const
+    bool CapsuleBound::testFrustum(const Frustum &frustum) const
     {
-        IntrFrustumSphere intr(&frustum, &mSphere);
+        IntrFrustumCapsule intr(&frustum, &mCapsule);
         return intr.test();
     }
 
     //--------------------------------------------------------------------------
 
-    void SphereBound::update()
+    void CapsuleBound::update()
     {
         GameObject *go = getGameObject();
         T3D_ASSERT(go != nullptr);
-        // Transform3D *xform = go->getComponent<Transform3D>();
         Transform3D *xform = static_cast<Transform3D *>(go->getTransformNode());
         if (xform != nullptr)
         {
             const Transform &transform = xform->getLocalToWorldTransform();
-
-            // 更新变换后用于碰撞检测的球体
             const Matrix4 &M = transform.getAffineMatrix();
-            Vector3 center = M * mOriginalSphere.getCenter();
+
+            Vector3 p0 = M * mOriginalCapsule.getPoint0();
+            Vector3 p1 = M * mOriginalCapsule.getPoint1();
 
             const Vector3 &S = transform.getScaling();
             Real factor = std::max(std::max(S.x(), S.y()), S.z());
-            Real radius = factor * mOriginalSphere.getRadius();
+            Real radius = factor * mOriginalCapsule.getRadius();
 
-            mSphere.setCenter(center);
-            mSphere.setRadius(radius);
-
-            // 原始球体，只更新球心位置，不更新半径大小
-            center = M * mOriginalSphere.getCenter();
-            mOriginalSphere.setCenter(center);
+            mCapsule.setPoint0(p0);
+            mCapsule.setPoint1(p1);
+            mCapsule.setRadius(radius);
         }
     }
-    
+
     //--------------------------------------------------------------------------
 
-    void SphereBound::onUpdate()
+    void CapsuleBound::onUpdate()
     {
         update();
     }

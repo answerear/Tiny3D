@@ -142,6 +142,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool FrustumBound::testCapsule(const Capsule &capsule) const
+    {
+        IntrFrustumCapsule intr(&mFrustum, &capsule);
+        return intr.test();
+    }
+
+    //--------------------------------------------------------------------------
+
     bool FrustumBound::testFrustum(const Frustum &frustum) const
     {
         // 暂时不具备这种检测能力，而且实际应用中应该也没有这样的需求

@@ -27,6 +27,7 @@
 #include "Bound/T3DSphereBound.h"
 #include "Bound/T3DAabbBound.h"
 #include "Bound/T3DObbBound.h"
+#include "Bound/T3DCapsuleBound.h"
 #include "Bound/T3DFrustumBound.h"
 #include "Component/T3DTransform3D.h"
 
@@ -71,6 +72,12 @@ namespace Tiny3D
             {
                 ObbBound *obb = static_cast<ObbBound*>(bound);
                 ret = testObb(obb->getObb());
+            }
+            break;
+        case Type::CAPSULE:
+            {
+                CapsuleBound *capsule = static_cast<CapsuleBound*>(bound);
+                ret = testCapsule(capsule->getCapsule());
             }
             break;
         case Type::FRUSTUM:
