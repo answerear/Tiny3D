@@ -83,6 +83,30 @@ protected:  // from Tiny3D::Application
     // 视锥体和OBB相交检测
     void testFrustumObb();
 
+    // 射线和胶囊体相交检测
+    void testRayCapsule();
+
+    // 胶囊体和球体相交检测
+    void testCapsuleSphere();
+
+    // 胶囊体和AABB相交检测
+    void testCapsuleAabb();
+
+    // 胶囊体和OBB相交检测
+    void testCapsuleObb();
+
+    // 胶囊体和平面相交检测
+    void testCapsulePlane();
+
+    // 胶囊体和三角形相交检测
+    void testCapsuleTriangle();
+
+    // 两个胶囊体相交检测
+    void testCapsuleCapsule();
+
+    // 视锥体和胶囊体相交检测
+    void testFrustumCapsule();
+
     void buildFrustum(Tiny3D::Frustum &frustum);
 };
 
