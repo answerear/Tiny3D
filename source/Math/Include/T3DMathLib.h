@@ -58,12 +58,20 @@
 #include <T3DIntrRaySphere.h>
 #include <T3DIntrRayAabb.h>
 #include <T3DIntrRayObb.h>
+#include <T3DIntrRayCapsule.h>
 
 #include <T3DIntrSphereTriangle.h>
 #include <T3DIntrSpherePlane.h>
 #include <T3DIntrSphereSphere.h>
 #include <T3DIntrSphereObb.h>
 #include <T3DIntrSphereAabb.h>
+
+#include <T3DIntrCapsuleCapsule.h>
+#include <T3DIntrCapsuleSphere.h>
+#include <T3DIntrCapsuleAabb.h>
+#include <T3DIntrCapsuleObb.h>
+#include <T3DIntrCapsulePlane.h>
+#include <T3DIntrCapsuleTriangle.h>
 
 #include <T3DIntrAabbPlane.h>
 #include <T3DIntrAabbAabb.h>
@@ -75,11 +83,13 @@
 #include <T3DIntrFrustumAabb.h>
 #include <T3DIntrFrustumObb.h>
 #include <T3DIntrFrustumSphere.h>
+#include <T3DIntrFrustumCapsule.h>
 
 #include <T3DIntrPointSphere.h>
 #include <T3DIntrPointAabb.h>
 #include <T3DIntrPointObb.h>
 #include <T3DIntrPointFrustum.h>
+#include <T3DIntrPointCapsule.h>
 
 
 namespace Tiny3D
@@ -138,12 +148,20 @@ namespace Tiny3D
     using IntrRaySphere = TIntrRaySphere<Real>;
     using IntrRayAabb = TIntrRayAabb<Real>;
     using IntrRayObb = TIntrRayObb<Real>;
+    using IntrRayCapsule = TIntrRayCapsule<Real>;
 
     using IntrSphereTriangle = TIntrSphereTriangle<Real>;
     using IntrSpherePlane = TIntrSpherePlane<Real>;
     using IntrSphereSphere = TIntrSphereSphere<Real>;
     using IntrSphereAabb = TIntrSphereAabb<Real>;
     using IntrSphereObb = TIntrSphereObb<Real>;
+
+    using IntrCapsuleCapsule = TIntrCapsuleCapsule<Real>;
+    using IntrCapsuleSphere = TIntrCapsuleSphere<Real>;
+    using IntrCapsuleAabb = TIntrCapsuleAabb<Real>;
+    using IntrCapsuleObb = TIntrCapsuleObb<Real>;
+    using IntrCapsulePlane = TIntrCapsulePlane<Real>;
+    using IntrCapsuleTriangle = TIntrCapsuleTriangle<Real>;
 
     using IntrAabbPlane = TIntrAabbPlane<Real>;
     using IntrAabbAabb = TIntrAabbAabb<Real>;
@@ -155,11 +173,13 @@ namespace Tiny3D
     using IntrFrustumSphere = TIntrFrustumSphere<Real>;
     using IntrFrustumAabb = TIntrFrustumAabb<Real>;
     using IntrFrustumObb = TIntrFrustumObb<Real>;
+    using IntrFrustumCapsule = TIntrFrustumCapsule<Real>;
 
     using IntrPointSphere = TIntrPointSphere<Real>;
     using IntrPointAabb = TIntrPointAabb<Real>;
     using IntrPointObb = TIntrPointObb<Real>;
     using IntrPointFrustum = TIntrPointFrustum<Real>;
+    using IntrPointCapsule = TIntrPointCapsule<Real>;
 
 
     #define REAL_ZERO           TReal<Real>::ZERO

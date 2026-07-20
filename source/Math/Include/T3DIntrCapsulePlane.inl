@@ -23,73 +23,50 @@
  ******************************************************************************/
 
 
-#include "T3DMatrix4.h"
-#include "T3DIntrAabbPlane.h"
-
-
 namespace Tiny3D
 {
     template <typename T>
-    inline TIntrObbPlane<T>::TIntrObbPlane()
-        : mBox(nullptr)
+    inline TIntrCapsulePlane<T>::TIntrCapsulePlane()
+        : mCapsule(nullptr)
         , mPlane(nullptr)
     {
-
     }
 
     template <typename T>
-    inline TIntrObbPlane<T>::TIntrObbPlane(
-        const TObb<T> &box,
-        const TPlane<T> &plane)
-        : mBox(&box)
+    inline TIntrCapsulePlane<T>::TIntrCapsulePlane(
+        const TCapsule<T> &capsule, const TPlane<T> &plane)
+        : mCapsule(&capsule)
         , mPlane(&plane)
     {
-
     }
 
     template <typename T>
-    inline TIntrObbPlane<T>::TIntrObbPlane(
-        const TObb<T> *box,
-        const TPlane<T> *plane)
-        : mBox(box)
+    inline TIntrCapsulePlane<T>::TIntrCapsulePlane(
+        const TCapsule<T> *capsule, const TPlane<T> *plane)
+        : mCapsule(capsule)
         , mPlane(plane)
     {
-
     }
 
     template <typename T>
-    int32_t TIntrObbPlane<T>::test()
+    inline int32_t TIntrCapsulePlane<T>::test()
     {
-        if (mBox == nullptr || mPlane == nullptr)
+        if (mCapsule == nullptr || mPlane == nullptr)
             return -1;
 
-        // 先把平面变换到OBB空间
+        T d0 = mPlane->fastDistanceToPoint(mCapsule->getPoint0());
+        T d1 = mPlane->fastDistanceToPoint(mCapsule->getPoint1());
+        T r = mCapsule->getRadius();
 
-        // 构造变换矩阵
-        TMatrix3<T> m(mBox->getAxis(0), mBox->getAxis(1), mBox->getAxis(2), true);
-        m = m.inverse();
+        T dMin = (d0 < d1) ? d0 : d1;
+        T dMax = (d0 > d1) ? d0 : d1;
 
-        // 构造变换后平面：法线旋入 OBB 本地坐标系，距离相对 OBB 中心修正
-        TVector3<T> n = m * mPlane->getNormal();
-        n.normalize();
-        T distance = mPlane->getDistance()
-            - mPlane->getNormal().dot(mBox->getCenter());
-        TPlane<T> plane(n, distance);
+        if (dMin >= r)
+            return 1;
 
-        // 构造一个位于原点的AABB，extent 已是半长
-        T minX = -mBox->getExtent(0);
-        T maxX = mBox->getExtent(0);
-        T minY = -mBox->getExtent(1);
-        T maxY = mBox->getExtent(1);
-        T minZ = -mBox->getExtent(2);
-        T maxZ = mBox->getExtent(2);
+        if (dMax <= -r)
+            return -1;
 
-        TAabb<T> aabb(minX, maxX, minY, maxY, minZ, maxZ);
-
-        // 构造一个平面和AABB检测器对象
-        TIntrAabbPlane<T> intr(aabb, plane);
-
-        return intr.test();
+        return 0;
     }
 }
-
