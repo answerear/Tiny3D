@@ -64,6 +64,12 @@ namespace Tiny3D
                 break;
             }
 
+            // 根据 -t 选项决定 Tiny3D 资源导出为文本(JSON)还是二进制(T3DB)
+            // 默认（无 -t）导出二进制；带 -t 导出文本
+            T3D_SERIALIZER_MGR.setFileMode(opts.isTxt
+                ? SerializerManager::FileMode::kText
+                : SerializerManager::FileMode::kBinary);
+
             if (opts.isGeneratingMeta)
             {
                 T3D_ARCHIVE_MGR.loadArchive(opts.dstDir, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kTruncate);
