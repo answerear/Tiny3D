@@ -216,6 +216,7 @@ namespace Tiny3D
         printf("      -b <type> : Set the type of the bounding box to <type>. The valid values is below\n");
         printf("          \"sphere\" - Sphere Bounding Volume.\n");
         printf("          \"AABB\" - Axis Aligned Bounding Box. This is the default value.\n");
+        printf("          \"capsule\" - Capsule Bounding Volume. \n");
         printf("      -m <filename> : Set the material file when input file type is OGRE.\n");
         printf("      -d <filename> : Set the default material file path for engine.\n");
         printf("      -r <the root directory of resource> : Set the root of default material directory for engine.\n");
@@ -273,6 +274,8 @@ namespace Tiny3D
             type = BoundType::kSphere;
         else if (_stricmp(argv, "aabb") == 0)
             type = BoundType::kAabb;
+        else if (_stricmp(argv, "capsule") == 0)
+            type = BoundType::kCapsule;
 
         return type;
     }

@@ -191,6 +191,7 @@ namespace Tiny3D
         do
         {
             mOutputName = opts.dstTitle;
+            mBoundType = opts.boundType;
             
             // 初始化 FBX 对象
             ret = initFbxObjects();
@@ -3549,6 +3550,9 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
                 }
             }
 
+            // 按 -b 计算局部空间包围体种子，写入 mesh（实例化时用于播种 Bound 组件）
+            computeBoundSeed(mesh, meshData->vertices);
+
             name = name + "." + Resource::EXT_MESH;
             mResources.emplace(name, mesh);
         } while (false);
@@ -3556,7 +3560,49 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
         
         return ret;
     }
-    
+
+    //--------------------------------------------------------------------------
+
+    void FBXImporterNew::computeBoundSeed(Mesh *mesh, const Vector3Array &points)
+    {
+        if (mesh == nullptr || points.empty())
+        {
+            return;
+        }
+
+        const size_t count = points.size();
+
+        switch (mBoundType)
+        {
+        case BoundType::kSphere:
+            {
+                Sphere sphere;
+                sphere.build(points.data(), count, SphereBuildOption::kByRitter);
+                mesh->setBoundSeed(Bound::Type::SPHERE, sphere.getCenter(),
+                    Vector3::ZERO, sphere.getRadius());
+            }
+            break;
+        case BoundType::kCapsule:
+            {
+                Capsule capsule;
+                capsule.build(points.data(), count);
+                mesh->setBoundSeed(Bound::Type::CAPSULE, capsule.getPoint0(),
+                    capsule.getPoint1(), capsule.getRadius());
+            }
+            break;
+        case BoundType::kAabb:
+        default:
+            {
+                Aabb aabb;
+                aabb.build(points.data(), count);
+                Vector3 vMin(aabb.getMinX(), aabb.getMinY(), aabb.getMinZ());
+                Vector3 vMax(aabb.getMaxX(), aabb.getMaxY(), aabb.getMaxZ());
+                mesh->setBoundSeed(Bound::Type::AABB, vMin, vMax, Real(0.0));
+            }
+            break;
+        }
+    }
+
     //--------------------------------------------------------------------------
 
     TResult FBXImporterNew::createMeshes()

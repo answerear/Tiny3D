@@ -271,6 +271,9 @@ namespace Tiny3D
 
         TResult createMesh(FbxNode *lFbxMeshRoot, MeshData *meshData);
 
+        /// 按 -b 计算局部空间包围体种子并写入 mesh
+        void computeBoundSeed(Mesh *mesh, const Vector3Array &points);
+
         TResult createMeshes();
 
         TResult createSkeletonsAndAnimations();
@@ -349,6 +352,9 @@ namespace Tiny3D
 
         /// 输入路径
         String mInputDir {};
+
+        /// 包围体种子类型（来自命令行 -b），转换期计算并写入 mesh
+        BoundType mBoundType {BoundType::kAabb};
 
         Assets mResources {};
 

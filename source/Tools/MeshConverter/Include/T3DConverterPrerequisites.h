@@ -71,7 +71,8 @@ namespace Tiny3D
     enum class BoundType : uint32_t
     {
         kSphere = 0,
-        kAabb
+        kAabb,
+        kCapsule,
     };
 
     #define MCONV_VERSION       0x00001000
