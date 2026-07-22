@@ -168,7 +168,6 @@ void ResourceApp::buildCamera(Transform3D *parent)
 
 void ResourceApp::loadMesh(Transform3D *parent)
 {
-    TResult ret = T3D_OK;
     GameObjectPtr go = GameObject::createWithTransform("mesh");
     Transform3D *node = static_cast<Transform3D*>(go->getTransformNode());
     parent->addChild(node);
@@ -191,60 +190,20 @@ void ResourceApp::loadMesh(Transform3D *parent)
     mMesh = T3D_MESH_MGR.loadMesh(archive, meshName);
     T3D_ASSERT(mMesh != nullptr);
     
-    GameObjectPtr goBody = GameObject::createWithTransform(mMesh->getMeshNodeName());
+    Geometry *geometry = nullptr;
+    GameObjectPtr goBody = GameObject::createWithMesh(mMesh->getMeshNodeName(), mMesh, geometry, node);
+    T3D_ASSERT(goBody != nullptr && geometry != nullptr);
+
     Transform3D *bodyNode = static_cast<Transform3D*>(goBody->getTransformNode());
     bodyNode->setPosition(mMesh->getMeshPosition());
     bodyNode->setOrientation(mMesh->getMeshOrientation());
     bodyNode->setScaling(mMesh->getMeshScaling());
-    node->addChild(bodyNode);
-
-    GeometryPtr geometry;
-    if (mMesh->getType() == Resource::Type::kMesh)
-    {
-        geometry = goBody->addComponent<Geometry>();
-    }
-    else if (mMesh->getType() == Resource::Type::kSkinnedMesh)
-    {
-        geometry = goBody->addComponent<SkinnedGeometry>();
-    }
-    else
-    {
-        T3D_ASSERT(false);
-    }
-    
-    StringArray enableKeywrods;
-    enableKeywrods.push_back("");
-    StringArray disableKeywords;
-    for (auto submesh : mMesh->getSubMeshes())
-    {
-        Material *material = static_cast<Material *>(T3D_MATERIAL_MGR.getResource(submesh.second->getMaterialUUID()));
-        T3D_ASSERT(material != nullptr);
-        ret = material->switchKeywords(enableKeywrods, disableKeywords);
-        T3D_ASSERT(T3D_SUCCEEDED(ret));
-    }
-
-    for (const auto submesh : mMesh->getSubMeshes())
-    {
-        geometry->setMeshObject(mMesh, submesh.second);
-        break;
-    }
 
     if (mMesh->getType() == Resource::Type::kSkinnedMesh)
     {
-        SkinnedMesh *skinnedMesh = smart_pointer_cast<SkinnedMesh>(mMesh);
-        T3D_ASSERT(skinnedMesh != nullptr);
-        SkeletalAnimation *skeletalAni = skinnedMesh->getSkeletalAnimation();
-        T3D_ASSERT(skeletalAni != nullptr);
-        const AnimationClips &clips = skeletalAni->getAnimationClips();
-        T3D_ASSERT(!clips.empty());
-        const String &clipName = clips.begin()->first;
-        SkinnedGeometry *skinnedGeometry = smart_pointer_cast<SkinnedGeometry>(geometry);
-        skinnedGeometry->populateAllChildren();
-        skinnedGeometry->setDefaultClipName(clipName);
-        T3D_ASSERT(skinnedGeometry != nullptr);
+        SkinnedGeometry *skinnedGeometry = static_cast<SkinnedGeometry*>(geometry);
         skinnedGeometry->setGPUSkinning(false);
-        const String &defaultClip = skinnedGeometry->getDefaultClipName();
-        skinnedGeometry->play(defaultClip, true);
+        skinnedGeometry->play(skinnedGeometry->getDefaultClipName(), true);
         //
         // T3D_TIMER_MGR.startTimer(8, false, [this, skinnedGeometry](uint32_t timerID, uint32_t dt)
         // {
