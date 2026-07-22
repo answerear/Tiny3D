@@ -55,6 +55,14 @@ namespace Tiny3D
         /// 重载赋值运算符
         TCapsule &operator =(const TCapsule &other);
 
+        /**
+         * \brief 通过多个点拟合胶囊体（PCA 主轴 + 半径 + 端点闭式解）
+         * \param [in] points : 点数组
+         * \param [in] count : 点数量
+         * \remarks 结果保证包含所有点；点集近似球状时退化为 p0==p1 的球。
+         */
+        void build(const TVector3<T> points[], size_t count);
+
         /// 获取端点 0
         TPROPERTY(RTTRFuncName="point0", RTTRFuncType="getter")
         const TVector3<T> &getPoint0() const;

@@ -123,6 +123,169 @@ namespace Tiny3D
     }
 
     template <typename T>
+    inline void TCapsule<T>::build(const TVector3<T> points[], size_t count)
+    {
+        if (points == nullptr || count == 0)
+        {
+            mPoint0 = TVector3<T>::ZERO;
+            mPoint1 = TVector3<T>::ZERO;
+            mRadius = TReal<T>::ZERO;
+            return;
+        }
+
+        // 1. 质心
+        TVector3<T> center(TReal<T>::ZERO, TReal<T>::ZERO, TReal<T>::ZERO);
+        for (size_t i = 0; i < count; ++i)
+        {
+            center += points[i];
+        }
+        center /= (T)count;
+
+        // 2. 协方差矩阵（3x3 对称），仅用普通数组，避免依赖 Matrix3
+        T cov[3][3] = { { TReal<T>::ZERO, TReal<T>::ZERO, TReal<T>::ZERO },
+                        { TReal<T>::ZERO, TReal<T>::ZERO, TReal<T>::ZERO },
+                        { TReal<T>::ZERO, TReal<T>::ZERO, TReal<T>::ZERO } };
+        for (size_t i = 0; i < count; ++i)
+        {
+            TVector3<T> d = points[i] - center;
+            cov[0][0] += d.x() * d.x();
+            cov[0][1] += d.x() * d.y();
+            cov[0][2] += d.x() * d.z();
+            cov[1][1] += d.y() * d.y();
+            cov[1][2] += d.y() * d.z();
+            cov[2][2] += d.z() * d.z();
+        }
+        cov[1][0] = cov[0][1];
+        cov[2][0] = cov[0][2];
+        cov[2][1] = cov[1][2];
+
+        // 3. Jacobi 迭代求对称矩阵特征向量，取最大特征值对应向量作为主轴
+        T v[3][3] = { { TReal<T>::ONE, TReal<T>::ZERO, TReal<T>::ZERO },
+                      { TReal<T>::ZERO, TReal<T>::ONE, TReal<T>::ZERO },
+                      { TReal<T>::ZERO, TReal<T>::ZERO, TReal<T>::ONE } };
+        for (int32_t sweep = 0; sweep < 32; ++sweep)
+        {
+            // 最大非对角元素
+            T off = TMath<T>::abs(cov[0][1]) + TMath<T>::abs(cov[0][2])
+                + TMath<T>::abs(cov[1][2]);
+            if (off <= TReal<T>::EPSILON)
+            {
+                break;
+            }
+
+            for (int32_t p = 0; p < 2; ++p)
+            {
+                for (int32_t q = p + 1; q < 3; ++q)
+                {
+                    if (TMath<T>::abs(cov[p][q]) <= TReal<T>::EPSILON)
+                    {
+                        continue;
+                    }
+
+                    T theta = (cov[q][q] - cov[p][p])
+                        / (((T)2) * cov[p][q]);
+                    T sign = (theta >= TReal<T>::ZERO)
+                        ? TReal<T>::ONE : TReal<T>::MINUS_ONE;
+                    T t = sign / (TMath<T>::abs(theta)
+                        + TMath<T>::sqrt(theta * theta + TReal<T>::ONE));
+                    T c = TReal<T>::ONE
+                        / TMath<T>::sqrt(t * t + TReal<T>::ONE);
+                    T s = t * c;
+
+                    // 旋转更新 cov
+                    T app = cov[p][p];
+                    T aqq = cov[q][q];
+                    T apq = cov[p][q];
+                    cov[p][p] = c * c * app - ((T)2) * s * c * apq + s * s * aqq;
+                    cov[q][q] = s * s * app + ((T)2) * s * c * apq + c * c * aqq;
+                    cov[p][q] = TReal<T>::ZERO;
+                    cov[q][p] = TReal<T>::ZERO;
+
+                    for (int32_t k = 0; k < 3; ++k)
+                    {
+                        if (k != p && k != q)
+                        {
+                            T akp = cov[k][p];
+                            T akq = cov[k][q];
+                            cov[k][p] = c * akp - s * akq;
+                            cov[p][k] = cov[k][p];
+                            cov[k][q] = s * akp + c * akq;
+                            cov[q][k] = cov[k][q];
+                        }
+                    }
+
+                    // 累积特征向量
+                    for (int32_t k = 0; k < 3; ++k)
+                    {
+                        T vkp = v[k][p];
+                        T vkq = v[k][q];
+                        v[k][p] = c * vkp - s * vkq;
+                        v[k][q] = s * vkp + c * vkq;
+                    }
+                }
+            }
+        }
+
+        // 选最大特征值（对角元）对应的列向量为主轴
+        int32_t maxIdx = 0;
+        if (cov[1][1] > cov[maxIdx][maxIdx]) maxIdx = 1;
+        if (cov[2][2] > cov[maxIdx][maxIdx]) maxIdx = 2;
+
+        TVector3<T> axis(v[0][maxIdx], v[1][maxIdx], v[2][maxIdx]);
+        T axisLen = axis.normalize();
+        if (axisLen <= TReal<T>::EPSILON)
+        {
+            axis = TVector3<T>::UNIT_Y;
+        }
+
+        // 4. 半径 = 最大垂距；同时记录每个点的轴向坐标与垂距
+        T radius = TReal<T>::ZERO;
+        for (size_t i = 0; i < count; ++i)
+        {
+            TVector3<T> d = points[i] - center;
+            T t = d.dot(axis);
+            TVector3<T> perp = d - axis * t;
+            T r = perp.length();
+            if (r > radius)
+            {
+                radius = r;
+            }
+        }
+
+        // 5. 端点闭式解：保证半径固定为 radius 时胶囊恰好包含所有点
+        //    s0 = min(t_i + sqrt(R^2 - r_i^2)), s1 = max(t_i - sqrt(R^2 - r_i^2))
+        T r2 = radius * radius;
+        T s0 = TReal<T>::INF;
+        T s1 = TReal<T>::MINUS_INF;
+        for (size_t i = 0; i < count; ++i)
+        {
+            TVector3<T> d = points[i] - center;
+            T t = d.dot(axis);
+            TVector3<T> perp = d - axis * t;
+            T ri2 = perp.length2();
+            T diff = r2 - ri2;
+            T off = (diff > TReal<T>::ZERO) ? TMath<T>::sqrt(diff) : TReal<T>::ZERO;
+            T lo = t + off;
+            T hi = t - off;
+            if (lo < s0) s0 = lo;
+            if (hi > s1) s1 = hi;
+        }
+
+        mRadius = radius;
+        if (s1 < s0)
+        {
+            // 近似球状：线段退化为一点
+            mPoint0 = center;
+            mPoint1 = center;
+        }
+        else
+        {
+            mPoint0 = center + axis * s0;
+            mPoint1 = center + axis * s1;
+        }
+    }
+
+    template <typename T>
     inline TVector3<T> TCapsule<T>::getCenter() const
     {
         return TReal<T>::HALF * (mPoint0 + mPoint1);
