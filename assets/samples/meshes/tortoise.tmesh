@@ -12,8 +12,50 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "62ab6f1d52c48d244ea61dacfc947c6f"
+          "RTTI_Value": "928cbc4ecc29c72231ba9b258535d519"
         }
+      },
+      "BoundSeedA": {
+        "RTTI_Type": "Tiny3D::TVector3<float>",
+        "RTTI_Value": {
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": -116.81767272949219
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 14.428178787231446
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 8.477649688720704
+          }
+        }
+      },
+      "BoundSeedB": {
+        "RTTI_Type": "Tiny3D::TVector3<float>",
+        "RTTI_Value": {
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          }
+        }
+      },
+      "BoundSeedRadius": {
+        "RTTI_Type": "float",
+        "RTTI_Value": 575.58740234375
+      },
+      "BoundSeedType": {
+        "RTTI_Type": "Tiny3D::Bound::Type",
+        "RTTI_Value": "SPHERE"
       },
       "MeshNodeName": {
         "RTTI_Type": "std::string",
@@ -100,7 +142,7 @@
                   "RTTI_Type": "Tiny3D::UUID",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "ddc344850192dc8c69ce9514ee8da154"
+                    "RTTI_Value": "acf7c5756ebcecc0b150a0392d673e81"
                   }
                 },
                 "Name": {
@@ -355,14 +397,14 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "b093123f3aac266970af730f0fb4fe8a"
+          "RTTI_Value": "21e355288e098bc6edd04647855033ea"
         }
       },
       "SkeletonUUID": {
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "cf1ecb3875c2b1343963dd4031175c66"
+          "RTTI_Value": "f8f0f9e79132f8e6565146ff87fdef45"
         }
       }
     }
