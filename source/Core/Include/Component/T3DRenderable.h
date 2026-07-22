@@ -31,6 +31,8 @@
 
 namespace Tiny3D
 {
+    class Bound;
+
     TCLASS()
     class T3D_ENGINE_API Renderable : public Component
     {
@@ -53,11 +55,27 @@ namespace Tiny3D
         virtual const VertexStrides &getVertexStrides() const = 0;
 
         virtual const VertexOffsets &getVertexOffsets() const = 0;
+
+        /**
+         * \brief 获取用于视锥剔除的包围体（由 mesh 种子实例化时播种）
+         * \return 剔除用 Bound；未设置返回 nullptr
+         */
+        Bound *getRenderBound() const { return mRenderBound; }
+
+        /**
+         * \brief 设置用于视锥剔除的包围体
+         * \remarks 与该 Renderable 同属一个 GameObject，生命周期一致，故用裸指针。
+         */
+        void setRenderBound(Bound *bound) { mRenderBound = bound; }
         
     protected:
         Renderable() = default;
 
         Renderable(const UUID &uuid);
+
+    protected:
+        /// 视锥剔除用包围体（不持有所有权，由 GameObject 的组件表持有）
+        Bound *mRenderBound {nullptr};
     };
 }
 

@@ -30,6 +30,7 @@
 #include "Kernel/T3DConstant.h"
 #include "Resource/T3DSubMesh.h"
 #include "Render/T3DVertexAttribute.h"
+#include "Bound/T3DBound.h"
 
 
 namespace Tiny3D
@@ -104,7 +105,32 @@ namespace Tiny3D
 
         TPROPERTY(RTTRFuncName="MeshNodeName", RTTRFuncType="getter")
         const String &getMeshNodeName() const { return mMeshNodeName; }
-        
+
+        /// 获取包围体种子类型（局部空间，实例化时用于播种 Bound 组件的默认值）
+        TPROPERTY(RTTRFuncName="BoundSeedType", RTTRFuncType="getter")
+        Bound::Type getBoundSeedType() const { return mBoundSeedType; }
+
+        /// 获取包围体种子标量 A：Sphere=center，Aabb=min，Capsule=端点0
+        TPROPERTY(RTTRFuncName="BoundSeedA", RTTRFuncType="getter")
+        const Vector3 &getBoundSeedA() const { return mBoundSeedA; }
+
+        /// 获取包围体种子标量 B：Aabb=max，Capsule=端点1（Sphere 不使用）
+        TPROPERTY(RTTRFuncName="BoundSeedB", RTTRFuncType="getter")
+        const Vector3 &getBoundSeedB() const { return mBoundSeedB; }
+
+        /// 获取包围体种子半径：Sphere/Capsule 有效（Aabb 不使用）
+        TPROPERTY(RTTRFuncName="BoundSeedRadius", RTTRFuncType="getter")
+        Real getBoundSeedRadius() const { return mBoundSeedRadius; }
+
+        /**
+         * \brief 设置包围体种子（局部空间）
+         * \param [in] type : 包围体类型
+         * \param [in] a : Sphere=center / Aabb=min / Capsule=端点0
+         * \param [in] b : Aabb=max / Capsule=端点1（Sphere 不使用）
+         * \param [in] radius : Sphere/Capsule 半径（Aabb 不使用）
+         */
+        void setBoundSeed(Bound::Type type, const Vector3 &a, const Vector3 &b, Real radius);
+
         VertexDeclarationPtr getVertexDeclaration() const { return mVertexDecl; }
 
         const VertexBuffers &getVertexBuffers() const { return mVBuffers; }
@@ -181,7 +207,19 @@ namespace Tiny3D
 
         TPROPERTY(RTTRFuncName="MeshNodeName", RTTRFuncType="setter")
         void setMeshNodeName(const String &name) { mMeshNodeName = name; }
-        
+
+        TPROPERTY(RTTRFuncName="BoundSeedType", RTTRFuncType="setter")
+        void setBoundSeedType(Bound::Type type) { mBoundSeedType = type; }
+
+        TPROPERTY(RTTRFuncName="BoundSeedA", RTTRFuncType="setter")
+        void setBoundSeedA(const Vector3 &a) { mBoundSeedA = a; }
+
+        TPROPERTY(RTTRFuncName="BoundSeedB", RTTRFuncType="setter")
+        void setBoundSeedB(const Vector3 &b) { mBoundSeedB = b; }
+
+        TPROPERTY(RTTRFuncName="BoundSeedRadius", RTTRFuncType="setter")
+        void setBoundSeedRadius(Real radius) { mBoundSeedRadius = radius; }
+
         virtual TResult generateRenderResource(Archive *archive);
 
         virtual bool isDynamicVertices() const { return false; }
@@ -208,6 +246,14 @@ namespace Tiny3D
         Vector3 mMeshT {Vector3::ZERO};
         Quaternion mMeshQ {Quaternion::IDENTITY};
         Vector3 mMeshS {Vector3::UNIT_SCALE};
+
+        /// 包围体种子（局部空间）：转换期算好、实例化时用于播种 Bound 组件的默认值。
+        /// 一旦 GameObject 已挂 Bound 组件，则以组件为准，此种子不再使用。
+        /// 语义随 mBoundSeedType 而定（见 setBoundSeed 注释）。
+        Bound::Type mBoundSeedType {Bound::Type::NONE};
+        Vector3     mBoundSeedA {Vector3::ZERO};
+        Vector3     mBoundSeedB {Vector3::ZERO};
+        Real        mBoundSeedRadius {Real(0.0)};
         
         /// 顶点属性是否需要更新
         bool    mIsAttrDirty {false};

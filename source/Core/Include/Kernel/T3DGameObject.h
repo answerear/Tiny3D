@@ -45,7 +45,7 @@ namespace Tiny3D
 
         static GameObjectPtr createWithTransform(const String &name, bool managed = true);
         
-        static GameObjectPtr createWithMesh(const String &name, Mesh *mesh, Geometry *&geometry, bool managed = true);
+        static GameObjectPtr createWithMesh(const String &name, Mesh *mesh, Geometry *&geometry, TransformNode *parent = nullptr, bool managed = true);
 
         static void destroyComponents();
 
@@ -285,6 +285,9 @@ namespace Tiny3D
         static void destroyGameObject(GameObject *gameObject);
         
     private:
+        /// 用 mesh 的包围体种子播种 Bound 组件（仅当无 Bound 时），并设为渲染剔除包围体
+        static void seedBoundFromMesh(GameObject *go, Mesh *mesh, Geometry *geometry);
+
         TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="setter")
         void setUUID(const UUID &uuid) { mUUID = uuid; }
 

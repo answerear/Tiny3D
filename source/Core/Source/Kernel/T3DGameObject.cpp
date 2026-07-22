@@ -30,6 +30,9 @@
 #include "Resource/T3DSkeletalAnimation.h"
 #include "Resource/T3DSkinnedMesh.h"
 #include "Bound/T3DFrustumBound.h"
+#include "Bound/T3DSphereBound.h"
+#include "Bound/T3DAabbBound.h"
+#include "Bound/T3DCapsuleBound.h"
 #include "Component/T3DCamera.h"
 #include "Component/T3DRenderable.h"
 #include "Component/T3DTransform3D.h"
@@ -241,7 +244,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    GameObjectPtr GameObject::createWithMesh(const String &name, Mesh *mesh, Geometry *&geometry, bool managed)
+    GameObjectPtr GameObject::createWithMesh(const String &name, Mesh *mesh, Geometry *&geometry, TransformNode *parent, bool managed)
     {
         if (mesh->getType() != Resource::Type::kMesh && mesh->getType() != Resource::Type::kSkinnedMesh)
         {
@@ -249,6 +252,18 @@ namespace Tiny3D
         }
         
         GameObjectPtr go = createWithTransform(name, managed);
+
+        // 必须在骨骼填充之前先挂到父节点：SkinnedGeometry::populateAllChildren 会把克隆
+        // 出的骨骼根作为兄弟节点挂到本节点的父节点下，仅当本节点已有父节点时才会挂接。
+        // 若此时游离（无父节点），骨骼子树将不在场景树中，销毁时遍历不到而泄漏。
+        if (parent != nullptr)
+        {
+            TransformNode *node = go->getTransformNode();
+            if (node != nullptr)
+            {
+                parent->addChild(node);
+            }
+        }
         
         GeometryPtr geo = nullptr;
         
@@ -292,10 +307,83 @@ namespace Tiny3D
             skinnedGeometry->setDefaultClipName(clipName);
             T3D_ASSERT(skinnedGeometry != nullptr);
         }
+
+        // 若尚无任何 Bound 组件，则用 mesh 的包围体种子播种一个，并作为渲染剔除包围体。
+        // 一旦已有 Bound（例如预制体带出），则以组件为准，此处跳过。
+        seedBoundFromMesh(go, mesh, geo);
         
         geometry = geo;
         
         return go;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GameObject::seedBoundFromMesh(GameObject *go, Mesh *mesh, Geometry *geometry)
+    {
+        if (go == nullptr || mesh == nullptr)
+        {
+            return;
+        }
+
+        Bound::Type type = mesh->getBoundSeedType();
+        if (type == Bound::Type::NONE)
+        {
+            return;
+        }
+
+        if (!go->getComponents<Bound>().empty())
+        {
+            // 已有 Bound 组件，以组件为准
+            return;
+        }
+
+        const Vector3 &a = mesh->getBoundSeedA();
+        const Vector3 &b = mesh->getBoundSeedB();
+        Real radius = mesh->getBoundSeedRadius();
+
+        BoundPtr bound = nullptr;
+
+        switch (type)
+        {
+        case Bound::Type::SPHERE:
+            {
+                SphereBoundPtr sphere = go->addComponent<SphereBound>();
+                if (sphere != nullptr)
+                {
+                    sphere->setParams(a, radius);
+                    bound = sphere;
+                }
+            }
+            break;
+        case Bound::Type::AABB:
+            {
+                AabbBoundPtr aabb = go->addComponent<AabbBound>();
+                if (aabb != nullptr)
+                {
+                    aabb->setParams(a.x(), b.x(), a.y(), b.y(), a.z(), b.z());
+                    bound = aabb;
+                }
+            }
+            break;
+        case Bound::Type::CAPSULE:
+            {
+                CapsuleBoundPtr capsule = go->addComponent<CapsuleBound>();
+                if (capsule != nullptr)
+                {
+                    capsule->setParams(a, b, radius);
+                    bound = capsule;
+                }
+            }
+            break;
+        default:
+            break;
+        }
+
+        if (bound != nullptr && geometry != nullptr)
+        {
+            geometry->setRenderBound(bound);
+        }
     }
     //--------------------------------------------------------------------------
 
@@ -493,7 +581,12 @@ namespace Tiny3D
             {
                 GameObject *go = node->getGameObject();
                 Renderable *renderable = go->getComponent<Renderable>();
-                Bound *bound = go->getComponent<Bound>();
+                // 剔除以“种子播种出来的渲染包围体”为准；未设置则回退到任一 Bound 组件
+                Bound *bound = (renderable != nullptr) ? renderable->getRenderBound() : nullptr;
+                if (bound == nullptr)
+                {
+                    bound = go->getComponent<Bound>();
+                }
                 if (renderable != nullptr)
                 {
                     if (bound == nullptr || frustum == nullptr)

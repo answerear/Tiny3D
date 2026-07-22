@@ -144,6 +144,23 @@ namespace Tiny3D
     void Mesh::cloneProperties(const Resource *const src)
     {
         const Mesh *mesh = static_cast<const Mesh*>(src);
+        if (mesh != nullptr)
+        {
+            mBoundSeedType = mesh->mBoundSeedType;
+            mBoundSeedA = mesh->mBoundSeedA;
+            mBoundSeedB = mesh->mBoundSeedB;
+            mBoundSeedRadius = mesh->mBoundSeedRadius;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Mesh::setBoundSeed(Bound::Type type, const Vector3 &a, const Vector3 &b, Real radius)
+    {
+        mBoundSeedType = type;
+        mBoundSeedA = a;
+        mBoundSeedB = b;
+        mBoundSeedRadius = radius;
     }
 
     //--------------------------------------------------------------------------
