@@ -115,7 +115,7 @@ namespace Tiny3D
             }
 
             // Builtin 资源档案系统
-            mBuiltinArchive = T3D_ARCHIVE_MGR.loadArchive(dstPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kReadTxtTruncate);
+            mBuiltinArchive = T3D_ARCHIVE_MGR.loadArchive(dstPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kReadOnly);
             if (mBuiltinArchive == nullptr)
             {
                 EDITOR_LOG_ERROR("Failed to load builtin fs archive [%s]", builtinPath.c_str());
@@ -418,7 +418,7 @@ namespace Tiny3D
             }
 
             // Assets 档案系统
-            mAssetsArchive = T3D_ARCHIVE_MGR.loadArchive(assetsPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kReadTxtTruncate);
+            mAssetsArchive = T3D_ARCHIVE_MGR.loadArchive(assetsPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kReadTruncate);
             if (mAssetsArchive == nullptr)
             {
                 EDITOR_LOG_ERROR("Failed to load assets fs archive [%s]", assetsPath.c_str());
@@ -586,15 +586,9 @@ namespace Tiny3D
 
         do
         {
-            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(mAssetsPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kRead);
-            if (archive == nullptr)
-            {
-                EDITOR_LOG_ERROR("Failed to load archive [%s] !", mPath.c_str());
-                ret = T3D_ERR_RES_LOAD_FAILED;
-                break;
-            }
-            
-            ScenePtr scene = T3D_SCENE_MGR.loadScene(archive, mProjectSettings.StartupSceneUUID);
+            // 资源门面已挂载工程搜索链（assets > compiledShaders > builtin），
+            // 直接按 UUID 一步加载启动场景，无需再感知 archive
+            ScenePtr scene = T3D_ASSET_MGR.loadScene(mProjectSettings.StartupSceneUUID);
             if (scene == nullptr)
             {
                 EDITOR_LOG_ERROR("Failed to load scene (uuid: %s) !", mProjectSettings.StartupSceneUUID.toString().c_str());
@@ -649,7 +643,7 @@ namespace Tiny3D
             }
 
             // 编译后 shaders 档案系统
-            mCompiledShadersArchive = T3D_ARCHIVE_MGR.loadArchive(compiledShadersPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kReadTxtTruncate);
+            mCompiledShadersArchive = T3D_ARCHIVE_MGR.loadArchive(compiledShadersPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kReadOnly);
             if (mCompiledShadersArchive == nullptr)
             {
                 EDITOR_LOG_ERROR("Failed to load compiled shaders fs archive [%s]", compiledShadersPath.c_str());

@@ -24,7 +24,6 @@
 
 
 #include "UIHierarchyWindow.h"
-
 #include "EditorEventDefine.h"
 #include "EditorSceneImpl.h"
 #include "GUIExtension/ImGuiExtension.h"
@@ -536,10 +535,8 @@ namespace Tiny3D
             // geometry component
             GeometryPtr geometry = go->addComponent<Geometry>();
 
-            const String &path = PROJECT_MGR.getBuiltinPath();
-            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kRead);
-            T3D_ASSERT(archive != nullptr);
-            MeshPtr mesh = T3D_MESH_MGR.loadMesh(archive, ProjectManager::BUILTIN_CUBE_MESH_NAME);
+            // 资源门面已挂载工程搜索链（含 builtin），按名字一步加载内置网格
+            MeshPtr mesh = T3D_ASSET_MGR.loadMesh(ProjectManager::BUILTIN_CUBE_MESH_NAME);
             if (mesh == nullptr)
             {
                 EDITOR_LOG_ERROR("Failed to load cube mesh assets !");
@@ -693,10 +690,8 @@ namespace Tiny3D
             // geometry component
             GeometryPtr geometry = go->addComponent<Geometry>();
 
-            const String &path = PROJECT_MGR.getBuiltinPath();
-            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kRead);
-            T3D_ASSERT(archive != nullptr);
-            MeshPtr mesh = T3D_MESH_MGR.loadMesh(archive, ProjectManager::BUILTIN_SPHERE_MESH_NAME);
+            // 资源门面已挂载工程搜索链（含 builtin），按名字一步加载内置网格
+            MeshPtr mesh = T3D_ASSET_MGR.loadMesh(ProjectManager::BUILTIN_SPHERE_MESH_NAME);
             if (mesh == nullptr)
             {
                 EDITOR_LOG_ERROR("Failed to load sphere mesh assets !");
@@ -822,10 +817,8 @@ namespace Tiny3D
             // geometry component
             GeometryPtr geometry = go->addComponent<Geometry>();
 
-            const String &path = PROJECT_MGR.getBuiltinPath();
-            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kRead);
-            T3D_ASSERT(archive != nullptr);
-            MeshPtr mesh = T3D_MESH_MGR.loadMesh(archive, ProjectManager::BUILTIN_CAPSULE_MESH_NAME);
+            // 资源门面已挂载工程搜索链（含 builtin），按名字一步加载内置网格
+            MeshPtr mesh = T3D_ASSET_MGR.loadMesh(ProjectManager::BUILTIN_CAPSULE_MESH_NAME);
             if (mesh == nullptr)
             {
                 EDITOR_LOG_ERROR("Failed to load capsule mesh assets !");
