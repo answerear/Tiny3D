@@ -96,6 +96,16 @@ TResult ResourceApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     // camera
     buildCamera(root);
 
+    // runtime 模式：挂载只读 bundle 到资源门面搜索链（主包优先级 0）
+    // 只读 bundle：BundleFSArchive 读 bundle.manifest，按名字/UUID 直读散列文件。
+    // 逻辑资源路径(小写、'/' 分隔)，由 Platform 层解析为各平台物理路径，零平台宏。
+    // Windows / Android 统一从 bundle 加载，BundleFSArchive 已由 Tiny3D.cfg 自动加载。
+    const String bundlePath = Dir::getResourcePath("assets/samples/bundle");
+    ArchivePtr bundle = T3D_ARCHIVE_MGR.loadArchive(bundlePath, ARCHIVE_TYPE_BUNDLE, Archive::AccessMode::kRead);
+    T3D_ASSERT(bundle != nullptr);
+    T3D_ASSET_MGR.init(AssetManager::Mode::kRuntime);
+    T3D_ASSET_MGR.mount(bundle, 0);
+
     // mesh
     loadMesh(root);
     
@@ -179,15 +189,11 @@ void ResourceApp::loadMesh(Transform3D *parent)
     //         node->rotate(Vector3::UNIT_X, deltaAngle);
     //     });
     
-    // 只读 bundle：BundleFSArchive 读 bundle.manifest，按名字/UUID 直读散列文件，
+    // 资源 bundle 已在 applicationDidFinishLaunching 挂载到资源门面搜索链，
+    // 这里应用层无需再感知 archive，直接按名字一步加载即可。
     // shader 在运行时按当前 renderer 的着色语言从 ShaderVariantSet 选对应变体。
-    // 逻辑资源路径(小写、'/' 分隔)，由 Platform 层解析为各平台物理路径，零平台宏。
-    // Windows / Android 统一从 bundle 加载，BundleFSArchive 已由 Tiny3D.cfg 自动加载。
-    const String path = Dir::getResourcePath("assets/samples/bundle");
-    ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_BUNDLE, Archive::AccessMode::kRead);
-    T3D_ASSERT(archive != nullptr);
     const String meshName = "tortoise.tmesh";
-    mMesh = T3D_MESH_MGR.loadMesh(archive, meshName);
+    mMesh = T3D_ASSET_MGR.loadMesh(meshName);
     T3D_ASSERT(mMesh != nullptr);
     
     Geometry *geometry = nullptr;
