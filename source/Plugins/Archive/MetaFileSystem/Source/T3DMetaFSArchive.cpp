@@ -158,10 +158,27 @@ namespace Tiny3D
                 break;
             }
 
+            // 先判断文件是否存在，不存在直接报失败
+            String path = getPath() + Dir::getNativeSeparator() + name;
+            if (!Dir::exists(path))
+            {
+                ret = T3D_ERR_FILE_NOT_EXIST;
+                MFS_LOG_ERROR("File [%s] does not exist !", path.c_str());
+                break;
+            }
+
+            uint32_t accMode = (uint32_t)getAccessMode();
+            uint32_t modeRead = (uint32_t)AccessMode::kRead;
+            if ((accMode | modeRead) != modeRead)
+            {
+                ret = T3D_ERR_INVALID_PARAM;
+                MFS_LOG_ERROR("Invalid access mode [%u] when reading !", accMode);
+                break;
+            }
+
             // 打开文件
             FileDataStream fs;
-            FileDataStream::EOpenMode mode = getFileOpenMode(getAccessMode());
-            String path = getPath() + Dir::getNativeSeparator() + name;
+            FileDataStream::EOpenMode mode = FileDataStream::EOpenMode::E_MODE_READ_ONLY;            
             if (!fs.open(path.c_str(), mode))
             {
                 ret = T3D_ERR_FILE_NOT_EXIST;
@@ -261,8 +278,27 @@ namespace Tiny3D
             }
             
             String path = monitor->getRootPath() + Dir::getNativeSeparator() + name;
+
+            // 先判断文件是否存在，不存在直接报失败
+            if (!Dir::exists(path))
+            {
+                ret = T3D_ERR_FILE_NOT_EXIST;
+                MFS_LOG_ERROR("File [%s] does not exist !", path.c_str());
+                break;
+            }
+
+            uint32_t accMode = (uint32_t)getAccessMode();
+            uint32_t modeRead = (uint32_t)AccessMode::kRead;
+            if ((accMode | modeRead) != modeRead)
+            {
+                ret = T3D_ERR_INVALID_PARAM;
+                MFS_LOG_ERROR("Invalid access mode [%u] when reading !", accMode);
+                break;
+            }
+
+            // 打开文件
             FileDataStream fs;
-            FileDataStream::EOpenMode mode = getFileOpenMode(getAccessMode());
+            FileDataStream::EOpenMode mode = FileDataStream::EOpenMode::E_MODE_READ_ONLY;
             if (!fs.open(path.c_str(), mode))
             {
                 ret = T3D_ERR_FILE_NOT_EXIST;
