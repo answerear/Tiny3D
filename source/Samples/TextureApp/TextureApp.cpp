@@ -150,7 +150,12 @@ Texture2DPtr TextureApp::buildTexture()
     ArchivePtr archive = T3D_ARCHIVE_MGR.getArchive(ARCHIVE_TYPE_FS, Dir::getAppPath(), Archive::AccessMode::kRead);
 #endif
     T3D_ASSERT(archive != nullptr);
-    ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, "assets/samples/textures/blocks.png");
+
+    // runtime 模式：把资源档案挂到门面搜索链（优先级 0），之后按名字一步加载
+    T3D_ASSET_MGR.init(AssetManager::Mode::kRuntime);
+    T3D_ASSET_MGR.mount(archive, 0);
+
+    ImagePtr image = T3D_ASSET_MGR.loadImage("assets/samples/textures/blocks.png");
     T3D_ASSERT(image != nullptr);
     Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", image);
     return texture;
