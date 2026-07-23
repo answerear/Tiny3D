@@ -42,6 +42,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(Plugin);
     T3D_DECLARE_SMART_PTR(Archive);
     T3D_DECLARE_SMART_PTR(ArchiveManager);
+    T3D_DECLARE_SMART_PTR(CompositeArchive);
 
     // Serializer
     T3D_DECLARE_SMART_PTR(Serializer);
@@ -56,6 +57,7 @@ namespace Tiny3D
     // Resource
     T3D_DECLARE_SMART_PTR(Resource);
     T3D_DECLARE_SMART_PTR(ResourceManager);
+    T3D_DECLARE_SMART_PTR(AssetManager);
     T3D_DECLARE_SMART_PTR(Prefab);
     T3D_DECLARE_SMART_PTR(PrefabManager);
     T3D_DECLARE_SMART_PTR(Dylib);

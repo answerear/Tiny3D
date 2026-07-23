@@ -36,6 +36,7 @@
 #include <Kernel/T3DAgent.h>
 #include <Kernel/T3DArchive.h>
 #include <Kernel/T3DArchiveManager.h>
+#include <Kernel/T3DCompositeArchive.h>
 #include <Kernel/T3DPlugin.h>
 #include <Kernel/T3DSettings.h>
 #include <Kernel/T3DGameObject.h>
@@ -45,6 +46,7 @@
 // Resource
 #include <Resource/T3DResource.h>
 #include <Resource/T3DResourceManager.h>
+#include <Resource/T3DAssetManager.h>
 #include <Resource/T3DDylib.h>
 #include <Resource/T3DMaterial.h>
 #include <Resource/T3DMaterialManager.h>
@@ -66,6 +68,7 @@
 #include <Resource/T3DSubMesh.h>
 #include <Resource/T3DSkeletalAnimation.h>
 #include <Resource/T3DAnimationManager.h>
+
 
 // Skeletal Animation
 #include <Animation/T3DKeyframe.h>

@@ -267,6 +267,8 @@ namespace Tiny3D
         TextureManagerPtr       mTextureMgr {nullptr};
         /// 场景资源管理器
         SceneManagerPtr         mSceneMgr {nullptr};
+        /// 资源加载门面
+        AssetManagerPtr         mAssetMgr {nullptr};
         /// 图像编码器
         ImageCodecPtr           mImageCodec {nullptr};
         /// 图像管理器

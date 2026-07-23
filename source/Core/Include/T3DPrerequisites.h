@@ -86,6 +86,7 @@ namespace Tiny3D
     class Plugin;
     class Archive;
     class ArchiveManager;
+    class CompositeArchive;
     
     struct Transform;
     struct Settings;
@@ -104,6 +105,7 @@ namespace Tiny3D
     // Resource
     class Resource;
     class ResourceManager;
+    class AssetManager;
     class Dylib;
     class DylibManager;
     class Material;

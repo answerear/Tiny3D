@@ -44,6 +44,7 @@
 #include "RHI/T3DRHIThread.h"
 #include "Render/T3DRenderResourceManager.h"
 #include "Render/T3DForwardRenderPipeline.h"
+#include "Resource/T3DAssetManager.h"
 #include "Resource/T3DMaterialManager.h"
 #include "Resource/T3DMeshManager.h"
 #include "Resource/T3DScene.h"
@@ -118,6 +119,13 @@ namespace Tiny3D
         mActiveRHIRenderer = nullptr;
 
         mRHIRunnable = nullptr;
+
+        // 先释放资源门面，解除对搜索链上各档案的引用
+        if (mAssetMgr != nullptr)
+        {
+            mAssetMgr->unmountAll();
+            mAssetMgr = nullptr;
+        }
 
         if (mSkeletonMgr != nullptr)
         {
@@ -1127,6 +1135,7 @@ namespace Tiny3D
         mSceneMgr = SceneManager::create();
         mSceneMgr->setSceneManagerImpl(BuiltinSceneManager::create());
         mImageMgr = ImageManager::create();
+        mAssetMgr = AssetManager::create();
         mRenderPipeline = ForwardRenderPipeline::create();
 
         return T3D_OK;
