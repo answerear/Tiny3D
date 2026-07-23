@@ -183,6 +183,12 @@ namespace Tiny3D
 
         TResult setupBuiltinAssets(const String &tempPath);
 
+        /**
+         * @brief 把工程的三个档案按优先级挂载到资源门面搜索链
+         * @remarks 优先级：assets > compiledShaders > builtin
+         */
+        void mountAssetArchives();
+
         TResult createSimpleScene(const String &assetsPath);
 
         TResult loadStartupScene();

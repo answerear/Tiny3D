@@ -28,6 +28,7 @@
 #include "EditorEventDefine.h"
 
 
+
 namespace Tiny3D
 {
     NS_BEGIN(Editor)
@@ -126,6 +127,31 @@ namespace Tiny3D
         } while (false);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ProjectManager::mountAssetArchives()
+    {
+        // 编辑器模式，第一个（assets）为可写工程路径
+        T3D_ASSET_MGR.init(AssetManager::Mode::kEditor);
+        T3D_ASSET_MGR.unmountAll();
+
+        // 优先级：assets > compiledShaders > builtin
+        if (mAssetsArchive != nullptr)
+        {
+            T3D_ASSET_MGR.mount(mAssetsArchive, 0);
+        }
+
+        if (mCompiledShadersArchive != nullptr)
+        {
+            T3D_ASSET_MGR.mount(mCompiledShadersArchive, 1);
+        }
+
+        if (mBuiltinArchive != nullptr)
+        {
+            T3D_ASSET_MGR.mount(mBuiltinArchive, 2);
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -313,6 +339,9 @@ namespace Tiny3D
                 break;
             }
 
+            // 把三个档案挂载到资源门面搜索链
+            mountAssetArchives();
+
             mPath = projectPath;
             mName = name;
             mAssetsPath = assetsPath;
@@ -426,6 +455,9 @@ namespace Tiny3D
                 break;
             }
 
+            // 把三个档案挂载到资源门面搜索链
+            mountAssetArchives();
+
             mPath = projectPath;
             mName = name;
             mAssetsPath = assetsPath;
@@ -514,6 +546,9 @@ namespace Tiny3D
         T3D_SCENE_MGR.unloadScene();
         EDITOR_SCENE.setRuntimeScene(nullptr);
         
+        // 先从资源门面搜索链卸载工程档案
+        T3D_ASSET_MGR.unmountAll();
+
         mPath.clear();
         mName.clear();
         mAssetsPath.clear();
