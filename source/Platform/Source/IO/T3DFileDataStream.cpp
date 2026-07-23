@@ -57,68 +57,147 @@ namespace Tiny3D
     bool FileDataStream::open(const char *szFileName, uint32_t unMode)
     {
         String filename = T3D_LOCALE.UTF8ToANSI(szFileName);
-        
-        if (unMode == E_MODE_READ_ONLY)
+
+        // ===================== 旧版本实现（保留备查） =====================
+        // 问题：
+        //   1) 文本分支把只读/只写误写成读写：READ_ONLY|TEXT -> "r+t"（应为
+        //      "rt"）、WRITE_ONLY|TEXT -> "w+t"（应为 "wt"），其中 "r+t" 要求
+        //      写权限，打开只读文件会直接失败。
+        //   2) 没有 else 兜底，且进入前不重置 m_pFileHandle，遇到未覆盖的模式
+        //      组合会残留上一次的旧句柄，导致逻辑错乱与句柄泄漏。
+        //   3) 组合覆盖不全（大量精确 == 判断，脆弱且不闭合）。
+        //   4) "t" 是 MSVC 扩展，跨平台（glibc/bionic）上属未定义行为。
+        //
+        // if (unMode == E_MODE_READ_ONLY)
+        // {
+        //     m_pFileHandle = fopen(filename.c_str(), "rb");
+        // }
+        // else if (unMode == E_MODE_WRITE_ONLY)
+        // {
+        //     m_pFileHandle = fopen(filename.c_str(), "wb");
+        // }
+        // else if (unMode == (E_MODE_WRITE_ONLY|E_MODE_APPEND)
+        //          || unMode == E_MODE_APPEND)
+        // {
+        //     m_pFileHandle = fopen(filename.c_str(), "ab");
+        // }
+        // else if (unMode == (E_MODE_WRITE_ONLY|E_MODE_TRUNCATE)
+        //     || unMode == E_MODE_TRUNCATE)
+        // {
+        //     m_pFileHandle = fopen(filename.c_str(), "wb");
+        // }
+        // else if (unMode == E_MODE_READ_WRITE)
+        // {
+        //     m_pFileHandle = fopen(filename.c_str(), "r+b");
+        // }
+        // else if (unMode == (E_MODE_READ_WRITE|E_MODE_TRUNCATE))
+        // {
+        //     m_pFileHandle = fopen(filename.c_str(), "w+b");
+        // }
+        // else if (unMode == (E_MODE_READ_WRITE|E_MODE_APPEND))
+        // {
+        //     m_pFileHandle = fopen(filename.c_str(), "a+b");
+        // }
+        // else if (unMode == (E_MODE_READ_ONLY|E_MODE_TEXT))
+        // {
+        //     m_pFileHandle = fopen(filename.c_str(), "r+t");
+        // }
+        // else if (unMode == (E_MODE_WRITE_ONLY|E_MODE_TEXT))
+        // {
+        //     m_pFileHandle = fopen(filename.c_str(), "w+t");
+        // }
+        // else if (unMode == (E_MODE_WRITE_ONLY|E_MODE_APPEND|E_MODE_TEXT)
+        //          || unMode == (E_MODE_APPEND|E_MODE_TEXT))
+        // {
+        //     m_pFileHandle = fopen(filename.c_str(), "a+t");
+        // }
+        // else if (unMode == (E_MODE_READ_WRITE|E_MODE_TEXT))
+        // {
+        //     m_pFileHandle = fopen(filename.c_str(), "r+t");
+        // }
+        // else if (unMode == (E_MODE_READ_WRITE|E_MODE_TRUNCATE|E_MODE_TEXT))
+        // {
+        //     m_pFileHandle = fopen(filename.c_str(), "w+t");
+        // }
+        // else if (unMode == (E_MODE_READ_WRITE|E_MODE_APPEND|E_MODE_TEXT))
+        // {
+        //     m_pFileHandle = fopen(filename.c_str(), "a+t");
+        // }
+        // else if (unMode == (E_MODE_WRITE_ONLY|E_MODE_TRUNCATE|E_MODE_TEXT))
+        // {
+        //     m_pFileHandle = fopen(filename.c_str(), "wt");
+        // }
+        //
+        // m_lSize = 0;
+        //
+        // return (m_bIsOpened = (m_pFileHandle != nullptr));
+        // ===================================================================
+
+        // 复位状态：避免在已打开或重复 open 的情况下残留旧句柄/旧缓存。
+        if (m_pFileHandle != nullptr)
         {
-            m_pFileHandle = fopen(filename.c_str(), "rb");
+            fclose(m_pFileHandle);
+            m_pFileHandle = nullptr;
         }
-        else if (unMode == E_MODE_WRITE_ONLY)
+        T3D_POD_SAFE_DELETE_ARRAY(m_pData);
+        m_lSize = 0;
+        m_bIsOpened = false;
+
+        const bool bRead   = (unMode & E_MODE_READ_ONLY) != 0;
+        const bool bAppend = (unMode & E_MODE_APPEND) != 0;
+        const bool bTrunc  = (unMode & E_MODE_TRUNCATE) != 0;
+        const bool bText   = (unMode & E_MODE_TEXT) != 0;
+        // WRITE_ONLY / TRUNCATE / APPEND 任意一个都意味着需要写：
+        //   - TRUNCATE 表示清空文件内容，本质是写；
+        //   - APPEND   表示在文件末尾追加，本质也是写。
+        const bool bWrite  = (unMode & E_MODE_WRITE_ONLY) != 0 || bTrunc || bAppend;
+
+        // 按位拼装标准 fopen 模式串。基础字符 + 可选 '+'（可读写）+ 可选 'b'。
+        // 文本模式不追加 'b'（文本是 C 标准默认模式，跨平台安全；不使用 MSVC
+        // 专有的 't'）。
+        char szFopenMode[8] = { 0 };
+        size_t nIndex = 0;
+
+        if (bAppend)
         {
-            m_pFileHandle = fopen(filename.c_str(), "wb");
+            // 追加：'a' 隐含写（且文件不存在时创建）；若同时要求读则用 'a+'。
+            szFopenMode[nIndex++] = 'a';
+            if (bRead)
+            {
+                szFopenMode[nIndex++] = '+';
+            }
         }
-        else if (unMode == (E_MODE_WRITE_ONLY|E_MODE_APPEND)
-                 || unMode == E_MODE_APPEND)
+        else if (bRead && bWrite)
         {
-            m_pFileHandle = fopen(filename.c_str(), "ab");
+            // 读写：截断用 "w+"（创建/清空），否则用 "r+"（要求文件已存在）。
+            szFopenMode[nIndex++] = bTrunc ? 'w' : 'r';
+            szFopenMode[nIndex++] = '+';
         }
-        else if (unMode == (E_MODE_WRITE_ONLY|E_MODE_TRUNCATE)
-            || unMode == E_MODE_TRUNCATE)
+        else if (bWrite)
         {
-            m_pFileHandle = fopen(filename.c_str(), "wb");
+            // 只写（含只传 WRITE_ONLY 或只传 TRUNCATE 的情况）：
+            // 'w' 隐含创建并截断。
+            szFopenMode[nIndex++] = 'w';
         }
-        else if (unMode == E_MODE_READ_WRITE)
+        else if (bRead)
         {
-            m_pFileHandle = fopen(filename.c_str(), "r+b");
+            // 只读。
+            szFopenMode[nIndex++] = 'r';
         }
-        else if (unMode == (E_MODE_READ_WRITE|E_MODE_TRUNCATE))
+        else
         {
-            m_pFileHandle = fopen(filename.c_str(), "w+b");
-        }
-        else if (unMode == (E_MODE_READ_WRITE|E_MODE_APPEND))
-        {
-            m_pFileHandle = fopen(filename.c_str(), "a+b");
-        }
-        else if (unMode == (E_MODE_READ_ONLY|E_MODE_TEXT))
-        {
-            m_pFileHandle = fopen(filename.c_str(), "r+t");
-        }
-        else if (unMode == (E_MODE_WRITE_ONLY|E_MODE_TEXT))
-        {
-            m_pFileHandle = fopen(filename.c_str(), "w+t");
-        }
-        else if (unMode == (E_MODE_WRITE_ONLY|E_MODE_APPEND|E_MODE_TEXT)
-                 || unMode == (E_MODE_APPEND|E_MODE_TEXT))
-        {
-            m_pFileHandle = fopen(filename.c_str(), "a+t");
-        }
-        else if (unMode == (E_MODE_READ_WRITE|E_MODE_TEXT))
-        {
-            m_pFileHandle = fopen(filename.c_str(), "r+t");
-        }
-        else if (unMode == (E_MODE_READ_WRITE|E_MODE_TRUNCATE|E_MODE_TEXT))
-        {
-            m_pFileHandle = fopen(filename.c_str(), "w+t");
-        }
-        else if (unMode == (E_MODE_READ_WRITE|E_MODE_APPEND|E_MODE_TEXT))
-        {
-            m_pFileHandle = fopen(filename.c_str(), "a+t");
-        }
-        else if (unMode == (E_MODE_WRITE_ONLY|E_MODE_TRUNCATE|E_MODE_TEXT))
-        {
-            m_pFileHandle = fopen(filename.c_str(), "wt");
+            // 非法/未指定的打开模式，直接失败。
+            T3D_ASSERT(false);
+            return false;
         }
 
-        m_lSize = 0;
+        if (!bText)
+        {
+            szFopenMode[nIndex++] = 'b';
+        }
+        szFopenMode[nIndex] = '\0';
+
+        m_pFileHandle = fopen(filename.c_str(), szFopenMode);
 
         return (m_bIsOpened = (m_pFileHandle != nullptr));
     }
