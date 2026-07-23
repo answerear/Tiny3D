@@ -146,6 +146,16 @@ namespace Tiny3D
         ShaderPtr loadShader(const UUID &uuid);
 
         /**
+         * @brief 根据文件名加载图像
+         */
+        ImagePtr loadImage(const String &filename);
+
+        /**
+         * @brief 根据 UUID 加载图像
+         */
+        ImagePtr loadImage(const UUID &uuid);
+
+        /**
          * @brief 根据文件名加载预制体
          */
         PrefabPtr loadPrefab(const String &name);

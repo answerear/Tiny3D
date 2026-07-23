@@ -31,6 +31,7 @@
 #include "Resource/T3DShaderManager.h"
 #include "Resource/T3DPrefabManager.h"
 #include "Resource/T3DSceneManager.h"
+#include "Resource/T3DImageManager.h"
 #include "Resource/T3DScene.h"
 
 
@@ -181,6 +182,24 @@ namespace Tiny3D
         ensureArchive();
         Archive *archive = mArchive.get();
         return T3D_SHADER_MGR.loadShader(archive, uuid);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImagePtr AssetManager::loadImage(const String &filename)
+    {
+        ensureArchive();
+        Archive *archive = mArchive.get();
+        return T3D_IMAGE_MGR.loadImage(archive, filename);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImagePtr AssetManager::loadImage(const UUID &uuid)
+    {
+        ensureArchive();
+        Archive *archive = mArchive.get();
+        return T3D_IMAGE_MGR.loadImage(archive, uuid);
     }
 
     //--------------------------------------------------------------------------
