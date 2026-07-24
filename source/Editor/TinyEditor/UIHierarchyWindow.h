@@ -100,6 +100,11 @@ namespace Tiny3D
         /// 创建 capsule 菜单响应
         bool onMenuItemCreateCapsule(uint32_t id, ImWidget *menuItem);
 
+        /// 查询创建 cylinder 菜单状态
+        bool onMenuItemEnabledCreateCylinder(uint32_t id, ImWidget *menuItem);
+        /// 创建 cylinder 菜单响应
+        bool onMenuItemCreateCylinder(uint32_t id, ImWidget *menuItem);
+
         /// 查询删除 game object 菜单状态
         bool onMenuItemEnabledDelete(uint32_t id, ImWidget *menuItem);
         /// 删除 game object 菜单响应
@@ -110,6 +115,7 @@ namespace Tiny3D
         TResult createCube(GameObject *go);
         TResult createSphere(GameObject *go);
         TResult createCapsule(GameObject *go);
+        TResult createCylinder(GameObject *go);
         void createCubeAABB(Mesh *mesh, SubMesh *submesh, AabbBound *bound);
         
     protected:
