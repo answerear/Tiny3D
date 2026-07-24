@@ -15,6 +15,48 @@
           "RTTI_Value": "ee7a3b450249b4d2de3f1a9fd6ca1188"
         }
       },
+      "BoundSeedA": {
+        "RTTI_Type": "Tiny3D::TVector3<float>",
+        "RTTI_Value": {
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": -0.5
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": -0.5
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": -0.5
+          }
+        }
+      },
+      "BoundSeedB": {
+        "RTTI_Type": "Tiny3D::TVector3<float>",
+        "RTTI_Value": {
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.5
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.5
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.5
+          }
+        }
+      },
+      "BoundSeedRadius": {
+        "RTTI_Type": "float",
+        "RTTI_Value": 0.0
+      },
+      "BoundSeedType": {
+        "RTTI_Type": "Tiny3D::Bound::Type",
+        "RTTI_Value": "AABB"
+      },
       "MeshNodeName": {
         "RTTI_Type": "std::string",
         "RTTI_Value": ""
