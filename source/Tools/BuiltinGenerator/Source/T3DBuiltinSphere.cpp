@@ -176,6 +176,12 @@ namespace Tiny3D
         mMesh = T3D_MESH_MGR.createMesh(MESH_NAME, std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes),
             Vector3::ZERO, Quaternion::IDENTITY, Vector3::UNIT_SCALE, "", sphereUUID);
 
+        // 包围体种子：Sphere（中心=原点，半径=0.5）
+        if (mMesh != nullptr)
+        {
+            mMesh->setBoundSeed(Bound::Type::SPHERE, Vector3::ZERO, Vector3::ZERO, radius);
+        }
+
         return T3D_OK;
     }
 

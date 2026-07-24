@@ -353,6 +353,14 @@ namespace Tiny3D
         mMesh = T3D_MESH_MGR.createMesh(MESH_NAME, std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes),
             Vector3::ZERO, Quaternion::IDENTITY, Vector3::UNIT_SCALE, "", cubeUUID);
 
+        // 包围体种子：AABB（min/max = center ± extent）
+        const Vector3 aabbMin = center - extent;
+        const Vector3 aabbMax = center + extent;
+        if (mMesh != nullptr)
+        {
+            mMesh->setBoundSeed(Bound::Type::AABB, aabbMin, aabbMax, Real(0.0));
+        }
+
         material = buildTestMaterial();
         submesh = SubMesh::create(name, material->getUUID(), PrimitiveType::kTriangleList, std::move(indexBuffer2), true);
         SubMeshes subMeshes2;
@@ -360,6 +368,12 @@ namespace Tiny3D
         UUID testCubeUUID = BuiltinGuidUtil::readExistingMetaUUID(path, String(TEST_MESH_NAME) + "." + Resource::EXT_MESH + ".meta");
         mTestMesh = T3D_MESH_MGR.createMesh(TEST_MESH_NAME, std::move(attributes2), std::move(vertexBuffers2), std::move(strides2), std::move(offsets2), std::move(subMeshes2),
             Vector3::ZERO, Quaternion::IDENTITY, Vector3::UNIT_SCALE, "", testCubeUUID);
+
+        // 包围体种子：AABB（与 cube 相同的几何范围）
+        if (mTestMesh != nullptr)
+        {
+            mTestMesh->setBoundSeed(Bound::Type::AABB, aabbMin, aabbMax, Real(0.0));
+        }
         
         return T3D_OK;
     }

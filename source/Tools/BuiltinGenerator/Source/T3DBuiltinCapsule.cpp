@@ -230,6 +230,12 @@ namespace Tiny3D
         mMesh = T3D_MESH_MGR.createMesh(MESH_NAME, std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes),
             Vector3::ZERO, Quaternion::IDENTITY, Vector3::UNIT_SCALE, "", capsuleUUID);
 
+        // 包围体种子：Capsule（中轴端点=上下半球中心，半径=radius）
+        if (mMesh != nullptr)
+        {
+            mMesh->setBoundSeed(Bound::Type::CAPSULE, topCenter, bottomCenter, radius);
+        }
+
         return T3D_OK;
     }
 
