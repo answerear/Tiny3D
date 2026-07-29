@@ -12,7 +12,7 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "928cbc4ecc29c72231ba9b258535d519"
+          "RTTI_Value": "facd3e5fbc8cd86f8ff335d6a528506f"
         }
       },
       "BoundSeedA": {
@@ -142,7 +142,7 @@
                   "RTTI_Type": "Tiny3D::UUID",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "acf7c5756ebcecc0b150a0392d673e81"
+                    "RTTI_Value": "aed3e48d15778e6de9845a967d75f115"
                   }
                 },
                 "Name": {
@@ -397,14 +397,14 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "21e355288e098bc6edd04647855033ea"
+          "RTTI_Value": "4f45c97ef4ad2b8f22938bdde2a9dcd9"
         }
       },
       "SkeletonUUID": {
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "f8f0f9e79132f8e6565146ff87fdef45"
+          "RTTI_Value": "6520bb09458d5e8af1048df147119467"
         }
       }
     }
