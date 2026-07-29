@@ -39,8 +39,6 @@ namespace Tiny3D
 
         TResult serialize(DataStream &stream, const RTTRObject &obj) override;
 
-        RTTRObject deserialize(DataStream &stream) override;
-
         TResult deserialize(DataStream& stream, RTTRVariant& obj) override;
 
     protected:

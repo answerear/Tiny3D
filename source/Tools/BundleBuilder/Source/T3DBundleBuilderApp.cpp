@@ -659,25 +659,27 @@ namespace Tiny3D
         // 造成对象图泄漏，同时避免 onPreSave 对扁平层级表重采集破坏字节往返一致。
         T3D_SERIALIZER_MGR.setInvokeLifecycleCallbacks(false);
 
-        // 读：源资源为 JSON，使用 kText 反序列化为类型无关的 RTTRObject。
-        // 注意：必须以二进制(READ_ONLY, 不加 TEXT)打开——JsonStream 依赖 seek(-1)
-        // 回退，文本模式下 CRLF 翻译会破坏偏移，与既有 meta/shader 读取保持一致。
+        // 读：源资源为 JSON，反序列化为类型无关的对象。
+        // 注意：必须以二进制(READ_ONLY, 不加 TEXT)打开——文本模式的 CRLF 翻译会
+        // 改变读到的字节，与既有 meta/shader 读取保持一致。
         T3D_SERIALIZER_MGR.setFileMode(SerializerManager::FileMode::kText);
         FileDataStream in;
         if (in.open(srcPath.c_str(), FileDataStream::E_MODE_READ_ONLY))
         {
-            RTTRObject obj = T3D_SERIALIZER_MGR.deserializeObject(in);
+            RTTRVariant var;
+            const bool loaded =
+                !T3D_FAILED(T3D_SERIALIZER_MGR.deserializeObject(in, var))
+                && var.is_valid();
             in.close();
 
-            // deserializeObject 返回的是非拥有视图(RTTRObject=rttr::instance)，其
-            // 底层对象由 RTTR as_raw_ptr 策略以裸指针 new 出来，承载它的临时 variant
-            // 析构时并不会 delete 该裸指针，导致整棵对象图（含全部 SmartPtr 成员）
-            // 无人释放而泄漏。这里用 ObjectPtr 接管其生命周期：owner 在本作用域结束
-            // 时（晚于下面的序列化使用、早于 obj 视图析构）按引用计数归零销毁对象。
-            ObjectPtr owner = obj.is_valid()
-                ? obj.try_convert<Object>() : nullptr;
+            // 还原出的对象由 RTTR as_raw_ptr 策略以裸指针 new 出来，承载它的
+            // variant 析构时并不会 delete 该裸指针，导致整棵对象图（含全部 SmartPtr
+            // 成员）无人释放而泄漏。这里用 ObjectPtr 接管其生命周期：owner 在本作用域
+            // 结束时按引用计数归零销毁对象。
+            ObjectPtr owner = loaded
+                ? RTTRObject(var).try_convert<Object>() : nullptr;
 
-            if (obj.is_valid())
+            if (loaded)
             {
                 // 写：二进制(T3DB)，不加文本模式，避免换行翻译破坏二进制字节
                 T3D_SERIALIZER_MGR.setFileMode(SerializerManager::FileMode::kBinary);
@@ -686,7 +688,7 @@ namespace Tiny3D
                     | FileDataStream::E_MODE_READ_WRITE;
                 if (out.open(dstPath.c_str(), mode))
                 {
-                    TResult r = T3D_SERIALIZER_MGR.serializeObject(out, obj);
+                    TResult r = T3D_SERIALIZER_MGR.serializeObject(out, var);
                     out.close();
                     ok = !T3D_FAILED(r);
                 }
@@ -723,14 +725,17 @@ namespace Tiny3D
         FileDataStream in;
         if (in.open(binPath.c_str(), FileDataStream::E_MODE_READ_ONLY))
         {
-            RTTRObject obj = T3D_SERIALIZER_MGR.deserializeObject(in);
+            RTTRVariant var;
+            const bool loaded =
+                !T3D_FAILED(T3D_SERIALIZER_MGR.deserializeObject(in, var))
+                && var.is_valid();
             in.close();
 
-            // 同 convertToBinary：接管非拥有视图底层裸指针对象的生命周期，避免泄漏。
-            ObjectPtr owner = obj.is_valid()
-                ? obj.try_convert<Object>() : nullptr;
+            // 同 convertToBinary：接管 as_raw_ptr 裸指针对象的生命周期，避免泄漏。
+            ObjectPtr owner = loaded
+                ? RTTRObject(var).try_convert<Object>() : nullptr;
 
-            if (obj.is_valid())
+            if (loaded)
             {
                 String tmp = binPath + ".verify";
                 FileDataStream out;
@@ -738,7 +743,7 @@ namespace Tiny3D
                     | FileDataStream::E_MODE_READ_WRITE;
                 if (out.open(tmp.c_str(), mode))
                 {
-                    TResult r = T3D_SERIALIZER_MGR.serializeObject(out, obj);
+                    TResult r = T3D_SERIALIZER_MGR.serializeObject(out, var);
                     long_t s2 = out.tell();
                     out.close();
                     std::remove(tmp.c_str());

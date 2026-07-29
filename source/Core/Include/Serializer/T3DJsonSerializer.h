@@ -39,8 +39,6 @@ namespace Tiny3D
 
         TResult serialize(DataStream &stream, const RTTRObject &obj) override;
 
-        RTTRObject deserialize(DataStream &stream) override;
-
         TResult deserialize(DataStream& stream, RTTRVariant& obj) override;
 
         template<typename T>
@@ -52,8 +50,22 @@ namespace Tiny3D
         template<typename T>
         T *deserializeObject(DataStream &stream)
         {
-            RTTRObject obj = deserialize(stream);
-            return obj.try_convert<T>();
+            RTTRVariant var;
+            if (T3D_FAILED(deserialize(stream, var)))
+            {
+                return nullptr;
+            }
+
+            // 所有权说明同 SerializerManager::deserialize<T>：instance 只做指针校正，
+            // 对象所有权随裸指针交给调用方，且 var 必须活到取指针之后。
+            T *obj = RTTRObject(var).try_convert<T>();
+
+            if (obj == nullptr)
+            {
+                discardUnclaimed(var, rttr::type::get<T>());
+            }
+
+            return obj;
         }
 
         template<typename T>

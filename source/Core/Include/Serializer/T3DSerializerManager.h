@@ -107,8 +107,24 @@ namespace Tiny3D
         template<typename T>
         T *deserialize(DataStream &stream)
         {
-            RTTRObject obj = deserializeObject(stream);
-            return obj.try_convert<T>();
+            RTTRVariant var;
+            if (T3D_FAILED(deserializeObject(stream, var)))
+            {
+                return nullptr;
+            }
+
+            // RTTRObject(instance) 在此仅用于做基类/派生类的指针校正，不涉及所有权：
+            // 对象由 RTTR 的 as_raw_ptr 策略在堆上 new 出，随返回的裸指针把所有权
+            // 交给调用方，调用方须立即用 SmartPtr 接管（各 ResourceManager 即如此）。
+            // var 必须活到取指针之后，故不可把这两步拆到不同语句。
+            T *obj = RTTRObject(var).try_convert<T>();
+
+            if (obj == nullptr)
+            {
+                Serializer::discardUnclaimed(var, rttr::type::get<T>());
+            }
+
+            return obj;
         }
 
         template<typename T>
@@ -133,22 +149,19 @@ namespace Tiny3D
             return ret;
         }
 
-        // template<typename T>
-        // TResult serializeWithoutType(DataStream &stream, const T &obj)
-        // {
-        //     return serializeWithoutType(stream, obj);
-        // }
-        //
-        // template<typename T>
-        // TResult deserializeWithoutType(DataStream &stream, T &obj)
-        // {
-        //     return deserializeWithoutType(stream, obj);
-        // }
-
         TResult serializeObject(DataStream &stream, const RTTRObject &obj);
 
-        RTTRObject deserializeObject(DataStream &stream);
-
+        /**
+         * @brief 从数据流反序列化出类型无关的对象。
+         * @param [in,out] stream : 数据流对象，按文件头 magic 自动选反序列化器
+         * @param [out] obj       : 还原出的对象
+         * @return 成功返回 T3D_OK .
+         * @remarks 唯一的反序列化出口。**不提供**返回 RTTRObject(=rttr::instance)
+         *          的重载：instance 只是非拥有视图，从函数局部 variant 构造再返回
+         *          时，其正确性隐式依赖"所有可序列化类型都注册为 as_raw_ptr"
+         *          （视图里存的是裸指针而非局部存储地址），换成 as_object 策略即
+         *          悬垂。改为出参后 variant 由调用方持有，生命周期显式可控。
+         */
         TResult deserializeObject(DataStream &stream, RTTRVariant &obj);
         
     protected:
@@ -164,11 +177,7 @@ namespace Tiny3D
          *          mFileMode 对应的 mSerializer。
          */
         SerializerPtr pickDeserializer(DataStream &stream);
-        
-        TResult serializeObjectWithoutType(DataStream &stream, const RTTRObject &obj);
 
-        TResult deserializeObjectWithoutType(DataStream &stream, RTTRObject &obj);
-        
     protected:
         FileMode        mFileMode = FileMode::kText;
         SerializerPtr   mSerializer;

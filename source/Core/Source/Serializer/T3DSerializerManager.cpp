@@ -104,19 +104,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RTTRObject SerializerManager::deserializeObject(DataStream &stream)
-    {
-        SerializerPtr serializer = pickDeserializer(stream);
-        if (serializer != nullptr)
-        {
-            return serializer->deserialize(stream);
-        }
-
-        return RTTRObject{};
-    }
-
-    //--------------------------------------------------------------------------
-    
     TResult SerializerManager::deserializeObject(DataStream &stream, RTTRVariant &obj)
     {
         TResult ret = T3D_OK;
@@ -126,24 +113,6 @@ namespace Tiny3D
         {
             ret = serializer->deserialize(stream, obj);
         }
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult SerializerManager::serializeObjectWithoutType(DataStream &stream, const RTTRObject &obj)
-    {
-        TResult ret = T3D_OK;
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult SerializerManager::deserializeObjectWithoutType(DataStream &stream, RTTRObject &obj)
-    {
-        TResult ret = T3D_OK;
 
         return ret;
     }
