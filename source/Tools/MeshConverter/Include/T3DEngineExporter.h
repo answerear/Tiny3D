@@ -53,6 +53,13 @@ namespace Tiny3D
         TResult exportSkeleton(const ConverterOptions &opts, Skeleton *skeleton);
 
         TResult exportSkeletalAnimation(const ConverterOptions &opts, SkeletalAnimation *anim);
+
+        /**
+         * \brief kNew 策略下删除输出文件已有的 meta，让其按资源新的 uuid 重新生成
+         * \param [in] opts : 转换选项
+         * \param [in] filename : 输出文件名，不含 ".meta" 后缀
+         */
+        void removeStaleMeta(const ConverterOptions &opts, const String &filename) const;
     };
 }
 

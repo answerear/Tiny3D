@@ -308,6 +308,15 @@ namespace Tiny3D
         FbxNode *getFbxSkeletalRoot(FbxNode *lFbxNode) const;
 
         SkeletalAnimationData *getSkeletalAnimationData(FbxNode *lFbxRoot);
+
+        /**
+         * \brief 查找输出资源可以复用的 UUID
+         * \param [in] title : 输出资源文件名，不含扩展名
+         * \param [in] ext : 输出资源文件扩展名
+         * \return kReuse 策略下返回已有 meta 里记录的 UUID，没有对应 meta 或
+         *         kNew 策略下返回 UUID::INVALID，此时资源保持创建时新生成的 UUID
+         */
+        UUID lookupReusableUUID(const String &title, const String &ext) const;
         
     protected:
         FbxManager *mFbxManager {nullptr};
@@ -353,8 +362,14 @@ namespace Tiny3D
         /// 输入路径
         String mInputDir {};
 
+        /// 输出路径，用于查找可复用的 meta 文件
+        String mOutputDir {};
+
         /// 包围体种子类型（来自命令行 -b），转换期计算并写入 mesh
         BoundType mBoundType {BoundType::kAabb};
+
+        /// 已有 meta 里 uuid 的处理策略（来自命令行 -u）
+        ConverterOptions::UUIDPolicy mUUIDPolicy {ConverterOptions::UUIDPolicy::kReuse};
 
         Assets mResources {};
 

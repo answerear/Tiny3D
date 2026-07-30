@@ -28,6 +28,15 @@ namespace Tiny3D
 {
     struct ConverterOptions : Allocator
     {
+        /// 重新转换时，已有 *.meta 文件里记录的 uuid 的处理策略
+        enum class UUIDPolicy
+        {
+            /// 复用已有 *.meta 里记录的 uuid，没有对应 meta 时按新 uuid 生成
+            kReuse = 0,
+            /// 删除已有 *.meta，全部重新生成新的 uuid
+            kNew,
+        };
+
         /// 输入文件全路径
         String  srcPath {};
         /// 输出文件夹路径
@@ -43,6 +52,8 @@ namespace Tiny3D
         MeshFileType    dstFileType {MeshFileType::kAuto};
         /// 包围盒类型
         BoundType       boundType {BoundType::kAabb};
+        /// 已有 *.meta 里 uuid 的处理策略
+        UUIDPolicy      uuidPolicy {UUIDPolicy::kReuse};
 
         /// 默认材质文件完整路径
         String defaultMaterialPath {};

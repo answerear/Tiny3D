@@ -94,6 +94,13 @@ namespace Tiny3D
                     {
                         opts.isGeneratingMeta = true;
                     }
+                    else if (arg[1] == 'u')
+                    {
+                        if (!parseUUIDPolicy(argv[++i], opts))
+                        {
+                            bShowHelp = true;
+                        }
+                    }
                 }
                 else if (opts.srcPath.empty())
                 {
@@ -222,6 +229,10 @@ namespace Tiny3D
         printf("      -r <the root directory of resource> : Set the root of default material directory for engine.\n");
         printf("      -s <tiny3d compiled shader directory> : Set the compiled shader directory for engine. If not set this option, mconv will compile all shader lab.\n");
         printf("      -a : Generate the corresponding meta files.\n");
+        printf("      -u <policy> : Specify how to deal with the uuid recorded in the existing meta files. The valid values are below\n");
+        printf("          \"reuse\" - Reuse the uuid recorded in the existing meta files. This is the default value.\n");
+        printf("                    The resource without any existing meta file is still generated with a new uuid.\n");
+        printf("          \"new\" - Remove the existing meta files and regenerate them with new uuid.\n");
         printf("      -v : Verbose : print additional progress information\n");
         printf("\n");
     }
@@ -262,6 +273,29 @@ namespace Tiny3D
         }
 
         return type;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ConverterCommand::parseUUIDPolicy(const char *argv, ConverterOptions &opts) const
+    {
+        bool ret = true;
+
+        if (_stricmp(argv, "reuse") == 0)
+        {
+            opts.uuidPolicy = ConverterOptions::UUIDPolicy::kReuse;
+        }
+        else if (_stricmp(argv, "new") == 0)
+        {
+            opts.uuidPolicy = ConverterOptions::UUIDPolicy::kNew;
+        }
+        else
+        {
+            MCONV_LOG_ERROR("Invalid uuid policy [%s].", argv)
+            ret = false;
+        }
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------

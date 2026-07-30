@@ -26,21 +26,18 @@
 
 namespace Tiny3D
 {
-    struct ConverterOptions;
-
-    class ConverterCommand : public Allocator
+    /**
+     * \brief MeshConverter 模块内部辅助类，用于在重新转换时保留已有 guid
+     */
+    class ConverterGuidUtil
     {
     public:
-        bool parse(int32_t argc, char *argv[], ConverterOptions &options);
-
-    protected:
-        void printCommand(int argc, char *argv[]) const;
-        void printHelp() const;
-
-        MeshFileType parseFileType(const char *argv) const;
-        BoundType parseBoundType(const char *argv) const;
-        bool parseVertexShared(const char *argv) const;
-        /// 解析 -u 的取值，非法取值返回 false
-        bool parseUUIDPolicy(const char *argv, ConverterOptions &options) const;
+        /**
+         * \brief 读取目标目录下已存在的 .meta 文件里记录的 UUID
+         * \param [in] dir : meta 文件所在目录
+         * \param [in] metaFilename : meta 文件名（如 "tortoise.tmesh.meta"）
+         * \return 若 meta 存在且解析成功，返回其记录的 UUID；否则返回 UUID::INVALID
+         */
+        static UUID readExistingMetaUUID(const String &dir, const String &metaFilename);
     };
 }

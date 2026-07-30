@@ -19,6 +19,7 @@
 
 
 #include "T3DFBXImporterNew.h"
+#include "T3DConverterGuidUtil.h"
 #include "T3DFBXDataStream.h"
 #include "T3DMeshConverterError.h"
 
@@ -191,7 +192,9 @@ namespace Tiny3D
         do
         {
             mOutputName = opts.dstTitle;
+            mOutputDir = opts.dstDir;
             mBoundType = opts.boundType;
+            mUUIDPolicy = opts.uuidPolicy;
             
             // 初始化 FBX 对象
             ret = initFbxObjects();
@@ -2998,16 +3001,19 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
             String materialName = lFbxMaterial->GetName();
             materialName = mOutputName + "-" + materialName;
 
+            // 克隆默认会重新生成 uuid，这里按 -u 策略传入可复用的 uuid
+            const UUID materialUUID = lookupReusableUUID(materialName, Resource::EXT_MATERIAL);
+
             const FbxImplementation *lFbxImplementation = lookForImplementation(lFbxMaterial);
             if (lFbxImplementation != nullptr)
             {
                 // FBX 是自定义的材质，直接使用默认材质代替
-                material = T3D_MATERIAL_MGR.clone(materialName, mDefaultMaterial);
+                material = T3D_MATERIAL_MGR.clone(materialName, mDefaultMaterial, materialUUID);
             }
             else if (lFbxMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
             {
                 // Phong 材质
-                material = T3D_MATERIAL_MGR.clone(materialName, mDefaultMaterial);
+                material = T3D_MATERIAL_MGR.clone(materialName, mDefaultMaterial, materialUUID);
 
                 FbxSurfacePhong *lFbxPhong = static_cast<FbxSurfacePhong *>(lFbxMaterial);
 
@@ -3032,12 +3038,12 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
             else if (lFbxMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId))
             {
                 // Lambert 材质
-                material = T3D_MATERIAL_MGR.clone(materialName, mDefaultMaterial);
+                material = T3D_MATERIAL_MGR.clone(materialName, mDefaultMaterial, materialUUID);
             }
             else
             {
                 // 其他材质
-                material = T3D_MATERIAL_MGR.clone(materialName, mDefaultMaterial);
+                material = T3D_MATERIAL_MGR.clone(materialName, mDefaultMaterial, materialUUID);
             }
 
             int lTextureIndex;
@@ -3110,7 +3116,8 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
                             // OpenGL 制式，纹理要翻转
                             image->flip();
                         }
-                        texture = T3D_TEXTURE_MGR.createTexture2D(title, image);
+                        const UUID textureUUID = lookupReusableUUID(title, Resource::EXT_TEXTURE);
+                        texture = T3D_TEXTURE_MGR.createTexture2D(title, image, 1, 1, 0, textureUUID);
                         T3D_ASSERT(texture != nullptr);
 
                         SamplerDesc samplerDesc;
@@ -3487,6 +3494,8 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
 
             String name = mOutputName;
 
+            const UUID meshUUID = lookupReusableUUID(name, Resource::EXT_MESH);
+
             MeshPtr mesh;
             
             if (!hasSkin)
@@ -3500,7 +3509,8 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
                     meshData->meshT, 
                     meshData->meshQ, 
                     meshData->meshS,
-                    meshData->meshName);
+                    meshData->meshName,
+                    meshUUID);
                 if (mesh == nullptr)
                 {
                     ret = T3D_ERR_RES_INVALID_OBJECT;
@@ -3527,7 +3537,8 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
                             meshData->meshT, 
                             meshData->meshQ, 
                             meshData->meshS,
-                            meshData->meshName);
+                            meshData->meshName,
+                            meshUUID);
                         if (mesh == nullptr)
                         {
                             ret = T3D_ERR_RES_INVALID_OBJECT;
@@ -3697,7 +3708,8 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
             }
 
             String name = mOutputName;
-            skelAniData->skeleton = T3D_SKELETON_MGR.createSkeleton(name, skelAniData->rootBoneGameObject.get());
+            const UUID skeletonUUID = lookupReusableUUID(name, Resource::EXT_SKELETON);
+            skelAniData->skeleton = T3D_SKELETON_MGR.createSkeleton(name, skelAniData->rootBoneGameObject.get(), skeletonUUID);
             if (skelAniData->skeleton == nullptr)
             {
                 MCONV_LOG_ERROR("Failed to create skeleton for [%s]", name.c_str());
@@ -3765,7 +3777,8 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
             if (!clips.empty())
             {
                 String animName = mOutputName;
-                skelAniData->animation = T3D_ANIMATION_MGR.createSkeletalAnimation(animName, std::move(clips));
+                const UUID animUUID = lookupReusableUUID(animName, Resource::EXT_ANIMATION);
+                skelAniData->animation = T3D_ANIMATION_MGR.createSkeletalAnimation(animName, std::move(clips), animUUID);
                 if (skelAniData->animation != nullptr)
                 {
                     animName = mOutputName  + "." + Resource::EXT_ANIMATION;
@@ -3970,6 +3983,26 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
         }
 
         return skelAniData;
+    }
+
+    //--------------------------------------------------------------------------
+
+    UUID FBXImporterNew::lookupReusableUUID(const String &title, const String &ext) const
+    {
+        if (mUUIDPolicy != ConverterOptions::UUIDPolicy::kReuse)
+        {
+            return UUID::INVALID;
+        }
+
+        const String filename = title + "." + ext;
+        UUID uuid = ConverterGuidUtil::readExistingMetaUUID(mOutputDir, filename + ".meta");
+
+        if (uuid == UUID::INVALID)
+        {
+            MCONV_LOG_INFO("No reusable uuid for [%s], generating a new one.", filename.c_str())
+        }
+
+        return uuid;
     }
     
     //--------------------------------------------------------------------------

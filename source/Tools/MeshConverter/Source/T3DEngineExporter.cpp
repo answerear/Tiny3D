@@ -126,6 +126,7 @@ namespace Tiny3D
             }
             T3D_ASSERT(archive);
             String filename = material->getName() + "." + Resource::EXT_MATERIAL;
+            removeStaleMeta(opts, filename);
             ret = T3D_MATERIAL_MGR.saveMaterial(archive, filename, material);
             if (T3D_FAILED(ret))
             {
@@ -160,6 +161,7 @@ namespace Tiny3D
             }
             T3D_ASSERT(archive);
             String filename = texture->getName() + "." + Resource::EXT_TEXTURE;
+            removeStaleMeta(opts, filename);
             ret = T3D_TEXTURE_MGR.saveTexture(archive, filename, texture);
             if (T3D_FAILED(ret))
             {
@@ -194,6 +196,7 @@ namespace Tiny3D
             }
             T3D_ASSERT(archive);
             String filename = mesh->getName() + "." + Resource::EXT_MESH;
+            removeStaleMeta(opts, filename);
             ret = T3D_MESH_MGR.saveMesh(archive, filename, mesh);
             if (T3D_FAILED(ret))
             {
@@ -228,6 +231,7 @@ namespace Tiny3D
             }
             T3D_ASSERT(archive);
             String filename = mesh->getName() + "." + Resource::EXT_MESH;
+            removeStaleMeta(opts, filename);
             ret = T3D_MESH_MGR.saveMesh(archive, filename, mesh);
             if (T3D_FAILED(ret))
             {
@@ -262,6 +266,7 @@ namespace Tiny3D
             }
             T3D_ASSERT(archive);
             String filename = skeleton->getName() + "." + Resource::EXT_SKELETON;
+            removeStaleMeta(opts, filename);
             ret = T3D_SKELETON_MGR.saveSkeleton(archive, filename, skeleton);
             if (T3D_FAILED(ret))
             {
@@ -296,6 +301,7 @@ namespace Tiny3D
             }
             T3D_ASSERT(archive);
             String filename = anim->getName() + "." + Resource::EXT_ANIMATION;
+            removeStaleMeta(opts, filename);
             ret = T3D_ANIMATION_MGR.saveSkeletalAnimation(archive, filename, anim);
             if (T3D_FAILED(ret))
             {
@@ -307,6 +313,23 @@ namespace Tiny3D
         } while (false);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void EngineExporter::removeStaleMeta(const ConverterOptions &opts, const String &filename) const
+    {
+        if (opts.uuidPolicy != ConverterOptions::UUIDPolicy::kNew)
+        {
+            return;
+        }
+
+        // 删掉已有 meta ，写文件后 MetaFSMonitor 会按资源新的 uuid 重新生成一份
+        String metaPath = opts.dstDir + Dir::getNativeSeparator() + filename + ".meta";
+        if (Dir::exists(metaPath) && !Dir::remove(metaPath))
+        {
+            MCONV_LOG_WARNING("Failed to remove existing meta file (%s)", metaPath.c_str())
+        }
     }
     
     //--------------------------------------------------------------------------
