@@ -26,6 +26,9 @@
 
 
 #include "EditorPrerequisites.h"
+#include <algorithm>
+#include <cstring>
+#include <string>
 
 
 namespace Tiny3D

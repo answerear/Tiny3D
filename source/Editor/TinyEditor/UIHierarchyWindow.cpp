@@ -269,7 +269,7 @@ namespace Tiny3D
 
     void UIHierarchyView::treeNodeClicked(ImTreeNode *node)
     {
-        
+        postSelectionChanged(node);
     }
 
     //--------------------------------------------------------------------------
@@ -277,6 +277,27 @@ namespace Tiny3D
     void UIHierarchyView::treeNodeRClicked(ImTreeNode *node)
     {
         
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyView::postSelectionChanged(ImTreeNode *node)
+    {
+        GameObject *gameObject = nullptr;
+
+        if (node != nullptr)
+        {
+            TransformNode *transform = static_cast<TransformNode *>(node->getUserData());
+
+            // 场景根节点不是普通的 game object，不作为选中对象派发
+            if (transform != nullptr && !EDITOR_SCENE.isSceneRoot(transform))
+            {
+                gameObject = transform->getGameObject();
+            }
+        }
+
+        EventParamGameObjectSelected param(gameObject);
+        postEvent(kEvtGameObjectSelected, &param);
     }
 
     //--------------------------------------------------------------------------
@@ -407,6 +428,9 @@ namespace Tiny3D
             T3D_ASSERT(uiNode != nullptr);
             uiNode->expand(false);
 
+            // 新建的节点已成为当前选中项，同步通知 inspector
+            postSelectionChanged(mTreeWidget->getSelection());
+
             // 通知修改了场景
             EventParamModifyScene param(true);
             sendEvent(kEvtModifyScene, &param);
@@ -517,6 +541,9 @@ namespace Tiny3D
             ImTreeNode *uiNode = static_cast<ImTreeNode*>(parent->getUserData());
             T3D_ASSERT(uiNode != nullptr);
             uiNode->expand(false);
+
+            // 新建的节点已成为当前选中项，同步通知 inspector
+            postSelectionChanged(mTreeWidget->getSelection());
 
             // 通知修改了场景
             EventParamModifyScene param(true);
@@ -673,6 +700,9 @@ namespace Tiny3D
             T3D_ASSERT(uiNode != nullptr);
             uiNode->expand(false);
 
+            // 新建的节点已成为当前选中项，同步通知 inspector
+            postSelectionChanged(mTreeWidget->getSelection());
+
             // 通知修改了场景
             EventParamModifyScene param(true);
             sendEvent(kEvtModifyScene, &param);
@@ -799,6 +829,9 @@ namespace Tiny3D
             ImTreeNode *uiNode = static_cast<ImTreeNode*>(parent->getUserData());
             T3D_ASSERT(uiNode != nullptr);
             uiNode->expand(false);
+
+            // 新建的节点已成为当前选中项，同步通知 inspector
+            postSelectionChanged(mTreeWidget->getSelection());
 
             // 通知修改了场景
             EventParamModifyScene param(true);
@@ -939,6 +972,9 @@ namespace Tiny3D
             T3D_ASSERT(uiNode != nullptr);
             uiNode->expand(false);
 
+            // 新建的节点已成为当前选中项，同步通知 inspector
+            postSelectionChanged(mTreeWidget->getSelection());
+
             // 通知修改了场景
             EventParamModifyScene param(true);
             sendEvent(kEvtModifyScene, &param);
@@ -1075,6 +1111,9 @@ namespace Tiny3D
             {
                 mTreeWidget->setSelection(parentUi);
             }
+
+            // 被删除的对象不能继续留在 inspector 里，同步切换到新的选中项
+            postSelectionChanged(parentUi);
 
             EventParamModifyScene param(true);
             sendEvent(kEvtModifyScene, &param);

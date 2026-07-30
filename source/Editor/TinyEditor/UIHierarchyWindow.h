@@ -77,6 +77,9 @@ namespace Tiny3D
         void treeNodeRClicked(ImTreeNode *node);
         void onTreeNodeDestroy(ImTreeNode *node);
 
+        /// 广播选中的 game object，node 为空或为场景根时广播取消选中
+        void postSelectionChanged(ImTreeNode *node);
+
         /// 响应处理场景数据被改动通知
         bool onModifedScene(EventParam *param, TINSTANCE sender);
 

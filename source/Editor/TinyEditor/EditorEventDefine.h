@@ -51,6 +51,9 @@ namespace Tiny3D
         kEvtOpenScene,
         /// 场景数据被修改或者被保存，参数：EventParamModifiedScene
         kEvtModifyScene,
+
+        /// 选中场景中的 game object，参数：EventParamGameObjectSelected
+        kEvtGameObjectSelected,
         
         kEvtMax
     };
@@ -63,6 +66,9 @@ namespace Tiny3D
     
     /// bool : true 为设置修改，false 为清除修改
     using EventParamModifyScene = EventParamT1<bool>;
+
+    /// GameObject * : 被选中的 game object，nullptr 表示取消选中
+    using EventParamGameObjectSelected = EventParamT1<GameObject*>;
 
     NS_END
 }

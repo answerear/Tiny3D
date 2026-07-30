@@ -32,14 +32,35 @@ namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
-    class UIInspectorWindow : public UIDockingWindow
+    class UIInspectorWindow : public UIDockingWindow, public EventHandler
     {
     public:
         UIInspectorWindow() = default;
         ~UIInspectorWindow() override = default;
 
     protected:
+        TResult onCreate() override;
+
+        void onDestroy() override;
+
         void onGUI() override;
+
+        /// 响应 hierarchy 选中 game object 的通知
+        bool onGameObjectSelected(EventParam *param, TINSTANCE sender);
+
+        /// 绘制 game object 自身的信息（激活状态、名称等）
+        void drawHeader();
+
+        /// 逐个绘制挂在 game object 上的组件
+        void drawComponents();
+
+        /// 通知场景数据已被修改
+        void notifySceneModified();
+
+    protected:
+        /// 当前选中的 game object。
+        /// 这里用智能指针持有，避免对象在层级面板被删除后 inspector 仍持有悬空指针
+        GameObjectPtr mSelectedGameObject {nullptr};
     };
 
     NS_END
