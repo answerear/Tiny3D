@@ -41,7 +41,7 @@ namespace Tiny3D
          */
         static AnimationManagerPtr create();
 
-        SkeletalAnimationPtr createSkeletalAnimation(const String &name, const AnimationClips &clips);
+        SkeletalAnimationPtr createSkeletalAnimation(const String &name, const AnimationClips &clips, const UUID &uuid = UUID::INVALID);
 
         SkeletalAnimationPtr loadSkeletalAnimation(Archive *archive, const String &filename);
 

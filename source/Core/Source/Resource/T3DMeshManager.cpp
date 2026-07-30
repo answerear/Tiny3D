@@ -92,14 +92,19 @@ namespace Tiny3D
         VertexStrides &&strides, VertexOffsets &&offsets, SubMeshes &&submeshes,
         Skeleton *skeleton, SkeletalAnimation *skeletalAni,
         const Vector3 &position, const Quaternion &orientation, const Vector3 &scaling, 
-        const String &meshNodeName)
+        const String &meshNodeName, const UUID &uuid/* = UUID::INVALID*/)
     {
         VertexAttributes attrs = std::move(attributes);
         Vertices verts = std::move(vertices);
         VertexStrides vstrides = std::move(strides);
         VertexOffsets voffsets = std::move(offsets);
         SubMeshes subs = std::move(submeshes);
+#if defined (T3D_EDITOR)
+        // 编辑器/工具环境下允许指定 UUID（用于保留已有资源 guid），创建时即设好
+        return smart_pointer_cast<SkinnedMesh>(createResource(name, 12, &attrs, &verts, &vstrides, &voffsets, &subs, skeleton, skeletalAni, &position, &orientation, &scaling, &meshNodeName, &uuid));
+#else
         return smart_pointer_cast<SkinnedMesh>(createResource(name, 11, &attrs, &verts, &vstrides, &voffsets, &subs, skeleton, skeletalAni, &position, &orientation, &scaling, &meshNodeName));
+#endif
     }
 
     //--------------------------------------------------------------------------
@@ -107,7 +112,7 @@ namespace Tiny3D
     ResourcePtr MeshManager::newResource(const String &name, int32_t argc, va_list args)
     {
         ResourcePtr res;
-        T3D_ASSERT(argc == 9 || argc == 10 || argc == 11);
+        T3D_ASSERT(argc == 9 || argc == 10 || argc == 11 || argc == 12);
         
         if (argc == 9 || argc == 10)
         {
@@ -130,7 +135,7 @@ namespace Tiny3D
             }
 #endif
         }
-        else if (argc == 11)
+        else if (argc == 11 || argc == 12)
         {
             // Skinned Mesh
             VertexAttributes *attributes = va_arg(args, VertexAttributes*);
@@ -145,6 +150,13 @@ namespace Tiny3D
             Vector3 *scale = va_arg(args, Vector3*);
             String *meshNodeName = va_arg(args, String*);
             res = SkinnedMesh::create(name, std::move(*attributes), std::move(*vertices), std::move(*strides), std::move(*offsets), std::move(*submeshes), skeleton, skeletalAni, *pos, *ori, *scale, *meshNodeName);
+#if defined (T3D_EDITOR)
+            if (argc == 12)
+            {
+                const UUID *uuid = va_arg(args, const UUID*);
+                applyCreationUUID(res, uuid != nullptr ? *uuid : UUID::INVALID);
+            }
+#endif
         }
         
         return res;

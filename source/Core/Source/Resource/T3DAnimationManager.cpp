@@ -39,9 +39,14 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    SkeletalAnimationPtr AnimationManager::createSkeletalAnimation(const String &name, const AnimationClips &clips)
+    SkeletalAnimationPtr AnimationManager::createSkeletalAnimation(const String &name, const AnimationClips &clips, const UUID &uuid/* = UUID::INVALID*/)
     {
+#if defined (T3D_EDITOR)
+        // 编辑器/工具环境下允许指定 UUID（用于保留已有资源 guid），创建时即设好
+        return smart_pointer_cast<SkeletalAnimation>(createResource(name, 2, &clips, &uuid));
+#else
         return smart_pointer_cast<SkeletalAnimation>(createResource(name, 1, &clips));
+#endif
     }
 
     //--------------------------------------------------------------------------
@@ -76,9 +81,17 @@ namespace Tiny3D
 
     ResourcePtr AnimationManager::newResource(const String &name, int32_t argc, va_list args)
     {
-        T3D_ASSERT(argc == 1);
+        T3D_ASSERT(argc == 1 || argc == 2);
         AnimationClips *clips = va_arg(args, AnimationClips*);
-        return SkeletalAnimation::create(name, *clips);
+        ResourcePtr anim = SkeletalAnimation::create(name, *clips);
+#if defined (T3D_EDITOR)
+        if (argc == 2)
+        {
+            const UUID *uuid = va_arg(args, const UUID*);
+            applyCreationUUID(anim, uuid != nullptr ? *uuid : UUID::INVALID);
+        }
+#endif
+        return anim;
     }
 
     //--------------------------------------------------------------------------

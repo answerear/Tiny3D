@@ -655,6 +655,42 @@ namespace Tiny3D
 
         return res;
     }
+
+    //--------------------------------------------------------------------------
+
+#if defined (T3D_EDITOR)
+    ResourcePtr ResourceManager::clone(const String &newName, ResourcePtr src, const UUID &uuid)
+    {
+        ResourcePtr res;
+
+        do
+        {
+            if (src == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid source resource to clone !");
+                break;
+            }
+
+            // 克隆对象
+            ResourcePtr dst = src->clone();
+            dst->setName(newName);
+            dst->mIsCloned = true;  // 设置克隆标记
+
+            // 必须在 insertCache 之前设置，保证缓存索引与资源 UUID 一致
+            applyCreationUUID(dst, uuid);
+
+            if (!insertCache(dst->getUUID(), dst))
+            {
+                break;
+            }
+
+            res = dst;
+        } while (false);
+
+        return res;
+    }
+#endif
+
     //--------------------------------------------------------------------------
 
     Resource *ResourceManager::getResource(const String &filename) const

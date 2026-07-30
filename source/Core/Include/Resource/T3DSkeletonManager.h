@@ -42,7 +42,7 @@ namespace Tiny3D
          */
         static SkeletonManagerPtr create();
 
-        SkeletonPtr createSkeleton(const String &name, GameObject *rootBoneGameObject);
+        SkeletonPtr createSkeleton(const String &name, GameObject *rootBoneGameObject, const UUID &uuid = UUID::INVALID);
 
         SkeletonPtr loadSkeleton(Archive *archive, const String &filename);
 

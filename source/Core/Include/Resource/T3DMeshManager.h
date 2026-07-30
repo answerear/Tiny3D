@@ -96,7 +96,7 @@ namespace Tiny3D
             const Vector3 &position = Vector3::ZERO, 
             const Quaternion &orientation = Quaternion::IDENTITY,
             const Vector3 &scaling = Vector3::UNIT_SCALE,
-            const String &meshNodeName = "");
+            const String &meshNodeName = "", const UUID &uuid = UUID::INVALID);
 
     protected:
         /**

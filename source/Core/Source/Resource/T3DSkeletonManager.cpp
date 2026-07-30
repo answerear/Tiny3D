@@ -39,9 +39,14 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    SkeletonPtr SkeletonManager::createSkeleton(const String &name, GameObject *rootBoneGameObject)
+    SkeletonPtr SkeletonManager::createSkeleton(const String &name, GameObject *rootBoneGameObject, const UUID &uuid/* = UUID::INVALID*/)
     {
+#if defined (T3D_EDITOR)
+        // 编辑器/工具环境下允许指定 UUID（用于保留已有资源 guid），创建时即设好
+        return smart_pointer_cast<Skeleton>(createResource(name, 2, rootBoneGameObject, &uuid));
+#else
         return smart_pointer_cast<Skeleton>(createResource(name, 1, rootBoneGameObject));
+#endif
     }
 
     //--------------------------------------------------------------------------
@@ -76,9 +81,17 @@ namespace Tiny3D
 
     ResourcePtr SkeletonManager::newResource(const String &name, int32_t argc, va_list args)
     {
-        T3D_ASSERT(argc == 1);
+        T3D_ASSERT(argc == 1 || argc == 2);
         GameObject *rootBoneGameObject = va_arg(args, GameObject*);
-        return Skeleton::create(name, rootBoneGameObject);
+        ResourcePtr skeleton = Skeleton::create(name, rootBoneGameObject);
+#if defined (T3D_EDITOR)
+        if (argc == 2)
+        {
+            const UUID *uuid = va_arg(args, const UUID*);
+            applyCreationUUID(skeleton, uuid != nullptr ? *uuid : UUID::INVALID);
+        }
+#endif
+        return skeleton;
     }
 
     //--------------------------------------------------------------------------

@@ -76,6 +76,18 @@ namespace Tiny3D
          */
         ResourcePtr clone(const String &newName, ResourcePtr src);
 
+#if defined (T3D_EDITOR)
+        /**
+         * @brief 克隆新资源对象，并指定其 UUID
+         * @param [in] newName : 新资源名称
+         * @param [in] src : 源资源对象
+         * @param [in] uuid : 要使用的 UUID，为 UUID::INVALID 时保持克隆时默认生成的 UUID
+         * @return 返回新资源对象
+         * @note 克隆默认会重新生成 UUID，本重载供“保留已有资源 guid”场景使用
+         */
+        ResourcePtr clone(const String &newName, ResourcePtr src, const UUID &uuid);
+#endif
+
         /**
          * @brief 根据名称获取资源对象
          * @param [in] filename : 给定资源名称 
