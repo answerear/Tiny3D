@@ -712,6 +712,51 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void GameObject::eraseUpdatingQueue(Component *component)
+    {
+        // 这里按指针在两个队列里查找，而不是照 putUpdatingQueue 的规则反推当初的
+        // 落位。组件的落位依赖 settings.updateOrders，两处各推一遍一旦不一致就会
+        // 残留野指针，按指针找则不受落位规则影响
+        for (auto &item : mUpdateComponents)
+        {
+            ComponentList &components = item.second;
+            auto itr = std::find(components.begin(), components.end(), component);
+
+            if (itr != components.end())
+            {
+                components.erase(itr);
+                return;
+            }
+        }
+
+        for (auto itr = mUpdateComponents2.begin();
+            itr != mUpdateComponents2.end(); ++itr)
+        {
+            if (itr->second == component)
+            {
+                mUpdateComponents2.erase(itr);
+                return;
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GameObject::unlinkComponentReferences(Component *component)
+    {
+        // Renderable 用裸指针记着视锥剔除包围体（由 seedBoundFromMesh 播种），
+        // 移除 Bound 组件时必须同步清空，否则剔除时会踩到野指针。
+        // 清空后 frustumCulling 会自动回退到「取任一 Bound 组件」的分支
+        Renderable *renderable = getComponent<Renderable>();
+
+        if (renderable != nullptr && renderable->getRenderBound() == component)
+        {
+            renderable->setRenderBound(nullptr);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     void GameObject::setupComponents()
     {
         // 工具态（关闭生命周期回调）：只做纯数据反序列化，不建立组件->宿主的反向
@@ -887,6 +932,11 @@ namespace Tiny3D
                 b->invokeDisable();
             }
 
+            // 更新队列与兄弟组件都用裸指针引用它，销毁前必须先断开，
+            // 否则组件被释放后下一帧就会踩到野指针
+            eraseUpdatingQueue(itr->second);
+            unlinkComponentReferences(itr->second);
+
             destroyComponent(itr->second);
             mComponents.erase(itr);
             mComponentObjects.erase(it);
@@ -910,7 +960,7 @@ namespace Tiny3D
                 break;
             }
             
-            for (auto itr = range.first; itr != range.second; ++itr)
+            for (auto itr = range.first; itr != range.second; )
             {
                 if (itr->second == mTransformNode)
                 {
@@ -923,8 +973,12 @@ namespace Tiny3D
                     b->invokeDisable();
                 }
 
+                eraseUpdatingQueue(itr->second);
+                unlinkComponentReferences(itr->second);
                 destroyComponent(itr->second);
-                mComponents.erase(itr);
+
+                // erase 会让当前迭代器失效，必须用它的返回值继续遍历
+                itr = mComponents.erase(itr);
             }
 
             mComponentObjects.erase(type.get_name().data());

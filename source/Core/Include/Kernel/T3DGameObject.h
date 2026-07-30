@@ -267,6 +267,22 @@ namespace Tiny3D
 
         void putUpdatingQueue(const RTTRType &type, Component *component);
 
+        /**
+         * \brief 把组件从更新队列里摘除，与 putUpdatingQueue 配对
+         * \param [in] component : 待摘除的组件
+         * \note 更新队列保存的是裸指针，组件销毁前必须先摘掉，否则后续的
+         *       onUpdate / onLateUpdate / onFixedUpdate 会访问到已释放的对象
+         */
+        void eraseUpdatingQueue(Component *component);
+
+        /**
+         * \brief 断开同一对象上其它组件对该组件的裸指针引用
+         * \param [in] component : 即将被移除的组件
+         * \note 同一 GameObject 上的组件之间用裸指针互相引用（生命周期由组件表统一
+         *       保证），移除其中一个时必须先把这些引用清掉
+         */
+        void unlinkComponentReferences(Component *component);
+
         virtual void onDestroy();
 
         void onUpdate();
