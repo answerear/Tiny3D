@@ -250,6 +250,13 @@ namespace Tiny3D
             if (ImPropertyDrawer::drawObject(instance))
             {
                 notifySceneModified();
+
+                // 资源引用字段存的是资产 UUID，组件只在 onLoadResource 里按 UUID 取
+                // 资产，光改 UUID 画面不会变，需要让组件重新加载一次资源
+                if (ImPropertyDrawer::wasAssetReferenceChanged())
+                {
+                    mPendingReloadComponent = component;
+                }
             }
         }
 
@@ -387,6 +394,27 @@ namespace Tiny3D
             if (resetComponent(component))
             {
                 notifySceneModified();
+            }
+        }
+
+        if (mPendingReloadComponent != nullptr)
+        {
+            const ComponentPtr component = mPendingReloadComponent;
+            mPendingReloadComponent = nullptr;
+
+            // 走资源门面挂着的工程搜索链，与编辑器其它加载资源的地方保持一致。
+            // 没有档案（工程尚未打开）时不能重载：组件会因为取不到资产而清空自己
+            // 已有的资源引用
+            Archive * const archive = T3D_ASSET_MGR.getArchive();
+
+            if (archive != nullptr)
+            {
+                component->onLoadResource(archive);
+            }
+            else
+            {
+                EDITOR_LOG_WARNING("No archive mounted, skip reloading resources of"
+                    " the component !");
             }
         }
     }

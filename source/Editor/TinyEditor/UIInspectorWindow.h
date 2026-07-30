@@ -107,6 +107,8 @@ namespace Tiny3D
         ComponentPtr mPendingRemoveComponent {nullptr};
         /// 待重置的组件，为空表示无操作
         ComponentPtr mPendingResetComponent {nullptr};
+        /// 待重新加载资源的组件，为空表示无操作。资源引用字段被改写后需要它生效
+        ComponentPtr mPendingReloadComponent {nullptr};
     };
 
     NS_END

@@ -24,6 +24,7 @@
 
 
 #include "GUIExtension/ImPropertyDrawer.h"
+#include "ProjectManager.h"
 
 
 namespace Tiny3D
@@ -40,12 +41,28 @@ namespace Tiny3D
         constexpr size_t kTextBufferSize = 512;
         /// 复合值类型递归展开的层数上限，防止异常的反射注册造成过深递归
         constexpr int32_t kMaxCompoundDepth = 4;
+        /// 容器元素个数上限，避免在 Size 框里误输入一个巨大的值直接吃掉内存
+        constexpr size_t kMaxContainerSize = 4096;
+        /// 资产选择器候选列表的可见行数
+        constexpr float kAssetVisibleRows = 12.0f;
 
         /// 角度类控件的显示格式，标注单位避免与弧度混淆
         const char * const kAngleFormat = "%.2f deg";
 
         /// 与序列化层保持一致的元数据 key，标记不参与序列化的属性
         const char * const kMetaNoSerialize = "NO_SERIALIZE";
+
+        /// 资产选择器弹窗的 ID，外层已按属性名 PushID，各属性之间不会串
+        const char * const kAssetPickerPopup = "##AssetPicker";
+
+        /**
+         * 资产拖拽的 payload 类型标识，负载内容为资产 UUID。
+         *
+         * 引用字段都会注册成该类型的拖拽接收方，但 project 面板目前还没有实现对应的
+         * 拖拽源（编辑器里尚无任何 BeginDragDropSource），所以接收方现在不会被触发；
+         * 等资产列表补上拖拽源后即可生效，无需再改这里。
+         */
+        const char * const kAssetPayload = "T3D_ASSET_UUID";
 
         /**
          * 拖动过程中缓存的欧拉角。
@@ -92,12 +109,235 @@ namespace Tiny3D
 
             return false;
         }
+
+        /**
+         * 本次 drawObject 期间是否改写过资源引用属性。
+         * 在 depth 为 0 的 drawObject 入口清零，由 wasAssetReferenceChanged 读取。
+         */
+        bool sAssetReferenceChanged = false;
+
+        /// 去掉反射类型名里的命名空间前缀，只留下类名用于显示
+        String stripNamespace(const String &name)
+        {
+            const size_t pos = name.rfind("::");
+
+            return (pos == String::npos) ? name : name.substr(pos + 2);
+        }
+
+        /// 资产选择器里的一个候选资产
+        struct AssetCandidate
+        {
+            UUID    uuid;
+            String  name;
+        };
+
+        /**
+         * 资产选择器的候选列表与搜索词。
+         *
+         * 候选项在弹窗打开的那一帧快照，之后不再回头访问资产树：project 面板在窗口
+         * 重新获得焦点时会整棵重建资产树（见 ProjectManager::applicationFocusGained），
+         * 缓存 AssetNode * 会变成野指针，因此这里只留下 UUID 与名字的副本。
+         * ImGui 同一时刻只会打开一个弹窗，所以只需一份。
+         */
+        TArray<AssetCandidate> sAssetCandidates;
+        ImGuiTextFilter sAssetFilter;
+
+        /**
+         * 判断资产节点的种类能否作为所需种类的引用目标
+         */
+        bool matchesAssetType(Meta::Type required, Meta::Type actual)
+        {
+            if (required == actual)
+            {
+                return true;
+            }
+
+            // 着色器在工程里既可能是编译产物，也可能是 shaderlab 源码，两者都能被引用
+            return required == Meta::kShader && actual == Meta::kShaderLab;
+        }
+
+        /// 取资产节点用于显示的名字，标题为空时退回文件名
+        String assetDisplayName(AssetNode *node)
+        {
+            return node->getTitle().empty() ? node->getFilename() : node->getTitle();
+        }
+
+        /// 递归收集资产树上指定种类的资产
+        void collectAssets(AssetNode *node, Meta::Type assetType,
+            TArray<AssetCandidate> &candidates)
+        {
+            if (node == nullptr)
+            {
+                return;
+            }
+
+            Meta * const meta = node->getMeta();
+
+            if (meta != nullptr && matchesAssetType(assetType, meta->getType()))
+            {
+                AssetCandidate candidate;
+                candidate.uuid = meta->getUUID();
+                candidate.name = assetDisplayName(node);
+
+                candidates.emplace_back(std::move(candidate));
+            }
+
+            for (auto child : node->getChildren())
+            {
+                collectAssets(child, assetType, candidates);
+            }
+        }
+
+        /**
+         * 需要检索的资产树根节点集合
+         * @remarks 工程资产与内置资源挂在不同档案上，资产树也分成两棵（见
+         *          ProjectManager::mountAssetArchives）。按 UUID 反查与列举候选都必须
+         *          覆盖两棵树：层级面板创建的 Cube / Sphere 一类对象引用的是内置网格，
+         *          只查工程资产树会把它们误判成引用丢失。
+         *          顺序与搜索链的优先级一致，工程资产在前
+         */
+        TArray<AssetNode *> assetRoots()
+        {
+            TArray<AssetNode *> roots;
+
+            AssetNode * const assets = PROJECT_MGR.getAssetRoot();
+
+            if (assets != nullptr)
+            {
+                roots.emplace_back(assets);
+            }
+
+            AssetNode * const builtin = PROJECT_MGR.getBuiltinAssetRoot();
+
+            if (builtin != nullptr)
+            {
+                roots.emplace_back(builtin);
+            }
+
+            return roots;
+        }
+
+        /// 按 UUID 反查资产名，找不到返回空串
+        String findAssetName(AssetNode *node, const UUID &uuid)
+        {
+            if (node == nullptr)
+            {
+                return String();
+            }
+
+            Meta * const meta = node->getMeta();
+
+            if (meta != nullptr && meta->getUUID() == uuid)
+            {
+                return assetDisplayName(node);
+            }
+
+            for (auto child : node->getChildren())
+            {
+                const String name = findAssetName(child, uuid);
+
+                if (!name.empty())
+                {
+                    return name;
+                }
+            }
+
+            return String();
+        }
+
+        /**
+         * 按属性名推断 UUID 属性引用的资产种类
+         * @return 推断不出时返回 Meta::kUnknown
+         * @remarks 引擎里的 UUID 属性并非都指向资产：组件自身的身份 UUID（属性名就叫
+         *          UUID）、指向场景内对象的 UUID（RootGameObjectUUID / RootBoneUUID）
+         *          都不该弹出资产选择器。因此这里采取白名单策略，只有名字命中下表的
+         *          属性才认定为资源引用，其余退回只读展示。
+         */
+        Meta::Type inferAssetType(const String &propName)
+        {
+            struct Entry
+            {
+                const char *suffix;
+                Meta::Type  type;
+            };
+
+            static const Entry kTable[] =
+            {
+                { "MeshUUID",       Meta::kMesh },
+                { "TextureUUID",    Meta::kTexture },
+                { "MaterialUUID",   Meta::kMaterial },
+                { "ShaderUUID",     Meta::kShader },
+                { "SkeletonUUID",   Meta::kSkeleton },
+                { "AnimationUUID",  Meta::kAnimation },
+                { "PrefabUUID",     Meta::kPrefab },
+                { "SceneUUID",      Meta::kScene },
+            };
+
+            for (const auto &entry : kTable)
+            {
+                const size_t length = ::strlen(entry.suffix);
+
+                // 按后缀匹配，这样 SkeletalAnimationUUID 一类的限定名也能命中
+                if (propName.length() >= length
+                    && propName.compare(propName.length() - length, length,
+                        entry.suffix) == 0)
+                {
+                    return entry.type;
+                }
+            }
+
+            return Meta::kUnknown;
+        }
+
+        /**
+         * 把当前控件登记为资产拖拽的接收方
+         * @param [out] uuid : 成功接收时填入拖入资产的 UUID
+         * @return 本帧接收到拖放时返回 true
+         */
+        bool acceptAssetDrop(UUID &uuid)
+        {
+            bool dropped = false;
+
+            if (ImGui::BeginDragDropTarget())
+            {
+                const ImGuiPayload * const payload
+                    = ImGui::AcceptDragDropPayload(kAssetPayload);
+
+                // 负载用 UUID 的字符串形式而非二进制结构：ImGui 的负载缓冲区是字节
+                // 数组，按 UUID 结构直接取值存在对齐隐患，字符串形式也便于拖拽源构造
+                if (payload != nullptr && payload->Data != nullptr
+                    && payload->DataSize > 0)
+                {
+                    const String text(static_cast<const char *>(payload->Data),
+                        static_cast<size_t>(payload->DataSize));
+
+                    uuid.fromString(text);
+                    dropped = true;
+                }
+
+                ImGui::EndDragDropTarget();
+            }
+
+            return dropped;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImPropertyDrawer::wasAssetReferenceChanged()
+    {
+        return sAssetReferenceChanged;
     }
 
     //--------------------------------------------------------------------------
 
     bool ImPropertyDrawer::drawObject(const RTTRObject &obj, int32_t depth)
     {
+        if (depth == 0)
+        {
+            sAssetReferenceChanged = false;
+        }
+
         // 智能指针包装的对象需要先解包，否则拿不到真正的属性表
         const RTTRObject instance = obj.get_type().get_raw_type().is_wrapper()
             ? obj.get_wrapped_instance() : obj;
@@ -139,6 +379,14 @@ namespace Tiny3D
 
         const RTTRType type = prop.get_type();
 
+        // 结构性属性只展示规模。这里不走 BeginDisabled 包住容器控件的做法：被禁用的
+        // 折叠节点连展开都点不动，反而比摘要更少信息
+        if (isStructuralProperty(prop))
+        {
+            drawContainerSummary(label, value);
+            return false;
+        }
+
         if (prop.is_readonly())
         {
             ImGui::BeginDisabled();
@@ -147,12 +395,27 @@ namespace Tiny3D
             return false;
         }
 
-        if (!drawValue(label, type, value, depth))
+        // UUID 属性分两类：对象自身的身份 UUID 不能改，指向资产的 UUID 走资产选择器
+        const Meta::Type assetType = (type == RTTRType::get<UUID>())
+            ? inferAssetType(label) : Meta::kUnknown;
+        const bool isAssetReference = (assetType != Meta::kUnknown);
+
+        const bool changed = isAssetReference
+            ? drawAssetReference(label, assetType, value)
+            : drawValue(label, type, value, depth);
+
+        if (!changed || !prop.set_value(obj, value))
         {
             return false;
         }
 
-        return prop.set_value(obj, value);
+        // 写回成功才登记，避免属性写入失败时还让调用方白跑一次资源重载
+        if (isAssetReference)
+        {
+            sAssetReferenceChanged = true;
+        }
+
+        return true;
     }
 
     //--------------------------------------------------------------------------
@@ -237,16 +500,21 @@ namespace Tiny3D
 
         if (value.is_sequential_container())
         {
-            const auto view = value.create_sequential_view();
-            drawReadOnlyText(label, std::to_string(view.get_size()) + " items");
-            return false;
+            return drawSequentialContainer(label, value, depth);
         }
 
         if (value.is_associative_container())
         {
-            const auto view = value.create_associative_view();
-            drawReadOnlyText(label, std::to_string(view.get_size()) + " entries");
+            // 关联容器增删要同时构造 key 与 value，键还需保证唯一，交互远比顺序容器
+            // 复杂；引擎里也没有需要在 inspector 里编辑的关联容器属性，只展示条目数
+            drawContainerSummary(label, value);
             return false;
+        }
+
+        // 裸指针与智能指针承载的是对象引用，而非可展开的结构体
+        if (type.is_pointer() || type.is_wrapper())
+        {
+            return drawObjectReference(label, type, value);
         }
 
         // Viewport / Aabb / Obb 这类已注册的复合值类型，展开逐个编辑子属性
@@ -269,8 +537,9 @@ namespace Tiny3D
             return false;
         }
 
-        // 裸指针与智能指针表示的是对象引用而非值类型，属于资源/对象引用字段的范畴，
-        // 不能当成结构体展开
+        // 指针与智能指针表示对象引用，已由 drawObjectReference 处理；派生自 Object 的
+        // 类型是有独立身份的对象（资源等），不该被当成宿主的内联结构体展开编辑。
+        // 这里重复挡一道，避免该函数被别处直接调用时漏判
         if (type.is_pointer() || type.is_wrapper()
             || type.is_derived_from(RTTRType::get<Object>()))
         {
@@ -301,6 +570,340 @@ namespace Tiny3D
         }
 
         return changed;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImPropertyDrawer::isStructuralProperty(const rttr::property &prop)
+    {
+        // TransformNode 的 Children 存的是子节点 UUID，父子关系由层级面板与
+        // TransformNode 自己维护（增删还要同步父子双方的挂接），从 inspector 改写
+        // 会直接切断场景树
+        const RTTRType declaring = prop.get_declaring_type();
+        const RTTRType transform = RTTRType::get<TransformNode>();
+
+        return prop.get_name() == "Children"
+            && (declaring == transform || declaring.is_derived_from(transform));
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ImPropertyDrawer::drawContainerSummary(const String &label, const RTTRVariant &value)
+    {
+        if (value.is_sequential_container())
+        {
+            const auto view = value.create_sequential_view();
+            drawReadOnlyText(label, std::to_string(view.get_size()) + " items");
+            return;
+        }
+
+        if (value.is_associative_container())
+        {
+            const auto view = value.create_associative_view();
+            drawReadOnlyText(label, std::to_string(view.get_size()) + " entries");
+            return;
+        }
+
+        drawReadOnlyText(label, value.get_type().get_name().to_string());
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImPropertyDrawer::drawSequentialContainer(const String &label,
+        RTTRVariant &value, int32_t depth)
+    {
+        auto view = value.create_sequential_view();
+
+        if (!view.is_valid())
+        {
+            drawReadOnlyText(label, value.get_type().get_name().to_string());
+            return false;
+        }
+
+        // 多维数组的元素本身还是数组，逐层展开只会得到难以理解的嵌套控件；
+        // 递归过深同样只做摘要，避免异常的反射注册把界面拖垮
+        if (view.get_rank() > 1 || depth >= kMaxCompoundDepth)
+        {
+            drawContainerSummary(label, value);
+            return false;
+        }
+
+        bool changed = false;
+
+        // 折叠节点的 ID 用属性名，元素个数只作为显示内容。若把个数拼进 ID，
+        // 增删元素时 ID 会变，节点会被 ImGui 当成另一个节点而自动收起
+        const bool expanded = ImGui::TreeNodeEx(label.c_str(),
+            ImGuiTreeNodeFlags_SpanAvailWidth, "%s (%d)", label.c_str(),
+            static_cast<int32_t>(view.get_size()));
+
+        if (!expanded)
+        {
+            return false;
+        }
+
+        // 定长数组（如 Vector3[3]）改不了元素个数，只能编辑既有元素
+        const bool resizable = view.is_dynamic();
+
+        if (resizable)
+        {
+            int32_t size = static_cast<int32_t>(view.get_size());
+
+            // 用回车提交而非逐次按键生效，避免输入中间态（如把 12 改成 2 的瞬间）
+            // 就把元素截掉
+            if (ImGui::InputInt("Size", &size, 1, 10,
+                ImGuiInputTextFlags_EnterReturnsTrue))
+            {
+                const size_t clamped = std::min(
+                    static_cast<size_t>(std::max(size, 0)), kMaxContainerSize);
+
+                if (clamped != view.get_size() && view.set_size(clamped))
+                {
+                    changed = true;
+                }
+            }
+        }
+
+        const RTTRType elementType = view.get_value_type();
+
+        // 遍历期间增删会让容器的迭代失效，先记下要删的下标，等元素画完再执行
+        constexpr size_t kNoIndex = static_cast<size_t>(-1);
+        size_t pendingErase = kNoIndex;
+
+        for (size_t i = 0; i < view.get_size(); ++i)
+        {
+            ImGui::PushID(static_cast<int32_t>(i));
+
+            // get_value 返回的是包了 reference_wrapper 的变体，解包后才是元素值
+            RTTRVariant element = view.get_value(i).extract_wrapped_value();
+            const String elementLabel = "[" + std::to_string(i) + "]";
+
+            if (drawValue(elementLabel, elementType, element, depth + 1)
+                && view.set_value(i, element))
+            {
+                changed = true;
+            }
+
+            if (resizable)
+            {
+                ImGui::SameLine();
+
+                if (ImGui::SmallButton("-"))
+                {
+                    pendingErase = i;
+                }
+            }
+
+            ImGui::PopID();
+        }
+
+        if (resizable && ImGui::SmallButton("+"))
+        {
+            // 用 set_size 追加而不是 insert 一个反射构造出来的元素：set_size 由容器
+            // 自己默认构造元素，不要求元素类型向 RTTR 注册过默认构造函数
+            if (view.set_size(std::min(view.get_size() + 1, kMaxContainerSize)))
+            {
+                changed = true;
+            }
+        }
+
+        if (pendingErase != kNoIndex)
+        {
+            view.erase(view.begin() + static_cast<int32_t>(pendingErase));
+            changed = true;
+        }
+
+        ImGui::TreePop();
+
+        return changed;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImPropertyDrawer::drawAssetReference(const String &label, Meta::Type assetType,
+        RTTRVariant &value)
+    {
+        const UUID current = value.get_value<UUID>();
+        const TArray<AssetNode *> roots = assetRoots();
+
+        String text;
+
+        if (current == UUID::INVALID)
+        {
+            text = "None";
+        }
+        else
+        {
+            for (auto root : roots)
+            {
+                text = findAssetName(root, current);
+
+                if (!text.empty())
+                {
+                    break;
+                }
+            }
+
+            // 引用的资产已不在工程里时保留 UUID，便于排查是漏拷资源还是引用写错
+            if (text.empty())
+            {
+                text = "Missing (" + current.toString() + ")";
+            }
+        }
+
+        bool changed = false;
+
+        ImGui::PushID(label.c_str());
+
+        // 引用字段用按钮承载，点击弹出资产选择器。按钮宽度对齐常规控件、属性名画在
+        // 右侧，这样与其它属性的排布保持一致
+        if (ImGui::Button(text.c_str(), ImVec2(ImGui::CalcItemWidth(), 0.0f)))
+        {
+            sAssetCandidates.clear();
+
+            for (auto root : roots)
+            {
+                collectAssets(root, assetType, sAssetCandidates);
+            }
+
+            std::sort(sAssetCandidates.begin(), sAssetCandidates.end(),
+                [](const AssetCandidate &lhs, const AssetCandidate &rhs)
+                {
+                    return lhs.name < rhs.name;
+                });
+
+            sAssetFilter.Clear();
+
+            ImGui::OpenPopup(kAssetPickerPopup);
+        }
+
+        UUID dropped;
+
+        if (acceptAssetDrop(dropped))
+        {
+            value = dropped;
+            changed = true;
+        }
+
+        ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+        ImGui::TextUnformatted(label.c_str());
+
+        if (ImGui::BeginPopup(kAssetPickerPopup))
+        {
+            // 弹出首帧把键盘焦点放到搜索框上，省去一次点击
+            if (ImGui::IsWindowAppearing())
+            {
+                ImGui::SetKeyboardFocusHere();
+            }
+
+            sAssetFilter.Draw("##AssetFilter");
+
+            const float height
+                = ImGui::GetTextLineHeightWithSpacing() * kAssetVisibleRows;
+
+            // BeginChild 与 EndChild 必须无条件配对，不能按返回值决定
+            ImGui::BeginChild("##AssetList", ImVec2(0.0f, height));
+
+            if (ImGui::Selectable("None", current == UUID::INVALID))
+            {
+                value = UUID::INVALID;
+                changed = true;
+
+                ImGui::CloseCurrentPopup();
+            }
+
+            int32_t index = 0;
+
+            for (const auto &candidate : sAssetCandidates)
+            {
+                if (!sAssetFilter.PassFilter(candidate.name.c_str()))
+                {
+                    continue;
+                }
+
+                // 不同目录下允许存在同名资产，用下标隔离控件 ID
+                ImGui::PushID(index++);
+
+                if (ImGui::Selectable(candidate.name.c_str(),
+                    candidate.uuid == current))
+                {
+                    value = candidate.uuid;
+                    changed = true;
+
+                    ImGui::CloseCurrentPopup();
+                }
+
+                ImGui::PopID();
+            }
+
+            ImGui::EndChild();
+            ImGui::EndPopup();
+        }
+
+        ImGui::PopID();
+
+        return changed;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImPropertyDrawer::drawObjectReference(const String &label, const RTTRType &type,
+        RTTRVariant &value)
+    {
+        // 只有指向 Object 派生类的指针才是对象引用。其余指针（如 Buffer 里的裸数据
+        // 指针）没有可展示的身份，也不该被说成「空引用」，只标出类型
+        const RTTRType pointee = type.is_wrapper()
+            ? type.get_wrapped_type().get_raw_type() : type.get_raw_type();
+
+        if (!pointee.is_derived_from(RTTRType::get<Object>()))
+        {
+            drawReadOnlyText(label, stripNamespace(type.get_name().to_string()));
+            return false;
+        }
+
+        Object *referenced = nullptr;
+
+        if (type.is_wrapper())
+        {
+            // 判空沿用序列化层验证过的做法：SmartPtr 的 wrapper_mapper::convert 只在
+            // 源非空且类型匹配时置成功位，能转成非空 SmartPtr<Object> 即代表引用非空。
+            // 不要改成 extract_wrapped_value() 再转 void*，非空 SmartPtr 解包出的裸
+            // 指针并不总能转成 void*，会把非空引用误判成空（见 T3DRttrArchive 里
+            // isNullValue 的说明）
+            RTTRVariant probe = value;
+
+            if (probe.convert(RTTRType::get<SmartPtr<Object>>()))
+            {
+                referenced = probe.get_value<SmartPtr<Object>>();
+            }
+        }
+        else
+        {
+            bool ok = false;
+            referenced = value.convert<Object *>(&ok);
+
+            if (!ok)
+            {
+                referenced = nullptr;
+            }
+        }
+
+        // 对象引用指向运行期对象，没有可枚举的候选集合，因此不像资产引用那样提供
+        // 选择器；赋值要靠从层级 / project 面板拖入，而编辑器目前还没有实现拖拽源，
+        // 所以这里先只做展示
+        if (referenced == nullptr)
+        {
+            // 空引用时把声明类型带出来，便于知道这里该放什么
+            drawReadOnlyText(label,
+                "None (" + stripNamespace(type.get_name().to_string()) + ")");
+        }
+        else
+        {
+            // 显示运行期派生类型，多态引用下比声明类型更有信息量
+            drawReadOnlyText(label,
+                stripNamespace(RTTRType::get(*referenced).get_name().to_string()));
+        }
+
+        return false;
     }
 
     //--------------------------------------------------------------------------

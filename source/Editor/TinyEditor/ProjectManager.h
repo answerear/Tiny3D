@@ -170,6 +170,15 @@ namespace Tiny3D
 
         AssetNode *getAssetRoot() const { return mAssetRoot; }
 
+        /**
+         * @brief 获取内置资源的资产树根节点
+         * @remarks 内置资源与工程资产挂在不同的档案上（见 mountAssetArchives），
+         *          资产树也因此分成两棵。需要按 UUID 反查资产的地方（如 inspector
+         *          的资源引用字段）必须同时检索这两棵树，否则引用了内置资源的对象
+         *          会被误判成引用丢失
+         */
+        AssetNode *getBuiltinAssetRoot() const { return mBuiltinRoot; }
+
         TResult makeFolder(AssetNode *parent, const String &path, AssetNode *&node);
 
         TResult removeFolder(AssetNode *node);
@@ -196,6 +205,14 @@ namespace Tiny3D
         TResult loadStartupScene();
 
         TResult populate();
+
+        /**
+         * @brief 构建内置资源的资产树
+         * @remarks 只在打开 / 新建工程时调用一次。内置资源是在 setupBuiltinAssets 里
+         *          一次性复制到 Temp 下的，会话期间不会变，因此不随 populate 在窗口
+         *          重新获得焦点时一起重建
+         */
+        TResult populateBuiltin();
 
         TResult populate(const String &path, AssetNode *parent, bool generateFolderNode, AssetNode *&node);
 
@@ -237,6 +254,8 @@ namespace Tiny3D
         ArchivePtr mCompiledShadersArchive {nullptr};
 
         AssetNode *mAssetRoot {nullptr};
+        /// 内置资源的资产树根节点
+        AssetNode *mBuiltinRoot {nullptr};
 
         /// 场景是否被修改标记
         bool mIsSceneModified {false};

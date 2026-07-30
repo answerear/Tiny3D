@@ -359,6 +359,14 @@ namespace Tiny3D
                 break;
             }
 
+            // 构建内置资源文件树
+            ret = populateBuiltin();
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to populate builtin tree [%s] !", mBuiltinPath.c_str());
+                break;
+            }
+
 #if !defined (TEST_SCENE_ENABLE)
             // 创建简单的场景
             ret = createSimpleScene(assetsPath);
@@ -483,7 +491,15 @@ namespace Tiny3D
                 EDITOR_LOG_ERROR("Failed to populate project tree [%s] !", mAssetsPath.c_str());
                 break;
             }
-            
+
+            // 构建内置资源文件树
+            ret = populateBuiltin();
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to populate builtin tree [%s] !", mBuiltinPath.c_str());
+                break;
+            }
+
 #if !defined (TEST_SCENE_ENABLE)
             // 加载启动场景
             ret = loadStartupScene();
@@ -543,6 +559,12 @@ namespace Tiny3D
         {
             mAssetRoot->destroy();
             mAssetRoot = nullptr;
+        }
+
+        if (mBuiltinRoot != nullptr)
+        {
+            mBuiltinRoot->destroy();
+            mBuiltinRoot = nullptr;
         }
         
         T3D_SCENE_MGR.unloadScene();
@@ -787,6 +809,23 @@ namespace Tiny3D
         mAssetRoot = new AssetNode(name, path, MetaFolder::create(UUID::generate()));
         AssetNode *child = nullptr;
         return populate(mAssetsPath, mAssetRoot, false, child);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ProjectManager::populateBuiltin()
+    {
+        if (mBuiltinPath.empty())
+        {
+            EDITOR_LOG_WARNING("Builtin assets path is empty, skip populating !");
+            return T3D_OK;
+        }
+
+        String path, name;
+        Dir::parsePath(mBuiltinPath, path, name);
+        mBuiltinRoot = new AssetNode(name, path, MetaFolder::create(UUID::generate()));
+        AssetNode *child = nullptr;
+        return populate(mBuiltinPath, mBuiltinRoot, false, child);
     }
 
     //--------------------------------------------------------------------------
