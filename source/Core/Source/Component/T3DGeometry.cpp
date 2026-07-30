@@ -253,6 +253,27 @@ namespace Tiny3D
             {
                 mSubMesh = mMesh->getSubMesh(mSubMeshName);
 
+                if (mSubMesh == nullptr)
+                {
+                    // 记录的 sub mesh 不在这个 mesh 里，退化到第一个 sub mesh。
+                    // 换网格（如编辑器里改 MeshUUID）时旧的 sub mesh 名必然对不上，
+                    // 若就这么留着空 sub mesh，该几何体既画不出来也没有材质
+                    const auto &submeshes = mMesh->getSubMeshes();
+
+                    if (!submeshes.empty())
+                    {
+                        const String requested = mSubMeshName;
+
+                        mSubMesh = submeshes.begin()->second;
+                        mSubMeshName = mSubMesh->getName();
+
+                        T3D_LOG_WARNING(LOG_TAG_COMPONENT,
+                            "Sub mesh (%s) not found in mesh (%s), fallback to (%s) !",
+                            requested.c_str(), mMeshUUID.toString().c_str(),
+                            mSubMeshName.c_str());
+                    }
+                }
+
                 if (mSubMesh != nullptr && archive != nullptr)
                 {
                     // 加载出来的，那就顺便把材质加载一下
@@ -272,9 +293,32 @@ namespace Tiny3D
 
     void Geometry::generateRenderMaterial()
     {
+        // 材质挂在 sub mesh 上，没有 sub mesh 就无从生成。onLoadResource 里 mesh 加载
+        // 成功但 sub mesh 解析不到时也会走到这里（例如 mesh 一个 sub mesh 都没有），
+        // 不先挡住就会解引用空指针
+        if (mSubMesh == nullptr)
+        {
+            T3D_LOG_WARNING(LOG_TAG_COMPONENT,
+                "No sub mesh to generate render material (mesh : %s) !",
+                mMeshUUID.toString().c_str());
+            return;
+        }
+
         Material *material = static_cast<Material *>(T3D_MATERIAL_MGR.getResource(mSubMesh->getMaterialUUID()));
         T3D_ASSERT(material != nullptr);
-        
+
+        // sub mesh 引用的材质没能加载进来（资产缺失或未随 mesh 一起加载）时提前退出。
+        // 断言已经在 debug 下把数据问题暴露出来了，release 下继续走会把空指针交给
+        // clone
+        if (material == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_COMPONENT,
+                "Material (%s) of sub mesh (%s) is not loaded !",
+                mSubMesh->getMaterialUUID().toString().c_str(),
+                mSubMeshName.c_str());
+            return;
+        }
+
         mIsDynamicBatch = false;
 
         if (mIsDynamicBatch)
