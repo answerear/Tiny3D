@@ -111,6 +111,13 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="Active", RTTRFuncType="setter")
         void setActive(bool active) { mIsActive = active; }
 
+        /**
+         * \brief 自身与所有祖先是否都处于激活状态（对标 Unity 的 activeInHierarchy）
+         * \remarks 场景树遍历（visitActive）本身就会在祖先失活时裁掉整棵子树，因此
+         *          只有不走遍历、从独立登记表里取到的组件（如相机）才需要它
+         */
+        bool isActiveInHierarchy() const;
+
         TPROPERTY(RTTRFuncName="CameraMask", RTTRFuncType="setter")
         void setCameraMask(uint32_t mask) { mCameraMask = mask; }
 

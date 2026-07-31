@@ -33,6 +33,59 @@ namespace Tiny3D
 {
     NS_BEGIN(Editor)
 
+    namespace
+    {
+        /**
+         * 场景里是否还有相机会往 game 视图的渲染目标上画东西
+         * @remarks 渲染目标是逐相机清理的，一台相机都不渲染时这张纹理不会被碰，
+         *          里面会一直留着最后一帧的画面。直接贴出来会让人误以为画面还在
+         *          更新，因此要把这种情况单独识别出来
+         */
+        bool hasRenderingCamera()
+        {
+            const Scene * const scene = T3D_SCENE_MGR.getCurrentScene();
+
+            if (scene == nullptr)
+            {
+                return false;
+            }
+
+            for (const auto &item : scene->getCameras())
+            {
+                const Camera * const camera = item.second;
+                const GameObject * const owner = camera->getGameObject();
+
+                if (camera->isEnabled()
+                    && (owner == nullptr || owner->isActiveInHierarchy()))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// 没有相机渲染时的占位画面，与 Unity 的 game 视图一致
+        void drawNoCameraHint(const ImVec2 &size)
+        {
+            const ImVec2 min = ImGui::GetCursorScreenPos();
+            const ImVec2 max(min.x + size.x, min.y + size.y);
+
+            // 占住与画面等大的区域，让有无相机时的布局保持一致
+            ImGui::Dummy(size);
+
+            ImDrawList * const drawList = ImGui::GetWindowDrawList();
+            drawList->AddRectFilled(min, max, IM_COL32(0, 0, 0, 255));
+
+            const char * const text = "No cameras rendering";
+            const ImVec2 textSize = ImGui::CalcTextSize(text);
+            const ImVec2 pos(min.x + (size.x - textSize.x) * 0.5f,
+                min.y + (size.y - textSize.y) * 0.5f);
+
+            drawList->AddText(pos, ImGui::GetColorU32(ImGuiCol_TextDisabled), text);
+        }
+    }
+
     //--------------------------------------------------------------------------
 
     void UIGameView::onGUI()
@@ -95,7 +148,14 @@ namespace Tiny3D
         ImGui::SetCursorPosX(x);
         ImGui::SetCursorPosY(y);
         // ImGui::Image(EDITOR_SCENE.getGameRT(), size, uv0, uv1);
-        ImGui::Image(EDITOR_SCENE.getGameRT(), size);
+        if (hasRenderingCamera())
+        {
+            ImGui::Image(EDITOR_SCENE.getGameRT(), size);
+        }
+        else
+        {
+            drawNoCameraHint(size);
+        }
     }
 
     //--------------------------------------------------------------------------

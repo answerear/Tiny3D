@@ -225,8 +225,6 @@ namespace Tiny3D
 
         mImportantDirLight = nullptr;
 
-        int32_t visitTimes = 0;
-        
         GameObjectPtr go;
         
 #if defined (T3D_EDITOR)
@@ -235,28 +233,41 @@ namespace Tiny3D
         go = scene->getEditorGameObject();
         go->frustumCulling(camera, this);
 #endif
-        
+
+        go = scene->getRootGameObject();
+
+        if (go == nullptr)
+        {
+            return T3D_OK;
+        }
+
         for (auto item : scene->getCameras())
         {
-            mCameras.emplace_back(item.second);
+            // 相机是登记在场景的相机表里的，不参与场景树遍历，所属对象的 active
+            // 因此不会被自动裁掉，需要在这里连同组件开关一起判断
+            Camera * const sceneCamera = item.second;
+            GameObject * const owner = sceneCamera->getGameObject();
 
-            go = scene->getRootGameObject();
-            uint32_t cullingMask = item.second->getCullingMask();
+            if (!sceneCamera->isEnabled()
+                || (owner != nullptr && !owner->isActiveInHierarchy()))
+            {
+                continue;
+            }
+
+            mCameras.emplace_back(sceneCamera);
+
+            uint32_t cullingMask = sceneCamera->getCullingMask();
             uint32_t cameraMask = go->getCameraMask();
             if (cullingMask & cameraMask)
             {
-                go->frustumCulling(item.second, this);
+                go->frustumCulling(sceneCamera, this);
             }
-
-            if (visitTimes == 0)
-            {
-                // 添加光源，只做一次
-                go->setupLights(this);
-            }
-
-            visitTimes++;
         }
-        
+
+        // 光源与相机无关，整个场景只收集一次。放在循环外，这样首台相机被禁用、
+        // 乃至场景里一台相机都没有时，光源列表依然是完整的
+        go->setupLights(this);
+
         return T3D_OK;
     }
 

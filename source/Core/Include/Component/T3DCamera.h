@@ -55,7 +55,10 @@ namespace Tiny3D
         static CameraPtr create();
 
         ~Camera() override;
-        
+
+        /// 关掉后本相机不再渲染，也不会出现在管线的相机列表里
+        bool supportsEnabled() const override { return true; }
+
         ComponentPtr clone() const override;
 
         TResult lookAt(const Vector3 &eye, const Vector3 &obj, const Vector3 &up);

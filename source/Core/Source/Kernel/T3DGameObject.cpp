@@ -574,6 +574,33 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool GameObject::isActiveInHierarchy() const
+    {
+        if (!mIsActive)
+        {
+            return false;
+        }
+
+        TransformNode *node = (mTransformNode != nullptr)
+            ? mTransformNode->getParent() : nullptr;
+
+        while (node != nullptr)
+        {
+            const GameObject * const go = node->getGameObject();
+
+            if (go != nullptr && !go->isActive())
+            {
+                return false;
+            }
+
+            node = node->getParent();
+        }
+
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
     void GameObject::frustumCulling(Camera *camera, RenderPipeline *pipeline) const
     {
         TransformNodePtr node = getComponent<TransformNode>();
