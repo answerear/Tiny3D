@@ -47,6 +47,15 @@ namespace Tiny3D
         
         static GameObjectPtr createWithMesh(const String &name, Mesh *mesh, Geometry *&geometry, TransformNode *parent = nullptr, bool managed = true);
 
+        /**
+         * \brief 用 mesh 的包围体种子播种 Bound 组件（仅当无 Bound 时），并设为渲染剔除包围体
+         * \param [in] go : 需要挂载 Bound 组件的 GameObject
+         * \param [in] mesh : 提供包围体种子的 mesh 资源
+         * \param [in] geometry : 需要设置渲染剔除包围体的 geometry，可以为 nullptr
+         * \return 播种成功返回新建的 Bound 组件；mesh 没有种子或已存在 Bound 组件时返回 nullptr
+         */
+        static BoundPtr seedBoundFromMesh(GameObject *go, Mesh *mesh, Geometry *geometry);
+
         static void destroyComponents();
 
         static void destroyGameObjects();
@@ -301,9 +310,6 @@ namespace Tiny3D
         static void destroyGameObject(GameObject *gameObject);
         
     private:
-        /// 用 mesh 的包围体种子播种 Bound 组件（仅当无 Bound 时），并设为渲染剔除包围体
-        static void seedBoundFromMesh(GameObject *go, Mesh *mesh, Geometry *geometry);
-
         TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="setter")
         void setUUID(const UUID &uuid) { mUUID = uuid; }
 

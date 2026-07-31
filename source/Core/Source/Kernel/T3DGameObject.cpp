@@ -319,23 +319,23 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void GameObject::seedBoundFromMesh(GameObject *go, Mesh *mesh, Geometry *geometry)
+    BoundPtr GameObject::seedBoundFromMesh(GameObject *go, Mesh *mesh, Geometry *geometry)
     {
         if (go == nullptr || mesh == nullptr)
         {
-            return;
+            return nullptr;
         }
 
         Bound::Type type = mesh->getBoundSeedType();
         if (type == Bound::Type::NONE)
         {
-            return;
+            return nullptr;
         }
 
         if (!go->getComponents<Bound>().empty())
         {
             // 已有 Bound 组件，以组件为准
-            return;
+            return nullptr;
         }
 
         const Vector3 &a = mesh->getBoundSeedA();
@@ -384,7 +384,10 @@ namespace Tiny3D
         {
             geometry->setRenderBound(bound);
         }
+
+        return bound;
     }
+
     //--------------------------------------------------------------------------
 
     GameObject::GameObject(const String &name, bool managed)
