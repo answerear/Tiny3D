@@ -23,7 +23,7 @@
               "RTTI_Type": "Tiny3D::UUID",
               "RTTI_Value": {
                 "RTTI_Type": "std::string",
-                "RTTI_Value": "85711375b44c02a3e4dbfd4f481f0894"
+                "RTTI_Value": "1dc551930ba8d219f436bdd10265d115"
               }
             },
             "RTTI_Map_Value": {
@@ -48,517 +48,15 @@
                       "RTTI_Map_Value": {
                         "RTTI_Type": "Tiny3D::Transform3D",
                         "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
                           "UUID": {
                             "RTTI_Type": "Tiny3D::UUID",
                             "RTTI_Value": {
                               "RTTI_Type": "std::string",
-                              "RTTI_Value": "02d8939f1860e9324a2f0072830065b2"
-                            }
-                          },
-                          "Children": {
-                            "RTTI_Type": "std::list<Tiny3D::UUID>",
-                            "RTTI_Value": [
-                              {
-                                "RTTI_Type": "Tiny3D::UUID",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "c7d1ecd7e4f1f21270ca4fc5985ef52e"
-                                }
-                              },
-                              {
-                                "RTTI_Type": "Tiny3D::UUID",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "4b10b95f480f772366a72cbd1c50a70c"
-                                }
-                              },
-                              {
-                                "RTTI_Type": "Tiny3D::UUID",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "f8bff0c3f281c368c817555850ba5b8e"
-                                }
-                              },
-                              {
-                                "RTTI_Type": "Tiny3D::UUID",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "a229aa069edf282bf7311c7843401d6d"
-                                }
-                              },
-                              {
-                                "RTTI_Type": "Tiny3D::UUID",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "c8febebe080d08f3efbe1fd2b1aeae7e"
-                                }
-                              },
-                              {
-                                "RTTI_Type": "Tiny3D::UUID",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "d1c15cb60e14fa896350eea87de40ca3"
-                                }
-                              }
-                            ]
-                          },
-                          "Orientation": {
-                            "RTTI_Type": "Tiny3D::TQuaternion<float>",
-                            "RTTI_Value": {
-                              "w": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.6999518871307373
-                              },
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -0.0075491489842534069
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.01300116442143917
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -0.7140318155288696
-                              }
-                            }
-                          },
-                          "Position": {
-                            "RTTI_Type": "Tiny3D::TVector3<float>",
-                            "RTTI_Value": {
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -2.5803275108337404
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.31157824397087099
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.0
-                              }
-                            }
-                          },
-                          "Scaling": {
-                            "RTTI_Type": "Tiny3D::TVector3<float>",
-                            "RTTI_Value": {
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.0
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.0
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.0
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    {
-                      "RTTI_Map_Key": {
-                        "RTTI_Type": "std::string",
-                        "RTTI_Value": "Tiny3D::Bone"
-                      },
-                      "RTTI_Map_Value": {
-                        "RTTI_Type": "Tiny3D::Bone",
-                        "RTTI_Value": {
-                          "UUID": {
-                            "RTTI_Type": "Tiny3D::UUID",
-                            "RTTI_Value": {
-                              "RTTI_Type": "std::string",
-                              "RTTI_Value": "ee561d50ccbd7d879609452b77548531"
-                            }
-                          },
-                          "OffsetMatrix": {
-                            "RTTI_Type": "Tiny3D::TMatrix4<float>",
-                            "RTTI_Value": {
-                              "data": {
-                                "RTTI_Type": "Tiny3D::Buffer",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  ]
-                },
-                "Name": {
-                  "RTTI_Type": "std::string",
-                  "RTTI_Value": "Bip01"
-                },
-                "UUID": {
-                  "RTTI_Type": "Tiny3D::UUID",
-                  "RTTI_Value": {
-                    "RTTI_Type": "std::string",
-                    "RTTI_Value": "85711375b44c02a3e4dbfd4f481f0894"
-                  }
-                },
-                "Visible": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
-                }
-              }
-            }
-          },
-          {
-            "RTTI_Map_Key": {
-              "RTTI_Type": "Tiny3D::UUID",
-              "RTTI_Value": {
-                "RTTI_Type": "std::string",
-                "RTTI_Value": "d792b5526fee7b47a0f6a88a0ffcda3b"
-              }
-            },
-            "RTTI_Map_Value": {
-              "RTTI_Type": "Tiny3D::GameObject",
-              "RTTI_Value": {
-                "Active": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
-                },
-                "CameraMask": {
-                  "RTTI_Type": "unsignedint",
-                  "RTTI_Value": 1
-                },
-                "Components": {
-                  "RTTI_Type": "std::unordered_multimap<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::Component>>",
-                  "RTTI_Value": [
-                    {
-                      "RTTI_Map_Key": {
-                        "RTTI_Type": "std::string",
-                        "RTTI_Value": "Tiny3D::Transform3D"
-                      },
-                      "RTTI_Map_Value": {
-                        "RTTI_Type": "Tiny3D::Transform3D",
-                        "RTTI_Value": {
-                          "UUID": {
-                            "RTTI_Type": "Tiny3D::UUID",
-                            "RTTI_Value": {
-                              "RTTI_Type": "std::string",
-                              "RTTI_Value": "c7d1ecd7e4f1f21270ca4fc5985ef52e"
-                            }
-                          },
-                          "Children": {
-                            "RTTI_Type": "std::list<Tiny3D::UUID>",
-                            "RTTI_Value": [
-                              {
-                                "RTTI_Type": "Tiny3D::UUID",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "de872b4cb100586b561d4ffff6e3616c"
-                                }
-                              }
-                            ]
-                          },
-                          "Orientation": {
-                            "RTTI_Type": "Tiny3D::TQuaternion<float>",
-                            "RTTI_Value": {
-                              "w": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.6677185893058777
-                              },
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.1497478187084198
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -0.7288380265235901
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -0.022861093282699586
-                              }
-                            }
-                          },
-                          "Position": {
-                            "RTTI_Type": "Tiny3D::TVector3<float>",
-                            "RTTI_Value": {
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.1926780641078949
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.1401464939117432
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -0.9614589214324951
-                              }
-                            }
-                          },
-                          "Scaling": {
-                            "RTTI_Type": "Tiny3D::TVector3<float>",
-                            "RTTI_Value": {
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.000000238418579
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.9999997615814209
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.0000001192092896
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    {
-                      "RTTI_Map_Key": {
-                        "RTTI_Type": "std::string",
-                        "RTTI_Value": "Tiny3D::Bone"
-                      },
-                      "RTTI_Map_Value": {
-                        "RTTI_Type": "Tiny3D::Bone",
-                        "RTTI_Value": {
-                          "UUID": {
-                            "RTTI_Type": "Tiny3D::UUID",
-                            "RTTI_Value": {
-                              "RTTI_Type": "std::string",
-                              "RTTI_Value": "818583b33a845fc7b9c75df93b18ce1f"
-                            }
-                          },
-                          "OffsetMatrix": {
-                            "RTTI_Type": "Tiny3D::TMatrix4<float>",
-                            "RTTI_Value": {
-                              "data": {
-                                "RTTI_Type": "Tiny3D::Buffer",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "B9Ddu0Cc3rtwqjm78teavtRSyzvgbPC7lW41Oz7x0D/SvYG72YXzODlwFjzNECu/AAAAAAAAAAAAAAAAAACAPw=="
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  ]
-                },
-                "Name": {
-                  "RTTI_Type": "std::string",
-                  "RTTI_Value": "Bone001"
-                },
-                "UUID": {
-                  "RTTI_Type": "Tiny3D::UUID",
-                  "RTTI_Value": {
-                    "RTTI_Type": "std::string",
-                    "RTTI_Value": "d792b5526fee7b47a0f6a88a0ffcda3b"
-                  }
-                },
-                "Visible": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
-                }
-              }
-            }
-          },
-          {
-            "RTTI_Map_Key": {
-              "RTTI_Type": "Tiny3D::UUID",
-              "RTTI_Value": {
-                "RTTI_Type": "std::string",
-                "RTTI_Value": "827ff70eb86ba72f13009cda5149ca0c"
-              }
-            },
-            "RTTI_Map_Value": {
-              "RTTI_Type": "Tiny3D::GameObject",
-              "RTTI_Value": {
-                "Active": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
-                },
-                "CameraMask": {
-                  "RTTI_Type": "unsignedint",
-                  "RTTI_Value": 1
-                },
-                "Components": {
-                  "RTTI_Type": "std::unordered_multimap<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::Component>>",
-                  "RTTI_Value": [
-                    {
-                      "RTTI_Map_Key": {
-                        "RTTI_Type": "std::string",
-                        "RTTI_Value": "Tiny3D::Transform3D"
-                      },
-                      "RTTI_Map_Value": {
-                        "RTTI_Type": "Tiny3D::Transform3D",
-                        "RTTI_Value": {
-                          "UUID": {
-                            "RTTI_Type": "Tiny3D::UUID",
-                            "RTTI_Value": {
-                              "RTTI_Type": "std::string",
-                              "RTTI_Value": "de872b4cb100586b561d4ffff6e3616c"
-                            }
-                          },
-                          "Children": {
-                            "RTTI_Type": "std::list<Tiny3D::UUID>",
-                            "RTTI_Value": [
-                              {
-                                "RTTI_Type": "Tiny3D::UUID",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "661e28f308112119a97f544d0fcecc2b"
-                                }
-                              }
-                            ]
-                          },
-                          "Orientation": {
-                            "RTTI_Type": "Tiny3D::TQuaternion<float>",
-                            "RTTI_Value": {
-                              "w": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.9932394623756409
-                              },
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -0.04776478186249733
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.0989915281534195
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.03734384477138519
-                              }
-                            }
-                          },
-                          "Position": {
-                            "RTTI_Type": "Tiny3D::TVector3<float>",
-                            "RTTI_Value": {
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -1.5224697589874268
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -1.6927718604620169e-7
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -7.105427198782324e-17
-                              }
-                            }
-                          },
-                          "Scaling": {
-                            "RTTI_Type": "Tiny3D::TVector3<float>",
-                            "RTTI_Value": {
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.0
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.0
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.0
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    {
-                      "RTTI_Map_Key": {
-                        "RTTI_Type": "std::string",
-                        "RTTI_Value": "Tiny3D::Bone"
-                      },
-                      "RTTI_Map_Value": {
-                        "RTTI_Type": "Tiny3D::Bone",
-                        "RTTI_Value": {
-                          "UUID": {
-                            "RTTI_Type": "Tiny3D::UUID",
-                            "RTTI_Value": {
-                              "RTTI_Type": "std::string",
-                              "RTTI_Value": "61f6249b0363fd6149650e05572d8c27"
-                            }
-                          },
-                          "OffsetMatrix": {
-                            "RTTI_Type": "Tiny3D::TMatrix4<float>",
-                            "RTTI_Value": {
-                              "data": {
-                                "RTTI_Type": "Tiny3D::Buffer",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "KtELu96IH7zE4VC6vWP2P2dVEjx/DhW7uEl+OwRPKz/TvYG74oXzODlwFjzOECu/AAAAAAAAAAAAAAAAAACAPw=="
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  ]
-                },
-                "Name": {
-                  "RTTI_Type": "std::string",
-                  "RTTI_Value": "Bone002"
-                },
-                "UUID": {
-                  "RTTI_Type": "Tiny3D::UUID",
-                  "RTTI_Value": {
-                    "RTTI_Type": "std::string",
-                    "RTTI_Value": "827ff70eb86ba72f13009cda5149ca0c"
-                  }
-                },
-                "Visible": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
-                }
-              }
-            }
-          },
-          {
-            "RTTI_Map_Key": {
-              "RTTI_Type": "Tiny3D::UUID",
-              "RTTI_Value": {
-                "RTTI_Type": "std::string",
-                "RTTI_Value": "31be083592067cd1bf7ff3d9849ccd3f"
-              }
-            },
-            "RTTI_Map_Value": {
-              "RTTI_Type": "Tiny3D::GameObject",
-              "RTTI_Value": {
-                "Active": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
-                },
-                "CameraMask": {
-                  "RTTI_Type": "unsignedint",
-                  "RTTI_Value": 1
-                },
-                "Components": {
-                  "RTTI_Type": "std::unordered_multimap<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::Component>>",
-                  "RTTI_Value": [
-                    {
-                      "RTTI_Map_Key": {
-                        "RTTI_Type": "std::string",
-                        "RTTI_Value": "Tiny3D::Transform3D"
-                      },
-                      "RTTI_Map_Value": {
-                        "RTTI_Type": "Tiny3D::Transform3D",
-                        "RTTI_Value": {
-                          "UUID": {
-                            "RTTI_Type": "Tiny3D::UUID",
-                            "RTTI_Value": {
-                              "RTTI_Type": "std::string",
-                              "RTTI_Value": "661e28f308112119a97f544d0fcecc2b"
+                              "RTTI_Value": "5a43c76e88166e8605b5717fd3216e23"
                             }
                           },
                           "Children": {
@@ -631,11 +129,15 @@
                       "RTTI_Map_Value": {
                         "RTTI_Type": "Tiny3D::Bone",
                         "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
                           "UUID": {
                             "RTTI_Type": "Tiny3D::UUID",
                             "RTTI_Value": {
                               "RTTI_Type": "std::string",
-                              "RTTI_Value": "d058812c26223ac80eed3e17904a874e"
+                              "RTTI_Value": "1384ea459ba25112fce5c77db8c43893"
                             }
                           },
                           "OffsetMatrix": {
@@ -663,12 +165,8 @@
                   "RTTI_Type": "Tiny3D::UUID",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "31be083592067cd1bf7ff3d9849ccd3f"
+                    "RTTI_Value": "1dc551930ba8d219f436bdd10265d115"
                   }
-                },
-                "Visible": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
                 }
               }
             }
@@ -678,7 +176,7 @@
               "RTTI_Type": "Tiny3D::UUID",
               "RTTI_Value": {
                 "RTTI_Type": "std::string",
-                "RTTI_Value": "09cb4e58d9e9bb65e9f95f776a7ecc3f"
+                "RTTI_Value": "4f4043f78cf8b99011100cf5976bda99"
               }
             },
             "RTTI_Map_Value": {
@@ -703,160 +201,15 @@
                       "RTTI_Map_Value": {
                         "RTTI_Type": "Tiny3D::Transform3D",
                         "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
                           "UUID": {
                             "RTTI_Type": "Tiny3D::UUID",
                             "RTTI_Value": {
                               "RTTI_Type": "std::string",
-                              "RTTI_Value": "8216714cacaf6a45d36de8e880449651"
-                            }
-                          },
-                          "Children": {
-                            "RTTI_Type": "std::list<Tiny3D::UUID>",
-                            "RTTI_Value": []
-                          },
-                          "Orientation": {
-                            "RTTI_Type": "Tiny3D::TQuaternion<float>",
-                            "RTTI_Value": {
-                              "w": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.9789777398109436
-                              },
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.10112285614013672
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.022113751620054246
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -0.17574921250343324
-                              }
-                            }
-                          },
-                          "Position": {
-                            "RTTI_Type": "Tiny3D::TVector3<float>",
-                            "RTTI_Value": {
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -1.6739475727081299
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.5258788721439488e-7
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 7.629394076502649e-7
-                              }
-                            }
-                          },
-                          "Scaling": {
-                            "RTTI_Type": "Tiny3D::TVector3<float>",
-                            "RTTI_Value": {
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.9999998807907105
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.000000238418579
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.0
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    {
-                      "RTTI_Map_Key": {
-                        "RTTI_Type": "std::string",
-                        "RTTI_Value": "Tiny3D::Bone"
-                      },
-                      "RTTI_Map_Value": {
-                        "RTTI_Type": "Tiny3D::Bone",
-                        "RTTI_Value": {
-                          "UUID": {
-                            "RTTI_Type": "Tiny3D::UUID",
-                            "RTTI_Value": {
-                              "RTTI_Type": "std::string",
-                              "RTTI_Value": "8aba6c0f48764d6e283dbe3889bfa396"
-                            }
-                          },
-                          "OffsetMatrix": {
-                            "RTTI_Type": "Tiny3D::TMatrix4<float>",
-                            "RTTI_Value": {
-                              "data": {
-                                "RTTI_Type": "Tiny3D::Buffer",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "R3GXO/kmDTxAvwk7qjZEQJ8BArwgU6Y7kAhcuyYBAEC9vYG7PYPzuEBwFjy0ECu/AAAAAAAAAAAAAAAAAACAPw=="
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  ]
-                },
-                "Name": {
-                  "RTTI_Type": "std::string",
-                  "RTTI_Value": "Bone003(mirrored)"
-                },
-                "UUID": {
-                  "RTTI_Type": "Tiny3D::UUID",
-                  "RTTI_Value": {
-                    "RTTI_Type": "std::string",
-                    "RTTI_Value": "09cb4e58d9e9bb65e9f95f776a7ecc3f"
-                  }
-                },
-                "Visible": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
-                }
-              }
-            }
-          },
-          {
-            "RTTI_Map_Key": {
-              "RTTI_Type": "Tiny3D::UUID",
-              "RTTI_Value": {
-                "RTTI_Type": "std::string",
-                "RTTI_Value": "5f631df71ca4d4c1ee32ef806cbd4b72"
-              }
-            },
-            "RTTI_Map_Value": {
-              "RTTI_Type": "Tiny3D::GameObject",
-              "RTTI_Value": {
-                "Active": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
-                },
-                "CameraMask": {
-                  "RTTI_Type": "unsignedint",
-                  "RTTI_Value": 1
-                },
-                "Components": {
-                  "RTTI_Type": "std::unordered_multimap<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::Component>>",
-                  "RTTI_Value": [
-                    {
-                      "RTTI_Map_Key": {
-                        "RTTI_Type": "std::string",
-                        "RTTI_Value": "Tiny3D::Transform3D"
-                      },
-                      "RTTI_Map_Value": {
-                        "RTTI_Type": "Tiny3D::Transform3D",
-                        "RTTI_Value": {
-                          "UUID": {
-                            "RTTI_Type": "Tiny3D::UUID",
-                            "RTTI_Value": {
-                              "RTTI_Type": "std::string",
-                              "RTTI_Value": "4b10b95f480f772366a72cbd1c50a70c"
+                              "RTTI_Value": "b8318778af68a837019f88192e732367"
                             }
                           },
                           "Children": {
@@ -866,7 +219,7 @@
                                 "RTTI_Type": "Tiny3D::UUID",
                                 "RTTI_Value": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "d9683ff7f6fd7b9b93c5d26c623b0f34"
+                                  "RTTI_Value": "b37536faaead1c527c9bdd87753be36d"
                                 }
                               }
                             ]
@@ -876,19 +229,19 @@
                             "RTTI_Value": {
                               "w": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 0.22126111388206483
+                                "RTTI_Value": 0.6677185893058777
                               },
                               "x": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 0.6976137757301331
+                                "RTTI_Value": 0.1497478187084198
                               },
                               "y": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": -0.1321553885936737
+                                "RTTI_Value": -0.7288380265235901
                               },
                               "z": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": -0.6685159802436829
+                                "RTTI_Value": -0.022861093282699586
                               }
                             }
                           },
@@ -897,15 +250,15 @@
                             "RTTI_Value": {
                               "x": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 0.23252959549427033
+                                "RTTI_Value": 0.1926780641078949
                               },
                               "y": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 1.0642539262771607
+                                "RTTI_Value": 1.1401464939117432
                               },
                               "z": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 1.036703109741211
+                                "RTTI_Value": -0.9614589214324951
                               }
                             }
                           },
@@ -918,164 +271,7 @@
                               },
                               "y": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 1.0000001192092896
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.000000238418579
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    {
-                      "RTTI_Map_Key": {
-                        "RTTI_Type": "std::string",
-                        "RTTI_Value": "Tiny3D::Bone"
-                      },
-                      "RTTI_Map_Value": {
-                        "RTTI_Type": "Tiny3D::Bone",
-                        "RTTI_Value": {
-                          "UUID": {
-                            "RTTI_Type": "Tiny3D::UUID",
-                            "RTTI_Value": {
-                              "RTTI_Type": "std::string",
-                              "RTTI_Value": "cf191159e605ea2b2de6e5cbef3ff986"
-                            }
-                          },
-                          "OffsetMatrix": {
-                            "RTTI_Type": "Tiny3D::TMatrix4<float>",
-                            "RTTI_Value": {
-                              "data": {
-                                "RTTI_Type": "Tiny3D::Buffer",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "ENDduzuc3jt3qjm7Ftiavs5Sy7vnbPC7km41u0Dx0L/SvYG7B4bzuDlwFjzOECu/AAAAAAAAAAAAAAAAAACAPw=="
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  ]
-                },
-                "Name": {
-                  "RTTI_Type": "std::string",
-                  "RTTI_Value": "Bone001(mirrored)"
-                },
-                "UUID": {
-                  "RTTI_Type": "Tiny3D::UUID",
-                  "RTTI_Value": {
-                    "RTTI_Type": "std::string",
-                    "RTTI_Value": "5f631df71ca4d4c1ee32ef806cbd4b72"
-                  }
-                },
-                "Visible": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
-                }
-              }
-            }
-          },
-          {
-            "RTTI_Map_Key": {
-              "RTTI_Type": "Tiny3D::UUID",
-              "RTTI_Value": {
-                "RTTI_Type": "std::string",
-                "RTTI_Value": "c31a51ea6168dbdb1bb1647ebb7446a1"
-              }
-            },
-            "RTTI_Map_Value": {
-              "RTTI_Type": "Tiny3D::GameObject",
-              "RTTI_Value": {
-                "Active": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
-                },
-                "CameraMask": {
-                  "RTTI_Type": "unsignedint",
-                  "RTTI_Value": 1
-                },
-                "Components": {
-                  "RTTI_Type": "std::unordered_multimap<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::Component>>",
-                  "RTTI_Value": [
-                    {
-                      "RTTI_Map_Key": {
-                        "RTTI_Type": "std::string",
-                        "RTTI_Value": "Tiny3D::Transform3D"
-                      },
-                      "RTTI_Map_Value": {
-                        "RTTI_Type": "Tiny3D::Transform3D",
-                        "RTTI_Value": {
-                          "UUID": {
-                            "RTTI_Type": "Tiny3D::UUID",
-                            "RTTI_Value": {
-                              "RTTI_Type": "std::string",
-                              "RTTI_Value": "f8bff0c3f281c368c817555850ba5b8e"
-                            }
-                          },
-                          "Children": {
-                            "RTTI_Type": "std::list<Tiny3D::UUID>",
-                            "RTTI_Value": [
-                              {
-                                "RTTI_Type": "Tiny3D::UUID",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "922b044bdab5cb1c95ba2652f2bfeba6"
-                                }
-                              }
-                            ]
-                          },
-                          "Orientation": {
-                            "RTTI_Type": "Tiny3D::TQuaternion<float>",
-                            "RTTI_Value": {
-                              "w": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.5581369996070862
-                              },
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.581910252571106
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -0.3877337872982025
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -0.446683406829834
-                              }
-                            }
-                          },
-                          "Position": {
-                            "RTTI_Type": "Tiny3D::TVector3<float>",
-                            "RTTI_Value": {
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.12454177439212799
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.279402494430542
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.046108778566122058
-                              }
-                            }
-                          },
-                          "Scaling": {
-                            "RTTI_Type": "Tiny3D::TVector3<float>",
-                            "RTTI_Value": {
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.0000001192092896
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.0000001192092896
+                                "RTTI_Value": 0.9999997615814209
                               },
                               "z": {
                                 "RTTI_Type": "float",
@@ -1094,11 +290,15 @@
                       "RTTI_Map_Value": {
                         "RTTI_Type": "Tiny3D::Bone",
                         "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
                           "UUID": {
                             "RTTI_Type": "Tiny3D::UUID",
                             "RTTI_Value": {
                               "RTTI_Type": "std::string",
-                              "RTTI_Value": "662758f16709745d6d5b2b2d93e11ece"
+                              "RTTI_Value": "b88677658561dbcac0106f36adc50145"
                             }
                           },
                           "OffsetMatrix": {
@@ -1108,7 +308,7 @@
                                 "RTTI_Type": "Tiny3D::Buffer",
                                 "RTTI_Value": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "9n0ivNAkPrjTrqe6Zsiivw4dPziZ1iO8Oz+WNa70wTuNrqe661eetmZ+IjzTw6a+AAAAAAAAAAAAAAAAAACAPw=="
+                                  "RTTI_Value": "B9Ddu0Cc3rtwqjm78teavtRSyzvgbPC7lW41Oz7x0D/SvYG72YXzODlwFjzNECu/AAAAAAAAAAAAAAAAAACAPw=="
                                 }
                               }
                             }
@@ -1120,18 +320,14 @@
                 },
                 "Name": {
                   "RTTI_Type": "std::string",
-                  "RTTI_Value": "bozi"
+                  "RTTI_Value": "Bone001"
                 },
                 "UUID": {
                   "RTTI_Type": "Tiny3D::UUID",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "c31a51ea6168dbdb1bb1647ebb7446a1"
+                    "RTTI_Value": "4f4043f78cf8b99011100cf5976bda99"
                   }
-                },
-                "Visible": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
                 }
               }
             }
@@ -1141,7 +337,7 @@
               "RTTI_Type": "Tiny3D::UUID",
               "RTTI_Value": {
                 "RTTI_Type": "std::string",
-                "RTTI_Value": "c5f1ddc39cf912ce6f41042f75f8be8a"
+                "RTTI_Value": "16934254b7c208ee6ef223c8d4d5c0e2"
               }
             },
             "RTTI_Map_Value": {
@@ -1166,11 +362,15 @@
                       "RTTI_Map_Value": {
                         "RTTI_Type": "Tiny3D::Transform3D",
                         "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
                           "UUID": {
                             "RTTI_Type": "Tiny3D::UUID",
                             "RTTI_Value": {
                               "RTTI_Type": "std::string",
-                              "RTTI_Value": "d9683ff7f6fd7b9b93c5d26c623b0f34"
+                              "RTTI_Value": "e51b1cef68241cf23fe9c319bafb5ea9"
                             }
                           },
                           "Children": {
@@ -1180,7 +380,42 @@
                                 "RTTI_Type": "Tiny3D::UUID",
                                 "RTTI_Value": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "8216714cacaf6a45d36de8e880449651"
+                                  "RTTI_Value": "b8318778af68a837019f88192e732367"
+                                }
+                              },
+                              {
+                                "RTTI_Type": "Tiny3D::UUID",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "a41985fef8d673e876e89026a5e2e56c"
+                                }
+                              },
+                              {
+                                "RTTI_Type": "Tiny3D::UUID",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "4fd3a2b73f3b82b101eec1d327850046"
+                                }
+                              },
+                              {
+                                "RTTI_Type": "Tiny3D::UUID",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "13fca0e68957faf3c62d8a902dfb95f3"
+                                }
+                              },
+                              {
+                                "RTTI_Type": "Tiny3D::UUID",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "09e1ff87fd91eb7b0462dcab56b8c97b"
+                                }
+                              },
+                              {
+                                "RTTI_Type": "Tiny3D::UUID",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "f24a007d17035eab05b9f130c24b95f7"
                                 }
                               }
                             ]
@@ -1190,19 +425,19 @@
                             "RTTI_Value": {
                               "w": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 0.9858128428459168
+                                "RTTI_Value": 0.6999518871307373
                               },
                               "x": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": -0.005179209169000387
+                                "RTTI_Value": -0.0075491489842534069
                               },
                               "y": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 0.007088236045092344
+                                "RTTI_Value": 0.01300116442143917
                               },
                               "z": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": -0.16761864721775056
+                                "RTTI_Value": -0.7140318155288696
                               }
                             }
                           },
@@ -1211,336 +446,15 @@
                             "RTTI_Value": {
                               "x": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": -1.5224697589874268
+                                "RTTI_Value": -2.5803275108337404
                               },
                               "y": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 2.0980834847250663e-7
+                                "RTTI_Value": 0.31157824397087099
                               },
                               "z": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": -3.814697180359872e-8
-                              }
-                            }
-                          },
-                          "Scaling": {
-                            "RTTI_Type": "Tiny3D::TVector3<float>",
-                            "RTTI_Value": {
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.0
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.9999998211860657
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.9999998211860657
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    {
-                      "RTTI_Map_Key": {
-                        "RTTI_Type": "std::string",
-                        "RTTI_Value": "Tiny3D::Bone"
-                      },
-                      "RTTI_Map_Value": {
-                        "RTTI_Type": "Tiny3D::Bone",
-                        "RTTI_Value": {
-                          "UUID": {
-                            "RTTI_Type": "Tiny3D::UUID",
-                            "RTTI_Value": {
-                              "RTTI_Type": "std::string",
-                              "RTTI_Value": "8e9c04657a2834483c981945040b9de9"
-                            }
-                          },
-                          "OffsetMatrix": {
-                            "RTTI_Type": "Tiny3D::TMatrix4<float>",
-                            "RTTI_Value": {
-                              "data": {
-                                "RTTI_Type": "Tiny3D::Buffer",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "StELu96IHzym4VC6tWP2P2lVEryZDhW7uEl+uxdPK7/RvYG7PojzuDtwFjzdECu/AAAAAAAAAAAAAAAAAACAPw=="
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  ]
-                },
-                "Name": {
-                  "RTTI_Type": "std::string",
-                  "RTTI_Value": "Bone002(mirrored)"
-                },
-                "UUID": {
-                  "RTTI_Type": "Tiny3D::UUID",
-                  "RTTI_Value": {
-                    "RTTI_Type": "std::string",
-                    "RTTI_Value": "c5f1ddc39cf912ce6f41042f75f8be8a"
-                  }
-                },
-                "Visible": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
-                }
-              }
-            }
-          },
-          {
-            "RTTI_Map_Key": {
-              "RTTI_Type": "Tiny3D::UUID",
-              "RTTI_Value": {
-                "RTTI_Type": "std::string",
-                "RTTI_Value": "40081957ddb1f0042ec34761bb1b0247"
-              }
-            },
-            "RTTI_Map_Value": {
-              "RTTI_Type": "Tiny3D::GameObject",
-              "RTTI_Value": {
-                "Active": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
-                },
-                "CameraMask": {
-                  "RTTI_Type": "unsignedint",
-                  "RTTI_Value": 1
-                },
-                "Components": {
-                  "RTTI_Type": "std::unordered_multimap<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::Component>>",
-                  "RTTI_Value": [
-                    {
-                      "RTTI_Map_Key": {
-                        "RTTI_Type": "std::string",
-                        "RTTI_Value": "Tiny3D::Transform3D"
-                      },
-                      "RTTI_Map_Value": {
-                        "RTTI_Type": "Tiny3D::Transform3D",
-                        "RTTI_Value": {
-                          "UUID": {
-                            "RTTI_Type": "Tiny3D::UUID",
-                            "RTTI_Value": {
-                              "RTTI_Type": "std::string",
-                              "RTTI_Value": "cd694ed39ad54ae132377100ede357c3"
-                            }
-                          },
-                          "Children": {
-                            "RTTI_Type": "std::list<Tiny3D::UUID>",
-                            "RTTI_Value": [
-                              {
-                                "RTTI_Type": "Tiny3D::UUID",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "c81726e9549c815f184edd3b8e647254"
-                                }
-                              }
-                            ]
-                          },
-                          "Orientation": {
-                            "RTTI_Type": "Tiny3D::TQuaternion<float>",
-                            "RTTI_Value": {
-                              "w": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.9761385917663574
-                              },
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.07885190099477768
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.13248935341835023
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.15291321277618409
-                              }
-                            }
-                          },
-                          "Position": {
-                            "RTTI_Type": "Tiny3D::TVector3<float>",
-                            "RTTI_Value": {
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -0.9564964771270752
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.5258788721439488e-7
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.907348590179936e-8
-                              }
-                            }
-                          },
-                          "Scaling": {
-                            "RTTI_Type": "Tiny3D::TVector3<float>",
-                            "RTTI_Value": {
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.000000238418579
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.0000003576278687
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.0000003576278687
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    {
-                      "RTTI_Map_Key": {
-                        "RTTI_Type": "std::string",
-                        "RTTI_Value": "Tiny3D::Bone"
-                      },
-                      "RTTI_Map_Value": {
-                        "RTTI_Type": "Tiny3D::Bone",
-                        "RTTI_Value": {
-                          "UUID": {
-                            "RTTI_Type": "Tiny3D::UUID",
-                            "RTTI_Value": {
-                              "RTTI_Type": "std::string",
-                              "RTTI_Value": "3bbd9d97379985c1bf0b62be251503fe"
-                            }
-                          },
-                          "OffsetMatrix": {
-                            "RTTI_Type": "Tiny3D::TMatrix4<float>",
-                            "RTTI_Value": {
-                              "data": {
-                                "RTTI_Type": "Tiny3D::Buffer",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "yWrNOxNE87si6ho7Q+qBQDeg+zsUudE7O1yKuW3kBUBwnqy6Gs0BO14jHzxKJCu/AAAAAAAAAAAAAAAAAACAPw=="
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  ]
-                },
-                "Name": {
-                  "RTTI_Type": "std::string",
-                  "RTTI_Value": "tr2"
-                },
-                "UUID": {
-                  "RTTI_Type": "Tiny3D::UUID",
-                  "RTTI_Value": {
-                    "RTTI_Type": "std::string",
-                    "RTTI_Value": "40081957ddb1f0042ec34761bb1b0247"
-                  }
-                },
-                "Visible": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
-                }
-              }
-            }
-          },
-          {
-            "RTTI_Map_Key": {
-              "RTTI_Type": "Tiny3D::UUID",
-              "RTTI_Value": {
-                "RTTI_Type": "std::string",
-                "RTTI_Value": "d33722d4b44021fc93d706363ed0cdc3"
-              }
-            },
-            "RTTI_Map_Value": {
-              "RTTI_Type": "Tiny3D::GameObject",
-              "RTTI_Value": {
-                "Active": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
-                },
-                "CameraMask": {
-                  "RTTI_Type": "unsignedint",
-                  "RTTI_Value": 1
-                },
-                "Components": {
-                  "RTTI_Type": "std::unordered_multimap<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::Component>>",
-                  "RTTI_Value": [
-                    {
-                      "RTTI_Map_Key": {
-                        "RTTI_Type": "std::string",
-                        "RTTI_Value": "Tiny3D::Transform3D"
-                      },
-                      "RTTI_Map_Value": {
-                        "RTTI_Type": "Tiny3D::Transform3D",
-                        "RTTI_Value": {
-                          "UUID": {
-                            "RTTI_Type": "Tiny3D::UUID",
-                            "RTTI_Value": {
-                              "RTTI_Type": "std::string",
-                              "RTTI_Value": "922b044bdab5cb1c95ba2652f2bfeba6"
-                            }
-                          },
-                          "Children": {
-                            "RTTI_Type": "std::list<Tiny3D::UUID>",
-                            "RTTI_Value": [
-                              {
-                                "RTTI_Type": "Tiny3D::UUID",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "4c47121b5c41ea6e10736e65b89b8c50"
-                                }
-                              },
-                              {
-                                "RTTI_Type": "Tiny3D::UUID",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "96c0eaf7df6cc704ece413654bb10e22"
-                                }
-                              }
-                            ]
-                          },
-                          "Orientation": {
-                            "RTTI_Type": "Tiny3D::TQuaternion<float>",
-                            "RTTI_Value": {
-                              "w": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.9786237478256226
-                              },
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.04412275552749634
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -0.19959533214569093
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.022597167640924455
-                              }
-                            }
-                          },
-                          "Position": {
-                            "RTTI_Type": "Tiny3D::TVector3<float>",
-                            "RTTI_Value": {
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -0.7377458214759827
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -3.259629718921353e-11
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -2.38418573772492e-9
+                                "RTTI_Value": 0.0
                               }
                             }
                           },
@@ -1572,11 +486,15 @@
                       "RTTI_Map_Value": {
                         "RTTI_Type": "Tiny3D::Bone",
                         "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
                           "UUID": {
                             "RTTI_Type": "Tiny3D::UUID",
                             "RTTI_Value": {
                               "RTTI_Type": "std::string",
-                              "RTTI_Value": "30d5704ab5152f306a31503056a4533d"
+                              "RTTI_Value": "3f841d9a7140045e9ef1d7d7f552bd8c"
                             }
                           },
                           "OffsetMatrix": {
@@ -1586,7 +504,7 @@
                                 "RTTI_Type": "Tiny3D::Buffer",
                                 "RTTI_Value": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "2IYbvBnxM7hFFk47UFUfvw4dPziZ1iO8Oz+WNa/0wTukFU47TByBN0CHGzzPlH69AAAAAAAAAAAAAAAAAACAPw=="
+                                  "RTTI_Value": "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
                                 }
                               }
                             }
@@ -1598,18 +516,14 @@
                 },
                 "Name": {
                   "RTTI_Type": "std::string",
-                  "RTTI_Value": "tou"
+                  "RTTI_Value": "Bip01"
                 },
                 "UUID": {
                   "RTTI_Type": "Tiny3D::UUID",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "d33722d4b44021fc93d706363ed0cdc3"
+                    "RTTI_Value": "16934254b7c208ee6ef223c8d4d5c0e2"
                   }
-                },
-                "Visible": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
                 }
               }
             }
@@ -1619,7 +533,7 @@
               "RTTI_Type": "Tiny3D::UUID",
               "RTTI_Value": {
                 "RTTI_Type": "std::string",
-                "RTTI_Value": "16f96de3f78bad29c662fcb239216730"
+                "RTTI_Value": "8c026bec75127fe17c2b69d259530535"
               }
             },
             "RTTI_Map_Value": {
@@ -1644,309 +558,15 @@
                       "RTTI_Map_Value": {
                         "RTTI_Type": "Tiny3D::Transform3D",
                         "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
                           "UUID": {
                             "RTTI_Type": "Tiny3D::UUID",
                             "RTTI_Value": {
                               "RTTI_Type": "std::string",
-                              "RTTI_Value": "4c47121b5c41ea6e10736e65b89b8c50"
-                            }
-                          },
-                          "Children": {
-                            "RTTI_Type": "std::list<Tiny3D::UUID>",
-                            "RTTI_Value": []
-                          },
-                          "Orientation": {
-                            "RTTI_Type": "Tiny3D::TQuaternion<float>",
-                            "RTTI_Value": {
-                              "w": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.7338398694992065
-                              },
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.14877498149871827
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.06230732798576355
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.6598960757255554
-                              }
-                            }
-                          },
-                          "Position": {
-                            "RTTI_Type": "Tiny3D::TVector3<float>",
-                            "RTTI_Value": {
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -1.37141752243042
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -0.6403713822364807
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.2645731270313263
-                              }
-                            }
-                          },
-                          "Scaling": {
-                            "RTTI_Type": "Tiny3D::TVector3<float>",
-                            "RTTI_Value": {
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.9999999403953552
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.000000238418579
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.000000238418579
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    {
-                      "RTTI_Map_Key": {
-                        "RTTI_Type": "std::string",
-                        "RTTI_Value": "Tiny3D::Bone"
-                      },
-                      "RTTI_Map_Value": {
-                        "RTTI_Type": "Tiny3D::Bone",
-                        "RTTI_Value": {
-                          "UUID": {
-                            "RTTI_Type": "Tiny3D::UUID",
-                            "RTTI_Value": {
-                              "RTTI_Type": "std::string",
-                              "RTTI_Value": "7f21157fe0b3890a63a6da1e87b9d1d2"
-                            }
-                          },
-                          "OffsetMatrix": {
-                            "RTTI_Type": "Tiny3D::TMatrix4<float>",
-                            "RTTI_Value": {
-                              "data": {
-                                "RTTI_Type": "Tiny3D::Buffer",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "oZpLur7GIbzLq7Q6oMsxP+5LIzx7alK6e1wMuaBEQb/vm345h7WyOt1CIjzigDq+AAAAAAAAAAAAAAAAAACAPw=="
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  ]
-                },
-                "Name": {
-                  "RTTI_Type": "std::string",
-                  "RTTI_Value": "yanjing"
-                },
-                "UUID": {
-                  "RTTI_Type": "Tiny3D::UUID",
-                  "RTTI_Value": {
-                    "RTTI_Type": "std::string",
-                    "RTTI_Value": "16f96de3f78bad29c662fcb239216730"
-                  }
-                },
-                "Visible": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
-                }
-              }
-            }
-          },
-          {
-            "RTTI_Map_Key": {
-              "RTTI_Type": "Tiny3D::UUID",
-              "RTTI_Value": {
-                "RTTI_Type": "std::string",
-                "RTTI_Value": "af763bf5240be09ffd4dfebff62dcb7c"
-              }
-            },
-            "RTTI_Map_Value": {
-              "RTTI_Type": "Tiny3D::GameObject",
-              "RTTI_Value": {
-                "Active": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
-                },
-                "CameraMask": {
-                  "RTTI_Type": "unsignedint",
-                  "RTTI_Value": 1
-                },
-                "Components": {
-                  "RTTI_Type": "std::unordered_multimap<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::Component>>",
-                  "RTTI_Value": [
-                    {
-                      "RTTI_Map_Key": {
-                        "RTTI_Type": "std::string",
-                        "RTTI_Value": "Tiny3D::Transform3D"
-                      },
-                      "RTTI_Map_Value": {
-                        "RTTI_Type": "Tiny3D::Transform3D",
-                        "RTTI_Value": {
-                          "UUID": {
-                            "RTTI_Type": "Tiny3D::UUID",
-                            "RTTI_Value": {
-                              "RTTI_Type": "std::string",
-                              "RTTI_Value": "665777a5ff12aeffb96c1e961d028ac6"
-                            }
-                          },
-                          "Children": {
-                            "RTTI_Type": "std::list<Tiny3D::UUID>",
-                            "RTTI_Value": []
-                          },
-                          "Orientation": {
-                            "RTTI_Type": "Tiny3D::TQuaternion<float>",
-                            "RTTI_Value": {
-                              "w": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.9878251552581787
-                              },
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -0.005472192075103521
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -0.020939406007528306
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -0.15405549108982087
-                              }
-                            }
-                          },
-                          "Position": {
-                            "RTTI_Type": "Tiny3D::TVector3<float>",
-                            "RTTI_Value": {
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -1.0101613998413087
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -6.092023774328936e-9
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": -7.875387808553569e-8
-                              }
-                            }
-                          },
-                          "Scaling": {
-                            "RTTI_Type": "Tiny3D::TVector3<float>",
-                            "RTTI_Value": {
-                              "x": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.9999995827674866
-                              },
-                              "y": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 0.9999997019767761
-                              },
-                              "z": {
-                                "RTTI_Type": "float",
-                                "RTTI_Value": 1.000000238418579
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    {
-                      "RTTI_Map_Key": {
-                        "RTTI_Type": "std::string",
-                        "RTTI_Value": "Tiny3D::Bone"
-                      },
-                      "RTTI_Map_Value": {
-                        "RTTI_Type": "Tiny3D::Bone",
-                        "RTTI_Value": {
-                          "UUID": {
-                            "RTTI_Type": "Tiny3D::UUID",
-                            "RTTI_Value": {
-                              "RTTI_Type": "std::string",
-                              "RTTI_Value": "e26971d1739e798fc37a3399dd9dc78f"
-                            }
-                          },
-                          "OffsetMatrix": {
-                            "RTTI_Type": "Tiny3D::TMatrix4<float>",
-                            "RTTI_Value": {
-                              "data": {
-                                "RTTI_Type": "Tiny3D::Buffer",
-                                "RTTI_Value": {
-                                  "RTTI_Type": "std::string",
-                                  "RTTI_Value": "EoD5O4VAvjvZ+Tw7EsyqQMImy7sbJgA8l/8iOrlpfb+1TPi6wi8Uu6+MHDxDxYO/AAAAAAAAAAAAAAAAAACAPw=="
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  ]
-                },
-                "Name": {
-                  "RTTI_Type": "std::string",
-                  "RTTI_Value": "t3"
-                },
-                "UUID": {
-                  "RTTI_Type": "Tiny3D::UUID",
-                  "RTTI_Value": {
-                    "RTTI_Type": "std::string",
-                    "RTTI_Value": "af763bf5240be09ffd4dfebff62dcb7c"
-                  }
-                },
-                "Visible": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
-                }
-              }
-            }
-          },
-          {
-            "RTTI_Map_Key": {
-              "RTTI_Type": "Tiny3D::UUID",
-              "RTTI_Value": {
-                "RTTI_Type": "std::string",
-                "RTTI_Value": "861bb342e717bd2cfc808c2d4e85631e"
-              }
-            },
-            "RTTI_Map_Value": {
-              "RTTI_Type": "Tiny3D::GameObject",
-              "RTTI_Value": {
-                "Active": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
-                },
-                "CameraMask": {
-                  "RTTI_Type": "unsignedint",
-                  "RTTI_Value": 1
-                },
-                "Components": {
-                  "RTTI_Type": "std::unordered_multimap<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::Component>>",
-                  "RTTI_Value": [
-                    {
-                      "RTTI_Map_Key": {
-                        "RTTI_Type": "std::string",
-                        "RTTI_Value": "Tiny3D::Transform3D"
-                      },
-                      "RTTI_Map_Value": {
-                        "RTTI_Type": "Tiny3D::Transform3D",
-                        "RTTI_Value": {
-                          "UUID": {
-                            "RTTI_Type": "Tiny3D::UUID",
-                            "RTTI_Value": {
-                              "RTTI_Type": "std::string",
-                              "RTTI_Value": "96c0eaf7df6cc704ece413654bb10e22"
+                              "RTTI_Value": "92f06e3f4ce85cb7c9d69bcd1bed27c3"
                             }
                           },
                           "Children": {
@@ -2019,11 +639,15 @@
                       "RTTI_Map_Value": {
                         "RTTI_Type": "Tiny3D::Bone",
                         "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
                           "UUID": {
                             "RTTI_Type": "Tiny3D::UUID",
                             "RTTI_Value": {
                               "RTTI_Type": "std::string",
-                              "RTTI_Value": "83aadf0d12bf2b9bbb622d0df1ffa7f1"
+                              "RTTI_Value": "c9ecf315e48510d1ffdf9cefd39e5b45"
                             }
                           },
                           "OffsetMatrix": {
@@ -2051,12 +675,8 @@
                   "RTTI_Type": "Tiny3D::UUID",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "861bb342e717bd2cfc808c2d4e85631e"
+                    "RTTI_Value": "8c026bec75127fe17c2b69d259530535"
                   }
-                },
-                "Visible": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
                 }
               }
             }
@@ -2066,7 +686,7 @@
               "RTTI_Type": "Tiny3D::UUID",
               "RTTI_Value": {
                 "RTTI_Type": "std::string",
-                "RTTI_Value": "aa5302e20c349bb9f9ed28b988eb16ee"
+                "RTTI_Value": "ec75edc5e07fd2f2af2f89fba7b68581"
               }
             },
             "RTTI_Map_Value": {
@@ -2091,11 +711,498 @@
                       "RTTI_Map_Value": {
                         "RTTI_Type": "Tiny3D::Transform3D",
                         "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
                           "UUID": {
                             "RTTI_Type": "Tiny3D::UUID",
                             "RTTI_Value": {
                               "RTTI_Type": "std::string",
-                              "RTTI_Value": "a229aa069edf282bf7311c7843401d6d"
+                              "RTTI_Value": "b37536faaead1c527c9bdd87753be36d"
+                            }
+                          },
+                          "Children": {
+                            "RTTI_Type": "std::list<Tiny3D::UUID>",
+                            "RTTI_Value": [
+                              {
+                                "RTTI_Type": "Tiny3D::UUID",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "5a43c76e88166e8605b5717fd3216e23"
+                                }
+                              }
+                            ]
+                          },
+                          "Orientation": {
+                            "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                            "RTTI_Value": {
+                              "w": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.9932394623756409
+                              },
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -0.04776478186249733
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.0989915281534195
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.03734384477138519
+                              }
+                            }
+                          },
+                          "Position": {
+                            "RTTI_Type": "Tiny3D::TVector3<float>",
+                            "RTTI_Value": {
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -1.5224697589874268
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -1.6927718604620169e-7
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -7.105427198782324e-17
+                              }
+                            }
+                          },
+                          "Scaling": {
+                            "RTTI_Type": "Tiny3D::TVector3<float>",
+                            "RTTI_Value": {
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.0
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.0
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.0
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "RTTI_Map_Key": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "Tiny3D::Bone"
+                      },
+                      "RTTI_Map_Value": {
+                        "RTTI_Type": "Tiny3D::Bone",
+                        "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
+                          "UUID": {
+                            "RTTI_Type": "Tiny3D::UUID",
+                            "RTTI_Value": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "12b00e3322799c8ca74618671f96330e"
+                            }
+                          },
+                          "OffsetMatrix": {
+                            "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                            "RTTI_Value": {
+                              "data": {
+                                "RTTI_Type": "Tiny3D::Buffer",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "KtELu96IH7zE4VC6vWP2P2dVEjx/DhW7uEl+OwRPKz/TvYG74oXzODlwFjzOECu/AAAAAAAAAAAAAAAAAACAPw=="
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "Bone002"
+                },
+                "UUID": {
+                  "RTTI_Type": "Tiny3D::UUID",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "ec75edc5e07fd2f2af2f89fba7b68581"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "Tiny3D::UUID",
+              "RTTI_Value": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "26a98e388f3e9329b22daff2febba8b9"
+              }
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::GameObject",
+              "RTTI_Value": {
+                "Active": {
+                  "RTTI_Type": "bool",
+                  "RTTI_Value": true
+                },
+                "CameraMask": {
+                  "RTTI_Type": "unsignedint",
+                  "RTTI_Value": 1
+                },
+                "Components": {
+                  "RTTI_Type": "std::unordered_multimap<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::Component>>",
+                  "RTTI_Value": [
+                    {
+                      "RTTI_Map_Key": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "Tiny3D::Transform3D"
+                      },
+                      "RTTI_Map_Value": {
+                        "RTTI_Type": "Tiny3D::Transform3D",
+                        "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
+                          "UUID": {
+                            "RTTI_Type": "Tiny3D::UUID",
+                            "RTTI_Value": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "a41985fef8d673e876e89026a5e2e56c"
+                            }
+                          },
+                          "Children": {
+                            "RTTI_Type": "std::list<Tiny3D::UUID>",
+                            "RTTI_Value": [
+                              {
+                                "RTTI_Type": "Tiny3D::UUID",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "7571c3c129e35e25c161793171dc962f"
+                                }
+                              }
+                            ]
+                          },
+                          "Orientation": {
+                            "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                            "RTTI_Value": {
+                              "w": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.22126111388206483
+                              },
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.6976137757301331
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -0.1321553885936737
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -0.6685159802436829
+                              }
+                            }
+                          },
+                          "Position": {
+                            "RTTI_Type": "Tiny3D::TVector3<float>",
+                            "RTTI_Value": {
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.23252959549427033
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.0642539262771607
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.036703109741211
+                              }
+                            }
+                          },
+                          "Scaling": {
+                            "RTTI_Type": "Tiny3D::TVector3<float>",
+                            "RTTI_Value": {
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.000000238418579
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.0000001192092896
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.000000238418579
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "RTTI_Map_Key": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "Tiny3D::Bone"
+                      },
+                      "RTTI_Map_Value": {
+                        "RTTI_Type": "Tiny3D::Bone",
+                        "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
+                          "UUID": {
+                            "RTTI_Type": "Tiny3D::UUID",
+                            "RTTI_Value": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "d6a1a79bd850854182315243e48aa71b"
+                            }
+                          },
+                          "OffsetMatrix": {
+                            "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                            "RTTI_Value": {
+                              "data": {
+                                "RTTI_Type": "Tiny3D::Buffer",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "ENDduzuc3jt3qjm7Ftiavs5Sy7vnbPC7km41u0Dx0L/SvYG7B4bzuDlwFjzOECu/AAAAAAAAAAAAAAAAAACAPw=="
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "Bone001(mirrored)"
+                },
+                "UUID": {
+                  "RTTI_Type": "Tiny3D::UUID",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "26a98e388f3e9329b22daff2febba8b9"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "Tiny3D::UUID",
+              "RTTI_Value": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "f32a7c5a5381f63c0ecafc1f67b14316"
+              }
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::GameObject",
+              "RTTI_Value": {
+                "Active": {
+                  "RTTI_Type": "bool",
+                  "RTTI_Value": true
+                },
+                "CameraMask": {
+                  "RTTI_Type": "unsignedint",
+                  "RTTI_Value": 1
+                },
+                "Components": {
+                  "RTTI_Type": "std::unordered_multimap<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::Component>>",
+                  "RTTI_Value": [
+                    {
+                      "RTTI_Map_Key": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "Tiny3D::Transform3D"
+                      },
+                      "RTTI_Map_Value": {
+                        "RTTI_Type": "Tiny3D::Transform3D",
+                        "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
+                          "UUID": {
+                            "RTTI_Type": "Tiny3D::UUID",
+                            "RTTI_Value": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "7571c3c129e35e25c161793171dc962f"
+                            }
+                          },
+                          "Children": {
+                            "RTTI_Type": "std::list<Tiny3D::UUID>",
+                            "RTTI_Value": [
+                              {
+                                "RTTI_Type": "Tiny3D::UUID",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "f14b4cf2151002ba0a8cd311f4e6ee38"
+                                }
+                              }
+                            ]
+                          },
+                          "Orientation": {
+                            "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                            "RTTI_Value": {
+                              "w": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.9858128428459168
+                              },
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -0.005179209169000387
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.007088236045092344
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -0.16761864721775056
+                              }
+                            }
+                          },
+                          "Position": {
+                            "RTTI_Type": "Tiny3D::TVector3<float>",
+                            "RTTI_Value": {
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -1.5224697589874268
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 2.0980834847250663e-7
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -3.814697180359872e-8
+                              }
+                            }
+                          },
+                          "Scaling": {
+                            "RTTI_Type": "Tiny3D::TVector3<float>",
+                            "RTTI_Value": {
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.0
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.9999998211860657
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.9999998211860657
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "RTTI_Map_Key": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "Tiny3D::Bone"
+                      },
+                      "RTTI_Map_Value": {
+                        "RTTI_Type": "Tiny3D::Bone",
+                        "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
+                          "UUID": {
+                            "RTTI_Type": "Tiny3D::UUID",
+                            "RTTI_Value": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "407f20226d0745fe683cf2d806b37b63"
+                            }
+                          },
+                          "OffsetMatrix": {
+                            "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                            "RTTI_Value": {
+                              "data": {
+                                "RTTI_Type": "Tiny3D::Buffer",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "StELu96IHzym4VC6tWP2P2lVEryZDhW7uEl+uxdPK7/RvYG7PojzuDtwFjzdECu/AAAAAAAAAAAAAAAAAACAPw=="
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "Bone002(mirrored)"
+                },
+                "UUID": {
+                  "RTTI_Type": "Tiny3D::UUID",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "f32a7c5a5381f63c0ecafc1f67b14316"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "Tiny3D::UUID",
+              "RTTI_Value": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "c6bd14ec10b5436ae56d95f2ffc91cf6"
+              }
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::GameObject",
+              "RTTI_Value": {
+                "Active": {
+                  "RTTI_Type": "bool",
+                  "RTTI_Value": true
+                },
+                "CameraMask": {
+                  "RTTI_Type": "unsignedint",
+                  "RTTI_Value": 1
+                },
+                "Components": {
+                  "RTTI_Type": "std::unordered_multimap<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::Component>>",
+                  "RTTI_Value": [
+                    {
+                      "RTTI_Map_Key": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "Tiny3D::Transform3D"
+                      },
+                      "RTTI_Map_Value": {
+                        "RTTI_Type": "Tiny3D::Transform3D",
+                        "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
+                          "UUID": {
+                            "RTTI_Type": "Tiny3D::UUID",
+                            "RTTI_Value": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "f14b4cf2151002ba0a8cd311f4e6ee38"
                             }
                           },
                           "Children": {
@@ -2107,19 +1214,19 @@
                             "RTTI_Value": {
                               "w": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 0.7701118588447571
+                                "RTTI_Value": 0.9789777398109436
                               },
                               "x": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 0.02097266912460327
+                                "RTTI_Value": 0.10112285614013672
                               },
                               "y": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": -0.0044256881810724739
+                                "RTTI_Value": 0.022113751620054246
                               },
                               "z": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 0.6375486254692078
+                                "RTTI_Value": -0.17574921250343324
                               }
                             }
                           },
@@ -2128,15 +1235,15 @@
                             "RTTI_Value": {
                               "x": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": -0.0069299316965043549
+                                "RTTI_Value": -1.6739475727081299
                               },
                               "y": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": -0.008477884344756604
+                                "RTTI_Value": 1.5258788721439488e-7
                               },
                               "z": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": -0.00018381117843091488
+                                "RTTI_Value": 7.629394076502649e-7
                               }
                             }
                           },
@@ -2145,15 +1252,15 @@
                             "RTTI_Value": {
                               "x": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 0.9999996423721314
+                                "RTTI_Value": 0.9999998807907105
                               },
                               "y": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 1.0
+                                "RTTI_Value": 1.000000238418579
                               },
                               "z": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 0.999999463558197
+                                "RTTI_Value": 1.0
                               }
                             }
                           }
@@ -2168,11 +1275,15 @@
                       "RTTI_Map_Value": {
                         "RTTI_Type": "Tiny3D::Bone",
                         "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
                           "UUID": {
                             "RTTI_Type": "Tiny3D::UUID",
                             "RTTI_Value": {
                               "RTTI_Type": "std::string",
-                              "RTTI_Value": "a0c7f2ec3af0a7a24af80e63e3932155"
+                              "RTTI_Value": "b2e941167627cf129068f338e09dc3b2"
                             }
                           },
                           "OffsetMatrix": {
@@ -2182,7 +1293,7 @@
                                 "RTTI_Type": "Tiny3D::Buffer",
                                 "RTTI_Value": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "F0YgPMTL1zDp/Qe75UwmQOn9Bzs7702xF0YgPKXTZj4nRHswCtcjvHPXX7HlDYo0AAAAAAAAAAAAAAAAAACAPw=="
+                                  "RTTI_Value": "R3GXO/kmDTxAvwk7qjZEQJ8BArwgU6Y7kAhcuyYBAEC9vYG7PYPzuEBwFjy0ECu/AAAAAAAAAAAAAAAAAACAPw=="
                                 }
                               }
                             }
@@ -2194,18 +1305,14 @@
                 },
                 "Name": {
                   "RTTI_Type": "std::string",
-                  "RTTI_Value": "shenti"
+                  "RTTI_Value": "Bone003(mirrored)"
                 },
                 "UUID": {
                   "RTTI_Type": "Tiny3D::UUID",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "aa5302e20c349bb9f9ed28b988eb16ee"
+                    "RTTI_Value": "c6bd14ec10b5436ae56d95f2ffc91cf6"
                   }
-                },
-                "Visible": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
                 }
               }
             }
@@ -2215,7 +1322,7 @@
               "RTTI_Type": "Tiny3D::UUID",
               "RTTI_Value": {
                 "RTTI_Type": "std::string",
-                "RTTI_Value": "939a4d75ecff87d2e18be04e8860be0b"
+                "RTTI_Value": "246380e5b2204b078a749cfda15da319"
               }
             },
             "RTTI_Map_Value": {
@@ -2240,11 +1347,15 @@
                       "RTTI_Map_Value": {
                         "RTTI_Type": "Tiny3D::Transform3D",
                         "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
                           "UUID": {
                             "RTTI_Type": "Tiny3D::UUID",
                             "RTTI_Value": {
                               "RTTI_Type": "std::string",
-                              "RTTI_Value": "c8febebe080d08f3efbe1fd2b1aeae7e"
+                              "RTTI_Value": "4fd3a2b73f3b82b101eec1d327850046"
                             }
                           },
                           "Children": {
@@ -2254,7 +1365,7 @@
                                 "RTTI_Type": "Tiny3D::UUID",
                                 "RTTI_Value": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "cd694ed39ad54ae132377100ede357c3"
+                                  "RTTI_Value": "52cfe446a8aae1dd5e1773a4e16fcc7b"
                                 }
                               }
                             ]
@@ -2264,19 +1375,19 @@
                             "RTTI_Value": {
                               "w": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": -0.48306190967559817
+                                "RTTI_Value": 0.5581369996070862
                               },
                               "x": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 0.2758311331272125
+                                "RTTI_Value": 0.581910252571106
                               },
                               "y": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 0.8030906915664673
+                                "RTTI_Value": -0.3877337872982025
                               },
                               "z": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": -0.21357429027557374
+                                "RTTI_Value": -0.446683406829834
                               }
                             }
                           },
@@ -2285,15 +1396,15 @@
                             "RTTI_Value": {
                               "x": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 0.4080480933189392
+                                "RTTI_Value": 0.12454177439212799
                               },
                               "y": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": -1.3844064474105836
+                                "RTTI_Value": 1.279402494430542
                               },
                               "z": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": -0.9566104412078857
+                                "RTTI_Value": 0.046108778566122058
                               }
                             }
                           },
@@ -2302,15 +1413,15 @@
                             "RTTI_Value": {
                               "x": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 0.9999997615814209
+                                "RTTI_Value": 1.0000001192092896
                               },
                               "y": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 1.0000004768371583
+                                "RTTI_Value": 1.0000001192092896
                               },
                               "z": {
                                 "RTTI_Type": "float",
-                                "RTTI_Value": 1.0
+                                "RTTI_Value": 1.0000001192092896
                               }
                             }
                           }
@@ -2325,11 +1436,15 @@
                       "RTTI_Map_Value": {
                         "RTTI_Type": "Tiny3D::Bone",
                         "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
                           "UUID": {
                             "RTTI_Type": "Tiny3D::UUID",
                             "RTTI_Value": {
                               "RTTI_Type": "std::string",
-                              "RTTI_Value": "a26380f08829a18d4caeccf3339f4224"
+                              "RTTI_Value": "744a06abed3a1444d5f568700485e71e"
                             }
                           },
                           "OffsetMatrix": {
@@ -2339,7 +1454,7 @@
                                 "RTTI_Type": "Tiny3D::Buffer",
                                 "RTTI_Value": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "PzseOzRKHLz1iek6LxnrP98eHjxlRic77/kZOt5LaUCZDIW6YczOOlDuIDzUCu6+AAAAAAAAAAAAAAAAAACAPw=="
+                                  "RTTI_Value": "9n0ivNAkPrjTrqe6Zsiivw4dPziZ1iO8Oz+WNa70wTuNrqe661eetmZ+IjzTw6a+AAAAAAAAAAAAAAAAAACAPw=="
                                 }
                               }
                             }
@@ -2351,18 +1466,14 @@
                 },
                 "Name": {
                   "RTTI_Type": "std::string",
-                  "RTTI_Value": "tr1"
+                  "RTTI_Value": "bozi"
                 },
                 "UUID": {
                   "RTTI_Type": "Tiny3D::UUID",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "939a4d75ecff87d2e18be04e8860be0b"
+                    "RTTI_Value": "246380e5b2204b078a749cfda15da319"
                   }
-                },
-                "Visible": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
                 }
               }
             }
@@ -2372,7 +1483,7 @@
               "RTTI_Type": "Tiny3D::UUID",
               "RTTI_Value": {
                 "RTTI_Type": "std::string",
-                "RTTI_Value": "a148cb6278837700c9512bc188731ead"
+                "RTTI_Value": "4bb1e63a9bed3bf2b4ad420217c93dc6"
               }
             },
             "RTTI_Map_Value": {
@@ -2397,11 +1508,15 @@
                       "RTTI_Map_Value": {
                         "RTTI_Type": "Tiny3D::Transform3D",
                         "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
                           "UUID": {
                             "RTTI_Type": "Tiny3D::UUID",
                             "RTTI_Value": {
                               "RTTI_Type": "std::string",
-                              "RTTI_Value": "c81726e9549c815f184edd3b8e647254"
+                              "RTTI_Value": "2f18036387f978c9684f9bc17c3a842f"
                             }
                           },
                           "Children": {
@@ -2474,11 +1589,15 @@
                       "RTTI_Map_Value": {
                         "RTTI_Type": "Tiny3D::Bone",
                         "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
                           "UUID": {
                             "RTTI_Type": "Tiny3D::UUID",
                             "RTTI_Value": {
                               "RTTI_Type": "std::string",
-                              "RTTI_Value": "a4cb33466a934b132a49f84ab2d7dcc9"
+                              "RTTI_Value": "01e41cf19a5e6ac6d5c0e990c6791404"
                             }
                           },
                           "OffsetMatrix": {
@@ -2506,12 +1625,8 @@
                   "RTTI_Type": "Tiny3D::UUID",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "a148cb6278837700c9512bc188731ead"
+                    "RTTI_Value": "4bb1e63a9bed3bf2b4ad420217c93dc6"
                   }
-                },
-                "Visible": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
                 }
               }
             }
@@ -2521,7 +1636,7 @@
               "RTTI_Type": "Tiny3D::UUID",
               "RTTI_Value": {
                 "RTTI_Type": "std::string",
-                "RTTI_Value": "d177b0c9a55542f0bd68cdab0d610c38"
+                "RTTI_Value": "be537e7d372817a31e219a88c2caec86"
               }
             },
             "RTTI_Map_Value": {
@@ -2546,11 +1661,15 @@
                       "RTTI_Map_Value": {
                         "RTTI_Type": "Tiny3D::Transform3D",
                         "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
                           "UUID": {
                             "RTTI_Type": "Tiny3D::UUID",
                             "RTTI_Value": {
                               "RTTI_Type": "std::string",
-                              "RTTI_Value": "d1c15cb60e14fa896350eea87de40ca3"
+                              "RTTI_Value": "52cfe446a8aae1dd5e1773a4e16fcc7b"
                             }
                           },
                           "Children": {
@@ -2560,7 +1679,956 @@
                                 "RTTI_Type": "Tiny3D::UUID",
                                 "RTTI_Value": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "d6ce3e67b0e2bb33cc486f8fd6c2b80e"
+                                  "RTTI_Value": "2120f4b92153bbd4972f22c4dff5722a"
+                                }
+                              },
+                              {
+                                "RTTI_Type": "Tiny3D::UUID",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "92f06e3f4ce85cb7c9d69bcd1bed27c3"
+                                }
+                              }
+                            ]
+                          },
+                          "Orientation": {
+                            "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                            "RTTI_Value": {
+                              "w": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.9786237478256226
+                              },
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.04412275552749634
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -0.19959533214569093
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.022597167640924455
+                              }
+                            }
+                          },
+                          "Position": {
+                            "RTTI_Type": "Tiny3D::TVector3<float>",
+                            "RTTI_Value": {
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -0.7377458214759827
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -3.259629718921353e-11
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -2.38418573772492e-9
+                              }
+                            }
+                          },
+                          "Scaling": {
+                            "RTTI_Type": "Tiny3D::TVector3<float>",
+                            "RTTI_Value": {
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.0
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.0
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.0
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "RTTI_Map_Key": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "Tiny3D::Bone"
+                      },
+                      "RTTI_Map_Value": {
+                        "RTTI_Type": "Tiny3D::Bone",
+                        "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
+                          "UUID": {
+                            "RTTI_Type": "Tiny3D::UUID",
+                            "RTTI_Value": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "104a6db36cddd34163689227a87e5601"
+                            }
+                          },
+                          "OffsetMatrix": {
+                            "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                            "RTTI_Value": {
+                              "data": {
+                                "RTTI_Type": "Tiny3D::Buffer",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "2IYbvBnxM7hFFk47UFUfvw4dPziZ1iO8Oz+WNa/0wTukFU47TByBN0CHGzzPlH69AAAAAAAAAAAAAAAAAACAPw=="
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "tou"
+                },
+                "UUID": {
+                  "RTTI_Type": "Tiny3D::UUID",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "be537e7d372817a31e219a88c2caec86"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "Tiny3D::UUID",
+              "RTTI_Value": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "770e347f90c0ff3658190ae24e8aa8c4"
+              }
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::GameObject",
+              "RTTI_Value": {
+                "Active": {
+                  "RTTI_Type": "bool",
+                  "RTTI_Value": true
+                },
+                "CameraMask": {
+                  "RTTI_Type": "unsignedint",
+                  "RTTI_Value": 1
+                },
+                "Components": {
+                  "RTTI_Type": "std::unordered_multimap<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::Component>>",
+                  "RTTI_Value": [
+                    {
+                      "RTTI_Map_Key": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "Tiny3D::Transform3D"
+                      },
+                      "RTTI_Map_Value": {
+                        "RTTI_Type": "Tiny3D::Transform3D",
+                        "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
+                          "UUID": {
+                            "RTTI_Type": "Tiny3D::UUID",
+                            "RTTI_Value": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "2120f4b92153bbd4972f22c4dff5722a"
+                            }
+                          },
+                          "Children": {
+                            "RTTI_Type": "std::list<Tiny3D::UUID>",
+                            "RTTI_Value": []
+                          },
+                          "Orientation": {
+                            "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                            "RTTI_Value": {
+                              "w": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.7338398694992065
+                              },
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.14877498149871827
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.06230732798576355
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.6598960757255554
+                              }
+                            }
+                          },
+                          "Position": {
+                            "RTTI_Type": "Tiny3D::TVector3<float>",
+                            "RTTI_Value": {
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -1.37141752243042
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -0.6403713822364807
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.2645731270313263
+                              }
+                            }
+                          },
+                          "Scaling": {
+                            "RTTI_Type": "Tiny3D::TVector3<float>",
+                            "RTTI_Value": {
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.9999999403953552
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.000000238418579
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.000000238418579
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "RTTI_Map_Key": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "Tiny3D::Bone"
+                      },
+                      "RTTI_Map_Value": {
+                        "RTTI_Type": "Tiny3D::Bone",
+                        "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
+                          "UUID": {
+                            "RTTI_Type": "Tiny3D::UUID",
+                            "RTTI_Value": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "efb187cc6f99a04501d964d109b1dd4a"
+                            }
+                          },
+                          "OffsetMatrix": {
+                            "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                            "RTTI_Value": {
+                              "data": {
+                                "RTTI_Type": "Tiny3D::Buffer",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "oZpLur7GIbzLq7Q6oMsxP+5LIzx7alK6e1wMuaBEQb/vm345h7WyOt1CIjzigDq+AAAAAAAAAAAAAAAAAACAPw=="
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "yanjing"
+                },
+                "UUID": {
+                  "RTTI_Type": "Tiny3D::UUID",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "770e347f90c0ff3658190ae24e8aa8c4"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "Tiny3D::UUID",
+              "RTTI_Value": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "12ed5f4d716a670852bd8dd47ae6f974"
+              }
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::GameObject",
+              "RTTI_Value": {
+                "Active": {
+                  "RTTI_Type": "bool",
+                  "RTTI_Value": true
+                },
+                "CameraMask": {
+                  "RTTI_Type": "unsignedint",
+                  "RTTI_Value": 1
+                },
+                "Components": {
+                  "RTTI_Type": "std::unordered_multimap<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::Component>>",
+                  "RTTI_Value": [
+                    {
+                      "RTTI_Map_Key": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "Tiny3D::Transform3D"
+                      },
+                      "RTTI_Map_Value": {
+                        "RTTI_Type": "Tiny3D::Transform3D",
+                        "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
+                          "UUID": {
+                            "RTTI_Type": "Tiny3D::UUID",
+                            "RTTI_Value": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "13fca0e68957faf3c62d8a902dfb95f3"
+                            }
+                          },
+                          "Children": {
+                            "RTTI_Type": "std::list<Tiny3D::UUID>",
+                            "RTTI_Value": []
+                          },
+                          "Orientation": {
+                            "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                            "RTTI_Value": {
+                              "w": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.7701118588447571
+                              },
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.02097266912460327
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -0.0044256881810724739
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.6375486254692078
+                              }
+                            }
+                          },
+                          "Position": {
+                            "RTTI_Type": "Tiny3D::TVector3<float>",
+                            "RTTI_Value": {
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -0.0069299316965043549
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -0.008477884344756604
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -0.00018381117843091488
+                              }
+                            }
+                          },
+                          "Scaling": {
+                            "RTTI_Type": "Tiny3D::TVector3<float>",
+                            "RTTI_Value": {
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.9999996423721314
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.0
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.999999463558197
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "RTTI_Map_Key": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "Tiny3D::Bone"
+                      },
+                      "RTTI_Map_Value": {
+                        "RTTI_Type": "Tiny3D::Bone",
+                        "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
+                          "UUID": {
+                            "RTTI_Type": "Tiny3D::UUID",
+                            "RTTI_Value": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "2ae5a82d263bb340ca87698ae6028290"
+                            }
+                          },
+                          "OffsetMatrix": {
+                            "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                            "RTTI_Value": {
+                              "data": {
+                                "RTTI_Type": "Tiny3D::Buffer",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "F0YgPMTL1zDp/Qe75UwmQOn9Bzs7702xF0YgPKXTZj4nRHswCtcjvHPXX7HlDYo0AAAAAAAAAAAAAAAAAACAPw=="
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "shenti"
+                },
+                "UUID": {
+                  "RTTI_Type": "Tiny3D::UUID",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "12ed5f4d716a670852bd8dd47ae6f974"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "Tiny3D::UUID",
+              "RTTI_Value": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "b1cce19a92ba67a1474f92e287c31daa"
+              }
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::GameObject",
+              "RTTI_Value": {
+                "Active": {
+                  "RTTI_Type": "bool",
+                  "RTTI_Value": true
+                },
+                "CameraMask": {
+                  "RTTI_Type": "unsignedint",
+                  "RTTI_Value": 1
+                },
+                "Components": {
+                  "RTTI_Type": "std::unordered_multimap<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::Component>>",
+                  "RTTI_Value": [
+                    {
+                      "RTTI_Map_Key": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "Tiny3D::Transform3D"
+                      },
+                      "RTTI_Map_Value": {
+                        "RTTI_Type": "Tiny3D::Transform3D",
+                        "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
+                          "UUID": {
+                            "RTTI_Type": "Tiny3D::UUID",
+                            "RTTI_Value": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "caccda1141a383fb23a673ed428ac561"
+                            }
+                          },
+                          "Children": {
+                            "RTTI_Type": "std::list<Tiny3D::UUID>",
+                            "RTTI_Value": []
+                          },
+                          "Orientation": {
+                            "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                            "RTTI_Value": {
+                              "w": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.9878251552581787
+                              },
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -0.005472192075103521
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -0.020939406007528306
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -0.15405549108982087
+                              }
+                            }
+                          },
+                          "Position": {
+                            "RTTI_Type": "Tiny3D::TVector3<float>",
+                            "RTTI_Value": {
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -1.0101613998413087
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -6.092023774328936e-9
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -7.875387808553569e-8
+                              }
+                            }
+                          },
+                          "Scaling": {
+                            "RTTI_Type": "Tiny3D::TVector3<float>",
+                            "RTTI_Value": {
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.9999995827674866
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.9999997019767761
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.000000238418579
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "RTTI_Map_Key": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "Tiny3D::Bone"
+                      },
+                      "RTTI_Map_Value": {
+                        "RTTI_Type": "Tiny3D::Bone",
+                        "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
+                          "UUID": {
+                            "RTTI_Type": "Tiny3D::UUID",
+                            "RTTI_Value": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "a8d6125c8be727ca9711a91216de88a6"
+                            }
+                          },
+                          "OffsetMatrix": {
+                            "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                            "RTTI_Value": {
+                              "data": {
+                                "RTTI_Type": "Tiny3D::Buffer",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "EoD5O4VAvjvZ+Tw7EsyqQMImy7sbJgA8l/8iOrlpfb+1TPi6wi8Uu6+MHDxDxYO/AAAAAAAAAAAAAAAAAACAPw=="
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "t3"
+                },
+                "UUID": {
+                  "RTTI_Type": "Tiny3D::UUID",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "b1cce19a92ba67a1474f92e287c31daa"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "Tiny3D::UUID",
+              "RTTI_Value": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "434a0daac91e8f6f9f3f5de896f05364"
+              }
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::GameObject",
+              "RTTI_Value": {
+                "Active": {
+                  "RTTI_Type": "bool",
+                  "RTTI_Value": true
+                },
+                "CameraMask": {
+                  "RTTI_Type": "unsignedint",
+                  "RTTI_Value": 1
+                },
+                "Components": {
+                  "RTTI_Type": "std::unordered_multimap<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::Component>>",
+                  "RTTI_Value": [
+                    {
+                      "RTTI_Map_Key": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "Tiny3D::Transform3D"
+                      },
+                      "RTTI_Map_Value": {
+                        "RTTI_Type": "Tiny3D::Transform3D",
+                        "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
+                          "UUID": {
+                            "RTTI_Type": "Tiny3D::UUID",
+                            "RTTI_Value": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "09e1ff87fd91eb7b0462dcab56b8c97b"
+                            }
+                          },
+                          "Children": {
+                            "RTTI_Type": "std::list<Tiny3D::UUID>",
+                            "RTTI_Value": [
+                              {
+                                "RTTI_Type": "Tiny3D::UUID",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "4717ba5dcc51d60998dbf2ae42400a42"
+                                }
+                              }
+                            ]
+                          },
+                          "Orientation": {
+                            "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                            "RTTI_Value": {
+                              "w": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -0.48306190967559817
+                              },
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.2758311331272125
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.8030906915664673
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -0.21357429027557374
+                              }
+                            }
+                          },
+                          "Position": {
+                            "RTTI_Type": "Tiny3D::TVector3<float>",
+                            "RTTI_Value": {
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.4080480933189392
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -1.3844064474105836
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -0.9566104412078857
+                              }
+                            }
+                          },
+                          "Scaling": {
+                            "RTTI_Type": "Tiny3D::TVector3<float>",
+                            "RTTI_Value": {
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.9999997615814209
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.0000004768371583
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.0
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "RTTI_Map_Key": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "Tiny3D::Bone"
+                      },
+                      "RTTI_Map_Value": {
+                        "RTTI_Type": "Tiny3D::Bone",
+                        "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
+                          "UUID": {
+                            "RTTI_Type": "Tiny3D::UUID",
+                            "RTTI_Value": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "553729c20ba1cba5391b0663071d2f2d"
+                            }
+                          },
+                          "OffsetMatrix": {
+                            "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                            "RTTI_Value": {
+                              "data": {
+                                "RTTI_Type": "Tiny3D::Buffer",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "PzseOzRKHLz1iek6LxnrP98eHjxlRic77/kZOt5LaUCZDIW6YczOOlDuIDzUCu6+AAAAAAAAAAAAAAAAAACAPw=="
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "tr1"
+                },
+                "UUID": {
+                  "RTTI_Type": "Tiny3D::UUID",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "434a0daac91e8f6f9f3f5de896f05364"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "Tiny3D::UUID",
+              "RTTI_Value": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "9bcea913c8654dd918138b7624f0653c"
+              }
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::GameObject",
+              "RTTI_Value": {
+                "Active": {
+                  "RTTI_Type": "bool",
+                  "RTTI_Value": true
+                },
+                "CameraMask": {
+                  "RTTI_Type": "unsignedint",
+                  "RTTI_Value": 1
+                },
+                "Components": {
+                  "RTTI_Type": "std::unordered_multimap<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::Component>>",
+                  "RTTI_Value": [
+                    {
+                      "RTTI_Map_Key": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "Tiny3D::Transform3D"
+                      },
+                      "RTTI_Map_Value": {
+                        "RTTI_Type": "Tiny3D::Transform3D",
+                        "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
+                          "UUID": {
+                            "RTTI_Type": "Tiny3D::UUID",
+                            "RTTI_Value": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "4717ba5dcc51d60998dbf2ae42400a42"
+                            }
+                          },
+                          "Children": {
+                            "RTTI_Type": "std::list<Tiny3D::UUID>",
+                            "RTTI_Value": [
+                              {
+                                "RTTI_Type": "Tiny3D::UUID",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "2f18036387f978c9684f9bc17c3a842f"
+                                }
+                              }
+                            ]
+                          },
+                          "Orientation": {
+                            "RTTI_Type": "Tiny3D::TQuaternion<float>",
+                            "RTTI_Value": {
+                              "w": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.9761385917663574
+                              },
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.07885190099477768
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.13248935341835023
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.15291321277618409
+                              }
+                            }
+                          },
+                          "Position": {
+                            "RTTI_Type": "Tiny3D::TVector3<float>",
+                            "RTTI_Value": {
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": -0.9564964771270752
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.5258788721439488e-7
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.907348590179936e-8
+                              }
+                            }
+                          },
+                          "Scaling": {
+                            "RTTI_Type": "Tiny3D::TVector3<float>",
+                            "RTTI_Value": {
+                              "x": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.000000238418579
+                              },
+                              "y": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.0000003576278687
+                              },
+                              "z": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 1.0000003576278687
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "RTTI_Map_Key": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "Tiny3D::Bone"
+                      },
+                      "RTTI_Map_Value": {
+                        "RTTI_Type": "Tiny3D::Bone",
+                        "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
+                          "UUID": {
+                            "RTTI_Type": "Tiny3D::UUID",
+                            "RTTI_Value": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "ececa6995acfd78d1866b7ba92be4dad"
+                            }
+                          },
+                          "OffsetMatrix": {
+                            "RTTI_Type": "Tiny3D::TMatrix4<float>",
+                            "RTTI_Value": {
+                              "data": {
+                                "RTTI_Type": "Tiny3D::Buffer",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "yWrNOxNE87si6ho7Q+qBQDeg+zsUudE7O1yKuW3kBUBwnqy6Gs0BO14jHzxKJCu/AAAAAAAAAAAAAAAAAACAPw=="
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "tr2"
+                },
+                "UUID": {
+                  "RTTI_Type": "Tiny3D::UUID",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "9bcea913c8654dd918138b7624f0653c"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "Tiny3D::UUID",
+              "RTTI_Value": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "b3830ee3b0015b4b93ba85a021e340b6"
+              }
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::GameObject",
+              "RTTI_Value": {
+                "Active": {
+                  "RTTI_Type": "bool",
+                  "RTTI_Value": true
+                },
+                "CameraMask": {
+                  "RTTI_Type": "unsignedint",
+                  "RTTI_Value": 1
+                },
+                "Components": {
+                  "RTTI_Type": "std::unordered_multimap<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::Component>>",
+                  "RTTI_Value": [
+                    {
+                      "RTTI_Map_Key": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "Tiny3D::Transform3D"
+                      },
+                      "RTTI_Map_Value": {
+                        "RTTI_Type": "Tiny3D::Transform3D",
+                        "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
+                          "UUID": {
+                            "RTTI_Type": "Tiny3D::UUID",
+                            "RTTI_Value": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "f24a007d17035eab05b9f130c24b95f7"
+                            }
+                          },
+                          "Children": {
+                            "RTTI_Type": "std::list<Tiny3D::UUID>",
+                            "RTTI_Value": [
+                              {
+                                "RTTI_Type": "Tiny3D::UUID",
+                                "RTTI_Value": {
+                                  "RTTI_Type": "std::string",
+                                  "RTTI_Value": "c791a1ba6bcca66e8e876b850cc6ec65"
                                 }
                               }
                             ]
@@ -2631,11 +2699,15 @@
                       "RTTI_Map_Value": {
                         "RTTI_Type": "Tiny3D::Bone",
                         "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
                           "UUID": {
                             "RTTI_Type": "Tiny3D::UUID",
                             "RTTI_Value": {
                               "RTTI_Type": "std::string",
-                              "RTTI_Value": "2acb9e5afff586f419bb530d89f1f304"
+                              "RTTI_Value": "52cc301a8914cf4d36433f1df58c73ac"
                             }
                           },
                           "OffsetMatrix": {
@@ -2663,12 +2735,8 @@
                   "RTTI_Type": "Tiny3D::UUID",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "d177b0c9a55542f0bd68cdab0d610c38"
+                    "RTTI_Value": "b3830ee3b0015b4b93ba85a021e340b6"
                   }
-                },
-                "Visible": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
                 }
               }
             }
@@ -2678,7 +2746,7 @@
               "RTTI_Type": "Tiny3D::UUID",
               "RTTI_Value": {
                 "RTTI_Type": "std::string",
-                "RTTI_Value": "08e2cb3450ef38a3759b5146e06646d4"
+                "RTTI_Value": "ec8ab6d529c836dc22e2aa03fba9b595"
               }
             },
             "RTTI_Map_Value": {
@@ -2703,11 +2771,15 @@
                       "RTTI_Map_Value": {
                         "RTTI_Type": "Tiny3D::Transform3D",
                         "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
                           "UUID": {
                             "RTTI_Type": "Tiny3D::UUID",
                             "RTTI_Value": {
                               "RTTI_Type": "std::string",
-                              "RTTI_Value": "d6ce3e67b0e2bb33cc486f8fd6c2b80e"
+                              "RTTI_Value": "c791a1ba6bcca66e8e876b850cc6ec65"
                             }
                           },
                           "Children": {
@@ -2717,7 +2789,7 @@
                                 "RTTI_Type": "Tiny3D::UUID",
                                 "RTTI_Value": {
                                   "RTTI_Type": "std::string",
-                                  "RTTI_Value": "665777a5ff12aeffb96c1e961d028ac6"
+                                  "RTTI_Value": "caccda1141a383fb23a673ed428ac561"
                                 }
                               }
                             ]
@@ -2788,11 +2860,15 @@
                       "RTTI_Map_Value": {
                         "RTTI_Type": "Tiny3D::Bone",
                         "RTTI_Value": {
+                          "Enabled": {
+                            "RTTI_Type": "bool",
+                            "RTTI_Value": true
+                          },
                           "UUID": {
                             "RTTI_Type": "Tiny3D::UUID",
                             "RTTI_Value": {
                               "RTTI_Type": "std::string",
-                              "RTTI_Value": "a1851de8749805e7f86371cc3b54a3f7"
+                              "RTTI_Value": "2e5db359ea30e0fb85a80766be4aae2e"
                             }
                           },
                           "OffsetMatrix": {
@@ -2820,12 +2896,8 @@
                   "RTTI_Type": "Tiny3D::UUID",
                   "RTTI_Value": {
                     "RTTI_Type": "std::string",
-                    "RTTI_Value": "08e2cb3450ef38a3759b5146e06646d4"
+                    "RTTI_Value": "ec8ab6d529c836dc22e2aa03fba9b595"
                   }
-                },
-                "Visible": {
-                  "RTTI_Type": "bool",
-                  "RTTI_Value": true
                 }
               }
             }
@@ -2836,7 +2908,7 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "85711375b44c02a3e4dbfd4f481f0894"
+          "RTTI_Value": "16934254b7c208ee6ef223c8d4d5c0e2"
         }
       }
     }
