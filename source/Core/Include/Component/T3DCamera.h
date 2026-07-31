@@ -74,7 +74,10 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="Order", RTTRFuncType="setter")
         void setOrder(uint32_t order) { updateOrder(order); }
 
-        TPROPERTY(RTTRFuncName="Viewport", RTTRFuncType="getter")
+        // 反射注册按属性名的字母序排列，Viewport 排在最后，因此这里的分组标题只会
+        // 覆盖它自己。分组标题只能在字母序上划边界，无法像 Unity 那样任意归组。
+        // 标签还必须写成一行，跨行的标签会被预处理器漏掉（见 CHECK_TAG_RET_FILE_SPEC）
+        TPROPERTY(RTTRFuncName="Viewport", RTTRFuncType="getter", "HEADER"="Output", "TOOLTIP"="Sub-region of the render target to draw into.")
         const Viewport &getViewport() const { return mViewport; }
 
         TPROPERTY(RTTRFuncName="Viewport", RTTRFuncType="setter")
@@ -86,7 +89,7 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="ClearColor", RTTRFuncType="setter")
         void setClearColor(const ColorRGB &color) { mClearColor = color; }
 
-        TPROPERTY(RTTRFuncName="ClearDepth", RTTRFuncType="getter")
+        TPROPERTY(RTTRFuncName="ClearDepth", RTTRFuncType="getter", "RANGE_MIN"=0, "RANGE_MAX"=1)
         Real getClearDepth() const { return mClearDepth; }
 
         TPROPERTY(RTTRFuncName="ClearDepth", RTTRFuncType="setter")
@@ -110,7 +113,7 @@ namespace Tiny3D
             }
         }
 
-        TPROPERTY(RTTRFuncName="FovY", RTTRFuncType="getter")
+        TPROPERTY(RTTRFuncName="FovY", RTTRFuncType="getter", "DISPLAY_NAME"="Field of View", "RANGE_MIN"=1, "RANGE_MAX"=179)
         const Radian &getFovY() const { return mFovY; }
 
         TPROPERTY(RTTRFuncName="FovY", RTTRFuncType="setter")
