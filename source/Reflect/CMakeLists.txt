@@ -12,7 +12,7 @@ set_project_name(T3DReflect)
 set(NMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../nmake")
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/..")
 
-set(WHITE_LIST "Tiny3D::TAabb;Tiny3D::TDegree;Tiny3D::TFrustum;Tiny3D::TMatrix2;Tiny3D::TMatrix3;Tiny3D::TMatrix4;Tiny3D::TObb;Tiny3D::TPlane;Tiny3D::TQuaternion;Tiny3D::TRadian;Tiny3D::TRay;Tiny3D::TSize;Tiny3D::TPoint;Tiny3D::TRect;Tiny3D::TSphere;Tiny3D::TTriangle;Tiny3D::TVector2;Tiny3D::TVector3;Tiny3D::TVector4;")
+set(WHITE_LIST "Tiny3D::TAabb;Tiny3D::TCapsule;Tiny3D::TDegree;Tiny3D::TFrustum;Tiny3D::TMatrix2;Tiny3D::TMatrix3;Tiny3D::TMatrix4;Tiny3D::TObb;Tiny3D::TPlane;Tiny3D::TQuaternion;Tiny3D::TRadian;Tiny3D::TRay;Tiny3D::TSize;Tiny3D::TPoint;Tiny3D::TRect;Tiny3D::TSphere;Tiny3D::TTriangle;Tiny3D::TVector2;Tiny3D::TVector3;Tiny3D::TVector4;")
 
 # RPP executable path: native build uses target file, cross-compilation uses host cache variable
 if (CMAKE_CROSSCOMPILING)
