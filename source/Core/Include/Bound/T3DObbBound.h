@@ -48,13 +48,34 @@ namespace Tiny3D
 
         ComponentPtr clone() const override;
 
-        TPROPERTY(RTTRFuncName="OBB", RTTRFuncType="getter", "Description"="Oriented Bounding Box")
+        /// 世界空间 OBB，每帧由原始 OBB 与变换矩阵重算，不反射也不序列化
         const Obb &getObb() const { return mObb; }
 
-        TPROPERTY(RTTRFuncName="originalOBB", RTTRFuncType="getter", "Description"="Original Oriented Bounding Box")
+        /// 局部空间 OBB
         const Obb& getOriginalObb() const { return mOriginalObb; }
 
-        TFUNCTION()
+        // 整体反射 Obb 会在 inspector 里多出一层可折叠子结构，与其余 bound 呈现不一致，
+        // 因此拆成中心、三条轴向与半长直接平铺在组件面板上
+        TPROPERTY(RTTRFuncName="Center", RTTRFuncType="getter", "Description"="Box center in local space")
+        const Vector3 &getCenter() const { return mOriginalObb.getCenter(); }
+
+        TPROPERTY(RTTRFuncName="XAxis", RTTRFuncType="getter", "Description"="First axis direction in local space")
+        const Vector3 &getXAxis() const { return mOriginalObb.getAxis(0); }
+
+        TPROPERTY(RTTRFuncName="YAxis", RTTRFuncType="getter", "Description"="Second axis direction in local space")
+        const Vector3 &getYAxis() const { return mOriginalObb.getAxis(1); }
+
+        TPROPERTY(RTTRFuncName="ZAxis", RTTRFuncType="getter", "Description"="Third axis direction in local space")
+        const Vector3 &getZAxis() const { return mOriginalObb.getAxis(2); }
+
+        TPROPERTY(RTTRFuncName="Extents", RTTRFuncType="getter", "Description"="Half extents along the three axes in local space")
+        Vector3 getExtents() const
+        {
+            return Vector3(mOriginalObb.getExtent(0), mOriginalObb.getExtent(1),
+                mOriginalObb.getExtent(2));
+        }
+
+        TPROPERTY(RTTRFuncName="Center", RTTRFuncType="setter", "Description"="Box center in local space")
         void setCenter(const Vector3 &center)
         {
             mObb.setCenter(center);
@@ -104,11 +125,46 @@ namespace Tiny3D
         void onUpdate() override;
 
     private:
-        TPROPERTY(RTTRFuncName="OBB", RTTRFuncType="setter", "Description"="Oriented Bounding Box")
-        void setObb(const Obb &obb) { mObb = obb; }
+        void setOriginalObb(const Obb &obb)
+        {
+            mOriginalObb = obb;
+            // update() 要等到下一帧才跑，这里先同步一份，避免剔除逻辑读到未初始化的世界 OBB
+            mObb = obb;
+        }
 
-        TPROPERTY(RTTRFuncName="originalOBB", RTTRFuncType="setter", "Description"="Original Oriented Bounding Box")
-        void setOriginalObb(const Obb &obb) { mOriginalObb = obb; }
+        // 三条轴向按整组写入，因此单独改一条时要先把另外两条取值拷出来，
+        // 不能直接把 getXxxAxis() 的引用传回去——那是即将被覆盖的同一块内存
+        TPROPERTY(RTTRFuncName="XAxis", RTTRFuncType="setter", "Description"="First axis direction in local space")
+        void setXAxis(const Vector3 &axis)
+        {
+            const Vector3 y = getYAxis();
+            const Vector3 z = getZAxis();
+            setAxis(axis, y, z);
+        }
+
+        TPROPERTY(RTTRFuncName="YAxis", RTTRFuncType="setter", "Description"="Second axis direction in local space")
+        void setYAxis(const Vector3 &axis)
+        {
+            const Vector3 x = getXAxis();
+            const Vector3 z = getZAxis();
+            setAxis(x, axis, z);
+        }
+
+        TPROPERTY(RTTRFuncName="ZAxis", RTTRFuncType="setter", "Description"="Third axis direction in local space")
+        void setZAxis(const Vector3 &axis)
+        {
+            const Vector3 x = getXAxis();
+            const Vector3 y = getYAxis();
+            setAxis(x, y, axis);
+        }
+
+        // Extents 是由三个轴向半长拼出来的临时值，getter 只能按值返回，因此 setter 也得
+        // 按值收参——RTTR 要求同一属性的 getter 与 setter 数据类型完全一致
+        TPROPERTY(RTTRFuncName="Extents", RTTRFuncType="setter", "Description"="Half extents along the three axes in local space")
+        void setExtents(Vector3 extents)
+        {
+            setExtent(extents.x(), extents.y(), extents.z());
+        }
         
     private:
         /// 实时变换的OBB

@@ -155,9 +155,8 @@ namespace Tiny3D
             mSphere.setCenter(center);
             mSphere.setRadius(radius);
 
-            // 原始球体，只更新球心位置，不更新半径大小
-            center = M * mOriginalSphere.getCenter();
-            mOriginalSphere.setCenter(center);
+            // mOriginalSphere 是局部空间的原始数据，不能在这里回写，
+            // 否则每帧都会在上一帧的结果上再乘一次变换矩阵，导致球心不断累积漂移
         }
     }
     

@@ -51,23 +51,32 @@ namespace Tiny3D
         TFUNCTION()
         void setParams(const Vector3 &p0, const Vector3 &p1, Real radius)
         {
-            mOriginalCapsule = Capsule(p0, p1, radius);
-            mCapsule = mOriginalCapsule;
+            setOriginalCapsule(Capsule(p0, p1, radius));
         }
 
         TFUNCTION()
         void setParams(const Vector3 &center, Real cylinderHalfHeight,
             Real radius, const Vector3 &axis)
         {
-            mOriginalCapsule = Capsule(center, cylinderHalfHeight, radius, axis);
-            mCapsule = mOriginalCapsule;
+            setOriginalCapsule(Capsule(center, cylinderHalfHeight, radius, axis));
         }
 
-        TPROPERTY(RTTRFuncName="capsule", RTTRFuncType="getter", "Description"="Capsule")
+        /// 世界空间胶囊体，每帧由原始胶囊体与变换矩阵重算，不反射也不序列化
         const Capsule &getCapsule() const { return mCapsule; }
 
-        TPROPERTY(RTTRFuncName="originalCapsule", RTTRFuncType="getter", "Description"="OriginalCapsule")
+        /// 局部空间胶囊体
         const Capsule &getOriginalCapsule() const { return mOriginalCapsule; }
+
+        // Capsule（TCapsule<Real>）没有生成 RTTR 注册，整体反射出去 inspector 画不出
+        // 也存不下，因此拆成 Vector3 / Real 这些已注册的基础类型逐项暴露
+        TPROPERTY(RTTRFuncName="Point0", RTTRFuncType="getter", "Description"="Capsule segment endpoint 0 in local space")
+        const Vector3 &getPoint0() const { return mOriginalCapsule.getPoint0(); }
+
+        TPROPERTY(RTTRFuncName="Point1", RTTRFuncType="getter", "Description"="Capsule segment endpoint 1 in local space")
+        const Vector3 &getPoint1() const { return mOriginalCapsule.getPoint1(); }
+
+        TPROPERTY(RTTRFuncName="Radius", RTTRFuncType="getter", "Description"="Capsule radius in local space")
+        Real getRadius() const { return mOriginalCapsule.getRadius(); }
 
         Renderable *getRenderable() override;
 
@@ -93,16 +102,38 @@ namespace Tiny3D
         void onUpdate() override;
 
     private:
-        TPROPERTY(RTTRFuncName="capsule", RTTRFuncType="setter", "Description"="Capsule")
-        void setCapsule(const Capsule &capsule) { mCapsule = capsule; }
+        void setOriginalCapsule(const Capsule &capsule)
+        {
+            mOriginalCapsule = capsule;
+            // update() 要等到下一帧才跑，这里先同步一份，避免剔除逻辑读到未初始化的世界胶囊体
+            mCapsule = capsule;
+        }
 
-        TPROPERTY(RTTRFuncName="originalCapsule", RTTRFuncType="setter", "Description"="OriginalCapsule")
-        void setOriginalCapsule(const Capsule &capsule) { mOriginalCapsule = capsule; }
+        TPROPERTY(RTTRFuncName="Point0", RTTRFuncType="setter", "Description"="Capsule segment endpoint 0 in local space")
+        void setPoint0(const Vector3 &p0)
+        {
+            setOriginalCapsule(Capsule(p0, mOriginalCapsule.getPoint1(),
+                mOriginalCapsule.getRadius()));
+        }
+
+        TPROPERTY(RTTRFuncName="Point1", RTTRFuncType="setter", "Description"="Capsule segment endpoint 1 in local space")
+        void setPoint1(const Vector3 &p1)
+        {
+            setOriginalCapsule(Capsule(mOriginalCapsule.getPoint0(), p1,
+                mOriginalCapsule.getRadius()));
+        }
+
+        TPROPERTY(RTTRFuncName="Radius", RTTRFuncType="setter", "Description"="Capsule radius in local space")
+        void setRadius(Real radius)
+        {
+            setOriginalCapsule(Capsule(mOriginalCapsule.getPoint0(),
+                mOriginalCapsule.getPoint1(), radius));
+        }
 
     private:
         /// 原始胶囊体（局部）
         Capsule mOriginalCapsule {};
-        /// 用于快速检测相交性的胶囊体（世界）
+        /// 用于快速检测相交性的胶囊体（世界），由 update() 每帧重算，不参与序列化
         Capsule mCapsule {};
     };
 }

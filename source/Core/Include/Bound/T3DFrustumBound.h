@@ -48,10 +48,11 @@ namespace Tiny3D
 
         ComponentPtr clone() const override;
 
-        TPROPERTY(RTTRFuncName="frustum", RTTRFuncType="getter", "Description"="Frustum")
+        /// 世界空间视锥体，每帧由相机的 view-projection 矩阵重算，不反射也不序列化
         const Frustum &getFrustum() const { return mFrustum; }
 
-        TPROPERTY(RTTRFuncName="originalFrustum", RTTRFuncType="getter", "Description"="Original Frustum")
+        // 视锥体的六个面整体由相机的 view-projection 矩阵推导，每帧被覆盖，在 inspector
+        // 里手改没有意义，因此局部视锥体也不反射、不序列化
         const Frustum& getOriginalFrustum() const { return mOriginalFrustum; }
 
         TFUNCTION()
@@ -88,11 +89,12 @@ namespace Tiny3D
         void onDestroy() override;
 
     private:
-        TPROPERTY(RTTRFuncName="frustum", RTTRFuncType="setter", "Description"="Frustum")
-        void setFrustum(const Frustum &frustum) { mFrustum = frustum; }
-
-        TPROPERTY(RTTRFuncName="originalFrustum", RTTRFuncType="setter", "Description"="Original Frustum")
-        void setOriginalFrustum(const Frustum &frustum) { mOriginalFrustum = frustum; }
+        void setOriginalFrustum(const Frustum &frustum)
+        {
+            mOriginalFrustum = frustum;
+            // update() 要等到下一帧才跑，这里先同步一份，避免剔除逻辑读到未初始化的世界视锥体
+            mFrustum = frustum;
+        }
 
     private:
         /// 可变换的视锥体对象
