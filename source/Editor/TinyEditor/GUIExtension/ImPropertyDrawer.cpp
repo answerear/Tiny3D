@@ -49,8 +49,35 @@ namespace Tiny3D
         /// 角度类控件的显示格式，标注单位避免与弧度混淆
         const char * const kAngleFormat = "%.2f deg";
 
-        /// 与序列化层保持一致的元数据 key，标记不参与序列化的属性
-        const char * const kMetaNoSerialize = "NO_SERIALIZE";
+        /**
+         * 元数据 key。
+         *
+         * 类型必须是 String，不能是 const char *：生成代码里的 key 是字符串字面量，
+         * RTTR 把一维 char 数组存成 std::string，而 const char * 会原样存成指针。
+         * 查表是拿 variant 逐个比 key，这两种类型既不相等又互相转不过去，用
+         * const char * 去查一律取不到值，且编译与运行期都不会报错。
+         *
+         * 标注写在属性 getter 的 TPROPERTY 标签里，例如：
+         *   TPROPERTY(RTTRFuncName="FovY", RTTRFuncType="getter", "RANGE_MIN"=1, "RANGE_MAX"=179)
+         *
+         * 三条来自预处理器的约束：
+         * - key 要带引号。标签里的 key 会被原样搬进生成代码，不带引号会变成未定义的标识符
+         * - 标注要写在 getter 上。属性由 getter 与 setter 合并注册，只有 getter 的标注
+         *   会被写进生成代码，标在 setter 上不生效
+         * - 整个标签必须写成一行。跨行的标签会被漏掉，连带整个属性都不会被注册
+         *
+         * Description 是引擎里既有的属性文档，直接当提示用，无需另加标注。
+         */
+        /// 与序列化层共用，标记不参与序列化的属性
+        const String kMetaNoSerialize = "NO_SERIALIZE";
+
+        const String kMetaDescription = "Description";
+        const String kMetaTooltip = "TOOLTIP";
+        const String kMetaRangeMin = "RANGE_MIN";
+        const String kMetaRangeMax = "RANGE_MAX";
+        const String kMetaHeader = "HEADER";
+        const String kMetaDisplayName = "DISPLAY_NAME";
+        const String kMetaHideInInspector = "HIDE_IN_INSPECTOR";
 
         /// 资产选择器弹窗的 ID，外层已按属性名 PushID，各属性之间不会串
         const char * const kAssetPickerPopup = "##AssetPicker";
@@ -93,21 +120,69 @@ namespace Tiny3D
         }
 
         /**
-         * 用 DragScalar 编辑指定算术类型的属性值
-         * @tparam T : 属性的算术类型，variant 内保存的就是该类型
+         * 取属性上标注的元数据值
+         * @return 未标注时返回无效变体。标签只写 key 不写值时预处理器生成的值是
+         *         true，它只代表「标注过」而不携带内容，这里同样按无效处理，
+         *         免得把它当文本显示成 "true" 或当数值用成 1
          */
-        template <typename T>
-        bool dragScalar(const String &label, ImGuiDataType dataType, RTTRVariant &value, float speed)
+        RTTRVariant metaValue(const rttr::property &prop, const String &key)
         {
-            T scalar = value.get_value<T>();
+            RTTRVariant md = prop.get_metadata(key);
 
-            if (ImGui::DragScalar(label.c_str(), dataType, &scalar, speed))
+            return (md.get_type() == RTTRType::get<bool>()) ? RTTRVariant() : md;
+        }
+
+        /// 读取字符串型元数据，未标注或标注的值不是文本时返回空串
+        String metaString(const rttr::property &prop, const String &key)
+        {
+            const RTTRVariant md = metaValue(prop, key);
+
+            if (!md.is_valid())
             {
-                value = scalar;
-                return true;
+                return String();
             }
 
-            return false;
+            bool ok = false;
+            const String text = md.to_string(&ok);
+
+            return ok ? text : String();
+        }
+
+        /**
+         * 读取数值型元数据
+         * @param [out] number : 读取成功时写入标注的数值
+         * @return 未标注或标注的值取不到数值时返回 false
+         */
+        bool metaNumber(const rttr::property &prop, const String &key, double &number)
+        {
+            const RTTRVariant md = metaValue(prop, key);
+
+            if (!md.is_valid())
+            {
+                return false;
+            }
+
+            bool ok = false;
+            const double value = md.to_double(&ok);
+
+            if (ok)
+            {
+                number = value;
+            }
+
+            return ok;
+        }
+
+        /**
+         * 取标签里用于显示的部分。
+         * 标签可能带 "##" 后缀来固定控件 ID（见 drawProperty 对显示名的处理）。
+         * 交给 ImGui 控件的标签由控件自己截断，只有自行输出标签文字的地方要先过一遍
+         */
+        String displayText(const String &label)
+        {
+            const size_t pos = label.find("##");
+
+            return (pos == String::npos) ? label : label.substr(0, pos);
         }
 
         /**
@@ -359,6 +434,40 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ImPropertyDrawer::UIHints ImPropertyDrawer::readUIHints(const rttr::property &prop)
+    {
+        UIHints hints;
+
+        // TOOLTIP 是专为 inspector 写的说明，Description 是属性自身的文档，
+        // 前者优先，没写时退回后者，这样引擎里已有的属性文档能直接变成提示
+        hints.tooltip = metaString(prop, kMetaTooltip);
+
+        if (hints.tooltip.empty())
+        {
+            hints.tooltip = metaString(prop, kMetaDescription);
+        }
+
+        hints.header = metaString(prop, kMetaHeader);
+        hints.displayName = metaString(prop, kMetaDisplayName);
+
+        double low = 0.0;
+        double high = 0.0;
+
+        // 只标了一个边界或区间是反的都定不出滑条量程，按没标注处理，仍用拖动控件
+        if (metaNumber(prop, kMetaRangeMin, low)
+            && metaNumber(prop, kMetaRangeMax, high)
+            && low < high)
+        {
+            hints.hasRange = true;
+            hints.rangeMin = low;
+            hints.rangeMax = high;
+        }
+
+        return hints;
+    }
+
+    //--------------------------------------------------------------------------
+
     bool ImPropertyDrawer::drawProperty(const RTTRObject &obj, const rttr::property &prop,
         int32_t depth)
     {
@@ -368,7 +477,54 @@ namespace Tiny3D
             return false;
         }
 
-        const String label = prop.get_name().to_string();
+        // 属性显式标注了不在 inspector 呈现
+        if (prop.get_metadata(kMetaHideInInspector))
+        {
+            return false;
+        }
+
+        const UIHints hints = readUIHints(prop);
+        const String name = prop.get_name().to_string();
+
+        // 显示名只换标签文字：ImGui 拿标签当控件 ID，直接整体替换会让同一对象里显示名
+        // 相同的两个属性撞 ID，而 "##" 之后的部分只参与 ID 不参与显示
+        const String label = hints.displayName.empty()
+            ? name : hints.displayName + "##" + name;
+
+        // 分组标题自成一行，放在属性之前
+        if (!hints.header.empty())
+        {
+            ImGui::SeparatorText(hints.header.c_str());
+        }
+
+        // 提示要覆盖属性画出的全部控件，因此先把它们并成一个 ImGui 分组再判断悬停。
+        // 只在确实有提示时分组，不给其余属性引入多余的布局层级
+        const bool grouped = !hints.tooltip.empty();
+
+        if (grouped)
+        {
+            ImGui::BeginGroup();
+        }
+
+        const bool changed = drawPropertyValue(obj, prop, label, hints, depth);
+
+        if (grouped)
+        {
+            ImGui::EndGroup();
+
+            // 提示用的悬停标志默认已含 AllowWhenDisabled，只读属性一样能弹出提示
+            ImGui::SetItemTooltip("%s", hints.tooltip.c_str());
+        }
+
+        return changed;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImPropertyDrawer::drawPropertyValue(const RTTRObject &obj,
+        const rttr::property &prop, const String &label, const UIHints &hints,
+        int32_t depth)
+    {
         RTTRVariant value = prop.get_value(obj);
 
         if (!value.is_valid())
@@ -390,19 +546,20 @@ namespace Tiny3D
         if (prop.is_readonly())
         {
             ImGui::BeginDisabled();
-            drawValue(label, type, value, depth);
+            drawValue(label, type, value, depth, hints);
             ImGui::EndDisabled();
             return false;
         }
 
-        // UUID 属性分两类：对象自身的身份 UUID 不能改，指向资产的 UUID 走资产选择器
+        // UUID 属性分两类：对象自身的身份 UUID 不能改，指向资产的 UUID 走资产选择器。
+        // 这里按属性名判断，不能用 label：显示名会把名字换成与资产种类无关的文案
         const Meta::Type assetType = (type == RTTRType::get<UUID>())
-            ? inferAssetType(label) : Meta::kUnknown;
+            ? inferAssetType(prop.get_name().to_string()) : Meta::kUnknown;
         const bool isAssetReference = (assetType != Meta::kUnknown);
 
         const bool changed = isAssetReference
             ? drawAssetReference(label, assetType, value)
-            : drawValue(label, type, value, depth);
+            : drawValue(label, type, value, depth, hints);
 
         if (!changed || !prop.set_value(obj, value))
         {
@@ -421,7 +578,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool ImPropertyDrawer::drawValue(const String &label, const RTTRType &type,
-        RTTRVariant &value, int32_t depth)
+        RTTRVariant &value, int32_t depth, const UIHints &hints)
     {
         if (type == RTTRType::get<bool>())
         {
@@ -438,7 +595,7 @@ namespace Tiny3D
 
         if (type.is_arithmetic())
         {
-            return drawArithmetic(label, type, value);
+            return drawArithmetic(label, type, value, hints);
         }
 
         if (type.is_enumeration())
@@ -473,12 +630,12 @@ namespace Tiny3D
 
         if (type == RTTRType::get<Radian>())
         {
-            return drawRadian(label, value);
+            return drawRadian(label, value, hints);
         }
 
         if (type == RTTRType::get<Degree>())
         {
-            return drawDegree(label, value);
+            return drawDegree(label, value, hints);
         }
 
         if (type == RTTRType::get<ColorRGB>())
@@ -500,7 +657,7 @@ namespace Tiny3D
 
         if (value.is_sequential_container())
         {
-            return drawSequentialContainer(label, value, depth);
+            return drawSequentialContainer(label, value, depth, hints);
         }
 
         if (value.is_associative_container())
@@ -610,7 +767,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     bool ImPropertyDrawer::drawSequentialContainer(const String &label,
-        RTTRVariant &value, int32_t depth)
+        RTTRVariant &value, int32_t depth, const UIHints &hints)
     {
         auto view = value.create_sequential_view();
 
@@ -633,8 +790,8 @@ namespace Tiny3D
         // 折叠节点的 ID 用属性名，元素个数只作为显示内容。若把个数拼进 ID，
         // 增删元素时 ID 会变，节点会被 ImGui 当成另一个节点而自动收起
         const bool expanded = ImGui::TreeNodeEx(label.c_str(),
-            ImGuiTreeNodeFlags_SpanAvailWidth, "%s (%d)", label.c_str(),
-            static_cast<int32_t>(view.get_size()));
+            ImGuiTreeNodeFlags_SpanAvailWidth, "%s (%d)",
+            displayText(label).c_str(), static_cast<int32_t>(view.get_size()));
 
         if (!expanded)
         {
@@ -677,7 +834,8 @@ namespace Tiny3D
             RTTRVariant element = view.get_value(i).extract_wrapped_value();
             const String elementLabel = "[" + std::to_string(i) + "]";
 
-            if (drawValue(elementLabel, elementType, element, depth + 1)
+            // 元素沿用宿主属性的提示，标在容器上的取值范围因此会逐元素生效
+            if (drawValue(elementLabel, elementType, element, depth + 1, hints)
                 && view.set_value(i, element))
             {
                 changed = true;
@@ -785,7 +943,7 @@ namespace Tiny3D
         }
 
         ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-        ImGui::TextUnformatted(label.c_str());
+        ImGui::TextUnformatted(displayText(label).c_str());
 
         if (ImGui::BeginPopup(kAssetPickerPopup))
         {
@@ -908,56 +1066,107 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ImPropertyDrawer::drawArithmetic(const String &label, const RTTRType &type, RTTRVariant &value)
+    template <typename T>
+    bool ImPropertyDrawer::drawScalar(const String &label, ImGuiDataType dataType,
+        RTTRVariant &value, float speed, const UIHints &hints)
+    {
+        T scalar = value.get_value<T>();
+        bool edited = false;
+
+        if (hints.hasRange)
+        {
+            const T low = static_cast<T>(hints.rangeMin);
+            const T high = static_cast<T>(hints.rangeMax);
+
+            // 滑条能直接看出当前值在量程里的位置。AlwaysClamp 是为了让 ctrl + 点击
+            // 手输的值也落在量程内，否则滑条能显示出越界值
+            edited = ImGui::SliderScalar(label.c_str(), dataType, &scalar, &low, &high,
+                nullptr, ImGuiSliderFlags_AlwaysClamp);
+        }
+        else
+        {
+            edited = ImGui::DragScalar(label.c_str(), dataType, &scalar, speed);
+        }
+
+        if (edited)
+        {
+            value = scalar;
+        }
+
+        return edited;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImPropertyDrawer::drawAngle(const String &label, float &degrees,
+        const UIHints &hints)
+    {
+        if (hints.hasRange)
+        {
+            // 量程按度解释，与控件显示和编辑的单位一致
+            return ImGui::SliderFloat(label.c_str(), &degrees,
+                static_cast<float>(hints.rangeMin),
+                static_cast<float>(hints.rangeMax), kAngleFormat,
+                ImGuiSliderFlags_AlwaysClamp);
+        }
+
+        return ImGui::DragFloat(label.c_str(), &degrees, kAngleDragSpeed,
+            0.0f, 0.0f, kAngleFormat);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ImPropertyDrawer::drawArithmetic(const String &label, const RTTRType &type,
+        RTTRVariant &value, const UIHints &hints)
     {
         if (type == RTTRType::get<float32_t>())
         {
-            return dragScalar<float32_t>(label, ImGuiDataType_Float, value, kDragSpeed);
+            return drawScalar<float32_t>(label, ImGuiDataType_Float, value, kDragSpeed, hints);
         }
 
         if (type == RTTRType::get<float64_t>())
         {
-            return dragScalar<float64_t>(label, ImGuiDataType_Double, value, kDragSpeed);
+            return drawScalar<float64_t>(label, ImGuiDataType_Double, value, kDragSpeed, hints);
         }
 
         if (type == RTTRType::get<int8_t>())
         {
-            return dragScalar<int8_t>(label, ImGuiDataType_S8, value, 1.0f);
+            return drawScalar<int8_t>(label, ImGuiDataType_S8, value, 1.0f, hints);
         }
 
         if (type == RTTRType::get<uint8_t>())
         {
-            return dragScalar<uint8_t>(label, ImGuiDataType_U8, value, 1.0f);
+            return drawScalar<uint8_t>(label, ImGuiDataType_U8, value, 1.0f, hints);
         }
 
         if (type == RTTRType::get<int16_t>())
         {
-            return dragScalar<int16_t>(label, ImGuiDataType_S16, value, 1.0f);
+            return drawScalar<int16_t>(label, ImGuiDataType_S16, value, 1.0f, hints);
         }
 
         if (type == RTTRType::get<uint16_t>())
         {
-            return dragScalar<uint16_t>(label, ImGuiDataType_U16, value, 1.0f);
+            return drawScalar<uint16_t>(label, ImGuiDataType_U16, value, 1.0f, hints);
         }
 
         if (type == RTTRType::get<int32_t>())
         {
-            return dragScalar<int32_t>(label, ImGuiDataType_S32, value, 1.0f);
+            return drawScalar<int32_t>(label, ImGuiDataType_S32, value, 1.0f, hints);
         }
 
         if (type == RTTRType::get<uint32_t>())
         {
-            return dragScalar<uint32_t>(label, ImGuiDataType_U32, value, 1.0f);
+            return drawScalar<uint32_t>(label, ImGuiDataType_U32, value, 1.0f, hints);
         }
 
         if (type == RTTRType::get<int64_t>())
         {
-            return dragScalar<int64_t>(label, ImGuiDataType_S64, value, 1.0f);
+            return drawScalar<int64_t>(label, ImGuiDataType_S64, value, 1.0f, hints);
         }
 
         if (type == RTTRType::get<uint64_t>())
         {
-            return dragScalar<uint64_t>(label, ImGuiDataType_U64, value, 1.0f);
+            return drawScalar<uint64_t>(label, ImGuiDataType_U64, value, 1.0f, hints);
         }
 
         bool ok = false;
@@ -1149,15 +1358,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ImPropertyDrawer::drawRadian(const String &label, RTTRVariant &value)
+    bool ImPropertyDrawer::drawRadian(const String &label, RTTRVariant &value,
+        const UIHints &hints)
     {
         const Radian radian = value.get_value<Radian>();
 
         // 弧度对用户不直观，UI 上统一按角度编辑
         float degrees = static_cast<float>(radian.valueDegrees());
 
-        if (ImGui::DragFloat(label.c_str(), &degrees, kAngleDragSpeed,
-            0.0f, 0.0f, kAngleFormat))
+        if (drawAngle(label, degrees, hints))
         {
             value = Radian(Degree(static_cast<Real>(degrees)).valueRadians());
             return true;
@@ -1168,13 +1377,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ImPropertyDrawer::drawDegree(const String &label, RTTRVariant &value)
+    bool ImPropertyDrawer::drawDegree(const String &label, RTTRVariant &value,
+        const UIHints &hints)
     {
         const Degree degree = value.get_value<Degree>();
         float degrees = static_cast<float>(degree.valueDegrees());
 
-        if (ImGui::DragFloat(label.c_str(), &degrees, kAngleDragSpeed,
-            0.0f, 0.0f, kAngleFormat))
+        if (drawAngle(label, degrees, hints))
         {
             value = Degree(static_cast<Real>(degrees));
             return true;
