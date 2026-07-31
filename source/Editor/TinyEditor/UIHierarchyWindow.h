@@ -119,7 +119,11 @@ namespace Tiny3D
         TResult createSphere(GameObject *go);
         TResult createCapsule(GameObject *go);
         TResult createCylinder(GameObject *go);
-        void createCubeAABB(Mesh *mesh, SubMesh *submesh, AabbBound *bound);
+
+        /// 按 mesh 里的包围体种子创建 Bound 组件，种子缺失时回退到遍历顶点计算 AABB
+        TResult createBound(GameObject *go, Geometry *geometry, Mesh *mesh, SubMesh *submesh);
+        /// 回退路径：遍历 submesh 索引引用到的顶点位置，实时计算 AABB
+        TResult buildAabbFromMeshData(Mesh *mesh, SubMesh *submesh, AabbBound *bound);
         
     protected:
         Scene *mScene {nullptr};

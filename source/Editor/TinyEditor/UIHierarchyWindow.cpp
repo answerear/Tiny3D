@@ -597,9 +597,8 @@ namespace Tiny3D
             SubMesh *submesh = mesh->getSubMesh(ProjectManager::BUILTIN_CUBE_SUBMESH_NAME);
             geometry->setMeshObject(mesh, submesh);
 
-            // aabb bound component
-            AabbBoundPtr bound = go->addComponent<AabbBound>();
-            createCubeAABB(mesh, submesh, bound);
+            // bound component（按 mesh 里的包围体种子创建）
+            createBound(go, geometry, mesh, submesh);
         } while (false);
 
         return ret;
@@ -607,15 +606,83 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void UIHierarchyView::createCubeAABB(Mesh *mesh, SubMesh *submesh, AabbBound *bound)
+    TResult UIHierarchyView::createBound(GameObject *go, Geometry *geometry, Mesh *mesh, SubMesh *submesh)
     {
+        if (go == nullptr || mesh == nullptr)
+        {
+            return T3D_ERR_INVALID_POINTER;
+        }
+
+        // mesh 在转换期已算好包围体种子，优先按种子播种对应类型的 Bound 组件
+        BoundPtr bound = GameObject::seedBoundFromMesh(go, mesh, geometry);
+        if (bound != nullptr)
+        {
+            return T3D_OK;
+        }
+
+        if (!go->getComponents<Bound>().empty())
+        {
+            // 已有 Bound 组件，以组件为准
+            return T3D_OK;
+        }
+
+        EDITOR_LOG_WARNING("Mesh [%s] has no bound seed, fallback to computing AABB from vertex data !", mesh->getName().c_str());
+
+        AabbBoundPtr aabb = go->addComponent<AabbBound>();
+        if (aabb == nullptr)
+        {
+            EDITOR_LOG_ERROR("Failed to add AabbBound component !");
+            return T3D_ERR_FAIL;
+        }
+
+        TResult ret = buildAabbFromMeshData(mesh, submesh, aabb);
+        if (T3D_FAILED(ret))
+        {
+            return ret;
+        }
+
+        if (geometry != nullptr)
+        {
+            geometry->setRenderBound(aabb);
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult UIHierarchyView::buildAabbFromMeshData(Mesh *mesh, SubMesh *submesh, AabbBound *bound)
+    {
+        if (mesh == nullptr || submesh == nullptr || bound == nullptr)
+        {
+            return T3D_ERR_INVALID_POINTER;
+        }
+
         const VertexAttribute *attr = mesh->findVertexAttributeBySemantic(VertexAttribute::Semantic::E_VAS_POSITION, 0);
+        if (attr == nullptr)
+        {
+            EDITOR_LOG_ERROR("Mesh [%s] has no position vertex attribute !", mesh->getName().c_str());
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        IndexBuffer *ib = submesh->getIndexBuffer();
+        if (ib == nullptr)
+        {
+            EDITOR_LOG_ERROR("SubMesh [%s] has no index buffer !", submesh->getName().c_str());
+            return T3D_ERR_INVALID_POINTER;
+        }
+
         size_t vertexSize = mesh->getVertexStride(attr->getSlot());
-        size_t offset = mesh->getVertexOffset(attr->getOffset());
+        size_t offset = attr->getOffset();
         const Buffer &vertexBuffer = mesh->getVertices()[attr->getSlot()];
         const Buffer &indexBuffer = submesh->getIndices();
-        size_t indexSize = submesh->getIndexBuffer()->getIndexSize();
-        size_t pointCount = submesh->getIndexBuffer()->getIndexCount();
+        size_t indexSize = ib->getIndexSize();
+        size_t pointCount = ib->getIndexCount();
+        if (pointCount == 0)
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
         Vector3 *points = new Vector3[pointCount];
         for (size_t i = 0; i < pointCount; ++i)
         {
@@ -624,13 +691,13 @@ namespace Tiny3D
             memcpy(&idx, src, indexSize);
             src = vertexBuffer.Data + idx * vertexSize + offset;
             memcpy(points+i, src, sizeof(Vector3));
-            // Vector3 *srcPos = (Vector3*)src;
-            // T3D_LOG_INFO(LOG_TAG_APP, "Index = %d, Src : (%f, %f, %f), Dst : (%f, %f, %f)", idx, srcPos->x(), srcPos->y(), srcPos->z(), points[i].x(), points[i].y(), points[i].z());
         }
         Aabb aabb;
         aabb.build(points, pointCount);
         T3D_SAFE_DELETE_ARRAY(points);
         bound->setParams(aabb.getMinX(), aabb.getMaxX(), aabb.getMinY(), aabb.getMaxY(), aabb.getMinZ(), aabb.getMaxZ());
+
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -755,9 +822,8 @@ namespace Tiny3D
             SubMesh *submesh = mesh->getSubMesh(ProjectManager::BUILTIN_SPHERE_SUBMESH_NAME);
             geometry->setMeshObject(mesh, submesh);
 
-            // aabb bound component
-            AabbBoundPtr bound = go->addComponent<AabbBound>();
-            createCubeAABB(mesh, submesh, bound);
+            // bound component（按 mesh 里的包围体种子创建）
+            createBound(go, geometry, mesh, submesh);
         } while (false);
 
         return ret;
@@ -885,9 +951,8 @@ namespace Tiny3D
             SubMesh *submesh = mesh->getSubMesh(ProjectManager::BUILTIN_CAPSULE_SUBMESH_NAME);
             geometry->setMeshObject(mesh, submesh);
 
-            // aabb bound component
-            AabbBoundPtr bound = go->addComponent<AabbBound>();
-            createCubeAABB(mesh, submesh, bound);
+            // bound component（按 mesh 里的包围体种子创建）
+            createBound(go, geometry, mesh, submesh);
         } while (false);
 
         return ret;
@@ -1027,9 +1092,8 @@ namespace Tiny3D
             SubMesh *submesh = mesh->getSubMesh(ProjectManager::BUILTIN_CYLINDER_SUBMESH_NAME);
             geometry->setMeshObject(mesh, submesh);
 
-            // aabb bound component
-            AabbBoundPtr bound = go->addComponent<AabbBound>();
-            createCubeAABB(mesh, submesh, bound);
+            // bound component（按 mesh 里的包围体种子创建）
+            createBound(go, geometry, mesh, submesh);
         } while (false);
 
         return ret;

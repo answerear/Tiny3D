@@ -28,6 +28,7 @@
 #include "GUIExtension/ImGuiExtension.h"
 #include <algorithm>
 #include <cstring>
+#include <utility>
 
 
 namespace Tiny3D
@@ -56,6 +57,51 @@ namespace Tiny3D
             const RTTRType transformType = RTTRType::get<TransformNode>();
 
             return (type == transformType || type.is_derived_from(transformType));
+        }
+
+        /**
+         * 组件在 inspector 上的分组次序，参考 Unity：先场景变换，再摄像机、
+         * 灯光、渲染相关，最后是包围体与用户脚本
+         */
+        enum ComponentOrder : int32_t
+        {
+            kOrderTransform = 0,
+            kOrderCamera,
+            kOrderLight,
+            kOrderRenderable,
+            kOrderBound,
+            /// 未归类的引擎组件
+            kOrderOther,
+            /// 用户脚本，与 Unity 一致排在最后
+            kOrderBehaviour
+        };
+
+        /**
+         * 取组件所属的分组。按基类判定，新增派生类无需改动这里
+         */
+        int32_t getComponentOrder(const Component *component)
+        {
+            static const std::pair<RTTRType, int32_t> orders[] =
+            {
+                { RTTRType::get<TransformNode>(), kOrderTransform  },
+                { RTTRType::get<Camera>(),        kOrderCamera     },
+                { RTTRType::get<Light>(),         kOrderLight      },
+                { RTTRType::get<Renderable>(),    kOrderRenderable },
+                { RTTRType::get<Bound>(),         kOrderBound      },
+                { RTTRType::get<Behaviour>(),     kOrderBehaviour  }
+            };
+
+            const RTTRType type = RTTRType::get(*component);
+
+            for (const auto &entry : orders)
+            {
+                if (type == entry.first || type.is_derived_from(entry.first))
+                {
+                    return entry.second;
+                }
+            }
+
+            return kOrderOther;
         }
 
         /**
@@ -182,17 +228,17 @@ namespace Tiny3D
 
         TArray<ComponentPtr> components = gameObject->getComponents<Component>();
 
-        // 组件存放在无序容器里，这里固定 Transform 在最前、其余按类名排序，
-        // 避免面板上的组件次序在不同场景加载之间发生跳变
+        // 组件存放在无序容器里，这里先按组件分类排、同类再按类名排，既避免面板上的
+        // 组件次序在不同场景加载之间跳变，也让不同 game object 的同类组件位置一致
         std::sort(components.begin(), components.end(),
             [](const ComponentPtr &lhs, const ComponentPtr &rhs)
             {
-                const bool lhsIsTransform = isTransformComponent(lhs);
-                const bool rhsIsTransform = isTransformComponent(rhs);
+                const int32_t lhsOrder = getComponentOrder(lhs);
+                const int32_t rhsOrder = getComponentOrder(rhs);
 
-                if (lhsIsTransform != rhsIsTransform)
+                if (lhsOrder != rhsOrder)
                 {
-                    return lhsIsTransform;
+                    return lhsOrder < rhsOrder;
                 }
 
                 return RTTRType::get(*lhs).get_name().to_string()
