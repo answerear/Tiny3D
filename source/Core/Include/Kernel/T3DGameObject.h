@@ -103,12 +103,8 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="getter")
         const String &getName() const { return mName; }
 
-        TPROPERTY(RTTRFuncName="Visible", RTTRFuncType="getter")
-        bool isVisible() const { return mIsVisible; }
-
-        TPROPERTY(RTTRFuncName="Visible", RTTRFuncType="setter")
-        void setVisible(bool visible) { mIsVisible = visible; }
-
+        // active 同时管住逻辑与渲染（对标 Unity 的 GameObject.activeSelf），
+        // 「只藏不停」由 Renderable 组件自己的 enabled 开关表达
         TPROPERTY(RTTRFuncName="Active", RTTRFuncType="getter")
         bool isActive() const { return mIsActive; }
 
@@ -344,9 +340,7 @@ namespace Tiny3D
         UUID mUUID {};
         /// 游戏对象名称
         String mName {};
-        /// 可见性
-        bool mIsVisible {true};
-        /// 有效性
+        /// 有效性，同时决定整棵子树是否参与更新与渲染
         bool mIsActive {true};
         /// 相机可见掩码
         uint32_t mCameraMask {0x1};

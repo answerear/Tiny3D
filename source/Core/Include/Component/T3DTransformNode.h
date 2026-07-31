@@ -49,18 +49,12 @@ namespace Tiny3D
 
         template <typename VisitAction, typename ...Args>
         void visitActive(VisitAction &&action, Args &&...args);
-        
-        template <typename VisitAction, typename  ...Args>
-        void visitVisible(VisitAction &&action, Args &&...args);
 
         template <typename VisitAction, typename ...Args>
         void visitAll(VisitAction &&action, Args &&...args);
 
         template <typename VisitAction, typename ...Args>
         void reverseVisitActive(VisitAction &&action, Args &&...args);
-
-        template <typename VisitAction, typename ...Args>
-        void reverseVisitVisible(VisitAction &&action, Args &&...args);
 
         template <typename VisitAction, typename ...Args>
         void reverseVisitAll(VisitAction &&action, Args &&...args);
@@ -161,15 +155,6 @@ namespace Tiny3D
                 action, args...);
         }
         
-        template <typename VisitAction, typename  ...Args>
-        void visitVisible(const VisitAction &action, Args &...args)
-        {
-            int32_t depth = 0;
-            dfs_visit(depth, true,
-                [](TransformNode *node) { return node->getGameObject()->isVisible(); },
-                action, args...);
-        }
-
         template <typename VisitAction, typename ...Args>
         void visitAll(const VisitAction &action, Args &...args)
         {
@@ -183,15 +168,6 @@ namespace Tiny3D
             int32_t depth = 0;
             dfs_visit(depth, false,
                 [](TransformNode *node) { return node->getGameObject()->isActive(); },
-                action, args...);
-        }
-
-        template <typename VisitAction, typename ...Args>
-        void reverseVisitVisible(const VisitAction &action, Args &...args)
-        {
-            int32_t depth = 0;
-            dfs_visit(depth, false,
-                [](TransformNode *node) { return node->getGameObject()->isVisible(); },
                 action, args...);
         }
 

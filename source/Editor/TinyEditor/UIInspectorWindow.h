@@ -57,6 +57,9 @@ namespace Tiny3D
         /// 绘制单个组件的折叠面板，以及 Reset / Remove 右键菜单
         void drawComponent(Component *component);
 
+        /// 绘制组件标题栏左侧的 enabled 勾选框，组件不支持时只占位
+        void drawComponentSwitch(Component *component);
+
         /// 绘制底部的 Add Component 按钮与带搜索的候选组件菜单
         void drawAddComponentButton();
 

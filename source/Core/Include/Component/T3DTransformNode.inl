@@ -49,28 +49,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    template <typename VisitAction, typename  ...Args>
-    void TransformNode::visitVisible(VisitAction &&action, Args &&...args)
-    {
-        if (getGameObject()->isVisible())
-        {
-            // 更新自己
-            action(this, std::forward<Args>(args)...);
-
-            // 遍历子结点
-            TransformNodePtr node = getFirstChild();
-
-            while (node != nullptr)
-            {
-                TransformNodePtr child = smart_pointer_cast<TransformNode>(node);
-                child->visitVisible(action, std::forward<Args>(args)...);
-                node = node->getNextSibling();
-            }
-        }
-    }
-
-    //--------------------------------------------------------------------------
-    
     template <typename VisitAction, typename ...Args>
     void TransformNode::visitAll(VisitAction &&action, Args &&...args)
     {
@@ -102,26 +80,6 @@ namespace Tiny3D
             {
                 TransformNodePtr child = smart_pointer_cast<TransformNode>(node);
                 child->reverseVisitActive(action, std::forward<Args>(args)...);
-                node = node->getPrevSibling();
-            }
-
-            // 更新自己
-            action(this, std::forward<Args>(args)...);
-        }
-    }
-
-    template <typename VisitAction, typename ...Args>
-    void TransformNode::reverseVisitVisible(VisitAction &&action, Args &&...args)
-    {
-        if (getGameObject()->isVisible())
-        {
-            // 遍历子结点
-            TransformNodePtr node = getLastChild();
-
-            while (node != nullptr)
-            {
-                TransformNodePtr child = smart_pointer_cast<TransformNode>(node);
-                child->reverseVisitVisible(action, std::forward<Args>(args)...);
                 node = node->getPrevSibling();
             }
 

@@ -210,13 +210,6 @@ namespace Tiny3D
             }
         }
 
-        bool visible = gameObject->isVisible();
-        if (ImGui::Checkbox("Visible", &visible))
-        {
-            gameObject->setVisible(visible);
-            notifySceneModified();
-        }
-
         ImGui::TextDisabled("UUID : %s", gameObject->getUUID().toString().c_str());
     }
 
@@ -268,6 +261,10 @@ namespace Tiny3D
         // 不同组件可能存在同名属性，用组件地址隔离 ImGui 控件 ID
         ImGui::PushID(component);
 
+        drawComponentSwitch(component);
+
+        ImGui::SameLine();
+
         const bool expanded = ImGui::CollapsingHeader(title.c_str(),
             ImGuiTreeNodeFlags_DefaultOpen);
 
@@ -307,6 +304,27 @@ namespace Tiny3D
         }
 
         ImGui::PopID();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIInspectorWindow::drawComponentSwitch(Component *component)
+    {
+        // 没有开关的组件（Transform 等）也占住同样宽度，标题才能对齐成一列
+        if (!component->supportsEnabled())
+        {
+            const float size = ImGui::GetFrameHeight();
+            ImGui::Dummy(ImVec2(size, size));
+            return;
+        }
+
+        bool enabled = component->isEnabled();
+
+        if (ImGui::Checkbox("##Enabled", &enabled))
+        {
+            component->setEnabled(enabled);
+            notifySceneModified();
+        }
     }
 
     //--------------------------------------------------------------------------

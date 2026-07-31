@@ -61,6 +61,22 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="getter", "Description"="UUID value")
         const UUID &getUUID() const { return mUUID; }
 
+        // ===== 组件级开关（对标 Unity Behaviour.enabled / Renderer.enabled）=====
+        // 由 inspector 画在组件标题栏上，因此不在属性列表里重复呈现
+        TPROPERTY(RTTRFuncName="Enabled", RTTRFuncType="getter", "HIDE_IN_INSPECTOR")
+        bool isEnabled() const { return mEnabled; }
+
+        TPROPERTY(RTTRFuncName="Enabled", RTTRFuncType="setter")
+        virtual void setEnabled(bool enabled) { mEnabled = enabled; }
+
+        /**
+         * \brief enabled 开关对本组件是否有实际作用
+         * \remarks 对标 Unity：只有 Behaviour / Renderer / Collider 一类组件才有这个
+         *          开关，Transform、MeshFilter 之类没有。返回 false 的组件其 enabled
+         *          恒为真，inspector 也不会画出对应的勾选框
+         */
+        virtual bool supportsEnabled() const { return false; }
+
         GameObject *getGameObject() const { return mGameObject; }
 
         void setGameObject(GameObject *gameObject) { mGameObject = gameObject; }
@@ -90,6 +106,8 @@ namespace Tiny3D
     protected:
         /// 唯一 ID
         UUID    mUUID {UUID::INVALID};
+        /// 组件级开关，通过 Enabled getter/setter 暴露给 RTTR / 序列化
+        bool    mEnabled {true};
         /// 绑定的 game object。
         /// 注意：这是强引用，会与 GameObject（通过组件表强持有组件）构成智能指针
         /// 循环引用。运行时靠显式销毁流程（removeAllComponents/onDestroy）断链；

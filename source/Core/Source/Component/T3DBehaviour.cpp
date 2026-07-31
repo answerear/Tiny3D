@@ -51,7 +51,7 @@ namespace Tiny3D
             return;
         }
 
-        mEnabled = enabled;
+        Component::setEnabled(enabled);
 
         // 已 Awake 后才根据复合运行态补发 onEnable / onDisable
         refreshActiveState();

@@ -88,6 +88,11 @@ namespace Tiny3D
     TResult Component::cloneProperties(const Component * const src)
     {
         // mSceneNode = src->mSceneNode;
+        if (src != nullptr)
+        {
+            mEnabled = src->mEnabled;
+        }
+
         return T3D_OK;
     }
 

@@ -580,7 +580,7 @@ namespace Tiny3D
         if (node != nullptr && camera != nullptr)
         {
             FrustumBound *frustum = camera->getGameObject()->getComponent<FrustumBound>();
-            node->visitVisible([](int32_t depth, TransformNode *node, Camera *camera, FrustumBound *frustum, RenderPipeline *pipeline)
+            node->visitActive([](int32_t depth, TransformNode *node, Camera *camera, FrustumBound *frustum, RenderPipeline *pipeline)
             {
                 GameObject *go = node->getGameObject();
                 Renderable *renderable = go->getComponent<Renderable>();
@@ -590,7 +590,7 @@ namespace Tiny3D
                 {
                     bound = go->getComponent<Bound>();
                 }
-                if (renderable != nullptr)
+                if (renderable != nullptr && renderable->isEnabled())
                 {
                     if (bound == nullptr || frustum == nullptr)
                     {
@@ -618,11 +618,11 @@ namespace Tiny3D
         TransformNodePtr node = getComponent<TransformNode>();
         if (node != nullptr)
         {
-            node->visitVisible([](int32_t depth, TransformNode *node, RenderPipeline *pipeline)
+            node->visitActive([](int32_t depth, TransformNode *node, RenderPipeline *pipeline)
             {
                 GameObject *go = node->getGameObject();
                 Light *light = go->getComponent<Light>();
-                if (light != nullptr)
+                if (light != nullptr && light->isEnabled())
                 {
                     pipeline->addLight(light);
                 }

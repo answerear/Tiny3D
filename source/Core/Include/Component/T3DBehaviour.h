@@ -35,7 +35,7 @@ namespace Tiny3D
      * \brief 面向 gameplay 的脚本组件基类（对齐 Unity 的 Behaviour / MonoBehaviour）
      * \remarks
      *   在 Component 与具体 gameplay 之间插入一层，承载：
-     *     - 组件级 enabled 开关（独立于 GameObject 的 Active）；
+     *     - 把 Component 的 enabled 开关接进生命周期（补发 OnEnable / OnDisable）；
      *     - 完整生命周期：Awake / OnEnable / Start / Update / LateUpdate /
      *       FixedUpdate / OnDisable / OnDestroy；
      *     - 基于 RTTR 属性拷贝的默认 clone()，子类一般无需再覆写。
@@ -59,12 +59,10 @@ namespace Tiny3D
         /// 运行时快速判定是否 Behaviour（避免热路径 rttr_cast）
         Behaviour *asBehaviour() override { return this; }
 
-        // ===== 组件级开关（对标 Unity Behaviour.enabled）=====
-        TPROPERTY(RTTRFuncName="Enabled", RTTRFuncType="getter")
-        bool isEnabled() const { return mEnabled; }
+        // 组件级开关继承自 Component，这里额外补发 onEnable / onDisable
+        void setEnabled(bool enabled) override;
 
-        TPROPERTY(RTTRFuncName="Enabled", RTTRFuncType="setter")
-        void setEnabled(bool enabled);
+        bool supportsEnabled() const override { return true; }
 
         /// 有效执行 = 所属 GameObject.active && 本组件 enabled
         bool isActiveAndEnabled() const;
@@ -111,9 +109,6 @@ namespace Tiny3D
         bool wasStarted() const { return mStarted; }
 
     protected:
-        /// 组件级开关，通过 Enabled getter/setter 暴露给 RTTR / 序列化
-        bool mEnabled {true};
-
         // —— 生命周期状态机，避免重复 / 错配回调（不序列化）——
         bool mAwaked {false};       ///< onAwake 是否已调用
         bool mStarted {false};      ///< onStart 是否已调用

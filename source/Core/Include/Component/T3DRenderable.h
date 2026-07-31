@@ -41,7 +41,10 @@ namespace Tiny3D
         
     public:
         ~Renderable() override = default;
-        
+
+        /// 关掉后本组件不再提交渲染，但所属 GameObject 的逻辑照常运行
+        bool supportsEnabled() const override { return true; }
+
         virtual Material *getMaterial() = 0;
 
         virtual PrimitiveType getPrimitiveType() const = 0;

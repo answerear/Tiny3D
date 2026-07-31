@@ -41,6 +41,9 @@ namespace Tiny3D
     public:        
         ~Light() override = default;
 
+        /// 关掉后本光源不再参与照明
+        bool supportsEnabled() const override { return true; }
+
         virtual LightType getLightType() const = 0;
         
     protected:
