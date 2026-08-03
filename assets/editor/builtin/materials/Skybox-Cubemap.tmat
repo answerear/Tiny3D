@@ -1,0 +1,215 @@
+{
+  "Magic": "T3D",
+  "Version": "0.0.1",
+  "Object": {
+    "RTTI_Type": "Tiny3D::Material",
+    "RTTI_Value": {
+      "Name": {
+        "RTTI_Type": "std::string",
+        "RTTI_Value": "Skybox-Cubemap"
+      },
+      "UUID": {
+        "RTTI_Type": "Tiny3D::UUID",
+        "RTTI_Value": {
+          "RTTI_Type": "std::string",
+          "RTTI_Value": "b51d9f6962ae4bc7d0e8e80977b59877"
+        }
+      },
+      "ConstantValues": {
+        "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantValue>>",
+        "RTTI_Value": [
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "std::string",
+              "RTTI_Value": "tiny3d_MatrixInvVP"
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::ShaderConstantValue",
+              "RTTI_Value": {
+                "DataType": {
+                  "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                  "RTTI_Value": "DT_MATRIX4"
+                },
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "tiny3d_MatrixInvVP"
+                },
+                "Value": {
+                  "RTTI_Type": "Tiny3D::Buffer",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "std::string",
+              "RTTI_Value": "tiny3d_CameraWorldPos"
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::ShaderConstantValue",
+              "RTTI_Value": {
+                "DataType": {
+                  "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                  "RTTI_Value": "DT_VECTOR4"
+                },
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "tiny3d_CameraWorldPos"
+                },
+                "Value": {
+                  "RTTI_Type": "Tiny3D::Buffer",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "AAAAAAAAAAAAAAAAAAAAAA=="
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "std::string",
+              "RTTI_Value": "Tint"
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::ShaderConstantValue",
+              "RTTI_Value": {
+                "DataType": {
+                  "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                  "RTTI_Value": "DT_VECTOR4"
+                },
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "Tint"
+                },
+                "Value": {
+                  "RTTI_Type": "Tiny3D::Buffer",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "AAAAPwAAAD8AAAA/AACAPw=="
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "std::string",
+              "RTTI_Value": "tiny3d_ProjectionParams"
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::ShaderConstantValue",
+              "RTTI_Value": {
+                "DataType": {
+                  "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                  "RTTI_Value": "DT_VECTOR4"
+                },
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "tiny3d_ProjectionParams"
+                },
+                "Value": {
+                  "RTTI_Type": "Tiny3D::Buffer",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "AACAPwAAgD8AAAAAAAAAAA=="
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "std::string",
+              "RTTI_Value": "Exposure"
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::ShaderConstantValue",
+              "RTTI_Value": {
+                "DataType": {
+                  "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                  "RTTI_Value": "DT_FLOAT"
+                },
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "Exposure"
+                },
+                "Value": {
+                  "RTTI_Type": "Tiny3D::Buffer",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "AACAPw=="
+                  }
+                }
+              }
+            }
+          },
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "std::string",
+              "RTTI_Value": "Rotation"
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::ShaderConstantValue",
+              "RTTI_Value": {
+                "DataType": {
+                  "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                  "RTTI_Value": "DT_FLOAT"
+                },
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "Rotation"
+                },
+                "Value": {
+                  "RTTI_Type": "Tiny3D::Buffer",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "AAAAAA=="
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "SamplerValues": {
+        "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerValue>>",
+        "RTTI_Value": [
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "std::string",
+              "RTTI_Value": "_Tex"
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::ShaderSamplerValue",
+              "RTTI_Value": {
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "_Tex"
+                },
+                "TextureUUID": {
+                  "RTTI_Type": "Tiny3D::UUID",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "6aece1fe52a9eed15bdecadf784b2a09"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Shader": {
+        "RTTI_Type": "Tiny3D::UUID",
+        "RTTI_Value": {
+          "RTTI_Type": "std::string",
+          "RTTI_Value": "2d754c8e5d232c5c10a2591c46f6dbe5"
+        }
+      }
+    }
+  }
+}

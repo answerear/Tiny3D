@@ -361,6 +361,7 @@ namespace Tiny3D
             mOrder = other->mOrder;
             mCullingMask = other->mOrder;
             mViewport = other->mViewport;
+            mClearFlags = other->mClearFlags;
             mClearColor = other->mClearColor;
             mClearDepth = other->mClearDepth;
             mClearStencil = other->mClearStencil;

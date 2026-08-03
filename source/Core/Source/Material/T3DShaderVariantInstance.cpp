@@ -59,20 +59,22 @@ namespace Tiny3D
         
         TMap<uint32_t, CBufferInfo> cbuffers;  // 常量缓冲区数量以及每个缓冲区的大小
 
-        // 统计缓冲区数量和计算每个缓冲区的大小
+        // 统计缓冲区数量和计算每个缓冲区的大小。缓冲区大小取所有变量末尾的最大值，
+        // 不能简单累加各变量大小，否则遇到 HLSL 的 16 字节对齐填充会算小
         for (const auto &item : mShaderVariant->getShaderConstantParams())
         {
             uint32_t bp = item.second->getBindingPoint();
+            uint32_t end = item.second->getDataOffset() + item.second->getDataSize();
             auto itr = cbuffers.find(bp);
             if (itr == cbuffers.end())
             {
                 // 没有，插入一个
-                CBufferInfo info(item.second->getCBufferName(), item.second->getDataSize());
+                CBufferInfo info(item.second->getCBufferName(), end);
                 cbuffers.emplace(bp, info);
             }
-            else
+            else if (end > itr->second.size)
             {
-                itr->second.size += item.second->getDataSize();
+                itr->second.size = end;
             }
         }
 
@@ -81,7 +83,8 @@ namespace Tiny3D
         {
             // 创建缓冲区数据，用于读写
             Buffer buffer;
-            buffer.DataSize = item.second.size;
+            // D3D11 要求常量缓冲区大小是 16 字节的整数倍，否则 CreateBuffer 直接失败
+            buffer.DataSize = (item.second.size + 15) & ~size_t(15);
             buffer.Data = T3D_POD_NEW_ARRAY(uint8_t, buffer.DataSize);
             mConstBuffers.emplace_back(buffer);
 

@@ -87,6 +87,7 @@ namespace Tiny3D
         RHIPixelBuffer1DPtr createPixelBuffer1D(PixelBuffer1D *buffer) override;
         RHIPixelBuffer2DPtr createPixelBuffer2D(PixelBuffer2D *buffer) override;
         RHIPixelBuffer3DPtr createPixelBuffer3D(PixelBuffer3D *buffer) override;
+        RHIPixelBufferCubemapPtr createPixelBufferCubemap(PixelBufferCubemap *buffer) override;
         RHIShaderPtr createVertexShader(ShaderVariant *shader) override;
         TResult setVertexShader(ShaderVariant *shader) override;
         TResult setVSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
@@ -164,6 +165,9 @@ namespace Tiny3D
         void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
         void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+
+        /// 与 transitionImageLayout 相同，但一次性覆盖 cubemap 的 6 个 array layer
+        void transitionCubemapLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
 
         bool isDepthFormat(VkFormat format) const;
 

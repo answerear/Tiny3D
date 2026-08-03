@@ -25,6 +25,7 @@
 
 #include "Resource/T3DTextureManager.h"
 #include "Resource/T3DTexture.h"
+#include "Resource/T3DImage.h"
 #include "Render/T3DPixelBuffer.h"
 #include "Render/T3DRenderTexture.h"
 #include "Serializer/T3DSerializerManager.h"
@@ -110,11 +111,61 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
     
     CubemapPtr TextureManager::createCubemap(const String &name, uint32_t width, uint32_t height,
-        PixelFormat format, const Buffer &data, uint32_t mipmaps/* = 0*/, uint32_t MSAACount/* = 0*/, uint32_t MSAAQuality/* = 0*/)
+        PixelFormat format, const Buffer &data, uint32_t mipmaps/* = 0*/, uint32_t MSAACount/* = 0*/, uint32_t MSAAQuality/* = 0*/,
+        const UUID &uuid/* = UUID::INVALID*/)
     {
+#if defined (T3D_EDITOR)
+        // 编辑器/工具环境下允许指定 UUID（用于保留已有资源 guid），创建时即设好
+        return smart_pointer_cast<Cubemap>(createResource(name, 10,
+            TEXTURE_TYPE::TT_CUBE, width, height, format,
+            data.Data, data.DataSize, mipmaps, MSAACount, MSAAQuality, &uuid));
+#else
         return smart_pointer_cast<Cubemap>(createResource(name, 9,
             TEXTURE_TYPE::TT_CUBE, width, height, format,
             data.Data, data.DataSize, mipmaps, MSAACount, MSAAQuality));
+#endif
+    }
+
+    //--------------------------------------------------------------------------
+
+    CubemapPtr TextureManager::createCubemapFromImages(const String &name, Image * const faces[6],
+        uint32_t mipmaps/* = 1*/, const UUID &uuid/* = UUID::INVALID*/)
+    {
+        if (faces == nullptr || faces[0] == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Invalid cubemap face images for %s !", name.c_str());
+            return nullptr;
+        }
+
+        const uint32_t width = faces[0]->getWidth();
+        const uint32_t height = faces[0]->getHeight();
+        const PixelFormat format = faces[0]->getFormat();
+        const uint32_t pitch = faces[0]->getPitch();
+        const size_t faceSize = faces[0]->getSize();
+
+        for (uint32_t i = 1; i < Cubemap::FACE_COUNT; ++i)
+        {
+            Image *face = faces[i];
+            if (face == nullptr || face->getWidth() != width || face->getHeight() != height
+                || face->getFormat() != format || face->getPitch() != pitch)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE,
+                    "Cubemap face #%u of %s mismatches face #0 in size or pixel format !", i, name.c_str());
+                return nullptr;
+            }
+        }
+
+        Buffer data;
+        data.DataSize = faceSize * Cubemap::FACE_COUNT;
+        data.Data = T3D_POD_NEW_ARRAY(uint8_t, data.DataSize);
+
+        for (uint32_t i = 0; i < Cubemap::FACE_COUNT; ++i)
+        {
+            memcpy(data.Data + faceSize * i, faces[i]->getData(), faceSize);
+        }
+
+        // Cubemap 直接接管 data.Data，这里不能再 release
+        return createCubemap(name, width, height, format, data, mipmaps, 1, 0, uuid);
     }
 
     //--------------------------------------------------------------------------
@@ -223,7 +274,7 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_CUBE:
             {
-                T3D_ASSERT(argc == 9);
+                T3D_ASSERT(argc == 9 || argc == 10);
                 uint32_t width = va_arg(args, uint32_t);
                 uint32_t height = va_arg(args, uint32_t);
                 PixelFormat format = va_arg(args, PixelFormat);
@@ -234,6 +285,13 @@ namespace Tiny3D
                 uint32_t MSAACount = va_arg(args, uint32_t);
                 uint32_t MSAAQuality = va_arg(args, uint32_t);
                 texture = Cubemap::create(name, width, height, format, mipmaps, MSAACount, MSAAQuality, data);
+#if defined (T3D_EDITOR)
+                if (argc == 10)
+                {
+                    const UUID *uuid = va_arg(args, const UUID*);
+                    applyCreationUUID(texture, uuid != nullptr ? *uuid : UUID::INVALID);
+                }
+#endif
             }
             break;
         case TEXTURE_TYPE::TT_CUBE_ARRAY:

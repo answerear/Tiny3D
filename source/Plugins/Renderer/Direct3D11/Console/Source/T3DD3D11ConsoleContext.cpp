@@ -63,6 +63,7 @@ namespace Tiny3D
     RHIPixelBuffer1DPtr D3D11ConsoleContext::createPixelBuffer1D(PixelBuffer1D *buffer) { return nullptr; }
     RHIPixelBuffer2DPtr D3D11ConsoleContext::createPixelBuffer2D(PixelBuffer2D *buffer) { return nullptr; }
     RHIPixelBuffer3DPtr D3D11ConsoleContext::createPixelBuffer3D(PixelBuffer3D *buffer) { return nullptr; }
+    RHIPixelBufferCubemapPtr D3D11ConsoleContext::createPixelBufferCubemap(PixelBufferCubemap *buffer) { return nullptr; }
     RHIShaderPtr D3D11ConsoleContext::createVertexShader(ShaderVariant *shader) { return nullptr; }
     TResult D3D11ConsoleContext::setVertexShader(ShaderVariant *shader) { return T3D_OK; }
     TResult D3D11ConsoleContext::setVSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) { return T3D_OK; }

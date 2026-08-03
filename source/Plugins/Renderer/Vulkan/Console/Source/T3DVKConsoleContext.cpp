@@ -230,6 +230,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    RHIPixelBufferCubemapPtr VKConsoleContext::createPixelBufferCubemap(PixelBufferCubemap *buffer)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
     RHIShaderPtr VKConsoleContext::createVertexShader(ShaderVariant *shader)
     {
         return nullptr;

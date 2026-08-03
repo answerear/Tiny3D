@@ -139,6 +139,11 @@ float4 fragForwardBase(VertexOutputForwardBase input) : SV_Target
 	// 计算观察方向的反方向，从表面指向相机
 	float3 viewDir = normalize(tiny3d_CameraWorldPos.xyz - input.worldPos);
 
+	// 顶点着色器输出的法线是单位长度的，但光栅化插值是逐分量线性的，
+	// 相邻顶点法线不一致时插值结果会短于 1（曲面网格尤其明显），
+	// 直接拿去点乘会让漫反射整体偏暗，所以这里必须重新归一化
+	float3 normal = normalize(input.worldNormal);
+
 	// 物体表面纹理
 	float4 albedo = SAMPLE(_MainTex, input.uv);
 
@@ -148,7 +153,7 @@ float4 fragForwardBase(VertexOutputForwardBase input) : SV_Target
 	float specularIntensity = tiny3d_DirLightDir.w;
 	float3 lightDir = tiny3d_DirLightDir.xyz;
 	float3 lightColor = tiny3d_DirLightColor.rgb;
-	float3 dirColor = calcDirectionalLight(input.worldNormal, viewDir, albedo.rgb, lightDir, lightColor, diffuseIntensity, specularIntensity, smoothness);
+	float3 dirColor = calcDirectionalLight(normal, viewDir, albedo.rgb, lightDir, lightColor, diffuseIntensity, specularIntensity, smoothness);
 	// 计算阴影
 	float shadow = calcShadow(input.lightSpacePos);
 	dirColor *= shadow;
@@ -163,7 +168,7 @@ float4 fragForwardBase(VertexOutputForwardBase input) : SV_Target
 		specularIntensity = tiny3d_PointLightPos[i].w;
 		float3 lightPos = tiny3d_PointLightPos[i].xyz;
 		lightColor = tiny3d_PointLightColor[i].rgb;
-		float3 pointColor = calcPointLight(input.worldPos, input.worldNormal, viewDir, albedo.rgb, lightPos, lightColor, diffuseIntensity, specularIntensity, tiny3d_PointLightAttenuation[i].xyz, smoothness);
+		float3 pointColor = calcPointLight(input.worldPos, normal, viewDir, albedo.rgb, lightPos, lightColor, diffuseIntensity, specularIntensity, tiny3d_PointLightAttenuation[i].xyz, smoothness);
 		color += pointColor;
 	}
 
@@ -178,7 +183,7 @@ float4 fragForwardBase(VertexOutputForwardBase input) : SV_Target
 		lightColor = tiny3d_SpotLightColor[i].rgb;
 		float cutoff = tiny3d_SpotLightDir[i].w;
 		float outerCutoff = tiny3d_SpotLightAttenuation[i].w;
-		float3 spotColor = calcSpotLight(input.worldPos, input.worldNormal, viewDir, albedo.rgb, lightPos, lightDir, lightColor, diffuseIntensity, specularIntensity, tiny3d_SpotLightAttenuation[i].xyz, smoothness, cutoff, outerCutoff);
+		float3 spotColor = calcSpotLight(input.worldPos, normal, viewDir, albedo.rgb, lightPos, lightDir, lightColor, diffuseIntensity, specularIntensity, tiny3d_SpotLightAttenuation[i].xyz, smoothness, cutoff, outerCutoff);
 		color += spotColor;
 	}
 

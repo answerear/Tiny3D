@@ -91,6 +91,7 @@ namespace Tiny3D
         RHIPixelBuffer1DPtr createPixelBuffer1D(PixelBuffer1D *buffer) override;
         RHIPixelBuffer2DPtr createPixelBuffer2D(PixelBuffer2D *buffer) override;
         RHIPixelBuffer3DPtr createPixelBuffer3D(PixelBuffer3D *buffer) override;
+        RHIPixelBufferCubemapPtr createPixelBufferCubemap(PixelBufferCubemap *buffer) override;
 
         RHIShaderPtr createVertexShader(ShaderVariant *shader) override;
         TResult setVertexShader(ShaderVariant *shader) override;

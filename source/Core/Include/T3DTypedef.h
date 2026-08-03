@@ -125,6 +125,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(Geometry);
     T3D_DECLARE_SMART_PTR(SkinnedGeometry);
     T3D_DECLARE_SMART_PTR(Bone);
+    T3D_DECLARE_SMART_PTR(Skybox);
 
     // Bound
     T3D_DECLARE_SMART_PTR(Bound);
@@ -189,6 +190,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(RHIPixelBuffer1D);
     T3D_DECLARE_SMART_PTR(RHIPixelBuffer2D);
     T3D_DECLARE_SMART_PTR(RHIPixelBuffer3D);
+    T3D_DECLARE_SMART_PTR(RHIPixelBufferCubemap);
     T3D_DECLARE_SMART_PTR(RHIConstantBuffer);
     T3D_DECLARE_SMART_PTR(RHIVertexDeclaration);
     T3D_DECLARE_SMART_PTR(RHIRenderTarget);

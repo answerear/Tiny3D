@@ -122,6 +122,32 @@ namespace Tiny3D
     };
 
     template class T3D_ENGINE_API PixelBufferT<PixelBuffer3D, PixelBuffer3DDesc>;
+
+    /**
+     * \brief 立方体贴图像素缓冲区
+     *
+     * 复用 PixelBuffer2DDesc，其中 arraySize 固定为 6，buffer 按
+     * +X, -X, +Y, -Y, +Z, -Z 的顺序连续存放六个面的像素数据。
+     */
+    class T3D_ENGINE_API PixelBufferCubemap : public PixelBufferT<PixelBufferCubemap, PixelBuffer2DDesc>
+    {
+    public:
+        /// 立方体贴图的面数
+        static const uint32_t FACE_COUNT = 6;
+
+        PixelBufferCubemap(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode);
+
+        Type getType() const override;
+
+    protected:
+        ~PixelBufferCubemap() override = default;
+
+        bool onLoad() override;
+
+        bool onUnload() override;
+    };
+
+    template class T3D_ENGINE_API PixelBufferT<PixelBufferCubemap, PixelBuffer2DDesc>;
 }
 
 

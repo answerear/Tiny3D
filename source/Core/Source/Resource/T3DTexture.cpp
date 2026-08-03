@@ -522,9 +522,56 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    Cubemap::~Cubemap()
+    {
+        // 数据指针已经交给 PixelBufferCubemap 管理时，要把它从 mDesc 里摘掉，
+        // 否则 ~Texture2D 看不到 mCubePixelBuffer，会当作无主数据再释放一次
+        if (mCubePixelBuffer != nullptr
+            && mDesc.buffer.Data == mCubePixelBuffer->getBuffer().Data)
+        {
+            mDesc.buffer.Data = nullptr;
+            mDesc.buffer.DataSize = 0;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     TEXTURE_TYPE Cubemap::getTextureType() const
     {
         return TEXTURE_TYPE::TT_CUBE;
+    }
+
+    //--------------------------------------------------------------------------
+
+    PixelBuffer *Cubemap::getPixelBuffer() const
+    {
+        return mCubePixelBuffer;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Cubemap::createCubePixelBuffer()
+    {
+        // arraySize 没有 TPROPERTY，反序列化出来是默认值 1，这里兜底修正；
+        // CubemapArray 自己维护 n*6，不能被覆盖
+        if (getTextureType() == TEXTURE_TYPE::TT_CUBE)
+        {
+            mDesc.arraySize = PixelBufferCubemap::FACE_COUNT;
+        }
+
+        // cube 的边缘采样必须 Clamp，默认的 Wrap 会在面接缝处出错
+        if (mSamplerState == nullptr)
+        {
+            SamplerDesc samplerDesc;
+            samplerDesc.AddressU = TextureAddressMode::kClamp;
+            samplerDesc.AddressV = TextureAddressMode::kClamp;
+            samplerDesc.AddressW = TextureAddressMode::kClamp;
+            setSamplerDesc(samplerDesc);
+        }
+
+        mCubePixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBufferCubemap(&mDesc, MemoryType::kVRAM, Usage::kImmutable, CPUAccessMode::kCPUNone);
+
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -535,12 +582,14 @@ namespace Tiny3D
 
         do
         {
-            ret = Texture2D::onCreate();
+            // 跳过 Texture2D::onCreate，避免建出 2D 的 PixelBuffer
+            ret = Texture::onCreate();
             if (T3D_FAILED(ret))
             {
                 break;
             }
-            
+
+            ret = createCubePixelBuffer();
         } while (false);
         return ret;
     }
@@ -553,12 +602,13 @@ namespace Tiny3D
 
         do
         {
-            ret = Texture2D::onLoad(archive);
+            ret = Texture::onLoad(archive);
             if (T3D_FAILED(ret))
             {
                 break;
             }
-            
+
+            ret = createCubePixelBuffer();
         } while (false);
         return ret;
     }

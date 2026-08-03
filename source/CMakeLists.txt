@@ -383,6 +383,24 @@ if (TINY3D_BUILD_SAMPLES)
     if (TINY3D_OS_DESKTOP)
         add_dependencies(TransformationApp T3DMath T3DLog T3DSystem)
         add_dependencies(IntersectionApp T3DMath T3DLog T3DSystem)
+        add_dependencies(SkyboxApp T3DCore)
     endif (TINY3D_OS_DESKTOP)
 endif (TINY3D_BUILD_SAMPLES)
+
+# 编辑器与 Sample 是两条独立的资源链路，同一份内置资源要在两边各留一份且 UUID 一致。
+# 这个 target 手工触发（不接进任何构建流程），把 BuiltinGenerator 产出的天空盒资源
+# 同步到 assets/samples/meshes，并用 scc 烘焙出全语言变体的 .tshader。
+if (TINY3D_BUILD_TOOLS AND NOT TINY3D_BUILD_RTTR_TOOL)
+    add_custom_target(sync_builtin_to_samples
+        COMMAND ${CMAKE_COMMAND}
+            -DBUILTIN_DIR=${CMAKE_SOURCE_DIR}/../assets/editor/builtin
+            -DSAMPLES_DIR=${CMAKE_SOURCE_DIR}/../assets/samples/meshes
+            -DSCC_EXECUTABLE=$<TARGET_FILE:ShaderCrossCompiler>
+            -P ${CMAKE_CURRENT_SOURCE_DIR}/CMake/Utils/SyncBuiltinToSamples.cmake
+        COMMENT "Syncing builtin skybox assets to assets/samples/meshes")
+
+    add_dependencies(sync_builtin_to_samples ShaderCrossCompiler)
+
+    set_property(TARGET sync_builtin_to_samples PROPERTY FOLDER "CMakeTargets")
+endif ()
 

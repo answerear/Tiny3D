@@ -54,7 +54,14 @@ namespace Tiny3D
         
         Texture3DPtr createTexture3D(const String &name, uint32_t width, uint32_t height, uint32_t depth, PixelFormat format, const Buffer &data, uint32_t mipmaps = 1);
 
-        CubemapPtr createCubemap(const String &name, uint32_t width, uint32_t height, PixelFormat format, const Buffer &data, uint32_t mipmaps = 1, uint32_t MSAACount = 1, uint32_t MSAAQuality = 0);
+        CubemapPtr createCubemap(const String &name, uint32_t width, uint32_t height, PixelFormat format, const Buffer &data, uint32_t mipmaps = 1, uint32_t MSAACount = 1, uint32_t MSAAQuality = 0, const UUID &uuid = UUID::INVALID);
+
+        /**
+         * @brief   用 6 张面贴图创建 cubemap
+         * @param   faces   按 +X, -X, +Y, -Y, +Z, -Z 顺序排列的 6 张图，
+         *                  尺寸与像素格式必须完全一致
+         */
+        CubemapPtr createCubemapFromImages(const String &name, Image * const faces[6], uint32_t mipmaps = 1, const UUID &uuid = UUID::INVALID);
 
         CubemapArrayPtr createCubemapArray(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t arraySize, const Buffer &data, uint32_t mipmaps = 1, uint32_t MSAACount = 1, uint32_t MSAAQuality = 0);
 

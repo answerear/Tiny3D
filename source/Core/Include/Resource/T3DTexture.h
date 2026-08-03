@@ -333,9 +333,16 @@ namespace Tiny3D
         TRTTI_FRIEND
 
     public:
+        /// 面的排列顺序固定为 +X, -X, +Y, -Y, +Z, -Z
+        static const uint32_t FACE_COUNT = 6;
+
         static CubemapPtr create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data);
 
+        ~Cubemap() override;
+
         TEXTURE_TYPE getTextureType() const override;
+
+        PixelBuffer *getPixelBuffer() const override;
 
     protected:
         Cubemap() {}
@@ -347,6 +354,13 @@ namespace Tiny3D
         TResult onCreate() override;
 
         TResult onLoad(Archive *archive) override;
+
+        /// Texture2D 那套 2D 像素缓冲区不适用于 cubemap，这里统一走 6 面的创建路径
+        TResult createCubePixelBuffer();
+
+    protected:
+        /// 立方体贴图像素缓冲区对象，替代基类的 mPixelBuffer
+        PixelBufferCubemapPtr   mCubePixelBuffer {nullptr};
     };
 
     TCLASS()

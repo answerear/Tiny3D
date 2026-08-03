@@ -172,6 +172,7 @@ namespace Tiny3D
     RHIPixelBuffer1DPtr GL4ConsoleContext::createPixelBuffer1D(PixelBuffer1D *buffer) { return GL4ConsolePixelBuffer1D::create(); }
     RHIPixelBuffer2DPtr GL4ConsoleContext::createPixelBuffer2D(PixelBuffer2D *buffer) { return GL4ConsolePixelBuffer2D::create(); }
     RHIPixelBuffer3DPtr GL4ConsoleContext::createPixelBuffer3D(PixelBuffer3D *buffer) { return nullptr; }
+    RHIPixelBufferCubemapPtr GL4ConsoleContext::createPixelBufferCubemap(PixelBufferCubemap *buffer) { return nullptr; }
     TResult GL4ConsoleContext::setVertexShader(ShaderVariant *shader) { return T3D_OK; }
     TResult GL4ConsoleContext::setVSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) { return T3D_OK; }
     TResult GL4ConsoleContext::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) { return T3D_OK; }

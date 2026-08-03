@@ -117,6 +117,8 @@ namespace Tiny3D
         
         PixelBuffer3DPtr loadPixelBuffer3D(PixelBuffer3DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
 
+        PixelBufferCubemapPtr loadPixelBufferCubemap(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
+
         PixelBuffer2DPtr loadRenderTexture(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
         
         TResult GC() override;

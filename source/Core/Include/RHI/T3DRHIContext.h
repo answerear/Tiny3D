@@ -269,6 +269,13 @@ namespace Tiny3D
         virtual RHIPixelBuffer3DPtr createPixelBuffer3D(PixelBuffer3D *buffer) = 0;
 
         /**
+         * \brief 创建 RHI 立方体贴图像素缓冲区对象
+         * \param [in] buffer : 引擎像素缓冲区对象
+         * \return 调用成功返回 RHI 对象，不支持立方体贴图的后端返回 nullptr
+         */
+        virtual RHIPixelBufferCubemapPtr createPixelBufferCubemap(PixelBufferCubemap *buffer) = 0;
+
+        /**
          * \brief 创建 RHI 顶点着色器对象
          * \param [in] shader : 引擎使用的顶点着色器对象
          * \return 调用成功返回 RHI 对象

@@ -32,6 +32,7 @@
 #include "Component/T3DCamera.h"
 #include "Light/T3DLight.h"
 #include "Component/T3DRenderable.h"
+#include "Component/T3DSkybox.h"
 #include "Component/T3DTransform3D.h"
 #include "Kernel/T3DGameObject.h"
 #include "Render/T3DRenderTarget.h"
@@ -41,6 +42,8 @@
 #include "Resource/T3DMaterial.h"
 #include "Render/T3DVertexBuffer.h"
 #include "Render/T3DIndexBuffer.h"
+#include "Render/T3DVertexDeclaration.h"
+#include "Render/T3DRenderResourceManager.h"
 #include "Render/T3DRenderState.h"
 #include "Light/T3DAmbientLight.h"
 #include "Light/T3DDirectionalLight.h"
@@ -95,6 +98,11 @@ namespace Tiny3D
             mShadowMapRT->releaseAllResources();
             mShadowMapRT = nullptr;
         }
+
+        mSceneSkybox = nullptr;
+        mSkyboxVB = nullptr;
+        mSkyboxVertexDecl = nullptr;
+        mSkyboxVertexDeclShader = nullptr;
     }
 
     //--------------------------------------------------------------------------
@@ -224,6 +232,7 @@ namespace Tiny3D
         mLights.clear();
 
         mImportantDirLight = nullptr;
+        mSceneSkybox = nullptr;
 
         GameObjectPtr go;
         
@@ -240,6 +249,9 @@ namespace Tiny3D
         {
             return T3D_OK;
         }
+
+        // 场景根节点上的 Skybox 充当全局天空盒（对标 RenderSettings.skybox）
+        mSceneSkybox = go->getComponent<Skybox>();
 
         for (auto item : scene->getCameras())
         {
@@ -473,13 +485,31 @@ namespace Tiny3D
         // 设置 view matrix & projection matrix
         ctx->setViewProjectionTransform(camera->getViewMatrix(), camera->getProjectionMatrix());
 
-        // 清除 color
-        ctx->clearColor(camera->getClearColor());
-        
-        // 清除 depth buffer、stencil buffer
-        ctx->clearDepthStencil(camera->getClearDepth(), camera->getClearStencil());
+        Material *skyboxMaterial = resolveSkyboxMaterial(camera);
+        Camera::ClearFlags clearFlags = camera->getClearFlags();
+        if (clearFlags == Camera::ClearFlags::kSkybox && skyboxMaterial == nullptr)
+        {
+            // 没有天空盒材质时退化成纯色，避免出现未定义的背景内容
+            clearFlags = Camera::ClearFlags::kSolidColor;
+        }
+
+        if (clearFlags == Camera::ClearFlags::kSkybox
+            || clearFlags == Camera::ClearFlags::kSolidColor)
+        {
+            // 清除 color
+            ctx->clearColor(camera->getClearColor());
+        }
+
+        if (clearFlags != Camera::ClearFlags::kNothing)
+        {
+            // 清除 depth buffer、stencil buffer
+            ctx->clearDepthStencil(camera->getClearDepth(), camera->getClearStencil());
+        }
 
         ctx->beginPass();
+
+        const bool drawSkybox = (clearFlags == Camera::ClearFlags::kSkybox);
+        bool skyboxDrawn = false;
 
         const auto itr = mRenderQueue.find(camera);
 
@@ -487,6 +517,14 @@ namespace Tiny3D
         {
             for (auto itemQueue : itr->second)
             {
+                if (drawSkybox && !skyboxDrawn
+                    && itemQueue.first >= ShaderLab::kBuiltinQueueTransparent)
+                {
+                    // 不透明物体已经写好深度，此时画天空盒能把被挡住的像素剔掉
+                    renderSkybox(ctx, camera, skyboxMaterial);
+                    skyboxDrawn = true;
+                }
+
                 const RenderGroup &group = itemQueue.second;
 
                 for (auto itemGroup : group)
@@ -571,6 +609,12 @@ namespace Tiny3D
             }
         }
 
+        if (drawSkybox && !skyboxDrawn)
+        {
+            // 场景里一个透明队列的物体都没有（包括空场景），天空盒仍要画出来
+            renderSkybox(ctx, camera, skyboxMaterial);
+        }
+
         ctx->endPass();
 
         // 把相机渲染纹理渲染到相机对应的渲染目标上
@@ -593,6 +637,142 @@ namespace Tiny3D
         // 重置所有状态
         ctx->reset();
         
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    Material *ForwardRenderPipeline::resolveSkyboxMaterial(Camera *camera) const
+    {
+        if (camera != nullptr && camera->getGameObject() != nullptr)
+        {
+            SkyboxPtr skybox = camera->getGameObject()->getComponent<Skybox>();
+            if (skybox != nullptr && skybox->isEnabled() && skybox->getMaterial() != nullptr)
+            {
+                return skybox->getMaterial();
+            }
+        }
+
+        if (mSceneSkybox != nullptr && mSceneSkybox->isEnabled())
+        {
+            return mSceneSkybox->getMaterial();
+        }
+
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::renderSkybox(RHIContext *ctx, Camera *camera, Material *skyboxMaterial)
+    {
+        if (skyboxMaterial == nullptr)
+        {
+            return T3D_OK;
+        }
+
+        TechniqueInstancePtr tech = skyboxMaterial->getCurrentTechnique();
+        if (tech == nullptr)
+        {
+            return T3D_OK;
+        }
+
+        const auto itrPass = tech->getPassInstances().find(ShaderLab::kBuiltinLightModeForwardBase);
+        if (itrPass == tech->getPassInstances().end() || itrPass->second == nullptr)
+        {
+            return T3D_OK;
+        }
+
+        PassInstance *pass = itrPass->second;
+
+        ShaderVariantInstance *vsInstance = pass->getCurrentVertexShader();
+        if (vsInstance == nullptr || vsInstance->getShaderVariant() == nullptr)
+        {
+            return T3D_OK;
+        }
+
+        if (mSkyboxVB == nullptr)
+        {
+            // 覆盖整个 NDC 的大三角形，只带 POSITION。z 分量在 VS 里被强行改成 w，
+            // 这里给什么都无所谓
+            const Vector3 vertices[3] =
+            {
+                Vector3(-REAL_ONE, -REAL_ONE, REAL_ONE),
+                Vector3( 3 * REAL_ONE, -REAL_ONE, REAL_ONE),
+                Vector3(-REAL_ONE,  3 * REAL_ONE, REAL_ONE),
+            };
+
+            Buffer vbData;
+            vbData.DataSize = sizeof(vertices);
+            vbData.Data = T3D_POD_NEW_ARRAY(uint8_t, vbData.DataSize);
+            memcpy(vbData.Data, vertices, vbData.DataSize);
+
+            // kVRAM 下 RenderBuffer 直接接管 vbData.Data，由它的析构负责释放，
+            // 这里不能再 release：D3D11 的 CreateBuffer 是丢到 RHI 线程上晚一步
+            // 执行的，提前释放会让它读到已经回收的内存
+            mSkyboxVB = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(
+                sizeof(Vector3), 3, vbData,
+                MemoryType::kVRAM, Usage::kImmutable, kCPUNone);
+
+            if (mSkyboxVB == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to create skybox vertex buffer !");
+                return T3D_ERR_RES_LOAD_FAILED;
+            }
+        }
+
+        // InputLayout 是跟 VS 字节码绑定的，shader 变体一换就得重建
+        if (mSkyboxVertexDecl == nullptr
+            || mSkyboxVertexDeclShader != vsInstance->getShaderVariant())
+        {
+            VertexAttributes attrs;
+            attrs.push_back(VertexAttribute(
+                0, 0,
+                VertexAttribute::Type::E_VAT_FLOAT3,
+                VertexAttribute::Semantic::E_VAS_POSITION, 0));
+
+            mSkyboxVertexDecl = T3D_RENDER_BUFFER_MGR.addVertexDeclaration(attrs, vsInstance->getShaderVariant());
+            mSkyboxVertexDeclShader = vsInstance->getShaderVariant();
+
+            if (mSkyboxVertexDecl == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to create skybox vertex declaration !");
+                return T3D_ERR_RES_LOAD_FAILED;
+            }
+        }
+
+        // 天空盒 VS 靠 inverse(VP) 把裁剪空间的角点反投影回世界空间求采样方向
+        const Matrix4 &matVP = ctx->getProjViewMatrix();
+        skyboxMaterial->setMatrix("tiny3d_MatrixInvVP", matVP.inverse());
+
+        Transform3D *xformCamera = static_cast<Transform3D *>(camera->getGameObject()->getTransformNode());
+        Vector4 cameraWorldPos(xformCamera->getLocalToWorldTransform().getTranslation(), REAL_ONE);
+        skyboxMaterial->setVector("tiny3d_CameraWorldPos", cameraWorldPos);
+
+        Real flipSign = ctx->isProjectionFlipped() ? -REAL_ONE : REAL_ONE;
+        skyboxMaterial->setVector("tiny3d_ProjectionParams", Vector4(flipSign, REAL_ONE, REAL_ZERO, REAL_ZERO));
+
+        RenderState *renderState = pass->getPass()->getRenderState();
+        if (renderState == nullptr)
+        {
+            renderState = tech->getTechnique()->getRenderState();
+        }
+
+        setupRenderState(ctx, renderState);
+        setupShaders(ctx, skyboxMaterial, pass);
+
+        ctx->setPrimitiveType(PrimitiveType::kTriangleList);
+        ctx->setVertexDeclaration(mSkyboxVertexDecl);
+
+        VertexBuffers vbs;
+        vbs.push_back(mSkyboxVB);
+        VertexStrides strides;
+        strides.push_back(sizeof(Vector3));
+        VertexOffsets offsets;
+        offsets.push_back(0);
+        ctx->setVertexBuffers(0, vbs, strides, offsets);
+
+        ctx->render(3, 0);
+
         return T3D_OK;
     }
 

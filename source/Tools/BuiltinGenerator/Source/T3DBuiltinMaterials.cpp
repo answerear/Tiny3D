@@ -36,6 +36,9 @@ namespace Tiny3D
     const char *TINY3D_STANDARD_TITLE = "Tiny3DStandard";
     const char *TINY3D_DEFAULT_SHADER = "Tiny3DStandard";
     const char *TEST_MATERIAL_TITLE = "Test-Material";
+    const char *SKYBOX_MATERIAL_TITLE = "Skybox-Cubemap";
+    const char *SKYBOX_SHADER_TITLE = "Skybox-Cubemap";
+    const char *SKYBOX_DEFAULT_TEXTURE = "skybox_default.ttex";
     
     //--------------------------------------------------------------------------
 
@@ -57,6 +60,13 @@ namespace Tiny3D
             if (T3D_FAILED(ret))
             {
                 BGEN_LOG_ERROR("Failed to generate test material !");
+            }
+
+            // skybox material
+            ret = generateSkyboxMaterial(SKYBOX_MATERIAL_TITLE, SKYBOX_SHADER_TITLE, rootPath, SKYBOX_DEFAULT_TEXTURE);
+            if (T3D_FAILED(ret))
+            {
+                BGEN_LOG_ERROR("Failed to generate skybox material !");
             }
         } while (false);
         
@@ -128,6 +138,96 @@ namespace Tiny3D
             mMaterials.emplace(materialName, material);
         } while (false);
         
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BuiltinMaterials::generateSkyboxMaterial(const String &title, const String &shaderTitle, const String &rootPath, const String &texName)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            const String shaderName = shaderTitle + "." + Resource::EXT_SHADER;
+            auto shaderData = T3D_BUILTIN_SHADERS.getShaderData(shaderName);
+            if (shaderData.shader == nullptr)
+            {
+                BGEN_LOG_ERROR("Missing skybox shader (%s) !", shaderName.c_str());
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
+
+            const String materialName = title + "." + Resource::EXT_MATERIAL;
+            const String path = rootPath + Dir::getNativeSeparator() + "materials";
+
+            // 复用已有资源的 guid，避免重生成导致引用失效：创建时即传入旧 guid
+            UUID existingUUID = BuiltinGuidUtil::readExistingMetaUUID(path, materialName + ".meta");
+            MaterialPtr material = T3D_MATERIAL_MGR.createMaterial(title, shaderData.shader, existingUUID);
+
+            // 天空盒只吃这几个变量，其余引擎每帧动态设置
+            material->setColor("Tint", ColorRGBA(0.5f, 0.5f, 0.5f, 1.0f));
+            material->setFloat("Exposure", 1.0f);
+            material->setFloat("Rotation", 0.0f);
+            material->setMatrix("tiny3d_MatrixInvVP", Matrix4::IDENTITY);
+            material->setVector("tiny3d_CameraWorldPos", Vector4::ZERO);
+            material->setVector("tiny3d_ProjectionParams", Vector4(1.0f, 1.0f, 0.0f, 0.0f));
+
+            TexturePtr texture = T3D_TEXTURE_MGR.getResource(texName);
+            if (texture == nullptr)
+            {
+                BGEN_LOG_ERROR("Missing skybox cubemap texture (%s) !", texName.c_str());
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
+            material->setTexture("_Tex", texture->getUUID());
+
+            // 这里 hook ，用反射去修改引用的 shader uuid
+            rttr::instance inst(*material);
+            rttr::type t = inst.get_type();
+            bool rval = t.set_property_value("Shader", inst, shaderData.shaderLabUUID);
+            T3D_ASSERT(rval);
+
+            ret = saveMaterialWithMeta(path, materialName, material);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            mMaterials.emplace(materialName, material);
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BuiltinMaterials::saveMaterialWithMeta(const String &path, const String &materialName, Material *material)
+    {
+        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
+        T3D_ASSERT(archive);
+
+        TResult ret = T3D_MATERIAL_MGR.saveMaterial(archive, materialName, material);
+        if (T3D_FAILED(ret))
+        {
+            BGEN_LOG_ERROR("Failed to save material [%s] ! ERROR [%d]", (path + Dir::getNativeSeparator() + materialName).c_str(), ret);
+            return ret;
+        }
+
+        MetaMaterialPtr meta = MetaMaterial::create(material->getUUID());
+        const String metaName = materialName + ".meta";
+        ret = archive->write(metaName,
+            [](DataStream &stream, const String &filename, void *userData)
+            {
+                MetaMaterial *meta = static_cast<MetaMaterial *>(userData);
+                return T3D_SERIALIZER_MGR.serialize(stream, meta);
+            },
+            meta.get());
+        if (T3D_FAILED(ret))
+        {
+            BGEN_LOG_ERROR("Failed to generate material meta file (%s) ! ERROR [%d]", metaName.c_str(), ret);
+        }
+
         return ret;
     }
     

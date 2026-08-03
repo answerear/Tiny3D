@@ -1728,6 +1728,58 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    RHIPixelBufferCubemapPtr GL4Context::createPixelBufferCubemap(PixelBufferCubemap *buffer)
+    {
+        GL4PixelBufferCubemapPtr glBuffer = GL4PixelBufferCubemap::create();
+
+        auto lambda = [this](const GL4PixelBufferCubemapPtr &glBuffer, const PixelBufferCubemapPtr &buffer)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                const auto &desc = buffer->getDescriptor();
+                const Buffer &src = buffer->getBuffer();
+
+                const size_t bpp = Image::getBPP(desc.format) / 8;
+                const size_t faceSize = (size_t)desc.width * desc.height * bpp;
+                const uint8_t *data = static_cast<const uint8_t*>(src.Data);
+
+                glGenTextures(1, &glBuffer->GLTexture);
+                glBindTexture(GL_TEXTURE_CUBE_MAP, glBuffer->GLTexture);
+
+                for (uint32_t face = 0; face < PixelBufferCubemap::FACE_COUNT; ++face)
+                {
+                    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0,
+                        GL4Mapping::getInternalFormat(desc.format),
+                        desc.width, desc.height, 0,
+                        GL4Mapping::get(desc.format),
+                        GL4Mapping::getPixelType(desc.format),
+                        data != nullptr ? data + face * faceSize : nullptr);
+                }
+
+                glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+                glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createPixelBufferCubemap");
+            } while (false);
+
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glBuffer, PixelBufferCubemapPtr(buffer));
+        if (T3D_FAILED(ret)) { glBuffer = nullptr; }
+        return glBuffer;
+    }
+
+    //--------------------------------------------------------------------------
     // Vertex Shader
     //--------------------------------------------------------------------------
 
@@ -3028,7 +3080,7 @@ namespace Tiny3D
                 texTarget = GL_TEXTURE_3D;
                 break;
             case RHIResource::ResourceType::kPixelBufferCubemap:
-                texHandle = static_cast<GL4PixelBuffer2D*>(buffers[i]->getRHIResource().get())->GLTexture;
+                texHandle = static_cast<GL4PixelBufferCubemap*>(buffers[i]->getRHIResource().get())->GLTexture;
                 texTarget = GL_TEXTURE_CUBE_MAP;
                 break;
             default:

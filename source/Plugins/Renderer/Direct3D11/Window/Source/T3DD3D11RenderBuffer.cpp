@@ -164,6 +164,28 @@ namespace Tiny3D
     {
         return D3DSRView;
     }
+
+    //--------------------------------------------------------------------------
+
+    D3D11PixelBufferCubemapPtr D3D11PixelBufferCubemap::create()
+    {
+        return T3D_NEW D3D11PixelBufferCubemap();
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11PixelBufferCubemap::~D3D11PixelBufferCubemap()
+    {
+        D3D_SAFE_RELEASE(D3DTexture);
+        D3D_SAFE_RELEASE(D3DSRView);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void *D3D11PixelBufferCubemap::getNativeObject() const
+    {
+        return D3DSRView;
+    }
     
     //--------------------------------------------------------------------------
 }

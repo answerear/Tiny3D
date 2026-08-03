@@ -149,6 +149,37 @@ namespace Tiny3D
         mRHIResource = nullptr;
         return true;
     }
+
+    //--------------------------------------------------------------------------
+
+    PixelBufferCubemap::PixelBufferCubemap(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode)
+        : PixelBufferT(desc, memType, usage, accMode)
+    {
+        
+    }
+
+    //--------------------------------------------------------------------------
+
+    RenderResource::Type PixelBufferCubemap::getType() const
+    {
+        return Type::kPixelBufferCubemap;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool PixelBufferCubemap::onLoad()
+    {
+        mRHIResource = T3D_AGENT.getActiveRHIContext()->createPixelBufferCubemap(this);
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool PixelBufferCubemap::onUnload()
+    {
+        mRHIResource = nullptr;
+        return true;
+    }
     
     //--------------------------------------------------------------------------
 }

@@ -235,6 +235,13 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    RHIPixelBufferCubemapPtr NullContext::createPixelBufferCubemap(PixelBufferCubemap *buffer)
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
     
     RHIShaderPtr NullContext::createVertexShader(ShaderVariant *shader)
     {

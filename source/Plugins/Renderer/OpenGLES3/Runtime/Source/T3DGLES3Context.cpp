@@ -1416,6 +1416,72 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    RHIPixelBufferCubemapPtr GLES3Context::createPixelBufferCubemap(PixelBufferCubemap *buffer)
+    {
+        GLES3PixelBufferCubemapPtr glBuffer = GLES3PixelBufferCubemap::create();
+
+        auto lambda = [this](const GLES3PixelBufferCubemapPtr &glBuffer, const PixelBufferCubemapPtr &buffer)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                const auto &desc = buffer->getDescriptor();
+                const uint8_t *uploadData = buffer->getBuffer().Data;
+                uint8_t *convertedData = nullptr;
+
+                if (GLES3Mapping::isBGRAFormat(desc.format)
+                    && uploadData != nullptr)
+                {
+                    size_t dataSize = buffer->getBuffer().DataSize;
+                    convertedData = new uint8_t[dataSize];
+                    memcpy(convertedData, uploadData, dataSize);
+                    uint32_t bpp = (desc.format == PixelFormat::E_PF_B8G8R8) ? 3 : 4;
+                    for (size_t i = 0; i + 2 < dataSize; i += bpp)
+                        std::swap(convertedData[i], convertedData[i + 2]);
+                    uploadData = convertedData;
+                }
+
+                const size_t bpp = Image::getBPP(desc.format) / 8;
+                const size_t faceSize = (size_t)desc.width * desc.height * bpp;
+
+                glGenTextures(1, &glBuffer->GLTexture);
+                glBindTexture(GL_TEXTURE_CUBE_MAP, glBuffer->GLTexture);
+
+                for (uint32_t face = 0; face < PixelBufferCubemap::FACE_COUNT; ++face)
+                {
+                    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0,
+                        GLES3Mapping::getInternalFormat(desc.format),
+                        desc.width, desc.height, 0,
+                        GLES3Mapping::get(desc.format),
+                        GLES3Mapping::getPixelType(desc.format),
+                        uploadData != nullptr ? uploadData + face * faceSize : nullptr);
+                }
+
+                glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+                glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+                delete[] convertedData;
+
+                GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::createPixelBufferCubemap");
+            } while (false);
+
+            return ret;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glBuffer, PixelBufferCubemapPtr(buffer));
+        if (T3D_FAILED(ret)) { glBuffer = nullptr; }
+        return glBuffer;
+    }
+
+    //--------------------------------------------------------------------------
     // Vertex Shader
     //--------------------------------------------------------------------------
 
@@ -2596,7 +2662,7 @@ namespace Tiny3D
                 texTarget = GL_TEXTURE_3D;
                 break;
             case RHIResource::ResourceType::kPixelBufferCubemap:
-                texHandle = static_cast<GLES3PixelBuffer2D*>(buffers[i]->getRHIResource().get())->GLTexture;
+                texHandle = static_cast<GLES3PixelBufferCubemap*>(buffers[i]->getRHIResource().get())->GLTexture;
                 texTarget = GL_TEXTURE_CUBE_MAP;
                 break;
             default:

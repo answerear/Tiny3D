@@ -252,4 +252,43 @@ namespace Tiny3D
     {
         return (void *)VkTex;
     }
+
+    //--------------------------------------------------------------------------
+
+    VKPixelBufferCubemapPtr VKPixelBufferCubemap::create()
+    {
+        return T3D_NEW VKPixelBufferCubemap();
+    }
+
+    //--------------------------------------------------------------------------
+
+    VKPixelBufferCubemap::~VKPixelBufferCubemap()
+    {
+        VkDevice device = VK_DEVICE();
+        if (device != VK_NULL_HANDLE)
+        {
+            if (VkTexView != VK_NULL_HANDLE)
+            {
+                vkDestroyImageView(device, VkTexView, nullptr);
+                VkTexView = VK_NULL_HANDLE;
+            }
+            if (VkTex != VK_NULL_HANDLE)
+            {
+                vkDestroyImage(device, VkTex, nullptr);
+                VkTex = VK_NULL_HANDLE;
+            }
+            if (VkTexMemory != VK_NULL_HANDLE)
+            {
+                vkFreeMemory(device, VkTexMemory, nullptr);
+                VkTexMemory = VK_NULL_HANDLE;
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void *VKPixelBufferCubemap::getNativeObject() const
+    {
+        return (void *)VkTex;
+    }
 }

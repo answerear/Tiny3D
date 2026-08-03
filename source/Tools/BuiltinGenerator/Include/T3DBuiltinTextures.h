@@ -44,8 +44,19 @@ namespace Tiny3D
         TResult generateDefaultAlbedo(const String &outputPath);
         
         TResult generateTestTexture(const String &outputPath);
+
+        /// 程序化生成一张天顶 → 地平线 → 地面的渐变 cubemap，作为默认天空盒贴图
+        TResult generateDefaultSkybox(const String &outputPath);
+
+        /// 扫描 textures/cubemaps/<name>/{px,nx,py,ny,pz,nz}.png，逐个导出 <name>.ttex
+        TResult generateCubemaps(const String &searchPath, const String &outputPath);
+
+        TResult generateCubemap(const String &facePath, const String &name, const String &outputPath);
         
         TResult generateTexture(const String &path, const String &outputPath);
+
+        /// 把纹理和它的 meta 文件一起写到 outputPath 下
+        TResult saveTextureWithMeta(const String &outputPath, const String &filename, Texture *texture);
     };
 
     #define T3D_BUILTIN_TEXTURES   (BuiltinTextures::getInstance())

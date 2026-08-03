@@ -146,4 +146,23 @@ namespace Tiny3D
     {
         return (void *)(intptr_t)GLTexture;
     }
+
+    //--------------------------------------------------------------------------
+    // GLES3PixelBufferCubemap
+    //--------------------------------------------------------------------------
+
+    GLES3PixelBufferCubemapPtr GLES3PixelBufferCubemap::create()
+    {
+        return T3D_NEW GLES3PixelBufferCubemap();
+    }
+
+    GLES3PixelBufferCubemap::~GLES3PixelBufferCubemap()
+    {
+        GL_SAFE_DELETE_TEXTURE(GLTexture);
+    }
+
+    void *GLES3PixelBufferCubemap::getNativeObject() const
+    {
+        return (void *)(intptr_t)GLTexture;
+    }
 }

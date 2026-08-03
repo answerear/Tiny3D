@@ -107,7 +107,8 @@ namespace Tiny3D
         offset[1] = extent[1];
         offset[2] = -extent[2];
         vertices[0].position = center + offset;
-        vertices[0].normal = Vector3::FORWARD;
+        // front 面在 z = -extent 上，外侧法线是 -FORWARD，不是 FORWARD
+        vertices[0].normal = -Vector3::FORWARD;
         vertices[0].uv = Vector2(0.0f, 0.0f);
         
         // front - V1
@@ -115,7 +116,7 @@ namespace Tiny3D
         offset[1] = -extent[1];
         offset[2] = -extent[2];
         vertices[1].position = center + offset;
-        vertices[1].normal = Vector3::FORWARD;
+        vertices[1].normal = -Vector3::FORWARD;
         vertices[1].uv = Vector2(0.0f, 0.5f);
         
         // front - V2
@@ -123,7 +124,7 @@ namespace Tiny3D
         offset[1] = extent[1];
         offset[2] = -extent[2];
         vertices[2].position = center + offset;
-        vertices[2].normal = Vector3::FORWARD;
+        vertices[2].normal = -Vector3::FORWARD;
         vertices[2].uv = Vector2(0.5f, 0.0f);
         
         // front - V3
@@ -131,7 +132,7 @@ namespace Tiny3D
         offset[1] = -extent[1];
         offset[2] = -extent[2];
         vertices[3].position = center + offset;
-        vertices[3].normal = Vector3::FORWARD;
+        vertices[3].normal = -Vector3::FORWARD;
         vertices[3].uv = Vector2(0.5f, 0.5f);
 
         // right - V2
@@ -171,7 +172,8 @@ namespace Tiny3D
         offset[1] = extent[1];
         offset[2] = extent[2];
         vertices[8].position = center + offset;
-        vertices[8].normal = -Vector3::FORWARD;
+        // back 面在 z = +extent 上，外侧法线是 FORWARD
+        vertices[8].normal = Vector3::FORWARD;
         vertices[8].uv = Vector2(0.0f, 0.0f);
         
         // back - V5
@@ -179,7 +181,7 @@ namespace Tiny3D
         offset[1] = -extent[1];
         offset[2] = extent[2];
         vertices[9].position = center + offset;
-        vertices[9].normal = -Vector3::FORWARD;
+        vertices[9].normal = Vector3::FORWARD;
         vertices[9].uv = Vector2(0.0f, 0.5f);
 
         // back - V6
@@ -187,6 +189,7 @@ namespace Tiny3D
         offset[1] = extent[1];
         offset[2] = extent[2];
         vertices[10].position = center + offset;
+        vertices[10].normal = Vector3::FORWARD;
         vertices[10].uv = Vector2(0.5f, 0.0f);
         
         // back - V7
@@ -194,7 +197,7 @@ namespace Tiny3D
         offset[1] = -extent[1];
         offset[2] = extent[2];
         vertices[11].position = center + offset;
-        vertices[11].normal = -Vector3::FORWARD;
+        vertices[11].normal = Vector3::FORWARD;
         vertices[11].uv = Vector2(0.5f, 0.5f);
         
         // left - V6

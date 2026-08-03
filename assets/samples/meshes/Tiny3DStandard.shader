@@ -39,7 +39,7 @@ Shader "Tiny3DBuiltin/Standard"
 			Name "ShadowCaster"
 			Tags { "LightMode" = "ShadowCaster" }
 
-			Offset 1.5, 4.0
+			Offset 2.5, 50.0
 
 			CGPROGRAM
 				#pragma vertex vertShadowCaster

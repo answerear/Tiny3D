@@ -47,6 +47,11 @@ namespace Tiny3D
     protected:
         TResult generateMaterial(const String &title, const String &shaderTitle, const String &rootPath, const String &texName);
 
+        /// 天空盒材质的参数集跟标准材质完全不同，单独走一条生成路径
+        TResult generateSkyboxMaterial(const String &title, const String &shaderTitle, const String &rootPath, const String &texName);
+
+        TResult saveMaterialWithMeta(const String &path, const String &materialName, Material *material);
+
         void initMaterialData(Material *material);
         
         // TResult generateDefaultMaterial(const String &rootPath);

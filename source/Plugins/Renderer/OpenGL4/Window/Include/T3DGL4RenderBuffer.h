@@ -104,6 +104,18 @@ namespace Tiny3D
     protected:
         GL4PixelBuffer3D() = default;
     };
+
+    class GL4PixelBufferCubemap : public RHIPixelBufferCubemap
+    {
+    public:
+        static GL4PixelBufferCubemapPtr create();
+        ~GL4PixelBufferCubemap() override;
+        void *getNativeObject() const override;
+
+        GLuint GLTexture {0};
+    protected:
+        GL4PixelBufferCubemap() = default;
+    };
 }
 
 

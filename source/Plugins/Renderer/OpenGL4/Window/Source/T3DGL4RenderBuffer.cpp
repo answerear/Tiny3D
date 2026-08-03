@@ -133,4 +133,21 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    GL4PixelBufferCubemapPtr GL4PixelBufferCubemap::create()
+    {
+        return T3D_NEW GL4PixelBufferCubemap();
+    }
+
+    GL4PixelBufferCubemap::~GL4PixelBufferCubemap()
+    {
+        GL_SAFE_DELETE_TEXTURE(GLTexture);
+    }
+
+    void *GL4PixelBufferCubemap::getNativeObject() const
+    {
+        return (void *)(uintptr_t)GLTexture;
+    }
+
+    //--------------------------------------------------------------------------
 }

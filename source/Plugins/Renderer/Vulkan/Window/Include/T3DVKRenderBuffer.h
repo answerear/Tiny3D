@@ -136,10 +136,29 @@ namespace Tiny3D
     {
     public:
         void *getNativeObject() const override;
-        
+
         VkImage         VkTex {VK_NULL_HANDLE};
         VkDeviceMemory  VkTexMemory {VK_NULL_HANDLE};
         VkImageView     VkTexView {VK_NULL_HANDLE};
+    };
+
+    class VKPixelBufferCubemap : public RHIPixelBufferCubemap
+    {
+    public:
+        static VKPixelBufferCubemapPtr create();
+
+        ~VKPixelBufferCubemap() override;
+
+        void *getNativeObject() const override;
+
+        VkImage         VkTex {VK_NULL_HANDLE};
+        VkDeviceMemory  VkTexMemory {VK_NULL_HANDLE};
+        VkImageView     VkTexView {VK_NULL_HANDLE};
+        /// Current image layout (tracked for correct barrier transitions)
+        VkImageLayout   VkCurrentLayout {VK_IMAGE_LAYOUT_UNDEFINED};
+
+    protected:
+        VKPixelBufferCubemap() = default;
     };
 }
 

@@ -175,6 +175,7 @@ namespace Tiny3D
     class Geometry;
     class SkinnedGeometry;
     class Bone;
+    class Skybox;
 
     // Bound
     class Bound;
@@ -258,6 +259,7 @@ namespace Tiny3D
     class RHIPixelBuffer1D;
     class RHIPixelBuffer2D;
     class RHIPixelBuffer3D;
+    class RHIPixelBufferCubemap;
     class RHIConstantBuffer;
     class RHIVertexDeclaration;
     class RHIRenderTarget;

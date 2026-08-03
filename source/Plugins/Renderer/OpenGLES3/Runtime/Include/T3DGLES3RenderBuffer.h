@@ -101,6 +101,18 @@ namespace Tiny3D
     protected:
         GLES3PixelBuffer3D() = default;
     };
+
+    class GLES3PixelBufferCubemap : public RHIPixelBufferCubemap
+    {
+    public:
+        static GLES3PixelBufferCubemapPtr create();
+        ~GLES3PixelBufferCubemap() override;
+        void *getNativeObject() const override;
+
+        GLuint GLTexture {0};
+    protected:
+        GLES3PixelBufferCubemap() = default;
+    };
 }
 
 

@@ -93,6 +93,7 @@
 #include <Component/T3DRenderable.h>
 #include <Component/T3DGeometry.h>
 #include <Component/T3DSkinnedGeometry.h>
+#include <Component/T3DSkybox.h>
 
 // Light
 #include <Light/T3DLight.h>

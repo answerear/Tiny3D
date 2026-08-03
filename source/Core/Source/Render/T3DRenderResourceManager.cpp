@@ -464,6 +464,24 @@ namespace  Tiny3D
     
     //--------------------------------------------------------------------------
 
+    PixelBufferCubemapPtr RenderBufferManager::loadPixelBufferCubemap(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid)
+    {
+        UUID uid = uuid;
+        if (uuid == UUID::INVALID)
+        {
+            uid = UUID::generate();
+        }
+
+        return loadBuffer<PixelBufferCubemap>(mPBufferCache, uid,
+            [](PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode)
+            {
+                return PixelBufferCubemap::create(desc, memType, usage, accMode);
+            },
+            desc, memType, usage, accMode);
+    }
+
+    //--------------------------------------------------------------------------
+
     PixelBuffer2DPtr RenderBufferManager::loadRenderTexture(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid)
     {
         UUID uid = uuid;

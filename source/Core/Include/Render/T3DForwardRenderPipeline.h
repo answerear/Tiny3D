@@ -90,6 +90,19 @@ namespace Tiny3D
         TResult renderShadowMap(RHIContext *ctx, Camera *camera);
 
         TResult renderForward(RHIContext *ctx, Camera *camera);
+
+        /**
+         * \brief 解析本相机使用的天空盒材质
+         * \remarks 相机自身的 Skybox 组件优先，其次是场景根节点上的全局 Skybox，
+         *          都没有则返回 nullptr，调用方需回退为 SolidColor
+         */
+        Material *resolveSkyboxMaterial(Camera *camera) const;
+
+        /**
+         * \brief 用全屏三角形绘制天空盒
+         * \remarks 在不透明队列之后、透明队列之前调用，被遮挡的天空像素靠已有深度剔除
+         */
+        TResult renderSkybox(RHIContext *ctx, Camera *camera, Material *skyboxMaterial);
         
     protected:
         enum LightParam : uint32_t
@@ -116,6 +129,15 @@ namespace Tiny3D
 
         /// 阴影贴图投影是否被 Y 翻转（OpenGL RTT 路径）
         bool mShadowMapFlipped {false};
+
+        /// 场景根节点上的全局天空盒组件，cull 时收集
+        Skybox *mSceneSkybox {nullptr};
+        /// 天空盒全屏三角形的顶点缓冲区，首次绘制时懒加载
+        VertexBufferPtr mSkyboxVB {nullptr};
+        /// 天空盒的顶点声明。InputLayout 依赖 VS 字节码，换 shader 变体时要重建
+        VertexDeclarationPtr mSkyboxVertexDecl {nullptr};
+        /// 上一次生成 mSkyboxVertexDecl 用的 VS 变体
+        ShaderVariant *mSkyboxVertexDeclShader {nullptr};
 
         /// 点光源颜色 + 漫反射强度
         ColorArray mPointLightColor {kMaxPointLights, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f)};

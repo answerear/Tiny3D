@@ -2003,6 +2003,103 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    RHIPixelBufferCubemapPtr D3D11Context::createPixelBufferCubemap(PixelBufferCubemap *buffer)
+    {
+        D3D11PixelBufferCubemapPtr d3dBuffer = D3D11PixelBufferCubemap::create();
+
+        do
+        {
+            const auto &desc = buffer->getDescriptor();
+
+            D3D11_USAGE d3dUsage;
+            uint32_t d3dAccess = 0;
+            TResult ret = D3D11Mapping::get(buffer->getUsage(), buffer->getCPUAccessMode(), d3dUsage, d3dAccess);
+
+            // cubemap 固定 6 面，mipmaps 只支持顶层数据上传
+            D3D11_TEXTURE2D_DESC d3dDesc;
+            memset(&d3dDesc, 0, sizeof(d3dDesc));
+            d3dDesc.Width = desc.width;
+            d3dDesc.Height = desc.height;
+            d3dDesc.MipLevels = 1;
+            d3dDesc.ArraySize = PixelBufferCubemap::FACE_COUNT;
+            d3dDesc.Format = D3D11Mapping::get(desc.format);
+            d3dDesc.SampleDesc.Count = 1;
+            d3dDesc.SampleDesc.Quality = 0;
+            d3dDesc.Usage = d3dUsage;
+            d3dDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+            d3dDesc.CPUAccessFlags = d3dAccess;
+            d3dDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+
+            D3D11_SHADER_RESOURCE_VIEW_DESC d3dSRVDesc;
+            memset(&d3dSRVDesc, 0, sizeof(d3dSRVDesc));
+            d3dSRVDesc.Format = D3D11Mapping::get(desc.format);
+            d3dSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+            d3dSRVDesc.TextureCube.MipLevels = 1;
+            d3dSRVDesc.TextureCube.MostDetailedMip = 0;
+
+            auto lambda = [this](const D3D11_TEXTURE2D_DESC &d3dDesc, const D3D11_SHADER_RESOURCE_VIEW_DESC &d3dSRVDesc, const D3D11PixelBufferCubemapPtr &d3dBuffer, const PixelBufferCubemapPtr &buffer)
+            {
+                TResult ret = T3D_OK;
+
+                do
+                {
+                    const auto &desc = buffer->getDescriptor();
+                    const Buffer &src = buffer->getBuffer();
+
+                    // cubemap 的 DataSize 是 6 个面的总和，行距必须由宽度单独算，
+                    // 不能沿用 2D 路径的 DataSize / height
+                    const size_t bpp = Image::getBPP(desc.format) / 8;
+                    const size_t rowPitch = desc.width * bpp;
+                    const size_t faceSize = rowPitch * desc.height;
+
+                    D3D11_SUBRESOURCE_DATA initData[PixelBufferCubemap::FACE_COUNT] = {};
+                    const uint8_t *data = static_cast<const uint8_t*>(src.Data);
+                    for (uint32_t face = 0; face < PixelBufferCubemap::FACE_COUNT; ++face)
+                    {
+                        initData[face].pSysMem = data + face * faceSize;
+                        initData[face].SysMemPitch = static_cast<uint32_t>(rowPitch);
+                        initData[face].SysMemSlicePitch = 0;
+                    }
+
+                    ID3D11Texture2D *pD3DTex2D = nullptr;
+                    HRESULT hr = mD3DDevice->CreateTexture2D(&d3dDesc, initData, &pD3DTex2D);
+                    if (FAILED(hr))
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create cubemap texture ! DX ERROR [%d]", hr);
+                        ret = T3D_ERR_D3D11_CREATE_TEXTURE2D;
+                        break;
+                    }
+
+                    ID3D11ShaderResourceView *pD3DSRView = nullptr;
+                    hr = mD3DDevice->CreateShaderResourceView(pD3DTex2D, &d3dSRVDesc, &pD3DSRView);
+                    if (FAILED(hr))
+                    {
+                        D3D_SAFE_RELEASE(pD3DTex2D);
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create shader resource view for cubemap ! DX ERROR [%d]", hr);
+                        ret = T3D_ERR_D3D11_CREATE_SHADER_RESOURCE_VIEW;
+                        break;
+                    }
+
+                    d3dBuffer->D3DTexture = pD3DTex2D;
+                    d3dBuffer->D3DSRView = pD3DSRView;
+                } while (false);
+
+                return ret;
+            };
+
+            ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, d3dSRVDesc, d3dBuffer, buffer);
+            if (T3D_FAILED(ret))
+            {
+                d3dBuffer = nullptr;
+                break;
+            }
+        } while (false);
+
+        return d3dBuffer;
+    }
+
+    //--------------------------------------------------------------------------
     
     RHIShaderPtr D3D11Context::createVertexShader(ShaderVariant *shader)
     {
@@ -3307,7 +3404,7 @@ namespace Tiny3D
                         pD3DResource = smart_pointer_cast<D3D11PixelBuffer3D>(renderBuffer->getRHIResource())->D3DTexture;
                         break;
                     case RHIResource::ResourceType::kPixelBufferCubemap:
-                        pD3DResource = smart_pointer_cast<D3D11PixelBuffer2D>(renderBuffer->getRHIResource())->D3DTexture;
+                        pD3DResource = smart_pointer_cast<D3D11PixelBufferCubemap>(renderBuffer->getRHIResource())->D3DTexture;
                         break;
                     case RHIResource::ResourceType::kConstantBuffer: /// 常量缓冲
                         pD3DResource = smart_pointer_cast<D3D11ConstantBuffer>(renderBuffer->getRHIResource())->D3DBuffer;
@@ -3508,7 +3605,7 @@ namespace Tiny3D
                         d3dSRViews[i] = smart_pointer_cast<D3D11PixelBuffer3D>(buffers[i]->getRHIResource())->D3DSRView;
                         break;
                     case RHIResource::ResourceType::kPixelBufferCubemap:
-                        d3dSRViews[i] = smart_pointer_cast<D3D11PixelBuffer2D>(buffers[i]->getRHIResource())->D3DSRView;
+                        d3dSRViews[i] = smart_pointer_cast<D3D11PixelBufferCubemap>(buffers[i]->getRHIResource())->D3DSRView;
                         break;
                     }    
                 }

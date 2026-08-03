@@ -1951,6 +1951,182 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    RHIPixelBufferCubemapPtr VKContext::createPixelBufferCubemap(PixelBufferCubemap *buffer)
+    {
+        VKPixelBufferCubemapPtr vkBuffer = VKPixelBufferCubemap::create();
+
+        do
+        {
+            const auto &desc = buffer->getDescriptor();
+            const uint32_t faceCount = PixelBufferCubemap::FACE_COUNT;
+            VkFormat format = VKMapping::get(desc.format);
+
+            TResult ret = T3D_OK;
+
+            do
+            {
+                // 6 层 + CUBE_COMPATIBLE，才能建出 VK_IMAGE_VIEW_TYPE_CUBE
+                VkImageCreateInfo imageInfo {};
+                imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+                imageInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+                imageInfo.imageType = VK_IMAGE_TYPE_2D;
+                imageInfo.extent = { desc.width, desc.height, 1 };
+                imageInfo.mipLevels = 1;
+                imageInfo.arrayLayers = faceCount;
+                imageInfo.format = format;
+                imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+                imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+                imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+                imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+                VkResult vkResult = vkCreateImage(mVkDevice, &imageInfo, nullptr, &vkBuffer->VkTex);
+                if (vkResult != VK_SUCCESS)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create cubemap image ! VK ERROR [%d]", vkResult);
+                    ret = T3D_ERR_VK_CREATE_IMAGE;
+                    break;
+                }
+
+                VkMemoryRequirements memRequirements;
+                vkGetImageMemoryRequirements(mVkDevice, vkBuffer->VkTex, &memRequirements);
+
+                VkMemoryAllocateInfo allocInfo {};
+                allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+                allocInfo.allocationSize = memRequirements.size;
+                allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+                vkResult = vkAllocateMemory(mVkDevice, &allocInfo, nullptr, &vkBuffer->VkTexMemory);
+                if (vkResult != VK_SUCCESS)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to allocate cubemap image memory ! VK ERROR [%d]", vkResult);
+                    ret = T3D_ERR_VK_ALLOCATE_MEMORY;
+                    break;
+                }
+
+                vkBindImageMemory(mVkDevice, vkBuffer->VkTex, vkBuffer->VkTexMemory, 0);
+
+                VkImageViewCreateInfo viewInfo {};
+                viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+                viewInfo.image = vkBuffer->VkTex;
+                viewInfo.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
+                viewInfo.format = format;
+                viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                viewInfo.subresourceRange.baseMipLevel = 0;
+                viewInfo.subresourceRange.levelCount = 1;
+                viewInfo.subresourceRange.baseArrayLayer = 0;
+                viewInfo.subresourceRange.layerCount = faceCount;
+
+                vkResult = vkCreateImageView(mVkDevice, &viewInfo, nullptr, &vkBuffer->VkTexView);
+                if (vkResult != VK_SUCCESS)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create cubemap image view ! VK ERROR [%d]", vkResult);
+                    ret = T3D_ERR_VK_CREATE_IMAGE_VIEW;
+                    break;
+                }
+
+                if (buffer->getBuffer().Data != nullptr)
+                {
+                    VkDeviceSize imageSize = buffer->getBuffer().DataSize;
+                    const size_t bpp = Image::getBPP(desc.format) / 8;
+                    const VkDeviceSize faceSize = (VkDeviceSize)desc.width * desc.height * bpp;
+
+                    VkBuffer stagingBuffer;
+                    VkDeviceMemory stagingBufferMemory;
+                    createVkBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                        stagingBuffer, stagingBufferMemory);
+
+                    void *data = nullptr;
+                    vkMapMemory(mVkDevice, stagingBufferMemory, 0, imageSize, 0, &data);
+                    memcpy(data, buffer->getBuffer().Data, (size_t)imageSize);
+                    vkUnmapMemory(mVkDevice, stagingBufferMemory);
+
+                    transitionCubemapLayout(vkBuffer->VkTex, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+                    VkCommandBuffer cmdBuf = beginSingleTimeCommands();
+                    VkBufferImageCopy regions[PixelBufferCubemap::FACE_COUNT] = {};
+                    for (uint32_t face = 0; face < faceCount; ++face)
+                    {
+                        regions[face].bufferOffset = face * faceSize;
+                        regions[face].imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                        regions[face].imageSubresource.mipLevel = 0;
+                        regions[face].imageSubresource.baseArrayLayer = face;
+                        regions[face].imageSubresource.layerCount = 1;
+                        regions[face].imageExtent = { desc.width, desc.height, 1 };
+                    }
+                    vkCmdCopyBufferToImage(cmdBuf, stagingBuffer, vkBuffer->VkTex, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, faceCount, regions);
+                    endSingleTimeCommands(cmdBuf);
+
+                    transitionCubemapLayout(vkBuffer->VkTex, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                    vkBuffer->VkCurrentLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+                    vkDestroyBuffer(mVkDevice, stagingBuffer, nullptr);
+                    vkFreeMemory(mVkDevice, stagingBufferMemory, nullptr);
+                }
+            } while (false);
+
+            if (T3D_FAILED(ret))
+            {
+                vkBuffer = nullptr;
+                break;
+            }
+        } while (false);
+
+        return vkBuffer;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void VKContext::transitionCubemapLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout)
+    {
+        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+
+        VkImageMemoryBarrier barrier {};
+        barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        barrier.oldLayout = oldLayout;
+        barrier.newLayout = newLayout;
+        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.image = image;
+        barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        barrier.subresourceRange.baseMipLevel = 0;
+        barrier.subresourceRange.levelCount = 1;
+        barrier.subresourceRange.baseArrayLayer = 0;
+        barrier.subresourceRange.layerCount = PixelBufferCubemap::FACE_COUNT;
+
+        VkPipelineStageFlags sourceStage;
+        VkPipelineStageFlags destinationStage;
+
+        if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+        {
+            barrier.srcAccessMask = 0;
+            barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+        }
+        else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+        {
+            barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+            sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+            destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        }
+        else
+        {
+            barrier.srcAccessMask = 0;
+            barrier.dstAccessMask = 0;
+            sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            destinationStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+        }
+
+        vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+        endSingleTimeCommands(commandBuffer);
+    }
+
+    //--------------------------------------------------------------------------
+
     RHIShaderPtr VKContext::createVertexShader(ShaderVariant *shader)
     {
         VKVertexShaderPtr vkShader = VKVertexShader::create();
@@ -2251,10 +2427,15 @@ namespace Tiny3D
 
         for (size_t i = 0; i < buffers.size(); ++i)
         {
-            if (buffers[i] != nullptr)
+            RHIResource *rhiResource = buffers[i] != nullptr ? buffers[i]->getRHIResource().get() : nullptr;
+            if (rhiResource != nullptr
+                && rhiResource->getResourceType() == RHIResource::ResourceType::kPixelBufferCubemap)
             {
-                VKPixelBuffer2D *vkPB = static_cast<VKPixelBuffer2D *>(buffers[i]->getRHIResource().get());
-                mCurrentPSImageViews.push_back(vkPB->VkTexView);
+                mCurrentPSImageViews.push_back(static_cast<VKPixelBufferCubemap *>(rhiResource)->VkTexView);
+            }
+            else if (rhiResource != nullptr)
+            {
+                mCurrentPSImageViews.push_back(static_cast<VKPixelBuffer2D *>(rhiResource)->VkTexView);
             }
             else
             {

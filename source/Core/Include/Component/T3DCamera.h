@@ -51,6 +51,22 @@ namespace Tiny3D
             /// 透视投影
             kPerspective
         };
+
+        /**
+         * \brief 相机背景清屏方式
+         */
+        TENUM()
+        enum class ClearFlags : uint32_t
+        {
+            /// 画天空盒；找不到天空盒材质时自动回退为 kSolidColor
+            kSkybox = 0,
+            /// 用 ClearColor 填充背景
+            kSolidColor,
+            /// 只清深度模板，保留上一次的颜色内容
+            kDepthOnly,
+            /// 什么都不清
+            kNothing
+        };
         
         static CameraPtr create();
 
@@ -85,6 +101,12 @@ namespace Tiny3D
 
         TPROPERTY(RTTRFuncName="Viewport", RTTRFuncType="setter")
         void setViewport(const Viewport &vp) { mViewport = vp; }
+
+        TPROPERTY(RTTRFuncName="ClearFlags", RTTRFuncType="getter")
+        ClearFlags getClearFlags() const { return mClearFlags; }
+
+        TPROPERTY(RTTRFuncName="ClearFlags", RTTRFuncType="setter")
+        void setClearFlags(ClearFlags flags) { mClearFlags = flags; }
 
         TPROPERTY(RTTRFuncName="ClearColor", RTTRFuncType="getter")
         const ColorRGB &getClearColor() const { return mClearColor; }
@@ -183,6 +205,8 @@ namespace Tiny3D
         uint32_t    mCullingMask {0xFFFFFFFF};
         /// 相机视口
         Viewport    mViewport {};
+        /// 背景清屏方式
+        ClearFlags  mClearFlags {ClearFlags::kSkybox};
         /// 背景填充颜色
         ColorRGB    mClearColor {ColorRGB::BLACK};
         /// 深度缓冲填充值
