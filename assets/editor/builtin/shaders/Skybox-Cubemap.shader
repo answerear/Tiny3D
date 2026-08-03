@@ -73,14 +73,15 @@ Shader "Tiny3DBuiltin/Skybox-Cubemap"
 				VertexOutput output;
 
 				// 输入是覆盖整个 NDC 的大三角形，z = w 让它正好落在远平面上，
-				// 配合 ZWrite Off / ZTest LEqual 被前面的不透明物体挡住
+				// 配合 ZWrite Off / ZTest LEqual 被前面的不透明物体挡住。
+				// InvVP 已含 GLES/GL4 FBO 的投影 Y 翻转，clip.y 必须先乘 flipSign
+				// 再反投影，否则采样方向与光栅位置错位，blit 后天空上下颠倒。
 				float4 clip = float4(input.position.xy, 1.0f, 1.0f);
+				clip.y *= tiny3d_ProjectionParams.x;
 
 				float4 world = mul(tiny3d_MatrixInvVP, clip);
 				output.direction = world.xyz / world.w - tiny3d_CameraWorldPos.xyz;
-
 				output.position = clip;
-				output.position.y *= tiny3d_ProjectionParams.x;
 
 				return output;
 			}

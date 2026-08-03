@@ -29,10 +29,10 @@ add_subdirectory(BehaviourApp)
 add_subdirectory(TextureApp)
 add_subdirectory(SkeletalAnimationApp)
 add_subdirectory(ResourceApp)
+add_subdirectory(SkyboxApp)
 
 if (TINY3D_OS_DESKTOP)
 	add_subdirectory(TransformationApp)
 	add_subdirectory(IntersectionApp)
-	add_subdirectory(SkyboxApp)
 endif (TINY3D_OS_DESKTOP)
 

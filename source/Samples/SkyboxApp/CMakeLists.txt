@@ -34,6 +34,10 @@ set_project_files(common ${CMAKE_CURRENT_SOURCE_DIR}/../Common/ .h)
 set(COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Common)
 if (TINY3D_OS_WINDOWS)
     list(REMOVE_ITEM SOURCE_FILES "${COMMON_DIR}/SampleShaders_gles3.h")
+elseif (TINY3D_OS_ANDROID)
+    list(REMOVE_ITEM SOURCE_FILES
+        "${COMMON_DIR}/SampleShaders_hlsl.h"
+        "${COMMON_DIR}/SampleShaders_gl4.h")
 elseif (TINY3D_OS_LINUX)
     list(REMOVE_ITEM SOURCE_FILES
         "${COMMON_DIR}/SampleShaders_hlsl.h"
@@ -105,6 +109,75 @@ if (TINY3D_OS_WINDOWS)
             "${SAMPLES_BUNDLE_DIR}"
             "$<TARGET_FILE_DIR:${BIN_NAME}>/Assets/samples/bundle"
         COMMENT "Copying bundle to runtime directory")
+elseif (TINY3D_OS_ANDROID)
+    # Setup dynamic library (.so) project for Android. Because all libraries in Android is dynamics (.so).
+    add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
+
+    target_link_libraries(
+        ${LIB_NAME}
+        T3DPlatform
+        T3DSystem
+        T3DLog
+        T3DUtils
+        T3DMath
+        T3DFramework
+        T3DCore
+        rttr_core
+        )
+
+    # Setup all files (.so) for Android APK
+    set(T3D_ANDROID_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Android/app/libs/${ANDROID_ABI}")
+
+    add_custom_command(TARGET ${BIN_NAME}
+        PRE_LINK
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${T3D_ANDROID_LIB_PATH}
+        COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${T3D_ANDROID_LIB_PATH}
+        )
+
+    set(ANDROID_ASSETS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Android/app/src/main/assets")
+
+    # 交叉编译时 BundleBuilder 目标不存在，需由 gradle 在 host 端预构建并通过 -D 传入。
+    # 在把 bundle 拷进 APK assets 之前，先用 host bundlebuilder 把 meshes 重打成 bundle。
+    set(TINY3D_HOST_BUNDLEBUILDER "" CACHE FILEPATH
+        "Path to host-built bundlebuilder executable for cross-compilation")
+
+    if (TINY3D_HOST_BUNDLEBUILDER)
+        get_filename_component(HOST_BB_DIR "${TINY3D_HOST_BUNDLEBUILDER}" DIRECTORY)
+        add_custom_command(TARGET ${BIN_NAME}
+            POST_BUILD
+            COMMAND "${TINY3D_HOST_BUNDLEBUILDER}"
+                --assets "${CMAKE_SOURCE_DIR}/../assets/samples/meshes"
+                --out    "${CMAKE_SOURCE_DIR}/../assets/samples/bundle"
+                --binary
+            WORKING_DIRECTORY "${HOST_BB_DIR}"
+            COMMENT "Building bundle (host bundlebuilder) before APK packaging")
+    else()
+        message(WARNING "TINY3D_HOST_BUNDLEBUILDER not set; "
+            "APK will use existing assets/samples/bundle as-is.")
+    endif()
+
+    add_custom_command(TARGET ${BIN_NAME}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${ANDROID_ASSETS_DIR}
+        COMMAND ${CMAKE_COMMAND} -E copy
+            "${CMAKE_SOURCE_DIR}/../assets/config/Android/Tiny3D.cfg"
+            "${ANDROID_ASSETS_DIR}/Tiny3D.cfg"
+        # 把只读 bundle 资源拷进 APK 的 assets 根下，逻辑路径统一小写
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_SOURCE_DIR}/../assets/samples/bundle"
+            "${ANDROID_ASSETS_DIR}/assets/samples/bundle"
+        )
+
+    add_custom_command(TARGET ${BIN_NAME}
+        POST_BUILD
+        # 运行时插件 .so 不被 app 链接，需显式拷到 jniLibs 目录随 APK 打包
+        COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:GLES3Renderer>
+            ${T3D_ANDROID_LIB_PATH}
+        COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:BundleFSArchive>
+            ${T3D_ANDROID_LIB_PATH}
+        )
 elseif (TINY3D_OS_LINUX)
     # Setup executable project for Linux.
     add_executable(
