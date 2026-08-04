@@ -33,6 +33,10 @@ namespace Tiny3D
 {
 #if defined(T3D_OS_DESKTOP)
 
+    /**
+     * \brief SkeletalAnimation 资源（.tanimation）的 .meta 元数据
+     * \remarks UUID 与对应 SkeletalAnimation 资源的 UUID 一致
+     */
     TCLASS()
     class T3D_ENGINE_API MetaAnimation : public Meta
     {
@@ -40,16 +44,30 @@ namespace Tiny3D
         TRTTI_FRIEND
 
     public:
+        /**
+         * \brief 创建 MetaAnimation 实例
+         * \param [in] uuid : 与 SkeletalAnimation 资源相同的 UUID
+         * \return 新建的 MetaAnimationPtr
+         */
         static MetaAnimationPtr create(const UUID &uuid)
         {
             return T3D_NEW MetaAnimation(uuid);
         }
 
+        /**
+         * \brief 返回 kAnimation 类型标识
+         * \return Meta::kAnimation
+         */
         Type getType() const override { return kAnimation; }
 
     protected:
+        /// 默认构造
         MetaAnimation() = default;
 
+        /**
+         * \brief 以指定 UUID 构造
+         * \param [in] uuid : 与 SkeletalAnimation 资源相同的 UUID
+         */
         MetaAnimation(const UUID &uuid)
             : Meta(uuid)
         {

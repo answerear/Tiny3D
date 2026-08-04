@@ -31,13 +31,17 @@
 
 namespace Tiny3D
 {
+    /// 最大 MRT 渲染目标数量
     const uint32_t T3D_MAX_RENDER_TARGET = 8;
 
+    /**
+     * \brief ShaderLab 内置标签名与渲染队列/光照模式枚举值
+     */
     namespace ShaderLab
     {
-        /// ShaderLab内置标签 - 渲染队列 - Queue
+        /// ShaderLab 内置标签：渲染队列（Queue）
         const char *const kBuiltinTagQueue = "Queue";
-        /// ShaderLab内置标签 - 光照模式 - LightMode
+        /// ShaderLab 内置标签：光照模式（LightMode）
         const char *const kBuiltinTagLightMode = "LightMode";
 
         const char *const kBuiltinQueueBkgndStr = "Background";
@@ -51,54 +55,58 @@ namespace Tiny3D
         const char *const kBuiltinLightModeForwardBaseStr = "ForwardBase";
         const char *const kBuiltinLightModeForwardAddStr = "ForwardAdd";
 
+        /**
+         * \brief ShaderLab 内置渲染队列优先级
+         */
         enum BuiltinQueueValue : uint32_t
         {
-            /// 背景物体，通常在场景的最底层渲染。
+            /// 背景物体，通常最先渲染
             kBuiltinQueueBkgnd = 0,
-            /// 几何体，默认的渲染队列，适用于大多数不透明物体。
+            /// 不透明几何体默认队列
             kBuiltinQueueGeometry = 2000,
-            /// 用于透明裁剪的物体，通常用于带有 alpha 测试的材质。
+            /// Alpha Test 裁剪透明物体
             kBuiltinQueueAlphaTest = 2450,
-            /// 透明物体，通常在不透明物体之后渲染。
+            /// 透明物体，通常在不透明物体之后渲染
             kBuiltinQueueTransparent = 3000,
-            /// 用于 UI 元素和其他覆盖物体，通常在所有其他物体之后渲染。
+            /// UI 与覆盖层，通常最后渲染
             kBuiltinQueueOverlay = 4000,
         };
 
+        /**
+         * \brief ShaderLab 内置 Pass 光照模式标识
+         */
         enum BuiltinLightModeValue : uint32_t
         {
             kBuiltinLightModeNone = static_cast<uint32_t>(-1),
-            /// 阴影投射器，用于计算阴影贴图。
+            /// 阴影投射 Pass，用于生成阴影贴图
             kBuiltinLightModeShadowCaster = 0x10000,
-            /// 前向渲染的基类，用于计算光照。
+            /// 前向渲染主光照 Pass
             kBuiltinLightModeForwardBase,
-            /// 前向渲染的附加类，用于计算光照。
+            /// 前向渲染附加光照 Pass
             kBuiltinLightModeForwardAdd,
         };
     }
     
     /**
-     * @enum    BlendFactor
-     * @brief   混合因子
+     * \brief 颜色混合因子
      */
     TENUM()
     enum class BlendFactor : uint32_t
     {
         kOne = 0,               /// 1.0
         kZero,                  /// 0.0
-        kDstColor,              /// C_dst
-        kSrcColor,              /// C_src
+        kDstColor,              /// 目标颜色 C_dst
+        kSrcColor,              /// 源颜色 C_src
         kOneMinusDstColor,      /// 1 - C_dst
         kOneMinusSrcColor,      /// 1 - C_src
-        kDstAlpha,              /// A_dst
-        kSrcAlpha,              /// A_src
+        kDstAlpha,              /// 目标 Alpha A_dst
+        kSrcAlpha,              /// 源 Alpha A_src
         kOneMinusDstAlpha,      /// 1 - A_dst
         kOneMinusSrcAlpha,      /// 1 - A_src
     };
 
     /**
-     * @enum    BlendOperation
-     * @brief   混合操作
+     * \brief 颜色混合运算
      */
     TENUM()
     enum class BlendOperation : uint32_t
@@ -106,12 +114,12 @@ namespace Tiny3D
         kAdd,               /// C_result = C_src * F_src + C_dst * F_dst
         kSubtract,          /// C_result = C_src * F_src - C_dst * F_dst
         kReverseSubtract,   /// C_result = C_dst * F_dst - C_src * F_src
-        kMin,               /// 
-        kMax
+        kMin,               /// 取分量最小值
+        kMax                /// 取分量最大值
     };
 
     /**
-     * \brief 混合颜色写掩码
+     * \brief 混合颜色通道写掩码
      */
     TENUM()
     enum BlendColorWriteMask : uint8_t
@@ -125,8 +133,7 @@ namespace Tiny3D
     };
 
     /**
-     * @enum    CompareFunction
-     * @brief   比较函数，用于深度缓冲测试和模板缓冲测试
+     * \brief 比较函数，用于深度测试与模板测试
      */
     TENUM()
     enum class CompareFunction : uint32_t
@@ -142,54 +149,47 @@ namespace Tiny3D
     };
 
     /**
-     * \brief 模板操作
+     * \brief 模板缓冲操作
      */
     TENUM()
     enum class StencilOp : uint32_t
     {
-        kKeep = 0,  /**< 保持现有的模板值 */
-        kZero,      /**< 将模板值置为0 */
-        kReplace,   /**< 将模板值设置为用 HWDepthStencilState::setStencilRef 函数设置的 ref 值*/
-        kInc,       /**< 如果模板值不是最大值就将模板值+1 */
-        kIncWrap,   /**< 与 INCR 一样将模板值+1，如果模板值已经是最大值则设为0 */
-        kDec,       /**< 如果模板值不是最小值就将模板值-1 */
-        kDecWrap,   /**< 与 DECR 一样将模板值-1，如果模板值已经是最小值则设为最大值 */
-        kInvert     /**< 把模板值按位取反 */
+        kKeep = 0,  /// 保持现有模板值
+        kZero,      /// 将模板值置为 0
+        kReplace,   /// 将模板值设为 StencilRef
+        kInc,       /// 模板值 +1（未到最大值时）
+        kIncWrap,   /// 模板值 +1，溢出时回绕为 0
+        kDec,       /// 模板值 -1（未到最小值时）
+        kDecWrap,   /// 模板值 -1，下溢时回绕为最大值
+        kInvert     /// 按位取反模板值
     };
 
     /**
-     * @brief 多边形渲染模式
+     * \brief 多边形光栅化填充模式
      */
     TENUM()
     enum class PolygonMode : uint32_t
     {
         kNone = 0,
-        /**< 顶点模式 */
-        kPoint,
-        /**< 线框模式 */
-        kWireframe,
-        /**< 着色模式 */
-        kSolid,
+        kPoint,         /// 点模式
+        kWireframe,     /// 线框模式
+        kSolid,         /// 实体填充模式
         kMax
     };
 
     /**
-     * \brief 剔除面模式
+     * \brief 面剔除模式
      */
     TENUM()
     enum class CullingMode : uint32_t
     {
-        /**< 不做消隐面剔除 */
-        kNone = 0,
-        /**< 剔除正面 */
-        kFront,
-        /**< 剔除背面 */
-        kBack,
+        kNone = 0,  /// 不剔除
+        kFront,     /// 剔除正面
+        kBack,      /// 剔除背面
     };
 
     /**
-     * @enum    FilterOptions
-     * @brief   Values that represent filter options
+     * \brief 纹理过滤方式
      */
     TENUM()
     enum class FilterOptions : uint32_t
@@ -202,8 +202,7 @@ namespace Tiny3D
     };
 
     /**
-     * @enum    TextureAddressMode
-     * @brief   Values that represent texture address modes
+     * \brief 纹理寻址模式
      */
     TENUM()
     enum class TextureAddressMode : uint32_t
@@ -216,63 +215,66 @@ namespace Tiny3D
         kMirrorOnce
     };
 
+    /**
+     * \brief 资源映射/锁定的访问方式
+     */
     TENUM()
     enum class LockOptions : uint32_t
     {
-        /**< 映射到内存的资源用于读取 */
-        kRead = 0,
-        /**< 映射到内存的资源用于写入 */
-        kWrite,
-        /**< 映射到内存的资源用于读写 */
-        kReadWrite,
-        /**< 映射到内存的资源用于写入，之前的资源数据将会被抛弃 */
-        kWriteDiscard,
-        /**< 映射到内存的资源用于写入，但不能复写已经存在的资源 */
-        kWriteNoOverwrite
+        kRead = 0,          /// 只读映射
+        kWrite,             /// 只写映射
+        kReadWrite,         /// 读写映射
+        kWriteDiscard,      /// 写映射并丢弃原有 GPU 数据
+        kWriteNoOverwrite   /// 写映射但不覆盖已有 GPU 数据
     };
 
+    /**
+     * \brief 渲染资源内存驻留位置
+     */
     TENUM()
     enum class MemoryType : uint32_t
     {
-        /**< 数据分别存储在 RAM 和 VRAM */
-        kBoth = 0,
-        /**< 数据仅存储在 RAM */
-        kRAM,
-        /**< 数据仅存储在 VRAM */
-        kVRAM
+        kBoth = 0,  /// CPU 与 GPU 各持有一份
+        kRAM,       /// 仅 CPU 内存
+        kVRAM       /// 仅 GPU 内存（CPU 镜像由 RenderBuffer 接管或拷贝）
     };
 
+    /**
+     * \brief 渲染资源用途与 CPU/GPU 访问模式
+     */
     TENUM()
     enum class Usage : uint32_t
     {
-        /// 数据在初始化后，GPU 能读写，CPU 不能访问
+        /// 初始化后 GPU 可读写，CPU 不可访问
         kStatic = 0,
-        /// 资源创建后不会被 GPU 写，GPU 只进行读
+        /// 创建后 GPU 只读，不可被 CPU 或 GPU 写入
         kImmutable,
-        /// 资源 CPU 写，GPU 读
+        /// CPU 写、GPU 读（动态更新）
         kDynamic,
-        /// 资源可以从 GPU 复制到 CPU 读
+        /// 可从 GPU 复制到 CPU 读取
         kCopy,
     };
 
+    /**
+     * \brief CPU 对渲染资源的访问权限（可组合）
+     */
     TENUM()
     enum CPUAccessMode : uint32_t
     {
-        /// CPU 不访问
-        kCPUNone = 0,
-        /// CPU 可写
-        kCPUWrite = (1 << 0),
-        /// CPU 可读
-        kCPURead = (1 << 1),
-        /// CPU 读写
-        kCPUReadWrite = kCPURead | kCPUWrite,
+        kCPUNone = 0,                       /// CPU 不访问
+        kCPUWrite = (1 << 0),               /// CPU 可写
+        kCPURead = (1 << 1),                /// CPU 可读
+        kCPUReadWrite = kCPURead | kCPUWrite, /// CPU 读写
     };
 
+    /**
+     * \brief 索引缓冲区位宽
+     */
     TENUM()
     enum class IndexType : uint32_t
     {
-        E_IT_16BITS = 0,    /**< 16位索引 */
-        E_IT_32BITS,        /**< 32位索引 */
+        E_IT_16BITS = 0,    /// 16 位索引
+        E_IT_32BITS,        /// 32 位索引
     };
 }
 

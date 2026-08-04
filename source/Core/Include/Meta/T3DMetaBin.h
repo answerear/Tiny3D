@@ -33,6 +33,9 @@ namespace Tiny3D
 {
 #if defined(T3D_OS_DESKTOP)
 
+    /**
+     * \brief 二进制文件（.bin）的 .meta 元数据
+     */
     TCLASS()
     class T3D_ENGINE_API MetaBin : public Meta
     {
@@ -40,16 +43,30 @@ namespace Tiny3D
         TRTTI_FRIEND
 
     public:
+        /**
+         * \brief 创建 MetaBin 实例
+         * \param [in] uuid : Meta 的 UUID
+         * \return 新建的 MetaBinPtr
+         */
         static MetaBinPtr create(const UUID &uuid)
         {
             return T3D_NEW MetaBin(uuid);
         }
 
+        /**
+         * \brief 返回 kBin 类型标识
+         * \return Meta::kBin
+         */
         Type getType() const override { return kBin; }
 
     protected:
+        /// 默认构造
         MetaBin() = default;
 
+        /**
+         * \brief 以指定 UUID 构造
+         * \param [in] uuid : Meta 的 UUID
+         */
         MetaBin(const UUID &uuid)
             : Meta(uuid)
         {

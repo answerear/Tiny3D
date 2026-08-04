@@ -35,16 +35,22 @@
 namespace Tiny3D
 {
     /**
-     * \brief 渲染硬件层的颜色混合状态
+     * \brief RHI 层渲染纹理对象，封装离屏 color/depth 附件等 GPU 纹理资源
      */
     class T3D_ENGINE_API RHIRenderTexture : public RHIResource
     {
     public:
+        /// 默认析构
         ~RHIRenderTexture() override = default;
 
+        /**
+         * \brief 返回资源类型 kRenderTexture
+         * \return ResourceType::kRenderTexture
+         */
         ResourceType getResourceType() const override { return ResourceType::kRenderTexture; }
-        
+
     protected:
+        /// 受保护默认构造，由 RHIContext::createRenderTexture 及后端派生类创建
         RHIRenderTexture() = default;
     };
 }

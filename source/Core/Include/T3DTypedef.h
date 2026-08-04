@@ -32,8 +32,11 @@
 
 namespace Tiny3D
 {
+    /// MemoryType 前向声明（定义见 T3DRenderConstant.h）
     enum class MemoryType : uint32_t;
-    
+
+    /** \brief Core 对象 SmartPtr 类型别名（ClassNamePtr / ClassNameSafePtr） */
+
     T3D_DECLARE_SMART_PTR(Object);
 
     // Kernel
@@ -220,11 +223,13 @@ namespace Tiny3D
 #endif
     
 
+    /** \brief RHI 渲染器注册表类型别名 */
     using RHIRenderers = TMap<String, RHIRendererPtr>;
     using RHIRenderersItr = RHIRenderers::iterator;
     using RHIRenderersConstItr = RHIRenderers::const_iterator;
     using RHIRenderersValue = RHIRenderers::value_type;
 
+    /** \brief 基础数值与颜色数组别名 */
     using BoolArray = TArray<bool>;
     using IntArray = TArray<int32_t>;
     using FloatArray = TArray<float32_t>;
@@ -232,13 +237,15 @@ namespace Tiny3D
     using Vector4Array = TArray<Vector4f>;
     using Matrix4Array = TArray<Matrix4>;
     
+    /** \brief 材质 Pass 与实例容器别名 */
     using Passes = TList<PassPtr>;
     using PassInstances = TUnorderedMap<uint32_t, PassInstancePtr>;
 
+    /** \brief 着色器关键字、变体与 ShaderLab 标签容器别名 */
     using ShaderKeywords = TList<ShaderKeyword>;
     using ShaderVariants = TMap<ShaderKeyword, ShaderVariantPtr>;
     using ShaderVariantsValue = ShaderVariants::value_type;
-    /// 按 keyword 索引的多语言变体集合（阶段2 Pass 容器切换使用）
+    /// 按 keyword 索引的多语言变体集合
     using ShaderVariantSets = TMap<ShaderKeyword, ShaderVariantSetPtr>;
     using ShaderVariantSetsValue = ShaderVariantSets::value_type;
     
@@ -250,12 +257,14 @@ namespace Tiny3D
     using ShaderSamplerParams = TUnorderedMap<String, ShaderSamplerParamPtr>;
     using ShaderSamplerValues = TUnorderedMap<String, ShaderSamplerValuePtr>;
 
+    /** \brief 渲染绑定与场景对象容器别名 */
     using ConstBuffers = TArray<Buffer>;
     using Textures = TArray<TexturePtr>;
 
     using GameObjectList = TList<GameObjectPtr>;
     using CameraList = TMultimap<uint32_t, Camera *>;
 
+    /** \brief 网格顶点与缓冲描述容器别名 */
     using VertexAttributes = TArray<VertexAttribute>;
     using VertexBuffers = TArray<VertexBufferPtr>;
 
@@ -270,6 +279,7 @@ namespace Tiny3D
 
     using RenderTextures = TArray<RenderTexture*>;
 
+    /** \brief 骨骼动画轨道与播放器容器别名 */
     using TranslationTrack = TArray<KfTranslationPtr>;
     using OrientationTrack = TArray<KfOrientationPtr>;
     using ScalingTrack = TArray<KfScalingPtr>;

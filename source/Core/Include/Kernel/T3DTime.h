@@ -33,17 +33,13 @@
 namespace Tiny3D
 {
     /**
-     * \brief 引擎层全局时间单例（对齐 Unity 的 Time）
+     * \brief 引擎全局时间单例（对齐 Unity 的 Time）
      * \remarks
-     *   - 所有保存与返回的时间量一律使用 uint64_t 毫秒，不使用浮点数，
-     *     与底层 DateTime::currentMSecsSinceEpoch() 天然对齐，累计不漂移。
-     *   - timeScale 是比例系数（非时间量），用千分比整数表示：
-     *     1000 = 1.0x、500 = 0.5x、0 = 暂停。
-     *   - 每帧由 Agent::beginFrame() 调用一次 tick()，缓存本帧 deltaTime；
-     *     用户在该帧任意位置读取 deltaTime() 都得到同一固定值。
-     *   - start / tick / stepFixed 三个驱动接口为 private，配置写入
-     *     setFixedDeltaTime / setMaximumDeltaTime 为 protected，
-     *     仅将 Agent 声明为 friend，杜绝外部（含 Scene / 用户脚本）误调。
+     *   - 时间量一律用 uint64_t 毫秒，与 DateTime::currentMSecsSinceEpoch() 对齐，避免浮点累计漂移。
+     *   - timeScale 用千分比整数：1000 = 1.0x、500 = 0.5x、0 = 暂停。
+     *   - 每帧由 Agent::beginFrame() 调用一次 tick()，本帧 deltaTime 在帧内固定。
+     *   - start / tick / stepFixed 为 private，setFixedDeltaTime / setMaximumDeltaTime 为 protected，
+     *     仅友元 Agent 可驱动，避免 Scene / 脚本误调。
      */
     class T3D_ENGINE_API Time : public Singleton<Time>
     {
@@ -59,7 +55,7 @@ namespace Tiny3D
         /// 本帧已应用 timeScale 的间隔（ms）
         uint64_t getDeltaTime() const { return mDeltaTime; }
 
-        /// 本帧未缩放的真实间隔（ms）
+        /// 本帧未缩放的真实间隔（ms），经 mMaxDeltaTime 钳制
         uint64_t getUnscaledDeltaTime() const { return mUnscaledDelta; }
 
         /// 累计已缩放时间（ms）
@@ -68,43 +64,68 @@ namespace Tiny3D
         /// 累计真实时间（ms）
         uint64_t getUnscaledTime() const { return mUnscaledTime; }
 
-        /// 固定步长（ms）
+        /// 固定步长（ms），供 FixedUpdate 循环使用
         uint64_t getFixedDeltaTime() const { return mFixedDeltaTime; }
 
-        /// 已渲染帧数
+        /// 已调用 tick 的帧数
         uint64_t getFrameCount() const { return mFrameCount; }
 
-        /// 时间缩放，千分比，1000 = 1.0x
+        /// 时间缩放千分比，1000 = 1.0x
         uint32_t getTimeScale() const { return mTimeScale; }
 
-        /// 运行期慢放 / 暂停（公开），千分比
+        /**
+         * \brief 运行期设置时间缩放（慢放 / 暂停）
+         * \param [in] permille : 千分比，1000 = 1.0x，0 = 暂停
+         */
         void setTimeScale(uint32_t permille) { mTimeScale = permille; }
 
         // —— Unity 风味的静态便捷包装（返回值单位：毫秒）——
+        /// 等价于 getInstance().getDeltaTime()
         static uint64_t deltaTime() { return getInstance().getDeltaTime(); }
+        /// 等价于 getInstance().getUnscaledDeltaTime()
         static uint64_t unscaledDeltaTime() { return getInstance().getUnscaledDeltaTime(); }
+        /// 等价于 getInstance().getTime()
         static uint64_t time() { return getInstance().getTime(); }
+        /// 等价于 getInstance().getUnscaledTime()
         static uint64_t unscaledTime() { return getInstance().getUnscaledTime(); }
+        /// 等价于 getInstance().getFixedDeltaTime()
         static uint64_t fixedDeltaTime() { return getInstance().getFixedDeltaTime(); }
+        /// 等价于 getInstance().getFrameCount()
         static uint64_t frameCount() { return getInstance().getFrameCount(); }
+        /// 等价于 getInstance().getTimeScale()
         static uint32_t timeScale() { return getInstance().getTimeScale(); }
 
     protected:
-        // —— 配置写入：仅供 Agent（友元）在 init 注入；即便友元也走 setter，
-        //    不直接写成员，保持不变量 / 后续校验的单一入口 ——
+        /**
+         * \brief 设置固定步长（ms）；0 会被钳为 1
+         * \param [in] ms : 固定步长毫秒数
+         */
         void setFixedDeltaTime(uint64_t ms) { mFixedDeltaTime = (ms == 0 ? 1 : ms); }
+
+        /**
+         * \brief 设置单帧真实 dt 的钳制上限（ms）
+         * \param [in] ms : 上限毫秒数，用于墙钟回退 / 跳变保护
+         */
         void setMaximumDeltaTime(uint64_t ms) { mMaxDeltaTime = ms; }
 
     private:
-        // —— 驱动：仅 Agent（友元）可调用 ——
-
-        /// init 时采样基准时刻，清零累计量
+        /**
+         * \brief 采样启动基准时刻，清零累计时间与帧计数
+         * \note 由 Agent::initTime() 在创建单例后调用一次
+         */
         void start();
 
-        /// beginFrame 每帧推进一次，计算并缓存本帧 dt
+        /**
+         * \brief 推进一帧：采样墙钟、钳制 raw dt、按 timeScale 缩放并累加 FixedUpdate 累加器
+         * \note 由 Agent::beginFrame() 每帧调用一次；墙钟回退时 raw 钳为 0，超过 mMaxDeltaTime 时钳到上限
+         */
         void tick();
 
-        /// 消费一个固定步长，供 Agent 的 FixedUpdate 循环驱动
+        /**
+         * \brief 若累加器足够则消费一个 fixedDeltaTime 并返回 true
+         * \return 累加器 >= fixedDeltaTime 时扣减一步并返回 true，否则返回 false
+         * \note 由 Agent 的 FixedUpdate 循环驱动；慢放 / 暂停通过缩放后的 mDeltaTime 间接生效
+         */
         bool stepFixed();
 
     private:
@@ -128,4 +149,3 @@ namespace Tiny3D
 
 
 #endif  /*__T3D_TIME_H__*/
-

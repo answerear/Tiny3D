@@ -32,6 +32,9 @@
 
 namespace Tiny3D
 {
+    /**
+     * \brief 渲染上下文占位基类（当前无成员 API，具体渲染接口见 RHIContext）
+     */
     class T3D_ENGINE_API RenderContext : public Object
     {
         

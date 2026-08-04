@@ -34,6 +34,9 @@
 
 namespace Tiny3D
 {
+    /**
+     * \brief Shader 管线阶段枚举
+     */
     TENUM()
     enum class SHADER_STAGE : uint32_t
     {
@@ -48,8 +51,8 @@ namespace Tiny3D
     };
 
     /**
-     * \brief Shader 目标语言（图形 API 维度）。
-     * \remarks 与渲染后端一一对应，由 RHIRenderer::getShadingLanguage() 推导。
+     * \brief Shader 目标语言（图形 API 维度）
+     * \remarks 与渲染后端一一对应，由 RHIRenderer::getShadingLanguage() 推导
      */
     TENUM()
     enum class SHADER_LANGUAGE : uint32_t
@@ -64,7 +67,7 @@ namespace Tiny3D
     };
     
     /**
-     * \brief Shader 变体，也是实际 shader 代码和编译后的字节码
+     * \brief Shader 变体，持有源码、编译字节码、反射参数与 RHI 着色器对象
      */
     TCLASS()
     class T3D_ENGINE_API ShaderVariant
@@ -76,54 +79,58 @@ namespace Tiny3D
         
     public:
         /**
-         * \brief 创建 shader 变体对象
-         * \param [in] keyword : 变体对应的关键字
-         * \param [in] code : 变体对应的源码
-         * \return 返回 shader 变体对象
+         * \brief 从字符串源码创建 shader 变体
+         * \param [in] keyword : 变体对应的关键字（移动语义）
+         * \param [in] code : 源码字符串
+         * \return 新建的 ShaderVariant 智能指针
          */
         static ShaderVariantPtr create(ShaderKeyword &&keyword, const String &code);
 
         /**
-         * \brief 创建 shader 变体对象（接受二进制/文本数据 + 长度）
-         * \param [in] keyword : 变体对应的关键字
-         * \param [in] code : 变体对应的代码数据（可以是文本或二进制如 SPIR-V）
-         * \param [in] codeLength : 代码数据长度（字节数）
-         * \return 返回 shader 变体对象
+         * \brief 从原始数据创建 shader 变体（支持文本或 SPIR-V 等二进制）
+         * \param [in] keyword : 变体对应的关键字（移动语义）
+         * \param [in] code : 代码数据指针
+         * \param [in] codeLength : 数据字节数
+         * \return 新建的 ShaderVariant 智能指针
          */
         static ShaderVariantPtr create(ShaderKeyword &&keyword, const char *code, size_t codeLength);
 
-        /**
-         * \brief Destructor
-         */
+        /// 析构函数，释放关键字、源码与字节码内存
         ~ShaderVariant() override;
 
+        /**
+         * \brief 通过 active RHIContext 编译 shader 并创建 RHIShader；已编译时跳过
+         * \return 调用成功返回 T3D_OK；编译或 sampler 反射失败时返回对应错误码
+         */
         TResult compile();
 
+        /// 获取 shader 管线阶段
         TPROPERTY(RTTRFuncName="Stage", RTTRFuncType="getter")
         SHADER_STAGE getShaderStage() const { return mShaderStage; }
 
+        /// 设置 shader 管线阶段
         TPROPERTY(RTTRFuncName="Stage", RTTRFuncType="setter")
         void setShaderStage(SHADER_STAGE stage) { mShaderStage = stage; }
 
+        /// 获取目标着色语言
         TPROPERTY(RTTRFuncName="Language", RTTRFuncType="getter")
         SHADER_LANGUAGE getLanguage() const { return mLanguage; }
 
+        /// 设置目标着色语言
         TPROPERTY(RTTRFuncName="Language", RTTRFuncType="setter")
         void setLanguage(SHADER_LANGUAGE lang) { mLanguage = lang; }
         
-        /**
-         * \brief 获取变体对应的关键字
-         * \return 返回变体对应的关键字对象
-         */
+        /// 获取变体对应的 shader 关键字
         TPROPERTY(RTTRFuncName="ShaderKeyword", RTTRFuncType="getter")
         const ShaderKeyword &getShaderKeyword() const { return *mShaderKeyword; }
         
+        /// 是否已完成编译（RHIShader 就绪）
         bool hasCompiled() const { return mHasCompiled; }
 
         /**
-         * \brief 获取当前可用代码：未编译时返回语言源码，已编译时返回编译产物字节码。
-         * \note 该语义供 RHIContext 透明使用（编译前取源码、编译后取字节码），
-         *       因此各渲染器插件无需改动。
+         * \brief 获取当前可用代码：未编译时返回源码，已编译时返回字节码
+         * \param [out] bytesLength : 输出数据字节数
+         * \return 代码数据指针；供 RHIContext 透明使用
          */
         char *getBytesCode(size_t &bytesLength) const
         {
@@ -137,7 +144,10 @@ namespace Tiny3D
         }
 
         /**
-         * \brief 写入编译产物字节码。不破坏源码 mSourceCode，使切后端 / 设备重置可重编译。
+         * \brief 写入编译产物字节码并标记为已编译
+         * \param [in] bytes : 字节码数据
+         * \param [in] bytesLength : 字节码字节数
+         * \note 不覆盖 mSourceCode，便于切后端或设备重置后重编译
          */
         void setBytesCode(const char *bytes, size_t bytesLength)
         {
@@ -146,7 +156,9 @@ namespace Tiny3D
         }
 
         /**
-         * \brief 写入语言源码（反序列化得到，只读、永不被编译覆盖），并重置编译状态。
+         * \brief 写入语言源码并重置编译状态
+         * \param [in] code : 源码数据
+         * \param [in] codeLength : 源码字节数
          */
         void setSourceCode(const char *code, size_t codeLength)
         {
@@ -155,27 +167,30 @@ namespace Tiny3D
         }
 
         /**
-         * \brief 失效后端相关资源：释放 RHIShader 与字节码，保留源码，等待按新后端重编译。
+         * \brief 释放 RHIShader 与字节码，保留源码，等待按新后端重编译
          */
         void invalidateRHI();
 
         /**
-         * 通过反射获取 shader 信息
-         * @return 调用成功返回 T3D_OK
+         * \brief 反射 shader 的全部常量与采样器绑定信息
+         * \return 调用成功返回 T3D_OK；编译或反射失败时返回对应错误码
+         * \note 若反射前未编译，会临时编译并在反射后恢复未编译状态
          */
         TResult reflect();
 
+        /// 获取反射得到的常量参数列表
         TPROPERTY(RTTRFuncName="ShaderConstantParams", RTTRFuncType="getter")
         const ShaderConstantParams &getShaderConstantParams() const { return mConstantParams; }
 
+        /// 获取反射得到的采样器参数列表
         TPROPERTY(RTTRFuncName="ShaderSamplerParams", RTTRFuncType="getter")
         const ShaderSamplerParams &getShaderSamplerParams() const { return mSamplerParams; }
 
         /**
-         * \brief 从同 keyword 的另一语言变体复制反射得到的常量/采样参数。
-         * \remarks 离线编译时反射上下文（如 scc 的 D3D11）只能编译/反射 HLSL 变体，
-         *          同一 keyword 下其它语言变体共用同一逻辑常量布局，直接复制其参数即可；
-         *          运行时各后端会在 compile() 中自行重新反射 sampler 的实际绑定槽位。
+         * \brief 从同 keyword 的另一语言变体复制反射参数
+         * \param [in] other : 源变体
+         * \remarks 离线编译时仅 HLSL 变体能被反射，其它语言变体共用同一逻辑布局；
+         *          运行时各后端在 compile() 中自行重新反射 sampler 绑定点
          */
         void copyReflectionParamsFrom(const ShaderVariant &other)
         {
@@ -183,15 +198,20 @@ namespace Tiny3D
             mSamplerParams = other.mSamplerParams;
         }
 
+        /// 获取 RHI 着色器对象
         RHIShader *getRHIShader() const { return mRHIShader; }
 
+        /// 设置所属 Pass
         void setPass(Pass *pass) { mPass = pass; }
 
+        /// 获取所属 Pass
         Pass *getPass() const { return mPass; }
         
     private:
+        /// 默认构造，供 RTTR 反序列化使用
         ShaderVariant() = default;
 
+        /// 设置 shader 关键字（RTTR setter）
         TPROPERTY(RTTRFuncName="ShaderKeyword", RTTRFuncType="setter")
         void setShaderKeyword(const ShaderKeyword &keyword)
         {
@@ -205,6 +225,7 @@ namespace Tiny3D
             }
         }
 
+        /// 获取源码 Buffer 视图（RTTR getter）
         TPROPERTY(RTTRFuncName="Code", RTTRFuncType="getter")
         Buffer getSourceCode() const
         {
@@ -214,6 +235,7 @@ namespace Tiny3D
             return code;
         }
 
+        /// 从 Buffer 设置源码（RTTR setter）
         TPROPERTY(RTTRFuncName="Code", RTTRFuncType="setter")
         void setSourceCode(Buffer code)
         {
@@ -221,16 +243,31 @@ namespace Tiny3D
             code.release();
         }
 
+        /// 设置常量参数列表（RTTR setter）
         TPROPERTY(RTTRFuncName="ShaderConstantParams", RTTRFuncType="setter")
         void setShaderConstantParams(const ShaderConstantParams &params) { mConstantParams = params; }
 
+        /// 设置采样器参数列表（RTTR setter）
         TPROPERTY(RTTRFuncName="ShaderSamplerParams", RTTRFuncType="setter")
         void setShaderSamplerParams(const ShaderSamplerParams &params) { mSamplerParams = params; }
         
     protected:
+        /**
+         * \brief 从字符串源码构造变体
+         * \param [in] key : shader 关键字（移动语义）
+         * \param [in] code : 源码字符串
+         */
         ShaderVariant(ShaderKeyword &&key, const String &code);
+
+        /**
+         * \brief 从原始数据构造变体
+         * \param [in] key : shader 关键字（移动语义）
+         * \param [in] code : 代码数据指针
+         * \param [in] codeLength : 数据字节数
+         */
         ShaderVariant(ShaderKeyword &&key, const char *code, size_t codeLength);
 
+        /// 复制源码到内部缓冲，必要时扩容
         void copySourceCode(const char *code, size_t codeSize)
         {
             if (mSourceCodeCapacity < codeSize || mSourceCodeCapacity == 0)
@@ -243,6 +280,7 @@ namespace Tiny3D
             mSourceCodeSize = codeSize;
         }
 
+        /// 复制字节码到内部缓冲，必要时扩容
         void copyByteCode(const char *code, size_t codeSize)
         {
             if (mByteCodeCapacity < codeSize || mByteCodeCapacity == 0)
@@ -256,37 +294,37 @@ namespace Tiny3D
         }
 
     protected:
-        /// 所属 pass
+        /// 所属 Pass
         Pass *mPass {nullptr};
-        /// shader keyword
+        /// shader 关键字
         ShaderKeyword   *mShaderKeyword {nullptr};
 
-        /// shader 类型
+        /// shader 管线阶段
         SHADER_STAGE    mShaderStage {SHADER_STAGE::kUnknown};
-        /// 目标语言（图形 API 维度）
+        /// 目标着色语言
         SHADER_LANGUAGE mLanguage {SHADER_LANGUAGE::kUnknown};
 
-        /// 语言源码（反序列化得到，只读，编译时不被覆盖）
+        /// 语言源码（反序列化得到，编译时不被覆盖）
         char            *mSourceCode {nullptr};
-        /// mSourceCode 的长度
+        /// 源码字节数
         size_t          mSourceCodeSize {0};
-        /// mSourceCode 的空间容量
+        /// 源码缓冲容量
         size_t          mSourceCodeCapacity {0};
 
-        /// 编译后的字节码（后端相关，可释放、可重建）
+        /// 编译后的字节码（后端相关，可释放重建）
         char            *mByteCode {nullptr};
-        /// mByteCode 的长度
+        /// 字节码字节数
         size_t          mByteCodeSize {0};
-        /// mByteCode 的空间容量
+        /// 字节码缓冲容量
         size_t          mByteCodeCapacity {0};
 
-        /// 当前 active 后端的 RHIShader 是否就绪
+        /// 当前 active 后端是否已编译就绪
         bool            mHasCompiled {false};
 
-        /// 常量信息
+        /// 反射得到的常量参数
         ShaderConstantParams    mConstantParams {};
         
-        /// 纹理和纹理采样绑定关系
+        /// 反射得到的纹理/采样器参数
         ShaderSamplerParams     mSamplerParams {};
 
         /// RHI 着色器对象

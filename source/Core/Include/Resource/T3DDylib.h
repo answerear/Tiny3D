@@ -33,57 +33,64 @@
 namespace Tiny3D
 {
     /**
-     * @class   Dylib
-     * @brief   A 3D engine api.
+     * \brief 动态库资源，封装平台 dlopen/LoadLibrary 加载的插件模块
      */
     class T3D_ENGINE_API Dylib : public Resource
     {
     public:
         /**
-         * @fn  static DylibPtr Dylib::create(const String &name);
-         * @brief   创建 Dylib 对象
-         * @param   name    The name.
-         * @return  A DylibPtr.
+         * \brief 创建 Dylib 对象
+         * \param [in] name : 动态库逻辑名称（不含扩展名；加载时会按平台拼接 lib 前缀与后缀）
+         * \return 新建的 Dylib 智能指针
          */
         static DylibPtr create(const String &name);
 
-        /**
-         * @fn  virtual Dylib::~Dylib();
-         * @brief   析构函数
-         */
+        /// 析构函数
         ~Dylib() override;
 
         /**
-         * @fn  virtual Type Dylib::getType() const override;
-         * @brief   重写 Resource::getType()o
-         * @return  The type.
+         * \brief 获取资源类型
+         * \return 固定返回 Type::kDylib
          */
         Type getType() const override;
 
         /**
-         * @fn  virtual void Dylib::*getSymbol(const String &name) const;
-         * @brief   根据名称获取对应符号地址
-         * @param   name    The name.
-         * @return  Null if it fails, else the symbol.
+         * \brief 按符号名获取动态库导出地址
+         * \param [in] name : 符号名称
+         * \return 找到返回符号地址；未加载或符号不存在时返回 nullptr
          */
         virtual void *getSymbol(const String &name) const;
 
     protected:
         /**
-         * @fn  Dylib::Dylib(const String &name);
-         * @brief   构造函数
-         * @param   name    The name.
+         * \brief 构造动态库资源
+         * \param [in] name : 动态库逻辑名称
          */
         Dylib(const String &name);
 
+        /**
+         * \brief 克隆动态库资源
+         * \return 新 Dylib 智能指针（仅拷贝属性，不重复加载库文件）
+         */
         ResourcePtr clone() const override;
 
+        /**
+         * \brief 加载动态库文件
+         * \param [in] archive : 档案对象（本实现未使用）
+         * \return 加载失败返回 T3D_ERR_PLG_LOAD_FAILED；成功则调用基类 onLoad 并返回其结果
+         * \remarks 非 Android 从 Agent::getPluginsPath() 下加载；Android 直接按拼接后的库名加载
+         */
         TResult onLoad(Archive *archive) override;
 
+        /**
+         * \brief 卸载动态库
+         * \return 状态为 kLoaded 时调用平台卸载 API，再执行基类 onUnload
+         */
         TResult onUnload() override;
      
     protected:
-        THandle mHandle;    /**< The handle */
+        /// 平台动态库句柄
+        THandle mHandle;
     };
 }
 

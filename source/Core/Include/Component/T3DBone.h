@@ -31,6 +31,9 @@
 
 namespace Tiny3D
 {
+    /**
+     * \brief 骨骼节点组件，挂载于骨骼 GameObject 上，存储蒙皮用的偏移矩阵
+     */
     TCLASS()
     class T3D_ENGINE_API Bone : public Component
     {
@@ -38,23 +41,35 @@ namespace Tiny3D
         TRTTI_FRIEND
 
     public:
+        /// 无效骨骼索引常量（0xFFFF）
         static const uint16_t kInvalidIndex;
         
+        /**
+         * \brief 创建带新生成 UUID 的 Bone 实例
+         * \return 新建的 Bone 智能指针
+         */
         static BonePtr create();
 
-        /**
-         * \brief 析构函数
-         */
+        /// 析构
         ~Bone() override = default;
         
+        /**
+         * \brief 克隆当前 Bone
+         * \return 克隆成功返回新组件；cloneProperties 失败返回 nullptr
+         */
         ComponentPtr clone() const override;
         
+        /// 返回骨骼偏移矩阵（bind pose 逆矩阵）
         TPROPERTY(RTTRFuncName="OffsetMatrix", RTTRFuncType="getter")
         const Matrix4 &getOffsetMatrix() const
         {
             return mOffsetMatrix;
         }
         
+        /**
+         * \brief 设置骨骼偏移矩阵
+         * \param [in] offsetMatrix : 新的偏移矩阵
+         */
         TPROPERTY(RTTRFuncName="OffsetMatrix", RTTRFuncType="setter")
         void setOffsetMatrix(const Matrix4 &offsetMatrix)
         {
@@ -62,10 +77,20 @@ namespace Tiny3D
         }
         
     protected:
+        /// 默认构造
         Bone() = default;
         
+        /**
+         * \brief 以指定 UUID 构造
+         * \param [in] uuid : 组件唯一标识
+         */
         Bone(const UUID &uuid);
 
+        /**
+         * \brief 从源 Bone 拷贝 mOffsetMatrix
+         * \param [in] src : 源组件
+         * \return 成功返回 T3D_OK
+         */
         TResult cloneProperties(const Component * const src) override;
         
     protected:

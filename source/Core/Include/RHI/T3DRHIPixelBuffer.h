@@ -32,39 +32,71 @@
 
 namespace Tiny3D
 {
+    /**
+     * \brief RHI 层一维像素缓冲（纹理）对象
+     */
     class T3D_ENGINE_API RHIPixelBuffer1D : public RHIResource
     {
     public:
+        /**
+         * \brief 返回资源类型 kPixelBuffer1D
+         * \return ResourceType::kPixelBuffer1D
+         */
         ResourceType getResourceType() const override { return ResourceType::kPixelBuffer1D; }
-        
+
     protected:
+        /// 受保护构造，由 RHIContext::createPixelBuffer1D 及后端派生类创建
         RHIPixelBuffer1D();
     };
 
+    /**
+     * \brief RHI 层二维像素缓冲（纹理）对象
+     */
     class T3D_ENGINE_API RHIPixelBuffer2D : public RHIResource
     {
     public:
+        /**
+         * \brief 返回资源类型 kPixelBuffer2D
+         * \return ResourceType::kPixelBuffer2D
+         */
         ResourceType getResourceType() const override { return ResourceType::kPixelBuffer2D; }
-        
+
     protected:
+        /// 受保护构造，由 RHIContext::createPixelBuffer2D / createRenderTexture 及后端派生类创建
         RHIPixelBuffer2D();
     };
 
+    /**
+     * \brief RHI 层三维像素缓冲（体积纹理）对象
+     */
     class T3D_ENGINE_API RHIPixelBuffer3D : public RHIResource
     {
     public:
+        /**
+         * \brief 返回资源类型 kPixelBuffer3D
+         * \return ResourceType::kPixelBuffer3D
+         */
         ResourceType getResourceType() const override { return ResourceType::kPixelBuffer3D; }
-        
+
     protected:
+        /// 受保护构造，由 RHIContext::createPixelBuffer3D 及后端派生类创建
         RHIPixelBuffer3D();
     };
 
+    /**
+     * \brief RHI 层立方体贴图像素缓冲对象
+     */
     class T3D_ENGINE_API RHIPixelBufferCubemap : public RHIResource
     {
     public:
+        /**
+         * \brief 返回资源类型 kPixelBufferCubemap
+         * \return ResourceType::kPixelBufferCubemap
+         */
         ResourceType getResourceType() const override { return ResourceType::kPixelBufferCubemap; }
-        
+
     protected:
+        /// 受保护构造，由 RHIContext::createPixelBufferCubemap 及后端派生类创建
         RHIPixelBufferCubemap();
     };
 }

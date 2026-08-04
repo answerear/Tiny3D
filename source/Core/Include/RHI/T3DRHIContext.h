@@ -42,43 +42,43 @@ namespace Tiny3D
     struct SamplerDesc;
 
     /**
-     * @enum    TransformState
-     * @brief   设置变换矩阵状态
+     * \brief 变换矩阵状态槽位，用于区分视图/世界/投影矩阵
      */
     enum class TransformState : uint32_t
     {
-        kView = 0,      /**< 视口变换矩阵 */
-        kWorld,         /**< 世界变换矩阵 */
-        kProjection,    /**< 投影变换矩阵 */
+        kView = 0,      ///< 视图变换矩阵
+        kWorld,         ///< 世界变换矩阵
+        kProjection,    ///< 投影变换矩阵
     };
 
     /**
-     * @class   RHIContext
-     * @brief   渲染器抽象类，负责提供抽象渲染接口，具体渲染器实现这些接口
+     * \brief RHI 渲染上下文抽象基类，定义资源创建、管线状态绑定与 draw 等后端无关接口
+     * \remarks 具体 Graphics API 由插件派生类实现；基类维护视图/投影矩阵缓存
      */
     class T3D_ENGINE_API RHIContext : public Object
     {
     public:
-        /**
-         * @brief   析构函数
-         */
+        /// 析构
         ~RHIContext() override;
 
         /**
-         * \brief 设置视图变换矩阵和投影变换矩阵
+         * \brief 设置视图与投影矩阵并更新联合矩阵
          * \param [in] viewMat : 视图变换矩阵
          * \param [in] projMat : 投影变换矩阵
-         * \return 调用成功返回 T3D_OK
+         * \return 调用成功返回 T3D_OK；各后端可能对 projMat 做 NDC/深度 remap 或 Y 翻转
          */
         virtual TResult setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat) = 0;
 
+        /// 返回缓存的视图矩阵 mViewMatrix
         const Matrix4 &getViewMatrix() const { return mViewMatrix; }
 
+        /// 返回缓存的投影矩阵 mProjMatrix（可能已过后端转换）
         const Matrix4 &getProjMatrix() const { return mProjMatrix; }
 
+        /// 返回投影×视图联合矩阵 mProjViewMatrix
         const Matrix4 &getProjViewMatrix() const { return mProjViewMatrix; }
 
-        /// 当前投影矩阵是否被 Y 翻转（OpenGL RTT 路径）
+        /// 当前投影矩阵是否被 Y 翻转（OpenGL 渲染到 FBO 时由后端置 true）
         bool isProjectionFlipped() const { return mProjectionFlipped; }
 
         /**
@@ -90,58 +90,57 @@ namespace Tiny3D
         virtual const Matrix4& getDepthRemapMatrix() const;
 
         /**
-         * \brief 创建 RHI 渲染窗口
-         * \param [in] renderWindow : 引擎渲染窗口
-         * \return 调用成功返回新建的 RHI 对象
+         * \brief 创建与引擎 RenderWindow 绑定的 RHI 渲染窗口
+         * \param [in] renderWindow : 引擎 RenderWindow 对象
+         * \return 调用成功返回新建的 RHIRenderTargetPtr；失败时返回 nullptr（由后端决定）
          */
         virtual RHIRenderTargetPtr createRenderWindow(RenderWindow *renderWindow) = 0;
 
         /**
-         * \brief 创建 RHI 渲染纹理
-         * \param [in] buffer : 引擎渲染纹理
-         * \param [in] shaderReadable : 在 shader 中是否可读
-         * \return 调用成功返回新建的 RHI 对象
+         * \brief 为引擎 PixelBuffer2D 创建对应的 RHI 渲染纹理
+         * \param [in] buffer : 引擎二维像素缓冲（渲染纹理）
+         * \return 调用成功返回新建的 RHIPixelBuffer2DPtr；失败时返回 nullptr
          */
         virtual RHIPixelBuffer2DPtr createRenderTexture(PixelBuffer2D *buffer) = 0;
 
         /**
          * \brief 设置当前渲染目标
-         * \param [in] renderTarget : 渲染目标
+         * \param [in] renderTarget : 目标 RenderTarget，可为 nullptr 表示解绑（由后端实现）
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult setRenderTarget(RenderTarget *renderTarget) = 0;
 
         /**
-         * \brief 清除渲染目标
+         * \brief 清除当前渲染目标绑定，恢复默认/back buffer
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult resetRenderTarget() = 0;
 
         /**
-         * \brief 设置视口
-         * \param [in] viewport : 视口 
-         * \return 
+         * \brief 设置视口矩形
+         * \param [in] viewport : 视口参数（原点、宽高、深度范围）
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult setViewport(const Viewport &viewport) = 0;
         
         /**
-         * \brief 用指定颜色填充渲染目标的 framebuffer
-         * \param [in] color : 渲染颜色 
+         * \brief 用指定颜色清屏（color buffer）
+         * \param [in] color : 清屏颜色
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult clearColor(const ColorRGB &color) = 0;
 
         /**
-         * @brief 用指定深度值填充渲染目标的 depth buffer
-         * @param depth : 深度值
-         * @return 调用成功返回 T3D_OK
+         * \brief 用指定深度值清屏（depth buffer）
+         * \param [in] depth : 深度清屏值
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult clearDepth(Real depth) = 0;
 
         /**
-         * \brief 用指定深度值和模板值填充渲染目标的 depth buffer 和 stencil buffer
-         * \param [in] depth : 深度值
-         * \param [in] stencil : 模板值
+         * \brief 用指定深度与模板值清屏
+         * \param [in] depth : 深度清屏值
+         * \param [in] stencil : 模板清屏值
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult clearDepthStencil(Real depth, uint32_t stencil) = 0;
@@ -196,9 +195,9 @@ namespace Tiny3D
         virtual TResult setRasterizerState(RasterizerState *state) = 0;
 
         /**
-         * \brief 创建 RHI 顶点格式对象
-         * \param [in] decl : 顶点格式对象
-         * \return 调用成功返回 T3D_OK
+         * \brief 创建 RHI 顶点声明对象
+         * \param [in] decl : 引擎 VertexDeclaration
+         * \return 调用成功返回新建的 RHIVertexDeclarationPtr；失败时返回 nullptr
          */
         virtual RHIVertexDeclarationPtr createVertexDeclaration(VertexDeclaration *decl) = 0;
 
@@ -301,7 +300,7 @@ namespace Tiny3D
          * \brief 设置 vs 的像素缓冲区
          * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
          * \param [in] buffers : 像素缓冲区对象数组
-         * \return 调用成功返回 3D_OK
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) = 0;
 
@@ -339,7 +338,7 @@ namespace Tiny3D
          * \brief 设置 ps 的像素缓冲区
          * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
          * \param [in] buffers : 像素缓冲区对象数组
-         * \return 调用成功返回 3D_OK
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) = 0;
         
@@ -377,7 +376,7 @@ namespace Tiny3D
          * \brief 设置 hs 的像素缓冲区
          * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
          * \param [in] buffers : 像素缓冲区对象数组
-         * \return 调用成功返回 3D_OK
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) = 0;
         
@@ -415,7 +414,7 @@ namespace Tiny3D
          * \brief 设置 ds 的像素缓冲区
          * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
          * \param [in] buffers : 像素缓冲区对象数组
-         * \return 调用成功返回 3D_OK
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) = 0;
         
@@ -453,7 +452,7 @@ namespace Tiny3D
          * \brief 设置 gs 的像素缓冲区
          * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
          * \param [in] buffers : 像素缓冲区对象数组
-         * \return 调用成功返回 3D_OK
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) = 0;
         
@@ -491,7 +490,7 @@ namespace Tiny3D
          * \brief 设置 cs 的像素缓冲区
          * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
          * \param [in] buffers : 像素缓冲区对象数组
-         * \return 调用成功返回 3D_OK
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) = 0;
         
@@ -535,18 +534,18 @@ namespace Tiny3D
         virtual TResult setPrimitiveType(PrimitiveType primitive) = 0;
 
         /**
-         * \brief 根据上下文设置好的资源、状态来渲染，带顶点索引的绘制
+         * \brief 索引绘制：按当前绑定的管线状态与资源提交 draw call
          * \param [in] indexCount : 索引数量
          * \param [in] startIndex : 索引缓冲区起始位置
-         * \param [in] baseVertex : 用于索引的基础顶点位置。这个值会被加到索引值上，然后再用来索引顶点缓冲区
+         * \param [in] baseVertex : 加到每个索引值上的顶点基址，用于索引顶点缓冲
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult render(uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex) = 0;
 
         /**
-         * \brief 根据上下文设置好的资源、状态来渲染，不带顶点索引的绘制
+         * \brief 非索引绘制：按当前绑定的管线状态与资源提交 draw call
          * \param [in] vertexCount : 顶点数量
-         * \param [in] startVertex : 顶点缓冲区其实位置
+         * \param [in] startVertex : 顶点缓冲区起始位置
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult render(uint32_t vertexCount, uint32_t startVertex) = 0;
@@ -558,46 +557,46 @@ namespace Tiny3D
         virtual TResult reset() = 0;
 
         /**
-         * \brief 从源渲染目标传输图像数据到目标渲染目标，其中 src 和 dst 维度要相同
+         * \brief 图像块传输：RenderTarget → RenderTarget
          * \param [in] src : 源渲染目标
          * \param [in] dst : 目标渲染目标
-         * \param [in] srcOffset : 源偏移，一个 3D 的偏移，按照 src 资源的维度去取 srcOffset 的维度
-         * \param [in] size : 传输的大小，一个 3D 体积的大小，按照 src 资源的维度去取 size 的维度
-         * \param [in] dstOffset : 目标便宜，一个 3D 的偏移，按照 src 资源的维度去取 dstOffset 的维度
-         * \return 调用成功返回 T3D_OK
+         * \param [in] srcOffset : 源区域起点（3D 偏移，按 src 维度解释）
+         * \param [in] size : 传输区域尺寸（3D，按 src 维度解释）
+         * \param [in] dstOffset : 目标区域起点（3D 偏移，按 dst 维度解释）
+         * \return 调用成功返回 T3D_OK；src 与 dst 维度须匹配
          */
         virtual TResult blit(RenderTarget *src, RenderTarget *dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) = 0;
 
         /**
-         * \brief 从源纹理传输图像数据到目标渲染目标，其中 src 和 dst 维度要相同
+         * \brief 图像块传输：Texture → RenderTarget
          * \param [in] src : 源纹理
          * \param [in] dst : 目标渲染目标
-         * \param [in] srcOffset : 源偏移，一个 3D 的偏移，按照 src 资源的维度去取 srcOffset 的维度
-         * \param [in] size : 传输的大小，一个 3D 体积的大小，按照 src 资源的维度去取 size 的维度
-         * \param [in] dstOffset : 目标便宜，一个 3D 的偏移，按照 src 资源的维度去取 dstOffset 的维度
-         * \return 调用成功返回 T3D_OK
+         * \param [in] srcOffset : 源区域起点（3D 偏移，按 src 维度解释）
+         * \param [in] size : 传输区域尺寸（3D，按 src 维度解释）
+         * \param [in] dstOffset : 目标区域起点（3D 偏移，按 dst 维度解释）
+         * \return 调用成功返回 T3D_OK；src 与 dst 维度须匹配
          */
         virtual TResult blit(Texture *src, RenderTarget *dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) = 0;
 
         /**
-         * \brief 从源渲染目标传输图像数据到目标纹理
+         * \brief 图像块传输：RenderTarget → Texture
          * \param [in] src : 源渲染目标
          * \param [in] dst : 目标纹理
-         * \param [in] srcOffset : 源偏移，一个 3D 的偏移，按照 src 资源的维度去取 srcOffset 的维度
-         * \param [in] size : 传输的大小，一个 3D 体积的大小，按照 src 资源的维度去取 size 的维度
-         * \param [in] dstOffset : 目标便宜，一个 3D 的偏移，按照 src 资源的维度去取 dstOffset 的维度
-         * \return 调用成功返回 T3D_OK
+         * \param [in] srcOffset : 源区域起点（3D 偏移，按 src 维度解释）
+         * \param [in] size : 传输区域尺寸（3D，按 src 维度解释）
+         * \param [in] dstOffset : 目标区域起点（3D 偏移，按 dst 维度解释）
+         * \return 调用成功返回 T3D_OK；src 与 dst 维度须匹配
          */
         virtual TResult blit(RenderTarget *src, Texture *dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) = 0;
 
         /**
-         * \brief 从源纹理传输图像数据到目标纹理
+         * \brief 图像块传输：Texture → Texture
          * \param [in] src : 源纹理
          * \param [in] dst : 目标纹理
-         * \param [in] srcOffset : 源偏移，一个 3D 的偏移，按照 src 资源的维度去取 srcOffset 的维度
-         * \param [in] size : 传输的大小，一个 3D 体积的大小，按照 src 资源的维度去取 size 的维度
-         * \param [in] dstOffset : 目标便宜，一个 3D 的偏移，按照 src 资源的维度去取 dstOffset 的维度
-         * \return 调用成功返回 T3D_OK
+         * \param [in] srcOffset : 源区域起点（3D 偏移，按 src 维度解释）
+         * \param [in] size : 传输区域尺寸（3D，按 src 维度解释）
+         * \param [in] dstOffset : 目标区域起点（3D 偏移，按 dst 维度解释）
+         * \return 调用成功返回 T3D_OK；src 与 dst 维度须匹配
          */
         virtual TResult blit(Texture *src, Texture *dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) = 0;
 
@@ -613,10 +612,10 @@ namespace Tiny3D
         virtual TResult copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset = 0, size_t size = 0, size_t dstOffset = 0) = 0;
 
         /**
-         * \brief 写 GPU 缓冲区，在写完之前 buffer 不能释放，写完之后，内部会去释放 buffer 空间。 调用本接口，renderBuffer 必须绑定 CPUAccessWrite
-         * \param [in] renderBuffer : GPU 缓冲区 
-         * \param [in] buffer : CPU 的数据缓冲区
-         * \param [in] discardWholeBuffer : 映射到内存的资源用于写入，之前的资源数据将会被抛弃。 该参数为 true 的时候，renderBuffer 必须绑定 Usage::kDynamic
+         * \brief 将 CPU 侧 Buffer 数据写入 GPU RenderBuffer
+         * \param [in] renderBuffer : 目标 GPU 渲染缓冲
+         * \param [in] buffer : CPU 数据源（Data/DataSize）
+         * \param [in] discardWholeBuffer : 为 true 时表示丢弃原有 GPU 数据后整缓冲重写（动态缓冲路径，具体约束由后端实现）
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer = false) = 0;
@@ -667,16 +666,17 @@ namespace Tiny3D
         virtual TResult endPass() = 0;
 
     protected:
+        /// 受保护构造，由后端 RHIContext 派生类调用
         RHIContext();
 
     protected:
-        /// 投影变换矩阵
+        /// 投影变换矩阵（可能已过后端 NDC/深度转换）
         Matrix4 mProjMatrix {false};
-        /// 视口变换矩阵
+        /// 视图变换矩阵
         Matrix4 mViewMatrix {false};
-        /// 投影和视口变换的联合变换
+        /// 投影×视图联合矩阵
         Matrix4 mProjViewMatrix {false};
-        /// 投影矩阵是否被 Y 翻转（OpenGL 渲染到纹理时为 true）
+        /// 投影矩阵是否被 Y 翻转（OpenGL 渲染到 FBO 时由后端置 true）
         bool mProjectionFlipped {false};
     };
 }

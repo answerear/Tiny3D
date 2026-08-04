@@ -31,20 +31,29 @@
 
 namespace Tiny3D
 {
+    /** \brief Core 编译期容量与特性开关常量 */
+
+    /** \brief 多渲染目标（MRT）数量上限 */
     #define T3D_MAX_MULTIPLE_RENDER_TARGETS     8
 
+    /** \brief 同时光源数量上限 */
     #define T3D_MAX_SIMULTANEOUS_LIGHTS         8
 
 #if !defined (T3D_ENABLE_RHI_THREAD)
+    /** \brief 是否启用独立 RHI 提交线程；未定义时默认为 0（主线程同步提交） */
     #define T3D_ENABLE_RHI_THREAD               0
 #endif
 
+    /** \brief 坐标系手性：0 为左手系，非 0 为右手系（如 Camera::lookAt 的矩阵构造） */
     #define T3D_COORDINATION_RH                 0
 
+    /** \brief 单顶点蒙皮权重与骨骼索引槽位数 */
     #define T3D_MAX_BLEND_BONES                 4
 
+    /** \brief 骨骼蒙皮矩阵数组长度上限 */
     #define T3D_MAX_SKIN_BONES                  200
 
+    /** \brief 单网格 UV 层（纹理坐标集）数量上限 */
     #define T3D_MAX_TEXTURE_LEVEL               16
 }
 

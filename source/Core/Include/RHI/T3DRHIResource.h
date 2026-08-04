@@ -34,36 +34,50 @@
 namespace Tiny3D
 {
     /**
-     * \brief 渲染硬件层的颜色混合状态
+     * \brief RHI 资源的抽象基类，提供资源类型标识与后端原生句柄访问
      */
     class T3D_ENGINE_API RHIResource : public Object
     {
     public:
+        /// 默认构造
         RHIResource() = default;
+
+        /// 默认析构
         ~RHIResource() override = default;
 
+        /**
+         * \brief RHI 资源类型枚举
+         */
         enum class ResourceType : uint32_t
         {
-            kNone = 0,
-            kBlendState,
-            kDepthStencilState,
-            kRasterizerState,
-            kSamplerState,
-            kVertexBuffer,
-            kIndexBuffer,
-            kPixelBuffer1D,
-            kPixelBuffer2D,
-            kPixelBuffer3D,
-            kPixelBufferCubemap,
-            kConstantBuffer,
-            kVertexDeclaration,
-            kRenderWindow,
-            kRenderTexture,
-            kShader,
+            kNone = 0,              ///< 无类型
+            kBlendState,            ///< 颜色混合状态
+            kDepthStencilState,     ///< 深度/模板状态
+            kRasterizerState,       ///< 光栅化状态
+            kSamplerState,          ///< 纹理采样状态
+            kVertexBuffer,          ///< 顶点缓冲
+            kIndexBuffer,           ///< 索引缓冲
+            kPixelBuffer1D,         ///< 一维像素缓冲（纹理）
+            kPixelBuffer2D,         ///< 二维像素缓冲（纹理）
+            kPixelBuffer3D,         ///< 三维像素缓冲（纹理）
+            kPixelBufferCubemap,    ///< 立方体贴图像素缓冲
+            kConstantBuffer,        ///< 常量缓冲
+            kVertexDeclaration,     ///< 顶点声明/输入布局
+            kRenderWindow,          ///< 渲染窗口（交换链）
+            kRenderTexture,         ///< 渲染纹理
+            kShader,                ///< 着色器
         };
-        
+
+        /**
+         * \brief 获取本 RHI 对象的资源类型
+         * \return 对应的 ResourceType 枚举值
+         */
         virtual ResourceType getResourceType() const = 0;
 
+        /**
+         * \brief 获取后端原生 GPU 对象指针
+         * \return 具体后端返回对应 API 句柄（如 ID3D11Buffer*、VkBuffer 等）；由派生类实现
+         */
         virtual void *getNativeObject() const = 0;
     };
 }

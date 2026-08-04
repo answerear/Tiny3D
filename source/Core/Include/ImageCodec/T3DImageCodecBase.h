@@ -36,210 +36,178 @@
 namespace Tiny3D
 {
     /**
-     * @class   ImageCodecBase
-     * @brief   图像编解码基类
-     * @remarks 具体对应的图像编解码类需要继承本类并实现具体的逻辑.
+     * \brief 图像编解码抽象基类，具体格式由派生类实现
+     * \remarks 派生类须实现 isSupportedType、getFileType、encode、decode 及图像处理虚函数
      */
     class T3D_ENGINE_API ImageCodecBase : public Object
     {
     public:
         /**
-        * @brief 支持的图像类型
-        */
+         * \brief 支持的图像文件格式枚举，与 FreeImage 格式 ID 对齐
+         */
         enum class FileType : uint32_t
         {
-            UNKNOWN = 0xFFFFFFFF,      /**< 未知图像类型 */
-            BMP = 0,           /**< Bitmap */
-            ICO = 1,           /**< Windows 图标  */
-            JPEG = 2,          /**< JPEG */
-            JNG = 3,           /**< JNG */
-            KOALA = 4,  /**< An enum constant representing the koala option */
-            LBM = 5,    /**< An enum constant representing the lbm option */
-            IFF = LBM,  /**< An enum constant representing the iff option */
-            MNG = 6,    /**< An enum constant representing the mng option */
-            PBM = 7,    /**< An enum constant representing the Portable bitmap option */
-            PBMRAW = 8, /**< An enum constant representing the pbmraw option */
-            PCD = 9,    /**< An enum constant representing the pcd option */
-            PCX = 10,
-            PGM = 11,
-            PGMRAW = 12,
-            PNG = 13,
-            PPM = 14,
-            PPMRAW = 15,
-            RAS = 16,
-            TARGA = 17,
-            TIFF = 18,
-            WBMP = 19,
-            PSD = 20,
-            CUT = 21,
-            XBM = 22,
-            XPM = 23,
-            DDS = 24,
-            GIF = 25,
-            HDR = 26,
-            FAXG3 = 27,
-            SGI = 28,
-            EXR = 29,
-            J2K = 30,
-            JP2 = 31,
-            PFM = 32,
-            PICT = 33,
-            RAW = 34,
-            WEBP = 35,
-            JXR = 36,
-            IMG = 37,
-            PVRTC = 38,
-            ASTC = 39,
-            ETC1 = 40,
-            ETC2 = 41,
-            MAX_TYPE_SUPPORTED,
+            UNKNOWN = 0xFFFFFFFF,   ///< 未知或未指定
+            BMP = 0,                ///< Bitmap
+            ICO = 1,                ///< Windows 图标
+            JPEG = 2,               ///< JPEG
+            JNG = 3,                ///< JPEG Network Graphics
+            KOALA = 4,              ///< Koala 格式
+            LBM = 5,                ///< Deluxe Paint LBM
+            IFF = LBM,              ///< IFF（同 LBM）
+            MNG = 6,                ///< Multiple-image Network Graphics
+            PBM = 7,                ///< Portable Bitmap
+            PBMRAW = 8,             ///< PBM 原始格式
+            PCD = 9,                ///< Kodak Photo CD
+            PCX = 10,               ///< PC Paintbrush
+            PGM = 11,               ///< Portable Graymap
+            PGMRAW = 12,            ///< PGM 原始格式
+            PNG = 13,               ///< PNG
+            PPM = 14,               ///< Portable Pixmap
+            PPMRAW = 15,            ///< PPM 原始格式
+            RAS = 16,               ///< Sun Raster
+            TARGA = 17,             ///< Targa
+            TIFF = 18,              ///< TIFF
+            WBMP = 19,              ///< Wireless Bitmap
+            PSD = 20,               ///< Photoshop
+            CUT = 21,               ///< Dr. Halo CUT
+            XBM = 22,               ///< X Bitmap
+            XPM = 23,               ///< X Pixmap
+            DDS = 24,               ///< DirectDraw Surface
+            GIF = 25,               ///< GIF
+            HDR = 26,               ///< Radiance HDR
+            FAXG3 = 27,             ///< CCITT Group 3 Fax
+            SGI = 28,               ///< SGI Image
+            EXR = 29,               ///< OpenEXR
+            J2K = 30,               ///< JPEG-2000
+            JP2 = 31,               ///< JPEG-2000 JP2
+            PFM = 32,               ///< Portable Float Map
+            PICT = 33,              ///< Mac PICT
+            RAW = 34,               ///< 相机 RAW
+            WEBP = 35,              ///< WebP
+            JXR = 36,               ///< JPEG XR
+            IMG = 37,               ///< GEM Image
+            PVRTC = 38,             ///< PowerVR 压缩纹理
+            ASTC = 39,              ///< ASTC 压缩纹理
+            ETC1 = 40,              ///< ETC1 压缩纹理
+            ETC2 = 41,              ///< ETC2 压缩纹理
+            MAX_TYPE_SUPPORTED,     ///< 枚举上界（非有效格式）
         };
 
-        /**
-         * @fn  virtual ImageCodecBase::~ImageCodecBase();
-         * @brief   析构函数
-         */
+        /// 虚析构
         virtual ~ImageCodecBase();
 
         /**
-         * @fn  virtual bool ImageCodecBase::isSupportedType(uint8_t *data, size_t size, FileType &type) const = 0;
-         * @brief   是否支持的类型
-         * @param [in]  data    : 图像数据.
-         * @param [in]  size    : 图像数据大小.
-         * @param [in]  type    : 图像文件类型，默认可以自动识别.
-         * @return  支持的返回true，否则返回false.
-         * @remarks 具体图像类型编解码器实现本接口.
+         * \brief 检测缓冲区是否为本编解码器支持的格式
+         * \param [in] data : 图像数据缓冲区
+         * \param [in] size : 数据字节数
+         * \param [in,out] type : 输入可为 UNKNOWN 以自动识别；识别成功时写回具体 FileType
+         * \return 支持返回 true，否则 false
          */
         virtual bool isSupportedType(uint8_t *data, size_t size, FileType &type) const = 0;
 
         /**
-         * @fn  virtual FileType ImageCodecBase::getFileType() const = 0;
-         * @brief   获取文件类型
-         * @return  返回文件类型.
-         * @remarks 具体图像类型编解码器实现本接口.
+         * \brief 获取本编解码器对应的文件类型
+         * \return FileType 枚举值
          */
         virtual FileType getFileType() const = 0;
 
         /**
-         * @fn  virtual TResult ImageCodecBase::encode(uint8_t *&data, 
-         *      size_t &size, const Image &image, FileType type) = 0;
-         * @brief   把图像对象编码到数据缓冲中
-         * @param [in]  data    data : 编码后的数据.
-         * @param [in]  size    size : 编码后的数据大小.
-         * @param [in]  image   : 图像对象，数据源.
-         * @param [in]  type    : 文件类型.
-         * @return  调用成功返回 T3D_OK.
-         * @remarks 具体图像类型编解码器实现本接口.
+         * \brief 将 Image 编码到内存缓冲区
+         * \param [out] data : 编码输出缓冲区，由派生类分配
+         * \param [out] size : 编码输出字节数
+         * \param [in] image : 源图像
+         * \param [in] type : 目标文件格式
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult encode(uint8_t *&data, size_t &size, const Image &image, FileType type) = 0;
 
         /**
-         * @fn  virtual TResult ImageCodecBase::decode(uint8_t *data, 
-         *      size_t size, Image &image, FileType type) = 0;
-         * @brief   把缓冲数据解码到图像对象中
-         * @param [in]  data    : 要解码的数据.
-         * @param [in]  size    : 要解码的数据大小.
-         * @param [in]  image   : 图像对象，解码后的数据保存在此对象中.
-         * @param [in]  type    : 图像类型.
-         * @return  调用成功返回 T3D_OK.
-         * @remarks  具体图像类型编解码器实现本接口.
+         * \brief 将内存缓冲区解码到 Image
+         * \param [in] data : 待解码数据
+         * \param [in] size : 数据字节数
+         * \param [out] image : 解码结果写入此对象
+         * \param [in] type : 文件格式；UNKNOWN 时由派生类自动识别
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult decode(uint8_t *data, size_t size, Image &image, FileType type) = 0;
 
         /**
-         * @fn  virtual TResult ImageCodecBase::flip(Image &image) = 0;
-         * @brief   颠倒图像
-         * @param [in]  image   image : 需要颠倒的图像对象.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 垂直翻转图像
+         * \param [in,out] image : 待翻转的图像，结果写回同一对象
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult flip(Image &image) = 0;
 
         /**
-         * @fn  virtual TResult ImageCodecBase::mirror(Image &image) = 0;
-         * @brief   镜像图像
-         * @param [in]  image   image : 需要镜像的图像对象.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 水平镜像图像
+         * \param [in,out] image : 待镜像的图像，结果写回同一对象
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult mirror(Image &image) = 0;
 
         /**
-         * @fn  virtual TResult ImageCodecBase::fill(Image &image, 
-         *      const Color4 &color) = 0;
-         * @brief   用指定颜色填充图像
-         * @param [in]  image   image : 需要填充的图像对象.
-         * @param [in]  color   : 需要填充的颜色.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 用指定颜色填充图像
+         * \param [in,out] image : 待填充的图像
+         * \param [in] color : 填充颜色
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult fill(Image &image, const Color4 &color) = 0;
 
         /**
-         * @fn  virtual TResult ImageCodecBase::copy(const Image &srcImage, 
-         *      const Rect *srcRect, Image &dstImage, const Rect *dstRect, 
-         *      uint32_t filter) = 0;
-         * @brief   复制源图像指定区域数据到目标图像指定区域
-         * @param [in]  srcImage    : 源图像对象.
-         * @param [in]  srcRect     : 源图像区域.
-         * @param [in]  dstImage    dstImage : 目标图像对象.
-         * @param [in]  dstRect     : 目标图像区域.
-         * @param [in]  filter      : 缩放时候使用的算法.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 将源图像指定区域复制到目标图像指定区域
+         * \param [in] srcImage : 源图像
+         * \param [in] srcRect : 源区域，可为 nullptr 表示整图
+         * \param [in,out] dstImage : 目标图像
+         * \param [in] dstRect : 目标区域，可为 nullptr 表示整图
+         * \param [in] filter : 缩放时使用的滤波算法
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult copy(const Image &srcImage, const Rect *srcRect, Image &dstImage, const Rect *dstRect, uint32_t filter) = 0;
 
         /**
-         * @fn  virtual TResult ImageCodecBase::convert(Image &image, 
-         *      PixelFormat format) = 0;
-         * @brief   转换到目标像素格式
-         * @param [in]  image   image : 需要转换像素格式图像对象.
-         * @param [in]  format  : 目标图像像素格式.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 就地转换 Image 像素格式
+         * \param [in,out] image : 待转换图像
+         * \param [in] format : 目标 PixelFormat
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult convert(Image &image, PixelFormat format) = 0;
 
         /**
-         * @fn  virtual TResult ImageCodecBase::convert(const Image &srcImage, 
-         *      Image &dstImage, PixelFormat format) = 0;
-         * @brief   把源图像转换成目标像素格式并生成一个新的图像对象
-         * @param [in]  srcImage    : 源图像对象.
-         * @param [in]  dstImage    dstImage : 目标图像对象.
-         * @param [in]  format      : 目标像素格式.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 将源图像转换像素格式并写入目标图像
+         * \param [in] srcImage : 源图像
+         * \param [out] dstImage : 转换结果
+         * \param [in] format : 目标 PixelFormat
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult convert(const Image &srcImage, Image &dstImage, PixelFormat format) = 0;
 
     protected:
         /**
-         * @fn  void ImageCodecBase::setImageData(Image &image, uint8_t *data, 
-         *      size_t size);
-         * @brief   设置图像数据
-         * @param [in]  image   : 需要设置数据的图像对象.
-         * @param [in]  data    : 解码后的ARGB数据.
-         * @param [in]  size    : 解码后的ARGB数据大小.
+         * \brief 设置 Image 原始像素数据指针与大小
+         * \param [in,out] image : 目标 Image
+         * \param [in] data : 像素数据缓冲区
+         * \param [in] size : 数据字节数
          */
         void setImageData(Image &image, uint8_t *data, size_t size);
 
         /**
-         * @fn  void ImageCodecBase::setImageDimension(Image &image, 
-         *      int32_t width, int32_t height, int32_t pitch);
-         * @brief   设置图像尺寸
-         * @param [in]  image   : 需要设置尺寸的图像对象.
-         * @param [in]  width   : 图像宽度.
-         * @param [in]  height  : 图像高度.
-         * @param [in]  pitch   : 图像跨度.
+         * \brief 设置 Image 宽高与 pitch
+         * \param [in,out] image : 目标 Image
+         * \param [in] width : 宽度（像素）
+         * \param [in] height : 高度（像素）
+         * \param [in] pitch : 行跨度（字节）
          */
         void setImageDimension(Image &image, int32_t width, int32_t height, int32_t pitch);
 
         /**
-         * @fn  void ImageCodecBase::setImageInfo(Image &image, 
-         *      uint32_t sourceType, int32_t bpp, bool hasAlpha, 
-         *      bool isPreMulti, PixelFormat format);
-         * @brief   设置图像信息
-         * @param [in]  image       : 需要设置信息的图像对象.
-         * @param [in]  sourceType  : 数据来源的文件类型.
-         * @param [in]  bpp         : 图像色深.
-         * @param [in]  hasAlpha    : 是否有透明通道.
-         * @param [in]  isPreMulti  : 是否预乘.
-         * @param [in]  format      : 像素格式.
+         * \brief 设置 Image 格式元信息
+         * \param [in,out] image : 目标 Image
+         * \param [in] fileFormat : 源文件格式（Image::FileFormat）
+         * \param [in] bpp : 色深（bits per pixel）
+         * \param [in] hasAlpha : 是否含 alpha 通道
+         * \param [in] isPreMulti : 是否预乘 alpha
+         * \param [in] pixelFormat : 像素格式
          */
         void setImageInfo(Image &image, Image::FileFormat fileFormat, int32_t bpp, bool hasAlpha, bool isPreMulti, PixelFormat pixelFormat);
     };

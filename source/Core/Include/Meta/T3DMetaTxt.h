@@ -33,6 +33,9 @@ namespace Tiny3D
 {
 #if defined(T3D_OS_DESKTOP)
 
+    /**
+     * \brief 文本文件（.txt）的 .meta 元数据
+     */
     TCLASS()
     class T3D_ENGINE_API MetaTxt : public Meta
     {
@@ -40,16 +43,30 @@ namespace Tiny3D
         TRTTI_FRIEND
 
     public:
+        /**
+         * \brief 创建 MetaTxt 实例
+         * \param [in] uuid : Meta 的 UUID
+         * \return 新建的 MetaTxtPtr
+         */
         static MetaTxtPtr create(const UUID &uuid)
         {
             return T3D_NEW MetaTxt(uuid);
         }
 
+        /**
+         * \brief 返回 kTxt 类型标识
+         * \return Meta::kTxt
+         */
         Type getType() const override { return kTxt; }
 
     protected:
+        /// 默认构造
         MetaTxt() = default;
 
+        /**
+         * \brief 以指定 UUID 构造
+         * \param [in] uuid : Meta 的 UUID
+         */
         MetaTxt(const UUID &uuid)
             : Meta(uuid)
         {

@@ -33,6 +33,10 @@ namespace Tiny3D
 {
 #if defined(T3D_OS_DESKTOP)
 
+    /**
+     * \brief ShaderLab 源文件（.tshaderlab）的 .meta 元数据
+     * \remarks 除自身 UUID 外还记录编译产物 Shader 资源的 UUID，供编译命令与路径查找使用
+     */
     TCLASS()
     class T3D_ENGINE_API MetaShaderLab : public Meta
     {
@@ -40,28 +44,50 @@ namespace Tiny3D
         TRTTI_FRIEND
 
     public:
+        /**
+         * \brief 创建 MetaShaderLab 实例
+         * \param [in] uuid : ShaderLab 源文件 Meta 的 UUID
+         * \param [in] shaderUUID : 关联 Shader 资源的 UUID
+         * \return 新建的 MetaShaderLabPtr
+         */
         static MetaShaderLabPtr create(const UUID &uuid, const UUID &shaderUUID)
         {
             return T3D_NEW MetaShaderLab(uuid, shaderUUID);
         }
 
+        /**
+         * \brief 返回 kShaderLab 类型标识
+         * \return Meta::kShaderLab
+         */
         Type getType() const override { return kShaderLab; }
 
         TPROPERTY(RTTRFuncName="ShaderUUID", RTTRFuncType="getter")
+        /// 返回关联 Shader 资源的 UUID
         const UUID &getShaderUUID() const { return mShaderUUID; }
 
         TPROPERTY(RTTRFuncName="ShaderUUID", RTTRFuncType="setter")
+        /**
+         * \brief 设置关联 Shader 资源的 UUID
+         * \param [in] uuid : Shader 资源的 UUID
+         */
         void setShaderUUID(const UUID &uuid) { mShaderUUID = uuid; }
 
     protected:
+        /// 默认构造
         MetaShaderLab() = default;
 
+        /**
+         * \brief 以指定 UUID 构造
+         * \param [in] uuid : ShaderLab 源文件 Meta 的 UUID
+         * \param [in] shaderUUID : 关联 Shader 资源的 UUID
+         */
         MetaShaderLab(const UUID &uuid, const UUID &shaderUUID)
             : Meta(uuid)
             , mShaderUUID(shaderUUID)
         {
         }
 
+        /// 关联 Shader 资源的 UUID，默认 UUID::INVALID
         UUID mShaderUUID {UUID::INVALID};
     };
 

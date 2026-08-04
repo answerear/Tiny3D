@@ -33,13 +33,16 @@
 
 namespace Tiny3D
 {
+    /**
+     * \brief MSAA 多重采样描述，用于 PixelBuffer2DDesc 等纹理/渲染目标创建
+     */
     TSTRUCT()
     struct T3D_ENGINE_API MultisamplerDesc
     {
-        /// MSAA 采样数量
+        /// MSAA 采样数量（1 表示不启用 MSAA）
         TPROPERTY()
         uint32_t    Count {1};
-        /// MSAA 采样质量
+        /// MSAA 采样质量等级（具体含义由 RHI 后端解释）
         TPROPERTY()
         uint32_t    Quality {0};
     };

@@ -33,139 +33,129 @@
 
 namespace Tiny3D
 {
-    /// 档案系统读回调
-    /// DataStream & : 数据流对象
-    /// const String & : 文件名
-    /// void * : 用户透传的数据
+    /**
+     * \brief 档案读回调：打开目标文件后由派生类传入 DataStream 供读取
+     * \param DataStream & : 已定位到目标文件的数据流
+     * \param const String & : 目标文件名 / 路径
+     * \param void * : 调用方透传的用户数据
+     * \return 回调处理成功应返回 T3D_OK
+     */
     using ArchiveReadCallback = TFunction<TResult(DataStream &, const String &, void *)>;
 
-    // 档案系统写回调
-    /// DataStream & : 数据流对象
-    /// const String & : 文件名
-    /// void * : 用户透传的数据
-    using ArchiveWriteCallback = TFunction<TResult(DataStream &, const String &, void *)>;
-    
     /**
-     * @brief 档案类，用于档案文件的组织管理，用于隔离文件系统、zip压缩文件的实现细节
+     * \brief 档案写回调：打开目标文件后由派生类传入 DataStream 供写入
+     * \param DataStream & : 已定位到目标文件的数据流
+     * \param const String & : 目标文件名 / 路径
+     * \param void * : 调用方透传的用户数据
+     * \return 回调处理成功应返回 T3D_OK
+     */
+    using ArchiveWriteCallback = TFunction<TResult(DataStream &, const String &, void *)>;
+
+    /**
+     * \brief 档案抽象基类，隔离文件系统、Zip 等具体存储实现
+     * \remarks 派生类通过 ArchiveManager 注册的创建器构造；基类仅保存名称与访问模式。
      */
     class T3D_ENGINE_API Archive : public Object, public Noncopyable
     {
     public:
         /**
-         * 访问档案的模式
+         * \brief 档案访问模式（位标志，可组合）
          */
         enum class AccessMode : uint32_t
         {
-            /// None
-            kNone = 0x0,
-            /// 只读
-            kRead = 0x1,
-            /// 忽略原档案内容，直接覆盖
-            kTruncate = 0x2,
-            /// 追加到原档案末尾
-            kAppend = 0x4,
-            /// 读并覆盖写
-            kReadTruncate = kRead | kTruncate,
-            /// 读并追加写
-            kReadAppend = kRead | kAppend,
-            /// 文本文件
-            kText = 0x8,
-            /// 读并覆盖写文本文件
-            kReadTxtTruncate = kRead | kTruncate | kText,
-            /// 读并追加写文本文件
-            kReadTxtAppend = kRead | kAppend | kText,
-            /// 只读二进制文件
-            kReadOnly = kRead,
-            /// 只读文本文件
-            kReadTxtOnly = kRead | kText,
+            kNone = 0x0,                            ///< 未指定
+            kRead = 0x1,                            ///< 可读
+            kTruncate = 0x2,                        ///< 写时截断覆盖
+            kAppend = 0x4,                          ///< 写时追加
+            kReadTruncate = kRead | kTruncate,      ///< 读 + 截断写
+            kReadAppend = kRead | kAppend,          ///< 读 + 追加写
+            kText = 0x8,                            ///< 文本模式
+            kReadTxtTruncate = kRead | kTruncate | kText,   ///< 读 + 截断写文本
+            kReadTxtAppend = kRead | kAppend | kText,       ///< 读 + 追加写文本
+            kReadOnly = kRead,                      ///< 只读二进制
+            kReadTxtOnly = kRead | kText,           ///< 只读文本
         };
 
-        /**
-         * 析构函数
-         */
         ~Archive() override = default;
 
-        /**
-         * @brief 获取访问模式
-         * @return 返回档案访问模式.
-         */
+        /// 返回构造时指定的访问模式
         AccessMode getAccessMode() const { return mAccessMode; }
 
-        /**
-         * @brief 获取档案名称
-         * @return 返回档案名称
-         */
+        /// 返回档案名称（通常为路径）
         String getName() const { return mName; }
 
         /**
-         * @brief 获取档案结构类型字符串
-         * @return 返回档案结构类型字符串
+         * \brief 返回档案类型字符串（如 "FileSystem"、"Zip"、"Composite"）
+         * \return 类型名，供 ArchiveManager 作缓存 key 的一部分
          */
         virtual String getArchiveType() const = 0;
 
         /**
-         * @brief 获取档案位置
-         * @return 返回档案路径
+         * \brief 返回档案物理路径或等价定位信息
+         * \return 路径字符串，具体含义由派生类定义
          */
         virtual String getPath() const = 0;
 
         /**
-         * @brief 克隆出一个新档案对象
+         * \brief 克隆出同类型、同配置的新档案对象
+         * \return 新档案智能指针
          */
         virtual ArchivePtr clone() const = 0;
 
         /**
-         * @brief 查找指定文件是否在档案结构里
-         * @param [in] name : 文件名称.
-         * @return 存在就返回true，否则返回false
+         * \brief 按文件名检查条目是否存在
+         * \param [in] name : 文件名称 / 相对路径
+         * \return 存在返回 true，否则返回 false
          */
         virtual bool exists(const String &name) const = 0;
 
         /**
-         * @brief 从档案读取指定文件到数据流中
-         * @param [in] name : 文件名称.
-         * @param [in] callback : 读回调.
-         * @return 读成功返回T3D_OK.
+         * \brief 按文件名打开条目并交给读回调处理
+         * \param [in] name : 文件名称 / 相对路径
+         * \param [in] callback : 读回调
+         * \param [in] userData : 透传给回调的用户数据，可为 nullptr
+         * \return 调用成功返回 T3D_OK；失败含义由派生类定义
          */
         virtual TResult read(const String &name, const ArchiveReadCallback &callback, void *userData) = 0;
 
         /**
-         * @brief 写数据流到档案里的指定文件中
-         * @param [in] name : 文件名称.
-         * @param [in] callback : 写回调.
-         * @return 写成功返回T3D_OK.
+         * \brief 按文件名打开条目并交给写回调处理
+         * \param [in] name : 文件名称 / 相对路径
+         * \param [in] callback : 写回调
+         * \param [in] userData : 透传给回调的用户数据，可为 nullptr
+         * \return 调用成功返回 T3D_OK；失败含义由派生类定义
          */
         virtual TResult write(const String &name, const ArchiveWriteCallback &callback, void *userData) = 0;
 
         /**
-         * @brief 从档案读取指定UUID的文件到数据流中
-         * @param [in] uuid : 文件的 UUID
-         * @param [in] callback : 读回调 
-         * @return 读成功返回 T3D_OK
+         * \brief 按 UUID 打开条目并交给读回调处理
+         * \param [in] uuid : 资源 UUID
+         * \param [in] callback : 读回调
+         * \param [in] userData : 透传给回调的用户数据，可为 nullptr
+         * \return 调用成功返回 T3D_OK；失败含义由派生类定义
          */
         virtual TResult read(const UUID &uuid, const ArchiveReadCallback &callback, void *userData) = 0;
 
         /**
-         * @brief 写数据流到档案里的指定UUID文件中
-         * @param [in] uuid : 文件的 UUID
-         * @param [in] callback : 写回调
-         * @return 写成功返回 T3D_OK
+         * \brief 按 UUID 打开条目并交给写回调处理
+         * \param [in] uuid : 资源 UUID
+         * \param [in] callback : 写回调
+         * \param [in] userData : 透传给回调的用户数据，可为 nullptr
+         * \return 调用成功返回 T3D_OK；失败含义由派生类定义
          */
         virtual TResult write(const UUID &uuid, const ArchiveWriteCallback &callback, void *userData) = 0;
 
     protected:
         /**
-         * @brief 构造函数
-         * @param [in] name : 资源名称，一般使用档案路径作为名称.
-         * @param [in] mode : 访问模式.
+         * \brief 构造档案，仅保存名称与访问模式
+         * \param [in] name : 档案名称，一般使用路径
+         * \param [in] mode : 访问模式
          */
         Archive(const String &name, AccessMode mode);
 
     protected:
-        /// 档案名称
-        String mName {};
-        /// 访问模式
-        AccessMode mAccessMode {AccessMode::kNone};
+        String mName {};                                    ///< 档案名称
+        AccessMode mAccessMode {AccessMode::kNone};         ///< 访问模式
     };
 }
 

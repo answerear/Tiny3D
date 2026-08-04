@@ -33,6 +33,10 @@ namespace Tiny3D
 {
 #if defined(T3D_OS_DESKTOP)
 
+    /**
+     * \brief Texture 资源（.ttexture）的 .meta 元数据
+     * \remarks UUID 与对应 Texture 资源的 UUID 一致
+     */
     TCLASS()
     class T3D_ENGINE_API MetaTexture : public Meta
     {
@@ -40,16 +44,30 @@ namespace Tiny3D
         TRTTI_FRIEND
 
     public:
+        /**
+         * \brief 创建 MetaTexture 实例
+         * \param [in] uuid : 与 Texture 资源相同的 UUID
+         * \return 新建的 MetaTexturePtr
+         */
         static MetaTexturePtr create(const UUID &uuid)
         {
             return T3D_NEW MetaTexture(uuid);
         }
 
+        /**
+         * \brief 返回 kTexture 类型标识
+         * \return Meta::kTexture
+         */
         Type getType() const override { return kTexture; }
 
     protected:
+        /// 默认构造
         MetaTexture() = default;
 
+        /**
+         * \brief 以指定 UUID 构造
+         * \param [in] uuid : 与 Texture 资源相同的 UUID
+         */
         MetaTexture(const UUID &uuid)
             : Meta(uuid)
         {

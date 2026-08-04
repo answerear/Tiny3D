@@ -33,35 +33,41 @@
 namespace Tiny3D
 {
     /**
-     * \brief (反)序列化器接口：一种落盘格式一个实现。
-     * \remarks 语义只在共享遍历层 RttrArchive 实现一份，派生类仅负责把归档后端
-     *          （IArchiveWriter / IArchiveReader）接上，因此各实现都只有薄封装。
-     *          行为基线与格式版本见 T3DRttrArchive.h 与两个归档头的说明。
+     * \brief (反)序列化器抽象接口：一种落盘格式对应一个实现。
+     * \remarks 共享 RTTR 遍历语义由 RttrArchive 统一实现；BinSerializer /
+     *          JsonSerializer 等派生类仅装配对应格式的归档读写后端。
      */
     class T3D_ENGINE_API Serializer : public Object, public Noncopyable
     {
         T3D_DECLARE_INTERFACE(Serializer);
 
     public:
+        /**
+         * \brief 把可反射对象序列化写入数据流。
+         * \param [in,out] stream : 输出数据流
+         * \param [in] obj        : 待序列化的可反射对象
+         * \return 成功返回 T3D_OK；失败含义由 RttrArchive 与归档后端决定
+         */
         virtual TResult serialize(DataStream &stream, const RTTRObject &obj) = 0;
 
         /**
          * \brief 从数据流反序列化出对象。
-         * \remarks 只提供出参形式：见 SerializerManager::deserializeObject 说明，
-         *          返回 RTTRObject(=rttr::instance) 的形式会把非拥有视图的生命周期
-         *          隐患留给调用方。
+         * \param [in,out] stream : 输入数据流
+         * \param [out] obj       : 还原出的对象变体，由调用方持有生命周期
+         * \return 成功返回 T3D_OK；文件头校验失败返回对应错误码；
+         *         派生实现还会在 obj 无效时返回 T3D_ERR_DESERIALIZE_OBJECT
+         * \remarks 只提供出参形式：返回 RTTRObject(=rttr::instance) 会把非拥有
+         *          视图的生命周期隐患留给调用方，见 SerializerManager::deserializeObject。
          */
         virtual TResult deserialize(DataStream &stream, RTTRVariant &obj) = 0;
 
         /**
          * \brief 回收无人接管的反序列化产物。
-         * \param [in,out] var : 已还原出的对象，回收后置为无效
-         * \param [in] wanted  : 调用方请求的类型，仅用于报错
-         * \remarks 供返回裸指针的 deserialize<T> 在类型不匹配时调用：还原本身成功，
-         *          对象已在堆上建好，但既不会返回给调用方、也不会有人接管它。
-         *          Object 派生类一律以 as_raw_ptr 策略构造（见 ReflectionPreprocessor），
-         *          variant 里存的只是裸指针、析构时不释放所指对象，故必须就地销毁，
-         *          否则连同其全部 SmartPtr 成员构成的整棵对象图一起泄漏。
+         * \param [in,out] var : 已还原出的对象，回收后置为无效变体
+         * \param [in] wanted  : 调用方请求的类型，仅用于报错日志
+         * \remarks var 无效时直接返回。as_object 策略的值类型由 variant 自行释放；
+         *          as_raw_ptr 产出的裸指针 variant 析构时不释放所指对象，须通过
+         *          ObjectPtr 接管并释放，否则整棵对象图泄漏。
          */
         static void discardUnclaimed(RTTRVariant &var, const rttr::type &wanted)
         {

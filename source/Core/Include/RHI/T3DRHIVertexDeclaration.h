@@ -33,17 +33,19 @@
 namespace Tiny3D
 {
     /**
-     * @brief   顶点声明
+     * \brief RHI 层顶点声明（输入布局）对象，描述顶点属性到 shader 输入的映射
      */
     class T3D_ENGINE_API RHIVertexDeclaration : public RHIResource
     {
     public:
-        ResourceType getResourceType() const override { return ResourceType::kVertexDeclaration; }
-        
-    protected:
         /**
-         * @brief   构造函数
+         * \brief 返回资源类型 kVertexDeclaration
+         * \return ResourceType::kVertexDeclaration
          */
+        ResourceType getResourceType() const override { return ResourceType::kVertexDeclaration; }
+
+    protected:
+        /// 受保护构造，由 RHIContext::createVertexDeclaration 及后端派生类创建
         RHIVertexDeclaration();
     };
 }

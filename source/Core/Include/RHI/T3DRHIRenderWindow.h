@@ -33,26 +33,36 @@
 namespace Tiny3D
 {
     /**
-     * @brief 渲染窗口
+     * \brief RHI 层渲染窗口，封装交换链及与系统窗口绑定的渲染目标
      */
     class T3D_ENGINE_API RHIRenderWindow : public RHIRenderTarget
     {
-    public:        
+    public:
+        /**
+         * \brief 返回资源类型 kRenderWindow
+         * \return ResourceType::kRenderWindow
+         */
         ResourceType getResourceType() const override { return ResourceType::kRenderWindow; }
 
         /**
-         * @fn  virtual TResult D3D11RenderWindow::swapBuffers() override;
-         * @brief   双缓冲中交换离屏缓存到显示缓存，显示出图像
-         * @return  调用成功返回 T3D_OK.
-         * @remarks  具体渲染系统子类实现本接口.
+         * \brief 交换前后缓冲，将离屏内容呈现到屏幕
+         * \return 调用成功返回 T3D_OK；由具体后端实现（如 SwapBuffers、vkQueuePresent 等）
          */
         virtual TResult swapBuffers() = 0;
 
+        /**
+         * \brief 调整渲染窗口/交换链尺寸
+         * \param [in] w : 新宽度（像素）
+         * \param [in] h : 新高度（像素）
+         * \return 调用成功返回 T3D_OK；由具体后端实现
+         */
         virtual TResult resize(uint32_t w, uint32_t h) = 0;
 
     protected:
+        /// 受保护构造，由 RHIContext::createRenderWindow 及后端派生类创建
         RHIRenderWindow();
 
+        /// 析构
         ~RHIRenderWindow() override;
     };
 }

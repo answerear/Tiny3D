@@ -33,17 +33,22 @@
 namespace Tiny3D
 {
     /**
-     * \brief 渲染硬件层的光栅化状态
+     * \brief RHI 层光栅化状态对象，封装后端 rasterizer state 资源
      */
     class T3D_ENGINE_API RHIRasterizerState : public RHIResource
     {
     public:
+        /**
+         * \brief 返回资源类型 kRasterizerState
+         * \return ResourceType::kRasterizerState
+         */
         ResourceType getResourceType() const override
         {
             return ResourceType::kRasterizerState;
         }
-        
+
     protected:
+        /// 受保护构造，由 RHIContext::createRasterizerState 及后端派生类创建
         RHIRasterizerState();
     };
 }

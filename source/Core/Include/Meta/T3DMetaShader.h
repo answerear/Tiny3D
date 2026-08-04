@@ -33,6 +33,10 @@ namespace Tiny3D
 {
 #if defined(T3D_OS_DESKTOP)
 
+    /**
+     * \brief Shader 资源（.tshader）的 .meta 元数据
+     * \remarks UUID 与对应 Shader 资源的 UUID 一致
+     */
     TCLASS()
     class T3D_ENGINE_API MetaShader : public Meta
     {
@@ -40,16 +44,30 @@ namespace Tiny3D
         TRTTI_FRIEND
 
     public:
+        /**
+         * \brief 创建 MetaShader 实例
+         * \param [in] uuid : 与 Shader 资源相同的 UUID
+         * \return 新建的 MetaShaderPtr
+         */
         static MetaShaderPtr create(const UUID &uuid)
         {
             return T3D_NEW MetaShader(uuid);
         }
 
+        /**
+         * \brief 返回 kShader 类型标识
+         * \return Meta::kShader
+         */
         Type getType() const override { return kShader; }
 
     protected:
+        /// 默认构造
         MetaShader() = default;
 
+        /**
+         * \brief 以指定 UUID 构造
+         * \param [in] uuid : 与 Shader 资源相同的 UUID
+         */
         MetaShader(const UUID &uuid)
             : Meta(uuid)
         {

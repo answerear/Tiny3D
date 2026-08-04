@@ -34,8 +34,7 @@
 namespace Tiny3D
 {
     /**
-     * @class   DylibManager
-     * @brief   動態庫資源管理器
+     * \brief 动态库资源管理器，负责 Dylib 的加载与卸载
      */
     class T3D_ENGINE_API DylibManager 
         : public Singleton<DylibManager>
@@ -43,57 +42,63 @@ namespace Tiny3D
     {
     public:
         /**
-         * @fn  static DylibManagerPtr create();
-         * @brief   創建動態庫管理器對象
-         * @return  A DylibManagerPtr.
+         * \brief 创建 DylibManager 单例对象
+         * \return 新建的 DylibManager 智能指针
          */
         static DylibManagerPtr create();
 
-        /**
-         * @fn  virtual ~DylibManager();
-         * @brief   析構函數
-         */
+        /// 析构函数
         ~DylibManager() override = default;
 
         /**
-         * @fn  virtual DylibPtr loadDylib(const String &name);
-         * @brief   加載動態庫
-         * @param   name    The name.
-         * @return  The dylib.
+         * \brief 按名称加载动态库
+         * \param [in] name : 动态库逻辑名称
+         * \return 成功返回 Dylib 智能指针；加载失败时返回 nullptr
+         * \remarks 内部 archive 传 nullptr，实际加载由 Dylib::onLoad 完成
          */
         DylibPtr loadDylib(const String &name);
 
         /**
-         * @fn  virtual TResult unloadDylib(DylibPtr dylib);
-         * @brief   卸載動態庫
-         * @param   dylib   The dylib.
-         * @return  A TResult.
+         * \brief 卸载动态库
+         * \param [in] dylib : 要卸载的 Dylib 对象
+         * \return 转调 ResourceManager::unload 的返回值
          */
         TResult unloadDylib(DylibPtr dylib);
 
     protected:
-        /**
-         * @brief 构造函数
-         */
+        /// 默认构造
         DylibManager() = default;
 
         /**
-         * @brief 实现基类函数
+         * \brief 创建 Dylib 资源实例
+         * \param [in] name : 资源名称
+         * \param [in] argc : 可变参数个数（未使用）
+         * \param [in] args : 可变参数列表（未使用）
+         * \return Dylib::create(name) 的结果
          */
         ResourcePtr newResource(const String &name, int32_t argc, va_list args) override;
 
         /**
-         * @brief 实现基类函数
+         * \brief 按名称加载 Dylib（不读档案内容）
+         * \param [in] archive : 档案对象（未使用）
+         * \param [in] filename : 动态库名称
+         * \return Dylib::create(filename) 的结果
          */
         ResourcePtr loadResource(Archive *archive, const String &filename) override;
         
         /**
-         * @brief 实现基类函数
+         * \brief 从数据流加载 Dylib（不解析流内容）
+         * \param [in] filename : 动态库名称
+         * \param [in,out] stream : 数据流（未使用）
+         * \return Dylib::create(filename) 的结果
          */
         ResourcePtr loadResource(const String &filename, DataStream &stream) override;
 
         /**
-         * @brief 实现基类函数
+         * \brief 保存 Dylib 到数据流（未实现）
+         * \param [in,out] stream : 数据流
+         * \param [in] res : 资源对象
+         * \return 触发断言并返回 T3D_ERR_NOT_IMPLEMENT
          */
         TResult saveResource(DataStream &stream, Resource *res) override;
     };

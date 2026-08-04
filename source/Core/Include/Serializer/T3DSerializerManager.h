@@ -34,24 +34,39 @@
 namespace Tiny3D
 {
     /**
-     * \brief 序列化管理类，负责序列化对象和反序列化对象
+     * \brief 序列化管理器：按配置选择格式写出，按文件头 magic 自动选格式读入。
      */
     class T3D_ENGINE_API SerializerManager
         : public Object
         , public Singleton<SerializerManager>
     {
     public:
+        /**
+         * \brief 序列化落盘格式。
+         */
         enum class FileMode : uint32_t
         {
-            kBinary = 0,
-            kText,
+            kBinary = 0,    ///< T3DB 二进制格式（写出时使用）
+            kText,          ///< JSON 文本格式（写出时使用）
             kMax
         };
 
+        /**
+         * \brief 创建 SerializerManager 实例。
+         * \return 新建的管理器智能指针
+         */
         static SerializerManagerPtr create();
 
+        /**
+         * \brief 获取当前写出格式。
+         * \return 当前 FileMode，默认 kText
+         */
         FileMode getFileMode() const { return mFileMode; }
-        
+
+        /**
+         * \brief 设置写出格式并重建对应序列化器。
+         * \param [in] mode : 目标格式；kBinary 选 BinSerializer，kText 选 JsonSerializer
+         */
         void setFileMode(FileMode mode)
         {
             mFileMode = mode;
@@ -59,8 +74,8 @@ namespace Tiny3D
         }
 
         /**
-         * \brief 是否在(反)序列化时触发对象生命周期回调
-         *        （onPostLoad / onAddComponentForLoadingResource 等）。
+         * \brief 是否已在(反)序列化时触发对象生命周期回调。
+         * \return 默认 true
          */
         bool isInvokeLifecycleCallbacks() const
         {
@@ -69,13 +84,11 @@ namespace Tiny3D
 
         /**
          * \brief 设置(反)序列化时是否触发对象生命周期回调。
-         * \remarks 反序列化时序列化器会调用 onPostLoad 重建运行时关系（如骨架/场景/
-         *          预制件的父子层级），其中父子节点以智能指针互相持有形成引用环，
-         *          仅由运行时卸载(onUnload)负责断开。像 BundleBuilder 这类只做格式
-         *          转换、不经资源管理器加载/卸载生命周期的离线工具，一旦触发这些回调
-         *          就会因引用环无法释放而泄漏，且 onPreSave/onPostLoad 对扁平层级表的
-         *          重采集还可能破坏字节级往返一致性。这些场景应关闭此开关，做纯数据
-         *          直通的读写。默认开启以保持运行时加载行为不变。
+         * \param [in] invoke : true 触发 onPreSave/onPostSave/onPostLoad 等
+         * \remarks 反序列化时 onPostLoad 会重建运行时关系（如骨架/场景/预制件的
+         *          父子层级），其中父子节点以智能指针互相持有形成引用环，仅由运行时
+         *          卸载(onUnload)负责断开。BundleBuilder 等离线格式转换工具应关闭，
+         *          以避免引用环泄漏及 onPreSave/onPostLoad 破坏字节级往返一致性。
          */
         void setInvokeLifecycleCallbacks(bool invoke)
         {
@@ -83,11 +96,11 @@ namespace Tiny3D
         }
 
         /**
-         * @brief 序列化对象到数据流对象中
-         * @param [in,out] stream   : 数据流对象
-         * @param [in] obj          : 要序列化的可反射对象
-         * @return 序列化成功返回 T3D_OK .
-         * @remarks 序列化的时候把数据和类型一起序列化保存起来，方便反序列化生成对象
+         * \brief 序列化指定类型对象到数据流（模板便捷入口）。
+         * \tparam [in] T : 可反射类型
+         * \param [in,out] stream : 输出数据流
+         * \param [in] obj        : 待序列化的对象
+         * \return 成功返回 T3D_OK；mSerializer 为空时仍返回 T3D_OK 但不写出
          */
         template<typename T>
         TResult serialize(DataStream &stream, const T &obj)
@@ -96,13 +109,12 @@ namespace Tiny3D
         }
 
         /**
-         * @brief 从数据流中反序列化生成对象. 
-         *          该接口借助序列化时候保存了类型，能自动还原所有类型和数据.
-         * @param [in,out] stream   : 数据流对象
-         * @param [in,out] obj      : 返回的可序列化对象
-         * @return 反序列化成功返回 T3D_OK .
-         * @remarks 由于序列化的时候保存了类型信息，所以反序列化的时候能把类型
-         *          和数据还原。
+         * \brief 从数据流反序列化并返回裸指针（堆上新建，调用方须 SmartPtr 接管）。
+         * \tparam [in] T : 目标类型
+         * \param [in,out] stream : 输入数据流，按 magic 自动选反序列化器
+         * \return 成功且类型匹配时返回堆上对象指针；失败或类型不匹配时返回 nullptr
+         * \remarks 类型不匹配时调用 Serializer::discardUnclaimed；var 须活到
+         *          try_convert 之后，不可拆分语句。
          */
         template<typename T>
         T *deserialize(DataStream &stream)
@@ -127,6 +139,13 @@ namespace Tiny3D
             return obj;
         }
 
+        /**
+         * \brief 从数据流反序列化到已有对象（值语义）。
+         * \tparam [in] T : 目标类型
+         * \param [in,out] stream : 输入数据流
+         * \param [out] obj       : 接收还原结果的目标对象
+         * \return deserializeObject 失败或 variant 无效/无法转换为 T 时返回错误码
+         */
         template<typename T>
         TResult deserialize(DataStream& stream, T& obj)
         {
@@ -149,39 +168,44 @@ namespace Tiny3D
             return ret;
         }
 
+        /**
+         * \brief 序列化可反射对象到数据流（使用当前 FileMode 对应的序列化器）。
+         * \param [in,out] stream : 输出数据流
+         * \param [in] obj        : 待序列化的可反射对象
+         * \return mSerializer 非空时返回其 serialize 结果；为空时返回 T3D_OK
+         */
         TResult serializeObject(DataStream &stream, const RTTRObject &obj);
 
         /**
-         * @brief 从数据流反序列化出类型无关的对象。
-         * @param [in,out] stream : 数据流对象，按文件头 magic 自动选反序列化器
-         * @param [out] obj       : 还原出的对象
-         * @return 成功返回 T3D_OK .
-         * @remarks 唯一的反序列化出口。**不提供**返回 RTTRObject(=rttr::instance)
-         *          的重载：instance 只是非拥有视图，从函数局部 variant 构造再返回
-         *          时，其正确性隐式依赖"所有可序列化类型都注册为 as_raw_ptr"
-         *          （视图里存的是裸指针而非局部存储地址），换成 as_object 策略即
-         *          悬垂。改为出参后 variant 由调用方持有，生命周期显式可控。
+         * \brief 从数据流反序列化出类型无关的对象（唯一的反序列化出口）。
+         * \param [in,out] stream : 输入数据流，按文件头 magic 自动选反序列化器
+         * \param [out] obj       : 还原出的对象变体，由调用方持有生命周期
+         * \return 成功返回 T3D_OK
+         * \remarks 不提供返回 RTTRObject(=rttr::instance) 的重载：instance 是非拥有
+         *          视图，从局部 variant 构造再返回时正确性隐式依赖 as_raw_ptr 策略。
          */
         TResult deserializeObject(DataStream &stream, RTTRVariant &obj);
-        
+
     protected:
+        /**
+         * \brief 按当前 FileMode 创建写出用序列化器。
+         * \return kBinary 返回 BinSerializer，kText 返回 JsonSerializer；未知模式返回空
+         */
         SerializerPtr createSerializer();
 
         /**
-         * @brief 按文件头 magic 自动选择反序列化器。
-         * @param [in,out] stream : 数据流（会 peek 头部若干字节后回退到原位置）
-         * @return 'T3DB' 头返回二进制反序列化器，否则返回 JSON 反序列化器。
-         * @remarks 使运行时能透明读取二进制(T3DB) bundle 产物，编辑器 JSON 源
-         *          资产照常读取，且兼容同一 bundle 内混合格式，无需调用方预设
-         *          FileMode。若流不支持 peek/回退（tell/seek 失败），回退到当前
-         *          mFileMode 对应的 mSerializer。
+         * \brief 按文件头 magic 自动选择反序列化器。
+         * \param [in,out] stream : 数据流（peek 头 4 字节后回退到原位置）
+         * \return magic 为 T3DB 时返回 BinSerializer，否则返回 JsonSerializer；
+         *         tell 失败时退回当前 mFileMode 对应的 mSerializer
          */
         SerializerPtr pickDeserializer(DataStream &stream);
 
-    protected:
+        /// 当前写出格式，默认 kText。
         FileMode        mFileMode = FileMode::kText;
+        /// 与 mFileMode 对应的写出用序列化器。
         SerializerPtr   mSerializer;
-        /// (反)序列化时是否触发对象生命周期回调，默认开启（见 setter 说明）
+        /// (反)序列化时是否触发对象生命周期回调，默认 true。
         bool            mInvokeLifecycleCallbacks = true;
     };
 

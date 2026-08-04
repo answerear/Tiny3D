@@ -31,95 +31,107 @@
 
 namespace Tiny3D
 {
+    /**
+     * \brief Core 模块错误码，基址为编译期常量 T3D_ERR_CORE
+     */
     enum CoreErrorCode : TResult
     {
-        /// 解析 XML 出錯
+        /** \brief 配置文件与 XML（+0x0000） */
+        /// 解析 XML 出错
         T3D_ERR_CFG_FILE_PARSING_XML    = T3D_ERR_CORE + 0x0000,
-        /// 錯誤 XML 格式
+        /// XML 格式错误
         T3D_ERR_CFG_FILE_XML_FORMAT,
-        /// 構建 XML 出錯
+        /// 构建 XML 出错
         T3D_ERR_CFG_FILE_BUILDING_XML,
 
-        /// 加載插件出錯
+        /** \brief 插件加载与管理（+0x0020） */
+        /// 加载插件出错
         T3D_ERR_PLG_LOAD_FAILED         = T3D_ERR_CORE + 0x0020,
         /// 插件不存在
         T3D_ERR_PLG_NOT_EXISTS,
-        /// 插件已經存在
+        /// 插件已存在
         T3D_ERR_PLG_DUPLICATED,
-        /// 不是插件資源
+        /// 不是插件动态库
         T3D_ERR_PLG_NOT_DYLIB,
-        /// 獲取插件函數失敗
+        /// 获取插件函数失败
         T3D_ERR_PLG_NO_FUNCTION,
-        /// 無法獲取到插件路徑
+        /// 无法获取插件路径
         T3D_ERR_PLG_NO_PATH,
-        /// 没有加載插件
+        /// 插件未加载
         T3D_ERR_PLG_NOT_LOADED,
 
-        /// 找不到對應的圖像編解碼器
+        /** \brief 图像编解码（+0x0060） */
+        /// 找不到对应的图像编解码器
         T3D_ERR_IMG_NOT_FOUND           = T3D_ERR_CORE + 0x0060,
 
-        /// 找不到設置項
+        /** \brief 引擎设置项（+0x0080） */
+        /// 找不到设置项
         T3D_ERR_SETTINGS_NOT_FOUND      = T3D_ERR_CORE + 0x0080,
 
-        /// 加載資源失敗
+        /** \brief 资源加载与材质构建（+0x00A0） */
+        /// 加载资源失败
         T3D_ERR_RES_LOAD_FAILED         = T3D_ERR_CORE + 0x00A0,
-        /// 非法資源類型
+        /// 非法资源类型
         T3D_ERR_RES_INVALID_TYPE,
-        /// 非法文件類型
+        /// 非法文件类型
         T3D_ERR_RES_INVALID_FILETYPE,
-        /// 無效文件版本
+        /// 无效文件版本
         T3D_ERR_RES_INVALID_VERSION,
-        /// 無效對象
+        /// 无效对象
         T3D_ERR_RES_INVALID_OBJECT,
-        /// 無效文件內容
+        /// 无效文件内容
         T3D_ERR_RES_INVALID_CONTENT,
-        /// 無效屬性
+        /// 无效属性
         T3D_ERR_RES_INVALID_PROPERTY,
-        /// 克隆資源屬性失敗
+        /// 克隆资源属性失败
         T3D_ERR_RES_CLONE,
-        /// 無效的 Shader
+        /// 无效的 Shader
         T3D_ERR_RES_INVALID_SHADER,
-        /// 重複資源
+        /// 重复资源
         T3D_ERR_RES_DUPLICATED,
-        /// 創建 Technique 失敗
+        /// 创建 Technique 失败
         T3D_ERR_RES_CREATE_TECHNIQUE,
-        /// 創建 Shader 失敗
+        /// 创建 Shader 失败
         T3D_ERR_RES_CREATE_SHADER,
-        /// 創建 Pass 失敗
+        /// 创建 Pass 失败
         T3D_ERR_RES_CREATE_PASS,
 
+        /** \brief 硬件缓冲读写（+0x00E0） */
         /// 写硬件缓冲失败
         T3D_ERR_HW_BUFFER_WRITE         = T3D_ERR_CORE + 0x00E0,
         /// 读硬件缓冲失败
         T3D_ERR_HW_BUFFER_READ,
 
-        /// 同階段的著色器重複了
+        /** \brief GPU 着色器对象（+0x0100） */
+        /// 同阶段着色器重复
         T3D_ERR_GPU_DUPLICATED_STAGE    = T3D_ERR_CORE + 0x0100,
-        /// 不存在的著色器對象
+        /// 着色器对象不存在
         T3D_ERR_GPU_NONEXISTENT,
 
-        /// 应该用同步读接口
+        /** \brief 渲染与窗口（+0x0200） */
+        /// 应使用同步读接口
         T3D_ERR_RENDER_BUFFER_READ_SYNC = T3D_ERR_CORE + 0x0200,
         /// CPU 无法读取数据
         T3D_ERR_RENDER_BUFFER_CPY_READ,
-        /// 渲染窗口已经存在了
+        /// 渲染窗口已存在
         T3D_ERR_RENDER_WINDOW_ALREADY,
         /// 创建渲染窗口失败
         T3D_ERR_RENDER_CREATE_WINDOW,
         /// 创建阴影贴图失败
-        T3D_ERR_RENDER_CRATE_SHADOWMAP, 
+        T3D_ERR_RENDER_CRATE_SHADOWMAP,
 
-        /// 序列化對象失敗
+        /** \brief 序列化与反射解析（+0x0400） */
+        /// 序列化对象失败
         T3D_ERR_SERIALIZE_OBJECT        = T3D_ERR_CORE + 0x0400,
-        /// 反序列化對象失敗
+        /// 反序列化对象失败
         T3D_ERR_DESERIALIZE_OBJECT,
-        /// 反射无法解析文件
+        /// 反射无法解析数据流
         T3D_ERR_PARSE_STREAM,
-        /// 没有 magic 字段
+        /// 缺少 magic 字段
         T3D_ERR_MISSING_MAGIC,
-        /// 没有 version 字段
+        /// 缺少 version 字段
         T3D_ERR_MISSING_VERSION,
-        /// 没有 object 内容
+        /// 缺少 object 内容
         T3D_ERR_MISSING_OBJECT,
     };
 }

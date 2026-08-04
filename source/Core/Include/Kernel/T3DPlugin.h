@@ -33,39 +33,40 @@
 namespace Tiny3D
 {
     /**
-     * @class   Plugin
-     * @brief   插件基类，所有插件均需从此类派生并实现其接口
+     * \brief 引擎插件抽象接口；由 Agent::installPlugin / uninstallPlugin 按生命周期驱动
+     * \remarks 调用顺序：install → startup；卸载时：shutdown → uninstall。
+     *          动态库插件通常在 dllStartPlugin 内构造并 installPlugin，在 dllStopPlugin 内 uninstallPlugin。
      */
     class T3D_ENGINE_API Plugin : public Object
     {
     public:
         /**
-         * @brief 获取插件名称
-         * @return 返回插件名称.
+         * \brief 返回插件唯一名称（用作 Agent 插件表的 key）
+         * \return 插件名称的常量引用
          */
         virtual const String &getName() const = 0;
 
         /**
-         * @brief 安装插件
-         * @return 调用成功返回 T3D_OK.
+         * \brief 安装插件：注册到引擎（如档案创建器、渲染器等），尚未进入可用态
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult install() = 0;
 
         /**
-         * @brief 启动插件
-         * @return 调用成功返回 T3D_OK.
+         * \brief 启动插件：在 install 成功后进入可用态
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult startup() = 0;
 
         /**
-         * @brief 关闭插件
-         * @return 调用成功返回 T3D_OK.
+         * \brief 关闭插件：停止运行并准备卸载（与 startup 相对）
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult shutdown() = 0;
 
         /**
-         * @brief 卸载插件
-         * @return 调用成功返回 T3D_OK.
+         * \brief 卸载插件：撤销 install 时的注册（与 install 相对）
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult uninstall() = 0;
     };

@@ -34,35 +34,39 @@
 
 namespace Tiny3D
 {
+    /**
+     * \brief 渲染窗口创建参数，传入 RenderWindow::init
+     */
     TSTRUCT()
     struct T3D_ENGINE_API RenderWindowDesc
     {
+        /// 外部已创建的 native 窗口句柄；非空时通过 Window::createFrom 关联，忽略 Left/Top/Width/Height 等创建参数
         THandle externalHandle {nullptr};
-        /// 窗口横向坐标位置，全屏窗口忽略该参数
+        /// 窗口左上角 X 坐标（像素）；全屏或 externalHandle 模式下忽略
         TPROPERTY()
         int32_t Left {0};
-        /// 窗口纵向坐标位置，全屏窗口忽略该参数
+        /// 窗口左上角 Y 坐标（像素）；全屏或 externalHandle 模式下忽略
         TPROPERTY()
         int32_t Top {0};
-        /// 窗口宽度
+        /// 请求窗口宽度（像素）；init 成功后可能被实际尺寸覆盖
         TPROPERTY()
         int32_t Width {0};
-        /// 窗口高度
+        /// 请求窗口高度（像素）；init 成功后可能被实际尺寸覆盖
         TPROPERTY()
         int32_t Height {0};
         /// 窗口色深
         TPROPERTY()
         int32_t ColorDepth {0};
-        /// 抗锯齿质量
+        /// MSAA 采样参数
         TPROPERTY()
         MultisamplerDesc    MSAA {};
+        /// 窗口标题（init 时会追加当前 RHI 渲染器名称）
         TPROPERTY()
-        /// 窗口标题
         String  Title {};
-        /// 图标文件路径
+        /// 窗口图标文件路径（当前 loadIcon 实现为空操作）
         TPROPERTY()
         String  IconPath {};
-        /// 是否全屏，终端平台忽略该参数
+        /// 是否全屏；终端平台忽略
         TPROPERTY()
         bool    IsFullscreen {false};
         /// 是否开启垂直同步

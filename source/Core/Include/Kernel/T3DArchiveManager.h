@@ -33,10 +33,11 @@
 
 namespace Tiny3D
 {
+    /// 按名称与访问模式创建指定类型档案的工厂回调
     using ArchiveCreatorNew = TFunction<ArchivePtr(const String&, Archive::AccessMode)>;
 
     /**
-     * @brief 档案系统资源管理器
+     * \brief 档案管理器单例：注册类型创建器，并按类型+名称+访问模式缓存已加载档案
      */
     class T3D_ENGINE_API ArchiveManager final
         : public Singleton<ArchiveManager>
@@ -44,116 +45,118 @@ namespace Tiny3D
     {
     public:
         /**
-         * @brief 创建 ArchiveManager 对象
+         * \brief 创建 ArchiveManager 实例
+         * \return 新管理器智能指针
          */
         static ArchiveManagerPtr create();
-        
+
         /**
-         * 析构函数
+         * \brief 析构时卸载全部已缓存档案
          */
         ~ArchiveManager() override;
-        
+
         /**
-         * @brief 加载档案对象
-         * @param [in] name : 档案文件完整路径名.
-         * @param [in] archiveType : 档案系统类型.
-         * @param [in] accessMode : 档案系统访问模式
-         * @return 返回加载的档案对象.
+         * \brief 加载（或从缓存取回）指定类型与访问模式的档案
+         * \param [in] name : 档案名称 / 路径
+         * \param [in] archiveType : 档案类型字符串（须已注册创建器）
+         * \param [in] accessMode : 访问模式
+         * \return 已缓存或新创建的档案；无对应创建器时返回 nullptr
          */
         ArchivePtr loadArchive(const String &name, const String &archiveType, Archive::AccessMode accessMode);
 
         /**
-         * @brief 卸载档案对象
-         * @param [in] archive : 要卸载的档案对象.
-         * @return 调用成功返回 T3D_OK.
+         * \brief 从缓存移除指定档案（不销毁对象本身，仅 erase 缓存项）
+         * \param [in] archive : 要卸载的档案
+         * \return 恒返回 T3D_OK
          */
         TResult unloadArchive(ArchivePtr archive);
 
         /**
-         * @brief 卸载指定档案类型的所有档案对象
-         * @param archiveType : 档案类型
-         * @return 调用成功返回 T3D_OK
+         * \brief 卸载缓存中所有指定类型的档案
+         * \param [in] archiveType : 档案类型
+         * \return 恒返回 T3D_OK
          */
         TResult unloadArchive(const String &archiveType);
 
         /**
-         * @brief 卸载所有档案系统
-         * @return 调用成功返回 T3D_OK
+         * \brief 清空全部档案缓存
+         * \return 恒返回 T3D_OK
          */
         TResult unloadAllArchives();
 
         /**
-         * @brief 添加指定档案类型的档案对象创建器
-         * @param [in] archiveType : 档案类型
-         * @param [in] creator : 创建 lambda 函数.
-         * @return 调用成功返回 T3D_OK.
+         * \brief 注册档案类型创建器
+         * \param [in] archiveType : 类型名
+         * \param [in] creator : 创建回调
+         * \return 恒返回 T3D_OK
          */
         TResult addArchiveCreator(const String &archiveType, const ArchiveCreatorNew &creator);
 
         /**
-         * @brief 删除指定档案类型的档案对象创建器
-         * @param [in] archiveType : 档案类型.
-         * @return 调用成功返回 T3D_OK.
+         * \brief 移除指定类型的创建器
+         * \param [in] archiveType : 类型名
+         * \return 恒返回 T3D_OK
+         * \note 实现直接 erase(find 结果)，类型不存在时行为依赖容器 erase(end)
          */
         TResult removeArchiveCreator(const String &archiveType);
 
         /**
-         * @brief 删掉所有档案对象创建器
-         * @return 调用成功返回 T3D_OK.
+         * \brief 清空全部创建器
+         * \return 恒返回 T3D_OK
          */
         TResult removeAllArchiveCreator();
 
         /**
-         * @brief 根据名称和访问模式获取档案对象
-         * @param [in] name : 档案名字.
-         * @param [in] mode : 档案访问模式.
-         * @return 存在对应的档案系统对象则返回对象地址，不存在则返回 nullptr.
+         * \brief 按类型、名称、访问模式查找已缓存档案
+         * \param [in] arhicveType : 档案类型（参数名与实现一致，拼写为 arhicve）
+         * \param [in] name : 档案名称
+         * \param [in] mode : 访问模式
+         * \return 命中返回裸指针；未缓存返回 nullptr
          */
         Archive *getArchive(const String &arhicveType, const String &name, Archive::AccessMode mode) const;
 
     protected:
         /**
-         * 键值，用于查找档案对象
+         * \brief 缓存查找键：类型#名称 + 访问模式
          */
         struct Key
         {
-            /// 档案名称
-            String name {};
-            /// 档案访问模式
-            Archive::AccessMode access {Archive::AccessMode::kNone};
+            String name {};                                         ///< 由 makeKey 生成：archiveType + "#" + name
+            Archive::AccessMode access {Archive::AccessMode::kNone}; ///< 访问模式
 
-            /// 重载 operator < ，用于放入 TMap 等关联容器中
+            /// 先比 name，再比 access，供 TMap 排序
             bool operator <(const Key& other) const
             {
                 return name < other.name || (name == other.name && access < other.access);
             }
         };
-        
-        /**
-         * 构造函数
-         */
+
         ArchiveManager() = default;
 
         /**
-         * 创建档案对象
-         * @param name : 档案名称 
-         * @param archiveType : 档案类型
-         * @param mode : 档案访问模式
-         * @return 调用成功返回档案对象
+         * \brief 用已注册创建器构造档案（不入缓存）
+         * \param [in] name : 档案名称
+         * \param [in] archiveType : 类型名
+         * \param [in] mode : 访问模式
+         * \return 创建成功返回档案；无创建器返回 nullptr
          */
         ArchivePtr create(const String &name, const String &archiveType, Archive::AccessMode mode);
 
+        /**
+         * \brief 填充缓存 Key：name = archiveType + "#" + name，access = mode
+         * \param [in] archiveType : 类型名
+         * \param [in] name : 档案名称
+         * \param [in] mode : 访问模式
+         * \param [out] key : 输出键
+         */
         void makeKey(const String &archiveType, const String &name, Archive::AccessMode mode, Key &key) const;
 
     protected:
         using Creators = TMap<String, ArchiveCreatorNew>;
-
         using Archives = TMap<Key, ArchivePtr>;
 
-        /// 档案对象创建器映射表
-        Creators    mCreators {};
-        /// 缓存的档案对象
-        Archives    mArchives {};
+        Creators    mCreators {};   ///< 类型 → 创建器
+        Archives    mArchives {};   ///< Key → 已缓存档案
     };
 
     #define T3D_ARCHIVE_MGR     ArchiveManager::getInstance()

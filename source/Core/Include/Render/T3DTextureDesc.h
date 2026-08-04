@@ -35,28 +35,31 @@
 
 namespace Tiny3D
 {
+    /**
+     * \brief 通用纹理描述结构，用于序列化与纹理资源创建
+     */
     TSTRUCT()
     struct T3D_ENGINE_API TextureDesc
     {
-        /// 纹理宽度
+        /// 纹理宽度（像素）
         TPROPERTY()
         int32_t             Width {0};
-        /// 纹理高度
+        /// 纹理高度（像素）
         TPROPERTY()
         int32_t             Height {0};
         /// 纹理色深
         TPROPERTY()
         int32_t             ColorDepth {0};
-        /// 抗锯齿采样参数
+        /// MSAA 采样参数
         TPROPERTY()
         MultisamplerDesc    MSAA {};
-        /// Mipmap
+        /// Mipmap 级数
         TPROPERTY()
         int32_t             Mipmap {0};
         /// 纹理名称
         TPROPERTY()
         String              Name {};
-        /// 纹理格式
+        /// 像素格式
         TPROPERTY()
         PixelFormat         Format {PixelFormat::E_PF_UNKNOWN};
     };

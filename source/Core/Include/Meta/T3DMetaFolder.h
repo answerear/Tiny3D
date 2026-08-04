@@ -33,6 +33,9 @@ namespace Tiny3D
 {
 #if defined(T3D_OS_DESKTOP)
 
+    /**
+     * \brief 文件夹的 .meta 元数据
+     */
     TCLASS()
     class T3D_ENGINE_API MetaFolder : public Meta
     {
@@ -40,16 +43,30 @@ namespace Tiny3D
         TRTTI_FRIEND
         
     public:
+        /**
+         * \brief 创建 MetaFolder 实例
+         * \param [in] uuid : Meta 的 UUID
+         * \return 新建的 MetaFolderPtr
+         */
         static MetaFolderPtr create(const UUID &uuid)
         {
             return T3D_NEW MetaFolder(uuid);
         }
 
+        /**
+         * \brief 返回 kFolder 类型标识
+         * \return Meta::kFolder
+         */
         Type getType() const override { return kFolder; }
 
     protected:
+        /// 默认构造
         MetaFolder() = default;
         
+        /**
+         * \brief 以指定 UUID 构造
+         * \param [in] uuid : Meta 的 UUID
+         */
         MetaFolder(const UUID &uuid)
             : Meta(uuid)
         {

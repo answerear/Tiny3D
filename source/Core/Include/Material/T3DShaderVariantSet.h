@@ -39,10 +39,9 @@ namespace Tiny3D
     using ShaderVariantMapValue = ShaderVariantMap::value_type;
 
     /**
-     * \brief 同一 (stage, keyword) 下、按目标语言（图形 API）索引的多份 shader 变体集合。
-     * \remarks 一个 ShaderVariantSet 对应一个关键字组合，其内部以 SHADER_LANGUAGE 为键，
-     *          运行时按当前 renderer 推导出的着色语言选取对应的 ShaderVariant。
-     *          这是多后端变体打包进同一只读 bundle 的核心容器。
+     * \brief 同一 (stage, keyword) 下、按目标语言索引的多份 shader 变体集合
+     * \remarks 运行时按 active renderer 推导出的着色语言选取对应 ShaderVariant，
+     *          是多后端变体打包进同一只读 bundle 的核心容器
      */
     TCLASS()
     class T3D_ENGINE_API ShaderVariantSet
@@ -55,26 +54,23 @@ namespace Tiny3D
     public:
         /**
          * \brief 创建空的 shader 变体集合
+         * \return 新建的 ShaderVariantSet 智能指针
          */
         static ShaderVariantSetPtr create();
 
-        /**
-         * \brief Destructor
-         */
+        /// 析构函数
         ~ShaderVariantSet() override;
 
         /**
-         * \brief 取指定语言的变体
+         * \brief 获取指定语言的变体
          * \param [in] lang : 目标着色语言
          * \return 命中返回对应变体，否则返回 nullptr
          */
         ShaderVariantPtr getVariant(SHADER_LANGUAGE lang) const;
 
         /**
-         * \brief 取当前 active 渲染后端对应语言的变体
-         * \return 命中返回对应变体；当前后端语言缺失或无 active renderer 时返回 nullptr
-         * \remarks 集中封装「active renderer → 着色语言 → 变体」的选取逻辑，
-         *          运行时各处统一通过本方法取变体，避免重复散落选择代码。
+         * \brief 获取当前 active 渲染后端对应语言的变体
+         * \return 命中返回对应变体；无 active renderer 或语言缺失时返回 nullptr
          */
         ShaderVariantPtr getActiveVariant() const;
 
@@ -91,25 +87,21 @@ namespace Tiny3D
          */
         void removeVariant(SHADER_LANGUAGE lang);
 
-        /**
-         * \brief 是否为空
-         */
+        /// 变体集合是否为空
         bool empty() const { return mVariants.empty(); }
 
-        /**
-         * \brief 变体数量
-         */
+        /// 变体数量
         size_t size() const { return mVariants.size(); }
 
+        /// 获取全部语言变体映射
         TPROPERTY(RTTRFuncName="Variants", RTTRFuncType="getter")
         const ShaderVariantMap &getVariants() const { return mVariants; }
 
     protected:
-        /**
-         * \brief Constructor
-         */
+        /// 默认构造
         ShaderVariantSet() = default;
 
+        /// 设置全部语言变体映射（RTTR setter）
         TPROPERTY(RTTRFuncName="Variants", RTTRFuncType="setter")
         void setVariants(const ShaderVariantMap &variants) { mVariants = variants; }
 

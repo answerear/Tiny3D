@@ -34,125 +34,176 @@
 namespace Tiny3D
 {
     /**
-     * @brief 骨骼动画播放器，同一时间，只能播放一个动画
+     * \brief 绑定 SkinnedGeometry 的骨骼动画播放器，负责插值更新骨骼变换与 CPU/GPU 蒙皮
      */
     class T3D_ENGINE_API AnimationPlayer : public Object
     {
     public:
+        /// 无效播放实例 ID，与 T3D_INVALID_ID 相同
         static const ID INVALID_ID;
         
+        /**
+         * \brief 创建动画播放器
+         * \param [in] geometry : 目标蒙皮几何体，不可为 nullptr
+         * \return 新建的 AnimationPlayer 智能指针
+         */
         static AnimationPlayerPtr create(SkinnedGeometry *geometry);
         
         /**
-         * @brief 播放动画片段
-         * @param clipName 动画片段名称
-         * @param isBlending 是否启用混合。 启用后，会把当前正在播放的动画和将要播放的动画进行混合以作过渡
-         * @param isLoop 是否循环播放，默认为false
-         * @param isGPUSkinning 是否使用GPU蒙皮
-         * @return 调用失败返回 AnimationPlayer::INVALID_ID. 成功返回一个实例ID，该ID可用于停止播放
+         * \brief 启动单片段播放并注册到 AnimationPlayerMgr
+         * \param [in] clipName : 动画片段名称（当前实现未按名称查找片段）
+         * \param [in] isBlending : 是否混合过渡（当前实现未使用）
+         * \param [in] isLoop : 片段播完后是否循环
+         * \param [in] isGPUSkinning : 是否切换材质 shader 关键字以启用 GPU 蒙皮
+         * \return 当前实现始终返回 INVALID_ID；参数校验失败时内部记录错误码
+         * \note geometry 为 nullptr 或 clipName 为空时提前失败
          */
         ID playClip(const String &clipName, bool isBlending, bool isLoop = false, bool isGPUSkinning = false);
 
         /**
-         * @brief 混合播放两个动画片段
-         * @param fromClipName 起始动画片段名称
-         * @param toClipName 目标动画片段名称
-         * @param toClipStartedMS 目标动画开始播放的时间点，单位为毫秒
-         * @param isLoop 目标动画是否循环播放，默认为false
-         * @param isGPUSkinning 是否使用GPU蒙皮
-         * @return 调用失败返回 AnimationPlayer::INVALID_ID. 成功返回一个实例ID，该ID可用于停止播放
+         * \brief 两片段混合播放（未实现）
+         * \param [in] fromClipName : 起始片段名称
+         * \param [in] toClipName : 目标片段名称
+         * \param [in] toClipStartedMS : 目标片段起始时间（毫秒）
+         * \param [in] isLoop : 目标片段是否循环
+         * \param [in] isGPUSkinning : 是否使用 GPU 蒙皮
+         * \return 当前实现始终返回 INVALID_ID
          */
         ID playClip(const String &fromClipName, const String &toClipName, uint32_t toClipStartedMS, bool isLoop = false, bool isGPUSkinning = false);
         
         /**
-         * @brief 同时混合播放多个动画片段，只播放一次。 当最长时间的 clip 播放完成后，混合播放结束。
-         * @param clipNames 动画片段名称数组
-         * @param isGPUSkinning 是否使用GPU蒙皮
-         * @return 调用失败返回 AnimationPlayer::INVALID_ID. 成功返回一个实例ID，该ID可用于停止播放
+         * \brief 多片段混合播放（未实现）
+         * \param [in] clipNames : 待混合的片段名称列表
+         * \param [in] isGPUSkinning : 是否使用 GPU 蒙皮
+         * \return 当前实现始终返回 INVALID_ID
          */
         ID playClips(const StringArray &clipNames, bool isGPUSkinning = false);
 
         /**
-         * @brief 停止播放
-         * @param playbackID 播放实例ID
-         * @return 成功返回 T3D_OK, 否则返回错误码
+         * \brief 停止播放并从 AnimationPlayerMgr 移除
+         * \param [in] playbackID : 播放实例 ID（当前实现未校验）
+         * \return 调用成功返回 T3D_OK
          */
         TResult stopPlayback(ID playbackID);
 
         /**
-         * @brief 暂停播放
-         * @param playbackID 播放实例ID
-         * @return 成功返回 T3D_OK, 否则返回错误码
+         * \brief 暂停播放（当前实现为空操作）
+         * \param [in] playbackID : 播放实例 ID（当前实现未使用）
+         * \return 始终返回 T3D_OK
          */
         TResult pausePlayback(ID playbackID);
 
         /**
-         * @brief 恢复播放
-         * @param playbackID 播放实例ID
-         * @return 成功返回 T3D_OK, 否则返回错误码
+         * \brief 恢复播放（当前实现为空操作）
+         * \param [in] playbackID : 播放实例 ID（当前实现未使用）
+         * \return 始终返回 T3D_OK
          */
         TResult resumePlayback(ID playbackID);
 
         /**
-         * @brief 驱动动画更新
+         * \brief 驱动骨骼插值更新；仅在 isPlaying() 为 true 时执行
          */
         void updateAnimation();
 
+        /**
+         * \brief 根据 mIsGPUSkinning 执行 CPU 或 GPU 蒙皮
+         */
         void skinning();
 
-        /**
-         * @brief 是否在播放中
-         * @return 播放中返回 true，否则返回 false 
-         */
+        /// 是否处于播放状态
         bool isPlaying() const { return mIsPlaying; }
         
     protected:        
+        /**
+         * \brief 构造并绑定蒙皮几何体
+         * \param [in] geometry : 蒙皮几何体，断言非 nullptr
+         */
         AnimationPlayer(SkinnedGeometry *geometry);
 
+        /// 递增生成播放实例 ID（当前 playClip 未调用）
         ID generateID() const { return ++msGeneratedID; }
 
-        // 插值函数，返回当前帧号
+        /**
+         * \brief 在平移轨道上按时间插值
+         * \param [in] startFrame : 搜索起始帧索引
+         * \param [in] time : 当前播放时间（毫秒）
+         * \param [in] track : 平移关键帧序列
+         * \param [out] translation : 插值结果
+         * \return 命中的关键帧索引；未命中且轨道非空时返回最后一帧索引；否则为 uint32_t(-1)
+         */
         uint32_t interpolateTranslation(uint32_t startFrame, uint32_t time, const TranslationTrack &track, Vector3 &translation);
 
-        // 插值函数，返回当前帧号
+        /**
+         * \brief 在旋转轨道上按时间 slerp 插值
+         * \param [in] startFrame : 搜索起始帧索引
+         * \param [in] time : 当前播放时间（毫秒）
+         * \param [in] track : 旋转关键帧序列
+         * \param [out] orientation : 插值结果
+         * \return 命中的关键帧索引；未命中且轨道非空时返回最后一帧索引；否则为 uint32_t(-1)
+         */
         uint32_t interpolateOrientation(uint32_t startFrame, uint32_t time, const OrientationTrack &track, Quaternion &orientation);
 
-        // 插值函数，返回当前帧号
+        /**
+         * \brief 在缩放轨道上按时间插值
+         * \param [in] startFrame : 搜索起始帧索引
+         * \param [in] time : 当前播放时间（毫秒）
+         * \param [in] track : 缩放关键帧序列
+         * \param [out] scaling : 插值结果
+         * \return 命中的关键帧索引；未命中且轨道非空时返回最后一帧索引；否则为 uint32_t(-1)
+         */
         uint32_t interpolateScaling(uint32_t startFrame, uint32_t time, const ScalingTrack &track, Vector3 &scaling);
 
+        /**
+         * \brief 计算两关键帧之间的归一化插值系数
+         * \param [in] kf0 : 区间左端关键帧
+         * \param [in] kf1 : 区间右端关键帧
+         * \param [in] time : 当前时间（毫秒）
+         * \return (time - t0) / (t1 - t0)
+         */
         Real getInterplationTime(Keyframe *kf0, Keyframe *kf1, uint32_t time) const;
 
+        /**
+         * \brief 按骨骼层次顺序插值并写回 Transform3D；播完非循环片段时自动停止
+         * \note 当前取 SkeletalAnimation 中 clips 映射的首个片段，不按 clipName 选择
+         */
         void updateBones();
 
+        /**
+         * \brief CPU 蒙皮：按 blend weight/index 混合骨骼矩阵，写回顶点与法线 VBO
+         */
         void CPUSkinning();
 
+        /**
+         * \brief GPU 蒙皮：收集骨骼矩阵并写入材质 uniform tiny3d_BoneMatrices
+         */
         void GPUSkinning();
 
     private:
+        /// 全局播放 ID 递增计数器
         static ID msGeneratedID;
         
     protected:
-        /// 蒙皮几何体
+        /// 绑定的蒙皮几何体
         SkinnedGeometry *mSkinnedGeometry {nullptr};
 
-        /// 当前播放实例ID
+        /// 当前播放实例 ID（当前 playClip 未赋值）
         ID mCurrentPlaybackID {INVALID_ID};
 
-        /// 动画开始时间戳
+        /// 本次播放起始时间戳（毫秒）
         int64_t mStartTimestamp {0};
 
-        /// 平移轨道当前帧号
+        /// 各骨骼平移轨道当前关键帧索引
         uint32_t mCurrentFrameT[T3D_MAX_SKIN_BONES] {0};
-        /// 旋转轨道当前帧号
+        /// 各骨骼旋转轨道当前关键帧索引
         uint32_t mCurrentFrameO[T3D_MAX_SKIN_BONES] {0};
-        /// 缩放轨道当前帧号
+        /// 各骨骼缩放轨道当前关键帧索引
         uint32_t mCurrentFrameS[T3D_MAX_SKIN_BONES] {0};
 
-        /// 是否在播放中
+        /// 是否正在播放
         bool mIsPlaying {false};
-        /// 是否循环播放
+        /// 播完后是否循环
         bool mIsLoop {false};
-        /// 是否使用GPU蒙皮
+        /// 是否使用 GPU 蒙皮路径
         bool mIsGPUSkinning {false};
     };
 }

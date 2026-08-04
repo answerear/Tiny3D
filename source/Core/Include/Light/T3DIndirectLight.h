@@ -31,6 +31,10 @@
 
 namespace Tiny3D
 {
+    /**
+     * \brief 不依赖 Transform 位置与方向的间接光源基类
+     * \remarks 当前唯一派生类为 AmbientLight
+     */
     TCLASS()
     class T3D_ENGINE_API IndirectLight : public Light
     {
@@ -41,13 +45,17 @@ namespace Tiny3D
         ~IndirectLight() override = default;
 
     protected:
+        /// 默认构造，供子类与 RTTR 使用
         IndirectLight() = default;
 
+        /**
+         * \brief 以指定 UUID 构造间接光源
+         * \param [in] uuid : 组件唯一标识
+         */
         IndirectLight(const UUID &uuid);
     };
 }
 
 
 #endif  /*__T3D_INDIRECT_LIGHT_H__*/
-
 

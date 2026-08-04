@@ -32,7 +32,7 @@
 namespace Tiny3D
 {
     /**
-     * @brief 骨骼动画片段
+     * \brief 骨骼动画片段，按骨骼名称索引各 AnimationTrack
      */
     TCLASS()
     class T3D_ENGINE_API AnimationClip : public Object
@@ -41,39 +41,58 @@ namespace Tiny3D
         TRTTI_FRIEND
 
     public:
+        /**
+         * \brief 创建动画片段
+         * \param [in] name : 片段名称
+         * \param [in] duration : 片段时长（毫秒）
+         * \param [in] tracks : 骨骼名到 AnimationTrack 的映射，右值移入
+         * \return 新建的 AnimationClip 智能指针
+         */
         static AnimationClipPtr create(const String &name, uint32_t duration, AnimationTracks &&tracks);
 
+        /// 获取片段名称
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="getter")
         const String &getName() const { return mName; }
 
+        /// 获取片段时长（毫秒）
         TPROPERTY(RTTRFuncName="Duration", RTTRFuncType="getter")
         uint32_t getDuration() const { return mDuration; }
 
+        /// 获取全部骨骼动画轨道
         TPROPERTY(RTTRFuncName="Tracks", RTTRFuncType="getter")
         const AnimationTracks &getTracks() const { return mTracks; }
 
     private:
+        /// 设置片段名称，供 RTTR 反序列化使用
         TPROPERTY(RTTRFuncName="Name", RTTRFuncType="setter")
         void setName(const String &name) { mName = name; }
 
+        /// 设置片段时长，供 RTTR 反序列化使用
         TPROPERTY(RTTRFuncName="Duration", RTTRFuncType="setter")
         void setDuration(uint32_t duration) { mDuration = duration; }
 
+        /// 设置骨骼轨道表，供 RTTR 反序列化使用
         TPROPERTY(RTTRFuncName="Tracks", RTTRFuncType="setter")
         void setTracks(const AnimationTracks &tracks) { mTracks = tracks; }
 
     protected:
         AnimationClip() = default;
 
+        /**
+         * \brief 构造动画片段
+         * \param [in] name : 片段名称
+         * \param [in] duration : 片段时长（毫秒）
+         * \param [in] tracks : 骨骼轨道映射，右值移入
+         */
         AnimationClip(const String &name, uint32_t duration, AnimationTracks &&tracks);
         
-        /// 动画片段名称
+        /// 片段名称
         String mName {};
 
-        /// 动画时长
+        /// 片段时长（毫秒）
         uint32_t mDuration {0};
 
-        /// 骨骼动画轨道数据
+        /// 骨骼名 → AnimationTrack 映射
         AnimationTracks mTracks {};
     };
 }

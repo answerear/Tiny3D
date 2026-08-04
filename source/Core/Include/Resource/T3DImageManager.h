@@ -32,72 +32,86 @@
 
 namespace Tiny3D
 {
+    /**
+     * \brief Image 资源管理器，负责创建、加载与保存 Image
+     */
     class T3D_ENGINE_API ImageManager
         : public Singleton<ImageManager>
         , public ResourceManager
     {
     public:
         /**
-         * @brief 创建图像资源管理器对象
+         * \brief 创建 ImageManager 单例对象
+         * \return 新建的 ImageManager 智能指针
          */
         static ImageManagerPtr create();
 
         /**
-         * @brief 创建图像资源对象
-         * @param [in] name : 图像资源的名称
-         * @param [in] width : 图像宽度 
-         * @param [in] height : 图像高度 
-         * @param [in] format : 图像像素格式
-         * @return 调用成功返回图像对象，否则返回 nullptr
+         * \brief 创建指定尺寸的 Image 资源
+         * \param [in] name : 资源名称
+         * \param [in] width : 图像宽度
+         * \param [in] height : 图像高度
+         * \param [in] format : 像素格式
+         * \return 成功返回 Image 智能指针；createResource 失败时返回 nullptr
          */
         ImagePtr createImage(const String &name, uint32_t width, uint32_t height, PixelFormat format);
 
         /**
-         * @brief 根据文件名，加载图像对象
-         * @param [in] archive : 从该档案对象中加载图像对象
-         * @param [in] filename : 图像文件名
-         * @return 调用成功返回图像对象，否则返回 nullptr
+         * \brief 按文件名从档案加载 Image
+         * \param [in] archive : 来源档案
+         * \param [in] filename : 图像文件名
+         * \return 成功返回 Image 智能指针；加载失败时返回 nullptr
          */
         ImagePtr loadImage(Archive *archive, const String &filename);
 
         /**
-         * @brief 根据 UUID 加载图像对象
-         * @param [in] archive : 从该档案对象中加载图像对象
-         * @param [in] uuid : 资源的 UUID
-         * @return 调用成功返回图像对象，否则返回 nullptr
+         * \brief 按 UUID 从档案加载 Image
+         * \param [in] archive : 来源档案
+         * \param [in] uuid : 资源 UUID
+         * \return 成功返回 Image 智能指针；加载失败时返回 nullptr
          */
         ImagePtr loadImage(Archive *archive, const UUID &uuid);
 
         /**
-         * @brief 把图像对象写到对应文件名的图像文件中
-         * @param [in] archive : 保存图像文件到该档案对象中
-         * @param [in] filename : 图像文件名
-         * @param [in] image : 要保存的图像对象 
-         * @return 调用成功返回 T3D_OK
+         * \brief 将 Image 保存到指定文件名
+         * \param [in] archive : 目标档案
+         * \param [in] filename : 保存文件名
+         * \param [in] image : 要保存的 Image 对象
+         * \return 转调 ResourceManager::save 的返回值
          */
         TResult saveImage(Archive *archive, const String &filename, Image *image);
 
         /**
-         * @brief 把图像对象写到 UUID 对应的图像文件中
-         * @param [in] archive : 保存图像文件到该档案对象中
-         * @param [in] image : 要保存的图像对象
-         * @return 调用成功返回 T3D_OK
+         * \brief 将 Image 保存到以其 UUID 为键的路径
+         * \param [in] archive : 目标档案
+         * \param [in] image : 要保存的 Image 对象
+         * \return 转调 ResourceManager::save 的返回值
          */
         TResult saveImage(Archive *archive, Image *image);
 
     protected:
         /**
-         * 重写基类接口
+         * \brief 创建 Image 实例（argc 须为 3：width、height、format）
+         * \param [in] name : 资源名称
+         * \param [in] argc : 可变参数个数
+         * \param [in] args : 可变参数列表
+         * \return Image::create 的结果
          */
         ResourcePtr newResource(const String &name, int32_t argc, va_list args) override;
 
         /**
-         * 重写基类接口 
+         * \brief 从数据流解码 Image
+         * \param [in] name : 资源名称
+         * \param [in,out] stream : 输入数据流
+         * \return 解码成功返回 Image；失败返回 nullptr
          */
         ResourcePtr loadResource(const String &name, DataStream &stream) override;
 
         /**
-         * 重写基类接口
+         * \brief 将 Image 序列化到数据流（未实现）
+         * \param [in,out] stream : 输出数据流
+         * \param [in] res : 资源对象
+         * \return 返回 T3D_ERR_NOT_IMPLEMENT
          */
         TResult saveResource(DataStream &stream, Resource *res) override;
     };

@@ -33,17 +33,22 @@
 namespace Tiny3D
 {
     /**
-     * \brief 渲染硬件的深度缓冲和模板缓冲状态
+     * \brief RHI 层深度/模板状态对象，封装后端 depth-stencil state 资源
      */
     class T3D_ENGINE_API RHIDepthStencilState : public RHIResource
     {
     public:
+        /**
+         * \brief 返回资源类型 kDepthStencilState
+         * \return ResourceType::kDepthStencilState
+         */
         ResourceType getResourceType() const override
         {
             return ResourceType::kDepthStencilState;
         }
-        
+
     protected:
+        /// 受保护构造，由 RHIContext::createDepthStencilState 及后端派生类创建
         RHIDepthStencilState();
     };
 }

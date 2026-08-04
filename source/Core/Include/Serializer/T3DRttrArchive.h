@@ -75,19 +75,21 @@ namespace Tiny3D
     {
     public:
         /**
-         * @brief 把可反射对象经归档后端写出（含文件头）。
-         * @param [in,out] writer : 目标格式的写入归档后端
-         * @param [in] obj        : 待序列化的可反射对象
-         * @return 成功返回 T3D_OK .
+         * \brief 把可反射对象经归档后端写出（含文件头）。
+         * \param [in,out] writer : 目标格式的写入归档后端
+         * \param [in] obj        : 待序列化的可反射对象
+         * \return 成功返回 T3D_OK
+         * \remarks 顶层 Object 在此显式触发 onPreSave / onPostSave；嵌套对象在
+         *          writeValue 内触发。是否调用受 isInvokeLifecycleCallbacks 控制。
          */
         static TResult write(IArchiveWriter &writer, const RTTRObject &obj);
 
         /**
-         * @brief 经归档后端读入并新建可反射对象（含文件头校验）。
-         * @param [in,out] reader : 源格式的读取归档后端
-         * @param [out] obj       : 还原出的对象；文件头正常但内容无法还原时
-         *                          返回无效变体，由调用方决定如何报错
-         * @return 文件头校验失败返回对应错误码，否则返回 T3D_OK .
+         * \brief 经归档后端读入并新建可反射对象（含文件头校验）。
+         * \param [in,out] reader : 源格式的读取归档后端
+         * \param [out] obj       : 还原出的对象变体；读入失败或类型未注册时可能无效
+         * \return 文件头校验失败返回对应错误码（如 T3D_ERR_MISSING_MAGIC）；
+         *         头校验通过后一律返回 T3D_OK，内容还原失败由 obj 是否有效体现
          */
         static TResult read(IArchiveReader &reader, RTTRVariant &obj);
     };

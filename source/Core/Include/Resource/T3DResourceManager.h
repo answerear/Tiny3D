@@ -32,245 +32,236 @@
 namespace Tiny3D
 {
     /**
-     * @brief 资源管理器，统一管理资源
+     * \brief 资源管理器基类，负责资源的创建、加载、保存、克隆、缓存与按文件名/UUID 查找
      */
     class T3D_ENGINE_API ResourceManager : public Object
     {
     public:
-        /**
-         * @brief 析构函数
-         */
+        /// 析构函数
         ~ResourceManager() override = default;
 
         /**
-         * @brief 卸载对应资源
-         * @param [in] res : 要卸载的资源对象
-         * @return 调用成功返回 T3D_OK
+         * \brief 卸载指定资源
+         * \param [in] res : 要卸载的资源对象
+         * \return res 为 nullptr 时返回 T3D_ERR_RES_INVALID_OBJECT；onUnload 失败则返回对应错误码；否则返回 T3D_OK
          */
         virtual TResult unload(ResourcePtr res);
         
         /**
-         * @brief 卸载所有资源
-         * @return 调用成功返回 T3D_OK
+         * \brief 卸载缓存中所有已加载资源
+         * \return 调用成功返回 T3D_OK
          */
         virtual TResult unloadAllResources();
 
         /**
-         * @brief 卸载所有没用到的资源
-         * @return 调用成功返回 T3D_OK
+         * \brief 卸载引用计数仅剩管理器自身的未使用资源
+         * \return 调用成功返回 T3D_OK
+         * \remarks 仅处理状态为 kLoaded 且 referCount() == 1 的缓存项
          */
         virtual TResult unloadUnused();
 
         /**
-         * @brief 克隆新资源对象
-         * @param [in] src : 源资源对象 
-         * @return 返回新资源对象
+         * \brief 克隆资源对象
+         * \param [in] src : 源资源对象
+         * \return 成功返回新克隆资源；src 为 nullptr 或入缓存失败时返回 nullptr
          */
         ResourcePtr clone(ResourcePtr src);
 
         /**
-         * @brief 克隆新资源对象
-         * @param [in] newName : 新资源名称
-         * @param [in] src : 源资源对象 
-         * @return 返回新资源对象
+         * \brief 克隆资源并重命名
+         * \param [in] newName : 克隆体的逻辑名称
+         * \param [in] src : 源资源对象
+         * \return 成功返回新克隆资源；src 为 nullptr 或入缓存失败时返回 nullptr
          */
         ResourcePtr clone(const String &newName, ResourcePtr src);
 
 #if defined (T3D_EDITOR)
         /**
-         * @brief 克隆新资源对象，并指定其 UUID
-         * @param [in] newName : 新资源名称
-         * @param [in] src : 源资源对象
-         * @param [in] uuid : 要使用的 UUID，为 UUID::INVALID 时保持克隆时默认生成的 UUID
-         * @return 返回新资源对象
-         * @note 克隆默认会重新生成 UUID，本重载供“保留已有资源 guid”场景使用
+         * \brief 克隆资源、重命名并可选保留指定 UUID
+         * \param [in] newName : 克隆体的逻辑名称
+         * \param [in] src : 源资源对象
+         * \param [in] uuid : 要使用的 UUID；为 UUID::INVALID 时保持克隆默认生成的新 UUID
+         * \return 成功返回新克隆资源；src 为 nullptr 或入缓存失败时返回 nullptr
+         * \note 须在 insertCache 之前设置 UUID，以保证缓存索引一致
          */
         ResourcePtr clone(const String &newName, ResourcePtr src, const UUID &uuid);
 #endif
 
         /**
-         * @brief 根据名称获取资源对象
-         * @param [in] filename : 给定资源名称 
-         * @return 返回查找到的资源对象
+         * \brief 按文件名从 LUT 查找已缓存资源
+         * \param [in] filename : 资源文件名或逻辑名称
+         * \return 找到返回资源裸指针；未找到返回 nullptr
+         * \remarks 克隆体不在 LUT 中，无法通过本接口按文件名查到
          */
         Resource *getResource(const String &filename) const;
 
         /**
-         * @brief 根据 UUID 获取资源对象
-         * @param [in] uuid : 给定的 UUID 
-         * @return 返回查找到的资源对象
+         * \brief 按 UUID 从缓存池查找资源
+         * \param [in] uuid : 资源 UUID
+         * \return 找到返回资源裸指针；未找到返回 nullptr
          */
         Resource *getResource(const UUID &uuid) const;
 
-        /**
-         * @brief 添加一个资源对象到资源管理器里，主要用于在内存创建资源对象
-         * @param [in] res : 资源对象 
-         * @return 调用成功返回 T3D_OK
-         */
         // TResult addResource(ResourcePtr res);
 
     protected:
-        /**
-         * @brief 构造函数
-         */
+        /// 默认构造
         ResourceManager() = default;
 
         /**
-         * @brief 创建新资源
-         * @param [in] name : 资源名称
-         * @param [in] argc : 附带参数数量 
-         * @param [in] ... : 参数列表
-         * @return 调用成功返回新建资源对象，否则返回 nullptr
+         * \brief 创建新资源并加入缓存
+         * \param [in] name : 资源名称；若 LUT 中已存在同名资源则直接返回缓存项
+         * \param [in] argc : 传给 newResource 的可变参数个数
+         * \param [in] ... : 传给 newResource 的参数列表
+         * \return 成功返回新建资源；创建或 onCreate 失败时返回 nullptr
          */
         ResourcePtr createResource(const String &name, int32_t argc, ...);
 
         /**
-         * @brief 新生成一个资源对象，具体子类资源实现
-         * @param [in] name : 资源名称
-         * @param [in] argc : 生成资源参数数量 
-         * @param [in] args : 资源参数列表
-         * @return 调用成功返回新建资源对象，否则返回 nullptr
+         * \brief 由子类实例化具体资源对象
+         * \param [in] name : 资源名称
+         * \param [in] argc : 可变参数个数
+         * \param [in] args : 可变参数列表
+         * \return 成功返回新建资源；子类实现决定失败时是否返回 nullptr
          */
         virtual ResourcePtr newResource(const String &name, int32_t argc, va_list args) = 0;
 
         /**
-         * @brief 在资源创建阶段用指定 UUID 覆盖默认生成的 UUID
-         * @param [in] resource : 刚创建、尚未加入缓存的资源对象
-         * @param [in] uuid : 要使用的 UUID，为 UUID::INVALID 时保持默认生成的 UUID
-         * @note 供各子类 newResource 在“保留已有资源 guid”场景下调用。必须在资源被
-         *       加入缓存(insertCache)之前设置，保证缓存索引与资源 UUID 一致。
+         * \brief 在资源加入缓存前覆盖默认 UUID
+         * \param [in] resource : 刚创建、尚未 insertCache 的资源对象
+         * \param [in] uuid : 要使用的 UUID；为 UUID::INVALID 时不修改
+         * \note 须在 insertCache 之前调用，保证缓存索引与资源 UUID 一致
          */
         void applyCreationUUID(const ResourcePtr &resource, const UUID &uuid);
         
         /**
-         * @brief 根据文件名，同步加载资源
-         * @param [in] archive : 档案系统对象，资源文件从该档案系统读取
-         * @param [in] filename : 资源文件名
-         * @return 调用成功返回加载的资源对象，否则返回 nullptr
+         * \brief 按文件名同步加载资源
+         * \param [in] archive : 读取资源的档案对象
+         * \param [in] filename : 资源文件名
+         * \return 成功返回已加载资源；缓存命中、读档或 onLoad 失败时返回 nullptr
          */
         ResourcePtr load(Archive *archive, const String &filename);
 
         /**
-         * @brief 根据文件名，同步加载资源. 子类可以定制化加载对应类型资源的逻辑，也可以用默认逻辑
-         * @param [in] archive : 档案系统对象，资源文件从该档案系统读取
-         * @param [in] filename : 资源文件名
-         * @return 调用成功返回加载的资源对象，否则返回 nullptr
+         * \brief 从档案读取并反序列化资源（子类可覆写）
+         * \param [in] archive : 读取资源的档案对象
+         * \param [in] filename : 资源文件名
+         * \return 成功返回资源对象并设置 filename；读档或反序列化失败时返回 nullptr
          */
         virtual ResourcePtr loadResource(Archive *archive, const String &filename);
 
         /**
-         * @brief 根据 UUID，同步加载资源
-         * @param [in] archive : 档案系统对象，资源文件从该档案系统读取 
-         * @param [in] uuid : 资源 UUID
-         * @return 调用成功返回加载的资源对象，否则返回 nullptr
+         * \brief 按 UUID 同步加载资源
+         * \param [in] archive : 读取资源的档案对象
+         * \param [in] uuid : 资源 UUID
+         * \return 成功返回已加载资源；缓存命中、读档或 onLoad 失败时返回 nullptr
          */
         ResourcePtr load(Archive *archive, const UUID &uuid);
 
         /**
-         * @brief 根据 UUID，同步加载资源
-         * @param [in] archive : 档案系统对象，资源文件从该档案系统读取
-         * @param [in] uuid : 资源 UUID
-         * @return 调用成功返回加载的资源对象，否则返回 nullptr
+         * \brief 按 UUID 从档案读取并反序列化资源（子类可覆写）
+         * \param [in] archive : 读取资源的档案对象
+         * \param [in] uuid : 资源 UUID
+         * \return 成功返回资源对象；读档或反序列化失败时返回 nullptr
          */
         virtual ResourcePtr loadResource(Archive *archive, const UUID &uuid);
         
         /**
-         * @brief 从数据流加载资源对象
-         * @param [in] filename : 文件名
-         * @param [in,out] stream : 数据流对象
-         * @return 调用成功返回加载的资源对象，否则返回 nullptr
+         * \brief 从数据流反序列化资源（须指定文件名）
+         * \param [in] filename : 资源文件名，用于设置 Resource::mFilename
+         * \param [in,out] stream : 输入数据流
+         * \return 成功返回资源对象；子类实现决定失败时是否返回 nullptr
          */
         virtual ResourcePtr loadResource(const String &filename, DataStream &stream) = 0;
 
         /**
-         * @brief 从数据流加载资源对象
-         * @param [in,out] stream : 数据流对象
-         * @return 调用成功返回加载的资源对象，否则返回 nullptr
+         * \brief 从数据流反序列化资源（基类未实现）
+         * \param [in,out] stream : 输入数据流
+         * \return 基类实现触发断言并返回 nullptr
          */
         virtual ResourcePtr loadResource(DataStream &stream);
 
         /**
-         * @brief 同步保存资源到指定文件名文件
-         * @param [in] archive : 档案系统对象，资源文件保存到该档案系统里
-         * @param [in] filename : 文件名
-         * @param [in] res : 要保存的资源对象
-         * @return 调用成功返回 T3D_OK
+         * \brief 将资源保存到指定文件名
+         * \param [in] archive : 目标档案对象
+         * \param [in] filename : 保存文件名
+         * \param [in] res : 要保存的资源对象
+         * \return 参数无效、onSave 或写档失败时返回对应错误码；否则返回 T3D_OK
          */
         TResult save(Archive *archive, const String &filename, Resource *res);
 
         /**
-         * @brief 同步保存资源，文件按照 UUID 来指定
-         * @param [in] archive : 档案系统对象，资源文件保存到该档案系统里
-         * @param [in] res : 要保存的资源对象
-         * @return 调用成功返回 T3D_OK
+         * \brief 将资源保存到以其 UUID 为键的路径
+         * \param [in] archive : 目标档案对象
+         * \param [in] res : 要保存的资源对象
+         * \return 参数无效、onSave 或写档失败时返回对应错误码；否则返回 T3D_OK
          */
         TResult save(Archive *archive, Resource *res);
 
         /**
-         * @brief 保存资源对象到数据流中
-         * @param [in,out] stream : 数据流对象
-         * @param [in] res : 要保存的资源对象
-         * @return 调用成功返回 T3D_OK
+         * \brief 将资源序列化写入数据流
+         * \param [in,out] stream : 输出数据流
+         * \param [in] res : 要保存的资源对象
+         * \return 由子类实现决定
          */
         virtual TResult saveResource(DataStream &stream, Resource *res) = 0;
 
         /**
-         * @brief 根据资源文件名查找资源对象
-         * @param [in] filename : 给定的资源文件名
-         * @return 查找到返回对应的资源对象，否则返回 nullptr
+         * \brief 按文件名在 LUT 中查找资源（不触发加载）
+         * \param [in] filename : 资源文件名或逻辑名称
+         * \return 找到返回资源裸指针；否则返回 nullptr
          */
         Resource *lookup(const String &filename) const;
         
         /**
-         * @brief 根据 UUID 查找资源对象
-         * @param [in] uuid : 给定的 UUID
-         * @return 查找到返回对应的资源对象，否则返回 nullptr
+         * \brief 按 UUID 在缓存池中查找资源（不触发加载）
+         * \param [in] uuid : 资源 UUID
+         * \return 找到返回资源裸指针；否则返回 nullptr
          */
         Resource *lookup(const UUID &uuid) const;
         
         /**
-         * @brief 把資源對象加到緩存池中
-         * @param [in] resource : 要加入緩存池的資源對象
-         * @return 調用成功返回 true 
+         * \brief 将资源加入 UUID 缓存池
+         * \param [in] uuid : 资源 UUID
+         * \param [in] resource : 要缓存的资源对象
+         * \return 始终返回 true；UUID 已存在时记录警告但仍更新 mResToUUIDMap
+         * \remarks 非克隆资源会同时写入 LUT
          */
         bool insertCache(const UUID &uuid, const ResourcePtr &resource);
 
         /**
-         * @brief 从缓存池中移除资源对象
-         * @param [in] resource : 要从缓存池移除的资源对象 
+         * \brief 从缓存池与 LUT 移除资源
+         * \param [in] resource : 要移除的资源对象
          */
         void removeCache(const ResourcePtr &resource);
 
         /**
-         * @brief 把資源對象加入 Lookup Table 中
-         * @param [in] resource : 要加入 LUT 的資源對象
-         * @return 調用成功返回 true
+         * \brief 将非克隆资源加入按文件名/名称索引的 LUT
+         * \param [in] resource : 要索引的资源对象
+         * \return 始终返回 true
+         * \remarks 优先使用 getFilename() 作为键，文件名为空时使用 getName()
          */
         bool insertLUT(const ResourcePtr &resource);
 
         /**
-         * @brief 从 LUT 中移除资源对象
+         * \brief 从 LUT 移除指定键
+         * \param [in] name : LUT 键（文件名或逻辑名称）
          */
         void removeLUT(const String &name);
 
     protected:        
-        /// 资源查找表容器类
-        /// String : 文件路径
-        /// Resources : 资源列表
+        /// 资源查找表：String（文件路径或名称）→ Resource*
         using ResourcesLookup = TUnorderedMap<String, Resource*>;
         
-        /// 资源缓存池类
-        /// UUID : 资源的 UUID
-        /// ResourcePtr : 资源对象
-        /// UUIDHash : 资源哈希函数对象
-        /// UUIDEqual : 资源相等比较函数对象
+        /// 资源缓存池：UUID → ResourcePtr
         using ResourcesCache = TUnorderedMap<UUID, ResourcePtr, UUIDHash, UUIDEqual>;
 
+        /// 资源裸指针到 UUID 的反向映射
         using ResToUUIDMap = TUnorderedMap<Resource*, UUID>;
 
-        /// 资源查找表，从文件加载过的，不再加载，避免重复读取文件加载
+        /// 按文件名/名称索引的 LUT，避免重复读档
         ResourcesLookup mResourcesLookup {};
-        /// 资源缓存池
+        /// UUID 缓存池
         ResourcesCache mResourcesCache {};
         /// 资源对象到 UUID 的映射
         ResToUUIDMap mResToUUIDMap {}; 

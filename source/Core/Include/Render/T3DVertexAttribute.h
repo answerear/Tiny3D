@@ -33,12 +33,18 @@
 
 namespace Tiny3D
 {
+    /**
+     * \brief 单个顶点属性描述，定义顶点缓冲中的布局与着色器语义
+     */
     TSTRUCT()
     struct T3D_ENGINE_API VertexAttribute
     {
         TRTTI_FRIEND
         
     public:
+        /**
+         * \brief 顶点属性数据类型
+         */
         TENUM()
         enum class Type : uint32_t
         {
@@ -75,67 +81,102 @@ namespace Tiny3D
             E_VAT_FLOAT16_4 = 30,
         };
 
+        /**
+         * \brief 顶点属性着色器语义
+         */
         TENUM()
         enum class Semantic : uint32_t
         {
-            E_VAS_POSITION = 0,     /**< 位置 */
-            E_VAS_BLENDWEIGHT = 1,  /**< 骨骼混合权重 */
-            E_VAS_BLENDINDICES = 2, /**< 骨骼索引 */
-            E_VAS_NORMAL = 3,       /**< 法线 */
-            E_VAS_DIFFUSE = 4,      /**< 漫反射值 */
-            E_VAS_SPECULAR = 5,     /**< 镜面反射值 */
-            E_VAS_TEXCOORD = 6,     /**< 纹理坐标 */
-            E_VAS_TANGENT = 7,      /**< 切线 */
-            E_VAS_BINORMAL = 8,     /**< 副法线 */
+            /// 位置
+            E_VAS_POSITION = 0,
+            /// 骨骼混合权重
+            E_VAS_BLENDWEIGHT = 1,
+            /// 骨骼索引
+            E_VAS_BLENDINDICES = 2,
+            /// 法线
+            E_VAS_NORMAL = 3,
+            /// 漫反射颜色
+            E_VAS_DIFFUSE = 4,
+            /// 镜面反射颜色
+            E_VAS_SPECULAR = 5,
+            /// 纹理坐标
+            E_VAS_TEXCOORD = 6,
+            /// 切线
+            E_VAS_TANGENT = 7,
+            /// 副法线（副切线）
+            E_VAS_BINORMAL = 8,
         };
 
+        /// 默认构造：slot=0, offset=0, FLOAT3, POSITION, semanticIndex=0
         VertexAttribute() : VertexAttribute(0, 0, Type::E_VAT_FLOAT3, Semantic::E_VAS_POSITION, 0) {}
 
+        /**
+         * \brief 构造顶点属性
+         * \param [in] slot : 顶点缓冲流索引
+         * \param [in] offset : 属性在顶点中的字节偏移
+         * \param [in] type : 属性数据类型
+         * \param [in] semantic : 着色器语义
+         * \param [in] semanticIndex : 语义索引（如 TEXCOORD0 的 0）
+         */
         VertexAttribute(uint32_t slot, uint32_t offset, Type type, Semantic semantic, uint32_t semanticIndex);
 
+        /// 返回顶点缓冲流索引
         TPROPERTY(RTTRFuncName="slot", RTTRFuncType="getter")
         uint32_t getSlot() const { return mSlot; }
 
+        /// 返回属性在顶点中的字节偏移
         TPROPERTY(RTTRFuncName="offset", RTTRFuncType="getter")
         uint32_t getOffset() const { return mOffset; }
 
+        /// 返回属性数据类型
         TPROPERTY(RTTRFuncName="type", RTTRFuncType="getter")
         Type getType() const { return mType; }
 
+        /// 返回着色器语义
         TPROPERTY(RTTRFuncName="semantic", RTTRFuncType="getter")
         Semantic getSemantic() const { return mSemantic; }
 
+        /// 返回语义索引
         TPROPERTY(RTTRFuncName="semanticIndex", RTTRFuncType="getter")
         uint32_t getSemanticIndex() const { return mSemanticIndex; }
 
+        /**
+         * \brief 返回该属性占用的字节数（按 mType 查表）
+         * \return 属性字节大小
+         */
         uint32_t getSize() const;
 
     protected:
+        /// 设置顶点缓冲流索引
         TPROPERTY(RTTRFuncName="slot", RTTRFuncType="setter")
         void setSlot(uint32_t slot) { mSlot = slot; }
 
+        /// 设置属性字节偏移
         TPROPERTY(RTTRFuncName="offset", RTTRFuncType="setter")
         void setOffset(uint32_t offset) { mOffset = offset; }
 
+        /// 设置属性数据类型
         TPROPERTY(RTTRFuncName="type", RTTRFuncType="setter")
         void setType(Type type) { mType = type; }
 
+        /// 设置着色器语义
         TPROPERTY(RTTRFuncName="semantic", RTTRFuncType="setter")
         void setSemantic(Semantic semantic) { mSemantic = semantic; }
 
+        /// 设置语义索引
         TPROPERTY(RTTRFuncName="semanticIndex", RTTRFuncType="setter")
         void setSemanticIndex(uint32_t index) { mSemanticIndex = index; }
         
     protected:
-        /// 顶点属性数据类型
+        /// 属性数据类型
         Type        mType {Type::E_VAT_FLOAT4};
-        /// 顶点属性语义
+        /// 着色器语义
         Semantic    mSemantic {Semantic::E_VAS_POSITION};
-        /// 顶点属性定义的在顶点缓存中的偏移值
+        /// 属性在顶点中的字节偏移
         uint32_t    mOffset {0};
-        /// 对应定义的顶点缓存索引
+        /// 顶点缓冲流索引
         uint32_t    mSlot {0};
-        /// 顶点语义索引
+        /// 语义索引
         uint32_t    mSemanticIndex {0};
     };
 }

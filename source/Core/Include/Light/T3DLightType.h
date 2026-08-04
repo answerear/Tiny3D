@@ -32,20 +32,20 @@
 namespace Tiny3D
 {
     /**
-     * 光照类型
+     * \brief 引擎光源组件的类型标识，供 Light::getLightType 与渲染管线分支使用
      */
     TENUM()
     enum class LightType : uint32_t
     {
-        /// 无光照
+        /// 无效或未指定类型
         kNone = 0,
-        /// 环境光
+        /// 环境光（IndirectLight 分支）
         kAmbient,
-        /// 平行光
+        /// 平行光（LocalLight 分支）
         kDirectional,
-        /// 点光源
+        /// 点光源（LocalLight 分支）
         kPoint,
-        /// 聚光灯
+        /// 聚光灯（LocalLight 分支）
         kSpot,
     };
 }

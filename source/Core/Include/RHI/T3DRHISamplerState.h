@@ -33,17 +33,22 @@
 namespace Tiny3D
 {
     /**
-     * \brief 渲染硬件层的纹理采样状态
+     * \brief RHI 层纹理采样状态对象，封装后端 sampler state 资源
      */
     class T3D_ENGINE_API RHISamplerState : public RHIResource
     {
     public:
+        /**
+         * \brief 返回资源类型 kSamplerState
+         * \return ResourceType::kSamplerState
+         */
         ResourceType getResourceType() const override
         {
             return ResourceType::kSamplerState;
         }
-        
+
     protected:
+        /// 受保护构造，由 RHIContext::createSamplerState 及后端派生类创建
         RHISamplerState();
     };
 }

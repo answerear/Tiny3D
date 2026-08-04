@@ -35,14 +35,16 @@
 namespace Tiny3D
 {
     /**
-     * \brief 渲染硬件层的颜色混合状态
+     * \brief RHI 层渲染目标抽象基类，作为窗口与离屏 RT 的共同父类
      */
     class T3D_ENGINE_API RHIRenderTarget : public RHIResource
     {
     public:
+        /// 默认析构
         ~RHIRenderTarget() override = default;
-        
+
     protected:
+        /// 受保护默认构造，由后端派生类实例化
         RHIRenderTarget() = default;
     };
 }

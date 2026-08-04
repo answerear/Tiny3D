@@ -32,59 +32,60 @@
 namespace Tiny3D
 {
     /**
-     * @enum    PixelFormat
-     * @brief   Values that represent pixel formats
+     * \brief 像素 / 深度模板格式枚举
      */
     TENUM()
     enum class PixelFormat : uint32_t
     {
-        E_PF_UNKNOWN = 0,
-        E_PF_PALETTE8,
-        E_PF_B5G6R5,
-        E_PF_B5G5R5A1,
-        E_PF_B4R4G4A4,
-        E_PF_R8G8B8,
-        E_PF_B8G8R8,
-        E_PF_R8G8B8A8,
-        E_PF_B8G8R8A8,
-        E_PF_R8G8B8X8,
-        E_PF_B8G8R8X8,
-        
-        /// 24位无符号归一化深度 + 8位模板
+        E_PF_UNKNOWN = 0,           ///< 未知 / 未指定格式
+        E_PF_PALETTE8,              ///< 8 位调色板索引
+        E_PF_B5G6R5,                ///< 16 位 B5G6R5
+        E_PF_B5G5R5A1,              ///< 16 位 B5G5R5A1
+        E_PF_B4R4G4A4,              ///< 16 位 B4G4R4A4
+        E_PF_R8G8B8,                ///< 24 位 R8G8B8
+        E_PF_B8G8R8,                ///< 24 位 B8G8R8
+        E_PF_R8G8B8A8,              ///< 32 位 R8G8B8A8
+        E_PF_B8G8R8A8,              ///< 32 位 B8G8R8A8
+        E_PF_R8G8B8X8,              ///< 32 位 R8G8B8X8（X 通道忽略）
+        E_PF_B8G8R8X8,              ///< 32 位 B8G8R8X8（X 通道忽略）
+
+        /// 24 位无符号归一化深度 + 8 位模板
         E_PF_D24_UNORM_S8_UINT,
-        /// 32位浮点深度 + 8位模板 + 24位未用
+        /// 32 位浮点深度 + 8 位模板 + 24 位未用
         E_PF_D32_FLOAT_S8X24_UINT,
-        /// 32位浮点深度，无模板
+        /// 32 位浮点深度，无模板
         E_PF_D32_FLOAT,
-        /// 16位无符号归一化深度，无模板，精度较低
+        /// 16 位无符号归一化深度，无模板
         E_PF_D16_UNORM,
     };
 
+    /**
+     * \brief 纹理维度 / 用途类型
+     */
     TENUM()
     enum class TEXTURE_TYPE : uint32_t
     {
-        TT_1D = 0,
-        TT_2D,
-        TT_2D_ARRAY,
-        TT_3D,
-        TT_CUBE,
-        TT_CUBE_ARRAY,
-        TT_RENDER_TEXTURE,
-        TT_MAX
+        TT_1D = 0,          ///< 一维纹理
+        TT_2D,              ///< 二维纹理
+        TT_2D_ARRAY,        ///< 二维纹理数组
+        TT_3D,              ///< 三维纹理
+        TT_CUBE,            ///< 立方体贴图
+        TT_CUBE_ARRAY,      ///< 立方体贴图数组
+        TT_RENDER_TEXTURE,  ///< 渲染目标纹理
+        TT_MAX              ///< 枚举上界（非法取值哨兵）
     };
 
     /**
-     * @enum    PrimitiveType
-     * @brief   渲染图元类型
+     * \brief 渲染图元拓扑类型
      */
     TENUM()
     enum class PrimitiveType : uint32_t
     {
-        kPointList = 0,     /**< 点列表图元 */
-        kLineList,          /**< 线列表图元 */
-        kLineStrip,         /**< 线带图元 */
-        kTriangleList,      /**< 三角形列表图元 */
-        kTriangleStrip,     /**< 三角形带图元 */
+        kPointList = 0,     ///< 点列表
+        kLineList,          ///< 线列表
+        kLineStrip,         ///< 线带
+        kTriangleList,      ///< 三角形列表
+        kTriangleStrip,     ///< 三角形带
     };
 }
 

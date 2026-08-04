@@ -33,17 +33,22 @@
 namespace Tiny3D
 {
     /**
-     * \brief 渲染硬件层的颜色混合状态
+     * \brief RHI 层颜色混合状态对象，封装后端 blend state 资源
      */
     class T3D_ENGINE_API RHIBlendState : public RHIResource
     {
     public:
+        /**
+         * \brief 返回资源类型 kBlendState
+         * \return ResourceType::kBlendState
+         */
         ResourceType getResourceType() const override
         {
             return ResourceType::kBlendState;
         }
 
     protected:
+        /// 受保护构造，由 RHIContext::createBlendState 及后端派生类创建
         RHIBlendState();
     };
 }

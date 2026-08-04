@@ -33,6 +33,10 @@ namespace Tiny3D
 {
 #if defined(T3D_OS_DESKTOP)
 
+    /**
+     * \brief Scene 资源（.tscene）的 .meta 元数据
+     * \remarks UUID 与对应 Scene 资源的 UUID 一致
+     */
     TCLASS()
     class T3D_ENGINE_API MetaScene : public Meta
     {
@@ -40,16 +44,30 @@ namespace Tiny3D
         TRTTI_FRIEND
 
     public:
+        /**
+         * \brief 创建 MetaScene 实例
+         * \param [in] uuid : 与 Scene 资源的 UUID 一致
+         * \return 新建的 MetaScenePtr
+         */
         static MetaScenePtr create(const UUID &uuid)
         {
             return T3D_NEW MetaScene(uuid);
         }
 
+        /**
+         * \brief 返回 kScene 类型标识
+         * \return Meta::kScene
+         */
         Type getType() const override { return kScene; }
 
     protected:
+        /// 默认构造
         MetaScene() = default;
 
+        /**
+         * \brief 以指定 UUID 构造
+         * \param [in] uuid : 与 Scene 资源的 UUID 一致
+         */
         MetaScene(const UUID &uuid)
             : Meta(uuid)
         {

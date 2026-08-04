@@ -39,65 +39,68 @@
 namespace Tiny3D
 {
     /**
-     * @class Performance
-     * @brief 性能统计工具类，提供代码段耗时采样和统计功能
-     * @note 全部静态方法，轻量级设计，内部使用 TimerManager 高精度计时
+     * \brief 静态性能采样工具，基于 DateTime::currentMicroSeconds() 记录代码段耗时
      */
     class T3D_ENGINE_API Performance
     {
     public:
         /**
-         * @brief 开始采样
-         * @param [in] name : 采样名称
+         * \brief 开始采样，记录起始微秒时间戳
+         * \param [in] name : 采样名称；若不存在则创建条目
          */
         static void beginSample(const char *name);
 
         /**
-         * @brief 结束采样，记录本次耗时
-         * @param [in] name : 采样名称（必须与 beginSample 配对）
+         * \brief 结束采样，累加本次耗时
+         * \param [in] name : 与 beginSample 配对的采样名称
+         * \note 仅当 name 已存在于 mSamples 时才更新统计；须先调用 beginSample
          */
         static void endSample(const char *name);
 
         /**
-         * @brief 获取指定采样最近一次的微秒耗时
-         * @param [in] name : 采样名称
-         * @return 最近一次采样的微秒数，如果没有记录返回 0
+         * \brief 获取指定采样最近一次耗时
+         * \param [in] name : 采样名称
+         * \return 最近一次微秒数；无记录时返回 0
          */
         static int64_t getLastSampleMicroseconds(const char *name);
 
         /**
-         * @brief 获取指定采样的总微秒耗时
-         * @param [in] name : 采样名称
-         * @return 累计微秒数
+         * \brief 获取指定采样累计耗时
+         * \param [in] name : 采样名称
+         * \return 累计微秒数；无记录时返回 0
          */
         static int64_t getTotalSampleMicroseconds(const char *name);
 
         /**
-         * @brief 获取指定采样的调用次数
-         * @param [in] name : 采样名称
-         * @return 调用次数
+         * \brief 获取指定采样调用次数
+         * \param [in] name : 采样名称
+         * \return 调用次数；无记录时返回 0
          */
         static uint32_t getSampleCount(const char *name);
 
         /**
-         * @brief 通过 T3D_LOG_INFO 输出所有记录的采样数据
+         * \brief 通过 T3D_LOG_INFO 输出全部采样的 count、last、total、avg
          */
         static void logAllSamples();
 
         /**
-         * @brief 清空所有采样数据
+         * \brief 清空全部采样数据
          */
         static void reset();
 
     private:
+        /**
+         * \brief 单个采样点的运行时统计
+         */
         struct SampleData
         {
-            int64_t     startTime {0};
-            int64_t     lastDuration {0};
-            int64_t     totalDuration {0};
-            uint32_t    count {0};
+            int64_t     startTime {0};      ///< beginSample 记录的起始时间（微秒）
+            int64_t     lastDuration {0};   ///< 最近一次耗时（微秒）
+            int64_t     totalDuration {0};  ///< 累计耗时（微秒）
+            uint32_t    count {0};          ///< 完成次数
         };
 
+        /// 采样名称 → 统计数据
         static TMap<String, SampleData> mSamples;
     };
 }

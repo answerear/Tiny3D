@@ -33,15 +33,8 @@
 namespace Tiny3D
 {
     /**
-     * @brief 资源加载门面，为应用层提供“一步加载”的统一入口
-     * @remarks
-     *   - 内部维护一个 CompositeArchive 搜索链，应用层无需感知 Archive。
-     *   - editor 模式挂载 MetaFileSystem 搜索链，runtime 模式挂载 BundleFileSystem
-     *     搜索链；挂载动作由上层（编辑器 / 应用启动流程）按模式触发。
-     *   - loadXxx(name/uuid) 内部转调对应的资源管理器并传入组合档案，跨档案（跨包）
-     *     的依赖加载自动生效。
-     *   - 本类保持“来源无关”：只认 Archive 接口 + 优先级，不感知平台 / 包内 /
-     *     可写路径 / AAssetManager 等存储细节。
+     * \brief 资源加载门面，为应用层提供基于组合档案的一步加载入口
+     * \remarks 内部维护 CompositeArchive 搜索链；loadXxx 转调对应 ResourceManager 并传入组合档案，应用层无需直接操作 Archive
      */
     class T3D_ENGINE_API AssetManager
         : public Object
@@ -49,135 +42,159 @@ namespace Tiny3D
     {
     public:
         /**
-         * @brief 门面运行模式
+         * \brief 门面运行模式
          */
         enum class Mode : uint32_t
         {
-            /// 运行时模式，挂载只读的包内 / 补丁包搜索链
+            /// 运行时模式：组合档案以只读方式创建
             kRuntime = 0,
-            /// 编辑器模式，挂载可写的工程资源搜索链
+            /// 编辑器模式：组合档案允许读写（kReadTruncate）
             kEditor
         };
 
         /**
-         * @brief 创建资源门面对象
+         * \brief 创建 AssetManager 单例对象
+         * \return 新建的 AssetManager 智能指针
          */
         static AssetManagerPtr create();
 
         /**
-         * @brief 析构函数
+         * \brief 析构并卸载组合档案上的所有挂载
          */
         ~AssetManager() override;
 
         /**
-         * @brief 按模式初始化门面，创建对应的组合档案
-         * @param [in] mode : 运行模式
-         * @remarks 只准备好组合档案，不做实际挂载；挂载由上层调用 mount 完成
+         * \brief 按模式初始化并创建组合档案
+         * \param [in] mode : 运行模式，决定组合档案的访问模式
+         * \remarks 仅创建组合档案，不执行 mount；实际挂载由上层按模式调用 mount
          */
         void init(Mode mode);
 
-        /**
-         * @brief 获取当前运行模式
-         */
+        /// 获取当前运行模式
         Mode getMode() const { return mMode; }
 
         /**
-         * @brief 挂载一个档案到搜索链
-         * @param [in] archive : 要挂载的档案对象
-         * @param [in] priority : 优先级，数值越小越先被搜索
+         * \brief 将档案挂载到搜索链
+         * \param [in] archive : 要挂载的档案对象
+         * \param [in] priority : 搜索优先级，数值越小越先被搜索
          */
         void mount(Archive *archive, int32_t priority);
 
         /**
-         * @brief 从搜索链卸载指定档案
-         * @param [in] archive : 要卸载的档案对象
+         * \brief 从搜索链卸载指定档案
+         * \param [in] archive : 要卸载的档案对象
          */
         void unmount(Archive *archive);
 
         /**
-         * @brief 卸载搜索链上的所有档案
+         * \brief 卸载搜索链上的所有档案
          */
         void unmountAll();
 
         /**
-         * @brief 获取内部组合档案对象
-         * @remarks 供需要直接使用 Archive* 的少数场景（如保存资源）使用
+         * \brief 获取内部组合档案对象
+         * \return 组合档案裸指针；未 init 且尚未 mount 时可能为 nullptr，ensureArchive 后会创建
          */
         Archive *getArchive() const;
 
         /**
-         * @brief 根据文件名加载 mesh
+         * \brief 按文件名加载 Mesh
+         * \param [in] filename : 资源文件名
+         * \return 成功返回 Mesh 智能指针；加载失败时返回 nullptr
          */
         MeshPtr loadMesh(const String &filename);
 
         /**
-         * @brief 根据 UUID 加载 mesh
+         * \brief 按 UUID 加载 Mesh
+         * \param [in] uuid : 资源 UUID
+         * \return 成功返回 Mesh 智能指针；加载失败时返回 nullptr
          */
         MeshPtr loadMesh(const UUID &uuid);
 
         /**
-         * @brief 根据文件名加载纹理
+         * \brief 按文件名加载 Texture
+         * \param [in] filename : 资源文件名
+         * \return 成功返回 Texture 智能指针；加载失败时返回 nullptr
          */
         TexturePtr loadTexture(const String &filename);
 
         /**
-         * @brief 根据 UUID 加载纹理
+         * \brief 按 UUID 加载 Texture
+         * \param [in] uuid : 资源 UUID
+         * \return 成功返回 Texture 智能指针；加载失败时返回 nullptr
          */
         TexturePtr loadTexture(const UUID &uuid);
 
         /**
-         * @brief 根据文件名加载材质
+         * \brief 按文件名加载 Material
+         * \param [in] filename : 资源文件名
+         * \return 成功返回 Material 智能指针；加载失败时返回 nullptr
          */
         MaterialPtr loadMaterial(const String &filename);
 
         /**
-         * @brief 根据 UUID 加载材质
+         * \brief 按 UUID 加载 Material
+         * \param [in] uuid : 资源 UUID
+         * \return 成功返回 Material 智能指针；加载失败时返回 nullptr
          */
         MaterialPtr loadMaterial(const UUID &uuid);
 
         /**
-         * @brief 根据文件名加载着色器
+         * \brief 按文件名加载 Shader
+         * \param [in] filename : 资源文件名
+         * \return 成功返回 Shader 智能指针；加载失败时返回 nullptr
          */
         ShaderPtr loadShader(const String &filename);
 
         /**
-         * @brief 根据 UUID 加载着色器
+         * \brief 按 UUID 加载 Shader
+         * \param [in] uuid : 资源 UUID
+         * \return 成功返回 Shader 智能指针；加载失败时返回 nullptr
          */
         ShaderPtr loadShader(const UUID &uuid);
 
         /**
-         * @brief 根据文件名加载图像
+         * \brief 按文件名加载 Image
+         * \param [in] filename : 资源文件名
+         * \return 成功返回 Image 智能指针；加载失败时返回 nullptr
          */
         ImagePtr loadImage(const String &filename);
 
         /**
-         * @brief 根据 UUID 加载图像
+         * \brief 按 UUID 加载 Image
+         * \param [in] uuid : 资源 UUID
+         * \return 成功返回 Image 智能指针；加载失败时返回 nullptr
          */
         ImagePtr loadImage(const UUID &uuid);
 
         /**
-         * @brief 根据文件名加载预制体
+         * \brief 按文件名加载 Prefab
+         * \param [in] name : 预制体文件名
+         * \return 成功返回 Prefab 智能指针；加载失败时返回 nullptr
          */
         PrefabPtr loadPrefab(const String &name);
 
         /**
-         * @brief 根据文件名加载场景
+         * \brief 按文件名加载 Scene
+         * \param [in] name : 场景文件名
+         * \return 成功返回 Scene 智能指针；加载失败时返回 nullptr
          */
         ScenePtr loadScene(const String &name);
 
         /**
-         * @brief 根据 UUID 加载场景
+         * \brief 按 UUID 加载 Scene
+         * \param [in] uuid : 资源 UUID
+         * \return 成功返回 Scene 智能指针；加载失败时返回 nullptr
          */
         ScenePtr loadScene(const UUID &uuid);
 
     protected:
-        /**
-         * @brief 构造函数
-         */
+        /// 默认构造
         AssetManager() = default;
 
         /**
-         * @brief 确保组合档案已创建
+         * \brief 懒创建组合档案
+         * \remarks mArchive 为 nullptr 时按 mMode 创建 CompositeArchive
          */
         void ensureArchive();
 

@@ -29,6 +29,7 @@
 #include "T3DMacro.h"
 
 
+/** \brief Core 符号导出/导入宏；T3D_CORE_STATIC 时为空，T3DCORE_EXPORT 时导出否则导入 */
 #if defined(T3D_CORE_STATIC)
     #define T3D_ENGINE_API
 #else
@@ -60,6 +61,8 @@
 
 namespace Tiny3D
 {
+    /** \brief 各子系统日志标签字符串，供 T3D_LOG_* 使用 */
+
     #define LOG_TAG_CONFIG_FILE         "ConfigFile"
     #define LOG_TAG_ENGINE              "Agent"
     #define LOG_TAG_IMAGE               "Image"
@@ -74,7 +77,8 @@ namespace Tiny3D
 
     #define TXT_DESCRIPTION             "Description"
 
-    
+    /** \brief Core 类型前向声明，供头文件间解耦引用 */
+
     class Object;
     class ObjectTracer;
 
@@ -270,6 +274,7 @@ namespace Tiny3D
     class RHICommand;
 
 #if defined(T3D_OS_DESKTOP)
+    /** \brief 桌面端 .meta 资源描述类型前向声明 */
     class Meta;
     class MetaFolder;
     class MetaFile;

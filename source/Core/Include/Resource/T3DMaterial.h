@@ -220,7 +220,7 @@
 namespace Tiny3D
 {
     /**
-     * \brief 材质
+     * \brief 材质资源，绑定 Shader 并持有常量/采样器参数值及当前 TechniqueInstance
      */
     TCLASS()
     class T3D_ENGINE_API Material : public Resource
@@ -229,131 +229,245 @@ namespace Tiny3D
         TRTTI_FRIEND
         
     public:
+        /**
+         * \brief 创建空材质（无 Shader）
+         * \param [in] name : 材质名称
+         * \return 新建的 Material 智能指针
+         */
         static MaterialPtr create(const String &name);
 
+        /**
+         * \brief 创建绑定指定 Shader 的材质
+         * \param [in] name : 材质名称
+         * \param [in] shader : 关联的 Shader 对象，不可为 nullptr
+         * \return 新建的 Material 智能指针
+         */
         static MaterialPtr create(const String &name, Shader *shader);
 
+        /// 析构函数
         ~Material() override;
 
+        /**
+         * \brief 获取资源类型
+         * \return 固定返回 Type::kMaterial
+         */
         Type getType() const override;
 
+        /**
+         * \brief 切换 Shader 关键字（启用/禁用宏）
+         * \param [in] enableKeys : 要启用的关键字列表
+         * \param [in] disableKey : 要禁用的关键字列表
+         * \return mCurTechnique 为 nullptr 时返回 T3D_ERR_INVALID_POINTER；否则返回 TechniqueInstance::switchKeywords 的结果
+         */
         TResult switchKeywords(const StringArray &enableKeys, const StringArray &disableKey);
 
+        /**
+         * \brief 查询关键字是否已启用
+         * \param [in] keyword : 关键字名称
+         * \return 当前实现始终返回 false
+         */
         bool isKeywordEnable(const String &keyword) const;
 
+        /// 获取当前 Technique 上已启用的关键字列表；无 Technique 时返回空数组
         const StringArray &getEnabledKeywords() const
         {
             return mCurTechnique != nullptr ? mCurTechnique->getEnabledKeywords() : StringUtil::kEmptyStringArray;
         }
 
+        /// 获取当前 Technique 上已禁用的关键字列表；无 Technique 时返回空数组
         const StringArray &getDisabledKeywords() const
         {
             return mCurTechnique != nullptr ? mCurTechnique->getDisabledKeywords() : StringUtil::kEmptyStringArray;
         }
 
         /**
-         * \brief 设置整型数据
-         * \param name 
-         * \param value 
+         * \brief 设置整型 Shader 常量
+         * \param [in] name : 参数名称
+         * \param [in] value : 整型值
+         * \remarks 同步更新 mConstantValues 与 mCurTechnique（若存在）
          */
         void setInteger(const String &name, int32_t value);
 
+        /// 获取整型 Shader 常量；不存在时返回默认构造的 int32_t
         int32_t getInteger(const String &name) const;
 
+        /// 是否存在指定名称且数据大小匹配 int32_t 的常量
         bool hasInteger(const String &name) const;
 
+        /// 设置浮点 Shader 常量
         void setFloat(const String &name, float32_t value);
 
+        /// 获取浮点 Shader 常量；不存在时返回 0
         float32_t getFloat(const String &name) const;
 
+        /// 是否存在指定名称且数据大小匹配 float32_t 的常量
         bool hasFloat(const String &name) const;
 
+        /// 设置浮点数组 Shader 常量
         void setFloatArray(const String &name, const FloatArray &values);
 
+        /// 获取浮点数组 Shader 常量
         FloatArray getFloatArray(const String &name) const;
 
+        /// 设置颜色 Shader 常量
         void setColor(const String &name, const ColorRGBA &value);
 
+        /// 获取颜色 Shader 常量
         ColorRGBA getColor(const String &name) const;
 
+        /// 是否存在指定名称且数据大小匹配 ColorRGBA 的常量
         bool hasColor(const String &name) const;
 
+        /// 设置颜色数组 Shader 常量
         void setColorArray(const String &name, const ColorArray &values);
 
+        /// 获取颜色数组 Shader 常量
         ColorArray getColorArray(const String &name) const;
 
+        /// 是否存在指定名称且数据大小为 ColorRGBA 整数倍的常量
         bool hasColorArray(const String &name) const;
 
+        /// 设置 Vector4 Shader 常量
         void setVector(const String &name, const Vector4 &value);
 
+        /// 获取 Vector4 Shader 常量
         Vector4 getVector(const String &name) const;
 
+        /// 是否存在指定名称且数据大小匹配 Vector4 的常量
         bool hasVector(const String &name) const;
 
+        /// 设置 Vector4 数组 Shader 常量
         void setVectorArray(const String &name, const Vector4Array &values);
 
+        /// 获取 Vector4 数组 Shader 常量
         Vector4Array getVectorArray(const String &name) const;
 
+        /// 是否存在指定名称且数据大小为 Vector4 整数倍的常量
         bool hasVectorArray(const String &name) const;
         
+        /// 设置 Matrix4 Shader 常量
         void setMatrix(const String &name, const Matrix4 &value);
 
+        /// 获取 Matrix4 Shader 常量
         Matrix4 getMatrix(const String &name) const;
 
+        /// 是否存在指定名称且数据大小匹配 Matrix4 的常量
         bool hasMatrix(const String &name) const;
 
+        /// 设置 Matrix4 数组 Shader 常量
         void setMatrixArray(const String &name, const Matrix4Array &values);
 
+        /// 获取 Matrix4 数组 Shader 常量
         Matrix4Array getMatrixArray(const String &name) const;
 
+        /// 是否存在指定名称且数据大小为 Matrix4 整数倍的常量
         bool hasMatrixArray(const String &name) const;
         
+        /**
+         * \brief 设置纹理采样器绑定的纹理 UUID
+         * \param [in] name : 采样器参数名称
+         * \param [in] uuid : 纹理资源 UUID
+         * \remarks 同步更新 mSamplerValues 与 mCurTechnique（若存在）
+         */
         void setTexture(const String &name, const UUID &uuid);
 
+        /**
+         * \brief 获取纹理采样器绑定的纹理 UUID
+         * \param [in] name : 采样器参数名称
+         * \return 存在时返回对应 UUID；否则返回 UUID::INVALID
+         */
         const UUID &getTexture(const String &name) const;
 
+        /// 是否存在指定名称的纹理采样器
         bool hasTexture(const String &name) const;
 
+        /// 获取关联 Shader 的 UUID
         TPROPERTY(RTTRFuncName="Shader", RTTRFuncType="getter")
         const UUID &getShaderUUID() const { return mShaderUUID; }
 
+        /// 获取所有纹理采样器参数值
         TPROPERTY(RTTRFuncName="SamplerValues", RTTRFuncType="getter")
         const ShaderSamplerValues &getSamplerValues() const { return mSamplerValues; }
 
+        /// 获取已加载的 Shader 对象
         ShaderPtr getShader() const { return mShader; }
 
+        /// 获取当前激活的 TechniqueInstance
         TechniqueInstancePtr getCurrentTechnique() const { return mCurTechnique; }
         
     private:
+        /// RTTR 默认构造入口
         Material() : Material("") {}
 
+        /// 设置关联 Shader 的 UUID
         TPROPERTY(RTTRFuncName="Shader", RTTRFuncType="setter")
         void setShaderUUID(const UUID &uuid) { mShaderUUID = uuid; }
 
+        /// 设置纹理采样器参数值表
         TPROPERTY(RTTRFuncName="SamplerValues", RTTRFuncType="setter")
         void setSamplerValues(const ShaderSamplerValues &values) { mSamplerValues = values; }
 
+        /// 获取 Shader 常量参数值表
         TPROPERTY(RTTRFuncName="ConstantValues", RTTRFuncType="getter")
         const ShaderConstantValues &getConstantValues() const { return mConstantValues; }
 
+        /// 设置 Shader 常量参数值表
         TPROPERTY(RTTRFuncName="ConstantValues", RTTRFuncType="setter")
         void setConstantValues(const ShaderConstantValues &values) { mConstantValues = values; }
         
     protected:
+        /**
+         * \brief 以名称构造材质
+         * \param [in] name : 材质名称
+         */
         Material(const String &name);
 
+        /**
+         * \brief 构造绑定 Shader 的材质
+         * \param [in] name : 材质名称
+         * \param [in] shader : 关联 Shader
+         */
         Material(const String &name, Shader *shader);
         
+        /**
+         * \brief 克隆材质资源
+         * \return 新 Material 智能指针
+         */
         ResourcePtr clone() const override;
 
+        /**
+         * \brief 从源材质拷贝常量/采样器/Shader/Technique 等属性
+         * \param [in] src : 源 Material 对象
+         */
         void cloneProperties(const Resource * const src) override;
 
+        /**
+         * \brief 资源创建回调：编译 Shader 并初始化 Technique
+         * \return init(true, nullptr) 的返回值
+         */
         TResult onCreate() override;
         
+        /**
+         * \brief 资源加载回调：加载 Shader 并初始化 Technique
+         * \param [in] archive : 来源档案，用于加载采样器引用的纹理
+         * \return Shader 加载或 init 失败时返回对应错误码
+         */
         TResult onLoad(Archive *archive) override;
 
+        /**
+         * \brief 编译 Shader、可选反射参数并创建 TechniqueInstance
+         * \param [in] shouldReflect : 为 true 时从 Shader 变体反射并初始化 mConstantValues/mSamplerValues
+         * \param [in] archive : 非 nullptr 时为各采样器加载纹理资源
+         * \return 编译或反射失败时返回对应错误码；否则返回 T3D_OK
+         */
         TResult init(bool shouldRefelect, Archive *archive);
 
+        /**
+         * \brief 检查是否存在指定名称且数据大小匹配 T 的常量
+         * \tparam [in] T : 标量常量类型
+         * \param [in] name : 参数名称
+         * \return 存在且 sizeof(T) 与存储数据大小一致时返回 true
+         */
         template <typename T>
         bool hasValue(const String &name) const
         {
@@ -361,6 +475,9 @@ namespace Tiny3D
             return (itr != mConstantValues.end() && sizeof(T) == itr->second->getDataSize());
         }
 
+        /**
+         * \brief ColorArray 特化：检查数据大小是否为 ColorRGBA 整数倍
+         */
         template <>
         bool hasValue<ColorArray>(const String &name) const
         {
@@ -368,6 +485,9 @@ namespace Tiny3D
             return (itr != mConstantValues.end() && (itr->second->getDataSize() % sizeof(ColorRGBA) == 0));
         }
 
+        /**
+         * \brief Vector4Array 特化：检查数据大小是否为 Vector4 整数倍
+         */
         template <>
         bool hasValue<Vector4Array>(const String &name) const
         {
@@ -375,6 +495,9 @@ namespace Tiny3D
             return (itr != mConstantValues.end() && (itr->second->getDataSize() % sizeof(Vector4) == 0));
         }
 
+        /**
+         * \brief Matrix4Array 特化：检查数据大小是否为 Matrix4 整数倍
+         */
         template <>
         bool hasValue<Matrix4Array>(const String &name) const
         {
@@ -383,6 +506,12 @@ namespace Tiny3D
             return (itr != mConstantValues.end() && (itr->second->getDataSize() % sizeof(Matrix4) == 0));
         }
         
+        /**
+         * \brief 设置常量值并同步到 TechniqueInstance
+         * \tparam Value_t : 值类型
+         * \tparam ShaderSetValue_t : ShaderConstantValue 成员函数指针
+         * \tparam TechniqueSetValue_t : TechniqueInstance 成员函数指针
+         */
         template <typename Value_t, typename ShaderSetValue_t, typename TechniqueSetValue_t>
         void setValue(const String &name, const Value_t &value, ShaderSetValue_t setShaderConstantValue, TechniqueSetValue_t setTechniqueConstantValue)
         {
@@ -398,6 +527,11 @@ namespace Tiny3D
             }
         }
 
+        /**
+         * \brief 从 mConstantValues 读取常量值
+         * \tparam Value_t : 值类型
+         * \return 存在时返回存储值；否则返回 Value_t 默认构造值
+         */
         template <typename Value_t, typename SahderGetValue_t>
         Value_t getValue(const String &name, SahderGetValue_t getShaderContantValue) const
         {
@@ -409,8 +543,18 @@ namespace Tiny3D
             return Value_t {};
         }
 
+        /**
+         * \brief 将 ShaderConstantValue 同步到当前 TechniqueInstance
+         * \param [in] constValue : 常量值对象，不可为 nullptr
+         */
         void setShaderConstantValue(ShaderConstantValue *constValue);
 
+        /**
+         * \brief 加载采样器纹理并同步到 TechniqueInstance
+         * \param [in] archive : 来源档案；为 nullptr 时跳过纹理加载
+         * \param [in] samplerValue : 采样器值对象
+         * \remarks UUID 为 INVALID 的运行时纹理（如 shadowMap）会跳过加载
+         */
         void setShaderSamplerValue(Archive *archive, ShaderSamplerValue *samplerValue);
         
     protected:

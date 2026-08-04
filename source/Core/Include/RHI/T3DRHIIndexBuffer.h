@@ -33,14 +33,19 @@
 namespace Tiny3D
 {
     /**
-     * @brief   索引缓冲区
+     * \brief RHI 层索引缓冲对象，封装后端 index buffer 资源
      */
     class T3D_ENGINE_API RHIIndexBuffer : public RHIResource
     {
     public:
+        /**
+         * \brief 返回资源类型 kIndexBuffer
+         * \return ResourceType::kIndexBuffer
+         */
         ResourceType getResourceType() const override { return ResourceType::kIndexBuffer; }
-        
+
     protected:
+        /// 受保护构造，由 RHIContext::createIndexBuffer 及后端派生类创建
         RHIIndexBuffer();
     };
 }

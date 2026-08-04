@@ -33,6 +33,10 @@ namespace Tiny3D
 {
 #if defined(T3D_OS_DESKTOP)
 
+    /**
+     * \brief Material 资源（.tmaterial）的 .meta 元数据
+     * \remarks UUID 与对应 Material 资源的 UUID 一致
+     */
     TCLASS()
     class T3D_ENGINE_API MetaMaterial : public Meta
     {
@@ -40,16 +44,30 @@ namespace Tiny3D
         TRTTI_FRIEND
 
     public:
+        /**
+         * \brief 创建 MetaMaterial 实例
+         * \param [in] uuid : 与 Material 资源相同的 UUID
+         * \return 新建的 MetaMaterialPtr
+         */
         static MetaMaterialPtr create(const UUID &uuid)
         {
             return T3D_NEW MetaMaterial(uuid);
         }
 
+        /**
+         * \brief 返回 kMaterial 类型标识
+         * \return Meta::kMaterial
+         */
         Type getType() const override { return kMaterial; }
 
     protected:
+        /// 默认构造
         MetaMaterial() = default;
 
+        /**
+         * \brief 以指定 UUID 构造
+         * \param [in] uuid : 与 Material 资源相同的 UUID
+         */
         MetaMaterial(const UUID &uuid)
             : Meta(uuid)
         {

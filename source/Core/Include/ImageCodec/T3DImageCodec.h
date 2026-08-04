@@ -32,183 +32,161 @@
 
 namespace Tiny3D
 {
+    /**
+     * \brief 图像编解码单例门面，按 FileType 路由到已注册的 ImageCodecBase 实现
+     */
     class T3D_ENGINE_API ImageCodec
         : public Singleton<ImageCodec>
         , public Object
     {
     public:
+        /**
+         * \brief 创建 ImageCodec 实例
+         * \return ImageCodec 智能指针
+         */
         static ImageCodecPtr create();
 
+        /// 虚析构
         virtual ~ImageCodec();
 
         /**
-         * @fn  TResult addImageCodec(ImageCodecBase::FileType type, 
-         *      ImageCodecBasePtr codec);
-         * @brief   添加图像编解码器对象
-         * @param [in]  type    : 文件类型.
-         * @param [in]  codec   : 编解码器对象.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 注册指定格式的编解码器
+         * \param [in] type : 文件格式键
+         * \param [in] codec : 编解码器实例指针
+         * \return 调用成功返回 T3D_OK
          */
         TResult addImageCodec(ImageCodecBase::FileType type, ImageCodecBase *codec);
 
         /**
-         * @fn  TResult removeImageCodec(ImageCodecBase::FileType type);
-         * @brief   移除图像编解码器对象
-         * @param [in]  type    : 文件类型.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 从映射表移除指定格式的编解码器
+         * \param [in] type : 文件格式键
+         * \return 调用成功返回 T3D_OK
          */
         TResult removeImageCodec(ImageCodecBase::FileType type);
 
         /**
-         * @fn  TResult encode(const String &name, const Image &image, 
-         *      ImageCodecBase::FileType type = ImageCodecBase::FileType::PNG);
-         * @brief   编码到指定文件名的文件
-         * @param [in]  name    : 文件名.
-         * @param [in]  image   : 数据源的图像对象.
-         * @param [in]  type    (Optional) : 图像文件格式类型，默认PNG格式.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 编码 Image 并写入文件
+         * \param [in] name : 输出文件路径
+         * \param [in] image : 源图像
+         * \param [in] type : 目标文件格式，默认 PNG
+         * \return 调用成功返回 T3D_OK；文件打开失败返回 T3D_ERR_FILE_NOT_EXIST
          */
         TResult encode(const String &name, const Image &image, ImageCodecBase::FileType type = ImageCodecBase::FileType::PNG);
 
         /**
-         * @fn  TResult encode(DataStream &stream, const Image &image, 
-         *      ImageCodecBase::FileType type = ImageCodecBase::FileType::PNG);
-         * @brief   编码到数据流对象
-         * @param [in]  stream  stream : 数据流对象.
-         * @param [in]  image   : 数据源的图像对象.
-         * @param [in]  type    (Optional) : 图像文件格式类型，默认PNG格式.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 编码 Image 并写入数据流
+         * \param [in,out] stream : 输出数据流
+         * \param [in] image : 源图像
+         * \param [in] type : 目标文件格式，默认 PNG
+         * \return 调用成功返回 T3D_OK；写入字节数不足时仅记录错误日志
          */
         TResult encode(DataStream &stream, const Image &image, ImageCodecBase::FileType type = ImageCodecBase::FileType::PNG);
 
         /**
-         * @fn  TResult encode(uint8_t *&data, size_t &size, const Image &image, 
-         *      ImageCodecBase::FileType type = ImageCodecBase::FileType::PNG);
-         * @brief   编码到数据缓冲
-         * @param [in]  data    data : 编码后返回的数据缓冲区.
-         * @param [in]  size    size : 编码后返回的数据缓冲区大小.
-         * @param       image   The image.
-         * @param [in]  type    (Optional) : 图像文件格式类型，默认PNG格式.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 编码 Image 到内存缓冲区
+         * \param [out] data : 编码输出缓冲区，由底层编解码器分配
+         * \param [out] size : 输出字节数
+         * \param [in] image : 源图像
+         * \param [in] type : 目标文件格式，默认 PNG
+         * \return 调用成功返回 T3D_OK；找不到编解码器时失败
          */
         TResult encode(uint8_t *&data, size_t &size, const Image &image, ImageCodecBase::FileType type = ImageCodecBase::FileType::PNG);
 
         /**
-         * @fn  TResult decode(const String &name, Image &image, 
-         *      ImageCodecBase::FileType type = ImageCodecBase::FileType::UNKNOWN);
-         * @brief   把指定文件读取并解码到图像对象中
-         * @param [in]  name    : 图像文件路径.
-         * @param [in]  image   image : 图像对象.
-         * @param [in]  type    (Optional) : 图像文件格式类型，默认是根据文件内容自动判断.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 从文件路径解码 Image（当前实现为空，直接返回 T3D_OK）
+         * \param [in] name : 图像文件路径
+         * \param [out] image : 解码结果
+         * \param [in] type : 文件格式，默认 UNKNOWN 自动识别
+         * \return 当前实现始终返回 T3D_OK，不填充 image
          */
         TResult decode(const String &name, Image &image, ImageCodecBase::FileType type = ImageCodecBase::FileType::UNKNOWN);
 
         /**
-         * @fn  TResult decode(DataStream &stream, Image &image, 
-         *      ImageCodecBase::FileType type = ImageCodecBase::FileType::UNKNOWN);
-         * @brief   把数据流对象中的数据解码到图像对象中
-         * @param [in]  stream  : 数据流对象.
-         * @param [in]  image   image : 图像对象.
-         * @param [in]  type    (Optional) : 图像文件格式类型，默认是根据数据流内容自动判断.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 从数据流解码 Image
+         * \param [in,out] stream : 输入数据流
+         * \param [out] image : 解码结果
+         * \param [in] type : 文件格式，默认 UNKNOWN 时按内容自动识别
+         * \return 调用成功返回 T3D_OK；读取失败返回 T3D_ERR_FILE_DATA_MISSING
          */
         TResult decode(DataStream &stream, Image &image, ImageCodecBase::FileType type = ImageCodecBase::FileType::UNKNOWN);
 
         /**
-         * @fn  TResult decode(uint8_t *data, size_t size, Image &image, 
-         *      ImageCodecBase::FileType type = ImageCodecBase::FileType::UNKNOWN);
-         * @brief   把数据缓冲中的数据解码到图像对象中
-         * @param [in]      data    : 要解码的数据缓冲区.
-         * @param [in]      size    : 要解码的数据缓冲区大小.
-         * @param [in,out]  image   The image.
-         * @param [in]      type    (Optional) : 图像文件格式类型，默认是根据数据流内容自动判断.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 从内存缓冲区解码 Image
+         * \param [in] data : 待解码数据
+         * \param [in] size : 数据字节数
+         * \param [out] image : 解码结果
+         * \param [in] type : 文件格式，默认 UNKNOWN 时按内容自动识别
+         * \return 调用成功返回 T3D_OK；找不到编解码器返回 T3D_ERR_IMG_NOT_FOUND
          */
         TResult decode(uint8_t *data, size_t size, Image &image, ImageCodecBase::FileType type = ImageCodecBase::FileType::UNKNOWN);
 
         /**
-         * @fn  TResult flip(Image &image);
-         * @brief   颠倒图像
-         * @param [in]  image   image : 需要颠倒的图像对象.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 垂直翻转图像，按 image.getFileFormat() 选择编解码器
+         * \param [in,out] image : 待翻转图像
+         * \return 调用成功返回 T3D_OK；找不到编解码器返回 T3D_ERR_IMG_NOT_FOUND
          */
         TResult flip(Image &image);
 
         /**
-         * @fn  TResult mirror(Image &image);
-         * @brief   镜像图像
-         * @param [in]  image   image : 需要镜像的图像对象.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 水平镜像图像，按 image.getFileFormat() 选择编解码器
+         * \param [in,out] image : 待镜像图像
+         * \return 调用成功返回 T3D_OK；找不到编解码器返回 T3D_ERR_IMG_NOT_FOUND
          */
         TResult mirror(Image &image);
 
         /**
-         * @fn  TResult fill(Image &image, const Color4 &color);
-         * @brief   用指定颜色填充图像
-         * @param [in]  image   image : 需要填充的图像对象.
-         * @param [in]  color   : 需要填充的颜色.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 用颜色填充图像，按 image.getFileFormat() 选择编解码器
+         * \param [in,out] image : 待填充图像
+         * \param [in] color : 填充颜色
+         * \return 调用成功返回 T3D_OK；找不到编解码器返回 T3D_ERR_IMG_NOT_FOUND
          */
         TResult fill(Image &image, const Color4 &color);
 
         /**
-         * @fn  TResult copy(const Image &srcImage, const Rect *srcRect, 
-         *      Image &dstImage, const Rect *dstRect, uint32_t filter);
-         * @brief   复制源图像指定区域数据到目标图像指定区域
-         * @param [in]  srcImage    : 源图像对象.
-         * @param [in]  srcRect     : 源图像区域.
-         * @param [in]  dstImage    dstImage : 目标图像对象.
-         * @param [in]  dstRect     : 目标图像区域.
-         * @param [in]  filter      : 缩放时候使用的算法.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 区域复制，按 srcImage.getFileFormat() 选择编解码器
+         * \param [in] srcImage : 源图像
+         * \param [in] srcRect : 源区域，可为 nullptr
+         * \param [in,out] dstImage : 目标图像
+         * \param [in] dstRect : 目标区域，可为 nullptr
+         * \param [in] filter : 缩放滤波算法
+         * \return 调用成功返回 T3D_OK；找不到编解码器返回 T3D_ERR_IMG_NOT_FOUND
          */
         TResult copy(const Image &srcImage, const Rect *srcRect, Image &dstImage, const Rect *dstRect, uint32_t filter);
 
         /**
-         * @fn  TResult convert(Image &image, PixelFormat format);
-         * @brief   转换到目标像素格式
-         * @param [in]  image   image : 需要转换像素格式图像对象.
-         * @param [in]  format  : 目标图像像素格式.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 就地转换像素格式，按 image.getFileFormat() 选择编解码器
+         * \param [in,out] image : 待转换图像
+         * \param [in] format : 目标 PixelFormat
+         * \return 调用成功返回 T3D_OK；找不到编解码器返回 T3D_ERR_IMG_NOT_FOUND
          */
         TResult convert(Image &image, PixelFormat format);
 
         /**
-         * @fn  TResult convert(const Image &srcImage, Image &dstImage, 
-         *      PixelFormat format);
-         * @brief   把源图像转换成目标像素格式并生成一个新的图像对象
-         * @param [in]  srcImage    : 源图像对象.
-         * @param [in]  dstImage    dstImage : 目标图像对象.
-         * @param [in]  format      : 目标像素格式.
-         * @return  调用成功返回 T3D_OK.
+         * \brief 转换像素格式并输出到新 Image，按 srcImage.getFileFormat() 选择编解码器
+         * \param [in] srcImage : 源图像
+         * \param [out] dstImage : 转换结果
+         * \param [in] format : 目标 PixelFormat
+         * \return 调用成功返回 T3D_OK；找不到编解码器返回 T3D_ERR_IMG_NOT_FOUND
          */
         TResult convert(const Image &srcImage, Image &dstImage, PixelFormat format);
 
     protected:
-        /**
-         * @fn  ImageCodec();
-         * @brief   构造函数
-         */
+        /// 受保护构造，初始化空编解码器映射
         ImageCodec();
 
         /**
-         * @fn  ImageCodecBasePtr getImageCodec(uint8_t *data, size_t size, 
-         *      ImageCodecBase::FileType &type) const;
-         * @brief   根据缓冲区内容获取图像编解码器对象
-         * @param [in]  data    : 数据缓冲区.
-         * @param [in]  size    : 数据缓冲区大小.
-         * @param [in]  type    : 数据缓冲区对应的文件类型.
-         * @return  调用成功返回对应的图像编解码器对象，否则返回 nullptr.
+         * \brief 按缓冲区内容或指定类型查找编解码器
+         * \param [in] data : 图像数据缓冲区
+         * \param [in] size : 数据字节数
+         * \param [in,out] type : 非 UNKNOWN 时按 type 查找；UNKNOWN 时遍历并调用 isSupportedType 自动识别
+         * \return 找到返回对应 ImageCodecBasePtr，否则 nullptr
          */
         ImageCodecBasePtr getImageCodec(uint8_t *data, size_t size, ImageCodecBase::FileType &type) const;
 
         /**
-         * @fn  ImageCodecBasePtr getImageCodec(
-         *      ImageCodecBase::FileType type) const;
-         * @brief   根据类型获取图像编解码器对象
-         * @param [in]  type    : 图像数据格式类型.
-         * @return  调用成功返回对应的图像编解码器对象，否则返回 nullptr.
+         * \brief 按 FileType 键查找编解码器
+         * \param [in] type : 文件格式
+         * \return 找到返回 ImageCodecBasePtr，否则 nullptr
          */
         ImageCodecBasePtr getImageCodec(ImageCodecBase::FileType type) const;
 
@@ -217,7 +195,7 @@ namespace Tiny3D
         using ImageCodecMapConstItr = ImageCodecMap::const_iterator;
         using ImageCodecMapValue = ImageCodecMap::value_type;
 
-        /// The codec map
+        /// FileType → ImageCodecBase 注册表
         ImageCodecMap   mCodecMap;
     };
 

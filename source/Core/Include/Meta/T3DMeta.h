@@ -34,6 +34,10 @@ namespace Tiny3D
 {
 #if defined(T3D_OS_DESKTOP)
 
+    /**
+     * \brief 桌面端资产旁路元数据（.meta）的抽象基类
+     * \remarks 仅在 T3D_OS_DESKTOP 下编译；子类标识资产类型并持有 UUID，经序列化写入 .meta 文件
+     */
     TCLASS()
     class T3D_ENGINE_API Meta : public Object
     {
@@ -41,39 +45,72 @@ namespace Tiny3D
         TRTTI_FRIEND
         
     public:
+        /**
+         * \brief Meta 类型标识，与子类及资产扩展名对应
+         */
         TENUM()
         enum Type
         {
+            /// 未知或未分类
             kUnknown = 0,
+            /// 文件夹
             kFolder,
+            /// 未匹配专用类型的通用文件
             kFile,
+            /// 文本文件（.txt）
             kTxt,
+            /// 二进制文件（.bin）
             kBin,
+            /// 动态库（.dylib / .dll）
             kDylib,
+            /// 材质资源（.tmaterial）
             kMaterial,
+            /// 纹理资源（.ttexture）
             kTexture,
+            /// 着色器资源（.tshader）
             kShader,
+            /// 网格资源（.tmesh）
             kMesh,
+            /// 预制体资源（.tprefab）
             kPrefab,
+            /// 场景资源（.tscene）
             kScene,
+            /// ShaderLab 源文件（.tshaderlab）
             kShaderLab,
+            /// 骨骼动画资源（.tanimation）
             kAnimation,
+            /// 骨骼资源（.tskeleton）
             kSkeleton,
         };
 
+        /**
+         * \brief 返回当前 Meta 实例的类型标识
+         * \return 对应 Type 枚举值
+         */
         virtual Type getType() const = 0;
 
         TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="getter")
+        /// 返回 Meta 自身的 UUID
         const UUID &getUUID() const { return mUUID; }
 
         TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="setter")
+        /**
+         * \brief 设置 Meta 自身的 UUID
+         * \param [in] uuid : 要写入的 UUID
+         */
         void setUUID(const UUID &uuid) { mUUID = uuid; }
         
     protected:
+        /// 默认构造；mUUID 初始为 UUID::INVALID
         Meta() = default;
 
+        /**
+         * \brief 以指定 UUID 构造
+         * \param [in] uuid : Meta 的 UUID
+         */
         Meta(const UUID &uuid) : mUUID(uuid) {}
 
+        /// Meta 自身的 UUID；资源类 Meta 通常与对应 Resource 的 UUID 一致
         UUID mUUID {UUID::INVALID};
     };
 

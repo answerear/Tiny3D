@@ -33,19 +33,22 @@
 
 namespace Tiny3D
 {
+    /**
+     * \brief 归一化视口矩形，坐标与尺寸均为渲染目标上的比例值
+     */
     TSTRUCT()
     struct T3D_ENGINE_API Viewport
     {
-        /// 左上角 X 坐标比例，取值范围 [0,1]
+        /// 左上角 X 坐标比例，取值范围 [0, 1]
         TPROPERTY()
         Real    Left {0.0f};
-        /// 左上角 Y 坐标比例，取值范围 [0,1]
+        /// 左上角 Y 坐标比例，取值范围 [0, 1]
         TPROPERTY()
         Real    Top {0.0f};
-        /// 宽度比例，取值范围 [0,1]
+        /// 宽度比例，取值范围 [0, 1]
         TPROPERTY()
         Real    Width {1.0f};
-        /// 高度比例，取值范围 [0,1]
+        /// 高度比例，取值范围 [0, 1]
         TPROPERTY()
         Real    Height {1.0f};
         /// 最小深度值
@@ -213,7 +216,7 @@ namespace Tiny3D
     //     Real        mHeight;        /**< 视口高度在渲染目标区域的相对值 */
     //
     //     size_t      mActualLeft;    /**< 视口实际的左边位置 */
-    //     size_t      mActualTop;     /**< 视口实际的上边位置 */
+    //     size_t      mActualTop;     /**< 视口实际上边位置 */
     //     size_t      mActualWidth;   /**< 视口实际的宽度 */
     //     size_t      mActualHeight;  /**< 视口实际的高度 */
     //

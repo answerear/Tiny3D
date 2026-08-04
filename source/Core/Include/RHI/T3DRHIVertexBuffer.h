@@ -33,15 +33,19 @@
 namespace Tiny3D
 {
     /**
-     * @class   RHIVertexBuffer
-     * @brief   顶点缓冲区
+     * \brief RHI 层顶点缓冲对象，封装后端 vertex buffer 资源
      */
     class T3D_ENGINE_API RHIVertexBuffer : public RHIResource
     {
     public:
+        /**
+         * \brief 返回资源类型 kVertexBuffer
+         * \return ResourceType::kVertexBuffer
+         */
         ResourceType getResourceType() const override { return ResourceType::kVertexBuffer; }
-        
+
     protected:
+        /// 受保护构造，由 RHIContext::createVertexBuffer 及后端派生类创建
         RHIVertexBuffer();
     };
 }

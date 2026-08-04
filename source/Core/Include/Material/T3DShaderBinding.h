@@ -33,8 +33,10 @@
 namespace Tiny3D
 {
     /**
-     * \brief 着色器变量绑定信息
+     * \brief 着色器绑定相关类型占位头文件
+     * \remarks 当前无活跃 API；下方注释掉的 struct 为历史绑定信息设计，尚未启用
      */
+
     // struct ShaderVariableBinding
     // {
     //     /// 名称
@@ -49,9 +51,6 @@ namespace Tiny3D
     //
     // using ShaderVariableBindings = TMap<String, ShaderVariableBinding>;
 
-    /**
-     * \brief 着色器常量绑定信息
-     */
     // struct ShaderConstantBinding
     // {
     //     /// 名称
@@ -64,9 +63,6 @@ namespace Tiny3D
     //     ShaderVariableBindings  variables;
     // };
 
-    /**
-     * \brief 着色器纹理绑定信息
-     */
     // struct ShaderTextureBinding
     // {
     //     /// 名称
@@ -79,9 +75,6 @@ namespace Tiny3D
     //     TEXTURE_TYPE    texType {TEXTURE_TYPE::TT_2D};
     // };
 
-    /**
-     * \brief 着色器纹理采样器绑定信息
-     */
     // struct ShaderSamplerBinding
     // {
     //     /// 名称
