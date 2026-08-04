@@ -2582,7 +2582,19 @@ namespace Tiny3D
                 }
             }
 
+            // 子结点 map 以名字为 key。嵌套枚举与 TPROPERTY 同名时会撞车
+            // （例如 Camera::ClearFlags 枚举 + ClearFlags 属性），此时属性改存到
+            // 带前缀的 key 下；ASTFunction::mName 仍用 funcName，生成代码不受影响。
+            String storageKey = funcName;
             ASTNode *child = parent->getChild(funcName);
+            if (child != nullptr
+                && child->getType() != ASTNode::Type::kFunction
+                && child->getType() != ASTNode::Type::kFunctionTemplate)
+            {
+                storageKey = String("#property#") + funcName;
+                child = parent->getChild(storageKey);
+            }
+
             if (child == nullptr
                 || (isTemplate && parent->getType() != ASTNode::Type::kFunctionTemplate))
             {
@@ -2598,7 +2610,7 @@ namespace Tiny3D
                     // 非模板函数
                     function = T3D_NEW ASTFunction(funcName);
                 }
-                parent->addChild(funcName, function);
+                parent->addChild(storageKey, function);
                 parent = function;
                 function->IsProperty = isProperty;
             }
@@ -2608,6 +2620,15 @@ namespace Tiny3D
             }
 
             ASTFunction *function = static_cast<ASTFunction *>(parent);
+            if (function->getType() != ASTNode::Type::kFunction
+                && function->getType() != ASTNode::Type::kFunctionTemplate)
+            {
+                delete overload;
+                ret = T3D_ERR_RP_FUNCTION_NAME_CONFLICT;
+                RP_LOG_ERROR("Function name (%s) conflict with non-function node [%s:%u] !",
+                    funcName.c_str(), fileInfo.Path.c_str(), fileInfo.StartLine);
+                break;
+            }
             if (function->IsProperty != isProperty)
             {
                 // 函数类型不一致，存在同名函数
@@ -2832,14 +2853,21 @@ namespace Tiny3D
             CXString cxName = clang_getCursorSpelling(cxCursor);
             String name = toString(cxName);
             ASTEnum *enumeration = T3D_NEW ASTEnum(name);
+            // 与同名 TPROPERTY 共存：名字已被非枚举占用时改存到带前缀的 key
+            String storageKey = name;
             ASTNode *child = parent->getChild(name);
+            if (child != nullptr && child->getType() != ASTNode::Type::kEnum)
+            {
+                storageKey = String("#enum#") + name;
+                child = parent->getChild(storageKey);
+            }
             if (child != nullptr)
             {
                 T3D_SAFE_DELETE(enumeration);
                 break;
             }
 
-            parent->addChild(name, enumeration);
+            parent->addChild(storageKey, enumeration);
 
             enumeration->FileInfo = std::move(fileInfo);
             enumeration->Specifiers = &itrSpec->second;
