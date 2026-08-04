@@ -28,6 +28,7 @@
 #include "Component/T3DCamera.h"
 #include "Component/T3DTransform3D.h"
 #include "Component/T3DGeometry.h"
+#include "Component/T3DSkybox.h"
 
 
 namespace Tiny3D
@@ -361,9 +362,11 @@ namespace Tiny3D
 
     void Scene::onAddComponentForLoadingResource(Component *component)
     {
-        if (RTTRType::get<Geometry>() == component->get_type())
+        // Geometry（含 SkinnedGeometry）要加载 mesh；Skybox 要按 MaterialUUID 加载材质
+        const RTTRType type = component->get_type();
+        if (type == RTTRType::get<Geometry>() || type.is_derived_from<Geometry>()
+            || type == RTTRType::get<Skybox>())
         {
-            // geometry 组件才需要加载 mesh 资源
             mNeedToLoadResourceComponents.emplace(component);
         }
     }
