@@ -169,7 +169,7 @@ namespace Tiny3D
 
             uint32_t accMode = (uint32_t)getAccessMode();
             uint32_t modeRead = (uint32_t)AccessMode::kRead;
-            if ((accMode | modeRead) != modeRead)
+            if ((accMode & modeRead) != modeRead)
             {
                 ret = T3D_ERR_INVALID_PARAM;
                 MFS_LOG_ERROR("Invalid access mode [%u] when reading !", accMode);
@@ -289,7 +289,7 @@ namespace Tiny3D
 
             uint32_t accMode = (uint32_t)getAccessMode();
             uint32_t modeRead = (uint32_t)AccessMode::kRead;
-            if ((accMode | modeRead) != modeRead)
+            if ((accMode & modeRead) != modeRead)
             {
                 ret = T3D_ERR_INVALID_PARAM;
                 MFS_LOG_ERROR("Invalid access mode [%u] when reading !", accMode);
