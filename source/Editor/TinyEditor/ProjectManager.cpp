@@ -47,6 +47,7 @@ namespace Tiny3D
     const char *ProjectManager::BUILTIN_CAPSULE_SUBMESH_NAME = "#0";
     const char *ProjectManager::BUILTIN_CYLINDER_MESH_NAME = "cylinder.tmesh";
     const char *ProjectManager::BUILTIN_CYLINDER_SUBMESH_NAME = "#0";
+    const char *ProjectManager::BUILTIN_SKYBOX_MATERIAL_NAME = "Skybox-Cubemap.tmat";
     
     //--------------------------------------------------------------------------
 
@@ -187,6 +188,7 @@ namespace Tiny3D
             camera->setOrder(0);
             Viewport vp {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
             camera->setViewport(vp);
+            camera->setClearFlags(Camera::ClearFlags::kSkybox);
             camera->setClearColor(ColorRGB(0.133f, 0.231f, 0.329f));
             camera->setRenderTarget(rt);
             Real as = Real(rw->getDescriptor().Width) / Real(rw->getDescriptor().Height);
@@ -206,6 +208,18 @@ namespace Tiny3D
             // construct frustum bound
             auto frustum = go->addComponent<FrustumBound>();
             T3D_ASSERT(frustum != nullptr);
+
+            // camera-level skybox (builtin material; load failure falls back to ClearColor)
+            MaterialPtr skyMat = T3D_ASSET_MGR.loadMaterial(BUILTIN_SKYBOX_MATERIAL_NAME);
+            if (skyMat != nullptr)
+            {
+                SkyboxPtr skybox = go->addComponent<Skybox>();
+                skybox->setMaterial(skyMat);
+            }
+            else
+            {
+                EDITOR_LOG_WARNING("Failed to load skybox material, fallback to solid color");
+            }
 
             // Ambient Light
             go = GameObject::create("Ambient Light");
