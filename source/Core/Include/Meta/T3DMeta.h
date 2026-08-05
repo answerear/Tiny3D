@@ -89,15 +89,15 @@ namespace Tiny3D
          */
         virtual Type getType() const = 0;
 
-        TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="getter")
         /// 返回 Meta 自身的 UUID
+        TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="getter")
         const UUID &getUUID() const { return mUUID; }
 
-        TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="setter")
         /**
          * \brief 设置 Meta 自身的 UUID
          * \param [in] uuid : 要写入的 UUID
          */
+        TPROPERTY(RTTRFuncName="UUID", RTTRFuncType="setter")
         void setUUID(const UUID &uuid) { mUUID = uuid; }
         
     protected:

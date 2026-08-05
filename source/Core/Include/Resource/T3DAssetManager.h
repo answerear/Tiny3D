@@ -168,11 +168,34 @@ namespace Tiny3D
         ImagePtr loadImage(const UUID &uuid);
 
         /**
+         * \brief 新建 Prefab 资源并纳入资源管理器缓存
+         * \param [in] name : 资源名称，一般用预制体文件名
+         * \param [in] root : 预制体根 GameObject，可为 nullptr 后续再设置
+         * \return 成功返回 Prefab 智能指针，失败返回 nullptr
+         */
+        PrefabPtr createPrefab(const String &name, GameObjectPtr root = nullptr);
+
+        /**
          * \brief 按文件名加载 Prefab
          * \param [in] name : 预制体文件名
          * \return 成功返回 Prefab 智能指针；加载失败时返回 nullptr
          */
         PrefabPtr loadPrefab(const String &name);
+
+        /**
+         * \brief 按 UUID 加载 Prefab
+         * \param [in] uuid : 预制体资源 UUID
+         * \return 成功返回 Prefab 智能指针；加载失败时返回 nullptr
+         */
+        PrefabPtr loadPrefab(const UUID &uuid);
+
+        /**
+         * \brief 按文件名保存 Prefab
+         * \param [in] name : 目标文件名
+         * \param [in] prefab : 待保存预制体
+         * \return 成功返回 T3D_OK
+         */
+        TResult savePrefab(const String &name, Prefab *prefab);
 
         /**
          * \brief 按文件名加载 Scene

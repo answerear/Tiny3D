@@ -1,4 +1,4 @@
-#-------------------------------------------------------------------------------
+﻿#-------------------------------------------------------------------------------
 # This file is part of the CMake build system for Tiny3D
 #
 # The contents of this file are placed in the public domain. 
@@ -26,6 +26,7 @@ add_subdirectory(SpotLightApp)
 add_subdirectory(LightApp)
 add_subdirectory(ShadowApp)
 add_subdirectory(BehaviourApp)
+add_subdirectory(PrefabApp)
 add_subdirectory(TextureApp)
 add_subdirectory(SkeletalAnimationApp)
 add_subdirectory(ResourceApp)

@@ -127,6 +127,8 @@ namespace Tiny3D
     class ImageManager;
     class Prefab;
     class PrefabManager;
+    class PrefabInstance;
+    struct PropertyModification;
     class Shader;
     class ShaderManager;
     class Mesh;

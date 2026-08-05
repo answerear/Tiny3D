@@ -98,7 +98,21 @@ namespace Tiny3D
 
         return (FileDataStream::EOpenMode)outMode;
     }
-    
+
+    //--------------------------------------------------------------------------
+
+    FileDataStream::EOpenMode FileSystemArchive::getFileReadMode(AccessMode accMode) const
+    {
+        uint32_t outMode = FileDataStream::E_MODE_READ_ONLY;
+
+        if ((uint32_t)accMode & (uint32_t)AccessMode::kText)
+        {
+            outMode |= FileDataStream::E_MODE_TEXT;
+        }
+
+        return (FileDataStream::EOpenMode)outMode;
+    }
+
     //--------------------------------------------------------------------------
 
     ArchivePtr FileSystemArchive::clone() const
@@ -146,7 +160,7 @@ namespace Tiny3D
 
             // 打开文件
             FileDataStream fs;
-            FileDataStream::EOpenMode mode = getFileOpenMode(getAccessMode());
+            FileDataStream::EOpenMode mode = getFileReadMode(getAccessMode());
             String path = getPath() + Dir::getNativeSeparator() + name;
             if (!fs.open(path.c_str(), mode))
             {

@@ -103,10 +103,16 @@ namespace Tiny3D
         static void collectHierarchy(GameObject *root, GameObjects &out);
 
         /**
+         * \brief 模板 UUID → 实例 Object 映射（Prefab 实例化用）
+         */
+        using TemplateInstanceMap = TUnorderedMap<UUID, Object*, UUIDHash, UUIDEqual>;
+
+        /**
          * \brief 深拷贝当前节点及其整个子树（组件与 Transform 父子关系）
+         * \param [out] outMap : 非空时记录模板 UUID → 实例 Object
          * \return 新子树根节点
          */
-        GameObjectPtr clone() const;
+        GameObjectPtr clone(TemplateInstanceMap *outMap = nullptr) const;
 
         /**
          * \brief 反序列化后重建 TransformNode 场景树
@@ -319,6 +325,12 @@ namespace Tiny3D
             return getComponents<T>(type);
         }
 
+        using ComponentsSet = TUnorderedMultimap<String, ComponentPtr>;
+
+        /// 返回序列化用组件表（类名 → 组件）
+        TPROPERTY(RTTRFuncName = "Components", RTTRFuncType = "getter")
+        const ComponentsSet &getAllComponents() const { return mComponentObjects; }
+
     protected:
         /// 委托 GameObject("")，managed 默认 true
         GameObject() : GameObject("") {}
@@ -459,15 +471,10 @@ namespace Tiny3D
 
         /**
          * \brief 克隆当前节点自身（不含子节点）：create + 克隆各组件并挂载，再 awakeBehaviours
+         * \param [out] outMap : 非空时记录模板 UUID → 实例 Object
          * \return 不含子树的新 GameObject
          */
-        GameObjectPtr cloneSelf() const;
-
-        using ComponentsSet = TUnorderedMultimap<String, ComponentPtr>;
-
-        /// 返回序列化用组件表（类名 → 组件）
-        TPROPERTY(RTTRFuncName="Components", RTTRFuncType="getter")
-        const ComponentsSet &getAllComponents() const { return mComponentObjects; }
+        GameObjectPtr cloneSelf(TemplateInstanceMap *outMap = nullptr) const;
 
         /**
          * \brief 反序列化设置组件表：赋值后 setupTransformNode + setupComponents

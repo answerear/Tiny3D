@@ -33,7 +33,7 @@
 namespace Tiny3D
 {
     /**
-     * \brief 预制体资源，保存 GameObject 子树并在运行时实例化为独立副本
+     * \brief 预制体资源，保存 GameObject 子树并在运行时实例化为链接实例
      */
     TCLASS()
     class T3D_ENGINE_API Prefab : public Resource
@@ -49,6 +49,14 @@ namespace Tiny3D
          */
         static PrefabPtr create(const String &name);
 
+        /**
+         * \brief 创建并绑定根 GameObject 的 Prefab 资源
+         * \param [in] name : 预制体名称
+         * \param [in] root : 预制体根 GameObject
+         * \return 新创建的 Prefab 智能指针
+         */
+        static PrefabPtr create(const String &name, GameObjectPtr root);
+
         /// 析构 Prefab
         ~Prefab() override;
 
@@ -59,10 +67,48 @@ namespace Tiny3D
         Type getType() const override;
 
         /**
-         * \brief 实例化预制体，深拷贝根 GameObject 整棵子树
-         * \return 克隆出的根 GameObject 智能指针；mRootGameObject 为 nullptr 时返回 nullptr
+         * \brief 获取运行时根 GameObject
+         * \return 根节点；未设置时为 nullptr
+         */
+        GameObject *getRootGameObject() const { return mRootGameObject; }
+
+        /**
+         * \brief 设置运行时根 GameObject
+         * \param [in] root : 预制体根节点
+         */
+        void setRootGameObject(GameObjectPtr root);
+
+        /**
+         * \brief 实例化预制体为带 PrefabInstance 链接的副本（不挂场景）
+         * \return 克隆出的根 GameObject；mRootGameObject 为 nullptr 时返回 nullptr
          */
         GameObjectPtr instantiate() const;
+
+        /**
+         * \brief 实例化预制体并挂入场景
+         * \param [in] scene : 目标场景，不可为 nullptr
+         * \param [in] parent : 父节点；为空则挂到场景根 Transform
+         * \return 实例根 GameObject；失败返回 nullptr
+         */
+        GameObjectPtr instantiate(Scene *scene, TransformNode *parent = nullptr) const;
+
+        /**
+         * \brief 深拷贝子树且不建立 PrefabInstance 链接
+         * \return 无链接的根 GameObject
+         */
+        GameObjectPtr instantiateUnlinked() const;
+
+        /**
+         * \brief Prefab Variant 的基 Prefab UUID；非 Variant 时为 INVALID
+         */
+        TPROPERTY(RTTRFuncName="BasePrefabUUID", RTTRFuncType="getter")
+        const UUID &getBasePrefabUUID() const { return mBasePrefabUUID; }
+
+        TPROPERTY(RTTRFuncName="BasePrefabUUID", RTTRFuncType="setter")
+        void setBasePrefabUUID(const UUID &uuid) { mBasePrefabUUID = uuid; }
+
+        /// 是否为 Prefab Variant
+        bool isVariant() const { return mBasePrefabUUID != UUID::INVALID; }
         
     protected:
         /**
@@ -70,6 +116,13 @@ namespace Tiny3D
          * \param [in] name : 预制体名称
          */
         Prefab(const String &name);
+
+        /**
+         * \brief 构造并绑定根 GameObject
+         * \param [in] name : 预制体名称
+         * \param [in] root : 根 GameObject
+         */
+        Prefab(const String &name, GameObjectPtr root);
         
         /**
          * \brief 克隆预制体资源（复制属性到新实例）
@@ -91,6 +144,12 @@ namespace Tiny3D
         TResult onLoad(Archive *archive) override;
 
         /**
+         * \brief 卸载时销毁预制体子树，断开 TransformNode 父子互持形成的引用环
+         * \return 基类 onUnload 的返回值
+         */
+        TResult onUnload() override;
+
+        /**
          * \brief 保存前将 mRootGameObject 子树收集到 mGameObjects 扁平表并记录根 UUID
          * \remarks mRootGameObject 为 nullptr 时跳过并输出警告
          */
@@ -109,6 +168,9 @@ namespace Tiny3D
         void onAddComponentForLoadingResource(Component *component) override;
 
     private:
+        /// 默认构造，委托 Prefab("")，反序列化时由 RTTR 调用
+        Prefab() : Prefab("") {}
+
         /// RTTR 序列化：获取预制体子树扁平表
         TPROPERTY(RTTRFuncName="GameObjects", RTTRFuncType="getter")
         const GameObjects &getGameObjects() const { return mGameObjects; }
@@ -132,10 +194,16 @@ namespace Tiny3D
         UUID mRootGameObjectUUID {};
         /// 预制体根节点 GameObject（运行时使用，不序列化）
         GameObjectPtr mRootGameObject {nullptr};
+        /// Variant 基 Prefab UUID（非 Variant 为 INVALID）
+        UUID mBasePrefabUUID {};
 
         /// 加载过程中需调用 onLoadResource 的组件集合
         using NeedToLoadResourceComponents = TSet<Component*>;
         NeedToLoadResourceComponents mNeedToLoadResourceComponents {};
+
+        GameObjectPtr instantiateInternal(bool linked) const;
+        void setupPrefabInstanceLink(GameObject *instanceRoot,
+            const GameObject::TemplateInstanceMap &map) const;
     };
 }
 

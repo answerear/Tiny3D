@@ -87,6 +87,10 @@
 // Component
 #include <Component/T3DComponent.h>
 #include <Component/T3DBehaviour.h>
+#include <Component/T3DPropertyModification.h>
+#include <Component/T3DPrefabInstance.h>
+#include <Component/T3DPrefabOverrideUtil.h>
+#include <Component/T3DPrefabUtility.h>
 #include <Component/T3DCamera.h>
 #include <Component/T3DTransformNode.h>
 #include <Component/T3DTransform3D.h>

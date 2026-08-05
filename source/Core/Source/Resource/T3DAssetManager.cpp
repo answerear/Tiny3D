@@ -204,11 +204,36 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    PrefabPtr AssetManager::createPrefab(const String &name, GameObjectPtr root)
+    {
+        return T3D_PREFAB_MGR.createPrefab(name, root);
+    }
+
+    //--------------------------------------------------------------------------
+
     PrefabPtr AssetManager::loadPrefab(const String &name)
     {
         ensureArchive();
         Archive *archive = mArchive.get();
         return T3D_PREFAB_MGR.loadPrefab(archive, name);
+    }
+
+    //--------------------------------------------------------------------------
+
+    PrefabPtr AssetManager::loadPrefab(const UUID &uuid)
+    {
+        ensureArchive();
+        Archive *archive = mArchive.get();
+        return T3D_PREFAB_MGR.loadPrefab(archive, uuid);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult AssetManager::savePrefab(const String &name, Prefab *prefab)
+    {
+        ensureArchive();
+        Archive *archive = mArchive.get();
+        return T3D_PREFAB_MGR.savePrefab(archive, name, prefab);
     }
 
     //--------------------------------------------------------------------------

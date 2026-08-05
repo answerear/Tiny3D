@@ -40,6 +40,18 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
+    PrefabPtr PrefabManager::createPrefab(const String &name, GameObjectPtr root)
+    {
+        PrefabPtr prefab = smart_pointer_cast<Prefab>(createResource(name, 0));
+        if (prefab != nullptr && root != nullptr)
+        {
+            prefab->setRootGameObject(root);
+        }
+        return prefab;
+    }
+
+    //--------------------------------------------------------------------------
+
     PrefabPtr PrefabManager::loadPrefab(Archive *archive, const String &name)
     {
         return smart_pointer_cast<Prefab>(load(archive, name));
@@ -47,9 +59,45 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    PrefabPtr PrefabManager::loadPrefab(Archive *archive, const UUID &uuid)
+    {
+        return smart_pointer_cast<Prefab>(load(archive, uuid));
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult PrefabManager::savePrefab(Archive *archive, Prefab *prefab)
     {
-        return save(archive, prefab);
+        TResult ret = save(archive, prefab);
+        if (T3D_SUCCEEDED(ret))
+        {
+            ensureCached(prefab);
+        }
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult PrefabManager::savePrefab(Archive *archive, const String &filename, Prefab *prefab)
+    {
+        TResult ret = save(archive, filename, prefab);
+        if (T3D_SUCCEEDED(ret))
+        {
+            ensureCached(prefab);
+        }
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void PrefabManager::ensureCached(Prefab *prefab)
+    {
+        if (prefab == nullptr || lookup(prefab->getUUID()) != nullptr)
+        {
+            return;
+        }
+
+        insertCache(prefab->getUUID(), ResourcePtr(prefab));
     }
 
     //--------------------------------------------------------------------------
@@ -78,8 +126,7 @@ namespace Tiny3D
     TResult PrefabManager::saveResource(DataStream &stream, Resource *res)
     {
         Prefab *prefab = static_cast<Prefab*>(res);
-        T3D_SERIALIZER_MGR.serialize(stream, prefab);
-        return T3D_OK;
+        return T3D_SERIALIZER_MGR.serialize(stream, prefab);
     }
 
     //--------------------------------------------------------------------------

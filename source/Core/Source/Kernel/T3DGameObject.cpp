@@ -171,10 +171,15 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    GameObjectPtr GameObject::cloneSelf() const
+    GameObjectPtr GameObject::cloneSelf(TemplateInstanceMap *outMap) const
     {
         // 创建新的 GameObject 作为克隆根，拥有独立的 UUID
         GameObjectPtr newGO = create(mName);
+
+        if (outMap != nullptr)
+        {
+            (*outMap)[getUUID()] = newGO.get();
+        }
 
         // 遍历源 GameObject 上挂载的所有 Component，逐一克隆并挂载到新 GameObject
         for (const auto &item : mComponents)
@@ -186,6 +191,11 @@ namespace Tiny3D
             ComponentPtr newComp = comp->clone();
             if (newComp != nullptr)
             {
+                if (outMap != nullptr)
+                {
+                    (*outMap)[comp->getUUID()] = newComp.get();
+                }
+
                 newComp->setGameObject(newGO);
                 newGO->mComponents.emplace(type, newComp);
                 newGO->mComponentObjects.emplace(type.get_name(), newComp);
@@ -214,10 +224,10 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    GameObjectPtr GameObject::clone() const
+    GameObjectPtr GameObject::clone(TemplateInstanceMap *outMap) const
     {
         // 克隆当前节点自身（不含子节点）
-        GameObjectPtr newGO = cloneSelf();
+        GameObjectPtr newGO = cloneSelf(outMap);
 
         // 使用 child_begin()/child_end() 迭代器递归克隆子节点，建立新树的父子关系
         TransformNode *myNode = getTransformNode();
@@ -227,7 +237,7 @@ namespace Tiny3D
             for (auto it = myNode->child_begin(); it != myNode->child_end(); ++it)
             {
                 TransformNode *srcChildNode = it->get();
-                GameObjectPtr childClone = srcChildNode->getGameObject()->clone();
+                GameObjectPtr childClone = srcChildNode->getGameObject()->clone(outMap);
                 if (childClone != nullptr && newNode != nullptr)
                 {
                     TransformNode *childNode = childClone->getTransformNode();
@@ -681,7 +691,12 @@ namespace Tiny3D
         {
             msWaitingDestroyGameObjects.emplace_back(gameObject);
             // msGameObjects.erase(gameObject->getUUID());
-            T3D_SCENE_MGR.getCurrentScene()->removeGameObject(gameObject);
+            // Prefab 资产里的对象不属于任何场景，引擎关闭时当前场景也可能已卸载
+            Scene *scene = T3D_SCENE_MGR.getCurrentScene();
+            if (scene != nullptr)
+            {
+                scene->removeGameObject(gameObject);
+            }
         }
     }
 

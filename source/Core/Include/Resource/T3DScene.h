@@ -153,6 +153,17 @@ namespace Tiny3D
             return it != mGameObjects.end() ? it->second : nullptr;
         }
 
+        /**
+         * \brief 返回场景 GameObject 扁平表（只读）
+         */
+        const GameObjects &getAllGameObjects() const { return mGameObjects; }
+
+        /**
+         * \brief 反序列化/实例化后，对整棵子树 Behaviour 同步 Awake + OnEnable 并投递 pending-start
+         * \param [in] root : 子树根 GameObject；为 nullptr 时不执行
+         */
+        void awakeHierarchy(GameObject *root);
+
         /// 判断 TransformNode 是否为场景根（无父节点）
         virtual bool isSceneRoot(TransformNode *node) const { return node->getParent() == nullptr; }
 
@@ -237,12 +248,6 @@ namespace Tiny3D
 
     private:
         using GameObjects = TUnorderedMap<UUID, GameObjectPtr, UUIDHash, UUIDEqual>;
-
-        /**
-         * \brief 反序列化/实例化后，对整棵子树 Behaviour 同步 Awake + OnEnable 并投递 pending-start
-         * \param [in] root : 子树根 GameObject；为 nullptr 时不执行
-         */
-        void awakeHierarchy(GameObject *root);
 
         /// 默认构造，委托 Scene("")
         Scene() : Scene("") {}

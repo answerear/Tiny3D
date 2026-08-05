@@ -106,6 +106,12 @@ namespace Tiny3D
          * 根据档案访问模式获取文件流打开模式 
          */
         FileDataStream::EOpenMode getFileOpenMode(AccessMode accMode) const;
+
+        /**
+         * 根据档案访问模式获取读文件用的文件流打开模式
+         * \remarks 读永远不带 truncate/append，否则可写档案上的一次读会把文件清空
+         */
+        FileDataStream::EOpenMode getFileReadMode(AccessMode accMode) const;
     };
 }
 

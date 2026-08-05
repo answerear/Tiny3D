@@ -61,15 +61,15 @@ namespace Tiny3D
          */
         Type getType() const override { return kShaderLab; }
 
-        TPROPERTY(RTTRFuncName="ShaderUUID", RTTRFuncType="getter")
         /// 返回关联 Shader 资源的 UUID
+        TPROPERTY(RTTRFuncName="ShaderUUID", RTTRFuncType="getter")
         const UUID &getShaderUUID() const { return mShaderUUID; }
 
-        TPROPERTY(RTTRFuncName="ShaderUUID", RTTRFuncType="setter")
         /**
          * \brief 设置关联 Shader 资源的 UUID
          * \param [in] uuid : Shader 资源的 UUID
          */
+        TPROPERTY(RTTRFuncName="ShaderUUID", RTTRFuncType="setter")
         void setShaderUUID(const UUID &uuid) { mShaderUUID = uuid; }
 
     protected:
