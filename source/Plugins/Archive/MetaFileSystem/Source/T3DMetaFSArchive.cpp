@@ -224,10 +224,24 @@ namespace Tiny3D
                 break;
             }
 
+            String path = getPath() + Dir::getNativeSeparator() + name;
+
+            // 文件所在的多级目录可能还没建立，先补齐，否则打开文件必定失败
+            String::size_type pos = path.find_last_of("/\\");
+            if (pos != String::npos)
+            {
+                String dir = path.substr(0, pos);
+                if (!dir.empty() && !Dir::exists(dir) && !Dir::makeDirs(dir))
+                {
+                    ret = T3D_ERR_FILE_NOT_EXIST;
+                    MFS_LOG_ERROR("Failed to create folder [%s] in meta file system !", dir.c_str());
+                    break;
+                }
+            }
+
             // 打开文件
             FileDataStream fs;
             FileDataStream::EOpenMode mode = getFileOpenMode(getAccessMode());
-            String path = getPath() + Dir::getNativeSeparator() + name;
             if (!fs.open(path.c_str(), mode))
             {
                 ret = T3D_ERR_FILE_NOT_EXIST;
