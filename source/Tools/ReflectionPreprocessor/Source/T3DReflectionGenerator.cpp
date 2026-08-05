@@ -26,6 +26,8 @@
 
 #include <SDL_syswm.h>
 
+#include <fstream>
+
 #include "T3DRPErrorCode.h"
 
 
@@ -42,16 +44,11 @@ namespace Tiny3D
         {   \
             (ITR_FILE) = _itrFile; \
             FileReflectionInfoPtr info = _itrFile->second;   \
-            uint32_t tagLine = (START) - 1;   \
-            for (uint32_t _idx = tagLine; _idx >= tagLine - 3; _idx--)  \
+            SpecifiersItr _itrSpec;   \
+            if (findSpecifierUpward(PATH, info->SPECIFIERS, (START), _itrSpec))  \
             {   \
-                const auto &_itrSpec = info->SPECIFIERS.find(tagLine);    \
-                if (_itrSpec != info->SPECIFIERS.end())    \
-                {   \
-                    (RESULT) = true;  \
-                    (ITR_SPEC) = _itrSpec;  \
-                    break;  \
-                }   \
+                (RESULT) = true;  \
+                (ITR_SPEC) = _itrSpec;  \
             }   \
         }   \
     }
@@ -1705,6 +1702,120 @@ namespace Tiny3D
             }
         }
         return isFriend;
+    }
+
+    //-------------------------------------------------------------------------
+
+    namespace
+    {
+        /// 扫描单行，判断其是否只有空白与注释；inBlockComment 跨行携带块注释状态
+        bool scanSkippableLine(const String &line, bool &inBlockComment)
+        {
+            bool skippable = true;
+            size_t i = 0;
+
+            while (i < line.length())
+            {
+                const char c = line[i];
+
+                if (inBlockComment)
+                {
+                    if (c == '*' && i + 1 < line.length() && line[i + 1] == '/')
+                    {
+                        inBlockComment = false;
+                        i += 2;
+                    }
+                    else
+                    {
+                        ++i;
+                    }
+                    continue;
+                }
+
+                if (c == '/' && i + 1 < line.length() && line[i + 1] == '/')
+                {
+                    break;
+                }
+
+                if (c == '/' && i + 1 < line.length() && line[i + 1] == '*')
+                {
+                    inBlockComment = true;
+                    i += 2;
+                    continue;
+                }
+
+                if (!isspace((unsigned char)c))
+                {
+                    skippable = false;
+                }
+
+                ++i;
+            }
+
+            return skippable;
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
+    const TArray<bool> &ReflectionGenerator::getSkippableLines(const String &filePath)
+    {
+        auto itr = mSkippableLines.find(filePath);
+        if (itr != mSkippableLines.end())
+        {
+            return itr->second;
+        }
+
+        TArray<bool> flags;
+        // 行号从 1 开始，占位 0 号元素
+        flags.push_back(false);
+
+        std::ifstream ifs(filePath.c_str());
+        if (ifs.is_open())
+        {
+            bool inBlockComment = false;
+            std::string line;
+            while (std::getline(ifs, line))
+            {
+                flags.push_back(scanSkippableLine(line, inBlockComment));
+            }
+            ifs.close();
+        }
+
+        auto result = mSkippableLines.insert(
+            std::make_pair(filePath, std::move(flags)));
+        return result.first->second;
+    }
+
+    //-------------------------------------------------------------------------
+
+    bool ReflectionGenerator::findSpecifierUpward(const String &filePath,
+        Specifiers &specifiers, uint32_t declLine, SpecifiersItr &itrSpec)
+    {
+        if (declLine <= 1)
+        {
+            return false;
+        }
+
+        const TArray<bool> &skippable = getSkippableLines(filePath);
+
+        for (uint32_t line = declLine - 1; line >= 1; --line)
+        {
+            auto itr = specifiers.find(line);
+            if (itr != specifiers.end())
+            {
+                itrSpec = itr;
+                return true;
+            }
+
+            // 标签与声明之间只允许注释与空行；遇到别的代码说明该声明没打标签
+            if (line >= skippable.size() || !skippable[line])
+            {
+                break;
+            }
+        }
+
+        return false;
     }
 
     //-------------------------------------------------------------------------

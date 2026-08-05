@@ -298,6 +298,24 @@ namespace Tiny3D
 
         bool isRTTIFriend(FileReflectionInfoPtr info, uint32_t start, uint32_t end) const;
 
+        /**
+         * @brief 从声明行往上回溯查找反射标签
+         * @param [in] filePath : 声明所在文件路径
+         * @param [in] specifiers : 按标签行号索引的标签表
+         * @param [in] declLine : 声明起始行号
+         * @param [out] itrSpec : 命中的标签迭代器
+         * @return 找到返回 true
+         * @remarks 标签与声明之间只允许夹注释与空行，遇到其它代码即停止回溯
+         */
+        bool findSpecifierUpward(const String &filePath, Specifiers &specifiers,
+            uint32_t declLine, SpecifiersItr &itrSpec);
+
+        /// 取文件的逐行「空行或注释行」标记表，下标即行号（0 位占位），惰性构建
+        const TArray<bool> &getSkippableLines(const String &filePath);
+
+        /// 文件路径 -> 逐行空行/注释标记，供反射标签回溯使用
+        TMap<String, TArray<bool>> mSkippableLines {};
+
         /// 类型别名映射表
         ASTTypeAliasMap         mTypeAliasMap {};
         /// 白名单类列表
