@@ -79,6 +79,12 @@ namespace Tiny3D
         bool onMenuItemSave(uint32_t id, ImWidget *menuItem);
         bool onMenuItemEnabledSave(uint32_t id, ImWidget *menuItem);
 
+        bool onMenuItemCreatePrefab(uint32_t id, ImWidget *menuItem);
+        bool onMenuItemCreatePrefabVariant(uint32_t id, ImWidget *menuItem);
+        bool onMenuItemSelectPrefabRoot(uint32_t id, ImWidget *menuItem);
+        bool onMenuItemExtractFromPrefab(uint32_t id, ImWidget *menuItem);
+        bool onMenuItemEnabledPrefabOps(uint32_t id, ImWidget *menuItem);
+
     protected:
         ImMenuBar   *mMenuBar {nullptr};
 

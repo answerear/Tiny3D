@@ -211,6 +211,47 @@ namespace Tiny3D
         }
 
         ImGui::TextDisabled("UUID : %s", gameObject->getUUID().toString().c_str());
+
+        PrefabInstancePtr prefabLink = gameObject->getComponent<PrefabInstance>();
+        if (prefabLink != nullptr)
+        {
+            ImGui::Spacing();
+            ImGui::TextColored(ImVec4(0.35f, 0.55f, 1.0f, 1.0f), "Prefab Instance");
+            ImGui::TextDisabled("Source : %s",
+                prefabLink->getSourcePrefabUUID().toString().c_str());
+
+            const auto &mods = prefabLink->getModifications();
+            if (ImGui::BeginCombo("Overrides",
+                mods.empty() ? "No Overrides" : "Overrides"))
+            {
+                for (const auto &mod : mods)
+                {
+                    ImGui::TextColored(ImVec4(0.35f, 0.55f, 1.0f, 1.0f), "%s",
+                        mod.getPropertyPath().c_str());
+                }
+                ImGui::EndCombo();
+            }
+
+            if (ImGui::Button("Apply All"))
+            {
+                prefabLink->recordOverridesFromSource();
+                prefabLink->applyToPrefabAsset();
+                notifySceneModified();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Revert All"))
+            {
+                prefabLink->revertAll();
+                notifySceneModified();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Unpack"))
+            {
+                PrefabInstance::unpackPrefab(gameObject,
+                    PrefabInstance::UnpackMode::kOutermostRootOnly);
+                notifySceneModified();
+            }
+        }
     }
 
     //--------------------------------------------------------------------------

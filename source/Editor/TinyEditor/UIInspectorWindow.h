@@ -38,6 +38,8 @@ namespace Tiny3D
         UIInspectorWindow() = default;
         ~UIInspectorWindow() override = default;
 
+        GameObject *getSelectedGameObject() const { return mSelectedGameObject; }
+
     protected:
         TResult onCreate() override;
 

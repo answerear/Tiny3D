@@ -557,6 +557,12 @@ namespace Tiny3D
                     break;
                 }
 
+                // Prefab Mode 下退出时已写回；若仍在 Prefab Mode 则保存当前 Prefab
+                if (PrefabUtility::isInPrefabMode())
+                {
+                    PrefabUtility::exitPrefabMode(true);
+                }
+
                 EventParamModifyScene param(false);
                 sendEvent(kEvtModifyScene, &param);
             }

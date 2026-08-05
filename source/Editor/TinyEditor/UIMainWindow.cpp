@@ -57,6 +57,16 @@ namespace Tiny3D
             ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_SAVE, UIMainWindow::onMenuItemEnabledSave);
             
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_SAVE, UIMainWindow::onMenuItemSave);
+
+            ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_PREFAB, UIMainWindow::onMenuItemEnabledPrefabOps);
+            ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_PREFAB_VARIANT, UIMainWindow::onMenuItemEnabledPrefabOps);
+            ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_SELECT_PREFAB_ROOT, UIMainWindow::onMenuItemEnabledPrefabOps);
+            ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_EXTRACT_FROM_PREFAB, UIMainWindow::onMenuItemEnabledPrefabOps);
+
+            ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_PREFAB, UIMainWindow::onMenuItemCreatePrefab);
+            ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_PREFAB_VARIANT, UIMainWindow::onMenuItemCreatePrefabVariant);
+            ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_SELECT_PREFAB_ROOT, UIMainWindow::onMenuItemSelectPrefabRoot);
+            ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_EXTRACT_FROM_PREFAB, UIMainWindow::onMenuItemExtractFromPrefab);
             
             createMenuItemData();
 
@@ -275,7 +285,7 @@ namespace Tiny3D
         // Select Children
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_SELECT_CHILDREN, STR(TXT_SELECT_CHILDREN), "Shift+C", "", queryDisableDefault, nullptr, nullptr)
         // Select Prefab Root
-        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_SELECT_PREFAB_ROOT, STR(TXT_SELECT_PREFAB_ROOT), "Ctrl+Shift+R", "", queryDisableDefault, nullptr, nullptr)
+        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_SELECT_PREFAB_ROOT, STR(TXT_SELECT_PREFAB_ROOT), "Ctrl+Shift+R", "", IM_MENU_ITEM_DEFAULT_QUERY_ENABLED(), nullptr, nullptr)
         // Insert Selection
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_INSERT_SELECTION, STR(TXT_INSERT_SELECTION), "Ctrl+I", "", queryDisableDefault, nullptr, nullptr)
 
@@ -409,9 +419,9 @@ namespace Tiny3D
         // Scene Template Pipeline
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_SCENE_TEMPLATE_PIPELINE, STR(TXT_SCENE_TEMPLATE_PIPELINE), "", "", queryDisableDefault, nullptr, nullptr)
         // Prefab
-        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_PREFAB, STR(TXT_PREFAB), "", "", queryDisableDefault, nullptr, nullptr)
+        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_PREFAB, STR(TXT_PREFAB), "", "", IM_MENU_ITEM_DEFAULT_QUERY_ENABLED(), nullptr, nullptr)
         // Prefab Variant
-        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_PREFAB_VARIANT, STR(TXT_PREFAB_VARIANT), "", "", queryDisableDefault, nullptr, nullptr)
+        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_PREFAB_VARIANT, STR(TXT_PREFAB_VARIANT), "", "", IM_MENU_ITEM_DEFAULT_QUERY_ENABLED(), nullptr, nullptr)
                 
         // Audio Mixer
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_AUDIO_MIXER, STR(TXT_AUDIO_MIXER), "", "", queryDisableDefault, nullptr, nullptr)
@@ -502,7 +512,7 @@ namespace Tiny3D
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_REIMPORT_ALL, STR(TXT_REIMPORT_ALL), "", "", queryDisableDefault, nullptr, nullptr)
 
         // Extract From Prefab
-        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_EXTRACT_FROM_PREFAB, STR(TXT_EXTRACT_FROM_PREFAB), "", "", queryDisableDefault, nullptr, nullptr)
+        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_EXTRACT_FROM_PREFAB, STR(TXT_EXTRACT_FROM_PREFAB), "", "", IM_MENU_ITEM_DEFAULT_QUERY_ENABLED(), nullptr, nullptr)
 
         // Open C++ Project
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_OPEN_CPP_PROJECT, STR(TXT_OPEN_CPP_PROJECT), "", "", queryDisableDefault, nullptr, nullptr)
@@ -1274,6 +1284,145 @@ namespace Tiny3D
     bool UIMainWindow::onMenuItemEnabledSave(uint32_t id, ImWidget *menuItem)
     {
         return PROJECT_MGR.isProjectModified();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIMainWindow::onMenuItemEnabledPrefabOps(uint32_t id, ImWidget *menuItem)
+    {
+        (void)id;
+        (void)menuItem;
+        return mInspectorWnd != nullptr && mInspectorWnd->getSelectedGameObject() != nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIMainWindow::onMenuItemCreatePrefab(uint32_t id, ImWidget *menuItem)
+    {
+        (void)id;
+        (void)menuItem;
+        if (mInspectorWnd == nullptr)
+        {
+            EDITOR_LOG_ERROR("Create Prefab: inspector window is not ready.");
+            return true;
+        }
+
+        GameObject *go = mInspectorWnd->getSelectedGameObject();
+        if (go == nullptr)
+        {
+            EDITOR_LOG_WARNING("Create Prefab: no game object selected in Hierarchy.");
+            return true;
+        }
+
+        const String path = String("Prefabs/") + go->getName() + ".tprefab";
+        PrefabPtr prefab = PrefabUtility::createPrefab(go, path);
+        if (prefab == nullptr)
+        {
+            EDITOR_LOG_ERROR("Create Prefab failed: %s", path.c_str());
+        }
+        else
+        {
+            EDITOR_LOG_INFO("Created Prefab: %s", path.c_str());
+            PROJECT_MGR.setSceneModified(true);
+        }
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIMainWindow::onMenuItemCreatePrefabVariant(uint32_t id, ImWidget *menuItem)
+    {
+        (void)id;
+        (void)menuItem;
+        if (mInspectorWnd == nullptr)
+        {
+            EDITOR_LOG_ERROR("Create Prefab Variant: inspector window is not ready.");
+            return true;
+        }
+
+        GameObject *go = mInspectorWnd->getSelectedGameObject();
+        if (go == nullptr)
+        {
+            EDITOR_LOG_WARNING("Create Prefab Variant: no game object selected in Hierarchy.");
+            return true;
+        }
+
+        PrefabInstancePtr link = go->getComponent<PrefabInstance>();
+        if (link == nullptr)
+        {
+            EDITOR_LOG_ERROR("Create Prefab Variant requires a Prefab Instance selection.");
+            return true;
+        }
+
+        PrefabPtr base = T3D_ASSET_MGR.loadPrefab(link->getSourcePrefabUUID());
+        if (base == nullptr)
+        {
+            EDITOR_LOG_ERROR("Base Prefab not found for Variant.");
+            return true;
+        }
+
+        const String path = String("Prefabs/") + go->getName() + "_Variant.tprefab";
+        PrefabPtr variant = PrefabUtility::createPrefabVariant(base.get(), path);
+        if (variant == nullptr)
+        {
+            EDITOR_LOG_ERROR("Create Prefab Variant failed: %s", path.c_str());
+        }
+        else
+        {
+            EDITOR_LOG_INFO("Created Prefab Variant: %s", path.c_str());
+        }
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIMainWindow::onMenuItemSelectPrefabRoot(uint32_t id, ImWidget *menuItem)
+    {
+        (void)id;
+        (void)menuItem;
+        if (mInspectorWnd == nullptr)
+        {
+            return true;
+        }
+
+        GameObject *go = mInspectorWnd->getSelectedGameObject();
+        GameObject *root = PrefabUtility::getPrefabRoot(go);
+        if (root != nullptr)
+        {
+            EventParamGameObjectSelected param(root);
+            sendEvent(kEvtGameObjectSelected, &param);
+        }
+        else
+        {
+            EDITOR_LOG_WARNING("Select Prefab Root: selection is not inside a Prefab Instance.");
+        }
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIMainWindow::onMenuItemExtractFromPrefab(uint32_t id, ImWidget *menuItem)
+    {
+        (void)id;
+        (void)menuItem;
+        if (mInspectorWnd == nullptr)
+        {
+            return true;
+        }
+
+        GameObject *go = mInspectorWnd->getSelectedGameObject();
+        GameObject *root = PrefabUtility::getPrefabRoot(go);
+        if (root != nullptr)
+        {
+            PrefabInstance::unpackPrefab(root, PrefabInstance::UnpackMode::kOutermostRootOnly);
+            PROJECT_MGR.setSceneModified(true);
+            EDITOR_LOG_INFO("Extracted from Prefab: %s", root->getName().c_str());
+        }
+        else
+        {
+            EDITOR_LOG_WARNING("Extract From Prefab: selection is not inside a Prefab Instance.");
+        }
+        return true;
     }
 
     //--------------------------------------------------------------------------
