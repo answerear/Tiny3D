@@ -374,7 +374,7 @@ namespace Tiny3D
             rsDesc.FillMode = PolygonMode::kSolid;
             rsDesc.CullMode = CullingMode::kNone;
             rsDesc.DepthClipEnable = true;
-            rsDesc.ScissorEnable = false;
+            rsDesc.ScissorEnable = true;
             rsDesc.MultisampleEnable = false;
             rsDesc.AntialiasedLineEnable = false;
             mRasterizerState = T3D_RENDER_STATE_MGR.loadRasterizerState(rsDesc);
@@ -554,7 +554,7 @@ namespace Tiny3D
                 }
             }
 
-            float mvp[4][4] =
+            const float mvp[4][4] =
             {
                 { 2.0f / (R - L),       0.0f,                0.0f, 0.0f },
                 { 0.0f,                  2.0f / (T - B),      0.0f, 0.0f },
@@ -562,11 +562,12 @@ namespace Tiny3D
                 { (R + L) / (L - R),     (T + B) / (B - T),  0.5f, 1.0f },
             };
 
-            // 更新常量缓冲区
+            // 更新常量缓冲区（仅投影矩阵）
             Buffer cbData;
             cbData.DataSize = sizeof(mvp);
-            cbData.Data = reinterpret_cast<uint8_t *>(&mvp[0][0]);
+            cbData.Data = reinterpret_cast<uint8_t *>(const_cast<float *>(&mvp[0][0]));
             mConstantBuffer->writeData(0, cbData, true);
+            cbData.Data = nullptr;
 
             // 绑定常量缓冲区到 VS
             ConstantBuffers cbs;
@@ -746,6 +747,9 @@ namespace Tiny3D
             int globalIdxOffset = 0;
             int globalVtxOffset = 0;
             ImVec2 clipOff = drawData->DisplayPos;
+            ImVec2 clipScale = drawData->FramebufferScale;
+            const float fbWidth = drawData->DisplaySize.x * clipScale.x;
+            const float fbHeight = drawData->DisplaySize.y * clipScale.y;
 
             for (int n = 0; n < drawData->CmdListsCount; n++)
             {
@@ -768,15 +772,23 @@ namespace Tiny3D
                     }
                     else
                     {
-                        // 计算裁剪矩形
-                        ImVec2 clipMin(pcmd->ClipRect.x - clipOff.x, pcmd->ClipRect.y - clipOff.y);
-                        ImVec2 clipMax(pcmd->ClipRect.z - clipOff.x, pcmd->ClipRect.w - clipOff.y);
+                        // 投影到 framebuffer 像素（左上原点，Y 向下）；GL 后端内部翻转
+                        ImVec2 clipMin((pcmd->ClipRect.x - clipOff.x) * clipScale.x,
+                                       (pcmd->ClipRect.y - clipOff.y) * clipScale.y);
+                        ImVec2 clipMax((pcmd->ClipRect.z - clipOff.x) * clipScale.x,
+                                       (pcmd->ClipRect.w - clipOff.y) * clipScale.y);
+                        if (clipMin.x < 0.0f) clipMin.x = 0.0f;
+                        if (clipMin.y < 0.0f) clipMin.y = 0.0f;
+                        if (clipMax.x > fbWidth) clipMax.x = fbWidth;
+                        if (clipMax.y > fbHeight) clipMax.y = fbHeight;
                         if (clipMax.x <= clipMin.x || clipMax.y <= clipMin.y)
                             continue;
 
-                        // 设置裁剪矩形（通过视口实现，或通过 RHI 裁剪矩形）
-                        // TODO: 使用 RHI scissor rect API（如果引擎支持）
-                        // 目前通过视口不处理裁剪，依赖光栅化状态的 ScissorEnable
+                        ctx->setScissorRect(
+                            static_cast<int32_t>(clipMin.x),
+                            static_cast<int32_t>(clipMin.y),
+                            static_cast<uint32_t>(clipMax.x - clipMin.x),
+                            static_cast<uint32_t>(clipMax.y - clipMin.y));
 
                         // 绑定纹理
                         // ImTextureID 统一约定为 PixelBuffer2D* 指针
@@ -929,6 +941,9 @@ namespace Tiny3D
             int globalIdxOffset = 0;
             int globalVtxOffset = 0;
             ImVec2 clipOff = drawData->DisplayPos;
+            ImVec2 clipScale = drawData->FramebufferScale;
+            const float fbWidth = drawData->DisplaySize.x * clipScale.x;
+            const float fbHeight = drawData->DisplaySize.y * clipScale.y;
 
             for (int n = 0; n < drawData->CmdListsCount; n++)
             {
@@ -951,10 +966,22 @@ namespace Tiny3D
                     }
                     else
                     {
-                        ImVec2 clipMin(pcmd->ClipRect.x - clipOff.x, pcmd->ClipRect.y - clipOff.y);
-                        ImVec2 clipMax(pcmd->ClipRect.z - clipOff.x, pcmd->ClipRect.w - clipOff.y);
+                        ImVec2 clipMin((pcmd->ClipRect.x - clipOff.x) * clipScale.x,
+                                       (pcmd->ClipRect.y - clipOff.y) * clipScale.y);
+                        ImVec2 clipMax((pcmd->ClipRect.z - clipOff.x) * clipScale.x,
+                                       (pcmd->ClipRect.w - clipOff.y) * clipScale.y);
+                        if (clipMin.x < 0.0f) clipMin.x = 0.0f;
+                        if (clipMin.y < 0.0f) clipMin.y = 0.0f;
+                        if (clipMax.x > fbWidth) clipMax.x = fbWidth;
+                        if (clipMax.y > fbHeight) clipMax.y = fbHeight;
                         if (clipMax.x <= clipMin.x || clipMax.y <= clipMin.y)
                             continue;
+
+                        ctx->setScissorRect(
+                            static_cast<int32_t>(clipMin.x),
+                            static_cast<int32_t>(clipMin.y),
+                            static_cast<uint32_t>(clipMax.x - clipMin.x),
+                            static_cast<uint32_t>(clipMax.y - clipMin.y));
 
                         ImTextureID texID = pcmd->GetTexID();
                         PixelBuffer2D *rawTexPtr = reinterpret_cast<PixelBuffer2D *>(texID);

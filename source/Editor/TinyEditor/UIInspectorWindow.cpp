@@ -221,15 +221,29 @@ namespace Tiny3D
                 prefabLink->getSourcePrefabUUID().toString().c_str());
 
             const auto &mods = prefabLink->getModifications();
-            if (ImGui::BeginCombo("Overrides",
-                mods.empty() ? "No Overrides" : "Overrides"))
+
+            // 左标签、右下拉，与 ImPropertyDrawer 属性行对齐
             {
-                for (const auto &mod : mods)
+                const float labelWidth = ImClamp(
+                    ImGui::GetContentRegionAvail().x * 0.40f, 80.0f, 200.0f);
+
+                ImGui::AlignTextToFramePadding();
+                ImGui::TextUnformatted("Overrides");
+                ImGui::SameLine(labelWidth + ImGui::GetStyle().ItemInnerSpacing.x);
+                ImGui::PushItemWidth(-FLT_MIN);
+
+                if (ImGui::BeginCombo("##Overrides",
+                    mods.empty() ? "No Overrides" : "Overrides"))
                 {
-                    ImGui::TextColored(ImVec4(0.35f, 0.55f, 1.0f, 1.0f), "%s",
-                        mod.getPropertyPath().c_str());
+                    for (const auto &mod : mods)
+                    {
+                        ImGui::TextColored(ImVec4(0.35f, 0.55f, 1.0f, 1.0f), "%s",
+                            mod.getPropertyPath().c_str());
+                    }
+                    ImGui::EndCombo();
                 }
-                ImGui::EndCombo();
+
+                ImGui::PopItemWidth();
             }
 
             if (ImGui::Button("Apply All"))

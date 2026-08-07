@@ -185,6 +185,145 @@ namespace Tiny3D
             return (pos == String::npos) ? label : label.substr(0, pos);
         }
 
+        /// Unity Inspector 式：左标签列约占内容区 40%，并夹在合理范围内
+        constexpr float kLabelWidthRatio = 0.40f;
+        constexpr float kLabelWidthMin = 80.0f;
+        constexpr float kLabelWidthMax = 200.0f;
+
+        /**
+         * 标签列宽按内容区总宽计算，而不是当前光标处的剩余宽度：
+         * 折叠层级里的属性带缩进，剩余宽度会逐层变窄，按剩余宽度算会让各层的标签列
+         * 宽度互不相同
+         */
+        float propertyLabelWidth()
+        {
+            const float contentLeft = ImGui::GetCursorStartPos().x;
+            const float contentRight
+                = ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x;
+
+            return ImClamp((contentRight - contentLeft) * kLabelWidthRatio,
+                kLabelWidthMin, kLabelWidthMax);
+        }
+
+        /**
+         * 生成仅作 ImGui ID、无可见文字的控件标签。
+         * 属性行左侧已画出显示名；控件侧若再带可见名会落到 ImGui 默认的右侧标签布局。
+         */
+        String widgetLabel(const String &label)
+        {
+            const size_t pos = label.find("##");
+
+            if (pos == String::npos)
+            {
+                return String("##") + label;
+            }
+
+            if (pos == 0)
+            {
+                return label;
+            }
+
+            return label.substr(pos);
+        }
+
+        /**
+         * 开始一行 Unity 式属性：左侧画显示名，光标移到标签列右缘，准备画控件。
+         * 调用方随后 PushItemWidth / SetNextItemWidth，并在行末 PopItemWidth（若有 Push）。
+         *
+         * 控件列固定在「内容区左缘 + 标签列宽」，各层缩进下都对齐同一条竖线；标签文字
+         * 长过标签列时把控件推到文字之后，避免控件盖住标签。
+         */
+        void beginPropertyRow(const String &label)
+        {
+            const float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
+            const float contentLeft = ImGui::GetCursorStartPos().x;
+            const float columnX = contentLeft + propertyLabelWidth() + spacing;
+
+            ImGui::AlignTextToFramePadding();
+            ImGui::TextUnformatted(displayText(label).c_str());
+
+            // 文字画完光标已换行，只能从上一个 item 的矩形取文字右缘；item 矩形是屏幕
+            // 坐标，换算回与 SetCursorPosX 一致的窗口局部坐标
+            const float labelEndX = ImGui::GetItemRectMax().x
+                - ImGui::GetWindowPos().x + ImGui::GetScrollX();
+
+            ImGui::SameLine(0.0f, 0.0f);
+            ImGui::SetCursorPosX(ImMax(columnX, labelEndX + spacing));
+        }
+
+        /// Vector / 欧拉角分量前缀色（近似 Unity 的 X/Y/Z 色）
+        const ImVec4 kAxisColors[4] =
+        {
+            ImVec4(0.91f, 0.31f, 0.31f, 1.0f),
+            ImVec4(0.47f, 0.80f, 0.27f, 1.0f),
+            ImVec4(0.35f, 0.55f, 0.95f, 1.0f),
+            ImVec4(0.75f, 0.75f, 0.75f, 1.0f),
+        };
+
+        const char * const kAxisNames[4] = { "X", "Y", "Z", "W" };
+
+        /**
+         * 在属性行控件列内画带 X/Y/Z/(W) 前缀的并排 DragFloat。
+         * 须在 beginPropertyRow 之后调用；自行占用剩余宽度，不再 PushItemWidth(-FLT_MIN)。
+         * @param [out] anyActive 非空时写出是否有任一分量正处于拖动/编辑
+         */
+        bool dragFloatComponents(const String &id, float *components, int count,
+            float speed, const char *format, bool *anyActive = nullptr)
+        {
+            const float avail = ImGui::GetContentRegionAvail().x;
+            const float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
+            const float prefixGap = ImGui::GetStyle().ItemInnerSpacing.x;
+            float prefixTotal = 0.0f;
+
+            for (int i = 0; i < count; ++i)
+            {
+                prefixTotal += ImGui::CalcTextSize(kAxisNames[i]).x + prefixGap;
+            }
+
+            const float fieldWidth = (avail - spacing * static_cast<float>(count - 1)
+                - prefixTotal) / static_cast<float>(count);
+
+            bool changed = false;
+            bool active = false;
+
+            for (int i = 0; i < count; ++i)
+            {
+                if (i > 0)
+                {
+                    ImGui::SameLine(0.0f, spacing);
+                }
+
+                ImGui::AlignTextToFramePadding();
+                ImGui::TextColored(kAxisColors[i], "%s", kAxisNames[i]);
+                ImGui::SameLine(0.0f, prefixGap);
+
+                ImGui::PushID(i);
+                ImGui::SetNextItemWidth(ImMax(fieldWidth, 1.0f));
+
+                const String fieldId = id + String("_") + kAxisNames[i];
+
+                if (ImGui::DragFloat(fieldId.c_str(), &components[i], speed,
+                    0.0f, 0.0f, format))
+                {
+                    changed = true;
+                }
+
+                if (ImGui::IsItemActive())
+                {
+                    active = true;
+                }
+
+                ImGui::PopID();
+            }
+
+            if (anyActive != nullptr)
+            {
+                *anyActive = active;
+            }
+
+            return changed;
+        }
+
         /**
          * 本次 drawObject 期间是否改写过资源引用属性。
          * 在 depth 为 0 的 drawObject 入口清零，由 wasAssetReferenceChanged 读取。
@@ -584,7 +723,9 @@ namespace Tiny3D
         {
             bool flag = value.to_bool();
 
-            if (ImGui::Checkbox(label.c_str(), &flag))
+            beginPropertyRow(label);
+
+            if (ImGui::Checkbox(widgetLabel(label).c_str(), &flag))
             {
                 value = flag;
                 return true;
@@ -807,7 +948,10 @@ namespace Tiny3D
 
             // 用回车提交而非逐次按键生效，避免输入中间态（如把 12 改成 2 的瞬间）
             // 就把元素截掉
-            if (ImGui::InputInt("Size", &size, 1, 10,
+            beginPropertyRow("Size");
+            ImGui::PushItemWidth(-FLT_MIN);
+
+            if (ImGui::InputInt("##Size", &size, 1, 10,
                 ImGuiInputTextFlags_EnterReturnsTrue))
             {
                 const size_t clamped = std::min(
@@ -818,6 +962,8 @@ namespace Tiny3D
                     changed = true;
                 }
             }
+
+            ImGui::PopItemWidth();
         }
 
         const RTTRType elementType = view.get_value_type();
@@ -830,6 +976,17 @@ namespace Tiny3D
         {
             ImGui::PushID(static_cast<int32_t>(i));
 
+            // 删除按钮放在属性行左侧，避免与占满控件列的字段抢 SameLine 空间
+            if (resizable)
+            {
+                if (ImGui::SmallButton("-"))
+                {
+                    pendingErase = i;
+                }
+
+                ImGui::SameLine();
+            }
+
             // get_value 返回的是包了 reference_wrapper 的变体，解包后才是元素值
             RTTRVariant element = view.get_value(i).extract_wrapped_value();
             const String elementLabel = "[" + std::to_string(i) + "]";
@@ -839,16 +996,6 @@ namespace Tiny3D
                 && view.set_value(i, element))
             {
                 changed = true;
-            }
-
-            if (resizable)
-            {
-                ImGui::SameLine();
-
-                if (ImGui::SmallButton("-"))
-                {
-                    pendingErase = i;
-                }
             }
 
             ImGui::PopID();
@@ -912,8 +1059,10 @@ namespace Tiny3D
 
         ImGui::PushID(label.c_str());
 
-        // 引用字段用按钮承载，点击弹出资产选择器。按钮宽度对齐常规控件、属性名画在
-        // 右侧，这样与其它属性的排布保持一致
+        // 左标签、右 Object 按钮，与其余属性行对齐
+        beginPropertyRow(label);
+        ImGui::PushItemWidth(-FLT_MIN);
+
         if (ImGui::Button(text.c_str(), ImVec2(ImGui::CalcItemWidth(), 0.0f)))
         {
             sAssetCandidates.clear();
@@ -934,6 +1083,8 @@ namespace Tiny3D
             ImGui::OpenPopup(kAssetPickerPopup);
         }
 
+        ImGui::PopItemWidth();
+
         UUID dropped;
 
         if (acceptAssetDrop(dropped))
@@ -941,9 +1092,6 @@ namespace Tiny3D
             value = dropped;
             changed = true;
         }
-
-        ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-        ImGui::TextUnformatted(displayText(label).c_str());
 
         if (ImGui::BeginPopup(kAssetPickerPopup))
         {
@@ -1072,6 +1220,10 @@ namespace Tiny3D
     {
         T scalar = value.get_value<T>();
         bool edited = false;
+        const String id = widgetLabel(label);
+
+        beginPropertyRow(label);
+        ImGui::PushItemWidth(-FLT_MIN);
 
         if (hints.hasRange)
         {
@@ -1080,13 +1232,15 @@ namespace Tiny3D
 
             // 滑条能直接看出当前值在量程里的位置。AlwaysClamp 是为了让 ctrl + 点击
             // 手输的值也落在量程内，否则滑条能显示出越界值
-            edited = ImGui::SliderScalar(label.c_str(), dataType, &scalar, &low, &high,
+            edited = ImGui::SliderScalar(id.c_str(), dataType, &scalar, &low, &high,
                 nullptr, ImGuiSliderFlags_AlwaysClamp);
         }
         else
         {
-            edited = ImGui::DragScalar(label.c_str(), dataType, &scalar, speed);
+            edited = ImGui::DragScalar(id.c_str(), dataType, &scalar, speed);
         }
+
+        ImGui::PopItemWidth();
 
         if (edited)
         {
@@ -1101,17 +1255,30 @@ namespace Tiny3D
     bool ImPropertyDrawer::drawAngle(const String &label, float &degrees,
         const UIHints &hints)
     {
+        const String id = widgetLabel(label);
+
+        beginPropertyRow(label);
+        ImGui::PushItemWidth(-FLT_MIN);
+
+        bool edited = false;
+
         if (hints.hasRange)
         {
             // 量程按度解释，与控件显示和编辑的单位一致
-            return ImGui::SliderFloat(label.c_str(), &degrees,
+            edited = ImGui::SliderFloat(id.c_str(), &degrees,
                 static_cast<float>(hints.rangeMin),
                 static_cast<float>(hints.rangeMax), kAngleFormat,
                 ImGuiSliderFlags_AlwaysClamp);
         }
+        else
+        {
+            edited = ImGui::DragFloat(id.c_str(), &degrees, kAngleDragSpeed,
+                0.0f, 0.0f, kAngleFormat);
+        }
 
-        return ImGui::DragFloat(label.c_str(), &degrees, kAngleDragSpeed,
-            0.0f, 0.0f, kAngleFormat);
+        ImGui::PopItemWidth();
+
+        return edited;
     }
 
     //--------------------------------------------------------------------------
@@ -1191,8 +1358,12 @@ namespace Tiny3D
         bool ok = false;
         const String current = value.to_string(&ok);
         bool changed = false;
+        const String id = widgetLabel(label);
 
-        if (ImGui::BeginCombo(label.c_str(), ok ? current.c_str() : ""))
+        beginPropertyRow(label);
+        ImGui::PushItemWidth(-FLT_MIN);
+
+        if (ImGui::BeginCombo(id.c_str(), ok ? current.c_str() : ""))
         {
             for (const auto &name : enumeration.get_names())
             {
@@ -1214,6 +1385,8 @@ namespace Tiny3D
             ImGui::EndCombo();
         }
 
+        ImGui::PopItemWidth();
+
         return changed;
     }
 
@@ -1224,11 +1397,17 @@ namespace Tiny3D
         char buffer[kTextBufferSize] = { 0 };
         copyToBuffer(buffer, kTextBufferSize, value.to_string());
 
-        if (ImGui::InputText(label.c_str(), buffer, kTextBufferSize))
+        beginPropertyRow(label);
+        ImGui::PushItemWidth(-FLT_MIN);
+
+        if (ImGui::InputText(widgetLabel(label).c_str(), buffer, kTextBufferSize))
         {
+            ImGui::PopItemWidth();
             value = String(buffer);
             return true;
         }
+
+        ImGui::PopItemWidth();
 
         return false;
     }
@@ -1244,7 +1423,9 @@ namespace Tiny3D
             static_cast<float>(vector.y())
         };
 
-        if (ImGui::DragFloat2(label.c_str(), components, kDragSpeed))
+        beginPropertyRow(label);
+
+        if (dragFloatComponents(widgetLabel(label), components, 2, kDragSpeed, "%.3f"))
         {
             value = Vector2(static_cast<Real>(components[0]),
                 static_cast<Real>(components[1]));
@@ -1266,7 +1447,9 @@ namespace Tiny3D
             static_cast<float>(vector.z())
         };
 
-        if (ImGui::DragFloat3(label.c_str(), components, kDragSpeed))
+        beginPropertyRow(label);
+
+        if (dragFloatComponents(widgetLabel(label), components, 3, kDragSpeed, "%.3f"))
         {
             value = Vector3(static_cast<Real>(components[0]),
                 static_cast<Real>(components[1]),
@@ -1290,7 +1473,9 @@ namespace Tiny3D
             static_cast<float>(vector.w())
         };
 
-        if (ImGui::DragFloat4(label.c_str(), components, kDragSpeed))
+        beginPropertyRow(label);
+
+        if (dragFloatComponents(widgetLabel(label), components, 4, kDragSpeed, "%.3f"))
         {
             value = Vector4(static_cast<Real>(components[0]),
                 static_cast<Real>(components[1]),
@@ -1321,17 +1506,21 @@ namespace Tiny3D
             static_cast<float>(roll.valueDegrees())
         };
 
-        const ImGuiID id = ImGui::GetID(label.c_str());
+        const String idStr = widgetLabel(label);
+        const ImGuiID id = ImGui::GetID(idStr.c_str());
 
         if (sEulerCache.id == id)
         {
             ::memcpy(angles, sEulerCache.angles, sizeof(angles));
         }
 
+        beginPropertyRow(label);
+
+        bool anyActive = false;
         bool changed = false;
 
-        if (ImGui::DragFloat3(label.c_str(), angles, kAngleDragSpeed,
-            0.0f, 0.0f, kAngleFormat))
+        if (dragFloatComponents(idStr, angles, 3, kAngleDragSpeed, kAngleFormat,
+            &anyActive))
         {
             Quaternion result;
             result.fromEulerAnglesXYZ(
@@ -1343,7 +1532,7 @@ namespace Tiny3D
             changed = true;
         }
 
-        if (ImGui::IsItemActive())
+        if (anyActive)
         {
             sEulerCache.id = id;
             ::memcpy(sEulerCache.angles, angles, sizeof(angles));
@@ -1399,11 +1588,17 @@ namespace Tiny3D
         const ColorRGB color = value.get_value<ColorRGB>();
         float components[3] = { color.red(), color.green(), color.blue() };
 
-        if (ImGui::ColorEdit3(label.c_str(), components))
+        beginPropertyRow(label);
+        ImGui::PushItemWidth(-FLT_MIN);
+
+        if (ImGui::ColorEdit3(widgetLabel(label).c_str(), components))
         {
+            ImGui::PopItemWidth();
             value = ColorRGB(components[0], components[1], components[2]);
             return true;
         }
+
+        ImGui::PopItemWidth();
 
         return false;
     }
@@ -1418,12 +1613,18 @@ namespace Tiny3D
             color.red(), color.green(), color.blue(), color.alpha()
         };
 
-        if (ImGui::ColorEdit4(label.c_str(), components))
+        beginPropertyRow(label);
+        ImGui::PushItemWidth(-FLT_MIN);
+
+        if (ImGui::ColorEdit4(widgetLabel(label).c_str(), components))
         {
+            ImGui::PopItemWidth();
             value = ColorRGBA(components[0], components[1],
                 components[2], components[3]);
             return true;
         }
+
+        ImGui::PopItemWidth();
 
         return false;
     }
@@ -1432,8 +1633,10 @@ namespace Tiny3D
 
     void ImPropertyDrawer::drawReadOnlyText(const String &label, const String &text)
     {
+        beginPropertyRow(label);
+        ImGui::AlignTextToFramePadding();
         ImGui::BeginDisabled();
-        ImGui::LabelText(label.c_str(), "%s", text.c_str());
+        ImGui::TextUnformatted(text.c_str());
         ImGui::EndDisabled();
     }
 
