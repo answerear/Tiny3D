@@ -1017,14 +1017,25 @@ namespace Tiny3D
 
     void ProjectManager::applicationWillEnterForeground()
     {
-        mAssetRoot->destroy();
-        populate();
+        refreshAssets();
     }
 
     //--------------------------------------------------------------------------
 
     void ProjectManager::applicationFocusGained()
     {
+        refreshAssets();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ProjectManager::refreshAssets()
+    {
+        if (mAssetRoot == nullptr)
+        {
+            return;
+        }
+
         mAssetRoot->destroy();
         populate();
     }
@@ -1053,25 +1064,12 @@ namespace Tiny3D
             }
 
             // 创建文件夹对应的 meta 文件
-            MetaFolderPtr meta = MetaFolder::create(UUID::generate());
             String metaPath = path + ".meta";
-            FileDataStream fs;
-            if (!fs.open(metaPath.c_str(), FileDataStream::EOpenMode::E_MODE_TRUNCATE))
-            {
-                EDITOR_LOG_ERROR("Failed to create meta file [%s] !", metaPath.c_str());
-                ret = T3D_ERR_FILE_NOT_EXIST;
-                break;
-            }
-            
-            ret = T3D_SERIALIZER_MGR.serialize(fs, meta);
+            ret = writeFolderMeta(path);
             if (T3D_FAILED(ret))
             {
-                fs.close();
-                EDITOR_LOG_ERROR("Failed to serialize meta file [%s] ! ERROR [%d]", metaPath.c_str(), ret);
                 break;
             }
-
-            fs.close();
 
             // 生成文件夹节点
             ret = generateAssetNode(metaPath, parent, node);
@@ -1125,6 +1123,79 @@ namespace Tiny3D
     TResult ProjectManager::addFile(AssetNode *parent, const String &path, AssetNode *&node)
     {
         return generateAssetNode(path, parent, node);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ProjectManager::writeFolderMeta(const String &path)
+    {
+        String metaPath = path + ".meta";
+        if (Dir::exists(metaPath))
+        {
+            return T3D_OK;
+        }
+
+        MetaFolderPtr meta = MetaFolder::create(UUID::generate());
+        FileDataStream fs;
+        if (!fs.open(metaPath.c_str(), FileDataStream::EOpenMode::E_MODE_TRUNCATE))
+        {
+            EDITOR_LOG_ERROR("Failed to create meta file [%s] !", metaPath.c_str());
+            return T3D_ERR_FILE_NOT_EXIST;
+        }
+
+        TResult ret = T3D_SERIALIZER_MGR.serialize(fs, meta);
+        fs.close();
+
+        if (T3D_FAILED(ret))
+        {
+            EDITOR_LOG_ERROR("Failed to serialize meta file [%s] ! ERROR [%d]", metaPath.c_str(), ret);
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ProjectManager::ensureAssetFolder(const String &relativePath)
+    {
+        TResult ret = T3D_OK;
+        String path = mAssetsPath;
+        String::size_type begin = 0;
+
+        while (begin < relativePath.length())
+        {
+            String::size_type pos = relativePath.find_first_of("/\\", begin);
+            String folder = (pos == String::npos)
+                ? relativePath.substr(begin)
+                : relativePath.substr(begin, pos - begin);
+
+            if (!folder.empty())
+            {
+                path = path + Dir::getNativeSeparator() + folder;
+
+                if (!Dir::exists(path) && !Dir::makeDir(path))
+                {
+                    EDITOR_LOG_ERROR("Failed to create asset folder [%s] !", path.c_str());
+                    ret = T3D_ERR_FAIL;
+                    break;
+                }
+
+                ret = writeFolderMeta(path);
+                if (T3D_FAILED(ret))
+                {
+                    break;
+                }
+            }
+
+            if (pos == String::npos)
+            {
+                break;
+            }
+
+            begin = pos + 1;
+        }
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------

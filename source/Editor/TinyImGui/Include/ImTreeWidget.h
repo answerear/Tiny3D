@@ -97,6 +97,17 @@ namespace Tiny3D
         TResult expand(bool recursively);
 
         /**
+         * 设置节点文本颜色，用于区分特殊状态的节点
+         * @param [in] color : 文本颜色
+         */
+        void setTextColor(const ImVec4 &color) { mTextColor = color; mUseTextColor = true; }
+
+        /**
+         * 清除节点文本颜色，恢复使用主题的默认文本颜色
+         */
+        void clearTextColor() { mUseTextColor = false; }
+
+        /**
          * 设置用户数据，这个指针所指内存，用户自己负责生命周期
          * @param [in] data : 用户数据
          */
@@ -153,6 +164,10 @@ namespace Tiny3D
         ImTextureID mOpenedIconID {nullptr};
         /// 用户自定义数据对象
         void *mUserData {nullptr};
+        /// 自定义文本颜色
+        ImVec4 mTextColor {};
+        /// 是否使用自定义文本颜色
+        bool mUseTextColor {false};
         /// TreeWidget 的大小
         ImVec2 mTreeWidgetSize {};
         /// 单击回调

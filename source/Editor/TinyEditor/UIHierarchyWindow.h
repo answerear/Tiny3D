@@ -60,6 +60,9 @@ namespace Tiny3D
         {
             populateGameObjectTree();
         }
+
+        /// 重新计算整棵树的 prefab 实例标识
+        void refreshPrefabDecoration();
         
     protected:
         TResult onCreate() override;
@@ -82,6 +85,12 @@ namespace Tiny3D
 
         /// 响应处理场景数据被改动通知
         bool onModifedScene(EventParam *param, TINSTANCE sender);
+
+        /// 响应处理 prefab 实例关系变化通知
+        bool onPrefabInstanceChanged(EventParam *param, TINSTANCE sender);
+
+        /// 属于 prefab 实例的节点用 prefab 文本色显示，否则恢复默认色
+        void updatePrefabDecoration(TransformNode *node, ImTreeNode *uiNode);
 
         /// 查询创建空 game object 菜单状态
         bool onMenuItemEnabledCreateEmpty(uint32_t id, ImWidget *menuItem);

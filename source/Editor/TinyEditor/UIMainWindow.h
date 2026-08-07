@@ -85,6 +85,9 @@ namespace Tiny3D
         bool onMenuItemExtractFromPrefab(uint32_t id, ImWidget *menuItem);
         bool onMenuItemEnabledPrefabOps(uint32_t id, ImWidget *menuItem);
 
+        /// 资产文件被新增后重扫资产树并通知 Project 视图重建
+        void refreshProjectView();
+
     protected:
         ImMenuBar   *mMenuBar {nullptr};
 

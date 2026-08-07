@@ -1314,7 +1314,15 @@ namespace Tiny3D
             return true;
         }
 
-        const String path = String("Prefabs/") + go->getName() + ".tprefab";
+        const String folder = "Prefabs";
+        TResult ret = PROJECT_MGR.ensureAssetFolder(folder);
+        if (T3D_FAILED(ret))
+        {
+            EDITOR_LOG_ERROR("Create Prefab: failed to prepare folder [%s] ! ERROR [%d]", folder.c_str(), ret);
+            return true;
+        }
+
+        const String path = folder + Dir::getNativeSeparator() + go->getName() + ".tprefab";
         PrefabPtr prefab = PrefabUtility::createPrefab(go, path);
         if (prefab == nullptr)
         {
@@ -1324,8 +1332,21 @@ namespace Tiny3D
         {
             EDITOR_LOG_INFO("Created Prefab: %s", path.c_str());
             PROJECT_MGR.setSceneModified(true);
+
+            // 原物体已经变成 prefab 实例，hierarchy 要重新标识
+            sendEvent(kEvtPrefabInstanceChanged, nullptr);
+            refreshProjectView();
         }
         return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIMainWindow::refreshProjectView()
+    {
+        // 先重扫资产树再通知 UI 重建，顺序不能反，否则 Project 视图拿到的还是旧树
+        PROJECT_MGR.refreshAssets();
+        sendEvent(kEvtRefreshAssets, nullptr);
     }
 
     //--------------------------------------------------------------------------
@@ -1361,7 +1382,15 @@ namespace Tiny3D
             return true;
         }
 
-        const String path = String("Prefabs/") + go->getName() + "_Variant.tprefab";
+        const String folder = "Prefabs";
+        TResult ret = PROJECT_MGR.ensureAssetFolder(folder);
+        if (T3D_FAILED(ret))
+        {
+            EDITOR_LOG_ERROR("Create Prefab Variant: failed to prepare folder [%s] ! ERROR [%d]", folder.c_str(), ret);
+            return true;
+        }
+
+        const String path = folder + "/" + go->getName() + "_Variant.tprefab";
         PrefabPtr variant = PrefabUtility::createPrefabVariant(base.get(), path);
         if (variant == nullptr)
         {
@@ -1370,6 +1399,7 @@ namespace Tiny3D
         else
         {
             EDITOR_LOG_INFO("Created Prefab Variant: %s", path.c_str());
+            refreshProjectView();
         }
         return true;
     }
@@ -1417,6 +1447,9 @@ namespace Tiny3D
             PrefabInstance::unpackPrefab(root, PrefabInstance::UnpackMode::kOutermostRootOnly);
             PROJECT_MGR.setSceneModified(true);
             EDITOR_LOG_INFO("Extracted from Prefab: %s", root->getName().c_str());
+
+            // 已经不再是 prefab 实例，hierarchy 上的标识要撤掉
+            sendEvent(kEvtPrefabInstanceChanged, nullptr);
         }
         else
         {

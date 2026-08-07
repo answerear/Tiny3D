@@ -1136,6 +1136,7 @@ namespace Tiny3D
         {
             ON_MEMBER(kEvtAppEnterForeground, UIProjectWindow::onApplicationWillEnterForeground);
             ON_MEMBER(kEvtAppFocusGained, UIProjectWindow::onApplicationFocusGained);
+            ON_MEMBER(kEvtRefreshAssets, UIProjectWindow::onRefreshAssets);
 
             // 工具栏
             UIProjectToolBar *toolbar = new UIProjectToolBar();
@@ -1232,7 +1233,7 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    bool UIProjectWindow::onApplicationWillEnterForeground(EventParam *param, TINSTANCE sender)
+    void UIProjectWindow::rebuildViews()
     {
         if (mHierarchyView != nullptr)
         {
@@ -1243,7 +1244,13 @@ namespace Tiny3D
         {
             mThumbView->rebuild();
         }
-        
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIProjectWindow::onApplicationWillEnterForeground(EventParam *param, TINSTANCE sender)
+    {
+        rebuildViews();
         return true;
     }
 
@@ -1252,6 +1259,14 @@ namespace Tiny3D
     bool UIProjectWindow::onApplicationFocusGained(EventParam *param, TINSTANCE sender)
     {
         return onApplicationWillEnterForeground(param, sender);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIProjectWindow::onRefreshAssets(EventParam *param, TINSTANCE sender)
+    {
+        rebuildViews();
+        return true;
     }
     
     //--------------------------------------------------------------------------

@@ -186,7 +186,25 @@ namespace Tiny3D
 
         TResult addFile(AssetNode *parent, const String &path, AssetNode *&node);
 
+        /**
+         * @brief 重新扫描 Assets 目录，重建资产树
+         * @remarks 在编辑器内新增或删除资产文件后调用。调用方还需要广播
+         *          kEvtRefreshAssets 让 Project 视图跟着重建，否则 UI 上还是旧的树
+         */
+        void refreshAssets();
+
+        /**
+         * @brief 确保 Assets 下的相对目录及其 meta 文件都存在
+         * @param [in] relativePath : 相对于 Assets 的目录路径，支持多级
+         * @remarks 通过档案写入资产时只会补齐目录本身，目录的 meta 要等文件监控异步补上，
+         *          而资产树扫描要求每个目录都有 meta，所以写资产前先同步补齐
+         */
+        TResult ensureAssetFolder(const String &relativePath);
+
     protected:
+        /// 目录还没有 meta 文件时生成一个，已存在则保留原有 UUID
+        TResult writeFolderMeta(const String &path);
+
         TResult compileAllShaders(const String &tempPath, const String &assetsPath);
 
         TResult compileShaders(const String &inputPath, const String &outputPath);

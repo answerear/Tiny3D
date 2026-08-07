@@ -54,6 +54,11 @@ namespace Tiny3D
 
         /// 选中场景中的 game object，参数：EventParamGameObjectSelected
         kEvtGameObjectSelected,
+
+        /// 资产被新增或者删除，Project 视图需要重建，参数：nullptr
+        kEvtRefreshAssets,
+        /// 场景中的 prefab 实例关系发生变化，Hierarchy 视图需要重新标识，参数：nullptr
+        kEvtPrefabInstanceChanged,
         
         kEvtMax
     };

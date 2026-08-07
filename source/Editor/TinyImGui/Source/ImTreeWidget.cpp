@@ -303,7 +303,14 @@ namespace Tiny3D
         ImGui::Image(icon, ImVec2(itemSize.y, itemSize.y));
         ImGui::SameLine();
         // 文本
-        ImGui::Text(getName().c_str());
+        if (mUseTextColor)
+        {
+            ImGui::TextColored(mTextColor, "%s", getName().c_str());
+        }
+        else
+        {
+            ImGui::Text("%s", getName().c_str());
+        }
 
         ImGui::PopStyleVar();
     }

@@ -37,6 +37,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    /// prefab 实例节点的文本颜色，与 inspector 上的 prefab 标识保持一致
+    static const ImVec4 kPrefabTextColor(0.35f, 0.55f, 1.0f, 1.0f);
+
+    //--------------------------------------------------------------------------
+
     TResult UIHierarchyToolBar::onCreate()
     {
         TResult ret = T3D_OK;
@@ -198,6 +203,7 @@ namespace Tiny3D
         do
         {
             ON_MEMBER(kEvtModifyScene, UIHierarchyView::onModifedScene);
+            ON_MEMBER(kEvtPrefabInstanceChanged, UIHierarchyView::onPrefabInstanceChanged);
             
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_CREATE_EMPTY, UIHierarchyView::onMenuItemCreateEmpty);
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_CREATE_CUBE, UIHierarchyView::onMenuItemCreateCube);
@@ -345,6 +351,8 @@ namespace Tiny3D
 
             node->setUserData(uiNode);
             uiNode->setUserData(node);
+
+            updatePrefabDecoration(node, uiNode);
 
             mTreeWidget->setSelection(uiNode);
 
@@ -1241,6 +1249,58 @@ namespace Tiny3D
         }
         
         return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIHierarchyView::onPrefabInstanceChanged(EventParam *param, TINSTANCE sender)
+    {
+        refreshPrefabDecoration();
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyView::updatePrefabDecoration(TransformNode *node, ImTreeNode *uiNode)
+    {
+        if (node == nullptr || uiNode == nullptr || EDITOR_SCENE.isSceneRoot(node))
+        {
+            return;
+        }
+
+        GameObject *go = node->getGameObject();
+
+        // prefab 实例根及其下面的所有节点都算实例的一部分，都要标识出来
+        if (go != nullptr && PrefabUtility::getPrefabRoot(go) != nullptr)
+        {
+            uiNode->setTextColor(kPrefabTextColor);
+        }
+        else
+        {
+            uiNode->clearTextColor();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyView::refreshPrefabDecoration()
+    {
+        if (mScene == nullptr)
+        {
+            return;
+        }
+
+        Transform3D *root = mScene->getRootTransform();
+        if (root == nullptr)
+        {
+            return;
+        }
+
+        root->visitAll(
+            [this](int32_t depth, TransformNode *node)
+            {
+                updatePrefabDecoration(node, static_cast<ImTreeNode *>(node->getUserData()));
+            });
     }
 
     //--------------------------------------------------------------------------

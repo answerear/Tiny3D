@@ -214,6 +214,12 @@ namespace Tiny3D
         bool onApplicationWillEnterForeground(EventParam *param, TINSTANCE sender);
 
         bool onApplicationFocusGained(EventParam *param, TINSTANCE sender);
+
+        /// 响应资产新增或删除，重建整个 Project 视图
+        bool onRefreshAssets(EventParam *param, TINSTANCE sender);
+
+        /// 按 ProjectManager 当前的资产树重建左侧目录树和右侧列表
+        void rebuildViews();
         
     protected:
         ImSplitView *mSplitView {nullptr};
