@@ -43,10 +43,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    DylibPtr DylibManager::loadDylib(const String &name)
+    DylibPtr DylibManager::loadDylib(const String &name, const String &searchPath)
     {
         Archive *archive = nullptr;
-        return smart_pointer_cast<Dylib>(load(archive, name));
+        mPendingSearchPath = searchPath;
+        DylibPtr dylib = smart_pointer_cast<Dylib>(load(archive, name));
+        mPendingSearchPath.clear();
+        return dylib;
     }
 
     //--------------------------------------------------------------------------
@@ -60,7 +63,7 @@ namespace Tiny3D
 
     ResourcePtr DylibManager::newResource(const String &name, int32_t argc, va_list args)
     {
-        return Dylib::create(name);
+        return Dylib::create(name, mPendingSearchPath);
     }
 
     //--------------------------------------------------------------------------
@@ -75,7 +78,7 @@ namespace Tiny3D
 
     ResourcePtr DylibManager::loadResource(const String &name, DataStream &stream)
     {
-        return Dylib::create(name);
+        return Dylib::create(name, mPendingSearchPath);
     }
 
     //--------------------------------------------------------------------------

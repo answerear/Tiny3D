@@ -234,6 +234,15 @@ namespace Tiny3D
         TResult loadPlugin(const String &name);
 
         /**
+         * \brief 从指定目录加载动态库插件并调用 dllStartPlugin
+         * \param [in] name : 动态库资源名（不含平台前后缀）
+         * \param [in] dir : 动态库所在目录；为空时等价于 loadPlugin
+         * \return 成功或已加载返回 T3D_OK；加载失败 / 非 dylib / 无符号时返回对应错误码
+         * \remarks 供编辑器加载工程业务插件使用，这类插件不在引擎插件目录下
+         */
+        TResult loadPluginFromPath(const String &name, const String &dir);
+
+        /**
          * \brief 调用 dllStopPlugin 并卸载动态库
          * \param [in] name : 动态库资源名
          * \return 成功返回 T3D_OK；未加载返回 T3D_ERR_PLG_NOT_EXISTS；无符号返回 T3D_ERR_PLG_NO_FUNCTION

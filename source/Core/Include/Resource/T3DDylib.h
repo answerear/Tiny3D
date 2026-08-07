@@ -41,12 +41,23 @@ namespace Tiny3D
         /**
          * \brief 创建 Dylib 对象
          * \param [in] name : 动态库逻辑名称（不含扩展名；加载时会按平台拼接 lib 前缀与后缀）
+         * \param [in] searchPath : 可选的加载目录；为空时使用 Agent::getPluginsPath()
          * \return 新建的 Dylib 智能指针
          */
-        static DylibPtr create(const String &name);
+        static DylibPtr create(const String &name, const String &searchPath = "");
 
         /// 析构函数
         ~Dylib() override;
+
+        /**
+         * \brief 设置动态库所在目录，覆盖默认的引擎插件目录
+         * \param [in] path : 目录路径；为空表示回退到 Agent::getPluginsPath()
+         * \remarks 必须在 onLoad 之前设置才生效，用于加载工程业务插件等非引擎插件
+         */
+        void setSearchPath(const String &path) { mSearchPath = path; }
+
+        /// 返回加载目录覆盖值，为空表示使用引擎插件目录
+        const String &getSearchPath() const { return mSearchPath; }
 
         /**
          * \brief 获取资源类型
@@ -65,8 +76,9 @@ namespace Tiny3D
         /**
          * \brief 构造动态库资源
          * \param [in] name : 动态库逻辑名称
+         * \param [in] searchPath : 加载目录覆盖，为空则使用引擎插件目录
          */
-        Dylib(const String &name);
+        Dylib(const String &name, const String &searchPath = "");
 
         /**
          * \brief 克隆动态库资源
@@ -78,7 +90,8 @@ namespace Tiny3D
          * \brief 加载动态库文件
          * \param [in] archive : 档案对象（本实现未使用）
          * \return 加载失败返回 T3D_ERR_PLG_LOAD_FAILED；成功则调用基类 onLoad 并返回其结果
-         * \remarks 非 Android 从 Agent::getPluginsPath() 下加载；Android 直接按拼接后的库名加载
+         * \remarks 非 Android 优先使用 mSearchPath，为空时回退 Agent::getPluginsPath()；
+         *          Android 直接按拼接后的库名加载，依赖系统 loader 搜索路径
          */
         TResult onLoad(Archive *archive) override;
 
@@ -91,6 +104,8 @@ namespace Tiny3D
     protected:
         /// 平台动态库句柄
         THandle mHandle;
+        /// 加载目录覆盖，为空表示使用 Agent::getPluginsPath()
+        String  mSearchPath;
     };
 }
 

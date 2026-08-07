@@ -53,10 +53,11 @@ namespace Tiny3D
         /**
          * \brief 按名称加载动态库
          * \param [in] name : 动态库逻辑名称
+         * \param [in] searchPath : 可选的加载目录；为空时使用 Agent::getPluginsPath()
          * \return 成功返回 Dylib 智能指针；加载失败时返回 nullptr
          * \remarks 内部 archive 传 nullptr，实际加载由 Dylib::onLoad 完成
          */
-        DylibPtr loadDylib(const String &name);
+        DylibPtr loadDylib(const String &name, const String &searchPath = "");
 
         /**
          * \brief 卸载动态库
@@ -101,6 +102,11 @@ namespace Tiny3D
          * \return 触发断言并返回 T3D_ERR_NOT_IMPLEMENT
          */
         TResult saveResource(DataStream &stream, Resource *res) override;
+
+    private:
+        /// loadDylib 到 loadResource 之间传递加载目录；ResourceManager 的虚函数签名
+        /// 无法携带该参数，故用成员暂存，loadDylib 返回前必定清空
+        String  mPendingSearchPath;
     };
 
     #define T3D_DYLIB_MGR   (DylibManager::getInstance())

@@ -949,6 +949,13 @@ namespace Tiny3D
 
     TResult Agent::loadPlugin(const String &name)
     {
+        return loadPluginFromPath(name, "");
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::loadPluginFromPath(const String &name, const String &dir)
+    {
         T3D_LOG_INFO(LOG_TAG_ENGINE, "Load plugin %s ...", name.c_str());
 
         TResult ret = T3D_OK;
@@ -964,7 +971,7 @@ namespace Tiny3D
                 break;
             }
             
-            DylibPtr dylib = smart_pointer_cast<Dylib>(T3D_DYLIB_MGR.loadDylib(name));
+            DylibPtr dylib = smart_pointer_cast<Dylib>(T3D_DYLIB_MGR.loadDylib(name, dir));
             if (dylib == nullptr)
             {
                 ret = T3D_ERR_INVALID_POINTER;

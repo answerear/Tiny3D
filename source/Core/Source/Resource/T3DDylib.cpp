@@ -52,18 +52,19 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    DylibPtr Dylib::create(const String &name)
+    DylibPtr Dylib::create(const String &name, const String &searchPath)
     {
-        DylibPtr dylib = T3D_NEW Dylib(name);
+        DylibPtr dylib = T3D_NEW Dylib(name, searchPath);
         // dylib->release();
         return dylib;
     }
 
     //--------------------------------------------------------------------------
 
-    Dylib::Dylib(const String &name)
+    Dylib::Dylib(const String &name, const String &searchPath)
         : Resource(name)
         , mHandle(nullptr)
+        , mSearchPath(searchPath)
     {
         mUUID = UUID::generate();
     }
@@ -110,7 +111,8 @@ namespace Tiny3D
 #if defined (T3D_OS_ANDROID)
             mHandle = DYLIB_LOAD(name.c_str());
 #else
-            const String &pluginsPath = Agent::getInstance().getPluginsPath();
+            const String &pluginsPath = mSearchPath.empty()
+                ? Agent::getInstance().getPluginsPath() : mSearchPath;
             String path = pluginsPath + Dir::getNativeSeparator() + name;
             mHandle = DYLIB_LOAD(path.c_str());
 #endif
@@ -145,7 +147,7 @@ namespace Tiny3D
 
     ResourcePtr Dylib::clone() const
     {
-        DylibPtr dylib = create(getName());
+        DylibPtr dylib = create(getName(), mSearchPath);
         dylib->cloneProperties(this);
         return dylib;
     }
