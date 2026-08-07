@@ -26,6 +26,7 @@
 #include "ProjectManager.h"
 #include "EditorSceneImpl.h"
 #include "EditorEventDefine.h"
+#include "PlayModeController.h"
 
 
 
@@ -130,6 +131,180 @@ namespace Tiny3D
         } while (false);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    String ProjectManager::sanitizeIdentifier(const String &name)
+    {
+        String result;
+        result.reserve(name.size());
+
+        for (char c : name)
+        {
+            const bool ok = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+                || (c >= '0' && c <= '9') || c == '_';
+            result += ok ? c : '_';
+        }
+
+        if (result.empty())
+        {
+            result = "Game";
+        }
+        else if (result[0] >= '0' && result[0] <= '9')
+        {
+            result = "Game" + result;
+        }
+
+        return result;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ProjectManager::replaceTemplatePlaceholders(const String &filepath,
+        const String &pluginName)
+    {
+        static const String kPlaceholder = "{ProjectName}";
+
+        String content;
+
+        {
+            FileDataStream fs;
+            if (!fs.open(filepath.c_str(), FileDataStream::E_MODE_READ_ONLY))
+            {
+                EDITOR_LOG_ERROR("Failed to open template file [%s] !", filepath.c_str());
+                return T3D_ERR_FILE_NOT_EXIST;
+            }
+
+            const size_t size = static_cast<size_t>(fs.size());
+            content.resize(size);
+
+            if (size > 0)
+            {
+                fs.read(&content[0], size);
+            }
+
+            fs.close();
+        }
+
+        size_t pos = content.find(kPlaceholder);
+        if (pos == String::npos)
+        {
+            return T3D_OK;
+        }
+
+        while (pos != String::npos)
+        {
+            content.replace(pos, kPlaceholder.size(), pluginName);
+            pos = content.find(kPlaceholder, pos + pluginName.size());
+        }
+
+        FileDataStream fs;
+        if (!fs.open(filepath.c_str(), FileDataStream::E_MODE_TRUNCATE
+            | FileDataStream::E_MODE_WRITE_ONLY))
+        {
+            EDITOR_LOG_ERROR("Failed to write template file [%s] !", filepath.c_str());
+            return T3D_ERR_FAIL;
+        }
+
+        fs.write(content.data(), content.size());
+        fs.close();
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ProjectManager::replaceTemplatePlaceholdersInDir(const String &dir,
+        const String &pluginName)
+    {
+        TArray<String> files;
+        TArray<String> subDirs;
+
+        // 先收集再处理，避免边改文件边枚举
+        Dir finder;
+        if (finder.findFile(dir + Dir::getNativeSeparator() + "*"))
+        {
+            while (finder.findNextFile())
+            {
+                if (finder.isDots())
+                {
+                    continue;
+                }
+
+                if (finder.isDirectory())
+                {
+                    subDirs.push_back(finder.getFilePath());
+                }
+                else
+                {
+                    files.push_back(finder.getFilePath());
+                }
+            }
+
+            finder.close();
+        }
+
+        for (const String &file : files)
+        {
+            TResult ret = replaceTemplatePlaceholders(file, pluginName);
+            if (T3D_FAILED(ret))
+            {
+                return ret;
+            }
+        }
+
+        for (const String &subDir : subDirs)
+        {
+            TResult ret = replaceTemplatePlaceholdersInDir(subDir, pluginName);
+            if (T3D_FAILED(ret))
+            {
+                return ret;
+            }
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ProjectManager::createGamePluginScaffold()
+    {
+        const String sep(1, Dir::getNativeSeparator());
+        const String templatePath = Dir::getAppPath() + sep + "Editor" + sep
+            + "templates" + sep + "GamePlugin";
+
+        if (!Dir::exists(templatePath))
+        {
+            EDITOR_LOG_ERROR("Game plugin template [%s] not found, the new project will "
+                "have no scripts folder.", templatePath.c_str());
+            return T3D_ERR_FILE_NOT_EXIST;
+        }
+
+        const String scriptsPath = mPath + sep + "Scripts";
+
+        if (!Dir::copyDir(templatePath, scriptsPath, false))
+        {
+            EDITOR_LOG_ERROR("Failed to copy game plugin template [%s] -> [%s] !",
+                templatePath.c_str(), scriptsPath.c_str());
+            return T3D_ERR_COPY_DIR;
+        }
+
+        const String pluginName = sanitizeIdentifier(mName);
+
+        TResult ret = replaceTemplatePlaceholdersInDir(scriptsPath, pluginName);
+        if (T3D_FAILED(ret))
+        {
+            EDITOR_LOG_ERROR("Failed to fill in the game plugin template !");
+            return ret;
+        }
+
+        mProjectSettings.GamePluginName = pluginName;
+        mProjectSettings.ScriptsRelativePath = "Scripts";
+
+        EDITOR_LOG_INFO("Created game plugin scaffold at [%s].", scriptsPath.c_str());
+
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -365,6 +540,13 @@ namespace Tiny3D
 
             mProjectSettings.ensure();
 
+            // 业务代码脚手架。生成失败只是没有业务代码，工程本身照常可用，
+            // 所以这里不中断创建流程
+            if (T3D_FAILED(createGamePluginScaffold()))
+            {
+                EDITOR_LOG_WARNING("The new project was created without a scripts folder.");
+            }
+
             // 构建工程文件树
             ret = populate();
             if (T3D_FAILED(ret))
@@ -380,6 +562,10 @@ namespace Tiny3D
                 EDITOR_LOG_ERROR("Failed to populate builtin tree [%s] !", mBuiltinPath.c_str());
                 break;
             }
+
+            // 和打开工程一样，业务插件要赶在任何场景之前加载好，这样脚手架里的
+            // 示例脚本类型一开始就在 RTTR 里，用户建完工程立刻就能往物体上挂
+            PLAY_MODE_CTRL.onProjectOpened();
 
 #if !defined (TEST_SCENE_ENABLE)
             // 创建简单的场景
@@ -514,6 +700,11 @@ namespace Tiny3D
                 break;
             }
 
+            // 业务插件必须在场景之前加载。场景里挂着的自定义 Behaviour，如果反序列化
+            // 时类型还没注册进 RTTR 就会被静默丢弃，用户再保存一次场景，挂载信息就
+            // 永久没了。顺序不能颠倒。
+            PLAY_MODE_CTRL.onProjectOpened();
+
 #if !defined (TEST_SCENE_ENABLE)
             // 加载启动场景
             ret = loadStartupScene();
@@ -589,6 +780,10 @@ namespace Tiny3D
         
         T3D_SCENE_MGR.unloadScene();
         EDITOR_SCENE.setRuntimeScene(nullptr);
+
+        // 场景销毁之后才能卸插件。场景里可能有插件定义的组件实例，
+        // 反过来的话 FreeLibrary 之后这些实例的 vtable 就指向已卸载的代码段了
+        PLAY_MODE_CTRL.onProjectClosing();
         
         // 先从资源门面搜索链卸载工程档案
         T3D_ASSET_MGR.unmountAll();

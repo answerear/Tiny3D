@@ -36,6 +36,7 @@
 #include "EditorSceneImpl.h"
 #include "UIEditorWidgetID.h"
 #include "ProjectManager.h"
+#include "PlayModeController.h"
 
 
 namespace Tiny3D
@@ -259,6 +260,12 @@ namespace Tiny3D
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_BUILD_SETTINGS,  STR(TXT_BUILD_SETTINGS), "Ctrl+Shift+B", "", queryDisableDefault, nullptr, nullptr)
         // Build And Run
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_BUILD_AND_RUN,  STR(TXT_BUILD_AND_RUN), "Ctrl+B", "", queryDisableDefault, nullptr, nullptr)
+        // Validate Runtime Build
+        // Runtime 变体平时不参与构建，误用编辑器专有 API 要到导出时才暴露，这里给个随时自查的入口
+        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_VALIDATE_RUNTIME_BUILD, "Validate Runtime Build", "", "",
+            [](ImWidget *widget) { return PROJECT_MGR.isProjectOpened() && !PLAY_MODE_CTRL.isPlaying(); },
+            nullptr,
+            [](ImWidget *widget) { PLAY_MODE_CTRL.validateRuntimeBuild(); })
         
         // Exit
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_EXIT, STR(TXT_EXIT), "", "", queryEnableDefault, nullptr, [](ImWidget*) { static_cast<EditorApp*>(Application::getInstancePtr())->exitApp(); })
@@ -314,11 +321,17 @@ namespace Tiny3D
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_SEARCH_ALL, STR(TXT_SEARCH_ALL), "", "", queryDisableDefault, nullptr, nullptr)
 
         // Play
-        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_PLAY, STR(TXT_PLAY), "Ctrl+P", "", queryDisableDefault, nullptr, nullptr)
+        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_PLAY, STR(TXT_PLAY), "Ctrl+P", "",
+            [](ImWidget *widget) { return PLAY_MODE_CTRL.canPlay() && !PLAY_MODE_CTRL.isPlaying(); },
+            nullptr,
+            [](ImWidget *widget) { PLAY_MODE_CTRL.play(); })
         // Pause
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_PAUSE, STR(TXT_PAUSE), "Ctrl+Shift+P", "", queryDisableDefault, nullptr, nullptr)
         // Stop
-        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_STOP, STR(TXT_STOP), "Ctrl+Alt+P", "", queryDisableDefault, nullptr, nullptr)
+        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_STOP, STR(TXT_STOP), "Ctrl+Alt+P", "",
+            [](ImWidget *widget) { return PLAY_MODE_CTRL.isPlaying(); },
+            nullptr,
+            [](ImWidget *widget) { PLAY_MODE_CTRL.stop(); })
 
         // Selection
         {
@@ -844,6 +857,7 @@ namespace Tiny3D
 
                     IM_MENU_ITEM(ID_MENU_ITEM_BUILD_SETTINGS)   // Build Settings...
                     IM_MENU_ITEM(ID_MENU_ITEM_BUILD_AND_RUN)    // Build And Run
+                    IM_MENU_ITEM(ID_MENU_ITEM_VALIDATE_RUNTIME_BUILD)   // Validate Runtime Build
 
                     IM_MENU_SEPARATOR() // Separator
 

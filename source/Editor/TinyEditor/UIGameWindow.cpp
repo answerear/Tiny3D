@@ -27,6 +27,7 @@
 #include "EditorSceneImpl.h"
 #include "UIEditorWidgetID.h"
 #include "ImErrors.h"
+#include "PlayModeController.h"
 
 
 namespace Tiny3D
@@ -187,7 +188,30 @@ namespace Tiny3D
             auto queryDisableDefault = [](const ImWidget *widget) { return false; };
             auto clickedDefault = [](ImWidget *widget) {};
 
-            ret = mToolBar->addPushImageButtonEx(ID_GAME_WIDNOW_TOOL_BTN_PLAY, "Editor/icons/d_PlayButton On@2x.png", queryDisableDefault, nullptr, clickedDefault, "Run Game", "");
+            // Play 是个开关：按下去进 Play 态，再按一次停下来回到编辑态
+            auto queryCanPlay = [](const ImWidget *widget)
+                {
+                    return PLAY_MODE_CTRL.canPlay();
+                };
+
+            auto queryPlaying = [](const ImWidget *widget)
+                {
+                    return PLAY_MODE_CTRL.isPlaying();
+                };
+
+            auto togglePlay = [](ImWidget *widget)
+                {
+                    if (PLAY_MODE_CTRL.isPlaying())
+                    {
+                        PLAY_MODE_CTRL.stop();
+                    }
+                    else
+                    {
+                        PLAY_MODE_CTRL.play();
+                    }
+                };
+
+            ret = mToolBar->addPushImageButtonEx(ID_GAME_WIDNOW_TOOL_BTN_PLAY, "Editor/icons/d_PlayButton On@2x.png", queryCanPlay, queryPlaying, togglePlay, "Run Game", "");
             if (T3D_FAILED(ret))
             {
                 break;

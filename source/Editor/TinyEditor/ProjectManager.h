@@ -214,6 +214,29 @@ namespace Tiny3D
         TResult setupBuiltinAssets(const String &tempPath);
 
         /**
+         * @brief 从模板生成业务代码工程（Scripts 目录）
+         * @remarks 模板在编辑器安装目录的 Editor/templates/GamePlugin 下，复制过来后
+         *          把里面的 {ProjectName} 占位符换成工程名。生成失败不影响工程本身可用，
+         *          只是没有业务代码而已
+         */
+        TResult createGamePluginScaffold();
+
+        /**
+         * @brief 把工程名规整成合法的 C++ / CMake 标识符
+         * @remarks 工程名允许有空格和中文，但要拿来当 CMake 目标名和动态库文件名，
+         *          非法字符一律换成下划线，数字开头再补一个前缀
+         */
+        static String sanitizeIdentifier(const String &name);
+
+        /// 把文件里所有 {ProjectName} 占位符替换成实际工程名
+        static TResult replaceTemplatePlaceholders(const String &filepath,
+            const String &pluginName);
+
+        /// 递归遍历模板目录，逐个文件做占位符替换
+        static TResult replaceTemplatePlaceholdersInDir(const String &dir,
+            const String &pluginName);
+
+        /**
          * @brief 把工程的三个档案按优先级挂载到资源门面搜索链
          * @remarks 优先级：assets > compiledShaders > builtin
          */

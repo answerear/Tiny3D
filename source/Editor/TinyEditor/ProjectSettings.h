@@ -39,6 +39,14 @@ namespace Tiny3D
         TPROPERTY()
         UUID StartupSceneUUID {};
 
+        /// 业务插件名，决定动态库文件名；默认等于工程名
+        TPROPERTY()
+        String GamePluginName {};
+
+        /// 业务源码目录，相对工程根
+        TPROPERTY()
+        String ScriptsRelativePath {"Scripts"};
+
         void ensure();
         
         TResult save();

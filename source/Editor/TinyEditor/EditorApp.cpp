@@ -28,6 +28,8 @@
 #include "T3DEditorInfoDX11.h"
 #include "ProjectManager.h"
 #include "NetworkManager.h"
+#include "ScriptBuildSystem.h"
+#include "PlayModeController.h"
 #include "EditorSceneImpl.h"
 #include "UIEditorWidgetID.h"
 #include "EditorEventDefine.h"
@@ -84,6 +86,8 @@ namespace Tiny3D
 
         T3D_SAFE_DELETE(mMenuEventMgr)
         T3D_SAFE_DELETE(mProjectMgr)
+        T3D_SAFE_DELETE(mPlayModeCtrl)
+        T3D_SAFE_DELETE(mScriptBuildSys)
         mLangMgr = nullptr;
         T3D_SAFE_DELETE(mTestScene)
         T3D_SAFE_DELETE(mAppEventProxy)
@@ -169,6 +173,8 @@ namespace Tiny3D
 
         T3D_SAFE_DELETE(mNetworkMgr)
         T3D_SAFE_DELETE(mProjectMgr)
+        T3D_SAFE_DELETE(mPlayModeCtrl)
+        T3D_SAFE_DELETE(mScriptBuildSys)
         mLangMgr = nullptr;
         T3D_SAFE_DELETE(mTestScene)
         T3D_SAFE_DELETE(mAppEventProxy)
@@ -266,6 +272,11 @@ namespace Tiny3D
                 }));
             scene->init();
             scene->build();
+
+            // 业务代码编译与 Play 模式协调者，要早于工程打开，
+            // ProjectManager::openProject 会用它们加载业务插件
+            mScriptBuildSys = new ScriptBuildSystem();
+            mPlayModeCtrl = new PlayModeController();
 
             // 创建工程管理器
             mProjectMgr = new ProjectManager();
@@ -378,6 +389,11 @@ namespace Tiny3D
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "Init engine failed ! ERROR [%d]", ret);
                 break;
             }
+
+            // 引擎默认是播放态，编辑器要的是编辑态：Behaviour 的 onUpdate 等
+            // 只在播放态或 executeInEditMode 时才调度，不退出来的话一打开工程
+            // 业务脚本就跑起来了
+            mEngine->exitPlayMode();
 
             T3D_ARCHIVE_MGR.loadArchive(Dir::getAppPath(), ARCHIVE_TYPE_FS, Archive::AccessMode::kRead);
 
@@ -565,6 +581,8 @@ namespace Tiny3D
         
         T3D_SAFE_DELETE(mNetworkMgr)
         T3D_SAFE_DELETE(mProjectMgr)
+        T3D_SAFE_DELETE(mPlayModeCtrl)
+        T3D_SAFE_DELETE(mScriptBuildSys)
         T3D_SAFE_DELETE(mAppEventProxy)
         mLangMgr = nullptr;
         T3D_SAFE_DELETE(mEngine)

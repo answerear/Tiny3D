@@ -114,6 +114,8 @@ namespace Tiny3D
         LanguageManagerPtr mLangMgr {nullptr};
         NetworkManager *mNetworkMgr {nullptr};
         ProjectManager *mProjectMgr {nullptr};
+        class ScriptBuildSystem   *mScriptBuildSys {nullptr};
+        class PlayModeController  *mPlayModeCtrl {nullptr};
 
         class TestScene *mTestScene {nullptr};
         

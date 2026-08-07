@@ -388,6 +388,12 @@ if (TINY3D_BUILD_SAMPLES)
     endif (TINY3D_OS_DESKTOP)
 endif (TINY3D_BUILD_SAMPLES)
 
+# 业务 Game Plugin 工程要用和编辑器一致的工具链编译，把当前构建的实际配置导出给它们。
+if (TINY3D_BUILD_EDITOR AND NOT TINY3D_BUILD_RTTR_TOOL)
+    include(GenerateTiny3DSDK)
+    tiny3d_generate_sdk_config()
+endif ()
+
 # 编辑器与 Sample 是两条独立的资源链路，同一份内置资源要在两边各留一份且 UUID 一致。
 # 这个 target 手工触发（不接进任何构建流程），把 BuiltinGenerator 产出的天空盒资源
 # 同步到 assets/samples/meshes，并用 scc 烘焙出全语言变体的 .tshader。
