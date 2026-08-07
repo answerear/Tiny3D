@@ -144,6 +144,13 @@ namespace Tiny3D
         static bool makeDir(const String &strDir);
 
         /**
+         * @brief 创建多级文件夹，路径中不存在的中间层级都会被创建.
+         * @param [in] strDir : 文件夹路径名称
+         * @return 目录已存在或者创建成功返回true，否则返回false.
+         */
+        static bool makeDirs(const String &strDir);
+
+        /**
          * @brief 删除文件夹.
          * @note 该接口不能删除多级文件夹.
          * @param [in] strDir : 文件夹路径名称

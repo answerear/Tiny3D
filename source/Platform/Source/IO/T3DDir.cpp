@@ -303,6 +303,55 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool Dir::makeDirs(const String &strDir)
+    {
+        if (strDir.empty())
+        {
+            return false;
+        }
+
+#if defined (USE_CPP_17)
+        String name = T3D_LOCALE.UTF8ToANSI(strDir);
+        std::error_code ec;
+        std::filesystem::create_directories(name, ec);
+        return !ec;
+#else
+        if (exists(strDir))
+        {
+            return isDirectory(strDir);
+        }
+
+        // 逐级创建，兼容路径里混用 '/' 和 '\\' 的情况
+        String path;
+        path.reserve(strDir.length());
+
+        for (size_t i = 0; i < strDir.length(); ++i)
+        {
+            const char c = strDir[i];
+
+            if (c == '/' || c == '\\')
+            {
+                // 跳过盘符（如 "D:"）和根目录本身
+                if (!path.empty() && path.back() != ':' && !exists(path))
+                {
+                    makeDir(path);
+                }
+            }
+
+            path.push_back(c);
+        }
+
+        if (!exists(path))
+        {
+            makeDir(path);
+        }
+
+        return exists(strDir) && isDirectory(strDir);
+#endif
+    }
+
+    //--------------------------------------------------------------------------
+
     bool Dir::removeDir(const String &strDir, bool force/* = false */)
     {
 #if defined(USE_CPP_17)
