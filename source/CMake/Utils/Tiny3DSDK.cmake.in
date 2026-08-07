@@ -1,0 +1,134 @@
+#-------------------------------------------------------------------------------
+# Tiny3D SDK configuration
+#
+# 本文件由编辑器构建时自动生成，请勿手工修改。
+# 修改 source/CMake/Utils/Tiny3DSDK.cmake.in 后重新 configure 引擎工程即可。
+#
+# 它记录了编辑器自身的工具链与 SDK 布局。业务 Game Plugin 工程 include 本文件，
+# 以保证编出来的 DLL 与编辑器 ABI 完全一致：同一个编译器、同一套运行时库、
+# 同一组预处理定义。任何一项不一致，DLL 仍然能加载成功，但会在运行时以难以
+# 定位的方式崩溃。
+#-------------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------
+# 工具链。这几项无法在 CMake 内部设置，必须由 TinyEditor 的 ScriptBuildSystem
+# 读出来翻译成 cmake configure 的命令行参数（-G / -A / -T / -DCMAKE_CXX_COMPILER）。
+# 不适用于当前平台的项为空字符串，调用方跳过即可。
+#-------------------------------------------------------------------------------
+set(TINY3D_SDK_GENERATOR          "@T3DSDK_GENERATOR@")
+set(TINY3D_SDK_GENERATOR_PLATFORM "@T3DSDK_GENERATOR_PLATFORM@")
+set(TINY3D_SDK_GENERATOR_TOOLSET  "@T3DSDK_GENERATOR_TOOLSET@")
+set(TINY3D_SDK_CXX_COMPILER       "@T3DSDK_CXX_COMPILER@")
+
+#-------------------------------------------------------------------------------
+# 编译期一致性。这几项由下面的 tiny3d_sdk_setup_plugin() 直接套到目标上，
+# 不需要走命令行。
+#-------------------------------------------------------------------------------
+set(TINY3D_SDK_CXX_STANDARD        @T3DSDK_CXX_STANDARD@)
+set(TINY3D_SDK_MSVC_RUNTIME        "@T3DSDK_MSVC_RUNTIME@")
+set(TINY3D_SDK_COMPILE_DEFINITIONS "@T3DSDK_COMPILE_DEFINITIONS@")
+set(TINY3D_SDK_COMPILE_OPTIONS     "@T3DSDK_COMPILE_OPTIONS@")
+
+#-------------------------------------------------------------------------------
+# SDK 布局
+#-------------------------------------------------------------------------------
+set(TINY3D_SDK_INCLUDE_DIRS     "@T3DSDK_INCLUDE_DIRS@")
+set(TINY3D_SDK_LIB_DIR_DEBUG    "@T3DSDK_LIB_DIR_DEBUG@")
+set(TINY3D_SDK_LIB_DIR_RELEASE  "@T3DSDK_LIB_DIR_RELEASE@")
+set(TINY3D_SDK_BIN_DIR_DEBUG    "@T3DSDK_BIN_DIR_DEBUG@")
+set(TINY3D_SDK_BIN_DIR_RELEASE  "@T3DSDK_BIN_DIR_RELEASE@")
+
+# rttr 在 Debug 下带 _d 后缀，其余引擎库两个配置同名
+set(TINY3D_SDK_RTTR_LIB_DEBUG   "@T3DSDK_RTTR_LIB_DEBUG@")
+set(TINY3D_SDK_RTTR_LIB_RELEASE "@T3DSDK_RTTR_LIB_RELEASE@")
+
+# rttr_core 的 INTERFACE 定义。动态构建时这里是 RTTR_DLL，少了它
+# rttr::policy::ctor::* 这些常量会被当成本地符号，链接期报 unresolved external
+set(TINY3D_SDK_RTTR_DEFINITIONS "@T3DSDK_RTTR_DEFINITIONS@")
+
+# 两个变体都要链的引擎公共库
+set(TINY3D_SDK_COMMON_LIBS T3DPlatform T3DSystem T3DLog T3DUtils T3DMath T3DFramework)
+
+#-------------------------------------------------------------------------------
+# _tiny3d_sdk_link_name(<out_var> <dir> <basename>)
+#
+# 把库的逻辑名拼成当前平台链接时实际要用的完整路径。Windows 链导入库
+# （T3DCore.lib），类 Unix 直接链共享库本体（libT3DCore.so / .dylib）。
+#-------------------------------------------------------------------------------
+function(_tiny3d_sdk_link_name OUT_VAR DIR BASENAME)
+    if (WIN32)
+        set(_prefix "${CMAKE_IMPORT_LIBRARY_PREFIX}")
+        set(_suffix "${CMAKE_IMPORT_LIBRARY_SUFFIX}")
+    else ()
+        set(_prefix "${CMAKE_SHARED_LIBRARY_PREFIX}")
+        set(_suffix "${CMAKE_SHARED_LIBRARY_SUFFIX}")
+    endif ()
+
+    set(${OUT_VAR} "${DIR}/${_prefix}${BASENAME}${_suffix}" PARENT_SCOPE)
+endfunction()
+
+#-------------------------------------------------------------------------------
+# tiny3d_sdk_setup_plugin(<target> <variant>)
+#   variant: Editor | Runtime
+#
+# 把 SDK 的 include 路径、引擎库、预处理定义、C++ 标准与运行时库一次性套到目标上。
+# 业务工程只调这一个函数，日后 SDK 布局调整不需要改已生成工程里的 CMakeLists。
+#
+# Editor 变体链 T3DCoreEditor 并定义 T3D_EDITOR，Runtime 变体链 T3DCore。
+# 两者 ABI 不兼容，混用不会报错但会在虚调用 Scene 时崩溃，所以这里不做任何回退查找。
+#-------------------------------------------------------------------------------
+function(tiny3d_sdk_setup_plugin TARGET VARIANT)
+    if (VARIANT STREQUAL "Editor")
+        set(_core_lib "T3DCoreEditor")
+    elseif (VARIANT STREQUAL "Runtime")
+        set(_core_lib "T3DCore")
+    else ()
+        message(FATAL_ERROR
+            "tiny3d_sdk_setup_plugin: unknown variant '${VARIANT}', expected Editor or Runtime")
+    endif ()
+
+    target_include_directories(${TARGET} PRIVATE ${TINY3D_SDK_INCLUDE_DIRS})
+
+    target_compile_definitions(${TARGET} PRIVATE ${TINY3D_SDK_COMPILE_DEFINITIONS})
+
+    if (TINY3D_SDK_COMPILE_OPTIONS)
+        target_compile_options(${TARGET} PRIVATE ${TINY3D_SDK_COMPILE_OPTIONS})
+    endif ()
+
+    if (VARIANT STREQUAL "Editor")
+        target_compile_definitions(${TARGET} PRIVATE T3D_EDITOR)
+    endif ()
+
+    set_target_properties(${TARGET} PROPERTIES
+        CXX_STANDARD ${TINY3D_SDK_CXX_STANDARD}
+        CXX_STANDARD_REQUIRED YES)
+
+    if (MSVC AND TINY3D_SDK_MSVC_RUNTIME)
+        set_target_properties(${TARGET} PROPERTIES
+            MSVC_RUNTIME_LIBRARY "${TINY3D_SDK_MSVC_RUNTIME}")
+    endif ()
+
+    # debug / optimized 关键字让多配置生成器（VS / Xcode）在同一个构建目录里
+    # 也能为每个配置挑对库；单配置生成器按 CMAKE_BUILD_TYPE 二选一。
+    foreach (_lib ${_core_lib} ${TINY3D_SDK_COMMON_LIBS})
+        _tiny3d_sdk_link_name(_dbg "${TINY3D_SDK_LIB_DIR_DEBUG}" "${_lib}")
+        _tiny3d_sdk_link_name(_rel "${TINY3D_SDK_LIB_DIR_RELEASE}" "${_lib}")
+        target_link_libraries(${TARGET} PRIVATE debug "${_dbg}" optimized "${_rel}")
+    endforeach ()
+
+    _tiny3d_sdk_link_name(_rttr_dbg "${TINY3D_SDK_LIB_DIR_DEBUG}" "${TINY3D_SDK_RTTR_LIB_DEBUG}")
+    _tiny3d_sdk_link_name(_rttr_rel "${TINY3D_SDK_LIB_DIR_RELEASE}" "${TINY3D_SDK_RTTR_LIB_RELEASE}")
+    target_link_libraries(${TARGET} PRIVATE debug "${_rttr_dbg}" optimized "${_rttr_rel}")
+
+    if (TINY3D_SDK_RTTR_DEFINITIONS)
+        target_compile_definitions(${TARGET} PRIVATE ${TINY3D_SDK_RTTR_DEFINITIONS})
+    endif ()
+
+    # DLL 里记录 PDB 的文件名而非绝对路径，调试器改为在 DLL 同目录查找。
+    # 编辑器加载的是影子副本，PDB 会跟着拷到影子目录，这样断点才不会失效，
+    # 同时也不会锁住构建目录下的原始 PDB。
+    if (MSVC)
+        target_link_options(${TARGET} PRIVATE
+            "/PDBALTPATH:$<TARGET_PDB_FILE_NAME:${TARGET}>")
+    endif ()
+endfunction()
