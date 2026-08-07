@@ -62,6 +62,8 @@ namespace Tiny3D
 
         TResult setViewport(const Viewport &viewport) override;
 
+        TResult setScissorRect(int32_t x, int32_t y, uint32_t width, uint32_t height) override;
+
         TResult clearColor(const ColorRGB &color) override;
 
         TResult clearDepth(Real depth) override;

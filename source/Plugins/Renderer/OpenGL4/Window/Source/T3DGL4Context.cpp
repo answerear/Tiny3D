@@ -941,6 +941,64 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult GL4Context::setScissorRect(int32_t x, int32_t y, uint32_t width, uint32_t height)
+    {
+        int32_t fbHeight = 0;
+
+        if (mCurrentRenderTarget != nullptr)
+        {
+            if (mCurrentRenderTarget->getType() == RenderTarget::Type::E_RT_WINDOW)
+            {
+                fbHeight = static_cast<int32_t>(mCurrentRenderTarget->getRenderWindow()->getDescriptor().Height);
+            }
+            else if (mCurrentRenderTarget->getNumOfRenderTextures() > 0)
+            {
+                fbHeight = static_cast<int32_t>(mCurrentRenderTarget->getRenderTexture()->getHeight());
+            }
+            else if (mCurrentRenderTarget->getDepthStencil() != nullptr)
+            {
+                fbHeight = static_cast<int32_t>(mCurrentRenderTarget->getDepthStencil()->getHeight());
+            }
+        }
+
+        if (fbHeight > 0)
+        {
+            // 左上原点 → GL 左下原点
+            const GLint glY = fbHeight - (y + static_cast<int32_t>(height));
+            auto lambda = [this](GLint x, GLint y, GLsizei w, GLsizei h)
+            {
+                glScissor(x, y, w, h);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setScissorRect");
+                return T3D_OK;
+            };
+            return ENQUEUE_UNIQUE_COMMAND(lambda,
+                static_cast<GLint>(x), glY,
+                static_cast<GLsizei>(width), static_cast<GLsizei>(height));
+        }
+
+        // 无 RenderTarget（如 ImGui 子 viewport）：在 RHI 线程查当前 viewport 高度再翻转
+        auto lambda = [this](int32_t x, int32_t y, uint32_t width, uint32_t height)
+        {
+            GLint currentVP[4];
+            glGetIntegerv(GL_VIEWPORT, currentVP);
+            const int32_t fbH = currentVP[3];
+            if (fbH <= 0)
+            {
+                T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
+                    "GL4Context::setScissorRect: no render target and GL viewport height is zero");
+                return T3D_OK;
+            }
+            const GLint glY = fbH - (y + static_cast<int32_t>(height));
+            glScissor(static_cast<GLint>(x), glY,
+                static_cast<GLsizei>(width), static_cast<GLsizei>(height));
+            GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setScissorRect(fallback)");
+            return T3D_OK;
+        };
+        return ENQUEUE_UNIQUE_COMMAND(lambda, x, y, width, height);
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult GL4Context::clearColor(const ColorRGB &color)
     {
         auto lambda = [this](ColorRGB color)

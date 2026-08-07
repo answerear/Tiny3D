@@ -821,6 +821,7 @@ namespace Tiny3D
             scissor.offset = {0, 0};
             scissor.extent = mCurrentRenderWindow->VkSwapChainExtent;
             vkCmdSetScissor(cmdBuf, 0, 1, &scissor);
+            mPendingScissorValid = false;
         }
         else
         {
@@ -918,6 +919,7 @@ namespace Tiny3D
             scissor.offset = {0, 0};
             scissor.extent = extent;
             vkCmdSetScissor(cmdBuf, 0, 1, &scissor);
+            mPendingScissorValid = false;
         }
 
         mRenderPassActive = true;
@@ -1403,6 +1405,26 @@ namespace Tiny3D
     TResult VKContext::setViewport(const Viewport &viewport)
     {
         // Viewport is set during command buffer recording in render()
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult VKContext::setScissorRect(int32_t x, int32_t y, uint32_t width, uint32_t height)
+    {
+        mPendingScissor.offset.x = x;
+        mPendingScissor.offset.y = y;
+        mPendingScissor.extent.width = width;
+        mPendingScissor.extent.height = height;
+        mPendingScissorValid = true;
+
+        // 已在 render pass 内则可立即写入；否则等 render() 再应用
+        if (mRenderPassActive)
+        {
+            VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
+            vkCmdSetScissor(cmdBuf, 0, 1, &mPendingScissor);
+        }
+
         return T3D_OK;
     }
 
@@ -3028,6 +3050,11 @@ namespace Tiny3D
             mCurrentRasterizerDesc.DepthBiasClamp,
             mCurrentRasterizerDesc.SlopeScaledDepthBias);
 
+        if (mPendingScissorValid)
+        {
+            vkCmdSetScissor(cmdBuf, 0, 1, &mPendingScissor);
+        }
+
         // Allocate and bind descriptor set (reflection-driven)
         size_t dslHash = 0;
         VkDescriptorSetLayout dsl = getOrCreateDescriptorSetLayout(dslHash);
@@ -3069,6 +3096,11 @@ namespace Tiny3D
             mCurrentRasterizerDesc.DepthBias,
             mCurrentRasterizerDesc.DepthBiasClamp,
             mCurrentRasterizerDesc.SlopeScaledDepthBias);
+
+        if (mPendingScissorValid)
+        {
+            vkCmdSetScissor(cmdBuf, 0, 1, &mPendingScissor);
+        }
 
         // Allocate and bind descriptor set (reflection-driven)
         size_t dslHash = 0;

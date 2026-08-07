@@ -152,6 +152,7 @@ namespace Tiny3D
     TResult GL4ConsoleContext::setRenderTarget(RenderTarget *renderTarget) { return T3D_OK; }
     TResult GL4ConsoleContext::resetRenderTarget() { return T3D_OK; }
     TResult GL4ConsoleContext::setViewport(const Viewport &viewport) { return T3D_OK; }
+    TResult GL4ConsoleContext::setScissorRect(int32_t x, int32_t y, uint32_t width, uint32_t height) { return T3D_OK; }
     TResult GL4ConsoleContext::clearColor(const ColorRGB &color) { return T3D_OK; }
     TResult GL4ConsoleContext::clearDepth(Real depth) { return T3D_OK; }
     TResult GL4ConsoleContext::clearDepthStencil(Real depth, uint32_t stencil) { return T3D_OK; }

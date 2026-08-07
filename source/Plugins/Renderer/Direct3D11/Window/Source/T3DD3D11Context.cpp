@@ -1213,8 +1213,8 @@ namespace Tiny3D
             D3D11_VIEWPORT d3dViewport = {};
             d3dViewport.TopLeftX = vp.Left * width;
             d3dViewport.TopLeftY = vp.Top * height;
-            d3dViewport.Width = width;
-            d3dViewport.Height = height;
+            d3dViewport.Width = vp.Width * width;
+            d3dViewport.Height = vp.Height * height;
             d3dViewport.MinDepth = 0.0f;
             d3dViewport.MaxDepth = 1.0f;
             mD3DDeviceContext->RSSetViewports(1, &d3dViewport);
@@ -1222,6 +1222,24 @@ namespace Tiny3D
         };
         
         return ENQUEUE_UNIQUE_COMMAND(lambda, viewport, width, height);
+    }
+    
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setScissorRect(int32_t x, int32_t y, uint32_t width, uint32_t height)
+    {
+        auto lambda = [this](int32_t x, int32_t y, uint32_t width, uint32_t height)
+        {
+            D3D11_RECT rect;
+            rect.left = x;
+            rect.top = y;
+            rect.right = x + static_cast<LONG>(width);
+            rect.bottom = y + static_cast<LONG>(height);
+            mD3DDeviceContext->RSSetScissorRects(1, &rect);
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, x, y, width, height);
     }
     
     //--------------------------------------------------------------------------

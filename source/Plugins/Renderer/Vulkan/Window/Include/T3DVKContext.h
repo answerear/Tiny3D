@@ -67,6 +67,7 @@ namespace Tiny3D
         TResult setRenderTarget(RenderTarget *renderTarget) override;
         TResult resetRenderTarget() override;
         TResult setViewport(const Viewport &viewport) override;
+        TResult setScissorRect(int32_t x, int32_t y, uint32_t width, uint32_t height) override;
         TResult clearColor(const ColorRGB &color) override;
         TResult clearDepth(Real depth) override;
         TResult clearDepthStencil(Real depth, uint32_t stencil) override;
@@ -319,6 +320,10 @@ namespace Tiny3D
         VkRenderPass        mCurrentPassRenderPass {VK_NULL_HANDLE};
         /// Current framebuffer extent for this pass
         VkExtent2D          mCurrentPassExtent {0, 0};
+
+        /// Pending scissor rect (top-left origin, Y-down). Applied in render() before draw.
+        VkRect2D            mPendingScissor {};
+        bool                mPendingScissorValid {false};
 
         /// Bind descriptor set with reflection-driven resource matching
         TResult bindDescriptorSet(VkCommandBuffer cmdBuf, VkPipelineLayout pipelineLayout);

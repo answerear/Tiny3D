@@ -122,6 +122,19 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult setViewport(const Viewport &viewport) = 0;
+
+        /**
+         * \brief 设置裁剪矩形（像素坐标，原点左上，Y 向下）
+         * \param [in] x : 矩形左上角 X（像素）
+         * \param [in] y : 矩形左上角 Y（像素，Y 向下）
+         * \param [in] width : 矩形宽度（像素）
+         * \param [in] height : 矩形高度（像素）
+         * \return 调用成功返回 T3D_OK
+         * \note 须配合 RasterizerDesc::ScissorEnable=true 才生效。
+         *       OpenGL 后端会在内部翻成 glScissor 的左下原点。
+         *       与 setViewport 独立，不在 setViewport 中顺带修改。
+         */
+        virtual TResult setScissorRect(int32_t x, int32_t y, uint32_t width, uint32_t height) = 0;
         
         /**
          * \brief 用指定颜色清屏（color buffer）

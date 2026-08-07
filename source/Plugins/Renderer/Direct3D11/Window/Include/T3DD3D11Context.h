@@ -104,6 +104,11 @@ namespace Tiny3D
          * \return 
          */
         TResult setViewport(const Viewport &viewport) override;
+
+        /**
+         * \brief 设置裁剪矩形（像素坐标，原点左上，Y 向下）
+         */
+        TResult setScissorRect(int32_t x, int32_t y, uint32_t width, uint32_t height) override;
         
         /**
          * \brief 用指定颜色填充渲染目标的 framebuffer

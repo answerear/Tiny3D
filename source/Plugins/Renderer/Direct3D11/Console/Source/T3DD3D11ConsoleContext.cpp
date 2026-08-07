@@ -43,6 +43,7 @@ namespace Tiny3D
     TResult D3D11ConsoleContext::setRenderTarget(RenderTarget *renderTarget) { return T3D_OK; }
     TResult D3D11ConsoleContext::resetRenderTarget() { return T3D_OK; }
     TResult D3D11ConsoleContext::setViewport(const Viewport &viewport) { return T3D_OK; }
+    TResult D3D11ConsoleContext::setScissorRect(int32_t x, int32_t y, uint32_t width, uint32_t height) { return T3D_OK; }
     TResult D3D11ConsoleContext::clearColor(const ColorRGB &color) { return T3D_OK; }
     TResult D3D11ConsoleContext::clearDepth(Real depth) { return T3D_OK; }
     TResult D3D11ConsoleContext::clearDepthStencil(Real depth, uint32_t stencil) { return T3D_OK; }

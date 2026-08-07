@@ -88,6 +88,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult VKConsoleContext::setScissorRect(int32_t x, int32_t y, uint32_t width, uint32_t height)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult VKConsoleContext::clearColor(const ColorRGB &color)
     {
         return T3D_OK;
