@@ -274,7 +274,6 @@ namespace Tiny3D
 
     #define TREENODE_SPACING_X              (2.0f)
     #define TREENODE_ICON_OFFSET_X          (-8.0f)
-    #define TREENODE_LEAF_ICON_OFFSET_X     (-16.0f)
 
     //--------------------------------------------------------------------------
 
@@ -285,17 +284,10 @@ namespace Tiny3D
         ImGui::SameLine();
         
         float x = ImGui::GetCursorPosX();
-        bool hasChildren = !getChildren().empty();
-        if (hasChildren)
-        {
-            x += TREENODE_ICON_OFFSET_X;
-        }
-        else
-        {
-            x += TREENODE_LEAF_ICON_OFFSET_X;
-        }
-        
+        x += TREENODE_ICON_OFFSET_X;
         ImGui::SetCursorPosX(x);
+
+        bool hasChildren = !getChildren().empty();
             
         // 图标
         auto itemSize = ImGui::GetItemRectSize();
@@ -358,12 +350,10 @@ namespace Tiny3D
         String strID = getUniqueName();
         
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow;
-        float offset_x = TREENODE_ICON_OFFSET_X;
         if (getChildren().empty())
         {
-            // 叶子节点
+            // 叶子节点（无展开箭头，ImGui 仍预留箭头位）
             flags |= ImGuiTreeNodeFlags_Leaf;
-            offset_x = TREENODE_LEAF_ICON_OFFSET_X;
         }
 
         if (mTreeWidget != nullptr && mTreeWidget->getSelectedNode() == strID)
