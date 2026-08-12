@@ -839,27 +839,28 @@ namespace Tiny3D
 
     bool Win32Dir::extractRoot(const String &strFilePath, String &strRoot)
     {
-        bool bResult = false;
-        size_t nPos = strFilePath.rfind("/");
+        // 取 / 与 \ 中更靠后的那个，避免混合分隔符时截错根目录
+        const size_t posSlash = strFilePath.rfind('/');
+        const size_t posBack = strFilePath.rfind('\\');
+        size_t nPos = String::npos;
 
-        if (nPos == -1)
+        if (posSlash != String::npos)
         {
-            nPos = strFilePath.rfind("\\");
+            nPos = posSlash;
         }
 
-        if (nPos != -1)
+        if (posBack != String::npos && (nPos == String::npos || posBack > nPos))
         {
-            bResult = true;
-            size_t nCount = nPos + 1;
-            size_t nOffset = 0;
-            strRoot = strFilePath.substr(nOffset, nCount);
-        }
-        else
-        {
-            bResult = false;
+            nPos = posBack;
         }
 
-        return bResult;
+        if (nPos != String::npos)
+        {
+            strRoot = strFilePath.substr(0, nPos + 1);
+            return true;
+        }
+
+        return false;
     }
 
     //--------------------------------------------------------------------------

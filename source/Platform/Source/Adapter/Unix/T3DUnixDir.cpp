@@ -282,27 +282,28 @@ namespace Tiny3D
 
     bool UnixDir::extractRoot(const String &strPath, String &strRoot)
     {
-        bool bResult = false;
-        size_t nPos = strPath.rfind("/");
+        // 取 / 与 \ 中更靠后的那个，避免混合分隔符时截错根目录
+        const size_t posSlash = strPath.rfind('/');
+        const size_t posBack = strPath.rfind('\\');
+        size_t nPos = String::npos;
 
-        if (nPos == -1)
+        if (posSlash != String::npos)
         {
-            nPos = strPath.rfind("\\");
+            nPos = posSlash;
         }
 
-        if (nPos != -1)
+        if (posBack != String::npos && (nPos == String::npos || posBack > nPos))
         {
-            bResult = true;
-            size_t nCount = nPos + 1;
-            size_t nOffset = 0;
-            strRoot = strPath.substr(nOffset, nCount);
-        }
-        else
-        {
-            bResult = false;
+            nPos = posBack;
         }
 
-        return bResult;
+        if (nPos != String::npos)
+        {
+            strRoot = strPath.substr(0, nPos + 1);
+            return true;
+        }
+
+        return false;
     }
 
     bool UnixDir::extractExt(const String &strName, String &strExt)
