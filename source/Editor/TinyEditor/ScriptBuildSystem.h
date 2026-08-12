@@ -128,10 +128,10 @@ namespace Tiny3D
         const String &getLastOutput() const { return mLastOutput; }
 
     protected:
-        /// 业务源码目录（默认 Assets/Scripts，可由 ScriptsRelativePath 覆盖）
+        /// 业务 C++ 源码目录（默认 Assets/Source，可由 ScriptsRelativePath 覆盖）
         String getScriptsDir() const { return mScriptsDir; }
 
-        /// 某个变体的 CMake 源码目录（如 Assets/Scripts/Editor）
+        /// 某个变体的 CMake 源码目录（如 Assets/Source/Editor）
         String getCMakeSourceDir(Variant variant) const;
 
         /// 某个变体的 CMake 构建目录

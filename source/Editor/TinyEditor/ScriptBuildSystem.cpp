@@ -52,12 +52,15 @@ namespace Tiny3D
         const String &pluginName, const String &scriptsRelativePath)
     {
         const String sep(1, Dir::getNativeSeparator());
+        const String relative = scriptsRelativePath.empty()
+            ? (String("Assets") + sep + "Source")
+            : scriptsRelativePath;
 
-        mProjectPath = projectPath;
+        mProjectPath = Dir::formatPath(projectPath);
         mPluginName = pluginName;
-        mScriptsDir = projectPath + sep
-            + (scriptsRelativePath.empty() ? String("Assets/Scripts") : scriptsRelativePath);
-        mShadowDir = projectPath + sep + "Temp" + sep + "ShadowAssemblies";
+        // formatPath 兼容旧工程里 ScriptsRelativePath 残留的 '/'
+        mScriptsDir = Dir::formatPath(mProjectPath + sep + relative);
+        mShadowDir = Dir::formatPath(mProjectPath + sep + "Temp" + sep + "ShadowAssemblies");
         mLastOutput.clear();
     }
 
@@ -172,8 +175,15 @@ namespace Tiny3D
     {
         long_t newest = 0;
 
+        String normalized = Dir::formatPath(dir);
+        while (!normalized.empty()
+            && (normalized.back() == '/' || normalized.back() == '\\'))
+        {
+            normalized.pop_back();
+        }
+
         Dir finder;
-        String pattern = dir + Dir::getNativeSeparator() + "*";
+        String pattern = normalized + Dir::getNativeSeparator() + "*";
 
         if (!finder.findFile(pattern))
         {
@@ -345,7 +355,7 @@ namespace Tiny3D
         }
 
         cmd += " -DTINY3D_SDK_ROOT=" + quote(Dir::getAppPath());
-        // Scripts 可能在 Assets/Scripts，不能靠 Scripts/.. 推工程根；显式传入
+        // 源码可能在 Assets/Source，不能靠目录上一级推工程根；显式传入
         cmd += " -DGAME_PROJECT_ROOT=" + quote(mProjectPath);
 
         // 单配置生成器（Ninja / Unix Makefiles）只认 configure 期的 CMAKE_BUILD_TYPE

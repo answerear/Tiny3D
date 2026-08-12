@@ -43,9 +43,9 @@ namespace Tiny3D
         TPROPERTY()
         String GamePluginName {};
 
-        /// 业务源码目录，相对工程根
+        /// 业务 C++ 源码目录，相对工程根（逻辑路径 Assets/Source；运行时用原生分隔符）
         TPROPERTY()
-        String ScriptsRelativePath {"Assets/Scripts"};
+        String ScriptsRelativePath {};
 
         void ensure();
         

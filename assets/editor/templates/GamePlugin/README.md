@@ -16,13 +16,13 @@ Play 的时候会先把它编成动态库再加载，脚本就跑起来了。
 ## 目录结构
 
 ```
-Assets/Scripts/
+Assets/Source/
   Include/            业务头文件
   Source/             业务源文件
   GamePluginCommon.cmake   两个变体共享的构建逻辑，一般不用动
   Editor/             Editor 变体的 CMakeLists，编辑器 Play 时编这个
   Runtime/            Runtime 变体的 CMakeLists，发布游戏时编这个
-  CMakeLists.txt      想用 IDE 直接打开整个 Scripts 时用的顶层工程
+  CMakeLists.txt      想用 IDE 直接打开整个 Source 时用的顶层工程
 ```
 
 `Include/` 和 `Source/` 是两个变体共用的，你只在这两个目录里写代码，Editor 和
@@ -52,7 +52,7 @@ Runtime 两份产物会自动都有。
 平时不需要，编辑器会自动调。想在命令行构建的话（在工程根目录执行）：
 
 ```
-cmake -S Assets/Scripts/Editor -B Temp/ScriptBuild/Editor \
+cmake -S Assets/Source/Editor -B Temp/ScriptBuild/Editor \
   -DTINY3D_SDK_ROOT=<TinyEditor 所在目录> \
   -DGAME_PROJECT_ROOT=<工程根目录>
 cmake --build Temp/ScriptBuild/Editor --config Debug

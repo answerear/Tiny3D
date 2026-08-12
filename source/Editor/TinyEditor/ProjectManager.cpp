@@ -281,18 +281,18 @@ namespace Tiny3D
             return T3D_ERR_FILE_NOT_EXIST;
         }
 
-        const String scriptsPath = mAssetsPath + sep + "Scripts";
+        const String sourcePath = mAssetsPath + sep + "Source";
 
-        if (!Dir::copyDir(templatePath, scriptsPath, false))
+        if (!Dir::copyDir(templatePath, sourcePath, false))
         {
             EDITOR_LOG_ERROR("Failed to copy game plugin template [%s] -> [%s] !",
-                templatePath.c_str(), scriptsPath.c_str());
+                templatePath.c_str(), sourcePath.c_str());
             return T3D_ERR_COPY_DIR;
         }
 
         const String pluginName = sanitizeIdentifier(mName);
 
-        TResult ret = replaceTemplatePlaceholdersInDir(scriptsPath, pluginName);
+        TResult ret = replaceTemplatePlaceholdersInDir(sourcePath, pluginName);
         if (T3D_FAILED(ret))
         {
             EDITOR_LOG_ERROR("Failed to fill in the game plugin template !");
@@ -300,9 +300,9 @@ namespace Tiny3D
         }
 
         mProjectSettings.GamePluginName = pluginName;
-        mProjectSettings.ScriptsRelativePath = "Assets/Scripts";
+        mProjectSettings.ScriptsRelativePath = String("Assets") + sep + "Source";
 
-        EDITOR_LOG_INFO("Created game plugin scaffold at [%s].", scriptsPath.c_str());
+        EDITOR_LOG_INFO("Created game plugin scaffold at [%s].", sourcePath.c_str());
 
         return T3D_OK;
     }
@@ -513,11 +513,11 @@ namespace Tiny3D
 
             mProjectSettings.ensure();
 
-            // 业务代码脚手架放到 Assets/Scripts，必须在 MetaFS loadArchive 之前完成，
+            // 业务 C++ 脚手架放到 Assets/Source，必须在 MetaFS loadArchive 之前完成，
             // 这样 init 时的 generateMeta 会给源码树补上 .meta，Project 窗口才能看见
             if (T3D_FAILED(createGamePluginScaffold()))
             {
-                EDITOR_LOG_WARNING("The new project was created without a scripts folder.");
+                EDITOR_LOG_WARNING("The new project was created without a Source folder.");
             }
 
             // Assets 档案系统（挂载时全量扫描并生成缺失的 .meta）
