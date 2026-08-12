@@ -551,6 +551,14 @@ namespace Tiny3D
 
     void EditorApp::shutdown()
     {
+        // 帧循环退出时，最后一帧提交的命令还压在队列里没执行，而 Agent 析构时
+        // stopRenderThread 会把它们推出去跑。下面就要开始拆场景和插件了，不先排空，
+        // 那批命令到时候引用的全是已经销毁的 GPU 资源
+        if (mEngine != nullptr)
+        {
+            mEngine->drainRHICommands();
+        }
+
         if (mMainWindow != nullptr)
         {
             mMainWindow->destroy();

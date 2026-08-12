@@ -160,6 +160,12 @@ namespace Tiny3D
             return T3D_OK;
         }
 
+        // FreeLibrary 之前必须落实销毁：延迟队列里可能还躺着本 DLL 定义的
+        // Behaviour。GameObject::destroy 只排队，真正的 onDestroy 要等帧末，
+        // 而关闭工程这条路径上已经没有下一帧了，队列会一直留到 Agent 析构时
+        // 才处理，那时插件早就卸了，虚调用直接踩到已卸载的代码段
+        flushPendingDestroys();
+
         const String name = mLoadedShadowName;
 
         // 先清状态：即便卸载失败，也不该让上层以为插件还是可用的
@@ -248,6 +254,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void PlayModeController::flushPendingDestroys()
+    {
+        // 顺序与 Agent::endFrame 保持一致：组件的 onDestroy 里还会用到 GameObject
+        GameObject::destroyComponents();
+        GameObject::destroyGameObjects();
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult PlayModeController::saveSceneIfDirty()
     {
         if (!PROJECT_MGR.isSceneModified())
@@ -276,6 +291,10 @@ namespace Tiny3D
             current->getRootTransform()->removeFromParent();
             T3D_SCENE_MGR.unloadScene();
             EDITOR_SCENE.setRuntimeScene(nullptr);
+
+            // 新旧场景来自同一个文件，UUID 逐个相同。旧对象不清干净就重新加载，
+            // 新组件会因为 UUID 已被占用而注册不进全局表
+            flushPendingDestroys();
         }
 
         ScenePtr scene = T3D_ASSET_MGR.loadScene(uuid);
@@ -288,6 +307,9 @@ namespace Tiny3D
 
         EDITOR_SCENE.setRuntimeScene(scene);
         EDITOR_SCENE.getRuntimeRootTransform()->addChild(scene->getRootTransform());
+
+        // 新相机身上还没有渲染目标，不绑的话渲染管线会拿着空指针去 setRenderTarget
+        EDITOR_SCENE.bindGameRenderTarget();
 
         // 各视图持有的节点树都失效了，通知它们按新场景重建
         EventParamOpenScene param(scene);
@@ -302,6 +324,50 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult PlayModeController::play()
+    {
+        if (isPlaying() || mPendingModeChange)
+        {
+            return T3D_OK;
+        }
+
+        if (!canPlay())
+        {
+            EDITOR_LOG_WARNING("Cannot enter play mode : no project or scene is open.");
+            return T3D_ERR_FAIL;
+        }
+
+        mPendingModeChange = true;
+        T3D_AGENT.postFrameEndTask([this]()
+            {
+                mPendingModeChange = false;
+                doPlay();
+            });
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult PlayModeController::stop()
+    {
+        if (!isPlaying() || mPendingModeChange)
+        {
+            return T3D_OK;
+        }
+
+        mPendingModeChange = true;
+        T3D_AGENT.postFrameEndTask([this]()
+            {
+                mPendingModeChange = false;
+                doStop();
+            });
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult PlayModeController::doPlay()
     {
         if (isPlaying())
         {
@@ -372,7 +438,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult PlayModeController::stop()
+    TResult PlayModeController::doStop()
     {
         if (!isPlaying())
         {

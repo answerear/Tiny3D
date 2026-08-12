@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -68,14 +68,15 @@ namespace Tiny3D
         bool canPlay() const;
 
         /**
-         * @brief 进入 Play 态
-         * @return 成功返回 T3D_OK；编译失败时不进入 Play 并返回错误码
-         * @remarks 先编译业务代码，产物有更新则热重载，再进 Play。场景在进入前会被
-         *          保存，Stop 时从磁盘还原，因此 Play 期间对场景的改动不会留下来
+         * @brief 请求进入 Play 态
+         * @return 投递成功返回 T3D_OK；不具备 Play 条件返回错误码
+         * @remarks 真正的切换推迟到帧末安全点执行。UI 回调跑在帧中间，那时 RHI 线程
+         *          正拿着上一帧的命令在绘制，而进 Play 可能触发插件热重载，把整个场景
+         *          连同它的 GPU 资源销毁重建，在这里做就是跨线程的 use-after-free
          */
         TResult play();
 
-        /// 退出 Play 态并还原场景
+        /// 请求退出 Play 态并还原场景，同样推迟到帧末安全点执行
         TResult stop();
 
         /**
@@ -89,6 +90,12 @@ namespace Tiny3D
         bool isGamePluginLoaded() const { return !mLoadedShadowName.empty(); }
 
     protected:
+        /// play 的实际实现，只在帧末安全点被调用
+        TResult doPlay();
+
+        /// stop 的实际实现，只在帧末安全点被调用
+        TResult doStop();
+
         /// 影子拷贝 + loadPluginFromPath
         TResult loadGamePlugin();
 
@@ -112,11 +119,26 @@ namespace Tiny3D
         /// 清掉编辑器侧对场景对象的引用，避免卸载后变成悬垂指针
         void clearEditorReferences();
 
+        /**
+         * @brief 立刻执行引擎的延迟销毁队列
+         * @remarks GameObject::destroy 只是把对象排进队列，真正的 onDestroy 要等到
+         *          Agent::endFrame。但组件是按 UUID 登记在全局表 Component::msComponents
+         *          里的，注册用的是 emplace（撞 key 不覆盖）。卸载场景后马上按同一个
+         *          UUID 把它重新加载回来时，旧组件还占着槽位，新组件注册不进去，
+         *          TransformNode::setupHierarchy 查表拿到的全是旧对象，等帧末旧对象
+         *          真被销毁，新场景树就成了一堆悬垂指针。所以卸载和重新加载之间必须
+         *          把队列冲干净。同理，卸载业务 DLL 之前也必须冲，否则帧末对
+         *          已 FreeLibrary 的 Behaviour 做虚调用会直接崩。
+         */
+        void flushPendingDestroys();
+
     protected:
         /// 当前已加载的影子副本逻辑名，为空表示业务插件未加载
         String mLoadedShadowName {};
         /// 已加载影子副本对应的产物修改时间，用来判断产物是否有更新
         long_t mLoadedAssemblyTime {0};
+        /// 已投递但尚未执行的 Play / Stop 请求，防止同一帧内重复投递
+        bool mPendingModeChange {false};
     };
 
     #define PLAY_MODE_CTRL (PlayModeController::getInstance())

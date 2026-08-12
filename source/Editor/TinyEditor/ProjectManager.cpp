@@ -781,8 +781,9 @@ namespace Tiny3D
         T3D_SCENE_MGR.unloadScene();
         EDITOR_SCENE.setRuntimeScene(nullptr);
 
-        // 场景销毁之后才能卸插件。场景里可能有插件定义的组件实例，
-        // 反过来的话 FreeLibrary 之后这些实例的 vtable 就指向已卸载的代码段了
+        // 卸插件必须排在场景卸载之后。上面的 unloadScene 只是把对象排进延迟销毁
+        // 队列，落实销毁由 onProjectClosing 内部完成，之后才轮到 FreeLibrary，
+        // 否则插件定义的组件实例的 vtable 会指向已卸载的代码段
         PLAY_MODE_CTRL.onProjectClosing();
         
         // 先从资源门面搜索链卸载工程档案
@@ -837,6 +838,10 @@ namespace Tiny3D
 
             // 根节点
             EDITOR_SCENE.getRuntimeRootTransform()->addChild(scene->getRootTransform());
+
+            // 渲染目标不参与序列化，磁盘上的相机加载出来是没有目标的，
+            // 必须由宿主在装载完成后补上
+            EDITOR_SCENE.bindGameRenderTarget();
             
             // EDITOR_SCENE.setRuntimeScene(scene);
         } while (false);

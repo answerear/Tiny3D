@@ -71,6 +71,15 @@ namespace Tiny3D
             mSceneTarget->releaseAllResources();
             mSceneTarget = nullptr;
         }
+
+        // 以前这两张纹理是被最后一台相机在析构里顺手卸掉的，那本来就是越权。
+        // 相机改成只释放自建目标后，这里必须由持有者自己收尾
+        mGameRT = nullptr;
+        if (mGameTarget != nullptr)
+        {
+            mGameTarget->releaseAllResources();
+            mGameTarget = nullptr;
+        }
         
         // T3D_SCENE_MGR.unloadScene();
     }
@@ -338,7 +347,16 @@ namespace Tiny3D
 
     void EditorSceneImpl::refreshGameRenderTarget(const ImVec2 &size)
     {
-        bool rtIsDirty = false;
+        if (ensureGameRenderTarget())
+        {
+            bindGameRenderTarget();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool EditorSceneImpl::ensureGameRenderTarget()
+    {
         // if (mGameTarget == nullptr
         //     || mGameTarget->getRenderTexture()->getWidth() != static_cast<uint32_t>(size.x)
         //     || mGameTarget->getRenderTexture()->getHeight() != static_cast<uint32_t>(size.y))
@@ -355,35 +373,45 @@ namespace Tiny3D
         //     mGameRT = renderTex->getPixelBuffer()->getRHIResource()->getNativeObject();
         //     rtIsDirty = true;
         // }
+        if (mGameTarget != nullptr)
+        {
+            return false;
+        }
+
+        RenderTexturePtr renderTex = T3D_TEXTURE_MGR.createRenderTexture("__@#GameRT#@__", static_cast<uint32_t>(mGameRTWidth), static_cast<uint32_t>(mGameRTHeight), PixelFormat::E_PF_B8G8R8A8);
+        RenderTexturePtr renderDSTex = T3D_TEXTURE_MGR.createRenderTexture("__@#GameRT_DS#@__", static_cast<uint32_t>(mGameRTWidth), static_cast<uint32_t>(mGameRTHeight), PixelFormat::E_PF_D24_UNORM_S8_UINT);
+        mGameTarget = RenderTarget::create(renderTex, renderDSTex);
+#if defined(USE_DX_IMGUI)
+        mGameRT = renderTex->getPixelBuffer()->getRHIResource()->getNativeObject();
+#else
+        mGameRT = renderTex->getPixelBuffer();
+#endif
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void EditorSceneImpl::bindGameRenderTarget()
+    {
         if (mGameTarget == nullptr)
         {
-            RenderTexturePtr renderTex = T3D_TEXTURE_MGR.createRenderTexture("__@#GameRT#@__", static_cast<uint32_t>(mGameRTWidth), static_cast<uint32_t>(mGameRTHeight), PixelFormat::E_PF_B8G8R8A8);
-            RenderTexturePtr renderDSTex = T3D_TEXTURE_MGR.createRenderTexture("__@#GameRT_DS#@__", static_cast<uint32_t>(mGameRTWidth), static_cast<uint32_t>(mGameRTHeight), PixelFormat::E_PF_D24_UNORM_S8_UINT);
-            mGameTarget = RenderTarget::create(renderTex, renderDSTex);
-#if defined(USE_DX_IMGUI)
-            mGameRT = renderTex->getPixelBuffer()->getRHIResource()->getNativeObject();
-#else
-            mGameRT = renderTex->getPixelBuffer();
-#endif
-            rtIsDirty = true;
+            // game 视图还没绘制过。渲染目标由它按自己的时序创建，
+            // 建出来那一次会自己补绑，这里不越俎代庖
+            return;
         }
-        
-        auto scene = T3D_SCENE_MGR.getCurrentScene();
 
-        if (scene != nullptr)
+        auto scene = T3D_SCENE_MGR.getCurrentScene();
+        if (scene == nullptr)
         {
-            // 做个 trick ，把渲染到屏幕的改成渲染到纹理
-            if (rtIsDirty)
-            {
-                for (auto item : scene->getCameras())
-                {
-                    // if (item.second->getGameObject()->getName() != "__SceneCamera__")
-                    {
-                        // 要重新设置 render target ，并且不是编辑器 scene 视图使用的那个 render target
-                        item.second->setRenderTarget(mGameTarget);
-                    }
-                }
-            }
+            return;
+        }
+
+        // 做个 trick ，把渲染到屏幕的改成渲染到纹理。
+        // 渲染目标不参与序列化，从磁盘加载出来的相机 render target 是空的，
+        // 渲染管线里会直接拿 nullptr 去 setRenderTarget，所以每次换场景都得重绑
+        for (auto item : scene->getCameras())
+        {
+            item.second->setRenderTarget(mGameTarget);
         }
     }
     

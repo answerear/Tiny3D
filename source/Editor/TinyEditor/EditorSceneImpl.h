@@ -80,6 +80,20 @@ namespace Tiny3D
         void refreshSceneRenderTarget();
 
         void refreshGameRenderTarget(const ImVec2 &size);
+
+        /**
+         * @brief 把 game 视图的渲染目标绑定到当前运行时场景的所有相机上
+         * @remarks 渲染目标是运行期产物，不参与场景序列化。场景重新加载后相机的
+         *          render target 是空的，渲染管线拿着它去 setRenderTarget 会直接崩，
+         *          所以换过场景就必须重绑一次
+         */
+        void bindGameRenderTarget();
+
+        /**
+         * @brief 确保 game 渲染目标已创建
+         * @return 本次调用创建了渲染目标返回 true，已存在返回 false
+         */
+        bool ensureGameRenderTarget();
         
         RenderTarget *getSceneRenderTarget() { return mSceneTarget; }
 
