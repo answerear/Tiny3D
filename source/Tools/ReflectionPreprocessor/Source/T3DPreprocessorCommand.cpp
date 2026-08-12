@@ -165,6 +165,7 @@ namespace Tiny3D
         printf("\t<options>                     :\n");
         printf("\t\t-r : Re-generate all reflection source files.\n");
         printf("\t\t-b : Check last generated time before generate reflection source files.\n");
+        printf("\t\t     Falls back to -r automatically when the incremental cache is incomplete.\n");
         printf("\t\t-W : Classes in white list which are generated reflection source code. Separate by ';' when more than one class.\n");
         printf("\t\t-d : Dump AST to ast.json for debugging.\n");
         printf("\t\t-j N : Use N threads for parallel parsing (default: 1).\n");

@@ -72,6 +72,21 @@ namespace Tiny3D
         /// 检查 .deps 依赖文件，判断是否需要重新生成（混合时间戳+哈希策略）
         bool needsRebuild(const String &depsFile, const String &srcFile, const String &generatedFile);
 
+        /**
+         * @brief 检查增量缓存是否完整可用
+         * @param [in] generatedPath : Generated 目录
+         * @param [in] dumpAST : 是否开启了 AST dump
+         * @param [out] reason : 缓存不可用的原因，用于日志
+         * @return 缓存完整返回 true，此时可以安全走增量
+         * @remarks 增量依赖 .deps 的时间戳和 .tpl 里的模板实例化记录。前者决定
+         *      单个文件是否重新解析，后者把跳过文件的模板实例合并回本次结果。
+         *      .tpl 是跨文件的全局状态，一旦缺失，被跳过文件贡献的模板实例就会
+         *      凭空消失或者与本次解析出的实例重复注册，产物与全量生成不等价。
+         *      这种损坏没法靠逐文件的 needsRebuild 发现，只能整体降级到全量。
+         */
+        bool checkIncrementalCache(const String &generatedPath, bool dumpAST,
+                                   String &reason) const;
+
         /// 写入 .deps 依赖文件
         void writeDepsFile(const String &depsFile, const String &srcFile, const StringList &deps) const;
 

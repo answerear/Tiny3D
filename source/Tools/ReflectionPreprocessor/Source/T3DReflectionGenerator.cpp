@@ -1869,7 +1869,7 @@ namespace Tiny3D
             //CXString cxName = clang_getCursorSpelling(clang_getCanonicalCursor(cxCursor));
             CXString cxName = clang_getCursorSpelling(cxCursor);
             String name = toString(cxName);
-            
+
             // 获取父结点
             ASTNode *parent = getOrConstructParentNode(cxCursor);
             if (parent == nullptr)
@@ -4029,6 +4029,12 @@ namespace Tiny3D
             uint32_t i = 0;
             for (i = 0; i < (uint32_t)numOfTemplateArg; i++)
             {
+                // 取规范类型而不是源码里的拼写。实参写别名时（TVector3<Real>）
+                // 这里若保留 Real，替换进方法签名后会得到 TVector3<Tiny3D::Real>，
+                // 而 ASTOverloadFunction::replaceTemplateParams 又会拿这个字符串
+                // 去实例化 TVector3，与本函数按规范类型建立的 TVector3<float>
+                // 撞成两个名字。二者其实是同一个 C++ 类型，各注册一次会在 RTTR
+                // 静态初始化期报重复注册，该 DLL 里后续的注册块会整体失效
                 CXType cxArgType = clang_Type_getTemplateArgumentAsType(cxVarType, i);
                 String argName = toString(clang_getTypeSpelling(cxArgType));
                 actualParams.push_back(argName);
@@ -4081,7 +4087,7 @@ namespace Tiny3D
                 T3D_SAFE_DELETE(templateInstance);
                 break;
             }
-            
+
             parent->addChild(name, templateInstance);
             templateInstance->setName(name);
 

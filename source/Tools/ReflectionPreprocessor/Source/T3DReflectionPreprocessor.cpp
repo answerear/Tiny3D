@@ -149,6 +149,19 @@ namespace  Tiny3D
                 args.push_back(mArgs.back().c_str());
             }
 
+            // 增量模式先验一下缓存完整性。缓存缺失时增量产物和全量不等价，
+            // 与其生成一份错的，不如整体退回全量重新生成
+            if (!opts.IsRebuild)
+            {
+                String reason;
+                if (!checkIncrementalCache(path, opts.DumpAST, reason))
+                {
+                    RP_LOG_WARNING("Incremental cache unusable : %s. "
+                        "Fallback to full rebuild.", reason.c_str());
+                    opts.IsRebuild = true;
+                }
+            }
+
             // 收集待处理的源文件
             std::vector<PendingFile> pendingFiles;
             collectSourceFiles(opts.SourcePath, path, opts.IsRebuild, pendingFiles);
@@ -634,6 +647,88 @@ namespace  Tiny3D
         }
 
         return mGenerator->generateSource(path);
+    }
+
+    //-------------------------------------------------------------------------
+
+    bool ReflectionPreprocessor::checkIncrementalCache(const String &generatedPath,
+        bool dumpAST, String &reason) const
+    {
+        const String sep(1, Dir::getNativeSeparator());
+        const String depsDir = generatedPath + sep + ".deps";
+
+        auto countFiles = [](const String &pattern, StringList &titles)
+        {
+            Dir dir;
+            bool working = dir.findFile(pattern);
+
+            while (working)
+            {
+                if (!dir.isDots() && !dir.isDirectory())
+                {
+                    String fileDir, title, ext;
+                    Dir::parsePath(dir.getFilePath(), fileDir, title, ext);
+                    titles.push_back(title);
+                }
+
+                working = dir.findNextFile();
+            }
+
+            dir.close();
+        };
+
+        // 一个产物都没有，说明是首次生成，没有增量可言
+        StringList generatedTitles;
+        countFiles(generatedPath + sep + "*.generated.cpp", generatedTitles);
+
+        if (generatedTitles.empty())
+        {
+            reason = "no generated source file found";
+            return false;
+        }
+
+        // 注意不能拿产物去比对 .deps：模板实例（TVector3、std::vector 等）的
+        // 产物以模板所在头文件命名，没有对应的 .cpp，本来就不会有 .deps
+        StringList depsTitles;
+        countFiles(depsDir + sep + "*.deps", depsTitles);
+
+        if (depsTitles.empty())
+        {
+            reason = "dependency cache is empty";
+            return false;
+        }
+
+        // .deps 与 .tpl 在同一轮循环里成对写出，只要不配对就说明缓存目录被
+        // 外部改动过。缺 .tpl 尤其致命：该文件被跳过时它贡献的模板实例会丢失
+        StringList tplTitles;
+        countFiles(depsDir + sep + "*.tpl", tplTitles);
+
+        std::unordered_set<std::string> tplSet(tplTitles.begin(), tplTitles.end());
+
+        for (const auto &title : depsTitles)
+        {
+            if (tplSet.find(title) == tplSet.end())
+            {
+                reason = "missing template instantiation file ["
+                    + depsDir + sep + title + ".tpl]";
+                return false;
+            }
+        }
+
+        if (tplTitles.size() != depsTitles.size())
+        {
+            reason = "dependency cache is inconsistent";
+            return false;
+        }
+
+        // 开了 -d 就应该有上一轮 dump 出来的 ast.json，缺了同样说明目录被动过
+        if (dumpAST && !Dir::exists(generatedPath + sep + "ast.json"))
+        {
+            reason = "missing ast.json";
+            return false;
+        }
+
+        return true;
     }
 
     //-------------------------------------------------------------------------
