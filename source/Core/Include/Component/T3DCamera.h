@@ -321,12 +321,21 @@ namespace Tiny3D
          * \param [in] newOrder : 新的排序值
          */
         void updateOrder(uint32_t newOrder);
+
+        /**
+         * \brief 解除对源渲染目标的引用，只在本相机拥有它时才释放其附件
+         */
+        void releaseSrcRenderTarget();
         
     protected:
         /// 实际绘制用的源渲染目标（窗口相机时为中间 RenderTexture）
         RenderTargetPtr     mSrcRenderTarget {nullptr};
         /// 最终渲染目标
         RenderTargetPtr     mRenderTarget {nullptr};
+        /// mSrcRenderTarget 是否由本相机创建。绑定纹理目标时它只是外部对象的
+        /// 引用，附件的所有权在持有者那边，而且往往被多台相机共用，误释放会把
+        /// 别人正在用的纹理一起卸载掉
+        bool    mOwnsSrcRenderTarget {false};
         
         /// 渲染顺序
         uint32_t    mOrder {0};

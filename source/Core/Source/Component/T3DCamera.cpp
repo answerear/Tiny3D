@@ -57,11 +57,20 @@ namespace Tiny3D
     
     Camera::~Camera() 
     {
-        if (mSrcRenderTarget != nullptr)
+        releaseSrcRenderTarget();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Camera::releaseSrcRenderTarget()
+    {
+        if (mSrcRenderTarget != nullptr && mOwnsSrcRenderTarget)
         {
             mSrcRenderTarget->releaseAllResources();
-            mSrcRenderTarget = nullptr;
         }
+
+        mSrcRenderTarget = nullptr;
+        mOwnsSrcRenderTarget = false;
     }
 
     //--------------------------------------------------------------------------
@@ -295,11 +304,7 @@ namespace Tiny3D
     {
         if (target != mRenderTarget)
         {
-            if (mSrcRenderTarget != nullptr)
-            {
-                mSrcRenderTarget->releaseAllResources();
-                mSrcRenderTarget = nullptr;
-            }
+            releaseSrcRenderTarget();
 
             if (target != nullptr)
             {
@@ -414,6 +419,7 @@ namespace Tiny3D
 
         // 設置原始渲染目標
         mSrcRenderTarget = RenderTarget::create(renderTexture, depthTexture);
+        mOwnsSrcRenderTarget = true;
     }
 
     //--------------------------------------------------------------------------

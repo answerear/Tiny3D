@@ -477,6 +477,7 @@ namespace Tiny3D
             // 直接渲染到屏幕窗口上，而不是渲染到紋理
             rt = camera->getRenderTarget();
         }
+
         ctx->setRenderTarget(rt);
         
         // 设置 viewport

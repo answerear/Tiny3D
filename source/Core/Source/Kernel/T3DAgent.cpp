@@ -89,6 +89,9 @@ namespace Tiny3D
         //     mObjTracer->dumpMemoryInfo();
         // }
 
+        // 帧循环已经结束，残留的任务捕获的对象正在被拆掉，不能再让它们跑
+        mFrameEndTasks.clear();
+
         if (mAniPlayerMgr != nullptr)
         {
             mAniPlayerMgr->removeAllPlayers();
@@ -697,9 +700,62 @@ namespace Tiny3D
     void Agent::flushRHICommands()
     {
 #if (T3D_ENABLE_RHI_THREAD)
-        T3D_RHI_THREAD.resume();
+        // 线程没起来或者已经停了，命令本来就是在主线程同步执行的，队列里不会有东西。
+        // 这种情况下还去 resume，只会挂死在等一个永远不会被触发的事件上
+        if (mRHIRunnable == nullptr || !mRHIRunnable->isRunning())
+        {
+            return;
+        }
+
+        mRHIRunnable->resume();
         mRHIEvent.wait();
 #endif
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Agent::drainRHICommands()
+    {
+        // 一次 flush 只把入队表推去执行，执行完的那条表要等下一次 exchange 才清空。
+        // 连做两次，第二次的 exchange 会清掉第一次执行完的命令，两条表就都空了
+        flushRHICommands();
+        flushRHICommands();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Agent::postFrameEndTask(FrameEndTask task)
+    {
+        if (task == nullptr)
+        {
+            return;
+        }
+
+        mFrameEndTasks.push_back(std::move(task));
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Agent::runFrameEndTasks()
+    {
+        if (mFrameEndTasks.empty())
+        {
+            return;
+        }
+
+        // 走到这里 RHI 线程已经空闲，但本帧 renderOneFrame 刚入队的一整帧命令还
+        // 一条都没执行，它们要等下一帧 beginFrame 才跑。任务基本都是销毁 GPU 资源，
+        // 不先把这批命令推完，下一帧就会拿着已经销毁的资源去绘制
+        flushRHICommands();
+
+        // 任务里可能再投递任务（play 触发插件热重载就是这种），本帧只跑已投递的这批
+        FrameEndTasks tasks;
+        tasks.swap(mFrameEndTasks);
+
+        for (auto &task : tasks)
+        {
+            task();
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -783,6 +839,9 @@ namespace Tiny3D
         // 清理要删除的对象
         GameObject::destroyComponents();
         GameObject::destroyGameObjects();
+
+        // RHI 线程空闲，延迟销毁也落实完了，此刻才是销毁 GPU 资源的安全点
+        runFrameEndTasks();
     }
 
     //--------------------------------------------------------------------------
@@ -1015,6 +1074,10 @@ namespace Tiny3D
         T3D_LOG_INFO(LOG_TAG_ENGINE, "Unload plugin %s ...", name.c_str());
 
         TResult ret = T3D_OK;
+
+        // FreeLibrary 之前队列必须是空的：命令对象的析构函数属于当初实例化
+        // ENQUEUE_UNIQUE_COMMAND 的那个模块，卸载之后再析构就是在已卸载的代码段上跳转
+        drainRHICommands();
 
         do 
         {
@@ -1262,6 +1325,8 @@ namespace Tiny3D
     TResult Agent::unloadPlugins()
     {
         TResult ret = T3D_OK;
+
+        drainRHICommands();
 
         DylibsItr itr = mDylibs.begin();
         while (itr != mDylibs.end())

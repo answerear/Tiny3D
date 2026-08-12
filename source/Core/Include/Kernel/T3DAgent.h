@@ -47,6 +47,7 @@ namespace Tiny3D
     using Update = TFunction<void()>;
     using PreEngineRender = TFunction<void()>;
     using PostEngineRender = TFunction<void()>;
+    using FrameEndTask = TFunction<void()>;
 
     /**
      * \brief 编辑器主循环注入回调（供 runForEditor 使用）
@@ -322,8 +323,29 @@ namespace Tiny3D
         /**
          * \brief 同步刷新 RHI 命令队列（启用 RHI 线程时 resume + wait）
          * \remarks 用于需确保已入队 RHI 命令执行完毕的场景（如编辑器初始化 ImGui 前）
+         * \remarks 只能在 RHI 线程空闲时调用（帧末 wait 之后，或帧循环之外）。
+         *          resume 内部的 exchange 会清空正在被 RHI 线程遍历的那条命令表，
+         *          帧中间调用等于边遍历边析构命令对象，还会打乱事件握手
          */
         void flushRHICommands();
+
+        /**
+         * \brief 排空 RHI 命令队列，返回时两条命令表都为空
+         * \remarks flush 只保证命令执行完毕，命令对象要到下一次 exchange 才析构。
+         *          卸载动态库前必须排空，否则队列里由该模块实例化的命令对象会在
+         *          FreeLibrary 之后才析构，虚调用直接踩到已卸载的代码段
+         */
+        void drainRHICommands();
+
+        /**
+         * \brief 投递一个在帧末安全点执行的任务
+         * \param [in] task : 待执行任务，空任务被忽略
+         * \remarks 帧中间 RHI 线程正在执行上一帧的命令，此时销毁 GPU 资源就是跨线程
+         *          的 use-after-free；而本帧刚入队的命令要到下一帧才执行，只等一次
+         *          帧同步也不够。凡是要销毁场景 / 渲染目标 / 插件的操作都应该投递到
+         *          这里，由 endFrame 在 RHI 线程空闲且命令排空之后执行
+         */
+        void postFrameEndTask(FrameEndTask task);
 
     protected:
         /**
@@ -434,6 +456,12 @@ namespace Tiny3D
          */
         void endFrame();
 
+        /**
+         * \brief 在帧末安全点排空 RHI 命令队列并执行已投递的延迟任务
+         * \remarks 只能由 endFrame 在 mRHIEvent.wait() 之后调用
+         */
+        void runFrameEndTasks();
+
     protected:
         typedef TMap<String, Plugin*>       Plugins;
         typedef Plugins::iterator           PluginsItr;
@@ -446,6 +474,8 @@ namespace Tiny3D
         typedef Dylibs::value_type          DylibsValue;
 
         using RenderWindows = TMap<String, RenderWindowPtr>;
+
+        using FrameEndTasks = TList<FrameEndTask>;
 
         AssignableObjectManagerPtr  mAssignableObjMgr {nullptr};    ///< 异步赋值对象管理器
 
@@ -495,6 +525,8 @@ namespace Tiny3D
         RunnableThread          mRHIThread {};                      ///< RHI 工作线程
         RHIThreadPtr            mRHIRunnable {nullptr};             ///< RHI 线程执行体
         Event                   mRHIEvent {};                       ///< 与 RHI 线程同步的事件
+
+        FrameEndTasks           mFrameEndTasks {};                  ///< 帧末安全点待执行的任务
 
         bool                    mIsRunning {false};                 ///< 主循环是否在运行
     };
