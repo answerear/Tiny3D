@@ -16,7 +16,7 @@ Play 的时候会先把它编成动态库再加载，脚本就跑起来了。
 ## 目录结构
 
 ```
-Scripts/
+Assets/Scripts/
   Include/            业务头文件
   Source/             业务源文件
   GamePluginCommon.cmake   两个变体共享的构建逻辑，一般不用动
@@ -49,12 +49,15 @@ Runtime 两份产物会自动都有。
 
 ## 手动构建
 
-平时不需要，编辑器会自动调。想在命令行构建的话：
+平时不需要，编辑器会自动调。想在命令行构建的话（在工程根目录执行）：
 
 ```
-cmake -S Scripts/Editor -B Temp/ScriptBuild/Editor -DTINY3D_SDK_ROOT=<TinyEditor 所在目录>
+cmake -S Assets/Scripts/Editor -B Temp/ScriptBuild/Editor \
+  -DTINY3D_SDK_ROOT=<TinyEditor 所在目录> \
+  -DGAME_PROJECT_ROOT=<工程根目录>
 cmake --build Temp/ScriptBuild/Editor --config Debug
 ```
 
 `TINY3D_SDK_ROOT` 要指向 TinyEditor 可执行文件所在的目录，那里有编辑器构建时导出的
 `Tiny3DSDK.cmake`，记录了工具链信息，业务库必须用同样的配置编译才能被正确加载。
+`GAME_PROJECT_ROOT` 指向工程根，保证 DLL 落到 `{工程根}/Library/ScriptAssemblies/`。

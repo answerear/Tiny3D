@@ -56,7 +56,7 @@ namespace Tiny3D
         mProjectPath = projectPath;
         mPluginName = pluginName;
         mScriptsDir = projectPath + sep
-            + (scriptsRelativePath.empty() ? String("Scripts") : scriptsRelativePath);
+            + (scriptsRelativePath.empty() ? String("Assets/Scripts") : scriptsRelativePath);
         mShadowDir = projectPath + sep + "Temp" + sep + "ShadowAssemblies";
         mLastOutput.clear();
     }
@@ -345,6 +345,8 @@ namespace Tiny3D
         }
 
         cmd += " -DTINY3D_SDK_ROOT=" + quote(Dir::getAppPath());
+        // Scripts 可能在 Assets/Scripts，不能靠 Scripts/.. 推工程根；显式传入
+        cmd += " -DGAME_PROJECT_ROOT=" + quote(mProjectPath);
 
         // 单配置生成器（Ninja / Unix Makefiles）只认 configure 期的 CMAKE_BUILD_TYPE
         // 且忽略 --config，多配置生成器（VS / Xcode）则相反。两个都给，任何生成器下

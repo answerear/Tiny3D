@@ -281,7 +281,7 @@ namespace Tiny3D
             return T3D_ERR_FILE_NOT_EXIST;
         }
 
-        const String scriptsPath = mPath + sep + "Scripts";
+        const String scriptsPath = mAssetsPath + sep + "Scripts";
 
         if (!Dir::copyDir(templatePath, scriptsPath, false))
         {
@@ -300,7 +300,7 @@ namespace Tiny3D
         }
 
         mProjectSettings.GamePluginName = pluginName;
-        mProjectSettings.ScriptsRelativePath = "Scripts";
+        mProjectSettings.ScriptsRelativePath = "Assets/Scripts";
 
         EDITOR_LOG_INFO("Created game plugin scaffold at [%s].", scriptsPath.c_str());
 
@@ -496,21 +496,36 @@ namespace Tiny3D
                 break;
             }
 
-            // Assets 档案系统
-            mAssetsArchive = T3D_ARCHIVE_MGR.loadArchive(assetsPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kReadTruncate);
-            if (mAssetsArchive == nullptr)
-            {
-                EDITOR_LOG_ERROR("Failed to load assets fs archive [%s]", assetsPath.c_str());
-                ret = T3D_ERR_RES_LOAD_FAILED;
-                break;
-            }
-            
             // 创建 Temp 文件夹
             String tempPath = projectPath + Dir::getNativeSeparator() + TEMP;
             if (!Dir::makeDir(tempPath))
             {
                 EDITOR_LOG_ERROR("Failed to create temporary folder (%s) !", tempPath.c_str());
                 ret = T3D_ERR_FAIL;
+                break;
+            }
+
+            // 尽早填好路径，脚手架复制依赖 mPath / mAssetsPath
+            mPath = projectPath;
+            mName = name;
+            mAssetsPath = assetsPath;
+            mTempPath = tempPath;
+
+            mProjectSettings.ensure();
+
+            // 业务代码脚手架放到 Assets/Scripts，必须在 MetaFS loadArchive 之前完成，
+            // 这样 init 时的 generateMeta 会给源码树补上 .meta，Project 窗口才能看见
+            if (T3D_FAILED(createGamePluginScaffold()))
+            {
+                EDITOR_LOG_WARNING("The new project was created without a scripts folder.");
+            }
+
+            // Assets 档案系统（挂载时全量扫描并生成缺失的 .meta）
+            mAssetsArchive = T3D_ARCHIVE_MGR.loadArchive(assetsPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kReadTruncate);
+            if (mAssetsArchive == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to load assets fs archive [%s]", assetsPath.c_str());
+                ret = T3D_ERR_RES_LOAD_FAILED;
                 break;
             }
 
@@ -532,20 +547,6 @@ namespace Tiny3D
 
             // 把三个档案挂载到资源门面搜索链
             mountAssetArchives();
-
-            mPath = projectPath;
-            mName = name;
-            mAssetsPath = assetsPath;
-            mTempPath = tempPath;
-
-            mProjectSettings.ensure();
-
-            // 业务代码脚手架。生成失败只是没有业务代码，工程本身照常可用，
-            // 所以这里不中断创建流程
-            if (T3D_FAILED(createGamePluginScaffold()))
-            {
-                EDITOR_LOG_WARNING("The new project was created without a scripts folder.");
-            }
 
             // 构建工程文件树
             ret = populate();
@@ -777,6 +778,8 @@ namespace Tiny3D
             mBuiltinRoot->destroy();
             mBuiltinRoot = nullptr;
         }
+
+        AssetNode::GC();
         
         T3D_SCENE_MGR.unloadScene();
         EDITOR_SCENE.setRuntimeScene(nullptr);
@@ -1192,6 +1195,8 @@ namespace Tiny3D
             {
                 ret = T3D_ERR_FAIL;
                 EDITOR_LOG_ERROR("Failed to read meta (%s) ! ERROR [%d]", node->getPath().c_str(), ret);
+                // 已经挂到 parent 上了，必须先摘掉再删，否则 parent->children 里会留悬空指针
+                parent->removeChild(node);
                 T3D_SAFE_DELETE(node);
                 break;
             }
@@ -1236,7 +1241,12 @@ namespace Tiny3D
             return;
         }
 
+        // 先销毁旧树并立刻 GC，再重建。若只 destroy 不 GC，等待删除的节点仍占着
+        // 路径 LUT；叠一次 refresh 时新树节点可能进不了等待队列，随后 UI 重建若
+        // 再踩到已释放指针就会在 populateAssetsTree 里读到 0xDD。
         mAssetRoot->destroy();
+        mAssetRoot = nullptr;
+        AssetNode::GC();
         populate();
     }
 
@@ -1605,8 +1615,15 @@ namespace Tiny3D
 
             mMeta = T3D_SERIALIZER_MGR.deserialize<Meta>(fs);
             fs.close();
+
+            if (mMeta == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to deserialize meta [%s] !", getPath().c_str());
+                ret = false;
+                break;
+            }
         } while (false);
-        
+
         return ret;
     }
 

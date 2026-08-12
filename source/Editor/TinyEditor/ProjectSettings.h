@@ -45,7 +45,7 @@ namespace Tiny3D
 
         /// 业务源码目录，相对工程根
         TPROPERTY()
-        String ScriptsRelativePath {"Scripts"};
+        String ScriptsRelativePath {"Assets/Scripts"};
 
         void ensure();
         

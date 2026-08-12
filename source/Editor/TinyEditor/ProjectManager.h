@@ -214,7 +214,7 @@ namespace Tiny3D
         TResult setupBuiltinAssets(const String &tempPath);
 
         /**
-         * @brief 从模板生成业务代码工程（Scripts 目录）
+         * @brief 从模板生成业务代码工程（Assets/Scripts 目录）
          * @remarks 模板在编辑器安装目录的 Editor/templates/GamePlugin 下，复制过来后
          *          把里面的 {ProjectName} 占位符换成工程名。生成失败不影响工程本身可用，
          *          只是没有业务代码而已

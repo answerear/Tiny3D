@@ -10,7 +10,8 @@
 
 # TINY3D_SDK_ROOT 由 TinyEditor 在 configure 时传入，指向编辑器安装目录。
 # 手动在命令行 configure 时需要自己传：
-#   cmake -S Scripts/Editor -B Temp/ScriptBuild/Editor -DTINY3D_SDK_ROOT=<编辑器目录>
+#   cmake -S Assets/Scripts/Editor -B Temp/ScriptBuild/Editor \
+#     -DTINY3D_SDK_ROOT=<编辑器目录> -DGAME_PROJECT_ROOT=<工程根>
 if (NOT DEFINED TINY3D_SDK_ROOT)
     message(FATAL_ERROR
         "TINY3D_SDK_ROOT is not defined. Pass -DTINY3D_SDK_ROOT=<TinyEditor install dir> "
@@ -31,6 +32,28 @@ include("${TINY3D_SDK_ROOT}/Tiny3DSDK.cmake")
 # 本文件位于 Scripts/ 下，两个变体的 CMakeLists 在子目录里，靠这个变量回到共享源码
 set(GAME_SCRIPTS_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
+# 解析工程根：Scripts 可能在工程根下，也可能在 Assets/Scripts。
+# TinyEditor 会传 GAME_PROJECT_ROOT；手动 configure 时也可显式传入。
+# 回退时以 ProjectSettings 为准（不要用 Library，错误构建可能在 Assets/Library 留下残留）。
+if (DEFINED GAME_PROJECT_ROOT AND NOT "${GAME_PROJECT_ROOT}" STREQUAL "")
+    get_filename_component(GAME_PROJECT_ROOT "${GAME_PROJECT_ROOT}" ABSOLUTE)
+else ()
+    set(GAME_PROJECT_ROOT "")
+    get_filename_component(_dir "${GAME_SCRIPTS_DIR}" ABSOLUTE)
+    foreach (_i RANGE 1 3)
+        get_filename_component(_dir "${_dir}/.." ABSOLUTE)
+        if (EXISTS "${_dir}/ProjectSettings")
+            set(GAME_PROJECT_ROOT "${_dir}")
+            break()
+        endif ()
+    endforeach ()
+    if (GAME_PROJECT_ROOT STREQUAL "")
+        message(FATAL_ERROR
+            "Cannot locate project root from '${GAME_SCRIPTS_DIR}'. "
+            "Pass -DGAME_PROJECT_ROOT=<project root> when configuring.")
+    endif ()
+endif ()
+
 #-------------------------------------------------------------------------------
 # game_plugin_add(<variant>)
 #   variant: Editor | Runtime
@@ -39,7 +62,7 @@ set(GAME_SCRIPTS_DIR "${CMAKE_CURRENT_LIST_DIR}")
 #-------------------------------------------------------------------------------
 function(game_plugin_add VARIANT)
     set(_scripts_dir "${GAME_SCRIPTS_DIR}")
-    get_filename_component(_project_dir "${_scripts_dir}/.." ABSOLUTE)
+    set(_project_dir "${GAME_PROJECT_ROOT}")
 
     if (VARIANT STREQUAL "Editor")
         set(_target "${GAME_PLUGIN_NAME}Editor")

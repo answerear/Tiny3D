@@ -402,7 +402,18 @@ namespace Tiny3D
 
         do
         {
+            if (node == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
+
             Meta *meta = node->getMeta();
+            if (meta == nullptr)
+            {
+                EDITOR_LOG_WARNING("Asset node [%s] has no meta, skip.", node->getPath().c_str());
+                break;
+            }
 
             if (meta->getType() == Meta::Type::kFolder)
             {
@@ -422,6 +433,12 @@ namespace Tiny3D
                 
                 for (auto child : node->getChildren())
                 {
+                    if (child == nullptr || child->getMeta() == nullptr)
+                    {
+                        EDITOR_LOG_WARNING("Skip invalid child under [%s].", node->getPath().c_str());
+                        continue;
+                    }
+
                     ImTreeNode *uiChild = nullptr;
                     ret = populateAssetsTree(tree, uiNode, child, callbacks, onDestroy, uiChild);
                     if (T3D_FAILED(ret))
@@ -432,7 +449,7 @@ namespace Tiny3D
             }
             else
             {
-                // 普通文件
+                // 普通文件：层级树只展示文件夹，文件在右侧详情列表里看
             }
             
         } while (false);
@@ -1023,6 +1040,12 @@ namespace Tiny3D
             {
                 EDITOR_LOG_INFO("List item [%s] clicked ", item->getName().c_str());
             };
+
+            if (node == nullptr || node->getMeta() == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
 
             Meta *meta = node->getMeta();
 
