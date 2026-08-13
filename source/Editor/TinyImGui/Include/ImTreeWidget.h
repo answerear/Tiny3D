@@ -96,6 +96,9 @@ namespace Tiny3D
          */
         TResult expand(bool recursively);
 
+        /// 当前是否展开（含用户点击箭头后的 ImGui 状态）
+        bool isExpanded() const { return mIsExpanded; }
+
         /**
          * 设置节点文本颜色，用于区分特殊状态的节点
          * @param [in] color : 文本颜色

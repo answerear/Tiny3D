@@ -375,6 +375,7 @@ namespace Tiny3D
         }
 
         bool ret = ImGui::TreeNodeEx(strID.c_str(), flags);
+        mIsExpanded = ret;
         if (!ret)
         {
             drawIconAndText(false);
