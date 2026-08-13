@@ -132,6 +132,11 @@ namespace Tiny3D
         /// 创建 quad 菜单响应
         bool onMenuItemCreateQuad(uint32_t id, ImWidget *menuItem);
 
+        /// 查询创建 plane 菜单状态
+        bool onMenuItemEnabledCreatePlane(uint32_t id, ImWidget *menuItem);
+        /// 创建 plane 菜单响应
+        bool onMenuItemCreatePlane(uint32_t id, ImWidget *menuItem);
+
         /// 查询删除 game object 菜单状态
         bool onMenuItemEnabledDelete(uint32_t id, ImWidget *menuItem);
         /// 删除 game object 菜单响应
@@ -144,6 +149,7 @@ namespace Tiny3D
         TResult createCapsule(GameObject *go);
         TResult createCylinder(GameObject *go);
         TResult createQuad(GameObject *go);
+        TResult createPlane(GameObject *go);
 
         /// 按 mesh 里的包围体种子创建 Bound 组件，种子缺失时回退到遍历顶点计算 AABB
         TResult createBound(GameObject *go, Geometry *geometry, Mesh *mesh, SubMesh *submesh);

@@ -562,6 +562,8 @@ namespace Tiny3D
         IM_MENU_ITEM_DATA_DEFAULT(ImMenuItemType::kNormal, ID_MENU_ITEM_CREATE_CYLINDER, STR(TXT_CYLINDER), "", "")
         // Quad
         IM_MENU_ITEM_DATA_DEFAULT(ImMenuItemType::kNormal, ID_MENU_ITEM_CREATE_QUAD, "Quad", "", "")
+        // Plane
+        IM_MENU_ITEM_DATA_DEFAULT(ImMenuItemType::kNormal, ID_MENU_ITEM_CREATE_PLANE, "Plane", "", "")
         // Effects
         IM_MENU_ITEM_DATA(ImMenuItemType::kPopup, ID_MENU_ITEM_EFFECTS, STR(TXT_EFFECTS), "", "", queryDisableDefault, nullptr, nullptr)
         // Light
@@ -1114,6 +1116,7 @@ namespace Tiny3D
                     IM_MENU_ITEM(ID_MENU_ITEM_CREATE_CAPSULE)  // Capsule
                     IM_MENU_ITEM(ID_MENU_ITEM_CREATE_CYLINDER)  // Cylinder
                     IM_MENU_ITEM(ID_MENU_ITEM_CREATE_QUAD)  // Quad
+                    IM_MENU_ITEM(ID_MENU_ITEM_CREATE_PLANE) // Plane
                 IM_MENU_POPUP_END()
                 IM_MENU_POPUP_BEGIN(ID_MENU_ITEM_EFFECTS)   // Effects
                 IM_MENU_POPUP_END()

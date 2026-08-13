@@ -125,6 +125,8 @@ namespace Tiny3D
         static const char *BUILTIN_CYLINDER_SUBMESH_NAME;
         static const char *BUILTIN_QUAD_MESH_NAME;
         static const char *BUILTIN_QUAD_SUBMESH_NAME;
+        static const char *BUILTIN_PLANE_MESH_NAME;
+        static const char *BUILTIN_PLANE_SUBMESH_NAME;
         static const char *BUILTIN_SKYBOX_MATERIAL_NAME;
         
         ProjectManager();
