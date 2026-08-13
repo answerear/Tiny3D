@@ -285,6 +285,19 @@ namespace Tiny3D
 
 #if defined (T3D_EDITOR)
     /**
+     * \brief Scene 视图网格着色模式，只作用于编辑器相机
+     */
+    enum class SceneDrawMode : uint32_t
+    {
+        /// 正常着色填充
+        kShaded = 0,
+        /// 只画三角形边
+        kWireframe,
+        /// 先着色再叠线框
+        kShadedWireframe,
+    };
+
+    /**
      * \brief 编辑器场景，扩展 Scene 并提供编辑器相机与运行时场景绑定
      */
     class T3D_ENGINE_API EditorScene : public Scene, public Singleton<EditorScene>
@@ -308,6 +321,15 @@ namespace Tiny3D
         /// 获取绑定的运行时场景
         Scene *getRuntimeScene() const override { return mRuntimeScene; }
 
+        /// 获取 Scene 视图着色模式
+        SceneDrawMode getDrawMode() const { return mDrawMode; }
+
+        /**
+         * \brief 设置 Scene 视图着色模式
+         * \param [in] mode : Shaded / Wireframe / Shaded Wireframe
+         */
+        void setDrawMode(SceneDrawMode mode) { mDrawMode = mode; }
+
         /// 获取运行时场景根 GameObject（纯虚，由派生类实现）
         virtual GameObject *getRuntimeRootGameObject() const = 0;
 
@@ -325,6 +347,8 @@ namespace Tiny3D
         Scene           *mRuntimeScene {nullptr};
         /// 编辑器场景相机
         CameraPtr       mSceneCamera {nullptr};
+        /// Scene 视图着色模式，不序列化
+        SceneDrawMode   mDrawMode {SceneDrawMode::kShaded};
     };
 
     #define T3D_EDITOR_SCENE    (EditorScene::getInstance())

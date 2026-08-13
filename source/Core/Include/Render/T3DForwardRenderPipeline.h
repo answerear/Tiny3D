@@ -142,12 +142,40 @@ namespace Tiny3D
         TResult setupLights(RHIContext *ctx, Material *material);
 
         /**
+         * \brief 编辑器相机覆盖光栅化填充模式
+         */
+        enum class RasterizerOverride : uint32_t
+        {
+            /// 使用材质自身的 RasterizerState
+            kNone = 0,
+            /// FillMode = Wireframe
+            kWireframe,
+            /// FillMode = Wireframe，并加 depth bias 避免与实体表面 z-fighting
+            kWireframeOverlay,
+        };
+
+        /**
          * \brief 将 RenderState 中的混合/深度模板/光栅化状态绑定到 RHI 上下文
          * \param [in] ctx : RHI 上下文
          * \param [in] renderState : 渲染状态；为 nullptr 时不设置任何状态
+         * \param [in] rasterizerOverride : 编辑器线框模式时覆盖 FillMode；默认不覆盖
          * \return 调用成功返回 T3D_OK
          */
-        TResult setupRenderState(RHIContext *ctx, RenderState *renderState);
+        TResult setupRenderState(RHIContext *ctx, RenderState *renderState,
+            RasterizerOverride rasterizerOverride = RasterizerOverride::kNone);
+
+        /**
+         * \brief 按队列绘制一台相机的 ForwardBase 物体，可选插入天空盒
+         * \param [in] ctx : RHI 上下文
+         * \param [in] camera : 目标相机
+         * \param [in] cameraWorldPos : 相机世界坐标，写入材质常量
+         * \param [in] drawSkybox : 是否在透明队列前画天空盒
+         * \param [in] skyboxMaterial : 天空盒材质；drawSkybox 为 false 时忽略
+         * \param [in] rasterizerOverride : 覆盖光栅化填充模式
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult drawCameraQueue(RHIContext *ctx, Camera *camera, const Vector4 &cameraWorldPos,
+            bool drawSkybox, Material *skyboxMaterial, RasterizerOverride rasterizerOverride);
 
         /**
          * \brief 绑定 Pass 各 stage 的 shader、常量缓冲、采样器与纹理
@@ -265,6 +293,13 @@ namespace Tiny3D
         VertexDeclarationPtr mSkyboxVertexDecl {nullptr};
         /// 上一次生成 mSkyboxVertexDecl 所用的 VS 变体
         ShaderVariant *mSkyboxVertexDeclShader {nullptr};
+
+#if defined(T3D_EDITOR)
+        /// cull 阶段缓存的编辑器相机，render 时用来判断是否应用 Scene 着色模式
+        Camera *mEditorCamera {nullptr};
+        /// cull 阶段缓存的 Scene 着色模式
+        uint32_t mEditorDrawMode {0};
+#endif
 
         /// 点光源颜色 + 漫反射强度（alpha 通道）
         ColorArray mPointLightColor {kMaxPointLights, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f)};

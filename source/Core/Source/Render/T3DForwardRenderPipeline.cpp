@@ -45,6 +45,7 @@
 #include "Render/T3DVertexDeclaration.h"
 #include "Render/T3DRenderResourceManager.h"
 #include "Render/T3DRenderState.h"
+#include "Render/T3DRasterizerState.h"
 #include "Light/T3DAmbientLight.h"
 #include "Light/T3DDirectionalLight.h"
 #include "Light/T3DPointLight.h"
@@ -237,7 +238,14 @@ namespace Tiny3D
         GameObjectPtr go;
         
 #if defined (T3D_EDITOR)
-        Camera *camera = scene->getEditorCamera();
+        mEditorCamera = scene->getEditorCamera();
+        mEditorDrawMode = static_cast<uint32_t>(SceneDrawMode::kShaded);
+        if (EditorScene::getInstancePtr() != nullptr)
+        {
+            mEditorDrawMode = static_cast<uint32_t>(EditorScene::getInstance().getDrawMode());
+        }
+
+        Camera *camera = mEditorCamera;
         mCameras.emplace_back(camera);
         go = scene->getEditorGameObject();
         go->frustumCulling(camera, this);
@@ -290,11 +298,18 @@ namespace Tiny3D
         TResult ret = T3D_OK;
         for (const auto &camera : mCameras)
         {
-            // 渲染阴影贴图
-            ret = renderShadowMap(ctx, camera);
-            if (T3D_FAILED(ret))
+#if defined(T3D_EDITOR)
+            const bool skipShadow = (camera == mEditorCamera
+                && mEditorDrawMode == static_cast<uint32_t>(SceneDrawMode::kWireframe));
+            if (!skipShadow)
+#endif
             {
-                continue;
+                // 渲染阴影贴图
+                ret = renderShadowMap(ctx, camera);
+                if (T3D_FAILED(ret))
+                {
+                    continue;
+                }
             }
 
             // 前向渲染
@@ -509,7 +524,59 @@ namespace Tiny3D
 
         ctx->beginPass();
 
-        const bool drawSkybox = (clearFlags == Camera::ClearFlags::kSkybox);
+        const bool isSkyboxClear = (clearFlags == Camera::ClearFlags::kSkybox);
+        bool drawSkybox = isSkyboxClear;
+        RasterizerOverride rasterizerOverride = RasterizerOverride::kNone;
+
+#if defined(T3D_EDITOR)
+        const bool isEditorCamera = (camera == mEditorCamera);
+        if (isEditorCamera && mEditorDrawMode == static_cast<uint32_t>(SceneDrawMode::kWireframe))
+        {
+            // 天空盒是全屏三角形，线框模式会画出巨大三角边
+            rasterizerOverride = RasterizerOverride::kWireframe;
+            drawSkybox = false;
+        }
+#endif
+
+        drawCameraQueue(ctx, camera, cameraWorldPos, drawSkybox, skyboxMaterial, rasterizerOverride);
+
+#if defined(T3D_EDITOR)
+        if (isEditorCamera && mEditorDrawMode == static_cast<uint32_t>(SceneDrawMode::kShadedWireframe))
+        {
+            drawCameraQueue(ctx, camera, cameraWorldPos, false, nullptr, RasterizerOverride::kWireframeOverlay);
+        }
+#endif
+
+        ctx->endPass();
+
+        // 把相机渲染纹理渲染到相机对应的渲染目标上
+        // if (camera->getRenderTarget()->getType() == RenderTarget::Type::E_RT_WINDOW)
+        if (camera->getRenderTarget()->getRenderTexture() != camera->getRenderTexture())
+        {
+            T3D_ASSERT(rt->getType() == RenderTarget::Type::E_RT_TEXTURE);
+            const Viewport &vp = camera->getViewport();
+            Real left = Real(rt->getRenderTexture()->getWidth()) * vp.Left;
+            Real top = Real(rt->getRenderTexture()->getHeight()) * vp.Top;
+            Real width = Real(rt->getRenderTexture()->getWidth()) * vp.Width;
+            Real height = Real(rt->getRenderTexture()->getHeight()) * vp.Height;
+            Vector3 offset(left, top, 0.0f);
+            Vector3 box(width, height, 0.0f);
+            
+            ctx->blit(rt->getRenderTexture(), camera->getRenderTarget(), offset, box, offset);
+            // ctx->blit(rt, camera->getRenderTarget());
+        }
+
+        // 重置所有状态
+        ctx->reset();
+        
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::drawCameraQueue(RHIContext *ctx, Camera *camera, const Vector4 &cameraWorldPos,
+        bool drawSkybox, Material *skyboxMaterial, RasterizerOverride rasterizerOverride)
+    {
         bool skyboxDrawn = false;
 
         const auto itr = mRenderQueue.find(camera);
@@ -556,7 +623,7 @@ namespace Tiny3D
                     {
                         continue;
                     }
-                    
+
                     PassInstance *pass = itrPass->second;
                     if (pass == nullptr)
                     {
@@ -571,7 +638,7 @@ namespace Tiny3D
                     }
 
                     // 设置对应的渲染状态
-                    setupRenderState(ctx, renderState);
+                    setupRenderState(ctx, renderState, rasterizerOverride);
 
                     // 设置着色器
                     setupShaders(ctx, material, pass);
@@ -616,28 +683,6 @@ namespace Tiny3D
             renderSkybox(ctx, camera, skyboxMaterial);
         }
 
-        ctx->endPass();
-
-        // 把相机渲染纹理渲染到相机对应的渲染目标上
-        // if (camera->getRenderTarget()->getType() == RenderTarget::Type::E_RT_WINDOW)
-        if (camera->getRenderTarget()->getRenderTexture() != camera->getRenderTexture())
-        {
-            T3D_ASSERT(rt->getType() == RenderTarget::Type::E_RT_TEXTURE);
-            const Viewport &vp = camera->getViewport();
-            Real left = Real(rt->getRenderTexture()->getWidth()) * vp.Left;
-            Real top = Real(rt->getRenderTexture()->getHeight()) * vp.Top;
-            Real width = Real(rt->getRenderTexture()->getWidth()) * vp.Width;
-            Real height = Real(rt->getRenderTexture()->getHeight()) * vp.Height;
-            Vector3 offset(left, top, 0.0f);
-            Vector3 box(width, height, 0.0f);
-            
-            ctx->blit(rt->getRenderTexture(), camera->getRenderTarget(), offset, box, offset);
-            // ctx->blit(rt, camera->getRenderTarget());
-        }
-
-        // 重置所有状态
-        ctx->reset();
-        
         return T3D_OK;
     }
 
@@ -946,7 +991,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ForwardRenderPipeline::setupRenderState(RHIContext *ctx, RenderState *renderState)
+    TResult ForwardRenderPipeline::setupRenderState(RHIContext *ctx, RenderState *renderState,
+        RasterizerOverride rasterizerOverride)
     {
         if (renderState != nullptr)
         {
@@ -966,6 +1012,20 @@ namespace Tiny3D
 
             // 光栅化状态
             RasterizerState *rasterState = renderState->getRasterizerState();
+            RasterizerStatePtr overrideState;
+            if (rasterizerOverride != RasterizerOverride::kNone)
+            {
+                RasterizerDesc desc = renderState->getRasterizerDesc();
+                desc.FillMode = PolygonMode::kWireframe;
+                if (rasterizerOverride == RasterizerOverride::kWireframeOverlay)
+                {
+                    // 负 bias 把线拉向相机，叠在已画好的实体表面上
+                    desc.DepthBias = -1.0f;
+                    desc.SlopeScaledDepthBias = -1.0f;
+                }
+                overrideState = T3D_RENDER_STATE_MGR.loadRasterizerState(desc);
+                rasterState = overrideState.get();
+            }
             if (rasterState != nullptr)
             {
                 ctx->setRasterizerState(rasterState);
