@@ -103,6 +103,10 @@ namespace Tiny3D
 
         ImTextureID getGameRT() const { return mGameRT; }
 
+        SceneDrawMode getDrawMode() const { return EditorScene::getDrawMode(); }
+
+        void setDrawMode(SceneDrawMode mode) { EditorScene::setDrawMode(mode); }
+
     protected:
         bool onModifedScene(EventParam *param, TINSTANCE sender);
         

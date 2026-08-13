@@ -39,6 +39,11 @@ namespace Tiny3D
         ~UISceneWindow() override = default;
 
     protected:
+        ImGuiWindowFlags flags() const override
+        {
+            return ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
+        }
+
         void onGUI() override;
     };
 

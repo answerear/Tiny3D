@@ -25,6 +25,7 @@
 
 #include "UISceneWindow.h"
 #include "EditorSceneImpl.h"
+#include "UIEditorWidgetID.h"
 
 
 namespace Tiny3D
@@ -36,6 +37,19 @@ namespace Tiny3D
     void UISceneWindow::onGUI()
     {
         EDITOR_SCENE.refreshSceneRenderTarget();
+
+        const char *items[] = { "Shaded", "Wireframe", "Shaded Wireframe" };
+        int current = static_cast<int>(EDITOR_SCENE.getDrawMode());
+        ImGui::AlignTextToFramePadding();
+        ImGui::TextUnformatted("Shading Mode");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(180.0f);
+        ImGui::PushID(ID_SCENE_DRAW_MODE_COMBO);
+        if (ImGui::Combo("##SceneDrawMode", &current, items, IM_ARRAYSIZE(items)))
+        {
+            EDITOR_SCENE.setDrawMode(static_cast<SceneDrawMode>(current));
+        }
+        ImGui::PopID();
 
         RenderTarget *target = EDITOR_SCENE.getSceneRenderTarget();
 

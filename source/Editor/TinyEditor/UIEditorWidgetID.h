@@ -242,6 +242,7 @@ namespace Tiny3D
         
         ID_GAME_WINDOW,
         ID_SCENE_WINDOW,
+        ID_SCENE_DRAW_MODE_COMBO,
         ID_INSPECTOR_WINDOW,
         ID_PROJECT_WINDOW,
         ID_CONSOLE_WINDOW,
