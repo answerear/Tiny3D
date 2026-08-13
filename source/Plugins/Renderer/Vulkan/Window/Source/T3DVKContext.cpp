@@ -358,7 +358,12 @@ namespace Tiny3D
                 queueCreateInfos.push_back(queueCreateInfo);
             }
 
+            VkPhysicalDeviceFeatures supportedFeatures {};
+            vkGetPhysicalDeviceFeatures(mVkPhysicalDevice, &supportedFeatures);
+
             VkPhysicalDeviceFeatures deviceFeatures {};
+            // Scene 线框模式需要 VK_POLYGON_MODE_LINE；未开启 fillModeNonSolid 时非法
+            deviceFeatures.fillModeNonSolid = supportedFeatures.fillModeNonSolid;
 
             const char *deviceExtensions[] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
