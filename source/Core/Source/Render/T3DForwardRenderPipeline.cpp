@@ -46,6 +46,8 @@
 #include "Render/T3DRenderResourceManager.h"
 #include "Render/T3DRenderState.h"
 #include "Render/T3DRasterizerState.h"
+#include "Render/T3DBlendState.h"
+#include "Render/T3DDepthStencilState.h"
 #include "Light/T3DAmbientLight.h"
 #include "Light/T3DDirectionalLight.h"
 #include "Light/T3DPointLight.h"
@@ -996,36 +998,58 @@ namespace Tiny3D
     {
         if (renderState != nullptr)
         {
-            // 混合状态
+            BlendStatePtr overlayBlend;
+            DepthStencilStatePtr overlayDepth;
+            RasterizerStatePtr overrideRaster;
+
             BlendState *blendState = renderState->getBlendState();
+            DepthStencilState *depthStencilState = renderState->getDepthStencilState();
+            RasterizerState *rasterState = renderState->getRasterizerState();
+
+            if (rasterizerOverride != RasterizerOverride::kNone)
+            {
+                RasterizerDesc rasterDesc = renderState->getRasterizerDesc();
+                rasterDesc.FillMode = PolygonMode::kWireframe;
+                rasterDesc.SlopeScaledDepthBias = 0.0f;
+                // D3D11 线框把 MaxDepthSlope 当成 1.0。SlopeScaledDepthBias 一旦到 -1，
+                // 深度会被减出 [0,1] 再被 DepthClip 裁掉，叠线整层消失。
+                rasterDesc.DepthBias = (rasterizerOverride == RasterizerOverride::kWireframeOverlay) ? -1.0f : 0.0f;
+                overrideRaster = T3D_RENDER_STATE_MGR.loadRasterizerState(rasterDesc);
+                rasterState = overrideRaster.get();
+            }
+
+            if (rasterizerOverride == RasterizerOverride::kWireframeOverlay)
+            {
+                // 材质默认 DepthFunc 是 Less。第一遍已经写过同等深度，线框片元会被丢掉。
+                DepthStencilDesc depthDesc = renderState->getDepthStencilDesc();
+                depthDesc.DepthWriteEnable = false;
+                depthDesc.DepthFunc = CompareFunction::kLessEqual;
+                overlayDepth = T3D_RENDER_STATE_MGR.loadDepthStencilState(depthDesc);
+                depthStencilState = overlayDepth.get();
+
+                // 原材质着色和表面同色，线叠上去看不见。Zero+Zero 画出黑线。
+                BlendDesc blendDesc = renderState->getBlendDesc();
+                BlendDesc::RTBlendDesc &rt = blendDesc.RenderTargetStates[0];
+                rt.BlendEnable = true;
+                rt.SrcBlend = BlendFactor::kZero;
+                rt.DestBlend = BlendFactor::kZero;
+                rt.BlendOp = BlendOperation::kAdd;
+                rt.SrcBlendAlpha = BlendFactor::kZero;
+                rt.DstBlendAlpha = BlendFactor::kOne;
+                overlayBlend = T3D_RENDER_STATE_MGR.loadBlendState(blendDesc);
+                blendState = overlayBlend.get();
+            }
+
             if (blendState != nullptr)
             {
                 ctx->setBlendState(blendState);
             }
 
-            // 深度/模板缓存状态
-            DepthStencilState *depthStencilState = renderState->getDepthStencilState();
             if (depthStencilState != nullptr)
             {
                 ctx->setDepthStencilState(depthStencilState);
             }
 
-            // 光栅化状态
-            RasterizerState *rasterState = renderState->getRasterizerState();
-            RasterizerStatePtr overrideState;
-            if (rasterizerOverride != RasterizerOverride::kNone)
-            {
-                RasterizerDesc desc = renderState->getRasterizerDesc();
-                desc.FillMode = PolygonMode::kWireframe;
-                if (rasterizerOverride == RasterizerOverride::kWireframeOverlay)
-                {
-                    // 负 bias 把线拉向相机，叠在已画好的实体表面上
-                    desc.DepthBias = -1.0f;
-                    desc.SlopeScaledDepthBias = -1.0f;
-                }
-                overrideState = T3D_RENDER_STATE_MGR.loadRasterizerState(desc);
-                rasterState = overrideState.get();
-            }
             if (rasterState != nullptr)
             {
                 ctx->setRasterizerState(rasterState);

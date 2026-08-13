@@ -150,7 +150,7 @@ namespace Tiny3D
             kNone = 0,
             /// FillMode = Wireframe
             kWireframe,
-            /// FillMode = Wireframe，并加 depth bias 避免与实体表面 z-fighting
+            /// FillMode = Wireframe；深度 LessEqual、不写深度，并以黑色叠在着色表面上
             kWireframeOverlay,
         };
 
