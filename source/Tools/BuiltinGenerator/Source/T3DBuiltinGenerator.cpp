@@ -29,6 +29,7 @@
 #include "T3DBuiltinMaterials.h"
 #include "T3DBuiltinCube.h"
 #include "T3DBuiltinQuad.h"
+#include "T3DBuiltinPlane.h"
 #include "T3DBuiltinCylinder.h"
 #include "T3DBuiltinSphere.h"
 #include "T3DBuiltinCapsule.h"
@@ -132,6 +133,29 @@ namespace Tiny3D
             else
             {
                 BGEN_LOG_INFO("Generated quad mesh ok !");
+            }
+        }
+        T3D_SAFE_DELETE(mesh);
+
+        // Plane
+        mesh = T3D_NEW BuiltinPlane();
+        ret = mesh->build(meshPath);
+        if (T3D_FAILED(ret))
+        {
+            BGEN_LOG_ERROR("Build plane mesh failed ! ERROR [%d]", ret);
+        }
+        else
+        {
+            BGEN_LOG_INFO("Build plane mesh ok !");
+
+            ret = mesh->save(meshPath);
+            if (T3D_FAILED(ret))
+            {
+                BGEN_LOG_ERROR("Generated plane mesh failed ! ERROR [%d]", ret);
+            }
+            else
+            {
+                BGEN_LOG_INFO("Generated plane mesh ok !");
             }
         }
         T3D_SAFE_DELETE(mesh);
