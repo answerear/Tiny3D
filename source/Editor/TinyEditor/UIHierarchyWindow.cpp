@@ -210,6 +210,7 @@ namespace Tiny3D
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_CREATE_SPHERE, UIHierarchyView::onMenuItemCreateSphere);
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_CREATE_CAPSULE, UIHierarchyView::onMenuItemCreateCapsule);
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_CREATE_CYLINDER, UIHierarchyView::onMenuItemCreateCylinder);
+            ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_CREATE_QUAD, UIHierarchyView::onMenuItemCreateQuad);
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_DELETE, UIHierarchyView::onMenuItemDelete);
 
             ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_CREATE_EMPTY, UIHierarchyView::onMenuItemEnabledCreateEmpty);
@@ -217,6 +218,7 @@ namespace Tiny3D
             ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_CREATE_SPHERE, UIHierarchyView::onMenuItemEnabledCreateSphere);
             ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_CREATE_CAPSULE, UIHierarchyView::onMenuItemEnabledCreateCapsule);
             ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_CREATE_CYLINDER, UIHierarchyView::onMenuItemEnabledCreateCylinder);
+            ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_CREATE_QUAD, UIHierarchyView::onMenuItemEnabledCreateQuad);
             ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_DELETE, UIHierarchyView::onMenuItemEnabledDelete);
             
             T3D_ASSERT(mTreeWidget == nullptr);
@@ -240,6 +242,160 @@ namespace Tiny3D
         unregisterAllEvent();
         mTreeWidget = nullptr;
         ImChildView::onDestroy();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyView::clearTree()
+    {
+        if (mTreeWidget != nullptr)
+        {
+            mTreeWidget->removeAllChildren();
+        }
+
+        mRoot = nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    GameObject *UIHierarchyView::gameObjectFromTreeNode(ImTreeNode *uiNode) const
+    {
+        if (uiNode == nullptr)
+        {
+            return nullptr;
+        }
+
+        TransformNode *node = static_cast<TransformNode *>(uiNode->getUserData());
+        if (node == nullptr)
+        {
+            return nullptr;
+        }
+
+        return node->getGameObject();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyView::captureViewStateRecursive(ImWidget *widget)
+    {
+        if (widget == nullptr)
+        {
+            return;
+        }
+
+        for (auto child : widget->getChildren())
+        {
+            if (child == nullptr || child->getWidgetType() != WidgetType::kTreeNode)
+            {
+                continue;
+            }
+
+            ImTreeNode *uiNode = static_cast<ImTreeNode *>(child);
+            GameObject *go = gameObjectFromTreeNode(uiNode);
+            if (go != nullptr)
+            {
+                mSavedExpandState[go->getUUID()] = uiNode->isExpanded();
+            }
+
+            captureViewStateRecursive(uiNode);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyView::captureViewState()
+    {
+        if (mTreeWidget == nullptr || mTreeWidget->getChildren().empty())
+        {
+            return;
+        }
+
+        mSavedExpandState.clear();
+        mSavedSelectionUUID = UUID::INVALID;
+
+        GameObject *selected = gameObjectFromTreeNode(mTreeWidget->getSelection());
+        if (selected != nullptr)
+        {
+            mSavedSelectionUUID = selected->getUUID();
+        }
+
+        captureViewStateRecursive(mTreeWidget);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyView::restoreViewStateRecursive(ImWidget *widget)
+    {
+        if (widget == nullptr)
+        {
+            return;
+        }
+
+        for (auto child : widget->getChildren())
+        {
+            if (child == nullptr || child->getWidgetType() != WidgetType::kTreeNode)
+            {
+                continue;
+            }
+
+            ImTreeNode *uiNode = static_cast<ImTreeNode *>(child);
+            GameObject *go = gameObjectFromTreeNode(uiNode);
+            if (go != nullptr)
+            {
+                const auto it = mSavedExpandState.find(go->getUUID());
+                if (it != mSavedExpandState.end())
+                {
+                    if (it->second)
+                    {
+                        uiNode->expand(false);
+                    }
+                    else
+                    {
+                        uiNode->collapse(false);
+                    }
+                }
+
+                if (mSavedSelectionUUID != UUID::INVALID
+                    && go->getUUID() == mSavedSelectionUUID)
+                {
+                    mTreeWidget->setSelection(uiNode);
+                }
+            }
+
+            restoreViewStateRecursive(uiNode);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyView::restoreViewState()
+    {
+        if (mTreeWidget != nullptr)
+        {
+            restoreViewStateRecursive(mTreeWidget);
+
+            if (mSavedSelectionUUID != UUID::INVALID)
+            {
+                postSelectionChanged(mTreeWidget->getSelection());
+            }
+        }
+
+        mSavedExpandState.clear();
+        mSavedSelectionUUID = UUID::INVALID;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIHierarchyView::refresh()
+    {
+        captureViewState();
+        clearTree();
+
+        if (mScene != nullptr)
+        {
+            populateGameObjectTree();
+            restoreViewState();
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -310,9 +466,17 @@ namespace Tiny3D
 
     void UIHierarchyView::onTreeNodeDestroy(ImTreeNode *uiNode)
     {
+        if (uiNode == nullptr)
+        {
+            return;
+        }
+
         TransformNode *node = static_cast<TransformNode *>(uiNode->getUserData());
         uiNode->setUserData(nullptr);
-        node->setUserData(nullptr);
+        if (node != nullptr)
+        {
+            node->setUserData(nullptr);
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -1109,6 +1273,147 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool UIHierarchyView::onMenuItemEnabledCreateQuad(uint32_t id, ImWidget *menuItem)
+    {
+        if (mTreeWidget != nullptr && mTreeWidget->getSelection() != nullptr)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIHierarchyView::onMenuItemCreateQuad(uint32_t id, ImWidget *menuItem)
+    {
+        do
+        {
+            if (mTreeWidget == nullptr)
+            {
+                EDITOR_LOG_WARNING("Tree widget has not created !");
+                break;
+            }
+
+            ImTreeNode *selection = mTreeWidget->getSelection();
+
+            if (selection == nullptr)
+            {
+                EDITOR_LOG_WARNING("There was no selection !");
+                break;
+            }
+
+            TransformNode *parent = static_cast<TransformNode*>(selection->getUserData());
+            if (parent == nullptr)
+            {
+                EDITOR_LOG_WARNING("The parent of selection is nullptr !");
+                break;
+            }
+
+            // 创建 game object
+            GameObjectPtr go = GameObject::create("Quad");
+            if (go == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to create GameObject !");
+                break;
+            }
+
+            // 创建 transform node 组件
+            Transform3DPtr node = go->addComponent<Transform3D>();
+            if (node == nullptr)
+            {
+                EDITOR_LOG_WARNING("Failed to add Transform3D component !");
+                break;
+            }
+            
+            parent->addChild(node);
+
+            // 加载四边形相关的 geometry 组件
+            TResult ret = createQuad(go);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_WARNING("Failed to create quad ! ERROR [%d]", ret);
+                break;
+            }
+
+            // 创建层次结构树节点
+            const auto treeNodeClicked = std::bind(&UIHierarchyView::treeNodeClicked, this, std::placeholders::_1);
+            const auto treeNodeRClicked = std::bind(&UIHierarchyView::treeNodeRClicked, this, std::placeholders::_1);
+            const auto treeNodeDestroy = std::bind(&UIHierarchyView::onTreeNodeDestroy, this, std::placeholders::_1);
+
+            ImTreeNode::CallbackData callbacks(treeNodeClicked, treeNodeRClicked);
+
+            createTreeNode(node, callbacks, treeNodeDestroy);
+
+            // 展开上层节点，聚焦到该节点
+            ImTreeNode *uiNode = static_cast<ImTreeNode*>(parent->getUserData());
+            T3D_ASSERT(uiNode != nullptr);
+            uiNode->expand(false);
+
+            // 新建的节点已成为当前选中项，同步通知 inspector
+            postSelectionChanged(mTreeWidget->getSelection());
+
+            // 通知修改了场景
+            EventParamModifyScene param(true);
+            sendEvent(kEvtModifyScene, &param);
+        } while (false);
+
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult UIHierarchyView::createQuad(GameObject *go)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            // geometry component
+            GeometryPtr geometry = go->addComponent<Geometry>();
+
+            // 资源门面已挂载工程搜索链（含 builtin），按名字一步加载内置网格
+            MeshPtr mesh = T3D_ASSET_MGR.loadMesh(ProjectManager::BUILTIN_QUAD_MESH_NAME);
+            if (mesh == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to load quad mesh assets !");
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
+            
+            StringArray enableKeywrods;
+            enableKeywrods.push_back("");
+            StringArray disableKeywords;
+            for (auto submesh : mesh->getSubMeshes())
+            {
+                Material *material = static_cast<Material *>(T3D_MATERIAL_MGR.getResource(submesh.second->getMaterialUUID()));
+                T3D_ASSERT(material != nullptr);
+                ret = material->switchKeywords(enableKeywrods, disableKeywords);
+                if (T3D_FAILED(ret))
+                {
+                    EDITOR_LOG_ERROR("Failed to switch keywords (submesh : %s) ! ERROR [%d]", submesh.second->getName().c_str(), ret);
+                    break;
+                }
+            }
+
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to switch keywords ! ERROR [%d]", ret);
+                break;
+            }
+            
+            SubMesh *submesh = mesh->getSubMesh(ProjectManager::BUILTIN_QUAD_SUBMESH_NAME);
+            geometry->setMeshObject(mesh, submesh);
+
+            // bound component（按 mesh 里的包围体种子创建）
+            createBound(go, geometry, mesh, submesh);
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
     bool UIHierarchyView::onMenuItemEnabledDelete(uint32_t id, ImWidget *menuItem)
     {
         if (mTreeWidget == nullptr)
@@ -1373,8 +1678,20 @@ namespace Tiny3D
     bool UIHierarchyWindow::onOpenScene(EventParam *param, TINSTANCE sender)
     {
         EventParamOpenScene *p = static_cast<EventParamOpenScene *>(param);
-        mHierarchyView->setScene(p->arg1);
-        mHierarchyView->refresh();
+
+        if (p->arg1 == nullptr)
+        {
+            // 卸载前先记下展开 / 选中。setScene(nullptr) 之后树还在，但接下来就要拆掉。
+            mHierarchyView->captureViewState();
+            mHierarchyView->setScene(nullptr);
+            mHierarchyView->clearTree();
+        }
+        else
+        {
+            mHierarchyView->setScene(p->arg1);
+            mHierarchyView->refresh();
+        }
+
         return true;
     }
 

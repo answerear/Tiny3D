@@ -48,6 +48,8 @@ namespace Tiny3D
     const char *ProjectManager::BUILTIN_CAPSULE_SUBMESH_NAME = "#0";
     const char *ProjectManager::BUILTIN_CYLINDER_MESH_NAME = "cylinder.tmesh";
     const char *ProjectManager::BUILTIN_CYLINDER_SUBMESH_NAME = "#0";
+    const char *ProjectManager::BUILTIN_QUAD_MESH_NAME = "quad.tmesh";
+    const char *ProjectManager::BUILTIN_QUAD_SUBMESH_NAME = "#0";
     const char *ProjectManager::BUILTIN_SKYBOX_MATERIAL_NAME = "Skybox-Cubemap.tmat";
     
     //--------------------------------------------------------------------------

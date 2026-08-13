@@ -246,10 +246,15 @@ namespace Tiny3D
 
     void PlayModeController::clearEditorReferences()
     {
-        // Inspector 与 Hierarchy 都持有选中的 GameObject，卸载 DLL 前必须放开。
+        // Inspector 与 Hierarchy 都持有选中的 GameObject，卸载 DLL / 场景前必须放开。
         // 用同步 sendEvent 而不是 postEvent，异步的话等真正处理时对象已经没了。
-        EventParamGameObjectSelected param(nullptr);
-        sendEvent(kEvtGameObjectSelected, &param);
+        EventParamGameObjectSelected selected(nullptr);
+        sendEvent(kEvtGameObjectSelected, &selected);
+
+        // Hierarchy 的 ImTreeNode 通过 userData 握着 TransformNode。必须在
+        // unloadScene / flushPendingDestroys 之前拆掉，否则清树时会写已销毁对象。
+        EventParamOpenScene openScene(nullptr);
+        sendEvent(kEvtOpenScene, &openScene);
     }
 
     //--------------------------------------------------------------------------
@@ -285,9 +290,12 @@ namespace Tiny3D
         UUID uuid = (current != nullptr)
             ? current->getUUID() : PROJECT_MGR.getProjectSettings().StartupSceneUUID;
 
+        // 无论当前场景指针是否还在，都先拆掉 Hierarchy / Inspector 对旧对象的引用。
+        // current == nullptr 时（例如插件热重载已经卸过场景）旧 UI 树可能还挂着。
+        clearEditorReferences();
+
         if (current != nullptr)
         {
-            clearEditorReferences();
             current->getRootTransform()->removeFromParent();
             T3D_SCENE_MGR.unloadScene();
             EDITOR_SCENE.setRuntimeScene(nullptr);

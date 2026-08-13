@@ -56,10 +56,14 @@ namespace Tiny3D
             mScene = scene;
         }
 
-        void refresh()
-        {
-            populateGameObjectTree();
-        }
+        /// 拆掉整棵 UI 树并解开与 TransformNode 的双向绑定
+        void clearTree();
+
+        /// 按 GameObject UUID 记下当前展开 / 选中，树为空时保留已有快照
+        void captureViewState();
+
+        /// 清空后按当前场景重建 Hierarchy，并还原展开 / 选中
+        void refresh();
 
         /// 重新计算整棵树的 prefab 实例标识
         void refreshPrefabDecoration();
@@ -75,6 +79,12 @@ namespace Tiny3D
         void onGUIEnd() override;
 
         TResult populateGameObjectTree();
+
+        void captureViewStateRecursive(ImWidget *widget);
+        void restoreViewState();
+        void restoreViewStateRecursive(ImWidget *widget);
+
+        GameObject *gameObjectFromTreeNode(ImTreeNode *uiNode) const;
 
         void treeNodeClicked(ImTreeNode *node);
         void treeNodeRClicked(ImTreeNode *node);
@@ -117,6 +127,11 @@ namespace Tiny3D
         /// 创建 cylinder 菜单响应
         bool onMenuItemCreateCylinder(uint32_t id, ImWidget *menuItem);
 
+        /// 查询创建 quad 菜单状态
+        bool onMenuItemEnabledCreateQuad(uint32_t id, ImWidget *menuItem);
+        /// 创建 quad 菜单响应
+        bool onMenuItemCreateQuad(uint32_t id, ImWidget *menuItem);
+
         /// 查询删除 game object 菜单状态
         bool onMenuItemEnabledDelete(uint32_t id, ImWidget *menuItem);
         /// 删除 game object 菜单响应
@@ -128,6 +143,7 @@ namespace Tiny3D
         TResult createSphere(GameObject *go);
         TResult createCapsule(GameObject *go);
         TResult createCylinder(GameObject *go);
+        TResult createQuad(GameObject *go);
 
         /// 按 mesh 里的包围体种子创建 Bound 组件，种子缺失时回退到遍历顶点计算 AABB
         TResult createBound(GameObject *go, Geometry *geometry, Mesh *mesh, SubMesh *submesh);
@@ -138,6 +154,10 @@ namespace Tiny3D
         Scene *mScene {nullptr};
         ImTreeWidget *mTreeWidget {nullptr};
         ImTreeNode *mRoot {nullptr};
+
+        using ExpandStateMap = TUnorderedMap<UUID, bool, UUIDHash, UUIDEqual>;
+        ExpandStateMap mSavedExpandState {};
+        UUID mSavedSelectionUUID {UUID::INVALID};
     };
 
     class UIHierarchyWindow : public UIDockingWindow, public EventHandler
