@@ -1,0 +1,323 @@
+{
+  "Magic": "T3D",
+  "Version": "0.0.1",
+  "Object": {
+    "RTTI_Type": "Tiny3D::Mesh",
+    "RTTI_Value": {
+      "Name": {
+        "RTTI_Type": "std::string",
+        "RTTI_Value": "plane"
+      },
+      "UUID": {
+        "RTTI_Type": "Tiny3D::UUID",
+        "RTTI_Value": {
+          "RTTI_Type": "std::string",
+          "RTTI_Value": "6e705c64d85a28d293190fcb877bbe1f"
+        }
+      },
+      "BoundSeedA": {
+        "RTTI_Type": "Tiny3D::TVector3<float>",
+        "RTTI_Value": {
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": -5.0
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": -5.0
+          }
+        }
+      },
+      "BoundSeedB": {
+        "RTTI_Type": "Tiny3D::TVector3<float>",
+        "RTTI_Value": {
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 5.0
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 5.0
+          }
+        }
+      },
+      "BoundSeedRadius": {
+        "RTTI_Type": "float",
+        "RTTI_Value": 0.0
+      },
+      "BoundSeedType": {
+        "RTTI_Type": "Tiny3D::Bound::Type",
+        "RTTI_Value": "AABB"
+      },
+      "MeshNodeName": {
+        "RTTI_Type": "std::string",
+        "RTTI_Value": ""
+      },
+      "MeshOrientation": {
+        "RTTI_Type": "Tiny3D::TQuaternion<float>",
+        "RTTI_Value": {
+          "w": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 1.0
+          },
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          }
+        }
+      },
+      "MeshPosition": {
+        "RTTI_Type": "Tiny3D::TVector3<float>",
+        "RTTI_Value": {
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          }
+        }
+      },
+      "MeshScaling": {
+        "RTTI_Type": "Tiny3D::TVector3<float>",
+        "RTTI_Value": {
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 1.0
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 1.0
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 1.0
+          }
+        }
+      },
+      "SubMeshes": {
+        "RTTI_Type": "std::map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::SubMesh>>",
+        "RTTI_Value": [
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "std::string",
+              "RTTI_Value": "#0"
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::SubMesh",
+              "RTTI_Value": {
+                "Indices": {
+                  "RTTI_Type": "Tiny3D::Buffer",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "AAALAAwADAABAAAAAQAMAA0ADQACAAEAAgANAA4ADgADAAIAAwAOAA8ADwAEAAMABAAPABAAEAAFAAQABQAQABEAEQAGAAUABgARABIAEgAHAAYABwASABMAEwAIAAcACAATABQAFAAJAAgACQAUABUAFQAKAAkACwAWABcAFwAMAAsADAAXABgAGAANAAwADQAYABkAGQAOAA0ADgAZABoAGgAPAA4ADwAaABsAGwAQAA8AEAAbABwAHAARABAAEQAcAB0AHQASABEAEgAdAB4AHgATABIAEwAeAB8AHwAUABMAFAAfACAAIAAVABQAFgAhACIAIgAXABYAFwAiACMAIwAYABcAGAAjACQAJAAZABgAGQAkACUAJQAaABkAGgAlACYAJgAbABoAGwAmACcAJwAcABsAHAAnACgAKAAdABwAHQAoACkAKQAeAB0AHgApACoAKgAfAB4AHwAqACsAKwAgAB8AIQAsAC0ALQAiACEAIgAtAC4ALgAjACIAIwAuAC8ALwAkACMAJAAvADAAMAAlACQAJQAwADEAMQAmACUAJgAxADIAMgAnACYAJwAyADMAMwAoACcAKAAzADQANAApACgAKQA0ADUANQAqACkAKgA1ADYANgArACoALAA3ADgAOAAtACwALQA4ADkAOQAuAC0ALgA5ADoAOgAvAC4ALwA6ADsAOwAwAC8AMAA7ADwAPAAxADAAMQA8AD0APQAyADEAMgA9AD4APgAzADIAMwA+AD8APwA0ADMANAA/AEAAQAA1ADQANQBAAEEAQQA2ADUANwBCAEMAQwA4ADcAOABDAEQARAA5ADgAOQBEAEUARQA6ADkAOgBFAEYARgA7ADoAOwBGAEcARwA8ADsAPABHAEgASAA9ADwAPQBIAEkASQA+AD0APgBJAEoASgA/AD4APwBKAEsASwBAAD8AQABLAEwATABBAEAAQgBNAE4ATgBDAEIAQwBOAE8ATwBEAEMARABPAFAAUABFAEQARQBQAFEAUQBGAEUARgBRAFIAUgBHAEYARwBSAFMAUwBIAEcASABTAFQAVABJAEgASQBUAFUAVQBKAEkASgBVAFYAVgBLAEoASwBWAFcAVwBMAEsATQBYAFkAWQBOAE0ATgBZAFoAWgBPAE4ATwBaAFsAWwBQAE8AUABbAFwAXABRAFAAUQBcAF0AXQBSAFEAUgBdAF4AXgBTAFIAUwBeAF8AXwBUAFMAVABfAGAAYABVAFQAVQBgAGEAYQBWAFUAVgBhAGIAYgBXAFYAWABjAGQAZABZAFgAWQBkAGUAZQBaAFkAWgBlAGYAZgBbAFoAWwBmAGcAZwBcAFsAXABnAGgAaABdAFwAXQBoAGkAaQBeAF0AXgBpAGoAagBfAF4AXwBqAGsAawBgAF8AYABrAGwAbABhAGAAYQBsAG0AbQBiAGEAYwBuAG8AbwBkAGMAZABvAHAAcABlAGQAZQBwAHEAcQBmAGUAZgBxAHIAcgBnAGYAZwByAHMAcwBoAGcAaABzAHQAdABpAGgAaQB0AHUAdQBqAGkAagB1AHYAdgBrAGoAawB2AHcAdwBsAGsAbAB3AHgAeABtAGwA"
+                  }
+                },
+                "Is16Bits": {
+                  "RTTI_Type": "bool",
+                  "RTTI_Value": true
+                },
+                "Material": {
+                  "RTTI_Type": "Tiny3D::UUID",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "ba834422fc99f6b77ed8487ff3a53b84"
+                  }
+                },
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "#0"
+                },
+                "PrimitiveType": {
+                  "RTTI_Type": "Tiny3D::PrimitiveType",
+                  "RTTI_Value": "kTriangleList"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "VertexAttributes": {
+        "RTTI_Type": "std::vector<Tiny3D::VertexAttribute>",
+        "RTTI_Value": [
+          {
+            "RTTI_Type": "Tiny3D::VertexAttribute",
+            "RTTI_Value": {
+              "offset": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "semantic": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Semantic",
+                "RTTI_Value": "E_VAS_POSITION"
+              },
+              "semanticIndex": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "slot": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "type": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Type",
+                "RTTI_Value": "E_VAT_FLOAT3"
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::VertexAttribute",
+            "RTTI_Value": {
+              "offset": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 12
+              },
+              "semantic": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Semantic",
+                "RTTI_Value": "E_VAS_NORMAL"
+              },
+              "semanticIndex": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "slot": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "type": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Type",
+                "RTTI_Value": "E_VAT_FLOAT3"
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::VertexAttribute",
+            "RTTI_Value": {
+              "offset": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 24
+              },
+              "semantic": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Semantic",
+                "RTTI_Value": "E_VAS_TEXCOORD"
+              },
+              "semanticIndex": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "slot": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "type": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Type",
+                "RTTI_Value": "E_VAT_FLOAT2"
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::VertexAttribute",
+            "RTTI_Value": {
+              "offset": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 32
+              },
+              "semantic": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Semantic",
+                "RTTI_Value": "E_VAS_BLENDWEIGHT"
+              },
+              "semanticIndex": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "slot": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "type": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Type",
+                "RTTI_Value": "E_VAT_FLOAT4"
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::VertexAttribute",
+            "RTTI_Value": {
+              "offset": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 48
+              },
+              "semantic": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Semantic",
+                "RTTI_Value": "E_VAS_BLENDINDICES"
+              },
+              "semanticIndex": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "slot": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "type": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Type",
+                "RTTI_Value": "E_VAT_UBYTE4"
+              }
+            }
+          }
+        ]
+      },
+      "VertexOffsets": {
+        "RTTI_Type": "std::vector<unsigned int>",
+        "RTTI_Value": [
+          {
+            "RTTI_Type": "unsignedint",
+            "RTTI_Value": 0
+          }
+        ]
+      },
+      "VertexStrides": {
+        "RTTI_Type": "std::vector<unsigned int>",
+        "RTTI_Value": [
+          {
+            "RTTI_Type": "unsignedint",
+            "RTTI_Value": 52
+          }
+        ]
+      },
+      "Vertices": {
+        "RTTI_Type": "std::vector<Tiny3D::Buffer>",
+        "RTTI_Value": [
+          {
+            "RTTI_Type": "Tiny3D::Buffer",
+            "RTTI_Value": {
+              "RTTI_Type": "std::string",
+              "RTTI_Value": "AACgwAAAAAAAAKDAAAAAAAAAgD8AAAAAAAAAAAAAAADNzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAgMAAAAAAAACgwAAAAAAAAIA/AAAAAM3MzD0AAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAEDAAAAAAAAAoMAAAAAAAACAPwAAAADNzEw+AAAAAM3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAwAAAAAAAAKDAAAAAAAAAgD8AAAAAmpmZPgAAAADNzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAgL8AAAAAAACgwAAAAAAAAIA/AAAAAM3MzD4AAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAAAAAAAAAAAoMAAAAAAAACAPwAAAAAAAAA/AAAAAM3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACAPwAAAAAAAKDAAAAAAAAAgD8AAAAAmpkZPwAAAADNzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAEAAAAAAAACgwAAAAAAAAIA/AAAAADMzMz8AAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAEBAAAAAAAAAoMAAAAAAAACAPwAAAADNzEw/AAAAAM3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACAQAAAAAAAAKDAAAAAAAAAgD8AAAAAZmZmPwAAAADNzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAoEAAAAAAAACgwAAAAAAAAIA/AAAAAAAAgD8AAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAKDAAAAAAAAAgMAAAAAAAACAPwAAAAAAAAAAzczMPc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACAwAAAAAAAAIDAAAAAAAAAgD8AAAAAzczMPc3MzD3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAQMAAAAAAAACAwAAAAAAAAIA/AAAAAM3MTD7NzMw9zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAADAAAAAAAAAgMAAAAAAAACAPwAAAACamZk+zczMPc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACAvwAAAAAAAIDAAAAAAAAAgD8AAAAAzczMPs3MzD3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAAAAAAAAAACAwAAAAAAAAIA/AAAAAAAAAD/NzMw9zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAIA/AAAAAAAAgMAAAAAAAACAPwAAAACamRk/zczMPc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAQAAAAAAAAIDAAAAAAAAAgD8AAAAAMzMzP83MzD3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAQEAAAAAAAACAwAAAAAAAAIA/AAAAAM3MTD/NzMw9zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAIBAAAAAAAAAgMAAAAAAAACAPwAAAABmZmY/zczMPc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACgQAAAAAAAAIDAAAAAAAAAgD8AAAAAAACAP83MzD3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAoMAAAAAAAABAwAAAAAAAAIA/AAAAAAAAAADNzEw+zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAIDAAAAAAAAAQMAAAAAAAACAPwAAAADNzMw9zcxMPs3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAABAwAAAAAAAAEDAAAAAAAAAgD8AAAAAzcxMPs3MTD7Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAMAAAAAAAABAwAAAAAAAAIA/AAAAAJqZmT7NzEw+zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAIC/AAAAAAAAQMAAAAAAAACAPwAAAADNzMw+zcxMPs3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAAAAAAAAAAEDAAAAAAAAAgD8AAAAAAAAAP83MTD7Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAgD8AAAAAAABAwAAAAAAAAIA/AAAAAJqZGT/NzEw+zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAABAAAAAAAAAQMAAAAAAAACAPwAAAAAzMzM/zcxMPs3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAABAQAAAAAAAAEDAAAAAAAAAgD8AAAAAzcxMP83MTD7Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAgEAAAAAAAABAwAAAAAAAAIA/AAAAAGZmZj/NzEw+zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAKBAAAAAAAAAQMAAAAAAAACAPwAAAAAAAIA/zcxMPs3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACgwAAAAAAAAADAAAAAAAAAgD8AAAAAAAAAAJqZmT7Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAgMAAAAAAAAAAwAAAAAAAAIA/AAAAAM3MzD2amZk+zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAEDAAAAAAAAAAMAAAAAAAACAPwAAAADNzEw+mpmZPs3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAwAAAAAAAAADAAAAAAAAAgD8AAAAAmpmZPpqZmT7Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAgL8AAAAAAAAAwAAAAAAAAIA/AAAAAM3MzD6amZk+zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAAAAAAAAAAAAMAAAAAAAACAPwAAAAAAAAA/mpmZPs3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACAPwAAAAAAAADAAAAAAAAAgD8AAAAAmpkZP5qZmT7Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAEAAAAAAAAAAwAAAAAAAAIA/AAAAADMzMz+amZk+zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAEBAAAAAAAAAAMAAAAAAAACAPwAAAADNzEw/mpmZPs3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACAQAAAAAAAAADAAAAAAAAAgD8AAAAAZmZmP5qZmT7Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAoEAAAAAAAAAAwAAAAAAAAIA/AAAAAAAAgD+amZk+zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAKDAAAAAAAAAgL8AAAAAAACAPwAAAAAAAAAAzczMPs3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACAwAAAAAAAAIC/AAAAAAAAgD8AAAAAzczMPc3MzD7Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAQMAAAAAAAACAvwAAAAAAAIA/AAAAAM3MTD7NzMw+zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAADAAAAAAAAAgL8AAAAAAACAPwAAAACamZk+zczMPs3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACAvwAAAAAAAIC/AAAAAAAAgD8AAAAAzczMPs3MzD7Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAAAAAAAAAACAvwAAAAAAAIA/AAAAAAAAAD/NzMw+zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAIA/AAAAAAAAgL8AAAAAAACAPwAAAACamRk/zczMPs3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAQAAAAAAAAIC/AAAAAAAAgD8AAAAAMzMzP83MzD7Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAQEAAAAAAAACAvwAAAAAAAIA/AAAAAM3MTD/NzMw+zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAIBAAAAAAAAAgL8AAAAAAACAPwAAAABmZmY/zczMPs3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACgQAAAAAAAAIC/AAAAAAAAgD8AAAAAAACAP83MzD7Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAoMAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAIDAAAAAAAAAAAAAAAAAAACAPwAAAADNzMw9AAAAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAABAwAAAAAAAAAAAAAAAAAAAgD8AAAAAzcxMPgAAAD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAMAAAAAAAAAAAAAAAAAAAIA/AAAAAJqZmT4AAAA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAIC/AAAAAAAAAAAAAAAAAACAPwAAAADNzMw+AAAAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAPwAAAD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAgD8AAAAAAAAAAAAAAAAAAIA/AAAAAJqZGT8AAAA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAABAAAAAAAAAAAAAAAAAAACAPwAAAAAzMzM/AAAAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAABAQAAAAAAAAAAAAAAAAAAAgD8AAAAAzcxMPwAAAD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAgEAAAAAAAAAAAAAAAAAAAIA/AAAAAGZmZj8AAAA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAKBAAAAAAAAAAAAAAAAAAACAPwAAAAAAAIA/AAAAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACgwAAAAAAAAIA/AAAAAAAAgD8AAAAAAAAAAJqZGT/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAgMAAAAAAAACAPwAAAAAAAIA/AAAAAM3MzD2amRk/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAEDAAAAAAAAAgD8AAAAAAACAPwAAAADNzEw+mpkZP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAwAAAAAAAAIA/AAAAAAAAgD8AAAAAmpmZPpqZGT/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAgL8AAAAAAACAPwAAAAAAAIA/AAAAAM3MzD6amRk/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAAAAAAAAAAAgD8AAAAAAACAPwAAAAAAAAA/mpkZP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACAPwAAAAAAAIA/AAAAAAAAgD8AAAAAmpkZP5qZGT/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAEAAAAAAAACAPwAAAAAAAIA/AAAAADMzMz+amRk/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAEBAAAAAAAAAgD8AAAAAAACAPwAAAADNzEw/mpkZP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACAQAAAAAAAAIA/AAAAAAAAgD8AAAAAZmZmP5qZGT/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAoEAAAAAAAACAPwAAAAAAAIA/AAAAAAAAgD+amRk/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAKDAAAAAAAAAAEAAAAAAAACAPwAAAAAAAAAAMzMzP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACAwAAAAAAAAABAAAAAAAAAgD8AAAAAzczMPTMzMz/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAQMAAAAAAAAAAQAAAAAAAAIA/AAAAAM3MTD4zMzM/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAADAAAAAAAAAAEAAAAAAAACAPwAAAACamZk+MzMzP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACAvwAAAAAAAABAAAAAAAAAgD8AAAAAzczMPjMzMz/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAAAAAAAAAAAAQAAAAAAAAIA/AAAAAAAAAD8zMzM/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAIA/AAAAAAAAAEAAAAAAAACAPwAAAACamRk/MzMzP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAQAAAAAAAAABAAAAAAAAAgD8AAAAAMzMzPzMzMz/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAQEAAAAAAAAAAQAAAAAAAAIA/AAAAAM3MTD8zMzM/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAIBAAAAAAAAAAEAAAAAAAACAPwAAAABmZmY/MzMzP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACgQAAAAAAAAABAAAAAAAAAgD8AAAAAAACAPzMzMz/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAoMAAAAAAAABAQAAAAAAAAIA/AAAAAAAAAADNzEw/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAIDAAAAAAAAAQEAAAAAAAACAPwAAAADNzMw9zcxMP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAABAwAAAAAAAAEBAAAAAAAAAgD8AAAAAzcxMPs3MTD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAMAAAAAAAABAQAAAAAAAAIA/AAAAAJqZmT7NzEw/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAIC/AAAAAAAAQEAAAAAAAACAPwAAAADNzMw+zcxMP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAAAAAAAAAAEBAAAAAAAAAgD8AAAAAAAAAP83MTD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAgD8AAAAAAABAQAAAAAAAAIA/AAAAAJqZGT/NzEw/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAABAAAAAAAAAQEAAAAAAAACAPwAAAAAzMzM/zcxMP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAABAQAAAAAAAAEBAAAAAAAAAgD8AAAAAzcxMP83MTD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAgEAAAAAAAABAQAAAAAAAAIA/AAAAAGZmZj/NzEw/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAKBAAAAAAAAAQEAAAAAAAACAPwAAAAAAAIA/zcxMP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACgwAAAAAAAAIBAAAAAAAAAgD8AAAAAAAAAAGZmZj/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAgMAAAAAAAACAQAAAAAAAAIA/AAAAAM3MzD1mZmY/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAEDAAAAAAAAAgEAAAAAAAACAPwAAAADNzEw+ZmZmP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAwAAAAAAAAIBAAAAAAAAAgD8AAAAAmpmZPmZmZj/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAgL8AAAAAAACAQAAAAAAAAIA/AAAAAM3MzD5mZmY/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAAAAAAAAAAAgEAAAAAAAACAPwAAAAAAAAA/ZmZmP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACAPwAAAAAAAIBAAAAAAAAAgD8AAAAAmpkZP2ZmZj/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAEAAAAAAAACAQAAAAAAAAIA/AAAAADMzMz9mZmY/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAEBAAAAAAAAAgEAAAAAAAACAPwAAAADNzEw/ZmZmP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACAQAAAAAAAAIBAAAAAAAAAgD8AAAAAZmZmP2ZmZj/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAoEAAAAAAAACAQAAAAAAAAIA/AAAAAAAAgD9mZmY/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAKDAAAAAAAAAoEAAAAAAAACAPwAAAAAAAAAAAACAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACAwAAAAAAAAKBAAAAAAAAAgD8AAAAAzczMPQAAgD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAQMAAAAAAAACgQAAAAAAAAIA/AAAAAM3MTD4AAIA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAADAAAAAAAAAoEAAAAAAAACAPwAAAACamZk+AACAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACAvwAAAAAAAKBAAAAAAAAAgD8AAAAAzczMPgAAgD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAAAAAAAAAACgQAAAAAAAAIA/AAAAAAAAAD8AAIA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAIA/AAAAAAAAoEAAAAAAAACAPwAAAACamRk/AACAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAQAAAAAAAAKBAAAAAAAAAgD8AAAAAMzMzPwAAgD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAQEAAAAAAAACgQAAAAAAAAIA/AAAAAM3MTD8AAIA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAIBAAAAAAAAAoEAAAAAAAACAPwAAAABmZmY/AACAP83Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAACgQAAAAAAAAKBAAAAAAAAAgD8AAAAAAACAPwAAgD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQ=="
+            }
+          }
+        ]
+      }
+    }
+  }
+}
