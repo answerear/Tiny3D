@@ -1,0 +1,1232 @@
+﻿/*******************************************************************************
+ * MIT License
+ *
+ * Copyright (c) 2024 Answer Wong
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ ******************************************************************************/
+
+#include "InputApp.h"
+#include "CubeControllerBehaviour.h"
+
+using namespace Tiny3D;
+
+const char *SUB_MESH_NAME = "#0";
+
+InputApp theApp;
+
+#if defined(T3D_OS_WINDOWS)
+// extern const char *SAMPLE_LIT_VERTEX_SHADER;
+// extern const char *SAMPLE_LIT_PIXEL_SHADER;
+extern const char *SHADOW_VERTEX_SHADER;
+extern const char *FORWARD_VERTEX_SHADER;
+extern const char *FORWARD_PIXEL_SHADER;
+extern const char *SHADOW_VERTEX_SHADER_GL;
+extern const char *FORWARD_VERTEX_SHADER_GL;
+extern const char *FORWARD_PIXEL_SHADER_GL;
+#endif
+#if defined(T3D_OS_WINDOWS) || defined(T3D_OS_ANDROID)
+extern const unsigned char SHADOW_VERTEX_SHADER_VK[];
+extern const size_t SHADOW_VERTEX_SHADER_VK_SIZE;
+extern const unsigned char FORWARD_VERTEX_SHADER_VK[];
+extern const size_t FORWARD_VERTEX_SHADER_VK_SIZE;
+extern const unsigned char FORWARD_PIXEL_SHADER_VK[];
+extern const size_t FORWARD_PIXEL_SHADER_VK_SIZE;
+#endif
+#if defined(T3D_OS_ANDROID)
+extern const char *SHADOW_VERTEX_SHADER_GLES;
+extern const char *FORWARD_VERTEX_SHADER_GLES;
+extern const char *FORWARD_PIXEL_SHADER_GLES;
+#endif
+
+InputApp::InputApp()
+{
+}
+
+InputApp::~InputApp()
+{
+}
+
+TResult InputApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
+{
+    // create scene
+    ScenePtr scene = T3D_SCENE_MGR.createScene("TestScene");
+    scene->init();
+    T3D_SCENE_MGR.setCurrentScene(scene);
+
+    // add ambient light to the root of scene
+    AmbientLightPtr ambient = scene->getRootGameObject()->addComponent<AmbientLight>();
+    ambient->setColor(ColorRGB::WHITE);
+    ambient->setIntensity(0.5f);
+    
+    // root game object
+    GameObjectPtr go = GameObject::create("TestScene");
+    // scene->addRootGameObject(go);
+    Transform3DPtr root = go->addComponent<Transform3D>();
+    scene->getRootTransform()->addChild(root);
+
+    // directional light
+    go = GameObject::create("DirectionLight");
+    Transform3DPtr node = go->addComponent<Transform3D>();
+    // Quaternion q(Radian(Math::PI * 0.5f), Vector3::UNIT_X);
+    Vector3 eye(-2.0f, 2.0f, -4.0f);
+    Matrix3 matR;
+    matR.lookAt_LH(eye, Vector3::ZERO, Vector3::UP);
+    Quaternion q(matR);
+    node->setOrientation(q);
+    node->setPosition(eye);
+    root->addChild(node);
+    DirectionalLightPtr light = go->addComponent<DirectionalLight>();
+    light->setColor(ColorRGB::WHITE);
+    light->setDiffuseIntensity(1.0f);
+    light->setSpecularIntensity(1.0f);
+
+    // point light
+    go = GameObject::create("PointLight");
+    node = go->addComponent<Transform3D>();
+    Vector3 lightPos(-2.0f, -2.0f, -4.0f);
+    // Vector3 lightPos(0.0f, 5.0f, 0.0f);
+    node->setPosition(lightPos);
+    root->addChild(node);
+    PointLightPtr pointLight = go->addComponent<PointLight>();
+    pointLight->setColor(ColorRGB::WHITE);
+    pointLight->setDiffuseIntensity(1.0f);
+    pointLight->setSpecularIntensity(1.0f);
+    pointLight->setAttenuationConstant(1.0f);
+    pointLight->setAttenuationLinear(0.09f);
+    pointLight->setAttenuationQuadratic(0.032f);
+    
+    // spotlight
+    go = GameObject::create("Spotlight");
+    node = go->addComponent<Transform3D>();
+    // spotlight position
+    lightPos = Vector3(0.0f, 5.0f, 0.0f);
+    node->setPosition(lightPos);
+    // spotlight direction
+    q.fromAngleAxis(Radian(Math::PI * 0.5f), Vector3::UNIT_X);
+    node->setOrientation(q);
+    root->addChild(node);
+    
+    SpotLightPtr spotLight = go->addComponent<SpotLight>();
+    spotLight->setColor(ColorRGB::WHITE);
+    spotLight->setDiffuseIntensity(1.0f);
+    spotLight->setSpecularIntensity(1.0f);
+    spotLight->setAttenuationConstant(1.0f);
+    spotLight->setAttenuationLinear(0.09f);
+    spotLight->setAttenuationQuadratic(0.032f);
+    Degree deg(10.0f);
+    spotLight->setCutoffAngle(deg);
+    spotLight->setInnerCutoffAngle(deg * 0.8f);
+
+    // shader
+    ShaderPtr shader = buildShader();
+    
+    mCubeMaterial = buildCubeMaterial(shader);
+    mCubeMesh = buildCubeMesh(mCubeMaterial->getUUID());
+    mPlaneMesh = buildPlaneMesh(mCubeMaterial->getUUID());
+
+    GameObjectPtr worldGO = GameObject::create("World");
+    Transform3DPtr world = worldGO->addComponent<Transform3D>();
+    root->addChild(world);
+
+    buildPlane(world);
+    Transform3DPtr cubeXform = buildCube(world);
+    buildCamera(root, cubeXform);
+    
+    return T3D_OK;
+}
+
+void InputApp::applicationWillTerminate() 
+{
+    mCubeMesh = nullptr;
+    mPlaneMesh = nullptr;
+    mCubeMaterial = nullptr;
+    mPlaneMaterial = nullptr;
+}
+
+void InputApp::buildCamera(Transform3D *parent, Transform3D *cubeXform)
+{
+    RenderWindowPtr rw = T3D_AGENT.getDefaultRenderWindow();
+    RenderTargetPtr rt = RenderTarget::create(rw);
+
+    GameObjectPtr go = GameObject::create("Camera");
+    Transform3DPtr xform = go->addComponent<Transform3D>();
+    parent->addChild(xform);
+    
+    CameraPtr camera = go->addComponent<Camera>();
+    camera->setOrder(0);
+    Viewport vp {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
+    camera->setViewport(vp);
+    camera->setClearColor(ColorRGB::BLACK);
+    camera->setRenderTarget(rt);
+    
+    camera->setProjectionType(Camera::Projection::kPerspective);
+    camera->setFovY(Radian(Math::PI / 3.0f));
+    Real as = Real(rw->getDescriptor().Width) / Real(rw->getDescriptor().Height);
+    camera->setAspectRatio(as);
+    camera->setNearPlaneDistance(0.1f);
+    camera->setFarPlaneDistance(1000.0f);
+
+    auto frustum = go->addComponent<FrustumBound>();
+    T3D_ASSERT(frustum != nullptr);
+
+    if (cubeXform != nullptr)
+    {
+        auto controller = cubeXform->getGameObject()->getComponent<CubeControllerBehaviour>();
+        if (controller != nullptr)
+        {
+            controller->setCamera(xform, camera);
+        }
+    }
+}
+
+PassPtr InputApp::buildShadowPass()
+{
+    // keyword for shadow pass
+    ShaderKeyword vkeyword;
+    vkeyword.addKeyword("");
+    vkeyword.generate();
+
+    // vertex shader for shadow pass
+    RHIRendererPtr renderer = T3D_AGENT.getActiveRHIRenderer();
+    const String rendererName = renderer->getName();
+    const SHADER_LANGUAGE shadingLang = renderer->getShadingLanguage();
+    const char *vsCode = nullptr;
+    size_t vsSize = 0;
+
+#if defined(T3D_OS_WINDOWS)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        vsCode = reinterpret_cast<const char*>(SHADOW_VERTEX_SHADER_VK);
+        vsSize = SHADOW_VERTEX_SHADER_VK_SIZE;
+    }
+    else if (rendererName == RHIRenderer::OPENGL4)
+    {
+        vsCode = SHADOW_VERTEX_SHADER_GL;
+        vsSize = strlen(SHADOW_VERTEX_SHADER_GL);
+    }
+    else  // DirectX/HLSL
+    {
+        vsCode = SHADOW_VERTEX_SHADER;
+        vsSize = strlen(SHADOW_VERTEX_SHADER);
+    }
+#elif defined(T3D_OS_ANDROID)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        vsCode = reinterpret_cast<const char*>(SHADOW_VERTEX_SHADER_VK);
+        vsSize = SHADOW_VERTEX_SHADER_VK_SIZE;
+    }
+    else  // OpenGL ES
+    {
+        vsCode = SHADOW_VERTEX_SHADER_GLES;
+        vsSize = strlen(SHADOW_VERTEX_SHADER_GLES);
+    }
+#elif defined(T3D_OS_IOS)
+    // TODO: Metal or GLES
+#elif defined(T3D_OS_OSX)
+    // TODO: Metal or OpenGL4
+#elif defined(T3D_OS_LINUX)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        vsCode = reinterpret_cast<const char*>(SHADOW_VERTEX_SHADER_VK);
+        vsSize = SHADOW_VERTEX_SHADER_VK_SIZE;
+    }
+    else  // OpenGL4
+    {
+        vsCode = SHADOW_VERTEX_SHADER_GL;
+        vsSize = strlen(SHADOW_VERTEX_SHADER_GL);
+    }
+#endif
+
+    ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vsCode, vsSize);
+    vshader->setShaderStage(SHADER_STAGE::kVertex);
+    vshader->setLanguage(shadingLang);
+
+    // shadow pass
+    PassPtr pass = Pass::create("ShadowCaster");
+    TResult ret = pass->addShaderVariant(vshader->getShaderKeyword(), vshader);
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
+    pass->addTag(ShaderLab::kBuiltinTagLightMode, ShaderLab::kBuiltinLightModeShadowCasterStr);
+
+    // render state
+    RenderStatePtr renderState = RenderState::create();
+
+    // blend state
+    BlendDesc blendDesc;
+    renderState->setBlendDesc(blendDesc);
+
+    // depth & stencil state
+    DepthStencilDesc depthStencilDesc;
+    renderState->setDepthStencilDesc(depthStencilDesc);
+
+    // rasterizer state
+    RasterizerDesc rasterizeDesc;
+    rasterizeDesc.DepthBias = 50.0f;
+    rasterizeDesc.SlopeScaledDepthBias = 2.5f;
+    renderState->setRasterizerDesc(rasterizeDesc);
+    pass->setRenderState(renderState);
+
+    return pass;
+}
+
+PassPtr InputApp::buildForwardPass()
+{
+    // vertex & pixel shader keyword for forward pass
+    ShaderKeyword vkeyword;
+    vkeyword.addKeyword("");
+    vkeyword.generate();
+    ShaderKeyword pkeyword(vkeyword);
+    
+    // vertex shader for forward pass
+    RHIRendererPtr renderer = T3D_AGENT.getActiveRHIRenderer();
+    const String rendererName = renderer->getName();
+    const SHADER_LANGUAGE shadingLang = renderer->getShadingLanguage();
+    const char *vsCode = nullptr;
+    size_t vsSize = 0;
+
+#if defined(T3D_OS_WINDOWS)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        vsCode = reinterpret_cast<const char*>(FORWARD_VERTEX_SHADER_VK);
+        vsSize = FORWARD_VERTEX_SHADER_VK_SIZE;
+    }
+    else if (rendererName == RHIRenderer::OPENGL4)
+    {
+        vsCode = FORWARD_VERTEX_SHADER_GL;
+        vsSize = strlen(FORWARD_VERTEX_SHADER_GL);
+    }
+    else  // DirectX/HLSL
+    {
+        vsCode = FORWARD_VERTEX_SHADER;
+        vsSize = strlen(FORWARD_VERTEX_SHADER);
+    }
+#elif defined(T3D_OS_ANDROID)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        vsCode = reinterpret_cast<const char*>(FORWARD_VERTEX_SHADER_VK);
+        vsSize = FORWARD_VERTEX_SHADER_VK_SIZE;
+    }
+    else  // OpenGL ES
+    {
+        vsCode = FORWARD_VERTEX_SHADER_GLES;
+        vsSize = strlen(FORWARD_VERTEX_SHADER_GLES);
+    }
+#elif defined(T3D_OS_IOS)
+    // TODO: Metal or GLES
+#elif defined(T3D_OS_OSX)
+    // TODO: Metal or OpenGL4
+#elif defined(T3D_OS_LINUX)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        vsCode = reinterpret_cast<const char*>(FORWARD_VERTEX_SHADER_VK);
+        vsSize = FORWARD_VERTEX_SHADER_VK_SIZE;
+    }
+    else  // OpenGL4
+    {
+        vsCode = FORWARD_VERTEX_SHADER_GL;
+        vsSize = strlen(FORWARD_VERTEX_SHADER_GL);
+    }
+#endif
+
+    ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vsCode, vsSize);
+    vshader->setShaderStage(SHADER_STAGE::kVertex);
+    vshader->setLanguage(shadingLang);
+
+    // pixel shader for forward pass
+    const char *psCode = nullptr;
+    size_t psSize = 0;
+
+#if defined(T3D_OS_WINDOWS)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        psCode = reinterpret_cast<const char*>(FORWARD_PIXEL_SHADER_VK);
+        psSize = FORWARD_PIXEL_SHADER_VK_SIZE;
+    }
+    else if (rendererName == RHIRenderer::OPENGL4)
+    {
+        psCode = FORWARD_PIXEL_SHADER_GL;
+        psSize = strlen(FORWARD_PIXEL_SHADER_GL);
+    }
+    else  // DirectX/HLSL
+    {
+        psCode = FORWARD_PIXEL_SHADER;
+        psSize = strlen(FORWARD_PIXEL_SHADER);
+    }
+#elif defined(T3D_OS_ANDROID)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        psCode = reinterpret_cast<const char*>(FORWARD_PIXEL_SHADER_VK);
+        psSize = FORWARD_PIXEL_SHADER_VK_SIZE;
+    }
+    else  // OpenGL ES
+    {
+        psCode = FORWARD_PIXEL_SHADER_GLES;
+        psSize = strlen(FORWARD_PIXEL_SHADER_GLES);
+    }
+#elif defined(T3D_OS_IOS)
+    // TODO: Metal or GLES
+#elif defined(T3D_OS_OSX)
+    // TODO: Metal or OpenGL4
+#elif defined(T3D_OS_LINUX)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        psCode = reinterpret_cast<const char*>(FORWARD_PIXEL_SHADER_VK);
+        psSize = FORWARD_PIXEL_SHADER_VK_SIZE;
+    }
+    else  // OpenGL4
+    {
+        psCode = FORWARD_PIXEL_SHADER_GL;
+        psSize = strlen(FORWARD_PIXEL_SHADER_GL);
+    }
+#endif
+
+    ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), psCode, psSize);
+    pshader->setShaderStage(SHADER_STAGE::kPixel);
+    pshader->setLanguage(shadingLang);
+
+    // forward pass
+    PassPtr pass = Pass::create("ForwardBase");
+    TResult ret = pass->addShaderVariant(vshader->getShaderKeyword(), vshader);
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
+    ret = pass->addShaderVariant(pshader->getShaderKeyword(), pshader);
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
+    pass->addTag(ShaderLab::kBuiltinTagLightMode, ShaderLab::kBuiltinLightModeForwardBaseStr);
+
+    // render state
+    RenderStatePtr renderState = RenderState::create();
+
+    // blend state
+    BlendDesc blendDesc;
+    renderState->setBlendDesc(blendDesc);
+
+    // depth & stencil state
+    DepthStencilDesc depthStencilDesc;
+    renderState->setDepthStencilDesc(depthStencilDesc);
+
+    // rasterizer state
+    RasterizerDesc rasterizeDesc;
+    renderState->setRasterizerDesc(rasterizeDesc);
+    pass->setRenderState(renderState);
+
+    return pass;
+}
+
+
+ShaderPtr InputApp::buildShader()
+{
+    // shadow pass
+    PassPtr shadowPass = buildShadowPass();
+
+    // forward pass
+    PassPtr forwardPass = buildForwardPass();
+
+    // technique
+    TechniquePtr tech = Technique::create("Default-Technique");
+    bool rval = tech->addPass(forwardPass);
+    T3D_ASSERT(rval);
+    rval = tech->addPass(shadowPass);
+    T3D_ASSERT(rval);
+    tech->addTag(ShaderLab::kBuiltinTagQueue, ShaderLab::kBuiltinQueueGeometryStr);
+
+    // shader 
+    ShaderPtr shader = T3D_SHADER_MGR.createShader("Default-Shader");
+    rval = shader->addTechnique(tech);
+    T3D_ASSERT(rval);
+
+    return shader;
+}
+
+
+Transform3DPtr InputApp::buildCube(Transform3D *parent)
+{
+    GameObjectPtr go = GameObject::create("Cube");
+    Transform3DPtr xform = go->addComponent<Transform3D>();
+    parent->addChild(xform);
+    xform->setPosition(Vector3(0.0f, 0.5f, 0.0f));
+    
+    SubMesh *submesh = mCubeMesh->getSubMesh(SUB_MESH_NAME);
+
+    GeometryPtr geometry = go->addComponent<Geometry>();
+    geometry->setMeshObject(mCubeMesh, submesh);
+    
+    AabbBoundPtr bound = go->addComponent<AabbBound>();
+    buildAabb(mCubeMesh, submesh, bound);
+
+    go->addComponent<CubeControllerBehaviour>();
+    return xform;
+}
+
+Texture2DPtr InputApp::buildCubeTexture()
+{
+    const uint32_t width = 64;
+    const uint32_t height = 64;
+    uint32_t pitch = Image::calcPitch(width, 32);
+    const uint32_t dataSize = pitch * height;
+    uint8_t *pixels = T3D_POD_NEW_ARRAY(uint8_t, dataSize);
+    
+    for (uint32_t y = 0; y < height; ++y)
+    {
+        uint8_t *lines = pixels + pitch * y;
+        uint32_t i = 0;
+        for (uint32_t x = 0; x < width; ++x)
+        {
+#if 1
+            if (x < 16 && y < 16)
+            {
+                // top, blue
+                // B
+                lines[i++] = 196;
+                // G
+                lines[i++] = 114;
+                // R
+                lines[i++] = 68;
+            }
+            else if (x < 16 && y >= 16 && y < 32)
+            {
+                // front, orange
+                // B
+                lines[i++] = 49;
+                // G
+                lines[i++] = 125;
+                // R
+                lines[i++] = 237;
+            }
+            else if (x >= 16 && x < 32 && y >= 16 && y < 32)
+            {
+                // right, green
+                // B
+                lines[i++] = 71;
+                // G
+                lines[i++] = 173;
+                // R
+                lines[i++] = 112;
+            }
+            else if (x >= 32 && x < 48 && y >= 16 && y < 32)
+            {
+                // back, yellow
+                // B
+                lines[i++] = 0;
+                // G
+                lines[i++] = 192;
+                // R
+                lines[i++] = 255;
+            }
+            else if ( x >= 48 && x < 64 && y >= 16 && y <32)
+            {
+                // left, red
+                // B
+                lines[i++] = 0;
+                // G
+                lines[i++] = 0;
+                // R
+                lines[i++] = 255;
+            }
+            else if ( x < 16 && y >= 32 && y < 48)
+            {
+                // bottom, purple
+                // B
+                lines[i++] = 160;
+                // G
+                lines[i++] = 48;
+                // R
+                lines[i++] = 112;
+            }
+            else
+            {
+                // B
+                lines[i++] = 0;
+                // G
+                lines[i++] = 0;
+                // R
+                lines[i++] = 0;
+            }
+#else
+            // B
+            lines[i++] = 255;
+            // G
+            lines[i++] = 255;
+            // R
+            lines[i++] = 255;
+#endif
+            
+            // A
+            lines[i++] = 255;
+        }
+    }
+    
+    Buffer texData;
+    texData.Data = pixels;
+    texData.DataSize = dataSize;
+    
+    Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", width, height, PixelFormat::E_PF_B8G8R8X8, texData);
+    
+    return texture;
+}
+
+MaterialPtr InputApp::buildCubeMaterial(Tiny3D::Shader *shader)
+{
+    // samplers
+    ShaderSamplerParams samplers;
+    const String texSamplerName = "texCube";
+    Texture2DPtr texture = buildCubeTexture();
+    // sampler state
+    SamplerDesc samplerDesc;
+    texture->setSamplerDesc(samplerDesc);
+    
+    // material
+    MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Cube-Material", shader);
+    StringArray enableKeywrods;
+    enableKeywrods.push_back("");
+    StringArray disableKeywords;
+    material->switchKeywords(enableKeywrods, disableKeywords);
+    material->setTexture(texSamplerName, texture->getUUID());
+    
+    // ?@?e????O?????|????????????w??????????????B?????O??
+
+    // Camera
+    material->setVector("tiny3d_CameraWorldPos", Vector4::ZERO);
+    // Object
+    material->setVector("tiny3d_ObjectSmoothness", Vector4(0.5f, 0, 0, 0));
+    // ProjectionParams
+    material->setVector("tiny3d_ProjectionParams", Vector4(1.0f, 0, 0, 0));
+    // Ambient
+    material->setColor("tiny3d_AmbientLight", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
+    // Directional light
+    material->setColor("tiny3d_DirLightColor", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
+    material->setVector("tiny3d_DirLightDir", Vector4::ZERO);
+    // Point lights
+    ColorArray colors(4, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
+    material->setColorArray("tiny3d_PointLightColor", colors);
+    Vector4Array values(4, Vector4::ZERO);
+    material->setVectorArray("tiny3d_PointLightPos", values);
+    material->setVectorArray("tiny3d_PointLightAttenuation", values);
+    // Spot lights
+    material->setColorArray("tiny3d_SpotLightColor", colors);
+    material->setVectorArray("tiny3d_SpotLightPos", values);
+    material->setVectorArray("tiny3d_SpotLightDir", values);
+    material->setVectorArray("tiny3d_SpotLightAttenuation", values);
+    
+    return material;
+}
+
+
+MeshPtr InputApp::buildCubeMesh(const Tiny3D::UUID &materialUUID)
+{
+    // 
+    // ??????D?????????
+    //
+    //           v6-------v4
+    //          /|       /|
+    //         / |      / |
+    //        v0-------v2 |
+    //        |  v7----|--v5
+    //        | /      | /
+    //        |/       |/
+    //        v1-------v3
+    //
+
+    struct BoxVertex
+    {
+        Vector3 position {};
+        Vector3 normal {};
+        Vector2 uv {};
+    };
+    
+    // vertex attributes
+    VertexAttribute attrPos(0, 0, VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_POSITION, 0);
+    VertexAttribute attrNormal(0, sizeof(Vector3), VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_NORMAL, 0);
+    VertexAttribute attrUV(0, sizeof(Vector3) * 2, VertexAttribute::Type::E_VAT_FLOAT2, VertexAttribute::Semantic::E_VAS_TEXCOORD, 0);
+    VertexAttributes attributes(3);
+    attributes[0] = attrPos;
+    attributes[1] = attrNormal;
+    attributes[2] = attrUV;
+
+    // vertices & indices
+    Vector3 offset;
+    Vector2 uv(0.5f, 0.5f);
+    Vector3 center(0.0f, 0.0f, 0.0f);
+    Vector3 extent(0.5f, 0.5f, 0.5f);
+
+#if 1
+    const uint32_t kVertexCount = 24;
+    const uint32_t kIndexCount = 36;
+    BoxVertex *vertices = T3D_POD_NEW_ARRAY(BoxVertex, kVertexCount);
+    uint16_t *indices = T3D_POD_NEW_ARRAY(uint16_t, kIndexCount);
+
+    const uint32_t kTexSize = 64;
+
+    const Real end1stQuater = Real(15) / Real(kTexSize);
+    const Real start2ndQuater= Real(16) / Real(kTexSize);
+    const Real end2ndQuater = Real(31) / Real(kTexSize);
+    const Real start3rdQuater = Real(32) / Real(kTexSize);
+    const Real end3rdQuater = Real(47) / Real(kTexSize);
+    const Real start4thQuater = Real(48) / Real(kTexSize);
+
+    // front - V0
+    offset[0] = -extent[0];
+    offset[1] = extent[1];
+    offset[2] = -extent[2];
+    vertices[0].position = center + offset;
+    vertices[0].normal = -Vector3::FORWARD;
+    vertices[0].uv = Vector2(0.0f, start2ndQuater);
+    
+    // front - V1
+    offset[0] = -extent[0];
+    offset[1] = -extent[1];
+    offset[2] = -extent[2];
+    vertices[1].position = center + offset;
+    vertices[1].normal = -Vector3::FORWARD;
+    vertices[1].uv = Vector2(0.0f, end2ndQuater);
+    
+    // front - V2
+    offset[0] = extent[0];
+    offset[1] = extent[1];
+    offset[2] = -extent[2];
+    vertices[2].position = center + offset;
+    vertices[2].normal = -Vector3::FORWARD;
+    vertices[2].uv = Vector2(end1stQuater, start2ndQuater);
+    
+    // front - V3
+    offset[0] = extent[0];
+    offset[1] = -extent[1];
+    offset[2] = -extent[2];
+    vertices[3].position = center + offset;
+    vertices[3].normal = -Vector3::FORWARD;
+    vertices[3].uv = Vector2(end1stQuater, end2ndQuater);
+
+    // right - V2
+    offset[0] = extent[0];
+    offset[1] = extent[1];
+    offset[2] = -extent[2];
+    vertices[4].position = center + offset;
+    vertices[4].normal = Vector3::RIGHT;
+    vertices[4].uv = Vector2(start2ndQuater, start2ndQuater);
+    
+    // right - V3
+    offset[0] = extent[0];
+    offset[1] = -extent[1];
+    offset[2] = -extent[2];
+    vertices[5].position = center + offset;
+    vertices[5].normal = Vector3::RIGHT;
+    vertices[5].uv = Vector2(start2ndQuater, end2ndQuater);
+    
+    // right - V4
+    offset[0] = extent[0];
+    offset[1] = extent[1];
+    offset[2] = extent[2];
+    vertices[6].position = center + offset;
+    vertices[6].normal = Vector3::RIGHT;
+    vertices[6].uv = Vector2(end2ndQuater, start2ndQuater);
+    
+    // right - V5
+    offset[0] = extent[0];
+    offset[1] = -extent[1];
+    offset[2] = extent[2];
+    vertices[7].position = center + offset;
+    vertices[7].normal = Vector3::RIGHT;
+    vertices[7].uv = Vector2(end2ndQuater, end2ndQuater);
+
+    // back - V4
+    offset[0] = extent[0];
+    offset[1] = extent[1];
+    offset[2] = extent[2];
+    vertices[8].position = center + offset;
+    vertices[8].normal = Vector3::FORWARD;
+    vertices[8].uv = Vector2(start3rdQuater, start2ndQuater);
+    
+    // back - V5
+    offset[0] = extent[0];
+    offset[1] = -extent[1];
+    offset[2] = extent[2];
+    vertices[9].position = center + offset;
+    vertices[9].normal = Vector3::FORWARD;
+    vertices[9].uv = Vector2(start3rdQuater, end2ndQuater);
+
+    // back - V6
+    offset[0] = -extent[0];
+    offset[1] = extent[1];
+    offset[2] = extent[2];
+    vertices[10].position = center + offset;
+    vertices[10].normal = Vector3::FORWARD;
+    vertices[10].uv = Vector2(end3rdQuater, start2ndQuater);
+    
+    // back - V7
+    offset[0] = -extent[0];
+    offset[1] = -extent[1];
+    offset[2] = extent[2];
+    vertices[11].position = center + offset;
+    vertices[11].normal = Vector3::FORWARD;
+    vertices[11].uv = Vector2(end3rdQuater, end2ndQuater);
+    
+    // left - V6
+    offset[0] = -extent[0];
+    offset[1] = extent[1];
+    offset[2] = extent[2];
+    vertices[12].position = center + offset;
+    vertices[12].normal = -Vector3::RIGHT;
+    vertices[12].uv = Vector2(start4thQuater, start2ndQuater);
+    
+    // left - V7
+    offset[0] = -extent[0];
+    offset[1] = -extent[1];
+    offset[2] = extent[2];
+    vertices[13].position = center + offset;
+    vertices[13].normal = -Vector3::RIGHT;
+    vertices[13].uv = Vector2(start4thQuater, end2ndQuater);
+
+    // left - V0
+    offset[0] = -extent[0];
+    offset[1] = extent[1];
+    offset[2] = -extent[2];
+    vertices[14].position = center + offset;
+    vertices[14].normal = -Vector3::RIGHT;
+    vertices[14].uv = Vector2(1.0f, start2ndQuater);
+    
+    // left - V1
+    offset[0] = -extent[0];
+    offset[1] = -extent[1];
+    offset[2] = -extent[2];
+    vertices[15].position = center + offset;
+    vertices[15].normal = -Vector3::RIGHT;
+    vertices[15].uv = Vector2(1.0f, end2ndQuater);
+
+    // top - V0
+    offset[0] = -extent[0];
+    offset[1] = extent[1];
+    offset[2] = -extent[2];
+    vertices[16].position = center + offset;
+    vertices[16].normal = Vector3::UP;
+    vertices[16].uv = Vector2(0.0f, end1stQuater);
+    
+    // top - V2
+    offset[0] = extent[0];
+    offset[1] = extent[1];
+    offset[2] = -extent[2];
+    vertices[17].position = center + offset;
+    vertices[17].normal = Vector3::UP;
+    vertices[17].uv = Vector2(end1stQuater, end1stQuater);
+
+    // top - V4
+    offset[0] = extent[0];
+    offset[1] = extent[1];
+    offset[2] = extent[2];
+    vertices[18].position = center + offset;
+    vertices[18].normal = Vector3::UP;
+    vertices[18].uv = Vector2(end1stQuater, 0.0f);
+
+    // top - V6
+    offset[0] = -extent[0];
+    offset[1] = extent[1];
+    offset[2] = extent[2];
+    vertices[19].position = center + offset;
+    vertices[19].normal = Vector3::UP;
+    vertices[19].uv = Vector2(0.0f, 0.0f);
+
+    // bottom - V1
+    offset[0] = -extent[0];
+    offset[1] = -extent[1];
+    offset[2] = -extent[2];
+    vertices[20].position = center + offset;
+    vertices[20].normal = -Vector3::UP;
+    vertices[20].uv = Vector2(0.0f, start3rdQuater);
+
+    // bottom - V7
+    offset[0] = -extent[0];
+    offset[1] = -extent[1];
+    offset[2] = extent[2];
+    vertices[21].position = center + offset;
+    vertices[21].normal = -Vector3::UP;
+    vertices[21].uv = Vector2(0.0f, end3rdQuater);
+
+    // bottom - V3
+    offset[0] = extent[0];
+    offset[1] = -extent[1];
+    offset[2] = -extent[2];
+    vertices[22].position = center + offset;
+    vertices[22].normal = -Vector3::UP;
+    vertices[22].uv = Vector2(end1stQuater, start3rdQuater);
+    
+    // bottom - V5
+    offset[0] = extent[0];
+    offset[1] = -extent[1];
+    offset[2] = extent[2];
+    vertices[23].position = center + offset;
+    vertices[23].normal = -Vector3::UP;
+    vertices[23].uv = Vector2(end1stQuater, end3rdQuater);
+    
+    // Front face
+    indices[0] = 0, indices[1] = 2, indices[2] = 1;
+    indices[3] = 1, indices[4] = 2, indices[5] = 3;
+    
+    // Right
+    indices[6] = 4, indices[7] = 6, indices[8] = 5;
+    indices[9] = 5, indices[10] = 6, indices[11] = 7;
+    
+    // Back
+    indices[12] = 8, indices[13] = 10, indices[14] = 9;
+    indices[15] = 9, indices[16] = 10, indices[17] = 11;
+    
+    // Left
+    indices[18] = 12, indices[19] = 14, indices[20] = 13;
+    indices[21] = 13, indices[22] = 14, indices[23] = 15;
+    
+    // Top
+    indices[24] = 16, indices[25] = 19, indices[26] = 18;
+    indices[27] = 18, indices[28] = 17, indices[29] = 16;
+    
+    // Bottom
+    indices[30] = 20, indices[31] = 22, indices[32] = 21;
+    indices[33] = 21, indices[34] = 22, indices[35] = 23;
+#else
+    const uint32_t kVertexCount = 4;
+    const uint32_t kIndexCount = 6;
+    BoxVertex *vertices = T3D_POD_NEW_ARRAY(BoxVertex, kVertexCount);
+    uint16_t *indices = T3D_POD_NEW_ARRAY(uint16_t, kIndexCount);
+
+    const uint32_t kTexSize = 64;
+
+    const Real end1stQuater = Real(15) / Real(kTexSize);
+    const Real start2ndQuater= Real(16) / Real(kTexSize);
+    const Real end2ndQuater = Real(31) / Real(kTexSize);
+    const Real start3rdQuater = Real(32) / Real(kTexSize);
+    const Real end3rdQuater = Real(47) / Real(kTexSize);
+    const Real start4thQuater = Real(48) / Real(kTexSize);
+    
+    vertices[0].position = Vector3(-0.5f, 0.5f, 0.0f);
+    vertices[0].uv = Vector2(0.0f, start2ndQuater);
+
+    vertices[1].position = Vector3(-0.5f, -0.5f, 0.0f);
+    vertices[1].uv = Vector2(0.0f, end2ndQuater);
+
+    vertices[2].position = Vector3(0.5f, 0.5f, 0.0f);
+    vertices[2].uv = Vector2(end1stQuater, start2ndQuater);
+
+    vertices[3].position = Vector3(0.5f, -0.5f, 0.0f);
+    vertices[3].uv = Vector2(end1stQuater, end2ndQuater);
+
+    indices[0] = 0;
+    indices[1] = 2;
+    indices[2] = 1;
+    indices[3] = 1;
+    indices[4] = 2;
+    indices[5] = 3;
+#endif
+    
+    // construct mesh resource
+    Buffer vertexBuffer;
+    vertexBuffer.Data = (uint8_t*)vertices;
+    vertexBuffer.DataSize = sizeof(BoxVertex) * kVertexCount;
+    Vertices vertexBuffers(1);
+    vertexBuffers[0] = vertexBuffer;
+    
+    VertexStrides strides(1, sizeof(BoxVertex));
+    VertexOffsets offsets(1, 0);
+    
+    Buffer indexBuffer;
+    indexBuffer.Data = (uint8_t*)indices;
+    indexBuffer.DataSize = sizeof(uint16_t) * kIndexCount;
+    
+    String name = SUB_MESH_NAME;
+    SubMeshPtr submesh = SubMesh::create(name, materialUUID, PrimitiveType::kTriangleList, std::move(indexBuffer), true);
+    SubMeshes subMeshes;
+    subMeshes.emplace(name, submesh);
+
+    MeshPtr mesh = T3D_MESH_MGR.createMesh("Cube", std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes));
+    return mesh;
+}
+
+void InputApp::buildAabb(Mesh *mesh, SubMesh *submesh, AabbBound *bound)
+{
+    const VertexAttribute *attr = mesh->findVertexAttributeBySemantic(VertexAttribute::Semantic::E_VAS_POSITION, 0);
+    size_t vertexSize = mesh->getVertexStride(attr->getSlot());
+    size_t offset = mesh->getVertexOffset(attr->getOffset());
+    const Buffer &vertexBuffer = mesh->getVertices()[attr->getSlot()];
+    const Buffer &indexBuffer = submesh->getIndices();
+    size_t indexSize = submesh->getIndexBuffer()->getIndexSize();
+    size_t pointCount = submesh->getIndexBuffer()->getIndexCount();
+    Vector3 *points = T3D_POD_NEW_ARRAY(Vector3, pointCount);
+    for (size_t i = 0; i < pointCount; ++i)
+    {
+        int32_t idx = 0;
+        const uint8_t *src = indexBuffer.Data + i * indexSize;
+        memcpy(&idx, src, indexSize);
+        src = vertexBuffer.Data + idx * vertexSize + offset;
+        memcpy(points+i, src, sizeof(Vector3));
+        // Vector3 *srcPos = (Vector3*)src;
+        // T3D_LOG_INFO(LOG_TAG_APP, "Index = %d, Src : (%f, %f, %f), Dst : (%f, %f, %f)", idx, srcPos->x(), srcPos->y(), srcPos->z(), points[i].x(), points[i].y(), points[i].z());
+    }
+    Aabb aabb;
+    aabb.build(points, pointCount);
+    T3D_POD_SAFE_DELETE_ARRAY(points);
+    bound->setParams(aabb.getMinX(), aabb.getMaxX(), aabb.getMinY(), aabb.getMaxY(), aabb.getMinZ(), aabb.getMaxZ());
+}
+
+Texture2DPtr InputApp::buildPlaneTexture()
+{
+    const uint32_t width = 64;
+    const uint32_t height = 64;
+    uint32_t pitch = Image::calcPitch(width, 32);
+    const uint32_t dataSize = pitch * height;
+    uint8_t *pixels = T3D_POD_NEW_ARRAY(uint8_t, dataSize);
+    
+    for (uint32_t y = 0; y < height; ++y)
+    {
+        uint8_t *lines = pixels + pitch * y;
+        uint32_t i = 0;
+        for (uint32_t x = 0; x < width; ++x)
+        {
+#if 0
+            if (x < 16 && y < 16)
+            {
+                // top, blue
+                // B
+                lines[i++] = 196;
+                // G
+                lines[i++] = 114;
+                // R
+                lines[i++] = 68;
+            }
+            else if (x < 16 && y >= 16 && y < 32)
+            {
+                // front, orange
+                // B
+                lines[i++] = 49;
+                // G
+                lines[i++] = 125;
+                // R
+                lines[i++] = 237;
+            }
+            else if (x >= 16 && x < 32 && y >= 16 && y < 32)
+            {
+                // right, green
+                // B
+                lines[i++] = 71;
+                // G
+                lines[i++] = 173;
+                // R
+                lines[i++] = 112;
+            }
+            else if (x >= 32 && x < 48 && y >= 16 && y < 32)
+            {
+                // back, yellow
+                // B
+                lines[i++] = 0;
+                // G
+                lines[i++] = 192;
+                // R
+                lines[i++] = 255;
+            }
+            else if ( x >= 48 && x < 64 && y >= 16 && y <32)
+            {
+                // left, red
+                // B
+                lines[i++] = 0;
+                // G
+                lines[i++] = 0;
+                // R
+                lines[i++] = 255;
+            }
+            else if ( x < 16 && y >= 32 && y < 48)
+            {
+                // bottom, purple
+                // B
+                lines[i++] = 160;
+                // G
+                lines[i++] = 48;
+                // R
+                lines[i++] = 112;
+            }
+            else
+            {
+                // B
+                lines[i++] = 0;
+                // G
+                lines[i++] = 0;
+                // R
+                lines[i++] = 0;
+            }
+#else
+            // B
+            lines[i++] = 255;
+            // G
+            lines[i++] = 255;
+            // R
+            lines[i++] = 255;
+#endif
+            
+            // A
+            lines[i++] = 255;
+        }
+    }
+    
+    Buffer texData;
+    texData.Data = pixels;
+    texData.DataSize = dataSize;
+    
+    Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("texturePlane", width, height, PixelFormat::E_PF_B8G8R8X8, texData);
+    
+    return texture;
+}
+
+MaterialPtr InputApp::buildPlaneMaterial(Tiny3D::Shader *shader)
+{    
+    // samplers
+    ShaderSamplerParams samplers;
+    const String texSamplerName = "texCube";
+    Texture2DPtr texture = buildPlaneTexture();
+    // sampler state
+    SamplerDesc samplerDesc;
+    texture->setSamplerDesc(samplerDesc);
+    
+    // material
+    MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Plane-Material", shader);
+    StringArray enableKeywrods;
+    enableKeywrods.push_back("");
+    StringArray disableKeywords;
+    material->switchKeywords(enableKeywrods, disableKeywords);
+    material->setTexture(texSamplerName, texture->getUUID());
+    
+    // ?@?e????O?????|????????????w??????????????B?????O??
+
+    // Camera
+    material->setVector("tiny3d_CameraWorldPos", Vector4::ZERO);
+    // Object
+    material->setVector("tiny3d_ObjectSmoothness", Vector4(0.5f, 0, 0, 0));
+    // ProjectionParams
+    material->setVector("tiny3d_ProjectionParams", Vector4(1.0f, 0, 0, 0));
+    // Ambient
+    material->setColor("tiny3d_AmbientLight", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
+    // Directional light
+    material->setColor("tiny3d_DirLightColor", ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
+    material->setVector("tiny3d_DirLightDir", Vector4::ZERO);
+    // Point lights
+    ColorArray colors(4, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f));
+    material->setColorArray("tiny3d_PointLightColor", colors);
+    Vector4Array values(4, Vector4::ZERO);
+    material->setVectorArray("tiny3d_PointLightPos", values);
+    material->setVectorArray("tiny3d_PointLightAttenuation", values);
+    // Spot lights
+    material->setColorArray("tiny3d_SpotLightColor", colors);
+    material->setVectorArray("tiny3d_SpotLightPos", values);
+    material->setVectorArray("tiny3d_SpotLightDir", values);
+    material->setVectorArray("tiny3d_SpotLightAttenuation", values);
+    
+    return material;
+}
+
+MeshPtr InputApp::buildPlaneMesh(const Tiny3D::UUID &materialUUID)
+{
+    struct QuadVertex
+    {
+        Vector3 position {};
+        Vector3 normal {};
+        Vector2 uv {};
+    };
+    
+    // vertex attributes
+    VertexAttribute attrPos(0, 0, VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_POSITION, 0);
+    VertexAttribute attrNormal(0, sizeof(Vector3), VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_NORMAL, 0);
+    VertexAttribute attrUV(0, sizeof(Vector3) * 2, VertexAttribute::Type::E_VAT_FLOAT2, VertexAttribute::Semantic::E_VAS_TEXCOORD, 0);
+    VertexAttributes attributes(3);
+    attributes[0] = attrPos;
+    attributes[1] = attrNormal;
+    attributes[2] = attrUV;
+
+    // vertices & indices
+    const uint32_t kVertexCount = 4;
+    const uint32_t kIndexCount = 6;
+    QuadVertex *vertices = T3D_POD_NEW_ARRAY(QuadVertex, kVertexCount);
+    uint16_t *indices = T3D_POD_NEW_ARRAY(uint16_t, kIndexCount);
+
+    float scale = 5.0f;
+
+    // vertex #0
+    vertices[0].position = Vector3(1, 0, 1) * scale;
+    vertices[0].normal = Vector3::UP;
+    vertices[0].uv = Vector2(8, 8);
+
+    // vertex #1
+    vertices[1].position = Vector3(1, 0, -1) * scale;
+    vertices[1].normal = Vector3::UP;
+    vertices[1].uv = Vector2(8, 0);
+
+    // vertex #2
+    vertices[2].position = Vector3(-1, 0, -1) * scale;
+    vertices[2].normal = Vector3::UP;
+    vertices[2].uv = Vector2(0, 0);
+
+    // vertex #3
+    vertices[3].position = Vector3(-1, 0, 1) * scale;
+    vertices[3].normal = Vector3::UP;
+    vertices[3].uv = Vector2(0, 8);
+
+    indices[0] = 0;
+    indices[1] = 1;
+    indices[2] = 2;
+    indices[3] = 0;
+    indices[4] = 2;
+    indices[5] = 3;
+    
+    // construct mesh resource
+    Buffer vertexBuffer;
+    vertexBuffer.Data = (uint8_t*)vertices;
+    vertexBuffer.DataSize = sizeof(QuadVertex) * kVertexCount;
+    Vertices vertexBuffers(1);
+    vertexBuffers[0] = vertexBuffer;
+    
+    VertexStrides strides(1, sizeof(QuadVertex));
+    VertexOffsets offsets(1, 0);
+    
+    Buffer indexBuffer;
+    indexBuffer.Data = (uint8_t*)indices;
+    indexBuffer.DataSize = sizeof(uint16_t) * kIndexCount;
+    
+    String name = SUB_MESH_NAME;
+    SubMeshPtr submesh = SubMesh::create(name, materialUUID, PrimitiveType::kTriangleList, std::move(indexBuffer), true);
+    SubMeshes subMeshes;
+    subMeshes.emplace(name, submesh);
+
+    MeshPtr mesh = T3D_MESH_MGR.createMesh("Plane", std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes));
+    return mesh;
+}
+
+void InputApp::buildPlane(Transform3D *parent)
+{
+    static int index = 0;
+    std::stringstream ss;
+    ss << "Plane#" << index;
+    
+    // transform node for cube
+    GameObjectPtr go = GameObject::create(ss.str());
+    Transform3DPtr xform = go->addComponent<Transform3D>();
+    parent->addChild(xform);
+    xform->setPosition(Vector3::ZERO);
+    Radian xAngles(0.0f);
+    Radian yAngles(0.0f);
+    Radian zAngles(0.0f);
+    xform->rotate(xAngles, yAngles, zAngles);
+    xform->setScaling(Vector3(3.0f, 3.0f, 3.0f));
+    
+    // submesh
+    SubMesh *submesh = mPlaneMesh->getSubMesh(SUB_MESH_NAME);
+
+    // geometry component
+    GeometryPtr geometry = go->addComponent<Geometry>();
+    geometry->setMeshObject(mPlaneMesh, submesh);
+}
