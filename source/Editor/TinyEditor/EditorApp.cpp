@@ -788,6 +788,26 @@ namespace Tiny3D
         
         mProjectMgr->update();
 
+        if (Input::getInstancePtr() != nullptr)
+        {
+            bool enable = T3D_AGENT.isPlaying();
+            if (enable)
+            {
+                const ImGuiIO &io = ImGui::GetIO();
+                if (io.WantTextInput)
+                {
+                    enable = false;
+                }
+                else
+                {
+                    ImWindow *focused = ImWindow::getFocusedWindow();
+                    enable = (focused != nullptr)
+                        && (focused->getName() == "Game" || focused->getName() == "GameView");
+                }
+            }
+            T3D_INPUT.setEnabled(enable);
+        }
+
         ImGui::EndFrame();
     }
 
