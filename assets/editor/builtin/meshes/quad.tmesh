@@ -1,0 +1,323 @@
+{
+  "Magic": "T3D",
+  "Version": "0.0.1",
+  "Object": {
+    "RTTI_Type": "Tiny3D::Mesh",
+    "RTTI_Value": {
+      "Name": {
+        "RTTI_Type": "std::string",
+        "RTTI_Value": "quad"
+      },
+      "UUID": {
+        "RTTI_Type": "Tiny3D::UUID",
+        "RTTI_Value": {
+          "RTTI_Type": "std::string",
+          "RTTI_Value": "9904880456200b1eddd0b5e7ee8498c6"
+        }
+      },
+      "BoundSeedA": {
+        "RTTI_Type": "Tiny3D::TVector3<float>",
+        "RTTI_Value": {
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": -0.5
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": -0.5
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          }
+        }
+      },
+      "BoundSeedB": {
+        "RTTI_Type": "Tiny3D::TVector3<float>",
+        "RTTI_Value": {
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.5
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.5
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          }
+        }
+      },
+      "BoundSeedRadius": {
+        "RTTI_Type": "float",
+        "RTTI_Value": 0.0
+      },
+      "BoundSeedType": {
+        "RTTI_Type": "Tiny3D::Bound::Type",
+        "RTTI_Value": "AABB"
+      },
+      "MeshNodeName": {
+        "RTTI_Type": "std::string",
+        "RTTI_Value": ""
+      },
+      "MeshOrientation": {
+        "RTTI_Type": "Tiny3D::TQuaternion<float>",
+        "RTTI_Value": {
+          "w": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 1.0
+          },
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          }
+        }
+      },
+      "MeshPosition": {
+        "RTTI_Type": "Tiny3D::TVector3<float>",
+        "RTTI_Value": {
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 0.0
+          }
+        }
+      },
+      "MeshScaling": {
+        "RTTI_Type": "Tiny3D::TVector3<float>",
+        "RTTI_Value": {
+          "x": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 1.0
+          },
+          "y": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 1.0
+          },
+          "z": {
+            "RTTI_Type": "float",
+            "RTTI_Value": 1.0
+          }
+        }
+      },
+      "SubMeshes": {
+        "RTTI_Type": "std::map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::SubMesh>>",
+        "RTTI_Value": [
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "std::string",
+              "RTTI_Value": "#0"
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::SubMesh",
+              "RTTI_Value": {
+                "Indices": {
+                  "RTTI_Type": "Tiny3D::Buffer",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "AAACAAEAAQACAAMA"
+                  }
+                },
+                "Is16Bits": {
+                  "RTTI_Type": "bool",
+                  "RTTI_Value": true
+                },
+                "Material": {
+                  "RTTI_Type": "Tiny3D::UUID",
+                  "RTTI_Value": {
+                    "RTTI_Type": "std::string",
+                    "RTTI_Value": "ba834422fc99f6b77ed8487ff3a53b84"
+                  }
+                },
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "#0"
+                },
+                "PrimitiveType": {
+                  "RTTI_Type": "Tiny3D::PrimitiveType",
+                  "RTTI_Value": "kTriangleList"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "VertexAttributes": {
+        "RTTI_Type": "std::vector<Tiny3D::VertexAttribute>",
+        "RTTI_Value": [
+          {
+            "RTTI_Type": "Tiny3D::VertexAttribute",
+            "RTTI_Value": {
+              "offset": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "semantic": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Semantic",
+                "RTTI_Value": "E_VAS_POSITION"
+              },
+              "semanticIndex": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "slot": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "type": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Type",
+                "RTTI_Value": "E_VAT_FLOAT3"
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::VertexAttribute",
+            "RTTI_Value": {
+              "offset": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 12
+              },
+              "semantic": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Semantic",
+                "RTTI_Value": "E_VAS_NORMAL"
+              },
+              "semanticIndex": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "slot": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "type": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Type",
+                "RTTI_Value": "E_VAT_FLOAT3"
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::VertexAttribute",
+            "RTTI_Value": {
+              "offset": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 24
+              },
+              "semantic": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Semantic",
+                "RTTI_Value": "E_VAS_TEXCOORD"
+              },
+              "semanticIndex": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "slot": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "type": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Type",
+                "RTTI_Value": "E_VAT_FLOAT2"
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::VertexAttribute",
+            "RTTI_Value": {
+              "offset": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 32
+              },
+              "semantic": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Semantic",
+                "RTTI_Value": "E_VAS_BLENDWEIGHT"
+              },
+              "semanticIndex": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "slot": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "type": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Type",
+                "RTTI_Value": "E_VAT_FLOAT4"
+              }
+            }
+          },
+          {
+            "RTTI_Type": "Tiny3D::VertexAttribute",
+            "RTTI_Value": {
+              "offset": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 48
+              },
+              "semantic": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Semantic",
+                "RTTI_Value": "E_VAS_BLENDINDICES"
+              },
+              "semanticIndex": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "slot": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "type": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::Type",
+                "RTTI_Value": "E_VAT_UBYTE4"
+              }
+            }
+          }
+        ]
+      },
+      "VertexOffsets": {
+        "RTTI_Type": "std::vector<unsigned int>",
+        "RTTI_Value": [
+          {
+            "RTTI_Type": "unsignedint",
+            "RTTI_Value": 0
+          }
+        ]
+      },
+      "VertexStrides": {
+        "RTTI_Type": "std::vector<unsigned int>",
+        "RTTI_Value": [
+          {
+            "RTTI_Type": "unsignedint",
+            "RTTI_Value": 52
+          }
+        ]
+      },
+      "Vertices": {
+        "RTTI_Type": "std::vector<Tiny3D::Buffer>",
+        "RTTI_Value": [
+          {
+            "RTTI_Type": "Tiny3D::Buffer",
+            "RTTI_Value": {
+              "RTTI_Type": "std::string",
+              "RTTI_Value": "AAAAvwAAAD8AAAAAAAAAAAAAAAAAAIC/AAAAAAAAAADNzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQAAAL8AAAC/AAAAAAAAAAAAAAAAAACAvwAAAAAAAIA/zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc0AAAA/AAAAPwAAAAAAAAAAAAAAAAAAgL8AAIA/AAAAAM3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NAAAAPwAAAL8AAAAAAAAAAAAAAAAAAIC/AACAPwAAgD/Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQ=="
+            }
+          }
+        ]
+      }
+    }
+  }
+}
