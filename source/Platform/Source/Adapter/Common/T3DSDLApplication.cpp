@@ -118,6 +118,8 @@ namespace Tiny3D
         {
             T3D_ASSERT(sizeof(AppEvent) == sizeof(SDL_Event));
             memcpy(&evt, &ev, sizeof(AppEvent));
+
+            T3D_APPLICATION.notifyEventListeners(evt);
             
             ret = T3D_APPLICATION.processEvents(evt);
             

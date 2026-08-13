@@ -37,6 +37,16 @@ namespace Tiny3D
 {
     class Platform;
 
+    /**
+     * \brief OS 应用事件监听器。SDL 轮询在 processEvents 之前通知所有监听者。
+     */
+    class T3D_PLATFORM_API IAppEventListener
+    {
+    public:
+        virtual ~IAppEventListener() = default;
+        virtual void onAppEvent(const AppEvent &event) = 0;
+    };
+
     class T3D_PLATFORM_API Application : public Allocator, public Singleton<Application>
     {
     public:
@@ -96,8 +106,24 @@ namespace Tiny3D
 
         virtual void applicationFocusLost();
 
+        /**
+         * \brief 注册 OS 事件监听器；同一指针不会重复加入
+         */
+        void addEventListener(IAppEventListener *listener);
+
+        /**
+         * \brief 移除 OS 事件监听器
+         */
+        void removeEventListener(IAppEventListener *listener);
+
+        /**
+         * \brief 向所有监听器派发事件（SDL poll 在 processEvents 之前调用）
+         */
+        void notifyEventListeners(const AppEvent &event);
+
     private:
-        Platform    *mPlatform;     /// 具体平台系统对象
+        Platform                    *mPlatform;     /// 具体平台系统对象
+        TArray<IAppEventListener*>  mEventListeners;
     };
 
     #define T3D_APPLICATION     (Application::getInstance())

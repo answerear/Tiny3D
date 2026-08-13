@@ -279,4 +279,28 @@ namespace Tiny3D
     {
         return mSDLWindow;
     }
+
+    //--------------------------------------------------------------------------
+
+    void SDLMobileWindow::setCursorVisible(bool visible)
+    {
+        SDL_ShowCursor(visible ? SDL_ENABLE : SDL_DISABLE);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SDLMobileWindow::setRelativeMouseMode(bool enable)
+    {
+        SDL_SetRelativeMouseMode(enable ? SDL_TRUE : SDL_FALSE);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SDLMobileWindow::warpMouse(int32_t x, int32_t y)
+    {
+        if (mSDLWindow != nullptr)
+        {
+            SDL_WarpMouseInWindow(mSDLWindow, x, y);
+        }
+    }
 }

@@ -128,5 +128,52 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void Application::addEventListener(IAppEventListener *listener)
+    {
+        if (listener == nullptr)
+        {
+            return;
+        }
+
+        for (IAppEventListener *item : mEventListeners)
+        {
+            if (item == listener)
+            {
+                return;
+            }
+        }
+
+        mEventListeners.push_back(listener);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Application::removeEventListener(IAppEventListener *listener)
+    {
+        for (auto itr = mEventListeners.begin(); itr != mEventListeners.end(); ++itr)
+        {
+            if (*itr == listener)
+            {
+                mEventListeners.erase(itr);
+                break;
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Application::notifyEventListeners(const AppEvent &event)
+    {
+        for (IAppEventListener *listener : mEventListeners)
+        {
+            if (listener != nullptr)
+            {
+                listener->onAppEvent(event);
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     T3D_INSTANTIATE_SINGLETON(Application)
 }

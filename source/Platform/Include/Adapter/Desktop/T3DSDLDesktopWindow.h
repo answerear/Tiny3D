@@ -116,6 +116,12 @@ namespace Tiny3D
          */
         TResult updateWindow() override;
 
+        void setCursorVisible(bool visible) override;
+
+        void setRelativeMouseMode(bool enable) override;
+
+        void warpMouse(int32_t x, int32_t y) override;
+
     protected:
         SDL_Window  *mSDLWindow;        /**< SDL 窗口对象 */
         SDL_Surface *mSDLIconSurface;   /**< SDL 窗口图标对象 */

@@ -166,6 +166,21 @@ namespace Tiny3D
          */
         TResult updateWindow();
 
+        /**
+         * @brief 显示或隐藏系统鼠标光标
+         */
+        void setCursorVisible(bool visible);
+
+        /**
+         * @brief 相对鼠标模式（隐藏光标并报告相对位移，用于 FPS 看向）
+         */
+        void setRelativeMouseMode(bool enable);
+
+        /**
+         * @brief 将鼠标光标移动到窗口客户区坐标
+         */
+        void warpMouse(int32_t x, int32_t y);
+
     protected:
         IWindow *mWindow;
     };

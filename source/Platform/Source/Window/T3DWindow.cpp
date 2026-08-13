@@ -221,4 +221,34 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    void Window::setCursorVisible(bool visible)
+    {
+        if (mWindow != nullptr)
+        {
+            mWindow->setCursorVisible(visible);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Window::setRelativeMouseMode(bool enable)
+    {
+        if (mWindow != nullptr)
+        {
+            mWindow->setRelativeMouseMode(enable);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Window::warpMouse(int32_t x, int32_t y)
+    {
+        if (mWindow != nullptr)
+        {
+            mWindow->warpMouse(x, y);
+        }
+    }
+
+    //--------------------------------------------------------------------------
 }

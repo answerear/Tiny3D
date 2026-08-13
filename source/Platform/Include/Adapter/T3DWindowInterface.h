@@ -119,6 +119,21 @@ namespace Tiny3D
          * @brief 更新窗口，把帧缓冲数据更新到窗口里
          */
         virtual TResult updateWindow() = 0;
+
+        /**
+         * @brief 显示或隐藏系统鼠标光标
+         */
+        virtual void setCursorVisible(bool visible) = 0;
+
+        /**
+         * @brief 相对鼠标模式（隐藏光标并报告相对位移，用于 FPS 看向）
+         */
+        virtual void setRelativeMouseMode(bool enable) = 0;
+
+        /**
+         * @brief 将鼠标光标移动到窗口客户区坐标
+         */
+        virtual void warpMouse(int32_t x, int32_t y) = 0;
     };
 }
 
