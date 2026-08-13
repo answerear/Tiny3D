@@ -1429,11 +1429,13 @@ namespace Tiny3D
                 if (d.depthBias != 0.0f || d.slopeScaledDepthBias != 0.0f)
                 {
                     glEnable(GL_POLYGON_OFFSET_FILL);
+                    glEnable(GL_POLYGON_OFFSET_LINE);
                     glPolygonOffset(d.slopeScaledDepthBias, d.depthBias);
                 }
                 else
                 {
                     glDisable(GL_POLYGON_OFFSET_FILL);
+                    glDisable(GL_POLYGON_OFFSET_LINE);
                 }
 
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setRasterizerState");
