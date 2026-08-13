@@ -503,10 +503,11 @@ namespace Tiny3D
         {
             const Vector2 moved = touch.position - mFingerDownPos;
             const Real mag = Math::sqrt(moved.x() * moved.x() + moved.y() * moved.y());
-            if (mag > mTapMoveThreshold)
+            if (mDragging || mag > mTapMoveThreshold)
             {
                 mDragging = true;
                 mPendingTap = false;
+                rotateWorld(touch.delta.x(), touch.delta.y());
             }
         }
         else if (touch.phase == TouchPhase::Ended)
