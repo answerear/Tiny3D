@@ -91,6 +91,7 @@ set_project_files(Include\\\\Light ${TINY3D_CORE_SOURCE_DIR}/Include/Light/ .h)
 set_project_files(Include\\\\Light ${TINY3D_CORE_SOURCE_DIR}/Include/Light/ .inl)
 set_project_files(Include\\\\Serializer ${TINY3D_CORE_SOURCE_DIR}/Include/Serializer/ .h)
 set_project_files(Include\\\\Animation ${TINY3D_CORE_SOURCE_DIR}/Include/Animation/ .h)
+set_project_files(Include\\\\Input ${TINY3D_CORE_SOURCE_DIR}/Include/Input/ .h)
 set_project_files(Include\\\\Editor ${TINY3D_CORE_SOURCE_DIR}/Include/Editor/ .h)
 
 # Setup source files for this project.
@@ -107,6 +108,7 @@ set_project_files(Source\\\\Component ${TINY3D_CORE_SOURCE_DIR}/Source/Component
 set_project_files(Source\\\\Light ${TINY3D_CORE_SOURCE_DIR}/Source/Light/ .cpp)
 set_project_files(Source\\\\Serializer ${TINY3D_CORE_SOURCE_DIR}/Source/Serializer/ .cpp)
 set_project_files(Source\\\\Animation ${TINY3D_CORE_SOURCE_DIR}/Source/Animation/ .cpp)
+set_project_files(Source\\\\Input ${TINY3D_CORE_SOURCE_DIR}/Source/Input/ .cpp)
 set_project_files(Source\\\\Performance ${TINY3D_CORE_SOURCE_DIR}/Source/Performance/ .cpp)
 set_project_files(Source\\\\Editor ${TINY3D_CORE_SOURCE_DIR}/Source/Editor/ .cpp)
 

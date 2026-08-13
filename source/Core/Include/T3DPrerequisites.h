@@ -65,6 +65,7 @@ namespace Tiny3D
 
     #define LOG_TAG_CONFIG_FILE         "ConfigFile"
     #define LOG_TAG_ENGINE              "Agent"
+    #define LOG_TAG_INPUT               "Input"
     #define LOG_TAG_IMAGE               "Image"
     #define LOG_TAG_RENDER              "Render"
     #define LOG_TAG_PLUGIN              "Plugin"
@@ -85,6 +86,7 @@ namespace Tiny3D
     // Kernel
     class Agent;
     class Time;
+    class Input;
     class GameObject;
     class SceneObject;
     class Plugin;

@@ -42,6 +42,7 @@
 #include <Kernel/T3DGameObject.h>
 #include <Kernel/T3DTransform.h>
 #include <Kernel/T3DTime.h>
+#include <Input/T3DInput.h>
 
 // Resource
 #include <Resource/T3DResource.h>

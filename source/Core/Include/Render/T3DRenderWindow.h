@@ -72,6 +72,9 @@ namespace Tiny3D
          */
         void *getNativeObject() const;
 
+        /// 返回底层 OS 窗口对象；未 init 时为 nullptr
+        Window *getOSWindow() const { return mWindow; }
+
         /// 返回窗口描述（init/resize 后 Width/Height 可能为实际尺寸）
         const RenderWindowDesc &getDescriptor() const { return mDesc; }
 

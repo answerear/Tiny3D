@@ -207,7 +207,9 @@ namespace Tiny3D
 
     inline void Transform3D::rotate(const Radian &pitch, const Radian &yaw, const Radian &roll)
     {
-        mOrientation.fromEulerAnglesYXZ(yaw, pitch, roll);
+        Quaternion orientation;
+        orientation.fromEulerAnglesYXZ(yaw, pitch, roll);
+        setOrientation(orientation);
     }
     
     //--------------------------------------------------------------------------

@@ -25,6 +25,7 @@
 #include "T3DConfig.h"
 #include "Kernel/T3DAgent.h"
 #include "Kernel/T3DTime.h"
+#include "Input/T3DInput.h"
 #include "Kernel/T3DArchive.h"
 #include "Kernel/T3DArchiveManager.h"
 #include "Serializer/T3DSerializerManager.h"
@@ -238,6 +239,13 @@ namespace Tiny3D
         mArchiveMgr = nullptr;
         mAniPlayerMgr = nullptr;
         
+        // 销毁全局 Input 单例（在 Time 之前，查询仍可用）
+        if (Application::getInstancePtr() != nullptr && mInput != nullptr)
+        {
+            Application::getInstance().removeEventListener(mInput);
+        }
+        T3D_SAFE_DELETE(mInput);
+
         // 销毁全局 Time 单例（在场景 / 组件清理之后，确保销毁回调仍可读取时间）
         T3D_SAFE_DELETE(mTime);
 
@@ -823,6 +831,11 @@ namespace Tiny3D
 
     void Agent::endFrame()
     {
+        if (Input::getInstancePtr() != nullptr)
+        {
+            T3D_INPUT.endFrame();
+        }
+
 #if (T3D_ENABLE_RHI_THREAD)
         mRHIEvent.wait();
 #endif
@@ -897,6 +910,10 @@ namespace Tiny3D
     void Agent::appDidEnterBackground()
     {
         T3D_LOG_ENTER_BACKGROUND();
+        if (Input::getInstancePtr() != nullptr)
+        {
+            T3D_INPUT.reset();
+        }
     }
     
     //--------------------------------------------------------------------------
@@ -1207,6 +1224,12 @@ namespace Tiny3D
         mImageMgr = ImageManager::create();
         mAssetMgr = AssetManager::create();
         mRenderPipeline = ForwardRenderPipeline::create();
+
+        mInput = T3D_NEW Input();
+        if (Application::getInstancePtr() != nullptr)
+        {
+            Application::getInstance().addEventListener(mInput);
+        }
 
         return T3D_OK;
     }

@@ -520,6 +520,7 @@ namespace Tiny3D
         Settings                mSettings {};                       ///< 引擎配置
 
         Time                   *mTime {nullptr};                    ///< 全局时间单例
+        Input                  *mInput {nullptr};                   ///< 全局输入单例
         bool                    mIsPlaying {true};                  ///< 播放态标志
 
         RunnableThread          mRHIThread {};                      ///< RHI 工作线程
