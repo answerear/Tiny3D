@@ -39,6 +39,9 @@ namespace Tiny3D
         TResult build(const String &path) override;
 
         TResult save(const String &path) override;
+
+    protected:
+        MeshPtr mMesh {nullptr};
     };
 }
 

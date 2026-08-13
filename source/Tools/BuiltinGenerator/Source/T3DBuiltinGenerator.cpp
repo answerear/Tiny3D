@@ -28,6 +28,7 @@
 #include "T3DBuiltinShaders.h"
 #include "T3DBuiltinMaterials.h"
 #include "T3DBuiltinCube.h"
+#include "T3DBuiltinQuad.h"
 #include "T3DBuiltinCylinder.h"
 #include "T3DBuiltinSphere.h"
 #include "T3DBuiltinCapsule.h"
@@ -108,6 +109,29 @@ namespace Tiny3D
             else
             {
                 BGEN_LOG_INFO("Generated cube mesh ok !");
+            }
+        }
+        T3D_SAFE_DELETE(mesh);
+
+        // Quad
+        mesh = T3D_NEW BuiltinQuad();
+        ret = mesh->build(meshPath);
+        if (T3D_FAILED(ret))
+        {
+            BGEN_LOG_ERROR("Build quad mesh failed ! ERROR [%d]", ret);
+        }
+        else
+        {
+            BGEN_LOG_INFO("Build quad mesh ok !");
+
+            ret = mesh->save(meshPath);
+            if (T3D_FAILED(ret))
+            {
+                BGEN_LOG_ERROR("Generated quad mesh failed ! ERROR [%d]", ret);
+            }
+            else
+            {
+                BGEN_LOG_INFO("Generated quad mesh ok !");
             }
         }
         T3D_SAFE_DELETE(mesh);
