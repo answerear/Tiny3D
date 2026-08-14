@@ -29,6 +29,20 @@ endif ()
 
 include("${TINY3D_SDK_ROOT}/Tiny3DSDK.cmake")
 
+if (NOT EXISTS "${TINY3D_SDK_RPP}")
+    message(FATAL_ERROR
+        "rpp not found at '${TINY3D_SDK_RPP}'. "
+        "Game Plugin TCLASS reflection needs the ReflectionPreprocessor next to TinyEditor. "
+        "Rebuild the engine so rpp.exe (and libclang) are copied into the editor bin directory.")
+endif ()
+
+if (NOT EXISTS "${TINY3D_SDK_REFLECTION_BASE}")
+    message(FATAL_ERROR
+        "ReflectionSettings.base.json not found at '${TINY3D_SDK_REFLECTION_BASE}'. "
+        "Run the engine generate script so nmake/Core/Runtime/ReflectionSettings.json exists, "
+        "then reconfigure the engine to export it with Tiny3DSDK.cmake.")
+endif ()
+
 # 本文件位于 Assets/Source/ 下，两个变体的 CMakeLists 在子目录里，靠这个变量回到共享源码
 set(GAME_SCRIPTS_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
@@ -86,6 +100,14 @@ function(game_plugin_add VARIANT)
 
     # SDK 侧统一处理 include 路径、引擎库、ABI 相关的定义与运行时库
     tiny3d_sdk_setup_plugin(${_target} ${VARIANT})
+
+    # TCLASS 反射：生成物放在构建目录，避免写进 Assets/Source
+    tiny3d_enable_reflection(${_target}
+        SOURCE_DIR "${_scripts_dir}"
+        GENERATED_DIR "${CMAKE_BINARY_DIR}/Generated"
+        SETTINGS_DIR "${CMAKE_BINARY_DIR}/Reflect"
+        BASE_SETTINGS "${TINY3D_SDK_REFLECTION_BASE}"
+        EXTRA_INCLUDES "${_scripts_dir}/Include")
 
     # 产物直接落到 Library/ScriptAssemblies/<variant>，编辑器从那里取。
     # Windows 的 DLL 归 RUNTIME，类 Unix 的 .so / .dylib 归 LIBRARY，两个都要设。

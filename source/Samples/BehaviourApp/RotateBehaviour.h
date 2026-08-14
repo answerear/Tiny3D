@@ -48,10 +48,16 @@ namespace Tiny3D
     public:
         ~RotateBehaviour() override = default;
 
-        void setClockwise(bool clockwise) { mClockwise = clockwise; }
+        TPROPERTY(RTTRFuncName="Clockwise", RTTRFuncType="getter")
         bool isClockwise() const { return mClockwise; }
 
+        TPROPERTY(RTTRFuncName="Clockwise", RTTRFuncType="setter")
+        void setClockwise(bool clockwise) { mClockwise = clockwise; }
+
+        TPROPERTY(RTTRFuncName="AngularSpeedDeg", RTTRFuncType="setter")
         void setAngularSpeedDeg(Real degPerSec) { mAngularSpeedDeg = degPerSec; }
+
+        TPROPERTY(RTTRFuncName="AngularSpeedDeg", RTTRFuncType="getter")
         Real getAngularSpeedDeg() const { return mAngularSpeedDeg; }
 
     protected:

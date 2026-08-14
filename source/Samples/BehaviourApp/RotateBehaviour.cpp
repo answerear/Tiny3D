@@ -24,37 +24,6 @@
 
 #include "RotateBehaviour.h"
 
-#include <rttr/registration>
-
-
-RTTR_REGISTRATION
-{
-    using namespace rttr;
-    using namespace Tiny3D;
-
-    registration::class_<RotateBehaviour>("RotateBehaviour")
-        .constructor<>()
-        (
-            policy::ctor::as_raw_ptr
-        )
-        .constructor<const Tiny3D::UUID &>()
-        (
-            policy::ctor::as_raw_ptr
-        );
-
-    type::register_wrapper_converter_for_base_classes<SmartPtr<RotateBehaviour>>();
-
-    registration::class_<SmartPtr<RotateBehaviour>>("Tiny3D::SmartPtr<RotateBehaviour>")
-        .constructor<Object*>()
-        (
-            policy::ctor::as_object
-        )
-        .constructor<Object&>()
-        (
-            policy::ctor::as_object
-        );
-}
-
 
 namespace Tiny3D
 {

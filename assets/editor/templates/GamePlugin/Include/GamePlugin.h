@@ -13,8 +13,8 @@ namespace Tiny3D
     /**
      * \brief {ProjectName} 业务逻辑插件
      * \remarks
-     *   Behaviour 派生类的类型注册是由各自 .cpp 里的 RTTR_REGISTRATION 在 DLL
-     *   加载时自动完成的，不需要在这里逐个登记。这个类只负责需要显式初始化的
+     *   Behaviour 派生类用 TCLASS / TPROPERTY 标注后，rpp 生成的 RTTR 注册会在
+     *   DLL 加载时自动执行，不需要在这里逐个登记。这个类只负责需要显式初始化的
      *   全局性东西，比如自定义资源管理器、网络连接、全局配置。没有的话留空即可。
      */
     class GamePlugin : public Plugin

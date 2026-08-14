@@ -270,3 +270,11 @@ endif (TINY3D_OS_WINDOWS)
 
 # Setup project folder
 set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Samples")
+
+tiny3d_enable_reflection(${BIN_NAME}
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    GENERATED_DIR ${TINY3D_GENERATED_BASE_DIR}/Samples/InputApp/Generated
+    SETTINGS_DIR ${CMAKE_CURRENT_BINARY_DIR}/Reflect
+    BASE_SETTINGS ${CMAKE_SOURCE_DIR}/nmake/Core/Runtime/ReflectionSettings.json
+    EXTRA_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}
+    )

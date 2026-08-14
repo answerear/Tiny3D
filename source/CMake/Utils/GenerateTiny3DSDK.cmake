@@ -108,12 +108,34 @@ function(tiny3d_generate_sdk_config)
     endforeach ()
 
     set(_template "${T3DSDK_TEMPLATE_DIR}/Tiny3DSDK.cmake.in")
+    set(_helper "${T3DSDK_TEMPLATE_DIR}/Tiny3DReflectHelpers.cmake")
+    set(_reflect_base_src "${CMAKE_SOURCE_DIR}/nmake/Core/Runtime/ReflectionSettings.json")
 
     # 每个配置的 bin 目录都放一份。编辑器用 Dir::getAppPath() 找它，而 appPath
     # 就是当前配置的 bin 目录，两个配置各自独立。
     foreach (_dir "${T3DSDK_BIN_DIR_DEBUG}" "${T3DSDK_BIN_DIR_RELEASE}")
         if (_dir)
+            if (WIN32)
+                set(T3DSDK_RPP "${_dir}/rpp.exe")
+            elseif (APPLE)
+                set(T3DSDK_RPP "${_dir}/rpp.app/Contents/MacOS/rpp")
+            else ()
+                set(T3DSDK_RPP "${_dir}/rpp")
+            endif ()
+            set(T3DSDK_REFLECTION_BASE "${_dir}/ReflectionSettings.base.json")
+            string(REPLACE "\\" "/" T3DSDK_RPP "${T3DSDK_RPP}")
+            string(REPLACE "\\" "/" T3DSDK_REFLECTION_BASE "${T3DSDK_REFLECTION_BASE}")
+
             configure_file("${_template}" "${_dir}/Tiny3DSDK.cmake" @ONLY)
+            configure_file("${_helper}" "${_dir}/Tiny3DReflectHelpers.cmake" COPYONLY)
+
+            if (EXISTS "${_reflect_base_src}")
+                configure_file("${_reflect_base_src}" "${T3DSDK_REFLECTION_BASE}" COPYONLY)
+            else ()
+                message(WARNING
+                    "nmake/Core/Runtime/ReflectionSettings.json not found. "
+                    "Game Plugin TCLASS reflection needs it; run the engine generate script first.")
+            endif ()
         endif ()
     endforeach ()
 

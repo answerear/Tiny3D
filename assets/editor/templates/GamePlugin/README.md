@@ -6,12 +6,17 @@ Play 的时候会先把它编成动态库再加载，脚本就跑起来了。
 ## 怎么加一个自己的脚本
 
 1. 在 `Include/` 加头文件，从 `Tiny3D::Behaviour` 派生，照 `ExampleBehaviour.h` 的
-   结构写；
-2. 在 `Source/` 加同名 `.cpp`，写上 `RTTR_REGISTRATION` 块注册类型和属性；
-3. 回到编辑器点 Play。新文件会被自动收进构建，不用改 CMakeLists。
+   结构写：`TCLASS()`、`TRTTI_ENABLE(Tiny3D::Behaviour)`、`TRTTI_FRIEND`；
+2. 需要出现在 Inspector、并写入场景文件的成员，用 `TPROPERTY` 标注 getter / setter；
+3. 在 `Source/` 加**同名** `.cpp`，只写逻辑，**不要**再手写 `RTTR_REGISTRATION`
+   （构建时 rpp 会生成，手写会重复注册）；
+4. 回到编辑器点 Play。新文件会被自动收进构建，不用改 CMakeLists。
 
-注册进 `RTTR_REGISTRATION` 的属性会显示在 Inspector 里，也会被存进场景文件；没注册
-的字段只是普通的运行期成员。
+标了 `TPROPERTY` 的属性会显示在 Inspector 里，也会被存进场景文件；没标的字段只是
+普通的运行期成员。
+
+已经用旧模板建过的工程不会自动升级。把本目录里的 `GamePluginCommon.cmake` 和
+Behaviour 头文件改成上面这套写法，或新建一个工程即可。
 
 ## 目录结构
 
@@ -26,7 +31,8 @@ Assets/Source/
 ```
 
 `Include/` 和 `Source/` 是两个变体共用的，你只在这两个目录里写代码，Editor 和
-Runtime 两份产物会自动都有。
+Runtime 两份产物会自动都有。反射生成的 `*.generated.cpp` 在构建目录里，不会进
+这份源码树。
 
 ## 两个变体是怎么回事
 
@@ -60,4 +66,5 @@ cmake --build Temp/ScriptBuild/Editor --config Debug
 
 `TINY3D_SDK_ROOT` 要指向 TinyEditor 可执行文件所在的目录，那里有编辑器构建时导出的
 `Tiny3DSDK.cmake`，记录了工具链信息，业务库必须用同样的配置编译才能被正确加载。
+同目录还要有 `rpp` 和 `ReflectionSettings.base.json`（引擎 generate 脚本会带上）。
 `GAME_PROJECT_ROOT` 指向工程根，保证 DLL 落到 `{工程根}/Library/ScriptAssemblies/`。

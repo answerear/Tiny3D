@@ -25,6 +25,7 @@
 
 #include "ScriptBuildSystem.h"
 
+#include <algorithm>
 #include <cstdio>
 
 #if defined (T3D_OS_WINDOWS)
@@ -244,6 +245,133 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    String ScriptBuildSystem::getScriptFileStampPath(Variant variant) const
+    {
+        return getCMakeBuildDir(variant) + Dir::getNativeSeparator()
+            + ".script_files.stamp";
+    }
+
+    //--------------------------------------------------------------------------
+
+    String ScriptBuildSystem::collectScriptFileList() const
+    {
+        TArray<String> names;
+        const String sep(1, Dir::getNativeSeparator());
+
+        const struct
+        {
+            const char *sub;
+            const char *exts[4];
+        } kDirs[] =
+        {
+            { "Include", { ".h", ".hpp", ".hh", nullptr } },
+            { "Source",  { ".cpp", ".cc", ".cxx", nullptr } }
+        };
+
+        for (const auto &entry : kDirs)
+        {
+            const String dir = mScriptsDir + sep + entry.sub;
+            if (!Dir::exists(dir))
+            {
+                continue;
+            }
+
+            Dir finder;
+            const String pattern = dir + sep + "*";
+            bool working = finder.findFile(pattern);
+            while (working)
+            {
+                if (!finder.isDots() && !finder.isDirectory())
+                {
+                    const String name = finder.getFileName();
+                    const size_t dot = name.rfind('.');
+                    const String ext = (dot == String::npos)
+                        ? String() : name.substr(dot);
+                    for (int i = 0; entry.exts[i] != nullptr; ++i)
+                    {
+                        if (ext == entry.exts[i])
+                        {
+                            names.push_back(String(entry.sub) + "/" + name);
+                            break;
+                        }
+                    }
+                }
+
+                working = finder.findNextFile();
+            }
+            finder.close();
+        }
+
+        std::sort(names.begin(), names.end());
+
+        String list;
+        for (const auto &n : names)
+        {
+            list += n;
+            list += '\n';
+        }
+        return list;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptBuildSystem::needsReconfigure(Variant variant) const
+    {
+        const String cacheFile = getCMakeBuildDir(variant)
+            + Dir::getNativeSeparator() + "CMakeCache.txt";
+        if (!Dir::exists(cacheFile))
+        {
+            return true;
+        }
+
+        const String stampPath = getScriptFileStampPath(variant);
+        if (!Dir::exists(stampPath))
+        {
+            return true;
+        }
+
+        FileDataStream fs;
+        if (!fs.open(stampPath.c_str(), FileDataStream::E_MODE_READ_ONLY))
+        {
+            return true;
+        }
+
+        const size_t size = static_cast<size_t>(fs.size());
+        String previous;
+        previous.resize(size);
+        if (size > 0)
+        {
+            fs.read(&previous[0], size);
+        }
+        fs.close();
+
+        return previous != collectScriptFileList();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ScriptBuildSystem::writeScriptFileStamp(Variant variant,
+        const String &list) const
+    {
+        const String stampPath = getScriptFileStampPath(variant);
+        FileDataStream fs;
+        if (!fs.open(stampPath.c_str(),
+            FileDataStream::E_MODE_TRUNCATE | FileDataStream::E_MODE_WRITE_ONLY))
+        {
+            EDITOR_LOG_WARNING("Failed to write script file stamp [%s] !",
+                stampPath.c_str());
+            return;
+        }
+
+        if (!list.empty())
+        {
+            fs.write((void*)list.data(), list.size());
+        }
+        fs.close();
+    }
+
+    //--------------------------------------------------------------------------
+
     bool ScriptBuildSystem::loadSDKConfig()
     {
         if (mSDKConfigLoaded)
@@ -383,11 +511,9 @@ namespace Tiny3D
 
         const String buildDir = getCMakeBuildDir(variant);
 
-        // CMake 自己会在 build 时检测 CMakeLists 变更并重跑 configure，所以只有
-        // 构建目录还不存在（首次构建、或用户清过 Temp）时才需要显式 configure
-        const String cacheFile = buildDir + Dir::getNativeSeparator() + "CMakeCache.txt";
-
-        if (!Dir::exists(cacheFile))
+        // Include/Source 文件集合变了必须重新 configure：file(GLOB) 和 rpp
+        // 新产出的 *.generated.cpp 都要进工程。只改已有文件内容则走增量 rpp。
+        if (needsReconfigure(variant))
         {
             String configureOutput;
             TResult ret = configure(variant, configureOutput);
@@ -400,6 +526,8 @@ namespace Tiny3D
                 EDITOR_LOG_ERROR("Configure game plugin failed :\n%s", output.c_str());
                 return ret;
             }
+
+            writeScriptFileStamp(variant, collectScriptFileList());
         }
 
         String cmd = "cmake --build " + quote(buildDir) + " --config " + BUILD_CONFIG;

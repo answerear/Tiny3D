@@ -46,6 +46,10 @@ set(TINY3D_SDK_RTTR_LIB_RELEASE "@T3DSDK_RTTR_LIB_RELEASE@")
 # rttr::policy::ctor::* 这些常量会被当成本地符号，链接期报 unresolved external
 set(TINY3D_SDK_RTTR_DEFINITIONS "@T3DSDK_RTTR_DEFINITIONS@")
 
+# 业务工程用 TCLASS 自动生成反射时需要的 rpp 与 clang 参数底板
+set(TINY3D_SDK_RPP                 "@T3DSDK_RPP@")
+set(TINY3D_SDK_REFLECTION_BASE     "@T3DSDK_REFLECTION_BASE@")
+
 # 两个变体都要链的引擎公共库
 set(TINY3D_SDK_COMMON_LIBS T3DPlatform T3DSystem T3DLog T3DUtils T3DMath T3DFramework)
 
@@ -132,3 +136,7 @@ function(tiny3d_sdk_setup_plugin TARGET VARIANT)
             "/PDBALTPATH:$<TARGET_PDB_FILE_NAME:${TARGET}>")
     endif ()
 endfunction()
+
+# 与本文件放在同一目录，业务工程只 include Tiny3DSDK.cmake 即可用
+# tiny3d_enable_reflection()
+include("${CMAKE_CURRENT_LIST_DIR}/Tiny3DReflectHelpers.cmake")

@@ -88,17 +88,16 @@ if (TINY3D_OS_WINDOWS)
 
     set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME rpp)
 
-    if (TINY3D_BUILD_RTTR_TOOL)
-        add_custom_command(TARGET ${BIN_NAME}
-            PRE_LINK
-            COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
-            COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
-            COMMAND ${CMAKE_COMMAND} -E copy ${LLVM_BIN_DIR}/libclang.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
-            COMMAND ${CMAKE_COMMAND} -E copy ${LLVM_BIN_DIR}/libclang.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
-            COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
-            COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
-            )
-    endif (TINY3D_BUILD_RTTR_TOOL)
+    # Game Plugin 与 Sample 在编辑器 bin 目录调 rpp，libclang.dll 必须始终跟过去。
+    add_custom_command(TARGET ${BIN_NAME}
+        PRE_LINK
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
+        COMMAND ${CMAKE_COMMAND} -E copy ${LLVM_BIN_DIR}/libclang.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
+        COMMAND ${CMAKE_COMMAND} -E copy ${LLVM_BIN_DIR}/libclang.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
+        COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
+        COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
+        )
 
     # Setup install files and path for Windows.
     install(TARGETS ${BIN_NAME}

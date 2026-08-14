@@ -212,6 +212,7 @@ add_definitions(-DT3D_ERR_USER=0x00020000)
 
 include(FindPkgMacros)
 include(ProjectCMakeModule)
+include(Tiny3DReflectHelpers)
 
 # Common headers directory
 set(T3D_COMMON_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Common")
