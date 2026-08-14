@@ -33,6 +33,7 @@
 #include "EditorSceneImpl.h"
 #include "UIEditorWidgetID.h"
 #include "EditorEventDefine.h"
+#include "ExternalIDELauncher.h"
 #include "TestScene.h"
 
 
@@ -668,7 +669,7 @@ namespace Tiny3D
 
         do
         {
-            if (argc != 6)
+            if (argc < 6)
             {
                 T3D_LOG_ERROR(LOG_TAG_EDITOR, "The number of arguments [%d] in command line is invalid !", argc);
                 ret = false;
@@ -682,13 +683,24 @@ namespace Tiny3D
                 if (strcmp(argv[i], "-p") == 0)
                 {
                     ++i;
-                    // path
-                    mOptions.path = argv[i];
+                    if (i >= argc)
+                    {
+                        ret = false;
+                        break;
+                    }
+                    // path：CMake/VS 可能传入 /。只用 normalizePath 换分隔符，
+                    // 不要走 formatPath（会把目录名里的 . 吃掉）。
+                    mOptions.path = ExternalIDELauncher::normalizePath(argv[i]);
                 }
                 else if (strcmp(argv[i], "-n") == 0)
                 {
                     // name
                     ++i;
+                    if (i >= argc)
+                    {
+                        ret = false;
+                        break;
+                    }
                     mOptions.name = argv[i];
                 }
                 else if (strcmp(argv[i], "-c") == 0)
@@ -703,6 +715,12 @@ namespace Tiny3D
                 }
             
                 ++i;
+            }
+
+            if (ret && (mOptions.path.empty() || mOptions.name.empty()))
+            {
+                T3D_LOG_ERROR(LOG_TAG_EDITOR, "Command line must include -p <path> and -n <name>.");
+                ret = false;
             }
         } while (false);
 

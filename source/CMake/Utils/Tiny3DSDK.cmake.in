@@ -50,6 +50,13 @@ set(TINY3D_SDK_RTTR_DEFINITIONS "@T3DSDK_RTTR_DEFINITIONS@")
 set(TINY3D_SDK_RPP                 "@T3DSDK_RPP@")
 set(TINY3D_SDK_REFLECTION_BASE     "@T3DSDK_REFLECTION_BASE@")
 
+# TinyPlayer 宿主源码。游戏 sln 编这份，和引擎 bin 里的 TinyPlayer 是同一份。
+set(TINY3D_SDK_PLAYER_DIR "@T3DSDK_PLAYER_DIR@")
+set(TINY3D_SDK_PLAYER_SOURCES
+    "${TINY3D_SDK_PLAYER_DIR}/PlayerApp.h"
+    "${TINY3D_SDK_PLAYER_DIR}/PlayerApp.cpp"
+    "${TINY3D_SDK_PLAYER_DIR}/main.cpp")
+
 # 两个变体都要链的引擎公共库
 set(TINY3D_SDK_COMMON_LIBS T3DPlatform T3DSystem T3DLog T3DUtils T3DMath T3DFramework)
 
@@ -134,6 +141,24 @@ function(tiny3d_sdk_setup_plugin TARGET VARIANT)
     if (MSVC)
         target_link_options(${TARGET} PRIVATE
             "/PDBALTPATH:$<TARGET_PDB_FILE_NAME:${TARGET}>")
+    endif ()
+endfunction()
+
+#-------------------------------------------------------------------------------
+# tiny3d_sdk_setup_app(<target>)
+#
+# 给游戏 sln 里的 TinyPlayer 用：链 Runtime 核心库，并把编辑器 bin 编进
+# TINY3D_PLAYER_SDK_BIN，运行时按这个目录 load 引擎插件。
+#-------------------------------------------------------------------------------
+function(tiny3d_sdk_setup_app TARGET)
+    tiny3d_sdk_setup_plugin(${TARGET} Runtime)
+
+    string(REPLACE "\\" "/" _sdk_bin "${TINY3D_SDK_ROOT}")
+    target_compile_definitions(${TARGET} PRIVATE
+        "TINY3D_PLAYER_SDK_BIN=\"${_sdk_bin}\"")
+
+    if (MSVC)
+        target_link_options(${TARGET} PRIVATE "/ENTRY:mainCRTStartup")
     endif ()
 endfunction()
 

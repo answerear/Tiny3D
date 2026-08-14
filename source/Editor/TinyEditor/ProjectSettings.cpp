@@ -35,6 +35,7 @@ namespace Tiny3D
 
     const char *ProjectSettings::PROJECT_SETTINGS_FOLDER = "ProjectSettings";
     const char *ProjectSettings::PROJECT_SETTINGS_NAME = "ProjectSettings.tasset";
+    const char *ProjectSettings::GAME_SETTINGS_NAME = "Game.tasset";
     
     //--------------------------------------------------------------------------
 
@@ -71,6 +72,16 @@ namespace Tiny3D
                     return T3D_SERIALIZER_MGR.serialize(stream, *settings);
                 },
                 this);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            const TResult gameRet = saveGameSettings();
+            if (T3D_FAILED(gameRet))
+            {
+                EDITOR_LOG_WARNING("Failed to save Player game settings !");
+            }
         } while (false);
         
         return ret;
@@ -100,6 +111,48 @@ namespace Tiny3D
                     return T3D_SERIALIZER_MGR.deserialize(stream, *settings);
                 },
                 this);
+            if (T3D_SUCCEEDED(ret))
+            {
+                // 旧工程没有 Game.tasset，打开时补写一份给 Player
+                saveGameSettings();
+            }
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ProjectSettings::saveGameSettings()
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(
+                PROJECT_MGR.getProjectPath(), ARCHIVE_TYPE_FS,
+                Archive::AccessMode::kTruncate);
+            if (archive == nullptr)
+            {
+                EDITOR_LOG_ERROR("Failed to load archive [%s]",
+                    PROJECT_MGR.getProjectPath().c_str());
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
+
+            GameSettings game;
+            game.startupSceneUUID = StartupSceneUUID.toString();
+            game.gamePluginName = GamePluginName;
+
+            const String gameFile = String(PROJECT_SETTINGS_FOLDER)
+                + Dir::getNativeSeparator() + String(GAME_SETTINGS_NAME);
+            ret = archive->write(gameFile,
+                [](DataStream &stream, const String &filename, void *userData)
+                {
+                    GameSettings *settings = static_cast<GameSettings *>(userData);
+                    return T3D_SERIALIZER_MGR.serialize(stream, *settings);
+                },
+                &game);
         } while (false);
 
         return ret;

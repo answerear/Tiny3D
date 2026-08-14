@@ -68,6 +68,18 @@ else ()
     endif ()
 endif ()
 
+# VS 调试属性会原样写进 vcxproj / 传给 CreateProcess。
+# CMake 路径一律是 /，Windows 上必须转成 \，否则 TinyEditor -p 拼出来的
+# 工程目录会变成 D:/foo\Name，打开失败。
+function(tiny3d_native_path OUT_VAR IN_PATH)
+    if (WIN32)
+        string(REPLACE "/" "\\" _native "${IN_PATH}")
+    else ()
+        string(REPLACE "\\" "/" _native "${IN_PATH}")
+    endif ()
+    set(${OUT_VAR} "${_native}" PARENT_SCOPE)
+endfunction()
+
 #-------------------------------------------------------------------------------
 # game_plugin_add(<variant>)
 #   variant: Editor | Runtime
@@ -125,6 +137,20 @@ function(game_plugin_add VARIANT)
             RUNTIME_OUTPUT_DIRECTORY_${_config_upper} "${_out_dir}"
             LIBRARY_OUTPUT_DIRECTORY_${_config_upper} "${_out_dir}")
     endforeach ()
+
+    # Editor DLL 的 F5 可以拉起 TinyEditor；编辑器已经开着时改用
+    # 「调试 → 附加到进程 → TinyEditor.exe」。
+    if (VARIANT STREQUAL "Editor")
+        get_filename_component(_proj_name "${GAME_PROJECT_ROOT}" NAME)
+        get_filename_component(_proj_parent "${GAME_PROJECT_ROOT}" DIRECTORY)
+        tiny3d_native_path(_dbg_cmd "${TINY3D_SDK_ROOT}/TinyEditor.exe")
+        tiny3d_native_path(_dbg_parent "${_proj_parent}")
+        tiny3d_native_path(_dbg_cwd "${TINY3D_SDK_ROOT}")
+        set_target_properties(${_target} PROPERTIES
+            VS_DEBUGGER_COMMAND "${_dbg_cmd}"
+            VS_DEBUGGER_COMMAND_ARGUMENTS "-p \"${_dbg_parent}\" -n \"${_proj_name}\" -o"
+            VS_DEBUGGER_WORKING_DIRECTORY "${_dbg_cwd}")
+    endif ()
 
     message(STATUS "Game plugin target : ${_target} -> ${_out_dir}")
 endfunction()

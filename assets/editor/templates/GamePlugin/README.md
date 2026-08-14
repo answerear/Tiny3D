@@ -15,8 +15,8 @@ Play 的时候会先把它编成动态库再加载，脚本就跑起来了。
 标了 `TPROPERTY` 的属性会显示在 Inspector 里，也会被存进场景文件；没标的字段只是
 普通的运行期成员。
 
-已经用旧模板建过的工程不会自动升级。把本目录里的 `GamePluginCommon.cmake` 和
-Behaviour 头文件改成上面这套写法，或新建一个工程即可。
+已经用旧模板建过的工程不会自动升级。把本目录里的 `GamePluginCommon.cmake`、
+`Player/CMakeLists.txt` 和顶层 `add_subdirectory(Player)` 拷过来，或新建一个工程。
 
 ## 目录结构
 
@@ -27,6 +27,7 @@ Assets/Source/
   GamePluginCommon.cmake   两个变体共享的构建逻辑，一般不用动
   Editor/             Editor 变体的 CMakeLists，编辑器 Play 时编这个
   Runtime/            Runtime 变体的 CMakeLists，发布游戏时编这个
+  Player/             TinyPlayer.exe，VS 里 F5 跑 Runtime 用的壳
   CMakeLists.txt      想用 IDE 直接打开整个 Source 时用的顶层工程
 ```
 
@@ -41,7 +42,7 @@ Runtime 两份产物会自动都有。反射生成的 `*.generated.cpp` 在构�
 
 | | Editor 变体 | Runtime 变体 |
 |--|------------|-------------|
-| 谁加载 | TinyEditor | 发布后的游戏 |
+| 谁加载 | TinyEditor | TinyPlayer |
 | 什么时候编 | 每次点 Play | 导出发布版时 |
 | 产物 | `Library/ScriptAssemblies/Editor/` | `Library/ScriptAssemblies/Runtime/` |
 
@@ -68,3 +69,18 @@ cmake --build Temp/ScriptBuild/Editor --config Debug
 `Tiny3DSDK.cmake`，记录了工具链信息，业务库必须用同样的配置编译才能被正确加载。
 同目录还要有 `rpp` 和 `ReflectionSettings.base.json`（引擎 generate 脚本会带上）。
 `GAME_PROJECT_ROOT` 指向工程根，保证 DLL 落到 `{工程根}/Library/ScriptAssemblies/`。
+
+## 在 Visual Studio 里调试
+
+菜单里 **Open C++ Project** 会生成包含三个工程的 sln：`{Name}Editor`、`{Name}`、
+`TinyPlayer`。启动项是 `TinyPlayer`。
+
+- **Runtime（游戏逻辑，独立窗口）**：F5 跑 `TinyPlayer`。它会 `--project` 打开当前
+  工程，加载 `Library/ScriptAssemblies/Runtime/{Name}.dll`。断点打在业务源码上即可。
+- **Editor（编辑器里的脚本）**：TinyEditor 已经开着工程时，用
+  **调试 → 附加到进程 → TinyEditor.exe**。不要在编辑器还开着时再 F5 出第二个
+  TinyEditor。如果编辑器没开，可以把 `{Name}Editor` 设为启动项再 F5，它会带
+  `-p -n -o` 拉起 TinyEditor。
+
+不要用 Editor 配置跑 TinyPlayer，也不要把 Runtime DLL attach 到 TinyEditor：
+`T3DCore` 和 `T3DCoreEditor` 的 ABI 不兼容。

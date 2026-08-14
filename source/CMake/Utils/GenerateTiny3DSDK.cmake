@@ -80,6 +80,9 @@ function(tiny3d_generate_sdk_config)
         "${_src}/Core/Include"
         ${RTTR_INCLUDE_DIR})
 
+    # 游戏 sln 里的 TinyPlayer 工程编译这份源码，避免每个工程各抄一份宿主
+    set(T3DSDK_PLAYER_DIR "${_src}/Player")
+
     set(T3DSDK_LIB_DIR_DEBUG   "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}")
     set(T3DSDK_LIB_DIR_RELEASE "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE}")
     set(T3DSDK_BIN_DIR_DEBUG   "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}")
@@ -103,7 +106,8 @@ function(tiny3d_generate_sdk_config)
     foreach (_var
         T3DSDK_CXX_COMPILER T3DSDK_INCLUDE_DIRS
         T3DSDK_LIB_DIR_DEBUG T3DSDK_LIB_DIR_RELEASE
-        T3DSDK_BIN_DIR_DEBUG T3DSDK_BIN_DIR_RELEASE)
+        T3DSDK_BIN_DIR_DEBUG T3DSDK_BIN_DIR_RELEASE
+        T3DSDK_PLAYER_DIR)
         string(REPLACE "\\" "/" ${_var} "${${_var}}")
     endforeach ()
 

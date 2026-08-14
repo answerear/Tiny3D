@@ -309,6 +309,7 @@ if (NOT TINY3D_BUILD_RTTR_TOOL)
     # Project editor
     if (TINY3D_BUILD_EDITOR)
         add_subdirectory(Editor)
+        add_subdirectory(Player)
     endif (TINY3D_BUILD_EDITOR)
 endif (NOT TINY3D_BUILD_RTTR_TOOL)
 
@@ -351,6 +352,7 @@ if (NOT TINY3D_BUILD_RTTR_TOOL)
         add_dependencies(T3DCoreEditor T3DMath T3DFramework T3DUtils T3DLog T3DSystem T3DPlatform)
         add_dependencies(TinyEditor ${PROTOBUF_LIBRARY} T3DCoreEditor)
         add_dependencies(TinyLauncher ${PROTOBUF_LIBRARY} T3DCoreEditor)
+        add_dependencies(TinyPlayer T3DCore)
     endif (TINY3D_BUILD_EDITOR)
 endif (NOT TINY3D_BUILD_RTTR_TOOL)
 

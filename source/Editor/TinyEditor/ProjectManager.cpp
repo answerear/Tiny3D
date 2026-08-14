@@ -27,6 +27,7 @@
 #include "EditorSceneImpl.h"
 #include "EditorEventDefine.h"
 #include "PlayModeController.h"
+#include "ExternalIDELauncher.h"
 
 
 
@@ -482,8 +483,9 @@ namespace Tiny3D
 
             registerAllEvents();
             
-            // 创建工程文件夹
-            String projectPath = path + Dir::getNativeSeparator() + name;
+            // 创建工程文件夹（只换分隔符，避免 formatPath 吃掉目录名里的 .）
+            String projectPath = ExternalIDELauncher::normalizePath(
+                path + Dir::getNativeSeparator() + name);
             if (!Dir::makeDir(projectPath))
             {
                 EDITOR_LOG_ERROR("Failed to create project folder (%s) !", projectPath.c_str());
@@ -612,8 +614,9 @@ namespace Tiny3D
 
             registerAllEvents();
             
-            // 工程目录
-            String projectPath = path + Dir::getNativeSeparator() + name;
+            // 工程目录（只换分隔符，避免 formatPath 吃掉目录名里的 .）
+            String projectPath = ExternalIDELauncher::normalizePath(
+                path + Dir::getNativeSeparator() + name);
             if (!Dir::exists(projectPath))
             {
                 // 工程目录不存在

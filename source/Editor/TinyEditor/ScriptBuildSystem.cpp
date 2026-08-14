@@ -594,15 +594,15 @@ namespace Tiny3D
         }
 
         // 符号文件不跟着走的话断点会失效。模板里配了 /PDBALTPATH，DLL 内记录的是
-        // PDB 的文件名而非绝对路径，调试器会在 DLL 同目录也就是影子目录里找到它。
+        // 原始 PDB 文件名（{Name}Editor.pdb）而不是绝对路径。影子 DLL 虽然改了名，
+        // PDB 必须保持原名，调试器才能在影子目录里对上。
         const String symbol = platformSymbolFileName(getAssemblyName(Variant::kEditor));
 
         if (!symbol.empty())
         {
             const String srcSymbol = getAssemblyDir(Variant::kEditor)
                 + Dir::getNativeSeparator() + symbol;
-            const String dstSymbol = mShadowDir + Dir::getNativeSeparator()
-                + platformSymbolFileName(name);
+            const String dstSymbol = mShadowDir + Dir::getNativeSeparator() + symbol;
 
             if (Dir::exists(srcSymbol) && !Dir::exists(dstSymbol))
             {
@@ -633,7 +633,10 @@ namespace Tiny3D
         }
 
         const String keepLib = keepName.empty() ? String() : platformLibFileName(keepName);
-        const String keepSymbol = keepName.empty() ? String() : platformSymbolFileName(keepName);
+        // PDB 按原始程序集名存放，不带影子 stamp
+        const String keepSymbol = keepName.empty()
+            ? String()
+            : platformSymbolFileName(getAssemblyName(Variant::kEditor));
 
         // 边遍历边删可能干扰枚举，先收集再删
         TArray<String> victims;

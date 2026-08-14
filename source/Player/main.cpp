@@ -7,7 +7,7 @@
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * copies of the Software, and to furnish persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
@@ -22,45 +22,14 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#pragma once
+
+#include "PlayerApp.h"
 
 
-#include "EditorPrerequisites.h"
+extern Tiny3D::PlayerApp theApp;
 
 
-namespace Tiny3D
+int main(int argc, char *argv[])
 {
-    NS_BEGIN(Editor)
-
-    TSTRUCT()
-    struct ProjectSettings
-    {
-        /// 启动场景的 UUID
-        TPROPERTY()
-        UUID StartupSceneUUID {};
-
-        /// 业务插件名，决定动态库文件名；默认等于工程名
-        TPROPERTY()
-        String GamePluginName {};
-
-        /// 业务 C++ 源码目录，相对工程根（逻辑路径 Assets/Source；运行时用原生分隔符）
-        TPROPERTY()
-        String ScriptsRelativePath {};
-
-        void ensure();
-        
-        TResult save();
-
-        TResult load();
-
-        /// 写出 Player 可读的 Game.tasset（save / 打开旧工程时补写）
-        TResult saveGameSettings();
-
-        static const char *PROJECT_SETTINGS_FOLDER;
-        static const char *PROJECT_SETTINGS_NAME;
-        /// Player 可读的启动信息，与 ProjectSettings.tasset 同时写出
-        static const char *GAME_SETTINGS_NAME;
-    };
-
-    NS_END
+    return theApp.go(argc, argv);
 }
