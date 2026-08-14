@@ -55,6 +55,8 @@ macro(add_reflect_target TARGET_NAME SETTINGS_SUBDIR SRC_SUBDIR ADDITIONAL_ARGS)
     if (NOT CMAKE_CROSSCOMPILING)
         add_dependencies(${TARGET_NAME} ReflectionPreprocessor)
     endif()
+
+    set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER "Reflect")
 endmacro()
 
 # Define reflection targets
@@ -77,6 +79,9 @@ else()
     add_custom_target(reflect_core_editor COMMAND ${CMAKE_COMMAND} -E echo "Reflection skipped (Editor disabled)")
     add_custom_target(reflect_editor_launcher COMMAND ${CMAKE_COMMAND} -E echo "Reflection skipped (Editor disabled)")
     add_custom_target(reflect_editor_editor COMMAND ${CMAKE_COMMAND} -E echo "Reflection skipped (Editor disabled)")
+    set_property(TARGET reflect_core_editor PROPERTY FOLDER "Reflect")
+    set_property(TARGET reflect_editor_launcher PROPERTY FOLDER "Reflect")
+    set_property(TARGET reflect_editor_editor PROPERTY FOLDER "Reflect")
 endif()
 
 # Umbrella target: depends on active sub-targets
@@ -86,4 +91,4 @@ add_custom_target(${BIN_NAME}
 )
 
 # Setup project folder
-set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Kernel")
+set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Reflect")
