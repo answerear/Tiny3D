@@ -31,12 +31,15 @@
 #include "ImErrors.h"
 #include "UIInspectorWindow.h"
 #include "UIProjectWindow.h"
+#include "UIPreferencesWindow.h"
 #include "EditorApp.h"
 #include "EditorEventDefine.h"
 #include "EditorSceneImpl.h"
 #include "UIEditorWidgetID.h"
 #include "ProjectManager.h"
 #include "PlayModeController.h"
+#include "ScriptBuildSystem.h"
+#include "ExternalIDELauncher.h"
 
 
 namespace Tiny3D
@@ -68,6 +71,10 @@ namespace Tiny3D
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_PREFAB_VARIANT, UIMainWindow::onMenuItemCreatePrefabVariant);
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_SELECT_PREFAB_ROOT, UIMainWindow::onMenuItemSelectPrefabRoot);
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_EXTRACT_FROM_PREFAB, UIMainWindow::onMenuItemExtractFromPrefab);
+
+            ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_PREFERENCES, UIMainWindow::onMenuItemPreferences);
+            ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_OPEN_CPP_PROJECT, UIMainWindow::onMenuItemEnabledOpenCppProject);
+            ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_OPEN_CPP_PROJECT, UIMainWindow::onMenuItemOpenCppProject);
             
             createMenuItemData();
 
@@ -123,6 +130,14 @@ namespace Tiny3D
             if (T3D_FAILED(ret))
             {
                 EDITOR_LOG_ERROR("Create console window failed ! ERROR [%d]", ret);
+                break;
+            }
+
+            mPreferencesWnd = new UIPreferencesWindow();
+            ret = mPreferencesWnd->create(ID_PREFERENCES_WINDOW, "Preferences", this);
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Create preferences window failed ! ERROR [%d]", ret);
                 break;
             }
         } while (false);
@@ -367,7 +382,7 @@ namespace Tiny3D
         // Project Settings...
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_PROJECT_SETTINGS, STR(TXT_PROJECT_SETTINGS), "", "", queryDisableDefault, nullptr, nullptr)
         // Preferences...
-        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_PREFERENCES, STR(TXT_PREFERENCES), "", "", queryDisableDefault, nullptr, nullptr)
+        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_PREFERENCES, STR(TXT_PREFERENCES), "", "", queryEnableDefault, nullptr, nullptr)
         // Shortcuts...
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_SHORTCUT, STR(TXT_SHORTCUTS), "", "", queryDisableDefault, nullptr, nullptr)
         // Clear All PlayerPrefs
@@ -528,7 +543,7 @@ namespace Tiny3D
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_EXTRACT_FROM_PREFAB, STR(TXT_EXTRACT_FROM_PREFAB), "", "", IM_MENU_ITEM_DEFAULT_QUERY_ENABLED(), nullptr, nullptr)
 
         // Open C++ Project
-        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_OPEN_CPP_PROJECT, STR(TXT_OPEN_CPP_PROJECT), "", "", queryDisableDefault, nullptr, nullptr)
+        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_OPEN_CPP_PROJECT, STR(TXT_OPEN_CPP_PROJECT), "", "", IM_MENU_ITEM_DEFAULT_QUERY_ENABLED(), nullptr, nullptr)
         // View in Import Activity Window
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_IETM_VIEW_IN_IMPORT_ACTIVITY_WINDOW, STR(TXT_VIEW_IN_IMPORT_ACTIVITY_WINDOW), "", "", queryDisableDefault, nullptr, nullptr)
         // Properties
@@ -1304,6 +1319,77 @@ namespace Tiny3D
     bool UIMainWindow::onMenuItemEnabledSave(uint32_t id, ImWidget *menuItem)
     {
         return PROJECT_MGR.isProjectModified();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIMainWindow::onMenuItemPreferences(uint32_t id, ImWidget *menuItem)
+    {
+        (void)id;
+        (void)menuItem;
+        if (mPreferencesWnd != nullptr)
+        {
+            mPreferencesWnd->show();
+        }
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIMainWindow::onMenuItemEnabledOpenCppProject(uint32_t id, ImWidget *menuItem)
+    {
+        (void)id;
+        (void)menuItem;
+        return PROJECT_MGR.isProjectOpened() && SCRIPT_BUILD_SYS.hasScripts();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIMainWindow::onMenuItemOpenCppProject(uint32_t id, ImWidget *menuItem)
+    {
+        (void)id;
+        (void)menuItem;
+
+        String slnPath;
+        String output;
+        const TResult ret = SCRIPT_BUILD_SYS.ensureIDESolution(slnPath, output);
+        if (ret == T3D_ERR_NOT_FOUND)
+        {
+            ImMessageBox::show(STR(TXT_ERROR),
+                ESTR(TXT_OPEN_CPP_PROJECT_NO_SCRIPTS, "This project has no C++ game plugin sources."),
+                STR(TXT_OK), ImDialog::ShowType::kEnqueueBack);
+            return true;
+        }
+
+        if (ret == T3D_ERR_FILE_NOT_EXIST)
+        {
+            ImMessageBox::show(STR(TXT_ERROR),
+                ESTR(TXT_OPEN_CPP_PROJECT_NO_SLN,
+                    "No Visual Studio solution was generated. The editor toolchain must use a Visual Studio CMake generator."),
+                STR(TXT_OK), ImDialog::ShowType::kEnqueueBack);
+            return true;
+        }
+
+        if (T3D_FAILED(ret))
+        {
+            String message = ESTR(TXT_OPEN_CPP_PROJECT_FAILED, "Failed to generate the C++ solution.");
+            if (!output.empty())
+            {
+                message += "\n";
+                message += output;
+            }
+            ImMessageBox::show(STR(TXT_ERROR), message, STR(TXT_OK), ImDialog::ShowType::kEnqueueBack);
+            return true;
+        }
+
+        if (T3D_FAILED(ExternalIDELauncher::openSolution(slnPath)))
+        {
+            ImMessageBox::show(STR(TXT_ERROR),
+                ESTR(TXT_OPEN_CPP_PROJECT_IDE_FAILED, "Failed to launch the configured IDE."),
+                STR(TXT_OK), ImDialog::ShowType::kEnqueueBack);
+        }
+
+        return true;
     }
 
     //--------------------------------------------------------------------------

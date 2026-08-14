@@ -26,6 +26,7 @@
 
 
 #include "EditorPrerequisites.h"
+#include "EditorSettings.h"
 #include "ImGuiApp.h"
 
 
@@ -53,6 +54,12 @@ namespace Tiny3D
         void exitApp() override;
 
         ImFont *getFont(int32_t fontSize);
+
+        EditorSettings &getEditorSettings() { return mEditorSettings; }
+
+        const EditorSettings &getEditorSettings() const { return mEditorSettings; }
+
+        void saveEditorSettings();
         
     protected:  /// from Tiny3D::Application
         TResult applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
@@ -97,6 +104,8 @@ namespace Tiny3D
         }
 
         bool parseCommandLine(int32_t argc, char *argv[]);
+
+        void readEditorSettings();
         
     protected:
         struct StartOptions
@@ -128,6 +137,8 @@ namespace Tiny3D
         AppEventProxy   *mAppEventProxy {nullptr};
 
         String mIniPath {};
+
+        EditorSettings mEditorSettings {};
 
         using FontMap = TUnorderedMap<int32_t, ImFont*>;
         FontMap mFontMap {};

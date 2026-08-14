@@ -242,6 +242,8 @@ namespace Tiny3D
                 break;
             }
 
+            readEditorSettings();
+
             // 刷新 RHI 命令队列，确保 createRenderWindow/createShadowMap 等
             // 初始化命令已在 RHI 线程执行完毕，否则 ImGui 初始化时 D3D11 资源尚未创建
             mEngine->flushRHICommands();
@@ -407,6 +409,66 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void EditorApp::readEditorSettings()
+    {
+        do
+        {
+            const String path = getSettingsPath();
+            if (!Dir::exists(path))
+            {
+                break;
+            }
+
+            FileDataStream fs;
+            if (!fs.open(path.c_str(), FileDataStream::EOpenMode::E_MODE_READ_ONLY))
+            {
+                EDITOR_LOG_WARNING("Read editor settings [%s] failed !", path.c_str());
+                break;
+            }
+
+            const TResult ret = T3D_SERIALIZER_MGR.deserialize(fs, mEditorSettings);
+            if (T3D_FAILED(ret))
+            {
+                fs.close();
+                EDITOR_LOG_WARNING("Deserialize editor settings failed ! ERROR [%d]", ret);
+                mEditorSettings = EditorSettings();
+                break;
+            }
+
+            fs.close();
+        } while (false);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void EditorApp::saveEditorSettings()
+    {
+        const String path = getSettingsPath();
+        const String dir = Dir::getCachePath();
+        if (!Dir::exists(dir) && !Dir::makeDirs(dir))
+        {
+            EDITOR_LOG_WARNING("Failed to create settings directory [%s] !", dir.c_str());
+            return;
+        }
+
+        FileDataStream fs;
+        if (!fs.open(path.c_str(),
+            FileDataStream::EOpenMode::E_MODE_TRUNCATE | FileDataStream::EOpenMode::E_MODE_WRITE_ONLY))
+        {
+            EDITOR_LOG_WARNING("Write editor settings [%s] failed !", path.c_str());
+            return;
+        }
+
+        const TResult ret = T3D_SERIALIZER_MGR.serialize(fs, mEditorSettings);
+        fs.close();
+        if (T3D_FAILED(ret))
+        {
+            EDITOR_LOG_WARNING("Serialize editor settings failed ! ERROR [%d]", ret);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult EditorApp::createLanguageMgr()
     {
         TResult ret = T3D_OK;
@@ -558,6 +620,8 @@ namespace Tiny3D
         {
             mEngine->drainRHICommands();
         }
+
+        saveEditorSettings();
 
         if (mMainWindow != nullptr)
         {

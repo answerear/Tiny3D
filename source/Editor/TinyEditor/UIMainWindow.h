@@ -38,6 +38,7 @@ namespace Tiny3D
     class UIInspectorWindow;
     class UIProjectWindow;
     class UIConsoleWindow;
+    class UIPreferencesWindow;
     
     class UIMainWindow
         : public ImWindow
@@ -85,6 +86,10 @@ namespace Tiny3D
         bool onMenuItemExtractFromPrefab(uint32_t id, ImWidget *menuItem);
         bool onMenuItemEnabledPrefabOps(uint32_t id, ImWidget *menuItem);
 
+        bool onMenuItemPreferences(uint32_t id, ImWidget *menuItem);
+        bool onMenuItemOpenCppProject(uint32_t id, ImWidget *menuItem);
+        bool onMenuItemEnabledOpenCppProject(uint32_t id, ImWidget *menuItem);
+
         /// 资产文件被新增后重扫资产树并通知 Project 视图重建
         void refreshProjectView();
 
@@ -97,6 +102,7 @@ namespace Tiny3D
         UIInspectorWindow *mInspectorWnd {nullptr};
         UIProjectWindow *mProjectWnd {nullptr};
         UIConsoleWindow *mConsoleWnd {nullptr};
+        UIPreferencesWindow *mPreferencesWnd {nullptr};
     };
 
     NS_END

@@ -129,6 +129,30 @@ namespace Tiny3D
         /// 上一次 build 的完整输出
         const String &getLastOutput() const { return mLastOutput; }
 
+        /// IDE 用的 CMake 构建目录（{Project}/Temp/ScriptIDE）
+        String getIDEBuildDir() const;
+
+        /**
+         * @brief 确保游戏工程顶层 C++ solution 已生成
+         * @param [out] slnPath : 找到的 .sln 绝对路径
+         * @param [out] output : cmake configure 的完整输出
+         * @return 成功返回 T3D_OK；没有源码 / 没有 sln / configure 失败分别返回对应错误
+         * @remarks 对 Assets/Source 顶层 CMakeLists 做 configure，把 Editor 和
+         *          Runtime 打进同一个解决方案。构建目录与 Play 模式的
+         *          Temp/ScriptBuild 分开，互不干扰。
+         */
+        TResult ensureIDESolution(String &slnPath, String &output);
+
+        /**
+         * @brief 执行外部命令并捕获它的输出
+         * @param [in] cmdLine : 完整命令行
+         * @param [in] workDir : 工作目录，为空则继承当前进程
+         * @param [out] output : 合并后的 stdout + stderr
+         * @return 命令退出码为 0 时返回 T3D_OK
+         */
+        static TResult runCommand(const String &cmdLine, const String &workDir,
+            String &output);
+
     protected:
         /// 业务 C++ 源码目录（默认 Assets/Source，可由 ScriptsRelativePath 覆盖）
         String getScriptsDir() const { return mScriptsDir; }
@@ -170,15 +194,18 @@ namespace Tiny3D
         /// 拼出当前平台的调试符号文件名，没有伴随符号文件时返回空串
         static String platformSymbolFileName(const String &name);
 
-        /**
-         * @brief 执行外部命令并捕获它的输出
-         * @param [in] cmdLine : 完整命令行
-         * @param [in] workDir : 工作目录，为空则继承当前进程
-         * @param [out] output : 合并后的 stdout + stderr
-         * @return 命令退出码为 0 时返回 T3D_OK
-         */
-        static TResult runCommand(const String &cmdLine, const String &workDir,
-            String &output);
+        /// 拼出 cmake configure 命令（工具链参数来自 Tiny3DSDK.cmake）
+        String buildCMakeConfigureCommand(const String &sourceDir,
+            const String &buildDir) const;
+
+        /// 为 IDE 打开生成顶层 solution
+        TResult configureIDE(String &output);
+
+        /// 顶层 IDE 工程是否需要重新 configure
+        bool needsIDEReconfigure() const;
+
+        /// 在构建目录根下找第一个 .sln
+        static bool findSolutionFile(const String &buildDir, String &slnPath);
 
         /// 路径含空格时给 cmake 命令行参数加引号
         static String quote(const String &value);

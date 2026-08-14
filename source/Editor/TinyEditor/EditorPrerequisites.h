@@ -47,6 +47,13 @@ namespace Tiny3D
     #define EDITOR_LOG_INFO(fmt, ...)    T3D_LOG_INFO(LOG_TAG_EDITOR, fmt, ##__VA_ARGS__)
     #define EDITOR_LOG_DEBUG(fmt, ...)   T3D_LOG_DEBUG(LOG_TAG_EDITOR, fmt, ##__VA_ARGS__)
 
+    /// 语言表尚未补齐时回退到 fallback，避免 Preferences 新文案显示空白
+    inline const char *ESTR(uint32_t txtID, const char *fallback)
+    {
+        const String &text = STR(txtID);
+        return text.empty() ? fallback : text.c_str();
+    }
+
     #define ARCHIVE_TYPE_METAFS         "MetaFileSystem"
     #define ARCHIVE_TYPE_FS             "FileSystem"
 

@@ -436,23 +436,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptBuildSystem::configure(Variant variant, String &output)
+    String ScriptBuildSystem::buildCMakeConfigureCommand(const String &sourceDir,
+        const String &buildDir) const
     {
-        if (!loadSDKConfig())
-        {
-            return T3D_ERR_FILE_NOT_EXIST;
-        }
-
-        const String buildDir = getCMakeBuildDir(variant);
-
-        if (!Dir::exists(buildDir) && !Dir::makeDirs(buildDir))
-        {
-            EDITOR_LOG_ERROR("Failed to create script build dir [%s] !", buildDir.c_str());
-            return T3D_ERR_FAIL;
-        }
-
         String cmd = "cmake";
-        cmd += " -S " + quote(getCMakeSourceDir(variant));
+        cmd += " -S " + quote(sourceDir);
         cmd += " -B " + quote(buildDir);
 
         // 工具链三件套。这几项没法在 CMake 内部设置，只能走命令行，而它们的值来自
@@ -490,6 +478,28 @@ namespace Tiny3D
         // 且忽略 --config，多配置生成器（VS / Xcode）则相反。两个都给，任何生成器下
         // 都能拿到正确配置。
         cmd += String(" -DCMAKE_BUILD_TYPE=") + BUILD_CONFIG;
+
+        return cmd;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ScriptBuildSystem::configure(Variant variant, String &output)
+    {
+        if (!loadSDKConfig())
+        {
+            return T3D_ERR_FILE_NOT_EXIST;
+        }
+
+        const String buildDir = getCMakeBuildDir(variant);
+
+        if (!Dir::exists(buildDir) && !Dir::makeDirs(buildDir))
+        {
+            EDITOR_LOG_ERROR("Failed to create script build dir [%s] !", buildDir.c_str());
+            return T3D_ERR_FAIL;
+        }
+
+        const String cmd = buildCMakeConfigureCommand(getCMakeSourceDir(variant), buildDir);
 
         EDITOR_LOG_INFO("Configuring game plugin : %s", cmd.c_str());
 
@@ -661,6 +671,127 @@ namespace Tiny3D
                     "the next cleanup.", victim.c_str());
             }
         }
+    }
+
+    //--------------------------------------------------------------------------
+
+    String ScriptBuildSystem::getIDEBuildDir() const
+    {
+        const String sep(1, Dir::getNativeSeparator());
+        return mProjectPath + sep + "Temp" + sep + "ScriptIDE";
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptBuildSystem::findSolutionFile(const String &buildDir, String &slnPath)
+    {
+        slnPath.clear();
+
+        Dir finder;
+        const String pattern = buildDir + Dir::getNativeSeparator() + "*.sln";
+        bool working = finder.findFile(pattern);
+        while (working)
+        {
+            if (!finder.isDots() && !finder.isDirectory())
+            {
+                slnPath = finder.getFilePath();
+                finder.close();
+                return true;
+            }
+            working = finder.findNextFile();
+        }
+        finder.close();
+        return false;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptBuildSystem::needsIDEReconfigure() const
+    {
+        const String buildDir = getIDEBuildDir();
+        const String cacheFile = buildDir + Dir::getNativeSeparator() + "CMakeCache.txt";
+        if (!Dir::exists(cacheFile))
+        {
+            return true;
+        }
+
+        String slnPath;
+        if (!findSolutionFile(buildDir, slnPath))
+        {
+            // 缓存在但没有 sln：可能是 Ninja 生成器，再 configure 一次也变不出 sln
+            return false;
+        }
+
+        return getNewestSourceTime(mScriptsDir) > Dir::getLastWriteTime(cacheFile);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ScriptBuildSystem::configureIDE(String &output)
+    {
+        if (!loadSDKConfig())
+        {
+            return T3D_ERR_FILE_NOT_EXIST;
+        }
+
+        const String buildDir = getIDEBuildDir();
+
+        if (!Dir::exists(buildDir) && !Dir::makeDirs(buildDir))
+        {
+            EDITOR_LOG_ERROR("Failed to create IDE build dir [%s] !", buildDir.c_str());
+            return T3D_ERR_FAIL;
+        }
+
+        const String cmd = buildCMakeConfigureCommand(mScriptsDir, buildDir);
+
+        EDITOR_LOG_INFO("Configuring C++ IDE solution : %s", cmd.c_str());
+
+        return runCommand(cmd, mScriptsDir, output);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ScriptBuildSystem::ensureIDESolution(String &slnPath, String &output)
+    {
+        slnPath.clear();
+        output.clear();
+        mLastOutput.clear();
+
+        if (!hasScripts())
+        {
+            EDITOR_LOG_WARNING("No game plugin scripts to open in the IDE.");
+            return T3D_ERR_NOT_FOUND;
+        }
+
+        const String cmakeLists = mScriptsDir + Dir::getNativeSeparator() + "CMakeLists.txt";
+        if (!Dir::exists(cmakeLists))
+        {
+            EDITOR_LOG_ERROR("Game plugin CMakeLists.txt not found at [%s] !",
+                cmakeLists.c_str());
+            return T3D_ERR_FILE_NOT_EXIST;
+        }
+
+        if (needsIDEReconfigure())
+        {
+            TResult ret = configureIDE(output);
+            mLastOutput = output;
+            if (T3D_FAILED(ret))
+            {
+                EDITOR_LOG_ERROR("Failed to configure C++ IDE solution !\n%s",
+                    output.c_str());
+                return ret;
+            }
+        }
+
+        if (!findSolutionFile(getIDEBuildDir(), slnPath))
+        {
+            EDITOR_LOG_ERROR("No .sln was generated in [%s]. The editor toolchain "
+                "must use a Visual Studio CMake generator to open a C++ solution.",
+                getIDEBuildDir().c_str());
+            return T3D_ERR_FILE_NOT_EXIST;
+        }
+
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
