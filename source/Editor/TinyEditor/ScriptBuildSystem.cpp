@@ -774,7 +774,10 @@ namespace Tiny3D
             return T3D_ERR_FILE_NOT_EXIST;
         }
 
-        if (needsIDEReconfigure())
+        // 引擎托管的 CMake 从模板同步，不要去改已经生成的游戏工程。
+        const bool templateSynced = syncIDECMakeFromTemplate();
+
+        if (templateSynced || needsIDEReconfigure())
         {
             TResult ret = configureIDE(output);
             mLastOutput = output;
@@ -786,15 +789,261 @@ namespace Tiny3D
             }
         }
 
-        if (!findSolutionFile(getIDEBuildDir(), slnPath))
+        const String buildDir = getIDEBuildDir();
+        if (!findSolutionFile(buildDir, slnPath))
         {
             EDITOR_LOG_ERROR("No .sln was generated in [%s]. The editor toolchain "
                 "must use a Visual Studio CMake generator to open a C++ solution.",
-                getIDEBuildDir().c_str());
+                buildDir.c_str());
             return T3D_ERR_FILE_NOT_EXIST;
         }
 
+        // cmake 内部路径是 /，VS 调试页在 Windows 上必须是 \
+        fixGeneratedVsDebuggerPaths(buildDir);
+
         return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptBuildSystem::readTextFile(const String &path, String &text)
+    {
+        FileDataStream fs;
+        if (!fs.open(path.c_str(), FileDataStream::E_MODE_READ_ONLY))
+        {
+            return false;
+        }
+
+        const size_t size = static_cast<size_t>(fs.size());
+        text.resize(size);
+        if (size > 0)
+        {
+            fs.read(&text[0], size);
+        }
+        fs.close();
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptBuildSystem::writeTextFile(const String &path, const String &text)
+    {
+        FileDataStream fs;
+        if (!fs.open(path.c_str(), FileDataStream::E_MODE_TRUNCATE
+            | FileDataStream::E_MODE_WRITE_ONLY))
+        {
+            return false;
+        }
+
+        if (!text.empty())
+        {
+            fs.write(const_cast<char *>(text.data()), text.size());
+        }
+        fs.close();
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptBuildSystem::syncTemplateFile(const String &relativePath) const
+    {
+        const String sep(1, Dir::getNativeSeparator());
+        const String src = Dir::getAppPath() + sep + "Editor" + sep + "templates"
+            + sep + "GamePlugin" + sep + relativePath;
+        const String dst = mScriptsDir + sep + relativePath;
+
+        if (!Dir::exists(src))
+        {
+            return false;
+        }
+
+        String content;
+        if (!readTextFile(src, content))
+        {
+            EDITOR_LOG_WARNING("Failed to read CMake template [%s] !", src.c_str());
+            return false;
+        }
+
+        static const String kPlaceholder = "{ProjectName}";
+        size_t pos = content.find(kPlaceholder);
+        while (pos != String::npos)
+        {
+            content.replace(pos, kPlaceholder.size(), mPluginName);
+            pos = content.find(kPlaceholder, pos + mPluginName.size());
+        }
+
+        String existing;
+        if (readTextFile(dst, existing) && existing == content)
+        {
+            return false;
+        }
+
+        const size_t slash = dst.find_last_of("/\\");
+        if (slash != String::npos)
+        {
+            const String dir = dst.substr(0, slash);
+            if (!Dir::exists(dir) && !Dir::makeDirs(dir))
+            {
+                EDITOR_LOG_WARNING("Failed to create [%s] for CMake template sync !",
+                    dir.c_str());
+                return false;
+            }
+        }
+
+        if (!writeTextFile(dst, content))
+        {
+            EDITOR_LOG_WARNING("Failed to write CMake template [%s] !", dst.c_str());
+            return false;
+        }
+
+        EDITOR_LOG_INFO("Synced CMake template [%s] -> [%s].", src.c_str(), dst.c_str());
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptBuildSystem::syncIDECMakeFromTemplate() const
+    {
+        bool changed = syncTemplateFile("GamePluginCommon.cmake");
+        changed = syncTemplateFile(String("Player") + Dir::getNativeSeparator()
+            + "CMakeLists.txt") || changed;
+        return changed;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ScriptBuildSystem::toNativePathSeparators(String &text)
+    {
+        const char native = Dir::getNativeSeparator();
+        const char foreign = (native == '\\') ? '/' : '\\';
+        for (size_t i = 0; i < text.size(); ++i)
+        {
+            if (text[i] == foreign)
+            {
+                text[i] = native;
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptBuildSystem::rewriteVsDebuggerPathSlashes(String &xml)
+    {
+        static const char *kTags[] = {
+            "LocalDebuggerCommand",
+            "LocalDebuggerCommandArguments",
+            "LocalDebuggerWorkingDirectory",
+            "LocalDebuggerEnvironment",
+            nullptr
+        };
+
+        bool changed = false;
+
+        for (int i = 0; kTags[i] != nullptr; ++i)
+        {
+            const String open = String("<") + kTags[i];
+            const String close = String("</") + kTags[i] + ">";
+            size_t pos = 0;
+
+            while ((pos = xml.find(open, pos)) != String::npos)
+            {
+                const size_t gt = xml.find('>', pos);
+                if (gt == String::npos)
+                {
+                    break;
+                }
+
+                const size_t end = xml.find(close, gt + 1);
+                if (end == String::npos)
+                {
+                    break;
+                }
+
+                String value = xml.substr(gt + 1, end - (gt + 1));
+                const String before = value;
+                toNativePathSeparators(value);
+                if (value != before)
+                {
+                    xml.replace(gt + 1, before.size(), value);
+                    changed = true;
+                    pos = gt + 1 + value.size() + close.size();
+                }
+                else
+                {
+                    pos = end + close.size();
+                }
+            }
+        }
+
+        return changed;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ScriptBuildSystem::collectFilesBySuffix(const String &dir,
+        const String &suffix, TArray<String> &out)
+    {
+        Dir finder;
+        if (!finder.findFile(dir + Dir::getNativeSeparator() + "*"))
+        {
+            return;
+        }
+
+        while (finder.findNextFile())
+        {
+            if (finder.isDots())
+            {
+                continue;
+            }
+
+            if (finder.isDirectory())
+            {
+                collectFilesBySuffix(finder.getFilePath(), suffix, out);
+                continue;
+            }
+
+            const String name = finder.getFileName();
+            if (name.size() >= suffix.size()
+                && name.compare(name.size() - suffix.size(), suffix.size(), suffix) == 0)
+            {
+                out.push_back(finder.getFilePath());
+            }
+        }
+
+        finder.close();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ScriptBuildSystem::fixGeneratedVsDebuggerPaths(const String &buildDir) const
+    {
+        TArray<String> files;
+        collectFilesBySuffix(buildDir, ".vcxproj", files);
+        collectFilesBySuffix(buildDir, ".vcxproj.user", files);
+
+        for (const String &path : files)
+        {
+            String xml;
+            if (!readTextFile(path, xml))
+            {
+                continue;
+            }
+
+            if (!rewriteVsDebuggerPathSlashes(xml))
+            {
+                continue;
+            }
+
+            if (writeTextFile(path, xml))
+            {
+                EDITOR_LOG_INFO("Normalized VS debugger paths in [%s].", path.c_str());
+            }
+            else
+            {
+                EDITOR_LOG_WARNING("Failed to write normalized debugger paths [%s] !",
+                    path.c_str());
+            }
+        }
     }
 
     //--------------------------------------------------------------------------

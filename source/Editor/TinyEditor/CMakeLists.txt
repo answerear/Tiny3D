@@ -130,6 +130,9 @@ if (TINY3D_OS_WINDOWS)
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../assets/config/TinyEditorGUI.ini ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/TinyEditorGUI.ini
         COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../assets/config/TinyEditorGUI.ini ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/TinyEditorGUI.ini
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../../assets/editor/templates"
+            "$<TARGET_FILE_DIR:${BIN_NAME}>/Editor/templates"
         )
         
     # Setup install files and path for Windows.

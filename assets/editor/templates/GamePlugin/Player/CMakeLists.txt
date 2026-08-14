@@ -1,6 +1,8 @@
 #-------------------------------------------------------------------------------
 # TinyPlayer —— 游戏 sln 里的 Runtime 宿主
 #
+# TinyEditor 打开 C++ 工程时会从 Editor/templates/GamePlugin/Player 同步本文件。
+#
 # 源码来自 SDK 导出的引擎 Player，这里只负责编成 exe、依赖 Runtime DLL、
 # 并写好 VS 的 F5 调试属性。
 #-------------------------------------------------------------------------------
@@ -48,9 +50,16 @@ endforeach ()
 
 tiny3d_native_path(_dbg_project "${GAME_PROJECT_ROOT}")
 tiny3d_native_path(_dbg_sdk "${TINY3D_SDK_ROOT}")
+set(_dbg_args "--project \"${_dbg_project}\"")
+set(_dbg_env "PATH=${_dbg_sdk};%PATH%")
 set_target_properties(TinyPlayer PROPERTIES
-    VS_DEBUGGER_COMMAND_ARGUMENTS "--project \"${_dbg_project}\""
+    VS_DEBUGGER_COMMAND_ARGUMENTS "${_dbg_args}"
     VS_DEBUGGER_WORKING_DIRECTORY "${_dbg_project}"
-    VS_DEBUGGER_ENVIRONMENT "PATH=${_dbg_sdk};%PATH%")
+    VS_DEBUGGER_ENVIRONMENT "${_dbg_env}")
+# %PATH% 不能写进 .user：CMake 在 Windows 上会把 %VAR% 当环境变量展开。
+# 环境变量只靠 vcxproj 里的 VS_DEBUGGER_ENVIRONMENT。
+tiny3d_write_vs_debugger_user(TinyPlayer
+    ARGUMENTS "${_dbg_args}"
+    WORKING_DIRECTORY "${_dbg_project}")
 
 message(STATUS "TinyPlayer -> ${_player_out}")

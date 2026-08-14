@@ -204,6 +204,29 @@ namespace Tiny3D
         /// 顶层 IDE 工程是否需要重新 configure
         bool needsIDEReconfigure() const;
 
+        /// 从编辑器模板同步引擎托管的 CMake（GamePluginCommon / Player）
+        /// @return 有文件被写入时返回 true，供调用方决定是否重新 configure
+        bool syncIDECMakeFromTemplate() const;
+
+        /// 把模板相对路径同步到业务源码目录，并替换 {ProjectName}
+        bool syncTemplateFile(const String &relativePath) const;
+
+        /// cmake 生成 sln 后，把 vcxproj 里 LocalDebugger* 路径改成本机分隔符
+        void fixGeneratedVsDebuggerPaths(const String &buildDir) const;
+
+        /// 递归收集目录下指定后缀的文件
+        static void collectFilesBySuffix(const String &dir, const String &suffix,
+            TArray<String> &out);
+
+        /// 把一段文本里的路径分隔符改成本机形式（Windows \，其它 /）
+        static void toNativePathSeparators(String &text);
+
+        /// 只改 LocalDebugger* 标签内的路径分隔符，整文件有改动返回 true
+        static bool rewriteVsDebuggerPathSlashes(String &xml);
+
+        static bool readTextFile(const String &path, String &text);
+        static bool writeTextFile(const String &path, const String &text);
+
         /// 在构建目录根下找第一个 .sln
         static bool findSolutionFile(const String &buildDir, String &slnPath);
 
