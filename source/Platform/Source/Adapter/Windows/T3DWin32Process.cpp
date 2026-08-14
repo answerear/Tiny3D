@@ -84,7 +84,19 @@ namespace Tiny3D
             PROCESS_INFORMATION pi;
             memset(&pi, 0, sizeof(PROCESS_INFORMATION));
 
-            String fullCmdList = exePath + " " + cmdList;
+            // 子进程用 GetCommandLine 自己拆 argv。exe 路径含空格时必须加引号，
+            // 否则 VS 会把 Program Files (x86)\...\devenv.exe 当成多个要打开的文件。
+            String fullCmdList = exePath;
+            if (fullCmdList.empty() || fullCmdList.front() != '"')
+            {
+                fullCmdList = "\"" + exePath + "\"";
+            }
+            if (!cmdList.empty())
+            {
+                fullCmdList += " ";
+                fullCmdList += cmdList;
+            }
+
             String ascFullCmdList = T3D_LOCALE.UTF8ToANSI(fullCmdList);
             String ascExePath = T3D_LOCALE.UTF8ToANSI(exePath);
             if (!::CreateProcess(ascExePath.c_str(), const_cast<char*>(ascFullCmdList.c_str()), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi))
