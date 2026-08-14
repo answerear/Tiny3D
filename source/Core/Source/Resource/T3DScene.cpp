@@ -306,6 +306,17 @@ namespace Tiny3D
             item.second->setupHierarchy();
         }
 
+        // Camera::onStart 只往 getCurrentScene() 登记。Player 加载时当前场景
+        // 还是空的，这里把本场景里的相机登记到 this，渲染管线才能找到它们。
+        for (const auto &item : mGameObjects)
+        {
+            CameraPtr camera = item.second->getComponent<Camera>();
+            if (camera != nullptr)
+            {
+                addCamera(camera.get());
+            }
+        }
+
         // 层级 + 组件全部就位后，按 DFS 对整树 Behaviour 同步 Awake → OnEnable，
         // 并投递 pending-start（Start 仍延迟到首帧 update 前）。此时兄弟组件与
         // 父子层级均已就绪，脚本 onAwake 内 getComponent 可靠（见设计文档 §4.2 路径1）

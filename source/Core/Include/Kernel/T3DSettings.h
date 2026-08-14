@@ -157,6 +157,26 @@ namespace Tiny3D
     };
 
     /**
+     * \brief 游戏启动配置。Player 读这份就能找到业务 DLL 和启动场景，
+     *        不必链编辑器、也不必解析 ProjectSettings.tasset。
+     */
+    TSTRUCT()
+    struct GameSettings
+    {
+        /// 启动场景 UUID 的字符串形式
+        TPROPERTY()
+        String startupSceneUUID {};
+
+        /// 业务插件逻辑名（不含平台前后缀），对应 Library/ScriptAssemblies/Runtime 下的 DLL
+        TPROPERTY()
+        String gamePluginName {};
+
+        /// 导出后的资源包路径，相对 Player 工作目录；开发期 --project 不用它
+        TPROPERTY()
+        String bundlePath {"Data/bundle"};
+    };
+
+    /**
      * \brief 引擎总配置聚合体（配置文件反序列化目标 / init 入参）
      */
     TSTRUCT()
@@ -176,6 +196,9 @@ namespace Tiny3D
 
         TPROPERTY()
         TimeSettings        timeSettings {};
+
+        TPROPERTY()
+        GameSettings        gameSettings {};
     };
 }
 

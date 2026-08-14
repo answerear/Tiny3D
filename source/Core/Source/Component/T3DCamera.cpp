@@ -469,7 +469,13 @@ namespace Tiny3D
             mXformNode = static_cast<Transform3D *>(getGameObject()->getTransformNode());
         }
 
-        T3D_SCENE_MGR.getCurrentScene()->addCamera(this);
+        // 反序列化时当前场景可能还没 setCurrentScene（TinyPlayer 加载就是这样）。
+        // 相机归属由 Scene::onPostLoad 登记到正在加载的那份 Scene 上。
+        Scene *scene = T3D_SCENE_MGR.getCurrentScene();
+        if (scene != nullptr)
+        {
+            scene->addCamera(this);
+        }
     }
 
     //--------------------------------------------------------------------------

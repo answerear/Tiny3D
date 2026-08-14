@@ -1324,7 +1324,15 @@ namespace Tiny3D
 
         do 
         {
-            mPluginsPath = mAppPath + Dir::getNativeSeparator() + mSettings.pluginSettings.pluginPath;
+            const String &pluginPath = mSettings.pluginSettings.pluginPath;
+            // 绝对路径直接用：游戏 sln 里的 TinyPlayer 不在编辑器 bin 下，
+            // 插件要去 SDK 目录找。相对路径仍按「应用目录 + pluginPath」拼。
+            const bool absolute = !pluginPath.empty()
+                && (pluginPath[0] == '/' || pluginPath[0] == '\\'
+                    || (pluginPath.length() >= 2 && pluginPath[1] == ':'));
+            mPluginsPath = absolute
+                ? pluginPath
+                : (mAppPath + Dir::getNativeSeparator() + pluginPath);
 
             auto itr = mSettings.pluginSettings.plugins.begin();
             while (itr != mSettings.pluginSettings.plugins.end())
