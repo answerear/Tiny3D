@@ -353,8 +353,8 @@ namespace Tiny3D
          * \brief 按 RTTR 类型创建并挂载组件，写入更新队列并触发生命周期
          * \param [in] type : 组件类型，须派生自 Component；TransformNode 不可重复
          * \return 成功返回组件；类型非法 / 重复 Transform / 创建失败返回 nullptr
-         * \remarks Behaviour：Awake + refreshActiveState，有 Scene 则 enqueuePendingStart，否则立即 Start；
-         *          非 Behaviour：立即 onStart。
+         * \remarks Behaviour：仅在播放态或 executeInEditMode 时 Awake + refreshActiveState，
+         *          有 Scene 则 enqueuePendingStart，否则立即 Start；非 Behaviour：立即 onStart。
          */
         ComponentPtr addComponent(const RTTRType &type);
 
@@ -446,6 +446,7 @@ namespace Tiny3D
         /**
          * \brief 对本对象全部 Behaviour 同步 Awake + OnEnable，并向 scene 投递 pending-start（scene 为空则立即 Start）
          * \param [in] scene : 目标场景，可为 nullptr
+         * \remarks 未处于播放态且非 executeInEditMode 的 Behaviour 跳过，等进入 Play 再补发
          */
         void awakeBehaviours(Scene *scene);
 
@@ -490,7 +491,8 @@ namespace Tiny3D
 
         /**
          * \brief 根据 mComponentObjects 重建 mComponents 与更新队列；可选触发非 Behaviour 的 onStart
-         * \note Behaviour 的 Awake/Start 由 Scene::onPostLoad / awakeBehaviours 统一处理
+         * \note Behaviour 的 Awake/Start 由 Scene::onPostLoad / awakeBehaviours 统一处理；
+         *       编辑态（非 executeInEditMode）推迟到进入 Play
          */
         void setupComponents();
 

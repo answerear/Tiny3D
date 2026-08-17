@@ -88,7 +88,7 @@ namespace Tiny3D
          * \brief 刷新 pending-start 队列：对已激活且未 Start 的 Behaviour 调用 invokeStart
          * \remarks 交换队列避免 onStart 内再 addComponent 导致迭代失效；尚未激活的 Behaviour 保留到后续帧
          */
-        void flushPendingStart();
+        virtual void flushPendingStart();
 
         /**
          * \brief 按渲染顺序将相机加入场景
@@ -320,6 +320,20 @@ namespace Tiny3D
 
         /// 获取绑定的运行时场景
         Scene *getRuntimeScene() const override { return mRuntimeScene; }
+
+        /**
+         * \brief 同时 flush 编辑器场景与 runtime 场景的 pending-start
+         * \remarks Agent 只对 getCurrentScene()（编辑器里是 EditorScene）调用 flush。
+         *          场景加载 / 进 Play 的 Awake 把 Start 投到 runtime Scene，必须两边都冲。
+         */
+        void flushPendingStart() override
+        {
+            Scene::flushPendingStart();
+            if (mRuntimeScene != nullptr)
+            {
+                mRuntimeScene->flushPendingStart();
+            }
+        }
 
         /// 获取 Scene 视图着色模式
         SceneDrawMode getDrawMode() const { return mDrawMode; }

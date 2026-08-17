@@ -62,6 +62,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    // Awake / OnEnable / 投递 Start 是否应立即执行。
+    // 不看 enabled（与 Unity 一致：禁用脚本仍会 Awake）。
+    // standalone 默认 isPlaying == true，此判定恒为真，挂载即 Awake 的语义不变。
+    static inline bool shouldInvokeBehaviourLifecycle(Behaviour *b)
+    {
+        return T3D_AGENT.isPlaying() || b->executeInEditMode();
+    }
+
+    //--------------------------------------------------------------------------
+
 // #if defined (T3D_DEBUG)
 //     Object *GameObject::acquire()
 //     {
@@ -557,7 +567,7 @@ namespace Tiny3D
         for (const auto &item : mComponents)
         {
             Behaviour *b = item.second->asBehaviour();
-            if (b != nullptr)
+            if (b != nullptr && shouldInvokeBehaviourLifecycle(b))
             {
                 b->invokeAwake();
             }
@@ -567,7 +577,7 @@ namespace Tiny3D
         for (const auto &item : mComponents)
         {
             Behaviour *b = item.second->asBehaviour();
-            if (b != nullptr)
+            if (b != nullptr && shouldInvokeBehaviourLifecycle(b))
             {
                 b->refreshActiveState();
                 if (scene != nullptr)
@@ -901,17 +911,21 @@ namespace Tiny3D
             {
                 // 脚本组件：单加语义与 Unity 一致——此刻尚未添加的兄弟组件本就拿不到。
                 // 同步 Awake + OnEnable，Start 延迟到首帧 update 前统一 flush。
-                b->invokeAwake();
-                b->refreshActiveState();
+                // 编辑态（且非 executeInEditMode）只挂接，等进入 Play 再补发。
+                if (shouldInvokeBehaviourLifecycle(b))
+                {
+                    b->invokeAwake();
+                    b->refreshActiveState();
 
-                Scene *scene = T3D_SCENE_MGR.getCurrentScene();
-                if (scene != nullptr)
-                {
-                    scene->enqueuePendingStart(b);
-                }
-                else
-                {
-                    b->invokeStart();
+                    Scene *scene = T3D_SCENE_MGR.getCurrentScene();
+                    if (scene != nullptr)
+                    {
+                        scene->enqueuePendingStart(b);
+                    }
+                    else
+                    {
+                        b->invokeStart();
+                    }
                 }
             }
             else
