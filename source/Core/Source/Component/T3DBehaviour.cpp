@@ -62,7 +62,7 @@ namespace Tiny3D
     bool Behaviour::isActiveAndEnabled() const
     {
         GameObject *go = getGameObject();
-        return go != nullptr && go->isActive() && mEnabled;
+        return go != nullptr && go->isActiveInHierarchy() && mEnabled;
     }
 
     //--------------------------------------------------------------------------

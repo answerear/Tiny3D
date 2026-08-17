@@ -142,9 +142,15 @@ namespace Tiny3D
         virtual TResult cloneProperties(const Component * const src);
 
         /**
-         * \brief 销毁前回调：清空 mGameObject 并从 msComponents 注销
+         * \brief 销毁前回调：默认执行 unregister()
          */
         virtual void onDestroy();
+
+        /**
+         * \brief 引擎收尾：清空 mGameObject 并从 msComponents 注销
+         * \remarks 未 Awake 的 Behaviour 跳过脚本 onDestroy 时仍须走这里
+         */
+        void unregister();
 
         /**
          * \brief 反序列化完成后回调：将自身注册到 msComponents

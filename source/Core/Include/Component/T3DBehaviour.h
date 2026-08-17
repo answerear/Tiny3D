@@ -70,7 +70,7 @@ namespace Tiny3D
 
         /**
          * \brief 判断组件是否处于可执行态
-         * \return 所属 GameObject 存在、active 且本组件 enabled 时返回 true
+         * \return 所属 GameObject 存在、activeInHierarchy 且本组件 enabled 时返回 true
          */
         bool isActiveAndEnabled() const;
 

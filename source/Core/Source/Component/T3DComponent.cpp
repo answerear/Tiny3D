@@ -98,10 +98,17 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void Component::onDestroy()
+    void Component::unregister()
     {
         mGameObject = nullptr;
         msComponents.erase(mUUID);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Component::onDestroy()
+    {
+        unregister();
     }
 
     //--------------------------------------------------------------------------

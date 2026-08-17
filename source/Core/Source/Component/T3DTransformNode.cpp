@@ -68,6 +68,13 @@ namespace Tiny3D
         mChildrenUUID.emplace_back(node->getUUID());
         T3D_ASSERT(mChildrenCount == mChildrenUUID.size());
         node->onAttachParent(this);
+
+        GameObject *go = node->getGameObject();
+        if (go != nullptr)
+        {
+            go->syncHierarchyActiveState();
+        }
+
         return T3D_OK;
     }
 
@@ -142,6 +149,15 @@ namespace Tiny3D
                 mFirstChild = nullptr;
                 mLastChild = nullptr;
             }
+
+            if (child != nullptr)
+            {
+                GameObject *go = child->getGameObject();
+                if (go != nullptr)
+                {
+                    go->syncHierarchyActiveState();
+                }
+            }
         } while (false);
 
         return ret;
@@ -153,10 +169,12 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        TList<TransformNode *> detached;
         TransformNode *child = mFirstChild;
 
         while (child != nullptr)
         {
+            detached.push_back(child);
             child->onDetachParent(this);
             child->mParent = nullptr;
             if (child->mPrevSibling != nullptr)
@@ -171,6 +189,15 @@ namespace Tiny3D
         mChildrenCount = 0;
 
         mChildrenUUID.clear();
+
+        for (TransformNode *node : detached)
+        {
+            GameObject *go = node->getGameObject();
+            if (go != nullptr)
+            {
+                go->syncHierarchyActiveState();
+            }
+        }
 
         return ret;
     }
@@ -280,6 +307,8 @@ namespace Tiny3D
 
     void TransformNode::onDestroy()
     {
+        GameObject::ActiveSyncScope suppress;
+
         TransformNodePtr parent = getParent();
         if (parent != nullptr)
         {
@@ -293,6 +322,8 @@ namespace Tiny3D
 
     void TransformNode::setupHierarchy()
     {
+        GameObject::ActiveSyncScope suppress;
+
         size_t i = 0;
         size_t count = mChildrenUUID.size();
         TransformNode *prev = nullptr, *next = nullptr;
@@ -367,44 +398,89 @@ namespace Tiny3D
 
     bool TransformNode::addChild(TransformNode *node)
     {
-        return TreeNode::addChild(node, [this](TransformNode *node)
+        const bool ok = TreeNode::addChild(node, [this](TransformNode *child)
             {
-                mChildrenUUID.emplace_back(node->getUUID());
-                node->onAttachParent(this);
+                mChildrenUUID.emplace_back(child->getUUID());
+                child->onAttachParent(this);
             });
+
+        if (ok && node != nullptr)
+        {
+            GameObject *go = node->getGameObject();
+            if (go != nullptr)
+            {
+                go->syncHierarchyActiveState();
+            }
+        }
+
+        return ok;
     }
 
     //--------------------------------------------------------------------------
 
     bool TransformNode::removeChild(TransformNode *node)
     {
-        return TreeNode::removeChild(node, [this](TransformNode *node)
+        const bool ok = TreeNode::removeChild(node, [this](TransformNode *child)
             {
-                node->onDetachParent(this);
-                mChildrenUUID.remove(node->getUUID());
+                child->onDetachParent(this);
+                mChildrenUUID.remove(child->getUUID());
             });
+
+        // TreeNode 在回调之后才把 mParent 置空，必须在返回后 sync
+        if (ok && node != nullptr)
+        {
+            GameObject *go = node->getGameObject();
+            if (go != nullptr)
+            {
+                go->syncHierarchyActiveState();
+            }
+        }
+
+        return ok;
     }
 
     //--------------------------------------------------------------------------
 
     TransformNodePtr TransformNode::removeChild(const UUID &nodeID)
     {
-        return TreeNode::removeChild(nodeID, [this](TransformNode *node)
+        TransformNodePtr node = TreeNode::removeChild(nodeID, [this](TransformNode *n)
             {
-                node->onDetachParent(this);
-                mChildrenUUID.remove(node->getUUID());
+                n->onDetachParent(this);
+                mChildrenUUID.remove(n->getUUID());
             });
+
+        if (node != nullptr)
+        {
+            GameObject *go = node->getGameObject();
+            if (go != nullptr)
+            {
+                go->syncHierarchyActiveState();
+            }
+        }
+
+        return node;
     }
 
     //--------------------------------------------------------------------------
 
     void TransformNode::removeAllChildren()
     {
-        TreeNode::removeAllChildren([this](TransformNode *node)
+        TList<TransformNode *> detached;
+        TreeNode::removeAllChildren([this, &detached](TransformNode *node)
             {
                 node->onDetachParent(this);
+                detached.push_back(node);
             });
         mChildrenUUID.clear();
+
+        for (TransformNode *node : detached)
+        {
+            GameObject *go = node->getGameObject();
+            if (go != nullptr)
+            {
+                go->syncHierarchyActiveState();
+            }
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -448,6 +524,8 @@ namespace Tiny3D
 
     void TransformNode::onDestroy()
     {
+        GameObject::ActiveSyncScope suppress;
+
         TransformNodePtr parent = getParent();
         if (parent != nullptr)
         {
@@ -463,6 +541,8 @@ namespace Tiny3D
 
     void TransformNode::setupHierarchy()
     {
+        GameObject::ActiveSyncScope suppress;
+
         size_t i = 0;
         size_t count = mChildrenUUID.size();
         

@@ -171,11 +171,29 @@ namespace Tiny3D
         bool isActive() const { return mIsActive; }
 
         /**
-         * \brief 设置自身激活标志
+         * \brief 设置自身激活标志，并按 activeInHierarchy 变化补发子树生命周期
          * \param [in] active : 是否激活
          */
         TPROPERTY(RTTRFuncName="Active", RTTRFuncType="setter")
-        void setActive(bool active) { mIsActive = active; }
+        void setActive(bool active);
+
+        /**
+         * \brief 按当前 activeInHierarchy 刷本节点子树的 Behaviour 生命周期
+         * \remarks 换父后由 TransformNode 调用。setupHierarchy / 销毁路径用 ActiveSyncScope 抑制。
+         */
+        void syncHierarchyActiveState();
+
+        /**
+         * \brief 抑制 syncHierarchyActiveState（反序列化接线、销毁摘父）
+         */
+        class ActiveSyncScope
+        {
+        public:
+            ActiveSyncScope();
+            ~ActiveSyncScope();
+            ActiveSyncScope(const ActiveSyncScope &) = delete;
+            ActiveSyncScope &operator=(const ActiveSyncScope &) = delete;
+        };
 
         /**
          * \brief 自身与所有祖先是否都处于激活状态（对标 Unity 的 activeInHierarchy）
@@ -446,7 +464,7 @@ namespace Tiny3D
         /**
          * \brief 对本对象全部 Behaviour 同步 Awake + OnEnable，并向 scene 投递 pending-start（scene 为空则立即 Start）
          * \param [in] scene : 目标场景，可为 nullptr
-         * \remarks 未处于播放态且非 executeInEditMode 的 Behaviour 跳过，等进入 Play 再补发
+         * \remarks 未处于播放态且非 executeInEditMode、或未 activeInHierarchy 的 Behaviour 跳过
          */
         void awakeBehaviours(Scene *scene);
 
@@ -492,7 +510,7 @@ namespace Tiny3D
         /**
          * \brief 根据 mComponentObjects 重建 mComponents 与更新队列；可选触发非 Behaviour 的 onStart
          * \note Behaviour 的 Awake/Start 由 Scene::onPostLoad / awakeBehaviours 统一处理；
-         *       编辑态（非 executeInEditMode）推迟到进入 Play
+         *       编辑态或未 activeInHierarchy 时推迟
          */
         void setupComponents();
 
@@ -531,6 +549,17 @@ namespace Tiny3D
         using WaitingDestroyGameObjects = TList<GameObjectPtr>;
 
         static WaitingDestroyGameObjects msWaitingDestroyGameObjects; ///< 待销毁对象队列
+
+        /**
+         * \brief 播放态（或 executeInEditMode）且 activeInHierarchy 时 Awake + OnEnable + 投递 Start
+         */
+        void tryAwakeBehaviour(Behaviour *b);
+
+        /// 只刷本对象上的 Behaviour，不遍历子树
+        void syncBehavioursActiveState();
+
+        /// ActiveSyncScope 嵌套计数，>0 时 syncHierarchyActiveState 直接返回
+        static int32_t sSuppressActiveSync;
     };
 }
 

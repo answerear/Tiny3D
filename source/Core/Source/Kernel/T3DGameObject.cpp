@@ -96,6 +96,7 @@ namespace Tiny3D
 
     GameObject::WaitingDestroyComponents GameObject::msWaitingDestroyComponents;
     GameObject::WaitingDestroyGameObjects GameObject::msWaitingDestroyGameObjects;
+    int32_t GameObject::sSuppressActiveSync = 0;
     // GameObject::GameObjects GameObject::msGameObjects;
     
     //--------------------------------------------------------------------------
@@ -116,7 +117,15 @@ namespace Tiny3D
         while (!msWaitingDestroyComponents.empty())
         {
             Component *component = msWaitingDestroyComponents.front();
-            component->onDestroy();
+            Behaviour *b = component->asBehaviour();
+            if (b == nullptr || b->wasAwaked())
+            {
+                component->onDestroy();
+            }
+            else
+            {
+                component->unregister();
+            }
             component->setGameObject(nullptr);
             msWaitingDestroyComponents.pop_front();
         }
@@ -561,8 +570,41 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void GameObject::tryAwakeBehaviour(Behaviour *b)
+    {
+        if (b == nullptr || !shouldInvokeBehaviourLifecycle(b))
+        {
+            return;
+        }
+
+        if (!isActiveInHierarchy())
+        {
+            return;
+        }
+
+        b->invokeAwake();
+        b->refreshActiveState();
+
+        Scene *scene = T3D_SCENE_MGR.getCurrentScene();
+        if (scene != nullptr)
+        {
+            scene->enqueuePendingStart(b);
+        }
+        else
+        {
+            b->invokeStart();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     void GameObject::awakeBehaviours(Scene *scene)
     {
+        if (!isActiveInHierarchy())
+        {
+            return;
+        }
+
         // 第一趟：本对象所有 Behaviour 同步 Awake（此刻兄弟组件已就位）
         for (const auto &item : mComponents)
         {
@@ -617,6 +659,84 @@ namespace Tiny3D
         }
 
         return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    GameObject::ActiveSyncScope::ActiveSyncScope()
+    {
+        ++sSuppressActiveSync;
+    }
+
+    //--------------------------------------------------------------------------
+
+    GameObject::ActiveSyncScope::~ActiveSyncScope()
+    {
+        --sSuppressActiveSync;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GameObject::setActive(bool active)
+    {
+        if (mIsActive == active)
+        {
+            return;
+        }
+
+        mIsActive = active;
+        syncHierarchyActiveState();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GameObject::syncBehavioursActiveState()
+    {
+        if (isActiveInHierarchy())
+        {
+            for (const auto &item : mComponents)
+            {
+                tryAwakeBehaviour(item.second->asBehaviour());
+            }
+        }
+        else
+        {
+            for (const auto &item : mComponents)
+            {
+                Behaviour *b = item.second->asBehaviour();
+                if (b != nullptr)
+                {
+                    b->refreshActiveState();
+                }
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GameObject::syncHierarchyActiveState()
+    {
+        if (sSuppressActiveSync > 0)
+        {
+            return;
+        }
+
+        TransformNode *node = getTransformNode();
+        if (node != nullptr)
+        {
+            node->visitAll([](int32_t depth, TransformNode *n)
+            {
+                GameObject *go = n->getGameObject();
+                if (go != nullptr)
+                {
+                    go->syncBehavioursActiveState();
+                }
+            });
+        }
+        else
+        {
+            syncBehavioursActiveState();
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -681,6 +801,8 @@ namespace Tiny3D
 
     void GameObject::destroy(GameObject *gameObject)
     {
+        ActiveSyncScope suppress;
+
         TransformNodePtr node = gameObject->getComponent<TransformNode>();
         if (node != nullptr)
         {
@@ -910,23 +1032,8 @@ namespace Tiny3D
             if (b != nullptr)
             {
                 // 脚本组件：单加语义与 Unity 一致——此刻尚未添加的兄弟组件本就拿不到。
-                // 同步 Awake + OnEnable，Start 延迟到首帧 update 前统一 flush。
-                // 编辑态（且非 executeInEditMode）只挂接，等进入 Play 再补发。
-                if (shouldInvokeBehaviourLifecycle(b))
-                {
-                    b->invokeAwake();
-                    b->refreshActiveState();
-
-                    Scene *scene = T3D_SCENE_MGR.getCurrentScene();
-                    if (scene != nullptr)
-                    {
-                        scene->enqueuePendingStart(b);
-                    }
-                    else
-                    {
-                        b->invokeStart();
-                    }
-                }
+                // 仅在播放态（或 executeInEditMode）且 activeInHierarchy 时 Awake。
+                tryAwakeBehaviour(b);
             }
             else
             {
