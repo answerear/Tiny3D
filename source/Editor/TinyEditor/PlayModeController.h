@@ -116,6 +116,9 @@ namespace Tiny3D
         /// 卸载当前运行时场景，从磁盘重新加载同一个场景并通知各视图重建
         TResult reloadScene();
 
+        /// 进入 Play 后对 runtime 场景尚未 Awake 的 Behaviour 补发 Awake / OnEnable / pending-start
+        void awakeRuntimeBehaviours();
+
         /// 清掉编辑器侧对场景对象的引用（选中项与 Hierarchy 树），避免卸载后变成悬垂指针
         void clearEditorReferences();
 

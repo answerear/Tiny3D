@@ -131,7 +131,10 @@ namespace Tiny3D
 
     void EditorSceneImpl::update()
     {
+        // runtime 根已挂在 __@#GameRoot#@__ 下，只走这棵树，避免再调
+        // mRuntimeScene->update() 把业务 onUpdate 跑两遍
         mRootGameObject->update();
+        mRootGameObject->lateUpdate();
     }
 
     //--------------------------------------------------------------------------

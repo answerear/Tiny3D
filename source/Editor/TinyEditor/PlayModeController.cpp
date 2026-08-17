@@ -439,9 +439,23 @@ namespace Tiny3D
 
         T3D_AGENT.enterPlayMode();
 
+        // 必须先置 Playing 再整树 Awake：编辑态加载/挂载时已按 isPlaying 推迟
+        awakeRuntimeBehaviours();
+
         EDITOR_LOG_INFO("Entered play mode.");
 
         return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void PlayModeController::awakeRuntimeBehaviours()
+    {
+        Scene *runtime = EDITOR_SCENE.getRuntimeScene();
+        if (runtime != nullptr)
+        {
+            runtime->awakeHierarchy(runtime->getRootGameObject());
+        }
     }
 
     //--------------------------------------------------------------------------
