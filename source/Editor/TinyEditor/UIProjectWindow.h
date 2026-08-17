@@ -103,6 +103,10 @@ namespace Tiny3D
         bool onMenuItemCreateFolder(uint32_t id, ImWidget *menuItem);
 
         bool onMenuItemEnabledCreateFolder(uint32_t id, ImWidget *menuIem);
+
+        bool onMenuItemCreateCppClass(uint32_t id, ImWidget *menuItem);
+
+        bool onMenuItemEnabledCreateCppClass(uint32_t id, ImWidget *menuItem);
         
     protected:
         ImTreeBar::TreeBarNodes mRoots {};

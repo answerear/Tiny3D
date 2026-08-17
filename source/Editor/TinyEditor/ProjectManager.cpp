@@ -1316,8 +1316,8 @@ namespace Tiny3D
                 break;
             }
 
-            // 删除对应的 meta 文件
-            String metaPath = node->getMetaName();
+            // 删除对应的 meta 文件，getPath 返回的就是 meta 的完整路径
+            String metaPath = node->getPath();
             if (!Dir::remove(metaPath))
             {
                 EDITOR_LOG_ERROR("Failed to delete meta file [%s] !", metaPath.c_str());
@@ -1340,6 +1340,312 @@ namespace Tiny3D
     TResult ProjectManager::addFile(AssetNode *parent, const String &path, AssetNode *&node)
     {
         return generateAssetNode(path, parent, node);
+    }
+
+    //--------------------------------------------------------------------------
+
+    namespace
+    {
+        const char *kCppClassHeaderFallback =
+            "/*******************************************************************************\n"
+            " * {ProjectName} —— {ClassName}\n"
+            " ******************************************************************************/\n"
+            "\n"
+            "#pragma once\n"
+            "\n"
+            "\n"
+            "#include \"GamePluginPrerequisites.h\"\n"
+            "\n"
+            "#include \"Component/T3DBehaviour.h\"\n"
+            "\n"
+            "\n"
+            "TCLASS()\n"
+            "class {ClassName} : public Tiny3D::Behaviour\n"
+            "{\n"
+            "    TRTTI_ENABLE(Tiny3D::Behaviour)\n"
+            "    TRTTI_FRIEND\n"
+            "\n"
+            "public:\n"
+            "    ~{ClassName}() override = default;\n"
+            "\n"
+            "protected:\n"
+            "    {ClassName}() = default;\n"
+            "    explicit {ClassName}(const Tiny3D::UUID &uuid);\n"
+            "\n"
+            "    void onAwake() override;\n"
+            "    void onEnable() override;\n"
+            "    void onStart() override;\n"
+            "    void onUpdate() override;\n"
+            "    void onLateUpdate() override;\n"
+            "    void onFixedUpdate() override;\n"
+            "    void onDisable() override;\n"
+            "    void onDestroy() override;\n"
+            "};\n";
+
+        const char *kCppClassSourceFallback =
+            "/*******************************************************************************\n"
+            " * {ProjectName} —— {ClassName}\n"
+            " ******************************************************************************/\n"
+            "\n"
+            "#include \"{ClassName}.h\"\n"
+            "\n"
+            "\n"
+            "using namespace Tiny3D;\n"
+            "\n"
+            "\n"
+            "{ClassName}::{ClassName}(const Tiny3D::UUID &uuid)\n"
+            "    : Behaviour(uuid)\n"
+            "{\n"
+            "}\n"
+            "\n"
+            "//------------------------------------------------------------------------------\n"
+            "\n"
+            "void {ClassName}::onAwake()\n"
+            "{\n"
+            "}\n"
+            "\n"
+            "//------------------------------------------------------------------------------\n"
+            "\n"
+            "void {ClassName}::onEnable()\n"
+            "{\n"
+            "}\n"
+            "\n"
+            "//------------------------------------------------------------------------------\n"
+            "\n"
+            "void {ClassName}::onStart()\n"
+            "{\n"
+            "}\n"
+            "\n"
+            "//------------------------------------------------------------------------------\n"
+            "\n"
+            "void {ClassName}::onUpdate()\n"
+            "{\n"
+            "}\n"
+            "\n"
+            "//------------------------------------------------------------------------------\n"
+            "\n"
+            "void {ClassName}::onLateUpdate()\n"
+            "{\n"
+            "}\n"
+            "\n"
+            "//------------------------------------------------------------------------------\n"
+            "\n"
+            "void {ClassName}::onFixedUpdate()\n"
+            "{\n"
+            "}\n"
+            "\n"
+            "//------------------------------------------------------------------------------\n"
+            "\n"
+            "void {ClassName}::onDisable()\n"
+            "{\n"
+            "}\n"
+            "\n"
+            "//------------------------------------------------------------------------------\n"
+            "\n"
+            "void {ClassName}::onDestroy()\n"
+            "{\n"
+            "}\n";
+
+        void replaceAll(String &content, const String &placeholder, const String &value)
+        {
+            StringUtil::replaceAll(content, placeholder, value);
+        }
+
+        bool readTextFile(const String &path, String &text)
+        {
+            FileDataStream fs;
+            if (!fs.open(path.c_str(), FileDataStream::E_MODE_READ_ONLY))
+            {
+                return false;
+            }
+
+            const size_t size = static_cast<size_t>(fs.size());
+            text.resize(size);
+            if (size > 0)
+            {
+                fs.read(&text[0], size);
+            }
+            fs.close();
+            return true;
+        }
+
+        bool writeTextFile(const String &path, const String &text)
+        {
+            FileDataStream fs;
+            if (!fs.open(path.c_str(), FileDataStream::E_MODE_TRUNCATE
+                | FileDataStream::E_MODE_WRITE_ONLY))
+            {
+                return false;
+            }
+
+            if (!text.empty())
+            {
+                fs.write(const_cast<char *>(text.data()), text.size());
+            }
+            fs.close();
+            return true;
+        }
+
+        String loadCppClassTemplate(const String &filename, const char *fallback)
+        {
+            const String sep(1, Dir::getNativeSeparator());
+            const String path = Dir::getAppPath() + sep + "Editor" + sep
+                + "templates" + sep + "CppClass" + sep + filename;
+
+            String content;
+            if (readTextFile(path, content) && !content.empty())
+            {
+                return content;
+            }
+
+            EDITOR_LOG_WARNING("C++ class template [%s] not found, using built-in fallback.",
+                path.c_str());
+            return String(fallback);
+        }
+
+        String makeUniqueCppClassName(const String &dir)
+        {
+            const String sep(1, Dir::getNativeSeparator());
+            const String base = "NewBehaviour";
+
+            for (int32_t i = 0; ; ++i)
+            {
+                String name = base;
+                if (i > 0)
+                {
+                    name += std::to_string(i);
+                }
+
+                const String headerPath = dir + sep + name + ".h";
+                const String sourcePath = dir + sep + name + ".cpp";
+                if (!Dir::exists(headerPath) && !Dir::exists(sourcePath))
+                {
+                    return name;
+                }
+            }
+        }
+
+        void removeCppClassFile(AssetNode *parent, AssetNode *&node, const String &path)
+        {
+            Dir::remove(path);
+            Dir::remove(path + ".meta");
+
+            if (node != nullptr)
+            {
+                if (parent != nullptr)
+                {
+                    parent->removeChild(node);
+                }
+                T3D_SAFE_DELETE(node);
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ProjectManager::isScriptsRoot(const AssetNode *node) const
+    {
+        if (node == nullptr || !isProjectOpened())
+        {
+            return false;
+        }
+
+        const String sep(1, Dir::getNativeSeparator());
+        // 老工程的 settings 里没有 ScriptsRelativePath，跟 ScriptBuildSystem 保持
+        // 一致回退到默认目录，否则这些工程永远点不到 C++ Class
+        const String relative = mProjectSettings.ScriptsRelativePath.empty()
+            ? (String("Assets") + sep + "Source")
+            : mProjectSettings.ScriptsRelativePath;
+
+        const String scriptsDir = Dir::formatPath(mPath + sep + relative);
+        if (scriptsDir.empty() || !Dir::exists(scriptsDir))
+        {
+            return false;
+        }
+
+        return Dir::formatPath(node->getFullPath()) == scriptsDir;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ProjectManager::createCppClass(AssetNode *parent, AssetNode *&headerNode,
+        AssetNode *&sourceNode)
+    {
+        headerNode = nullptr;
+        sourceNode = nullptr;
+
+        if (!isScriptsRoot(parent))
+        {
+            EDITOR_LOG_ERROR("C++ Class can only be created under Assets/Source.");
+            return T3D_ERR_INVALID_POINTER;
+        }
+
+        const String dir = parent->getFullPath();
+        const String className = makeUniqueCppClassName(dir);
+        const String pluginName = sanitizeIdentifier(mName);
+        const String sep(1, Dir::getNativeSeparator());
+        const String headerPath = dir + sep + className + ".h";
+        const String sourcePath = dir + sep + className + ".cpp";
+
+        String headerContent = loadCppClassTemplate("NewBehaviour.h", kCppClassHeaderFallback);
+        String sourceContent = loadCppClassTemplate("NewBehaviour.cpp", kCppClassSourceFallback);
+
+        replaceAll(headerContent, "{ClassName}", className);
+        replaceAll(headerContent, "{ProjectName}", pluginName);
+        replaceAll(sourceContent, "{ClassName}", className);
+        replaceAll(sourceContent, "{ProjectName}", pluginName);
+
+        TResult ret = T3D_OK;
+
+        do
+        {
+            if (!writeTextFile(headerPath, headerContent))
+            {
+                EDITOR_LOG_ERROR("Failed to write C++ header [%s] !", headerPath.c_str());
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+
+            ret = writeFileMeta(headerPath);
+            if (T3D_FAILED(ret))
+            {
+                Dir::remove(headerPath);
+                break;
+            }
+
+            ret = addFile(parent, headerPath + ".meta", headerNode);
+            if (T3D_FAILED(ret))
+            {
+                removeCppClassFile(parent, headerNode, headerPath);
+                break;
+            }
+
+            if (!writeTextFile(sourcePath, sourceContent))
+            {
+                EDITOR_LOG_ERROR("Failed to write C++ source [%s] !", sourcePath.c_str());
+                removeCppClassFile(parent, headerNode, headerPath);
+                ret = T3D_ERR_FAIL;
+                break;
+            }
+
+            ret = writeFileMeta(sourcePath);
+            if (T3D_FAILED(ret))
+            {
+                Dir::remove(sourcePath);
+                removeCppClassFile(parent, headerNode, headerPath);
+                break;
+            }
+
+            ret = addFile(parent, sourcePath + ".meta", sourceNode);
+            if (T3D_FAILED(ret))
+            {
+                removeCppClassFile(parent, sourceNode, sourcePath);
+                removeCppClassFile(parent, headerNode, headerPath);
+                break;
+            }
+        } while (false);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -1372,6 +1678,33 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult ProjectManager::writeFileMeta(const String &path)
+    {
+        String metaPath = path + ".meta";
+        if (Dir::exists(metaPath))
+        {
+            return T3D_OK;
+        }
+
+        MetaFilePtr meta = MetaFile::create(UUID::generate());
+        FileDataStream fs;
+        if (!fs.open(metaPath.c_str(), FileDataStream::EOpenMode::E_MODE_TRUNCATE))
+        {
+            EDITOR_LOG_ERROR("Failed to create meta file [%s] !", metaPath.c_str());
+            return T3D_ERR_FILE_NOT_EXIST;
+        }
+
+        TResult ret = T3D_SERIALIZER_MGR.serialize(fs, meta);
+        fs.close();
+
+        if (T3D_FAILED(ret))
+        {
+            EDITOR_LOG_ERROR("Failed to serialize meta file [%s] ! ERROR [%d]", metaPath.c_str(), ret);
+        }
+
+        return ret;
+    }
 
     TResult ProjectManager::ensureAssetFolder(const String &relativePath)
     {
@@ -1468,6 +1801,29 @@ namespace Tiny3D
         mFilename = title;
         Dir::parsePath(mFilename, dir, title, ext);
         mTitle = title;
+    }
+
+    //--------------------------------------------------------------------------
+
+    String AssetNode::getFullPath() const
+    {
+        const String &path = getPath();
+
+        // 根节点的 mPath 是 Assets 所在的目录，拼上自己的名字才是资产路径；
+        // 其余节点的 mPath 已经是 .meta 文件的完整路径，去掉后缀才是资产本身
+        if (getParent() == nullptr)
+        {
+            return path + Dir::getNativeSeparator() + getFilename();
+        }
+
+        static const String metaExt(".meta");
+        if (path.length() > metaExt.length()
+            && path.compare(path.length() - metaExt.length(), metaExt.length(), metaExt) == 0)
+        {
+            return path.substr(0, path.length() - metaExt.length());
+        }
+
+        return path;
     }
 
     //--------------------------------------------------------------------------

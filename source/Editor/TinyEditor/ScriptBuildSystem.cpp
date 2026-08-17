@@ -257,50 +257,40 @@ namespace Tiny3D
     {
         TArray<String> names;
         const String sep(1, Dir::getNativeSeparator());
-
-        const struct
+        static const char *kExts[] =
         {
-            const char *sub;
-            const char *exts[4];
-        } kDirs[] =
-        {
-            { "Include", { ".h", ".hpp", ".hh", nullptr } },
-            { "Source",  { ".cpp", ".cc", ".cxx", nullptr } }
+            ".h", ".hpp", ".hh", ".cpp", ".cc", ".cxx", nullptr
         };
 
-        for (const auto &entry : kDirs)
+        if (!Dir::exists(mScriptsDir))
         {
-            const String dir = mScriptsDir + sep + entry.sub;
-            if (!Dir::exists(dir))
-            {
-                continue;
-            }
+            return String();
+        }
 
-            Dir finder;
-            const String pattern = dir + sep + "*";
-            bool working = finder.findFile(pattern);
-            while (working)
+        Dir finder;
+        const String pattern = mScriptsDir + sep + "*";
+        bool working = finder.findFile(pattern);
+        while (working)
+        {
+            if (!finder.isDots() && !finder.isDirectory())
             {
-                if (!finder.isDots() && !finder.isDirectory())
+                const String name = finder.getFileName();
+                const size_t dot = name.rfind('.');
+                const String ext = (dot == String::npos)
+                    ? String() : name.substr(dot);
+                for (int i = 0; kExts[i] != nullptr; ++i)
                 {
-                    const String name = finder.getFileName();
-                    const size_t dot = name.rfind('.');
-                    const String ext = (dot == String::npos)
-                        ? String() : name.substr(dot);
-                    for (int i = 0; entry.exts[i] != nullptr; ++i)
+                    if (ext == kExts[i])
                     {
-                        if (ext == entry.exts[i])
-                        {
-                            names.push_back(String(entry.sub) + "/" + name);
-                            break;
-                        }
+                        names.push_back(name);
+                        break;
                     }
                 }
-
-                working = finder.findNextFile();
             }
-            finder.close();
+
+            working = finder.findNextFile();
         }
+        finder.close();
 
         std::sort(names.begin(), names.end());
 
@@ -521,7 +511,7 @@ namespace Tiny3D
 
         const String buildDir = getCMakeBuildDir(variant);
 
-        // Include/Source 文件集合变了必须重新 configure：file(GLOB) 和 rpp
+        // Assets/Source 根下的 .h / .cpp 集合变了必须重新 configure：file(GLOB) 和 rpp
         // 新产出的 *.generated.cpp 都要进工程。只改已有文件内容则走增量 rpp。
         if (needsReconfigure(variant))
         {

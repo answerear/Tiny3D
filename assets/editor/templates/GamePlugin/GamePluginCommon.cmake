@@ -4,11 +4,11 @@
 # TinyEditor 打开 C++ 工程时会从 Editor/templates/GamePlugin 同步本文件。
 # 调试路径等构建逻辑请改引擎模板，不要改已经生成的游戏工程。
 #
-# Editor 与 Runtime 两个变体编的是同一份 Include / Source，差别只在链哪个 Core、
-# 定不定义 T3D_EDITOR、以及输出到哪个目录。这些差异全部收在这个文件里，两个
-# 变体的 CMakeLists.txt 因此都只有几行。
+# Editor 与 Runtime 两个变体编的是 Assets/Source 根下同一份 .h / .cpp，差别只在
+# 链哪个 Core、定不定义 T3D_EDITOR、以及输出到哪个目录。这些差异全部收在这个
+# 文件里，两个变体的 CMakeLists.txt 因此都只有几行。
 #
-# 这个布局与引擎自身的插件一致（参考 SDK 里的 Plugins/Archive/MetaFileSystem）。
+# 业务代码与 Editor / Runtime / Player 这些 CMake 变体目录同层。
 #-------------------------------------------------------------------------------
 
 # TINY3D_SDK_ROOT 由 TinyEditor 在 configure 时传入，指向编辑器安装目录。
@@ -149,16 +149,21 @@ function(game_plugin_add VARIANT)
         set(_target "${GAME_PLUGIN_NAME}")
     endif ()
 
-    file(GLOB _headers "${_scripts_dir}/Include/*.h")
-    file(GLOB _sources "${_scripts_dir}/Source/*.cpp")
+    file(GLOB _headers
+        "${_scripts_dir}/*.h"
+        "${_scripts_dir}/*.hpp"
+        "${_scripts_dir}/*.hh")
+    file(GLOB _sources
+        "${_scripts_dir}/*.cpp"
+        "${_scripts_dir}/*.cc"
+        "${_scripts_dir}/*.cxx")
 
     add_library(${_target} SHARED ${_headers} ${_sources})
 
-    target_include_directories(${_target} PRIVATE "${_scripts_dir}/Include")
+    target_include_directories(${_target} PRIVATE "${_scripts_dir}")
 
-    # 让 IDE 里的目录结构和磁盘一致
-    source_group("Include" FILES ${_headers})
-    source_group("Source" FILES ${_sources})
+    source_group("Header Files" FILES ${_headers})
+    source_group("Source Files" FILES ${_sources})
 
     # 导出宏：DLL 侧定义它，dllStartPlugin / dllStopPlugin 才会被导出
     target_compile_definitions(${_target} PRIVATE GAMEPLUGIN_EXPORT _USRDLL)
@@ -172,7 +177,7 @@ function(game_plugin_add VARIANT)
         GENERATED_DIR "${CMAKE_BINARY_DIR}/Generated"
         SETTINGS_DIR "${CMAKE_BINARY_DIR}/Reflect"
         BASE_SETTINGS "${TINY3D_SDK_REFLECTION_BASE}"
-        EXTRA_INCLUDES "${_scripts_dir}/Include")
+        EXTRA_INCLUDES "${_scripts_dir}")
 
     # 产物直接落到 Library/ScriptAssemblies/<variant>，编辑器从那里取。
     # Windows 的 DLL 归 RUNTIME，类 Unix 的 .so / .dylib 归 LIBRARY，两个都要设。

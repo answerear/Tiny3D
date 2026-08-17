@@ -101,6 +101,9 @@ if (TINY3D_OS_WINDOWS)
         message(STATUS "Editor runtime release dir : ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}")
         #execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Editor")
         #execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Editor")
+        # copy_directory 只叠加、不删目标里多出来的文件。模板从 Include/Source
+        # 摊平到根目录后，必须先清掉旧 templates，否则新建工程会把残留子目录一并拷走。
+        execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Editor/templates")
         execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/../../../Assets/editor" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Editor")
         execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Editor/Language")
         execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Editor/Language")
@@ -130,6 +133,8 @@ if (TINY3D_OS_WINDOWS)
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../assets/config/TinyEditorGUI.ini ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/TinyEditorGUI.ini
         COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../assets/config/TinyEditorGUI.ini ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/TinyEditorGUI.ini
+        COMMAND ${CMAKE_COMMAND} -E remove_directory
+            "$<TARGET_FILE_DIR:${BIN_NAME}>/Editor/templates"
         COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${CMAKE_CURRENT_SOURCE_DIR}/../../../assets/editor/templates"
             "$<TARGET_FILE_DIR:${BIN_NAME}>/Editor/templates"

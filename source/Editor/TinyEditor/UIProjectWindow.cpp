@@ -229,6 +229,8 @@ namespace Tiny3D
         {
             ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_FOLDER, UIAssetHierarchyView::onMenuItemCreateFolder);
             ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_FOLDER, UIAssetHierarchyView::onMenuItemEnabledCreateFolder);
+            ON_MENU_ITEM_MEMBER(ID_MENU_ITEM_CPP_CLASS, UIAssetHierarchyView::onMenuItemCreateCppClass);
+            ON_MENU_ITEM_QUERY_MEMBER(ID_MENU_ITEM_CPP_CLASS, UIAssetHierarchyView::onMenuItemEnabledCreateCppClass);
             
             mContextMenu = new ImContextMenu();
             ret = mContextMenu->create(ID_PROJECT_ASSET_CONTEXT_MENU, "AssetTreeContextMenu", this);
@@ -241,6 +243,7 @@ namespace Tiny3D
 
             IM_CONTEXT_MENU_BEGIN(mContextMenu)
                 IM_MENU_ITEM(ID_MENU_ITEM_FOLDER)
+                IM_MENU_ITEM(ID_MENU_ITEM_CPP_CLASS)
             IM_CONTEXT_MENU_END()
 
             // auto queryEnableDefault = [](ImWidget*) { return true; };
@@ -605,6 +608,77 @@ namespace Tiny3D
         }
         
         return enabled;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIAssetHierarchyView::onMenuItemCreateCppClass(uint32_t id, ImWidget *menuItem)
+    {
+        T3D_ASSERT(id == ID_MENU_ITEM_CPP_CLASS);
+        (void)id;
+        (void)menuItem;
+
+        bool ret = true;
+        if (mTreeWidget == nullptr)
+        {
+            return false;
+        }
+
+        ImTreeNode *selection = mTreeWidget->getSelection();
+        if (selection == nullptr)
+        {
+            return false;
+        }
+
+        UIAssetNode *uiParent = static_cast<UIAssetNode *>(selection->getUserData());
+        if (uiParent == nullptr || uiParent->getAssetNode() == nullptr)
+        {
+            return false;
+        }
+
+        AssetNode *parent = uiParent->getAssetNode();
+        AssetNode *headerNode = nullptr;
+        AssetNode *sourceNode = nullptr;
+        TResult result = PROJECT_MGR.createCppClass(parent, headerNode, sourceNode);
+        if (T3D_FAILED(result))
+        {
+            EDITOR_LOG_ERROR("Failed to create C++ class ! ERROR [%d]", result);
+            ret = false;
+        }
+        else
+        {
+            treeNodeClicked(selection);
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool UIAssetHierarchyView::onMenuItemEnabledCreateCppClass(uint32_t id, ImWidget *menuItem)
+    {
+        T3D_ASSERT(id == ID_MENU_ITEM_CPP_CLASS);
+        (void)id;
+        (void)menuItem;
+
+        if (mTreeWidget == nullptr)
+        {
+            return false;
+        }
+
+        ImTreeNode *selection = mTreeWidget->getSelection();
+        if (selection == nullptr)
+        {
+            return false;
+        }
+
+        UIAssetNode *uiNode = static_cast<UIAssetNode *>(selection->getUserData());
+        if (uiNode == nullptr)
+        {
+            return false;
+        }
+
+        return PROJECT_MGR.isScriptsRoot(uiNode->getAssetNode());
     }
 
     //--------------------------------------------------------------------------

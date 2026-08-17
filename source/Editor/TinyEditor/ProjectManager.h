@@ -58,7 +58,7 @@ namespace Tiny3D
 
         const String &getMetaName() const { return mMetaName; }
 
-        String getFullPath() const { return getPath() + Dir::getNativeSeparator() + getFilename(); }
+        String getFullPath() const;
 
         Meta *getMeta() const { return mMeta; } 
 
@@ -191,6 +191,20 @@ namespace Tiny3D
         TResult addFile(AssetNode *parent, const String &path, AssetNode *&node);
 
         /**
+         * @brief 判断节点是否就是工程的业务 C++ 根目录（Assets/Source）
+         * @remarks C++ Class 菜单只允许在这个目录下创建，子目录和其它资产目录都不算
+         */
+        bool isScriptsRoot(const AssetNode *node) const;
+
+        /**
+         * @brief 在 parent 目录下创建一对同名 C++ 类文件（.h + .cpp）
+         * @param [in] parent : 目标文件夹节点，必须是 Assets/Source
+         * @param [out] headerNode : 新建头文件的资产节点
+         * @param [out] sourceNode : 新建源文件的资产节点
+         */
+        TResult createCppClass(AssetNode *parent, AssetNode *&headerNode, AssetNode *&sourceNode);
+
+        /**
          * @brief 重新扫描 Assets 目录，重建资产树
          * @remarks 在编辑器内新增或删除资产文件后调用。调用方还需要广播
          *          kEvtRefreshAssets 让 Project 视图跟着重建，否则 UI 上还是旧的树
@@ -208,6 +222,9 @@ namespace Tiny3D
     protected:
         /// 目录还没有 meta 文件时生成一个，已存在则保留原有 UUID
         TResult writeFolderMeta(const String &path);
+
+        /// 通用文件还没有 meta 时生成 MetaFile，已存在则保留原有 UUID
+        TResult writeFileMeta(const String &path);
 
         TResult compileAllShaders(const String &tempPath, const String &assetsPath);
 

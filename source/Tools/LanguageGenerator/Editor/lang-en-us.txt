@@ -1,0 +1,192 @@
+File
+New
+New Scene
+Game
+Scene
+Hierarchy
+Inspector
+Project
+Console
+Window
+Panels
+Open Scene
+Open Recent Scene
+Save
+Save As …
+Save As Scene Template ...
+New Project
+Open Project…
+Save Project
+Build Settings…
+Build And Run
+Exit
+Layouts
+Reset All Layouts
+Edit
+Undo
+Redo
+Select All
+Deselect All
+Select Children
+Select Prefab Root
+Insert Selection
+Cut
+Copy
+Paste
+Duplicate
+Rename
+Delete
+Frame Selected
+Lock View to Selected
+Find
+Search All …
+Play
+Pause
+Stop
+Selection
+Load Selection
+Save Selection
+Project Settings …
+Preferences …
+Shortcuts …
+Clear All PlayerPrefs
+Graphics Tier
+Shader Hardware Tier 1
+Shader Hardware Tier 2
+Shader Hardware Tier 3
+Assets
+Create
+Show in Explorer
+Open
+Copy Path
+Open Scene Additive
+View in Package Manager
+Import New Asset …
+Import Package
+Export Package…
+Find References In Scene
+Find References In Project
+Select Dependencies
+Refresh
+Reimport
+Reimport All
+Extract From Prefab
+Update UXML Schema
+Cache Server
+Open C++ Project
+View in Import Activity Window
+Properties
+GameObject
+Create Empty
+Create Empty Child
+Create Empty Parent
+3D Object
+Cube
+Sphere
+Capsule
+Cylinder
+Effects
+Light
+Audio
+Video
+UI
+UI Toolkit
+Camera
+Visual Scripting Scene Varaibles
+Center On Children
+Make Parent
+Clear Parent
+Set as first sibling
+Set as last sibling
+Move To View
+Align With View
+Align View to Selected
+Toggle Active State
+Component
+Add…
+Mesh
+Physics
+Physics 2D
+Navigation
+Rendering
+Tilemap
+Layout
+Playables
+Miscellaneous
+Scripts
+Visual Scripting
+Event
+Next Window
+Previous Window
+Search
+Package Manager
+Asset Management
+Text
+TextMeshPro
+General
+Animation
+Sequencing
+Analysis
+AI
+Help
+About
+User Manual
+API Document
+Folder
+TypeScript
+2D
+Shader
+Shader Variant Collection
+Testing
+Dynamic Link Library
+Dynamic Link Library Reference
+Scene Template
+Scene Template From Scene
+Scene Template Pipeline
+Prefab
+Prefab Variant
+Audio Mixer
+Material
+Lens Flare
+Render Texture
+Lightmap Parameters
+Lighting Settings
+Custom Render Texture
+Animator Controller
+Animator Override Controller
+Avatar Mask
+Timeline
+Signal
+Physic Material
+GUI Skin
+Custom Font
+Legacy
+Brush
+Terrain Layer
+Custom Package
+Physics Material 2D
+State Graph
+Script Graph
+Standard Surface Shader
+Unlit Shader
+Image Effect Shader
+Compute Shader
+Ray Tracing Shader
+OK
+Cancel
+Save And Exit
+Close
+Info
+Warning
+Error
+Hint
+Unsave files. Sure to exit?
+External Tools
+External Script Editor
+Browse...
+System Default
+Failed to generate the C++ solution.
+This project has no C++ game plugin sources.
+No Visual Studio solution was generated. The editor toolchain must use a Visual Studio CMake generator.
+Failed to launch the configured IDE.
+C++ Class

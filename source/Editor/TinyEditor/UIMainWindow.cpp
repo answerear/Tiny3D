@@ -415,6 +415,8 @@ namespace Tiny3D
 
         // Type Script
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_TYPE_SCRIPT, STR(TXT_TYPE_SCRIPT), "", "", queryDisableDefault, nullptr, nullptr)
+        // C++ Class
+        IM_MENU_ITEM_DATA_DEFAULT(ImMenuItemType::kNormal, ID_MENU_ITEM_CPP_CLASS, STR(TXT_CPP_CLASS), "", "")
         // 2D
         IM_MENU_ITEM_DATA(ImMenuItemType::kPopup, ID_MENU_ITEM_2D, STR(TXT_2D), "", "", nullptr, nullptr, nullptr)
         // Physics Material 2D
@@ -984,6 +986,7 @@ namespace Tiny3D
                     IM_MENU_SEPARATOR() // Separator
 
                     IM_MENU_ITEM(ID_MENU_ITEM_TYPE_SCRIPT)  // Type Script
+                    IM_MENU_ITEM(ID_MENU_ITEM_CPP_CLASS)    // C++ Class
                     IM_MENU_POPUP_BEGIN(ID_MENU_ITEM_2D)    // 2D
                         IM_MENU_ITEM( ID_MENU_ITEM_PHYSICS_MATERIAL_2D)    // Physics Material 2D
                     IM_MENU_POPUP_END()

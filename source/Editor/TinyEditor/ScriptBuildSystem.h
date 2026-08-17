@@ -91,7 +91,7 @@ namespace Tiny3D
          * @param [in] variant : 构建变体
          * @param [out] output : cmake 的完整输出，供失败时展示给用户
          * @return 成功返回 T3D_OK
-         * @remarks 首次、CMakeCache 缺失、或 Include/Source 文件集合变化时会先
+         * @remarks 首次、CMakeCache 缺失、或 Assets/Source 根下 .h / .cpp 集合变化时会先
          *          configure 再 build。configure 期 rpp 会生成 *.generated.cpp，
          *          必须让 cmake 重新 GLOB 才能编进 DLL。
          */
@@ -170,10 +170,10 @@ namespace Tiny3D
          */
         TResult configure(Variant variant, String &output);
 
-        /// Include/*.h 与 Source/*.cpp 的集合是否相对上次 configure 有变化
+        /// Assets/Source 根下 *.h / *.cpp 的集合是否相对上次 configure 有变化
         bool needsReconfigure(Variant variant) const;
 
-        /// 收集 Include / Source 下脚本文件的相对路径名单（已排序）
+        /// 收集 Assets/Source 根下脚本文件的相对路径名单（已排序，不递归子目录）
         String collectScriptFileList() const;
 
         /// 上次 configure 时记下的脚本文件名单路径

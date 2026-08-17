@@ -5,35 +5,37 @@ Play 的时候会先把它编成动态库再加载，脚本就跑起来了。
 
 ## 怎么加一个自己的脚本
 
-1. 在 `Include/` 加头文件，从 `Tiny3D::Behaviour` 派生，照 `ExampleBehaviour.h` 的
-   结构写：`TCLASS()`、`TRTTI_ENABLE(Tiny3D::Behaviour)`、`TRTTI_FRIEND`；
+1. 在本目录（`Assets/Source/` 根下）加头文件，从 `Tiny3D::Behaviour` 派生，照
+   `ExampleBehaviour.h` 的结构写：`TCLASS()`、`TRTTI_ENABLE(Tiny3D::Behaviour)`、
+   `TRTTI_FRIEND`；
 2. 需要出现在 Inspector、并写入场景文件的成员，用 `TPROPERTY` 标注 getter / setter；
-3. 在 `Source/` 加**同名** `.cpp`，只写逻辑，**不要**再手写 `RTTR_REGISTRATION`
+3. 在同一目录加**同名** `.cpp`，只写逻辑，**不要**再手写 `RTTR_REGISTRATION`
    （构建时 rpp 会生成，手写会重复注册）；
 4. 回到编辑器点 Play。新文件会被自动收进构建，不用改 CMakeLists。
 
 标了 `TPROPERTY` 的属性会显示在 Inspector 里，也会被存进场景文件；没标的字段只是
 普通的运行期成员。
 
-已经用旧模板建过的工程不会自动升级。把本目录里的 `GamePluginCommon.cmake`、
-`Player/CMakeLists.txt` 和顶层 `add_subdirectory(Player)` 拷过来，或新建一个工程。
+已经用旧模板建过的工程不会自动升级。旧布局把头文件放在 `Include/`、源文件放在
+`Source/` 子目录；现在两者都直接放在 `Assets/Source/` 根下。升级时先把这两个子
+目录里的 `.h` / `.cpp` 搬到本目录，再打开 C++ 工程或点 Play——编辑器会同步新的
+`GamePluginCommon.cmake`，它只 GLOB 根目录，文件还留在旧子目录里会编不过。
+`Player/CMakeLists.txt` 和顶层 `add_subdirectory(Player)` 若缺失也一并拷过来。
 
 ## 目录结构
 
 ```
 Assets/Source/
-  Include/            业务头文件
-  Source/             业务源文件
+  *.h / *.cpp              业务头文件和源文件，直接放在这里
   GamePluginCommon.cmake   两个变体共享的构建逻辑，一般不用动
-  Editor/             Editor 变体的 CMakeLists，编辑器 Play 时编这个
-  Runtime/            Runtime 变体的 CMakeLists，发布游戏时编这个
-  Player/             TinyPlayer.exe，VS 里 F5 跑 Runtime 用的壳
-  CMakeLists.txt      想用 IDE 直接打开整个 Source 时用的顶层工程
+  Editor/                  Editor 变体的 CMakeLists，编辑器 Play 时编这个
+  Runtime/                 Runtime 变体的 CMakeLists，发布游戏时编这个
+  Player/                  TinyPlayer.exe，VS 里 F5 跑 Runtime 用的壳
+  CMakeLists.txt           想用 IDE 直接打开整个 Source 时用的顶层工程
 ```
 
-`Include/` 和 `Source/` 是两个变体共用的，你只在这两个目录里写代码，Editor 和
-Runtime 两份产物会自动都有。反射生成的 `*.generated.cpp` 在构建目录里，不会进
-这份源码树。
+根目录的 `.h` / `.cpp` 是两个变体共用的，你只在这里写代码，Editor 和 Runtime
+两份产物会自动都有。反射生成的 `*.generated.cpp` 在构建目录里，不会进这份源码树。
 
 ## 两个变体是怎么回事
 
