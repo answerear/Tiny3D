@@ -98,6 +98,8 @@ namespace Tiny3D
         AssetNode *getAssetNode() const { return mAssetNode; }
 
         ImTreeNode *getTreeNode() const { return mNode; }
+
+        void detachAssetNode() { mAssetNode = nullptr; }
         
     protected:
         ImTreeNode *mNode {nullptr};
@@ -494,8 +496,25 @@ namespace Tiny3D
 
         do
         {
-            mAssetsRoot->getParent()->removeChild(mAssetsRoot, true);
-            mAssetsRoot = nullptr;
+            if (mTreeWidget == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                break;
+            }
+
+            if (mAssetsRoot != nullptr)
+            {
+                // ProjectManager 刷新资产时已经把旧的 AssetNode 全部释放了，而 UI 子树
+                // 要等到本帧 GC 才真正删除，中间这段时间必须先切断引用
+                detachAssetsSubTree(mAssetsRoot);
+
+                ImWidget *parent = mAssetsRoot->getParent();
+                if (parent != nullptr)
+                {
+                    parent->removeChild(mAssetsRoot, true);
+                }
+                mAssetsRoot = nullptr;
+            }
 
             auto treeNodeClicked = std::bind(&UIAssetHierarchyView::treeNodeClicked, this, std::placeholders::_1);
 
@@ -540,12 +559,43 @@ namespace Tiny3D
     void UIAssetHierarchyView::onTreeNodeDestroy(ImTreeNode *node)
     {
         UIAssetNode *assetNode = static_cast<UIAssetNode*>(node->getUserData());
+        if (assetNode == nullptr)
+        {
+            return;
+        }
+        
         if (assetNode->getAssetNode() != nullptr)
         {
             assetNode->getAssetNode()->setUserData(nullptr);
         }
         T3D_SAFE_DELETE(assetNode);
         node->setUserData(nullptr);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIAssetHierarchyView::detachAssetsSubTree(ImTreeNode *node)
+    {
+        if (node == nullptr)
+        {
+            return;
+        }
+
+        if (mTreeWidget != nullptr && mTreeWidget->getSelection() == node)
+        {
+            mTreeWidget->clearSelection();
+        }
+
+        UIAssetNode *uiNode = static_cast<UIAssetNode *>(node->getUserData());
+        if (uiNode != nullptr)
+        {
+            uiNode->detachAssetNode();
+        }
+
+        for (auto child : node->getChildren())
+        {
+            detachAssetsSubTree(static_cast<ImTreeNode *>(child));
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -1060,7 +1110,7 @@ namespace Tiny3D
         {
             EventParamHierarchyNodeClicked *p = static_cast<EventParamHierarchyNodeClicked *>(param);
             UIAssetNode *uiAssetNode = static_cast<UIAssetNode *>(p->arg1->getUserData());
-            populateItems(uiAssetNode->getAssetNode());
+            populateItems(uiAssetNode != nullptr ? uiAssetNode->getAssetNode() : nullptr);
         }
         else
         {

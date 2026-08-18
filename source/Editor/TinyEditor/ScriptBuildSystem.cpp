@@ -715,7 +715,14 @@ namespace Tiny3D
             return false;
         }
 
-        return getNewestSourceTime(mScriptsDir) > Dir::getLastWriteTime(cacheFile);
+        if (getNewestSourceTime(mScriptsDir) > Dir::getLastWriteTime(cacheFile))
+        {
+            return true;
+        }
+
+        // 源码没动但工程文件坏了（例如被历史版本的路径改写逻辑写坏），
+        // 让 cmake 重新生成一遍把它覆盖掉，否则 VS 永远打不开这个工程
+        return hasCorruptedGeneratedProject(buildDir);
     }
 
     //--------------------------------------------------------------------------
@@ -788,7 +795,7 @@ namespace Tiny3D
             return T3D_ERR_FILE_NOT_EXIST;
         }
 
-        // cmake 内部路径是 /，VS 调试页在 Windows 上必须是 \
+        // cmake 内部路径是 /，VS 调试页在 Windows 上必须是 '\'
         fixGeneratedVsDebuggerPaths(buildDir);
 
         return T3D_OK;
@@ -917,6 +924,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool ScriptBuildSystem::isTagNameEnd(const String &xml, size_t pos)
+    {
+        if (pos >= xml.size())
+        {
+            return false;
+        }
+
+        const char ch = xml[pos];
+        return ch == '>' || ch == '/' || ch == ' ' || ch == '\t'
+            || ch == '\r' || ch == '\n';
+    }
+
+    //--------------------------------------------------------------------------
+
     bool ScriptBuildSystem::rewriteVsDebuggerPathSlashes(String &xml)
     {
         static const char *kTags[] = {
@@ -937,6 +958,14 @@ namespace Tiny3D
 
             while ((pos = xml.find(open, pos)) != String::npos)
             {
+                // "<LocalDebuggerCommand" 也是 "<LocalDebuggerCommandArguments" 的前缀，
+                // 不卡标签名边界就会把两个标签之间的整段 XML 当成路径值改掉。
+                if (!isTagNameEnd(xml, pos + open.size()))
+                {
+                    pos += open.size();
+                    continue;
+                }
+
                 const size_t gt = xml.find('>', pos);
                 if (gt == String::npos)
                 {
@@ -950,6 +979,14 @@ namespace Tiny3D
                 }
 
                 String value = xml.substr(gt + 1, end - (gt + 1));
+
+                // 元素值里出现 '<' 说明匹配到的不是同一个标签的收尾，跳过以免破坏 XML
+                if (value.find('<') != String::npos)
+                {
+                    pos = gt + 1;
+                    continue;
+                }
+
                 const String before = value;
                 toNativePathSeparators(value);
                 if (value != before)
@@ -1001,6 +1038,34 @@ namespace Tiny3D
         }
 
         finder.close();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ScriptBuildSystem::hasCorruptedGeneratedProject(const String &buildDir)
+    {
+        TArray<String> files;
+        collectFilesBySuffix(buildDir, ".vcxproj", files);
+        collectFilesBySuffix(buildDir, ".vcxproj.user", files);
+
+        for (const String &path : files)
+        {
+            String xml;
+            if (!readTextFile(path, xml))
+            {
+                continue;
+            }
+
+            // 合法 XML 里 '<' 只能开始一个标签，"<\" 只可能是被改坏的结束标签
+            if (xml.find("<\\") != String::npos)
+            {
+                EDITOR_LOG_WARNING("Generated project [%s] is malformed, forcing a "
+                    "CMake regeneration.", path.c_str());
+                return true;
+            }
+        }
+
+        return false;
     }
 
     //--------------------------------------------------------------------------

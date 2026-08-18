@@ -546,6 +546,12 @@ namespace Tiny3D
 
         // Open C++ Project
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_OPEN_CPP_PROJECT, STR(TXT_OPEN_CPP_PROJECT), "", "", IM_MENU_ITEM_DEFAULT_QUERY_ENABLED(), nullptr, nullptr)
+        // Compile Scripts
+        // 新写的 TCLASS 要编进业务插件并重载后才会出现在 Inspector 的 Add Component 里
+        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_COMPILE_SCRIPTS, STR(TXT_COMPILE_SCRIPTS), "", "",
+            [](ImWidget *widget) { return PLAY_MODE_CTRL.canCompileScripts(); },
+            nullptr,
+            [](ImWidget *widget) { PLAY_MODE_CTRL.compileScripts(); })
         // View in Import Activity Window
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_IETM_VIEW_IN_IMPORT_ACTIVITY_WINDOW, STR(TXT_VIEW_IN_IMPORT_ACTIVITY_WINDOW), "", "", queryDisableDefault, nullptr, nullptr)
         // Properties
@@ -1111,6 +1117,7 @@ namespace Tiny3D
                 // IM_MENU_SEPARATOR() // Separator
 
                 IM_MENU_ITEM(ID_MENU_ITEM_OPEN_CPP_PROJECT) // Open C++ Project
+                IM_MENU_ITEM(ID_MENU_ITEM_COMPILE_SCRIPTS)  // Compile Scripts
                 IM_MENU_ITEM(ID_MENU_IETM_VIEW_IN_IMPORT_ACTIVITY_WINDOW)   // View in Import Activity Window
                 IM_MENU_ITEM(ID_MENU_ITEM_PROPERTIES)   // Properties
             IM_MENU_POPUP_END()

@@ -375,6 +375,87 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool PlayModeController::canCompileScripts() const
+    {
+        if (!PROJECT_MGR.isProjectOpened() || !SCRIPT_BUILD_SYS.hasScripts())
+        {
+            return false;
+        }
+
+        // Play 期间业务 DLL 正在被调度，重载会把场景连根拔起，交互上也无从还原
+        return !isPlaying() && !mPendingModeChange && !mPendingCompile;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult PlayModeController::compileScripts()
+    {
+        if (!canCompileScripts())
+        {
+            EDITOR_LOG_WARNING("Cannot compile scripts right now.");
+            return T3D_ERR_FAIL;
+        }
+
+        mPendingCompile = true;
+        T3D_AGENT.postFrameEndTask([this]()
+            {
+                mPendingCompile = false;
+                doCompileScripts();
+            });
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult PlayModeController::doCompileScripts()
+    {
+        EDITOR_LOG_INFO("Compiling game plugin ...");
+
+        String output;
+        TResult ret = SCRIPT_BUILD_SYS.build(ScriptBuildSystem::Variant::kEditor,
+            output);
+
+        if (T3D_FAILED(ret))
+        {
+            EDITOR_LOG_ERROR("Game plugin failed to build, the loaded assembly is "
+                "left untouched.");
+            return ret;
+        }
+
+        const String assembly =
+            SCRIPT_BUILD_SYS.getAssemblyPath(ScriptBuildSystem::Variant::kEditor);
+
+        if (!isGamePluginLoaded())
+        {
+            // 工程打开时还没有产物（首次编译，或上次编译失败），这里补上加载
+            ret = loadGamePlugin();
+        }
+        else if (Dir::exists(assembly)
+            && Dir::getLastWriteTime(assembly) > mLoadedAssemblyTime)
+        {
+            ret = reloadGamePlugin();
+        }
+        else
+        {
+            EDITOR_LOG_INFO("Game plugin is already up to date, nothing to reload.");
+            return T3D_OK;
+        }
+
+        if (T3D_FAILED(ret))
+        {
+            EDITOR_LOG_ERROR("Game plugin built but failed to load. "
+                "Restart the editor to recover.");
+            return ret;
+        }
+
+        EDITOR_LOG_INFO("Game plugin compiled and reloaded.");
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult PlayModeController::doPlay()
     {
         if (isPlaying())

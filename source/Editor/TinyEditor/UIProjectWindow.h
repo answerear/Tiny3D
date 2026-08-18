@@ -100,6 +100,9 @@ namespace Tiny3D
 
         void onTreeNodeDestroy(ImTreeNode *node);
 
+        // 递归解除 UI 子树对 AssetNode 的引用，并清掉落在子树内的选中项
+        void detachAssetsSubTree(ImTreeNode *node);
+
         bool onMenuItemCreateFolder(uint32_t id, ImWidget *menuItem);
 
         bool onMenuItemEnabledCreateFolder(uint32_t id, ImWidget *menuIem);

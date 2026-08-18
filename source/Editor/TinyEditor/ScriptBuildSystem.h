@@ -224,6 +224,12 @@ namespace Tiny3D
         /// 只改 LocalDebugger* 标签内的路径分隔符，整文件有改动返回 true
         static bool rewriteVsDebuggerPathSlashes(String &xml);
 
+        /// xml[pos] 是否为标签名的合法结束字符，用于避免前缀标签误匹配
+        static bool isTagNameEnd(const String &xml, size_t pos);
+
+        /// 生成的工程文件是否被旧版分隔符改写逻辑破坏（出现 "<\" 这种非法 XML）
+        static bool hasCorruptedGeneratedProject(const String &buildDir);
+
         static bool readTextFile(const String &path, String &text);
         static bool writeTextFile(const String &path, const String &text);
 
