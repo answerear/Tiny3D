@@ -232,7 +232,7 @@ TResult PlayerApp::loadGamePlugin()
 {
     const String sep(1, Dir::getNativeSeparator());
     const String dllDir = mProjectRoot + sep + "Library" + sep
-        + "ScriptAssemblies" + sep + "Runtime";
+        + "CppAssemblies" + sep + "Runtime";
 
     TResult ret = T3D_AGENT.loadPluginFromPath(mGameSettings.gamePluginName, dllDir);
     if (T3D_FAILED(ret))

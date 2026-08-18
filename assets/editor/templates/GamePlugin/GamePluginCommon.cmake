@@ -13,7 +13,7 @@
 
 # TINY3D_SDK_ROOT 由 TinyEditor 在 configure 时传入，指向编辑器安装目录。
 # 手动在命令行 configure 时需要自己传：
-#   cmake -S Assets/Source/Editor -B Temp/ScriptBuild/Editor \
+#   cmake -S Assets/Source/Editor -B Temp/CppBuild/Editor \
 #     -DTINY3D_SDK_ROOT=<编辑器目录> -DGAME_PROJECT_ROOT=<工程根>
 if (NOT DEFINED TINY3D_SDK_ROOT)
     message(FATAL_ERROR
@@ -47,7 +47,7 @@ if (NOT EXISTS "${TINY3D_SDK_REFLECTION_BASE}")
 endif ()
 
 # 本文件位于 Assets/Source/ 下，两个变体的 CMakeLists 在子目录里，靠这个变量回到共享源码
-set(GAME_SCRIPTS_DIR "${CMAKE_CURRENT_LIST_DIR}")
+set(GAME_CPP_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
 # 解析工程根：业务 C++ 目录可能在工程根下，也可能在 Assets/Source。
 # TinyEditor 会传 GAME_PROJECT_ROOT；手动 configure 时也可显式传入。
@@ -56,7 +56,7 @@ if (DEFINED GAME_PROJECT_ROOT AND NOT "${GAME_PROJECT_ROOT}" STREQUAL "")
     get_filename_component(GAME_PROJECT_ROOT "${GAME_PROJECT_ROOT}" ABSOLUTE)
 else ()
     set(GAME_PROJECT_ROOT "")
-    get_filename_component(_dir "${GAME_SCRIPTS_DIR}" ABSOLUTE)
+    get_filename_component(_dir "${GAME_CPP_SOURCE_DIR}" ABSOLUTE)
     foreach (_i RANGE 1 3)
         get_filename_component(_dir "${_dir}/.." ABSOLUTE)
         if (EXISTS "${_dir}/ProjectSettings")
@@ -66,7 +66,7 @@ else ()
     endforeach ()
     if (GAME_PROJECT_ROOT STREQUAL "")
         message(FATAL_ERROR
-            "Cannot locate project root from '${GAME_SCRIPTS_DIR}'. "
+            "Cannot locate project root from '${GAME_CPP_SOURCE_DIR}'. "
             "Pass -DGAME_PROJECT_ROOT=<project root> when configuring.")
     endif ()
 endif ()
@@ -140,7 +140,7 @@ endfunction()
 # 调用方需先定义 GAME_PLUGIN_NAME。
 #-------------------------------------------------------------------------------
 function(game_plugin_add VARIANT)
-    set(_scripts_dir "${GAME_SCRIPTS_DIR}")
+    set(_cpp_source_dir "${GAME_CPP_SOURCE_DIR}")
     set(_project_dir "${GAME_PROJECT_ROOT}")
 
     if (VARIANT STREQUAL "Editor")
@@ -150,17 +150,17 @@ function(game_plugin_add VARIANT)
     endif ()
 
     file(GLOB _headers
-        "${_scripts_dir}/*.h"
-        "${_scripts_dir}/*.hpp"
-        "${_scripts_dir}/*.hh")
+        "${_cpp_source_dir}/*.h"
+        "${_cpp_source_dir}/*.hpp"
+        "${_cpp_source_dir}/*.hh")
     file(GLOB _sources
-        "${_scripts_dir}/*.cpp"
-        "${_scripts_dir}/*.cc"
-        "${_scripts_dir}/*.cxx")
+        "${_cpp_source_dir}/*.cpp"
+        "${_cpp_source_dir}/*.cc"
+        "${_cpp_source_dir}/*.cxx")
 
     add_library(${_target} SHARED ${_headers} ${_sources})
 
-    target_include_directories(${_target} PRIVATE "${_scripts_dir}")
+    target_include_directories(${_target} PRIVATE "${_cpp_source_dir}")
 
     source_group("Header Files" FILES ${_headers})
     source_group("Source Files" FILES ${_sources})
@@ -173,15 +173,15 @@ function(game_plugin_add VARIANT)
 
     # TCLASS 反射：生成物放在构建目录，避免写进 Assets/Source
     tiny3d_enable_reflection(${_target}
-        SOURCE_DIR "${_scripts_dir}"
+        SOURCE_DIR "${_cpp_source_dir}"
         GENERATED_DIR "${CMAKE_BINARY_DIR}/Generated"
         SETTINGS_DIR "${CMAKE_BINARY_DIR}/Reflect"
         BASE_SETTINGS "${TINY3D_SDK_REFLECTION_BASE}"
-        EXTRA_INCLUDES "${_scripts_dir}")
+        EXTRA_INCLUDES "${_cpp_source_dir}")
 
-    # 产物直接落到 Library/ScriptAssemblies/<variant>，编辑器从那里取。
+    # 产物直接落到 Library/CppAssemblies/<variant>，编辑器从那里取。
     # Windows 的 DLL 归 RUNTIME，类 Unix 的 .so / .dylib 归 LIBRARY，两个都要设。
-    set(_out_dir "${_project_dir}/Library/ScriptAssemblies/${VARIANT}")
+    set(_out_dir "${_project_dir}/Library/CppAssemblies/${VARIANT}")
 
     set_target_properties(${_target} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${_out_dir}"

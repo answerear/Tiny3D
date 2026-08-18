@@ -282,7 +282,7 @@ namespace Tiny3D
         if (!Dir::exists(templatePath))
         {
             EDITOR_LOG_ERROR("Game plugin template [%s] not found, the new project will "
-                "have no scripts folder.", templatePath.c_str());
+                "have no C++ source folder.", templatePath.c_str());
             return T3D_ERR_FILE_NOT_EXIST;
         }
 
@@ -305,7 +305,7 @@ namespace Tiny3D
         }
 
         mProjectSettings.GamePluginName = pluginName;
-        mProjectSettings.ScriptsRelativePath = String("Assets") + sep + "Source";
+        mProjectSettings.CppSourceRelativePath = String("Assets") + sep + "Source";
 
         EDITOR_LOG_INFO("Created game plugin scaffold at [%s].", sourcePath.c_str());
 
@@ -1543,7 +1543,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ProjectManager::isScriptsRoot(const AssetNode *node) const
+    bool ProjectManager::isCppSourceRoot(const AssetNode *node) const
     {
         if (node == nullptr || !isProjectOpened())
         {
@@ -1551,19 +1551,19 @@ namespace Tiny3D
         }
 
         const String sep(1, Dir::getNativeSeparator());
-        // 老工程的 settings 里没有 ScriptsRelativePath，跟 ScriptBuildSystem 保持
-        // 一致回退到默认目录，否则这些工程永远点不到 C++ Class
-        const String relative = mProjectSettings.ScriptsRelativePath.empty()
+        // settings 里没写 CppSourceRelativePath 时，跟 CppBuildSystem 保持一致
+        // 回退到默认目录，否则这些工程永远点不到 C++ Class
+        const String relative = mProjectSettings.CppSourceRelativePath.empty()
             ? (String("Assets") + sep + "Source")
-            : mProjectSettings.ScriptsRelativePath;
+            : mProjectSettings.CppSourceRelativePath;
 
-        const String scriptsDir = Dir::formatPath(mPath + sep + relative);
-        if (scriptsDir.empty() || !Dir::exists(scriptsDir))
+        const String cppSourceDir = Dir::formatPath(mPath + sep + relative);
+        if (cppSourceDir.empty() || !Dir::exists(cppSourceDir))
         {
             return false;
         }
 
-        return Dir::formatPath(node->getFullPath()) == scriptsDir;
+        return Dir::formatPath(node->getFullPath()) == cppSourceDir;
     }
 
     //--------------------------------------------------------------------------
@@ -1574,7 +1574,7 @@ namespace Tiny3D
         headerNode = nullptr;
         sourceNode = nullptr;
 
-        if (!isScriptsRoot(parent))
+        if (!isCppSourceRoot(parent))
         {
             EDITOR_LOG_ERROR("C++ Class can only be created under Assets/Source.");
             return T3D_ERR_INVALID_POINTER;

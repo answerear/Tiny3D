@@ -28,7 +28,7 @@
 #include "EditorEventDefine.h"
 #include "EditorSceneImpl.h"
 #include "ProjectManager.h"
-#include "ScriptBuildSystem.h"
+#include "CppBuildSystem.h"
 
 
 namespace Tiny3D
@@ -44,25 +44,25 @@ namespace Tiny3D
         const String pluginName = settings.GamePluginName.empty()
             ? PROJECT_MGR.getProjectName() : settings.GamePluginName;
 
-        SCRIPT_BUILD_SYS.attachProject(PROJECT_MGR.getProjectPath(), pluginName,
-            settings.ScriptsRelativePath);
+        CPP_BUILD_SYS.attachProject(PROJECT_MGR.getProjectPath(), pluginName,
+            settings.CppSourceRelativePath);
 
-        if (!SCRIPT_BUILD_SYS.hasScripts())
+        if (!CPP_BUILD_SYS.hasCppSources())
         {
-            // 支持业务插件之前建的工程没有 Scripts 目录，纯资源工程照常使用
-            EDITOR_LOG_INFO("Project has no game plugin scripts, skipping script build.");
+            // 没有业务 C++ 源码目录的纯资源工程照常使用
+            EDITOR_LOG_INFO("Project has no game plugin C++ sources, skipping C++ build.");
             return T3D_OK;
         }
 
         // 上次会话残留的影子副本，此刻一定已经解锁，全部清掉
-        SCRIPT_BUILD_SYS.cleanShadowAssemblies("");
+        CPP_BUILD_SYS.cleanShadowAssemblies("");
 
         // 产物过期就先编一次。编不过也不该拦住工程打开——用户很可能正是要进来
         // 改代码把它修好的，只是这种情况下场景里的自定义组件会缺失。
-        if (SCRIPT_BUILD_SYS.needsBuild(ScriptBuildSystem::Variant::kEditor))
+        if (CPP_BUILD_SYS.needsBuild(CppBuildSystem::Variant::kEditor))
         {
             String output;
-            if (T3D_FAILED(SCRIPT_BUILD_SYS.build(ScriptBuildSystem::Variant::kEditor, output)))
+            if (T3D_FAILED(CPP_BUILD_SYS.build(CppBuildSystem::Variant::kEditor, output)))
             {
                 EDITOR_LOG_ERROR("Failed to build game plugin while opening the project. "
                     "Custom components in scenes will not be recognized until it builds.");
@@ -85,8 +85,8 @@ namespace Tiny3D
         unloadGamePlugin();
 
         // 卸载后所有影子副本都已解锁，扫一遍清空
-        SCRIPT_BUILD_SYS.cleanShadowAssemblies("");
-        SCRIPT_BUILD_SYS.detachProject();
+        CPP_BUILD_SYS.cleanShadowAssemblies("");
+        CPP_BUILD_SYS.detachProject();
     }
 
     //--------------------------------------------------------------------------
@@ -111,13 +111,13 @@ namespace Tiny3D
             return T3D_OK;
         }
 
-        if (!SCRIPT_BUILD_SYS.hasScripts())
+        if (!CPP_BUILD_SYS.hasCppSources())
         {
             return T3D_OK;
         }
 
         const String assembly =
-            SCRIPT_BUILD_SYS.getAssemblyPath(ScriptBuildSystem::Variant::kEditor);
+            CPP_BUILD_SYS.getAssemblyPath(CppBuildSystem::Variant::kEditor);
 
         if (!Dir::exists(assembly))
         {
@@ -129,7 +129,7 @@ namespace Tiny3D
         String shadowDir;
         String shadowName;
 
-        TResult ret = SCRIPT_BUILD_SYS.shadowCopy(shadowDir, shadowName);
+        TResult ret = CPP_BUILD_SYS.shadowCopy(shadowDir, shadowName);
         if (T3D_FAILED(ret))
         {
             return ret;
@@ -181,7 +181,7 @@ namespace Tiny3D
 
         // 此刻 FreeLibrary 已经执行，文件解锁了，顺手把这份影子删掉，
         // 影子目录因此稳态只有当前加载的那一份
-        SCRIPT_BUILD_SYS.cleanShadowAssemblies("");
+        CPP_BUILD_SYS.cleanShadowAssemblies("");
 
         EDITOR_LOG_INFO("Game plugin [%s] unloaded.", name.c_str());
 
@@ -375,9 +375,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool PlayModeController::canCompileScripts() const
+    bool PlayModeController::canCompileCpp() const
     {
-        if (!PROJECT_MGR.isProjectOpened() || !SCRIPT_BUILD_SYS.hasScripts())
+        if (!PROJECT_MGR.isProjectOpened() || !CPP_BUILD_SYS.hasCppSources())
         {
             return false;
         }
@@ -388,11 +388,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult PlayModeController::compileScripts()
+    TResult PlayModeController::compileCpp()
     {
-        if (!canCompileScripts())
+        if (!canCompileCpp())
         {
-            EDITOR_LOG_WARNING("Cannot compile scripts right now.");
+            EDITOR_LOG_WARNING("Cannot compile C++ right now.");
             return T3D_ERR_FAIL;
         }
 
@@ -400,7 +400,7 @@ namespace Tiny3D
         T3D_AGENT.postFrameEndTask([this]()
             {
                 mPendingCompile = false;
-                doCompileScripts();
+                doCompileCpp();
             });
 
         return T3D_OK;
@@ -408,12 +408,12 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult PlayModeController::doCompileScripts()
+    TResult PlayModeController::doCompileCpp()
     {
-        EDITOR_LOG_INFO("Compiling game plugin ...");
+        EDITOR_LOG_INFO("Compiling C++ game plugin ...");
 
         String output;
-        TResult ret = SCRIPT_BUILD_SYS.build(ScriptBuildSystem::Variant::kEditor,
+        TResult ret = CPP_BUILD_SYS.build(CppBuildSystem::Variant::kEditor,
             output);
 
         if (T3D_FAILED(ret))
@@ -424,7 +424,7 @@ namespace Tiny3D
         }
 
         const String assembly =
-            SCRIPT_BUILD_SYS.getAssemblyPath(ScriptBuildSystem::Variant::kEditor);
+            CPP_BUILD_SYS.getAssemblyPath(CppBuildSystem::Variant::kEditor);
 
         if (!isGamePluginLoaded())
         {
@@ -469,13 +469,13 @@ namespace Tiny3D
             return T3D_ERR_FAIL;
         }
 
-        if (SCRIPT_BUILD_SYS.hasScripts())
+        if (CPP_BUILD_SYS.hasCppSources())
         {
-            if (SCRIPT_BUILD_SYS.needsBuild(ScriptBuildSystem::Variant::kEditor))
+            if (CPP_BUILD_SYS.needsBuild(CppBuildSystem::Variant::kEditor))
             {
                 String output;
-                TResult ret = SCRIPT_BUILD_SYS.build(
-                    ScriptBuildSystem::Variant::kEditor, output);
+                TResult ret = CPP_BUILD_SYS.build(
+                    CppBuildSystem::Variant::kEditor, output);
 
                 if (T3D_FAILED(ret))
                 {
@@ -486,7 +486,7 @@ namespace Tiny3D
             }
 
             const String assembly =
-                SCRIPT_BUILD_SYS.getAssemblyPath(ScriptBuildSystem::Variant::kEditor);
+                CPP_BUILD_SYS.getAssemblyPath(CppBuildSystem::Variant::kEditor);
 
             if (!isGamePluginLoaded())
             {
@@ -567,16 +567,16 @@ namespace Tiny3D
 
     TResult PlayModeController::validateRuntimeBuild()
     {
-        if (!SCRIPT_BUILD_SYS.hasScripts())
+        if (!CPP_BUILD_SYS.hasCppSources())
         {
-            EDITOR_LOG_WARNING("This project has no game plugin scripts to validate.");
+            EDITOR_LOG_WARNING("This project has no game plugin C++ sources to validate.");
             return T3D_ERR_NOT_FOUND;
         }
 
         EDITOR_LOG_INFO("Validating runtime build ...");
 
         String output;
-        TResult ret = SCRIPT_BUILD_SYS.build(ScriptBuildSystem::Variant::kRuntime, output);
+        TResult ret = CPP_BUILD_SYS.build(CppBuildSystem::Variant::kRuntime, output);
 
         if (T3D_FAILED(ret))
         {

@@ -194,7 +194,7 @@ namespace Tiny3D
          * @brief 判断节点是否就是工程的业务 C++ 根目录（Assets/Source）
          * @remarks C++ Class 菜单只允许在这个目录下创建，子目录和其它资产目录都不算
          */
-        bool isScriptsRoot(const AssetNode *node) const;
+        bool isCppSourceRoot(const AssetNode *node) const;
 
         /**
          * @brief 在 parent 目录下创建一对同名 C++ 类文件（.h + .cpp）

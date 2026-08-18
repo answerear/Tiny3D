@@ -28,7 +28,7 @@
 #include "T3DEditorInfoDX11.h"
 #include "ProjectManager.h"
 #include "NetworkManager.h"
-#include "ScriptBuildSystem.h"
+#include "CppBuildSystem.h"
 #include "PlayModeController.h"
 #include "EditorSceneImpl.h"
 #include "UIEditorWidgetID.h"
@@ -88,7 +88,7 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mMenuEventMgr)
         T3D_SAFE_DELETE(mProjectMgr)
         T3D_SAFE_DELETE(mPlayModeCtrl)
-        T3D_SAFE_DELETE(mScriptBuildSys)
+        T3D_SAFE_DELETE(mCppBuildSys)
         mLangMgr = nullptr;
         T3D_SAFE_DELETE(mTestScene)
         T3D_SAFE_DELETE(mAppEventProxy)
@@ -175,7 +175,7 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mNetworkMgr)
         T3D_SAFE_DELETE(mProjectMgr)
         T3D_SAFE_DELETE(mPlayModeCtrl)
-        T3D_SAFE_DELETE(mScriptBuildSys)
+        T3D_SAFE_DELETE(mCppBuildSys)
         mLangMgr = nullptr;
         T3D_SAFE_DELETE(mTestScene)
         T3D_SAFE_DELETE(mAppEventProxy)
@@ -276,9 +276,9 @@ namespace Tiny3D
             scene->init();
             scene->build();
 
-            // 业务代码编译与 Play 模式协调者，要早于工程打开，
+            // 业务 C++ 编译与 Play 模式协调者，要早于工程打开，
             // ProjectManager::openProject 会用它们加载业务插件
-            mScriptBuildSys = new ScriptBuildSystem();
+            mCppBuildSys = new CppBuildSystem();
             mPlayModeCtrl = new PlayModeController();
 
             // 创建工程管理器
@@ -655,7 +655,7 @@ namespace Tiny3D
         T3D_SAFE_DELETE(mNetworkMgr)
         T3D_SAFE_DELETE(mProjectMgr)
         T3D_SAFE_DELETE(mPlayModeCtrl)
-        T3D_SAFE_DELETE(mScriptBuildSys)
+        T3D_SAFE_DELETE(mCppBuildSys)
         T3D_SAFE_DELETE(mAppEventProxy)
         mLangMgr = nullptr;
         T3D_SAFE_DELETE(mEngine)

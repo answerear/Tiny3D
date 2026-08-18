@@ -33,19 +33,19 @@ namespace Tiny3D
     NS_BEGIN(Editor)
 
     /**
-     * @brief 业务代码（Game Plugin）的编译与影子拷贝
+     * @brief 业务 C++ 代码（Game Plugin）的编译与影子拷贝
      * @remarks
      *   编辑器只调 cmake，由 cmake 去驱动平台本地工具链（MSBuild / Ninja / Make /
      *   xcodebuild），所以这里没有任何平台专属的构建器命令。工具链的选择读自编辑器
      *   构建时导出的 Tiny3DSDK.cmake，保证业务 DLL 与编辑器 ABI 一致。
      *
-     *   编译产物落在 Library/ScriptAssemblies 下，但编辑器从不直接加载它——
+     *   编译产物落在 Library/CppAssemblies 下，但编辑器从不直接加载它——
      *   Windows 上 LoadLibrary 会锁住文件，锁住了就没法重新编译。加载前先拷一份到
      *   Temp/ShadowAssemblies 再加载那一份，原始产物始终可写。
      */
-    class ScriptBuildSystem
+    class CppBuildSystem
         : public Allocator
-        , public Singleton<ScriptBuildSystem>
+        , public Singleton<CppBuildSystem>
     {
     public:
         /**
@@ -59,24 +59,24 @@ namespace Tiny3D
             kRuntime
         };
 
-        ScriptBuildSystem() = default;
+        CppBuildSystem() = default;
 
-        ~ScriptBuildSystem() override = default;
+        ~CppBuildSystem() override = default;
 
         /**
          * @brief 绑定到已打开的工程
          * @param [in] projectPath : 工程根目录
          * @param [in] pluginName : 业务插件名，决定产物文件名
-         * @param [in] scriptsRelativePath : 业务源码目录，相对工程根
+         * @param [in] cppSourceRelativePath : 业务 C++ 源码目录，相对工程根
          */
         void attachProject(const String &projectPath, const String &pluginName,
-            const String &scriptsRelativePath);
+            const String &cppSourceRelativePath);
 
         /// 解绑工程，清掉所有路径状态
         void detachProject();
 
-        /// 是否已绑定工程且业务源码目录确实存在
-        bool hasScripts() const;
+        /// 是否已绑定工程且业务 C++ 源码目录确实存在
+        bool hasCppSources() const;
 
         /**
          * @brief 判断产物是否已过期，需要重新编译
@@ -87,7 +87,7 @@ namespace Tiny3D
         bool needsBuild(Variant variant) const;
 
         /**
-         * @brief 编译业务插件
+         * @brief 编译业务 C++ 插件
          * @param [in] variant : 构建变体
          * @param [out] output : cmake 的完整输出，供失败时展示给用户
          * @return 成功返回 T3D_OK
@@ -129,7 +129,7 @@ namespace Tiny3D
         /// 上一次 build 的完整输出
         const String &getLastOutput() const { return mLastOutput; }
 
-        /// IDE 用的 CMake 构建目录（{Project}/Temp/ScriptIDE）
+        /// IDE 用的 CMake 构建目录（{Project}/Temp/CppIDE）
         String getIDEBuildDir() const;
 
         /**
@@ -139,7 +139,7 @@ namespace Tiny3D
          * @return 成功返回 T3D_OK；没有源码 / 没有 sln / configure 失败分别返回对应错误
          * @remarks 对 Assets/Source 顶层 CMakeLists 做 configure，把 Editor 和
          *          Runtime 打进同一个解决方案。构建目录与 Play 模式的
-         *          Temp/ScriptBuild 分开，互不干扰。
+         *          Temp/CppBuild 分开，互不干扰。
          */
         TResult ensureIDESolution(String &slnPath, String &output);
 
@@ -154,8 +154,8 @@ namespace Tiny3D
             String &output);
 
     protected:
-        /// 业务 C++ 源码目录（默认 Assets/Source，可由 ScriptsRelativePath 覆盖）
-        String getScriptsDir() const { return mScriptsDir; }
+        /// 业务 C++ 源码目录（默认 Assets/Source，可由 CppSourceRelativePath 覆盖）
+        String getCppSourceDir() const { return mCppSourceDir; }
 
         /// 某个变体的 CMake 源码目录（如 Assets/Source/Editor）
         String getCMakeSourceDir(Variant variant) const;
@@ -173,14 +173,14 @@ namespace Tiny3D
         /// Assets/Source 根下 *.h / *.cpp 的集合是否相对上次 configure 有变化
         bool needsReconfigure(Variant variant) const;
 
-        /// 收集 Assets/Source 根下脚本文件的相对路径名单（已排序，不递归子目录）
-        String collectScriptFileList() const;
+        /// 收集 Assets/Source 根下 C++ 文件的相对路径名单（已排序，不递归子目录）
+        String collectCppFileList() const;
 
-        /// 上次 configure 时记下的脚本文件名单路径
-        String getScriptFileStampPath(Variant variant) const;
+        /// 上次 configure 时记下的 C++ 文件名单路径
+        String getCppFileStampPath(Variant variant) const;
 
-        /// 把当前脚本文件名单写到构建目录，供下次比较
-        void writeScriptFileStamp(Variant variant, const String &list) const;
+        /// 把当前 C++ 文件名单写到构建目录，供下次比较
+        void writeCppFileStamp(Variant variant, const String &list) const;
 
         /// 从 SDK 的 Tiny3DSDK.cmake 里读出工具链配置，只读一次并缓存
         bool loadSDKConfig();
@@ -208,7 +208,7 @@ namespace Tiny3D
         /// @return 有文件被写入时返回 true，供调用方决定是否重新 configure
         bool syncIDECMakeFromTemplate() const;
 
-        /// 把模板相对路径同步到业务源码目录，并替换 {ProjectName}
+        /// 把模板相对路径同步到业务 C++ 源码目录，并替换 {ProjectName}
         bool syncTemplateFile(const String &relativePath) const;
 
         /// cmake 生成 sln 后，把 vcxproj 里 LocalDebugger* 路径改成本机分隔符
@@ -250,8 +250,8 @@ namespace Tiny3D
         String mProjectPath {};
         /// 业务插件名
         String mPluginName {};
-        /// 业务源码目录
-        String mScriptsDir {};
+        /// 业务 C++ 源码目录
+        String mCppSourceDir {};
         /// 影子目录
         String mShadowDir {};
 
@@ -264,7 +264,7 @@ namespace Tiny3D
         String mLastOutput {};
     };
 
-    #define SCRIPT_BUILD_SYS (ScriptBuildSystem::getInstance())
+    #define CPP_BUILD_SYS (CppBuildSystem::getInstance())
 
     NS_END
 }

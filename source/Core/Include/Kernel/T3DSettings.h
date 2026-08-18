@@ -167,7 +167,7 @@ namespace Tiny3D
         TPROPERTY()
         String startupSceneUUID {};
 
-        /// 业务插件逻辑名（不含平台前后缀），对应 Library/ScriptAssemblies/Runtime 下的 DLL
+        /// 业务插件逻辑名（不含平台前后缀），对应 Library/CppAssemblies/Runtime 下的 DLL
         TPROPERTY()
         String gamePluginName {};
 

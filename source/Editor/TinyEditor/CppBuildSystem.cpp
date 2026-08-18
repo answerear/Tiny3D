@@ -23,7 +23,7 @@
  ******************************************************************************/
 
 
-#include "ScriptBuildSystem.h"
+#include "CppBuildSystem.h"
 
 #include <algorithm>
 #include <cstdio>
@@ -42,73 +42,73 @@ namespace Tiny3D
     // 业务插件必须和编辑器用同一个配置，Debug 版编辑器加载 Release 版业务 DLL
     // 会因为运行时库不同而崩在跨 DLL 的内存释放上。
 #if defined (NDEBUG)
-    const char *ScriptBuildSystem::BUILD_CONFIG = "Release";
+    const char *CppBuildSystem::BUILD_CONFIG = "Release";
 #else
-    const char *ScriptBuildSystem::BUILD_CONFIG = "Debug";
+    const char *CppBuildSystem::BUILD_CONFIG = "Debug";
 #endif
 
     //--------------------------------------------------------------------------
 
-    void ScriptBuildSystem::attachProject(const String &projectPath,
-        const String &pluginName, const String &scriptsRelativePath)
+    void CppBuildSystem::attachProject(const String &projectPath,
+        const String &pluginName, const String &cppSourceRelativePath)
     {
         const String sep(1, Dir::getNativeSeparator());
-        const String relative = scriptsRelativePath.empty()
+        const String relative = cppSourceRelativePath.empty()
             ? (String("Assets") + sep + "Source")
-            : scriptsRelativePath;
+            : cppSourceRelativePath;
 
         mProjectPath = Dir::formatPath(projectPath);
         mPluginName = pluginName;
-        // formatPath 兼容旧工程里 ScriptsRelativePath 残留的 '/'
-        mScriptsDir = Dir::formatPath(mProjectPath + sep + relative);
+        // 设置里的相对路径可能用 '/'，formatPath 统一成本机分隔符
+        mCppSourceDir = Dir::formatPath(mProjectPath + sep + relative);
         mShadowDir = Dir::formatPath(mProjectPath + sep + "Temp" + sep + "ShadowAssemblies");
         mLastOutput.clear();
     }
 
     //--------------------------------------------------------------------------
 
-    void ScriptBuildSystem::detachProject()
+    void CppBuildSystem::detachProject()
     {
         mProjectPath.clear();
         mPluginName.clear();
-        mScriptsDir.clear();
+        mCppSourceDir.clear();
         mShadowDir.clear();
         mLastOutput.clear();
     }
 
     //--------------------------------------------------------------------------
 
-    bool ScriptBuildSystem::hasScripts() const
+    bool CppBuildSystem::hasCppSources() const
     {
-        if (mScriptsDir.empty() || mPluginName.empty())
+        if (mCppSourceDir.empty() || mPluginName.empty())
         {
             return false;
         }
 
-        // 老工程可能是在支持业务插件之前建的，没有 Scripts 目录，这种情况下
-        // 整条业务代码链路直接跳过，不影响纯资源工程的正常使用
-        return Dir::exists(mScriptsDir);
+        // 纯资源工程可以没有业务 C++ 源码目录，这种情况下整条业务代码链路
+        // 直接跳过，不影响工程的正常使用
+        return Dir::exists(mCppSourceDir);
     }
 
     //--------------------------------------------------------------------------
 
-    String ScriptBuildSystem::getAssemblyName(Variant variant) const
+    String CppBuildSystem::getAssemblyName(Variant variant) const
     {
         return (variant == Variant::kEditor) ? (mPluginName + "Editor") : mPluginName;
     }
 
     //--------------------------------------------------------------------------
 
-    String ScriptBuildSystem::getAssemblyDir(Variant variant) const
+    String CppBuildSystem::getAssemblyDir(Variant variant) const
     {
         const String sep(1, Dir::getNativeSeparator());
         const String sub = (variant == Variant::kEditor) ? "Editor" : "Runtime";
-        return mProjectPath + sep + "Library" + sep + "ScriptAssemblies" + sep + sub;
+        return mProjectPath + sep + "Library" + sep + "CppAssemblies" + sep + sub;
     }
 
     //--------------------------------------------------------------------------
 
-    String ScriptBuildSystem::getAssemblyPath(Variant variant) const
+    String CppBuildSystem::getAssemblyPath(Variant variant) const
     {
         return getAssemblyDir(variant) + Dir::getNativeSeparator()
             + platformLibFileName(getAssemblyName(variant));
@@ -116,24 +116,24 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    String ScriptBuildSystem::getCMakeSourceDir(Variant variant) const
+    String CppBuildSystem::getCMakeSourceDir(Variant variant) const
     {
         const String sub = (variant == Variant::kEditor) ? "Editor" : "Runtime";
-        return mScriptsDir + Dir::getNativeSeparator() + sub;
+        return mCppSourceDir + Dir::getNativeSeparator() + sub;
     }
 
     //--------------------------------------------------------------------------
 
-    String ScriptBuildSystem::getCMakeBuildDir(Variant variant) const
+    String CppBuildSystem::getCMakeBuildDir(Variant variant) const
     {
         const String sep(1, Dir::getNativeSeparator());
         const String sub = (variant == Variant::kEditor) ? "Editor" : "Runtime";
-        return mProjectPath + sep + "Temp" + sep + "ScriptBuild" + sep + sub;
+        return mProjectPath + sep + "Temp" + sep + "CppBuild" + sep + sub;
     }
 
     //--------------------------------------------------------------------------
 
-    String ScriptBuildSystem::platformLibFileName(const String &name)
+    String CppBuildSystem::platformLibFileName(const String &name)
     {
         // 与 Dylib::onLoad 的拼接规则保持一致，否则影子副本加载不到
 #if defined (T3D_OS_WINDOWS)
@@ -147,7 +147,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    String ScriptBuildSystem::platformSymbolFileName(const String &name)
+    String CppBuildSystem::platformSymbolFileName(const String &name)
     {
         // Linux 的调试信息内嵌在 .so 里，macOS 的 dSYM 是目录且默认不生成，
         // 只有 MSVC 的 PDB 需要跟着影子副本一起搬
@@ -160,7 +160,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    String ScriptBuildSystem::quote(const String &value)
+    String CppBuildSystem::quote(const String &value)
     {
         if (value.find(' ') == String::npos)
         {
@@ -172,7 +172,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    long_t ScriptBuildSystem::getNewestSourceTime(const String &dir)
+    long_t CppBuildSystem::getNewestSourceTime(const String &dir)
     {
         long_t newest = 0;
 
@@ -223,9 +223,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ScriptBuildSystem::needsBuild(Variant variant) const
+    bool CppBuildSystem::needsBuild(Variant variant) const
     {
-        if (!hasScripts())
+        if (!hasCppSources())
         {
             return false;
         }
@@ -240,20 +240,20 @@ namespace Tiny3D
         // 比的是原始产物，不是影子副本——影子副本每次加载都会重拷，时间戳没有参考意义
         const long_t assemblyTime = Dir::getLastWriteTime(assembly);
 
-        return getNewestSourceTime(mScriptsDir) > assemblyTime;
+        return getNewestSourceTime(mCppSourceDir) > assemblyTime;
     }
 
     //--------------------------------------------------------------------------
 
-    String ScriptBuildSystem::getScriptFileStampPath(Variant variant) const
+    String CppBuildSystem::getCppFileStampPath(Variant variant) const
     {
         return getCMakeBuildDir(variant) + Dir::getNativeSeparator()
-            + ".script_files.stamp";
+            + ".cpp_files.stamp";
     }
 
     //--------------------------------------------------------------------------
 
-    String ScriptBuildSystem::collectScriptFileList() const
+    String CppBuildSystem::collectCppFileList() const
     {
         TArray<String> names;
         const String sep(1, Dir::getNativeSeparator());
@@ -262,13 +262,13 @@ namespace Tiny3D
             ".h", ".hpp", ".hh", ".cpp", ".cc", ".cxx", nullptr
         };
 
-        if (!Dir::exists(mScriptsDir))
+        if (!Dir::exists(mCppSourceDir))
         {
             return String();
         }
 
         Dir finder;
-        const String pattern = mScriptsDir + sep + "*";
+        const String pattern = mCppSourceDir + sep + "*";
         bool working = finder.findFile(pattern);
         while (working)
         {
@@ -305,7 +305,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ScriptBuildSystem::needsReconfigure(Variant variant) const
+    bool CppBuildSystem::needsReconfigure(Variant variant) const
     {
         const String cacheFile = getCMakeBuildDir(variant)
             + Dir::getNativeSeparator() + "CMakeCache.txt";
@@ -314,7 +314,7 @@ namespace Tiny3D
             return true;
         }
 
-        const String stampPath = getScriptFileStampPath(variant);
+        const String stampPath = getCppFileStampPath(variant);
         if (!Dir::exists(stampPath))
         {
             return true;
@@ -335,20 +335,20 @@ namespace Tiny3D
         }
         fs.close();
 
-        return previous != collectScriptFileList();
+        return previous != collectCppFileList();
     }
 
     //--------------------------------------------------------------------------
 
-    void ScriptBuildSystem::writeScriptFileStamp(Variant variant,
+    void CppBuildSystem::writeCppFileStamp(Variant variant,
         const String &list) const
     {
-        const String stampPath = getScriptFileStampPath(variant);
+        const String stampPath = getCppFileStampPath(variant);
         FileDataStream fs;
         if (!fs.open(stampPath.c_str(),
             FileDataStream::E_MODE_TRUNCATE | FileDataStream::E_MODE_WRITE_ONLY))
         {
-            EDITOR_LOG_WARNING("Failed to write script file stamp [%s] !",
+            EDITOR_LOG_WARNING("Failed to write C++ file stamp [%s] !",
                 stampPath.c_str());
             return;
         }
@@ -362,7 +362,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ScriptBuildSystem::loadSDKConfig()
+    bool CppBuildSystem::loadSDKConfig()
     {
         if (mSDKConfigLoaded)
         {
@@ -398,7 +398,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    String ScriptBuildSystem::parseSDKValue(const String &name) const
+    String CppBuildSystem::parseSDKValue(const String &name) const
     {
         // 文件是生成出来的，格式固定为 set(NAME "value")，用不着完整的 CMake 解析
         const String key = "set(" + name;
@@ -426,7 +426,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    String ScriptBuildSystem::buildCMakeConfigureCommand(const String &sourceDir,
+    String CppBuildSystem::buildCMakeConfigureCommand(const String &sourceDir,
         const String &buildDir) const
     {
         String cmd = "cmake";
@@ -474,7 +474,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptBuildSystem::configure(Variant variant, String &output)
+    TResult CppBuildSystem::configure(Variant variant, String &output)
     {
         if (!loadSDKConfig())
         {
@@ -485,7 +485,7 @@ namespace Tiny3D
 
         if (!Dir::exists(buildDir) && !Dir::makeDirs(buildDir))
         {
-            EDITOR_LOG_ERROR("Failed to create script build dir [%s] !", buildDir.c_str());
+            EDITOR_LOG_ERROR("Failed to create C++ build dir [%s] !", buildDir.c_str());
             return T3D_ERR_FAIL;
         }
 
@@ -493,19 +493,19 @@ namespace Tiny3D
 
         EDITOR_LOG_INFO("Configuring game plugin : %s", cmd.c_str());
 
-        return runCommand(cmd, mScriptsDir, output);
+        return runCommand(cmd, mCppSourceDir, output);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptBuildSystem::build(Variant variant, String &output)
+    TResult CppBuildSystem::build(Variant variant, String &output)
     {
         output.clear();
         mLastOutput.clear();
 
-        if (!hasScripts())
+        if (!hasCppSources())
         {
-            EDITOR_LOG_WARNING("No game plugin scripts to build.");
+            EDITOR_LOG_WARNING("No game plugin C++ sources to build.");
             return T3D_ERR_NOT_FOUND;
         }
 
@@ -527,7 +527,7 @@ namespace Tiny3D
                 return ret;
             }
 
-            writeScriptFileStamp(variant, collectScriptFileList());
+            writeCppFileStamp(variant, collectCppFileList());
         }
 
         String cmd = "cmake --build " + quote(buildDir) + " --config " + BUILD_CONFIG;
@@ -535,7 +535,7 @@ namespace Tiny3D
         EDITOR_LOG_INFO("Building game plugin : %s", cmd.c_str());
 
         String buildOutput;
-        TResult ret = runCommand(cmd, mScriptsDir, buildOutput);
+        TResult ret = runCommand(cmd, mCppSourceDir, buildOutput);
 
         output += buildOutput;
         mLastOutput = output;
@@ -554,7 +554,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptBuildSystem::shadowCopy(String &shadowDir, String &shadowName)
+    TResult CppBuildSystem::shadowCopy(String &shadowDir, String &shadowName)
     {
         const String assembly = getAssemblyPath(Variant::kEditor);
 
@@ -615,7 +615,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void ScriptBuildSystem::cleanShadowAssemblies(const String &keepName)
+    void CppBuildSystem::cleanShadowAssemblies(const String &keepName)
     {
         if (mShadowDir.empty() || !Dir::exists(mShadowDir))
         {
@@ -668,15 +668,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    String ScriptBuildSystem::getIDEBuildDir() const
+    String CppBuildSystem::getIDEBuildDir() const
     {
         const String sep(1, Dir::getNativeSeparator());
-        return mProjectPath + sep + "Temp" + sep + "ScriptIDE";
+        return mProjectPath + sep + "Temp" + sep + "CppIDE";
     }
 
     //--------------------------------------------------------------------------
 
-    bool ScriptBuildSystem::findSolutionFile(const String &buildDir, String &slnPath)
+    bool CppBuildSystem::findSolutionFile(const String &buildDir, String &slnPath)
     {
         slnPath.clear();
 
@@ -699,7 +699,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ScriptBuildSystem::needsIDEReconfigure() const
+    bool CppBuildSystem::needsIDEReconfigure() const
     {
         const String buildDir = getIDEBuildDir();
         const String cacheFile = buildDir + Dir::getNativeSeparator() + "CMakeCache.txt";
@@ -715,7 +715,7 @@ namespace Tiny3D
             return false;
         }
 
-        if (getNewestSourceTime(mScriptsDir) > Dir::getLastWriteTime(cacheFile))
+        if (getNewestSourceTime(mCppSourceDir) > Dir::getLastWriteTime(cacheFile))
         {
             return true;
         }
@@ -727,7 +727,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptBuildSystem::configureIDE(String &output)
+    TResult CppBuildSystem::configureIDE(String &output)
     {
         if (!loadSDKConfig())
         {
@@ -742,28 +742,28 @@ namespace Tiny3D
             return T3D_ERR_FAIL;
         }
 
-        const String cmd = buildCMakeConfigureCommand(mScriptsDir, buildDir);
+        const String cmd = buildCMakeConfigureCommand(mCppSourceDir, buildDir);
 
         EDITOR_LOG_INFO("Configuring C++ IDE solution : %s", cmd.c_str());
 
-        return runCommand(cmd, mScriptsDir, output);
+        return runCommand(cmd, mCppSourceDir, output);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult ScriptBuildSystem::ensureIDESolution(String &slnPath, String &output)
+    TResult CppBuildSystem::ensureIDESolution(String &slnPath, String &output)
     {
         slnPath.clear();
         output.clear();
         mLastOutput.clear();
 
-        if (!hasScripts())
+        if (!hasCppSources())
         {
-            EDITOR_LOG_WARNING("No game plugin scripts to open in the IDE.");
+            EDITOR_LOG_WARNING("No game plugin C++ sources to open in the IDE.");
             return T3D_ERR_NOT_FOUND;
         }
 
-        const String cmakeLists = mScriptsDir + Dir::getNativeSeparator() + "CMakeLists.txt";
+        const String cmakeLists = mCppSourceDir + Dir::getNativeSeparator() + "CMakeLists.txt";
         if (!Dir::exists(cmakeLists))
         {
             EDITOR_LOG_ERROR("Game plugin CMakeLists.txt not found at [%s] !",
@@ -803,7 +803,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ScriptBuildSystem::readTextFile(const String &path, String &text)
+    bool CppBuildSystem::readTextFile(const String &path, String &text)
     {
         FileDataStream fs;
         if (!fs.open(path.c_str(), FileDataStream::E_MODE_READ_ONLY))
@@ -823,7 +823,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ScriptBuildSystem::writeTextFile(const String &path, const String &text)
+    bool CppBuildSystem::writeTextFile(const String &path, const String &text)
     {
         FileDataStream fs;
         if (!fs.open(path.c_str(), FileDataStream::E_MODE_TRUNCATE
@@ -842,12 +842,12 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ScriptBuildSystem::syncTemplateFile(const String &relativePath) const
+    bool CppBuildSystem::syncTemplateFile(const String &relativePath) const
     {
         const String sep(1, Dir::getNativeSeparator());
         const String src = Dir::getAppPath() + sep + "Editor" + sep + "templates"
             + sep + "GamePlugin" + sep + relativePath;
-        const String dst = mScriptsDir + sep + relativePath;
+        const String dst = mCppSourceDir + sep + relativePath;
 
         if (!Dir::exists(src))
         {
@@ -899,7 +899,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ScriptBuildSystem::syncIDECMakeFromTemplate() const
+    bool CppBuildSystem::syncIDECMakeFromTemplate() const
     {
         bool changed = syncTemplateFile("GamePluginCommon.cmake");
         changed = syncTemplateFile(String("Player") + Dir::getNativeSeparator()
@@ -909,7 +909,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void ScriptBuildSystem::toNativePathSeparators(String &text)
+    void CppBuildSystem::toNativePathSeparators(String &text)
     {
         const char native = Dir::getNativeSeparator();
         const char foreign = (native == '\\') ? '/' : '\\';
@@ -924,7 +924,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ScriptBuildSystem::isTagNameEnd(const String &xml, size_t pos)
+    bool CppBuildSystem::isTagNameEnd(const String &xml, size_t pos)
     {
         if (pos >= xml.size())
         {
@@ -938,7 +938,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ScriptBuildSystem::rewriteVsDebuggerPathSlashes(String &xml)
+    bool CppBuildSystem::rewriteVsDebuggerPathSlashes(String &xml)
     {
         static const char *kTags[] = {
             "LocalDebuggerCommand",
@@ -1007,7 +1007,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void ScriptBuildSystem::collectFilesBySuffix(const String &dir,
+    void CppBuildSystem::collectFilesBySuffix(const String &dir,
         const String &suffix, TArray<String> &out)
     {
         Dir finder;
@@ -1042,7 +1042,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool ScriptBuildSystem::hasCorruptedGeneratedProject(const String &buildDir)
+    bool CppBuildSystem::hasCorruptedGeneratedProject(const String &buildDir)
     {
         TArray<String> files;
         collectFilesBySuffix(buildDir, ".vcxproj", files);
@@ -1070,7 +1070,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void ScriptBuildSystem::fixGeneratedVsDebuggerPaths(const String &buildDir) const
+    void CppBuildSystem::fixGeneratedVsDebuggerPaths(const String &buildDir) const
     {
         TArray<String> files;
         collectFilesBySuffix(buildDir, ".vcxproj", files);
@@ -1105,7 +1105,7 @@ namespace Tiny3D
 
 #if defined (T3D_OS_WINDOWS)
 
-    TResult ScriptBuildSystem::runCommand(const String &cmdLine, const String &workDir,
+    TResult CppBuildSystem::runCommand(const String &cmdLine, const String &workDir,
         String &output)
     {
         SECURITY_ATTRIBUTES sa;
@@ -1187,7 +1187,7 @@ namespace Tiny3D
 
 #else
 
-    TResult ScriptBuildSystem::runCommand(const String &cmdLine, const String &workDir,
+    TResult CppBuildSystem::runCommand(const String &cmdLine, const String &workDir,
         String &output)
     {
         String cmd;

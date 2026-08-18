@@ -25,7 +25,7 @@
 
 #include "ExternalIDELauncher.h"
 #include "EditorApp.h"
-#include "ScriptBuildSystem.h"
+#include "CppBuildSystem.h"
 
 #include <cctype>
 #include <cstring>
@@ -201,12 +201,12 @@ namespace Tiny3D
 
         String namesOutput;
         String pathsOutput;
-        if (T3D_FAILED(ScriptBuildSystem::runCommand(quoted + args + " -property displayName",
+        if (T3D_FAILED(CppBuildSystem::runCommand(quoted + args + " -property displayName",
             String(), namesOutput)))
         {
             namesOutput.clear();
         }
-        if (T3D_FAILED(ScriptBuildSystem::runCommand(quoted + args + " -property productPath",
+        if (T3D_FAILED(CppBuildSystem::runCommand(quoted + args + " -property productPath",
             String(), pathsOutput)))
         {
             pathsOutput.clear();

@@ -46,7 +46,7 @@ Assets/Source/
 |--|------------|-------------|
 | 谁加载 | TinyEditor | TinyPlayer |
 | 什么时候编 | 每次点 Play | 导出发布版时 |
-| 产物 | `Library/ScriptAssemblies/Editor/` | `Library/ScriptAssemblies/Runtime/` |
+| 产物 | `Library/CppAssemblies/Editor/` | `Library/CppAssemblies/Runtime/` |
 
 对你写代码没有影响，只有一条约束：**不要用编辑器专有的 API**，比如
 `Scene::getEditorCamera`、`EditorScene`、`PrefabUtility`。用了的话 Editor 变体照样
@@ -61,16 +61,16 @@ Assets/Source/
 平时不需要，编辑器会自动调。想在命令行构建的话（在工程根目录执行）：
 
 ```
-cmake -S Assets/Source/Editor -B Temp/ScriptBuild/Editor \
+cmake -S Assets/Source/Editor -B Temp/CppBuild/Editor \
   -DTINY3D_SDK_ROOT=<TinyEditor 所在目录> \
   -DGAME_PROJECT_ROOT=<工程根目录>
-cmake --build Temp/ScriptBuild/Editor --config Debug
+cmake --build Temp/CppBuild/Editor --config Debug
 ```
 
 `TINY3D_SDK_ROOT` 要指向 TinyEditor 可执行文件所在的目录，那里有编辑器构建时导出的
 `Tiny3DSDK.cmake`，记录了工具链信息，业务库必须用同样的配置编译才能被正确加载。
 同目录还要有 `rpp` 和 `ReflectionSettings.base.json`（引擎 generate 脚本会带上）。
-`GAME_PROJECT_ROOT` 指向工程根，保证 DLL 落到 `{工程根}/Library/ScriptAssemblies/`。
+`GAME_PROJECT_ROOT` 指向工程根，保证 DLL 落到 `{工程根}/Library/CppAssemblies/`。
 
 ## 在 Visual Studio 里调试
 
@@ -78,7 +78,7 @@ cmake --build Temp/ScriptBuild/Editor --config Debug
 `TinyPlayer`。启动项是 `TinyPlayer`。
 
 - **Runtime（游戏逻辑，独立窗口）**：F5 跑 `TinyPlayer`。它会 `--project` 打开当前
-  工程，加载 `Library/ScriptAssemblies/Runtime/{Name}.dll`。断点打在业务源码上即可。
+  工程，加载 `Library/CppAssemblies/Runtime/{Name}.dll`。断点打在业务源码上即可。
 - **Editor（编辑器里的脚本）**：TinyEditor 已经开着工程时，用
   **调试 → 附加到进程 → TinyEditor.exe**。不要在编辑器还开着时再 F5 出第二个
   TinyEditor。如果编辑器没开，可以把 `{Name}Editor` 设为启动项再 F5，它会带

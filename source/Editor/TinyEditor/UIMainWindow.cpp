@@ -38,7 +38,7 @@
 #include "UIEditorWidgetID.h"
 #include "ProjectManager.h"
 #include "PlayModeController.h"
-#include "ScriptBuildSystem.h"
+#include "CppBuildSystem.h"
 #include "ExternalIDELauncher.h"
 
 
@@ -546,12 +546,12 @@ namespace Tiny3D
 
         // Open C++ Project
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_OPEN_CPP_PROJECT, STR(TXT_OPEN_CPP_PROJECT), "", "", IM_MENU_ITEM_DEFAULT_QUERY_ENABLED(), nullptr, nullptr)
-        // Compile Scripts
+        // Compile C++
         // 新写的 TCLASS 要编进业务插件并重载后才会出现在 Inspector 的 Add Component 里
-        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_COMPILE_SCRIPTS, STR(TXT_COMPILE_SCRIPTS), "", "",
-            [](ImWidget *widget) { return PLAY_MODE_CTRL.canCompileScripts(); },
+        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_COMPILE_CPP, STR(TXT_COMPILE_CPP), "", "",
+            [](ImWidget *widget) { return PLAY_MODE_CTRL.canCompileCpp(); },
             nullptr,
-            [](ImWidget *widget) { PLAY_MODE_CTRL.compileScripts(); })
+            [](ImWidget *widget) { PLAY_MODE_CTRL.compileCpp(); })
         // View in Import Activity Window
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_IETM_VIEW_IN_IMPORT_ACTIVITY_WINDOW, STR(TXT_VIEW_IN_IMPORT_ACTIVITY_WINDOW), "", "", queryDisableDefault, nullptr, nullptr)
         // Properties
@@ -1117,7 +1117,7 @@ namespace Tiny3D
                 // IM_MENU_SEPARATOR() // Separator
 
                 IM_MENU_ITEM(ID_MENU_ITEM_OPEN_CPP_PROJECT) // Open C++ Project
-                IM_MENU_ITEM(ID_MENU_ITEM_COMPILE_SCRIPTS)  // Compile Scripts
+                IM_MENU_ITEM(ID_MENU_ITEM_COMPILE_CPP)  // Compile C++
                 IM_MENU_ITEM(ID_MENU_IETM_VIEW_IN_IMPORT_ACTIVITY_WINDOW)   // View in Import Activity Window
                 IM_MENU_ITEM(ID_MENU_ITEM_PROPERTIES)   // Properties
             IM_MENU_POPUP_END()
@@ -1350,7 +1350,7 @@ namespace Tiny3D
     {
         (void)id;
         (void)menuItem;
-        return PROJECT_MGR.isProjectOpened() && SCRIPT_BUILD_SYS.hasScripts();
+        return PROJECT_MGR.isProjectOpened() && CPP_BUILD_SYS.hasCppSources();
     }
 
     //--------------------------------------------------------------------------
@@ -1362,11 +1362,11 @@ namespace Tiny3D
 
         String slnPath;
         String output;
-        const TResult ret = SCRIPT_BUILD_SYS.ensureIDESolution(slnPath, output);
+        const TResult ret = CPP_BUILD_SYS.ensureIDESolution(slnPath, output);
         if (ret == T3D_ERR_NOT_FOUND)
         {
             ImMessageBox::show(STR(TXT_ERROR),
-                ESTR(TXT_OPEN_CPP_PROJECT_NO_SCRIPTS, "This project has no C++ game plugin sources."),
+                ESTR(TXT_OPEN_CPP_PROJECT_NO_CPP_SOURCES, "This project has no C++ game plugin sources."),
                 STR(TXT_OK), ImDialog::ShowType::kEnqueueBack);
             return true;
         }

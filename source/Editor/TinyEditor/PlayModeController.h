@@ -80,16 +80,16 @@ namespace Tiny3D
         TResult stop();
 
         /**
-         * @brief 请求编译业务插件，产物有更新则热重载
+         * @brief 请求编译业务 C++ 插件，产物有更新则热重载
          * @remarks 业务代码只在打开工程和点 Play 时才编译，新写的 TCLASS 在那之前不在
          *          RTTR 里，Inspector 的 Add Component 因此看不到它。这个入口让用户改完
          *          代码随时让新类型生效。与 play 同样推迟到帧末安全点：热重载会把整个
          *          场景连同 GPU 资源销毁重建，在 UI 回调里做就是跨线程的 use-after-free
          */
-        TResult compileScripts();
+        TResult compileCpp();
 
-        /// 是否具备编译业务插件的条件（工程有业务代码、非 Play 态、无待执行的请求）
-        bool canCompileScripts() const;
+        /// 是否具备编译业务 C++ 的条件（工程有 C++ 源码、非 Play 态、无待执行的请求）
+        bool canCompileCpp() const;
 
         /**
          * @brief 只编译 Runtime 变体，不做打包
@@ -108,8 +108,8 @@ namespace Tiny3D
         /// stop 的实际实现，只在帧末安全点被调用
         TResult doStop();
 
-        /// compileScripts 的实际实现，只在帧末安全点被调用
-        TResult doCompileScripts();
+        /// compileCpp 的实际实现，只在帧末安全点被调用
+        TResult doCompileCpp();
 
         /// 影子拷贝 + loadPluginFromPath
         TResult loadGamePlugin();

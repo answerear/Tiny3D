@@ -728,7 +728,7 @@ namespace Tiny3D
             return false;
         }
 
-        return PROJECT_MGR.isScriptsRoot(uiNode->getAssetNode());
+        return PROJECT_MGR.isCppSourceRoot(uiNode->getAssetNode());
     }
 
     //--------------------------------------------------------------------------
