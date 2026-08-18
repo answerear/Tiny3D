@@ -59,4 +59,7 @@ void {ClassName}::onDisable()
 
 void {ClassName}::onDestroy()
 {
+    // 基类实现负责引擎侧收尾（从全局组件表注销、断开 GameObject 引用），
+    // 覆盖 onDestroy 时务必保留这一行
+    Behaviour::onDestroy();
 }
