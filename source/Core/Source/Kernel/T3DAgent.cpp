@@ -220,6 +220,14 @@ namespace Tiny3D
         //     mObjTracer->dumpMemoryInfo();
         // }
         
+        // 泄漏对象的类型名只能趁模块还在的时候取：插件 DLL 卸载之后，属于它的
+        // 对象 vtable / RTTI 随模块解除映射，末尾那次 dumpMemoryInfo 里的 typeid
+        // 就会读到一段没有映射的地址
+        if (mObjTracer != nullptr)
+        {
+            mObjTracer->captureTypeNames();
+        }
+
         // 卸载所有插件
         unloadPlugins();
 

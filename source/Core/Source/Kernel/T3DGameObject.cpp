@@ -122,10 +122,11 @@ namespace Tiny3D
             {
                 component->onDestroy();
             }
-            else
-            {
-                component->unregister();
-            }
+
+            // 注销一律由框架兜底：脚本的 onDestroy 覆盖基类实现时不一定会调
+            // Component::onDestroy，漏掉的话组件会一直留在 msComponents 强引用
+            // 表里泄漏，而它的类型定义在游戏插件 DLL 里，卸载后就是悬空 vtable
+            component->unregister();
             component->setGameObject(nullptr);
             msWaitingDestroyComponents.pop_front();
         }
