@@ -1444,6 +1444,9 @@ namespace Tiny3D
             "\n"
             "void {ClassName}::onDestroy()\n"
             "{\n"
+            "    // 基类实现负责引擎侧收尾（从全局组件表注销、断开 GameObject 引用），\n"
+            "    // 覆盖 onDestroy 时务必保留这一行\n"
+            "    Behaviour::onDestroy();\n"
             "}\n";
 
         void replaceAll(String &content, const String &placeholder, const String &value)
