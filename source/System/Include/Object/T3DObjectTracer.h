@@ -82,6 +82,16 @@ namespace Tiny3D
          */
         void dumpMemoryInfo(FileDataStream &fs) const;
 
+        /**
+         * @fn  void ObjectTracer::captureTypeNames();
+         * @brief   把当前所有存活对象的类型名缓存下来
+         * @remarks 对象的 vtable 与 RTTI 数据在定义该类的模块里。插件 DLL 一旦
+         *          卸载，这段地址就随模块解除映射，dumpMemoryInfo 里的 typeid
+         *          会直接踩到已卸载的地址上。所以必须在卸载插件之前调用本接口，
+         *          趁模块还在把类型名抓成字符串.
+         */
+        void captureTypeNames();
+
     protected:
         /**
          * @fn  void ObjectTracer::addObject(Object *object)
@@ -104,7 +114,13 @@ namespace Tiny3D
         {
             ScopeLock lock(&mMutex);
             if (mIsEnabled)
+            {
                 mObjects.erase(object);
+                if (!mTypeNames.empty())
+                {
+                    mTypeNames.erase(object);
+                }
+            }
         }
 
         /**
@@ -114,14 +130,26 @@ namespace Tiny3D
          */
         void printInfo(const String &str) const;
 
+        /**
+         * @fn  String ObjectTracer::getTypeName(const Object *object) const;
+         * @brief   获取对象类型名，模块已卸载时不会去读 RTTI
+         * @param [in]  object  : 对象指针.
+         * @return  类型名；类型信息所属模块已卸载时返回占位描述.
+         */
+        String getTypeName(const Object *object) const;
+
         typedef TSet<Object*>           Objects;
         typedef Objects::iterator       ObjectsItr;
         typedef Objects::const_iterator ObjectsConstItr;
         typedef Objects::value_type     ObjectsValue;
 
+        typedef TMap<Object*, String>   TypeNames;
+
         Mutex   mMutex {};
         bool    mIsEnabled {true}; /**< 是否开启了内存跟踪 */
         Objects mObjects {};    /**< 对象集合 */
+
+        TypeNames   mTypeNames {}; /**< 卸载插件前抓下来的类型名，见 captureTypeNames */
 
         mutable FileDataStream  *mStream;       /**< 临时输出对象，用于dumpMemoryInfo的时候 */
     };
