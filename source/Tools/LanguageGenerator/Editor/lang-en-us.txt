@@ -190,3 +190,4 @@ This project has no C++ game plugin sources.
 No Visual Studio solution was generated. The editor toolchain must use a Visual Studio CMake generator.
 Failed to launch the configured IDE.
 C++ Class
+Compile Scripts
