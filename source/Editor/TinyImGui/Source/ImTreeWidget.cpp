@@ -240,6 +240,12 @@ namespace Tiny3D
 
     void ImTreeNode::onDestroy()
     {
+        // 节点即将被释放，tree widget 不能继续持有它，否则选中项会变成野指针
+        if (mTreeWidget != nullptr && mTreeWidget->getSelection() == this)
+        {
+            mTreeWidget->clearSelection();
+        }
+
         if (mIsInternalLoaded)
         {
             if (mIconID != nullptr)

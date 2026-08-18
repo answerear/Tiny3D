@@ -209,8 +209,17 @@ namespace Tiny3D
         void setSelection(ImTreeNode *selection)
         {
             mSelection = selection;
-            getSelectedNode() = selection->getUniqueName();
+            if (selection != nullptr)
+            {
+                getSelectedNode() = selection->getUniqueName();
+            }
+            else
+            {
+                getSelectedNode().clear();
+            }
         }
+
+        void clearSelection() { setSelection(nullptr); }
         
     protected:
         TResult createInternal(uint32_t id, const String &name, ImWidget *parent, int32_t argc, va_list &args) override;
