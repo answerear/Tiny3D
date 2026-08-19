@@ -205,7 +205,23 @@ function(tiny3d_enable_reflection TARGET)
         endif ()
     endif ()
 
-    if (_run_rpp)
+    # 反射产物是按 GENERATED_DIR 组织的（含 rpp 的 .deps / .tpl 增量缓存），同一个
+    # GENERATED_DIR 下只该有一次 rpp。业务工程的 Editor 与 Runtime 两个变体编的是同一份
+    # 源码、共享同一个 GENERATED_DIR，用 target 名派生 stamp / reflect target 会变成两份
+    # 活儿并发往同一目录写，所以这里按 GENERATED_DIR 派生。
+    # 构建目录内的相对路径够短也够唯一，只有 GENERATED_DIR 在构建目录之外（交叉编译
+    # 复用预生成产物时）才退回全路径
+    file(RELATIVE_PATH _reflect_rel "${CMAKE_BINARY_DIR}" "${T3DR_GENERATED_DIR}")
+    if (_reflect_rel MATCHES "^\\.\\." OR IS_ABSOLUTE "${_reflect_rel}")
+        set(_reflect_rel "${T3DR_GENERATED_DIR}")
+    endif ()
+    string(MAKE_C_IDENTIFIER "${_reflect_rel}" _reflect_id)
+    set(_reflect_target "reflect_${_reflect_id}")
+    set(_reflect_stamp "${T3DR_GENERATED_DIR}/.rpp.stamp")
+
+    # 共享 GENERATED_DIR 的第二个 target 不必再跑一次 configure 期的 rpp：产物、.deps 缓存
+    # 和反射配置都是同一份，第一个 target 已经把它们弄成最新的了
+    if (_run_rpp AND NOT TARGET ${_reflect_target})
 
         _tiny3d_write_reflection_settings(
             BASE "${T3DR_BASE_SETTINGS}"
@@ -228,6 +244,9 @@ function(tiny3d_enable_reflection TARGET)
             if (_rpp_out)
                 message(STATUS "rpp [${TARGET}]: ${_rpp_out}")
             endif ()
+            # 刚在 configure 期跑过一次，把 stamp 顶到最新，紧接着的 build 就不必再跑。
+            # 用 file(WRITE) 而不是 file(TOUCH) 是为了不依赖较新的 CMake。
+            file(WRITE "${_reflect_stamp}" "")
         else ()
             message(STATUS
                 "tiny3d_enable_reflection: rpp not found at configure time for '${TARGET}'; "
@@ -269,11 +288,37 @@ function(tiny3d_enable_reflection TARGET)
                 "Build ReflectionPreprocessor, or set TINY3D_SDK_RPP / TINY3D_HOST_RPP.")
         endif ()
 
-        set(_reflect_target "reflect_${TARGET}")
         if (NOT TARGET ${_reflect_target})
-            add_custom_target(${_reflect_target}
+            # 裸 add_custom_target 没有输出文件，CMake 一律当作 always-out-of-date，于是
+            # 每次 build 都要把 rpp 启一遍：扫全部头文件找反射宏、校验 .deps/.tpl、算依赖
+            # hash，一行代码没改也得几秒。挂个 stamp 输出并声明输入之后，源码没动就完全
+            # 不启动 rpp，MSBuild / ninja 自己就把这一步跳掉了。
+            file(GLOB_RECURSE _reflect_inputs
+                "${T3DR_SOURCE_DIR}/*.h"
+                "${T3DR_SOURCE_DIR}/*.hpp"
+                "${T3DR_SOURCE_DIR}/*.hh"
+                "${T3DR_SOURCE_DIR}/*.cpp"
+                "${T3DR_SOURCE_DIR}/*.cxx")
+            list(FILTER _reflect_inputs EXCLUDE REGEX "\\.generated\\.cpp$")
+
+            # rpp 的真实依赖还含引擎头（它自己记在 .deps 里），CMake 侧只能近似到业务源码
+            # 加上反射配置底板。底板随引擎重建刷新，引擎升级这条路也就覆盖到了。
+            set(_reflect_deps ${_reflect_inputs}
+                "${T3DR_SETTINGS_DIR}/ReflectionSettings.json")
+            if (T3DR_BASE_SETTINGS AND EXISTS "${T3DR_BASE_SETTINGS}")
+                list(APPEND _reflect_deps "${T3DR_BASE_SETTINGS}")
+            endif ()
+
+            add_custom_command(
+                OUTPUT "${_reflect_stamp}"
                 COMMAND ${_rpp_bld} "${T3DR_SETTINGS_DIR}" "${T3DR_SOURCE_DIR}" -b -j 8
-                COMMENT "Running reflection generation: ${TARGET}")
+                COMMAND "${CMAKE_COMMAND}" -E touch "${_reflect_stamp}"
+                DEPENDS ${_reflect_deps}
+                COMMENT "Running reflection generation: ${T3DR_SOURCE_DIR}"
+                VERBATIM)
+
+            add_custom_target(${_reflect_target} DEPENDS "${_reflect_stamp}")
+
             if (TARGET ReflectionPreprocessor)
                 add_dependencies(${_reflect_target} ReflectionPreprocessor)
             endif ()

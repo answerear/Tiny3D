@@ -13,8 +13,12 @@
 
 # TINY3D_SDK_ROOT 由 TinyEditor 在 configure 时传入，指向编辑器安装目录。
 # 手动在命令行 configure 时需要自己传：
-#   cmake -S Assets/Source/Editor -B Temp/CppBuild/Editor \
+#   cmake -S Assets/Source -B Temp/CppBuild \
 #     -DTINY3D_SDK_ROOT=<编辑器目录> -DGAME_PROJECT_ROOT=<工程根>
+#   cmake --build Temp/CppBuild --target {ProjectName}Editor --config Debug
+#
+# 源目录是 Assets/Source 顶层、构建目录只有 Temp/CppBuild 一个，编辑器的「编译 C++」
+# 和「Open C++ Project」生成的解决方案共用这一棵树，两边的增量状态因此是一致的。
 if (NOT DEFINED TINY3D_SDK_ROOT)
     message(FATAL_ERROR
         "TINY3D_SDK_ROOT is not defined. Pass -DTINY3D_SDK_ROOT=<TinyEditor install dir> "

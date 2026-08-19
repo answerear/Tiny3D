@@ -870,6 +870,12 @@ namespace Tiny3D
         
         mProjectMgr->update();
 
+        // 后台 C++ 构建的状态机：跑完之后的热重载 / 进 Play 由它投递到帧末安全点
+        if (PlayModeController::getInstancePtr() != nullptr)
+        {
+            PLAY_MODE_CTRL.onFrameUpdate();
+        }
+
         if (Input::getInstancePtr() != nullptr)
         {
             bool enable = T3D_AGENT.isPlaying();

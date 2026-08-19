@@ -3790,6 +3790,56 @@ namespace Tiny3D
         }
     }
 
+    bool ReflectionGenerator::readWholeFile(const String &path, String &content)
+    {
+        content.clear();
+
+        FileDataStream fs;
+        if (!fs.open(path.c_str(), FileDataStream::E_MODE_READ_ONLY))
+        {
+            return false;
+        }
+
+        const size_t size = static_cast<size_t>(fs.size());
+        content.resize(size);
+        if (size > 0)
+        {
+            fs.read(&content[0], size);
+        }
+        fs.close();
+
+        return true;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ReflectionGenerator::commitGeneratedFile(const String &tempPath,
+        const String &path)
+    {
+        String fresh, existing;
+
+        // 两个文件都是同一套写法产出的，字节级比对是可靠的
+        if (readWholeFile(tempPath, fresh) && readWholeFile(path, existing)
+            && fresh == existing)
+        {
+            Dir::remove(tempPath);
+            RP_LOG_INFO("Reflection source file [%s] is unchanged, left untouched.",
+                path.c_str());
+            return;
+        }
+
+        if (!Dir::copy(tempPath, path, true))
+        {
+            RP_LOG_ERROR("Failed to commit reflection source file [%s] -> [%s] !",
+                tempPath.c_str(), path.c_str());
+            return;
+        }
+
+        Dir::remove(tempPath);
+    }
+
+    //-------------------------------------------------------------------------
+
     TResult ReflectionGenerator::generateSource(const String &generatedPath)
     {
         FileDataStream fs;
@@ -3816,9 +3866,13 @@ namespace Tiny3D
                 continue;
             }
 
-            if (!fs.open(path.c_str(), FileDataStream::E_MODE_TEXT | FileDataStream::E_MODE_TRUNCATE | FileDataStream::E_MODE_READ_WRITE))
+            // 先写到临时文件，写完再跟现有产物比一次内容，一样就不动正式产物的
+            // 修改时间。生成过程是流式往 FileDataStream 里写的，没法先在内存里攒完。
+            String tempPath = path + ".tmp";
+
+            if (!fs.open(tempPath.c_str(), FileDataStream::E_MODE_TEXT | FileDataStream::E_MODE_TRUNCATE | FileDataStream::E_MODE_READ_WRITE))
             {
-                RP_LOG_ERROR("Open file [%s] failed !", path.c_str());
+                RP_LOG_ERROR("Open file [%s] failed !", tempPath.c_str());
                 continue;
             }
             
@@ -3936,6 +3990,8 @@ namespace Tiny3D
             }
 
             fs.close();
+
+            commitGeneratedFile(tempPath, path);
 
             RP_LOG_INFO("End generating reflection source file [%s] ...", val.first.c_str());
         }

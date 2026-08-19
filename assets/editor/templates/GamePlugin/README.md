@@ -61,10 +61,10 @@ Assets/Source/
 平时不需要，编辑器会自动调。想在命令行构建的话（在工程根目录执行）：
 
 ```
-cmake -S Assets/Source/Editor -B Temp/CppBuild/Editor \
+cmake -S Assets/Source -B Temp/CppBuild \
   -DTINY3D_SDK_ROOT=<TinyEditor 所在目录> \
   -DGAME_PROJECT_ROOT=<工程根目录>
-cmake --build Temp/CppBuild/Editor --config Debug
+cmake --build Temp/CppBuild --target {ProjectName}Editor --config Debug
 ```
 
 `TINY3D_SDK_ROOT` 要指向 TinyEditor 可执行文件所在的目录，那里有编辑器构建时导出的
@@ -72,10 +72,18 @@ cmake --build Temp/CppBuild/Editor --config Debug
 同目录还要有 `rpp` 和 `ReflectionSettings.base.json`（引擎 generate 脚本会带上）。
 `GAME_PROJECT_ROOT` 指向工程根，保证 DLL 落到 `{工程根}/Library/CppAssemblies/`。
 
+`--target` 换成 `{ProjectName}` 编 Runtime 变体，换成 `TinyPlayer` 编独立宿主。
+
 ## 在 Visual Studio 里调试
 
-菜单里 **Open C++ Project** 会生成包含三个工程的 sln：`{Name}Editor`、`{Name}`、
-`TinyPlayer`。启动项是 `TinyPlayer`。
+菜单里 **Open C++ Project** 会在 `Temp/CppBuild` 下生成包含三个工程的 sln：
+`{Name}Editor`、`{Name}`、`TinyPlayer`。启动项是 `TinyPlayer`。
+
+这个 sln 和编辑器「编译 C++」用的是**同一棵构建树**，两边共享 obj、`*.tlog` 和反射
+缓存。所以在 VS 里编一次之后回编辑器点「编译 C++」会秒回，反之亦然。代价是编辑器
+触发 reconfigure（增删源文件时）会重写 `.vcxproj`，VS 若开着会弹「项目已在外部修改」。
+
+两边不要同时编：MSBuild 认不了编辑器那把构建锁，撞上了会报 `LNK1104` 或 `MSB3021`。
 
 - **Runtime（游戏逻辑，独立窗口）**：F5 跑 `TinyPlayer`。它会 `--project` 打开当前
   工程，加载 `Library/CppAssemblies/Runtime/{Name}.dll`。断点打在业务源码上即可。

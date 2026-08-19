@@ -163,6 +163,20 @@ namespace Tiny3D
         
         StringList split(const String &str) const;
 
+        /// 整文件读成内存字节，读不到返回 false
+        static bool readWholeFile(const String &path, String &content);
+
+        /**
+         * @brief 把刚生成好的临时文件落成正式产物
+         * @param [in] tempPath : 刚写完的临时文件
+         * @param [in] path : 正式产物路径
+         * @remarks 内容与现有产物一致时直接丢掉临时文件，不去动正式产物的修改时间。
+         *          rpp 只要重解析过某个 .cpp 就必定重写一遍它的产物，而重写出来的内容
+         *          往往一模一样；真让修改时间跳一下，下游 .cpp 会跟着重新编译再重新
+         *          链接，跨构建入口切换时这就是一次「什么都没改却全量重编」
+         */
+        static void commitGeneratedFile(const String &tempPath, const String &path);
+
         CXChildVisitResult visitRootChildren(CXCursor cxCursor, CXCursor cxParent, ASTNode *parent);
 
         CXChildVisitResult visitClassChildren(CXCursor cxCursor, CXCursor cxParent, ASTStruct *parent);

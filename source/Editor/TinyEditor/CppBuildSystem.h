@@ -27,6 +27,10 @@
 
 #include "EditorPrerequisites.h"
 
+#include <atomic>
+#include <mutex>
+#include <thread>
+
 
 namespace Tiny3D
 {
@@ -38,6 +42,11 @@ namespace Tiny3D
      *   编辑器只调 cmake，由 cmake 去驱动平台本地工具链（MSBuild / Ninja / Make /
      *   xcodebuild），所以这里没有任何平台专属的构建器命令。工具链的选择读自编辑器
      *   构建时导出的 Tiny3DSDK.cmake，保证业务 DLL 与编辑器 ABI 一致。
+     *
+     *   编辑器编译与 IDE 编译共用 Temp/CppBuild 这一棵构建树。曾经是两棵——编辑器
+     *   一棵、VS 解决方案另一棵——但两边 target 同名、产物又都落在
+     *   Library/CppAssemblies 下，各自的 obj / tlog / 反射缓存互不可见，谁编过都会把
+     *   对方的产物判成过期，于是每次换个入口就全量重编一遍。
      *
      *   编译产物落在 Library/CppAssemblies 下，但编辑器从不直接加载它——
      *   Windows 上 LoadLibrary 会锁住文件，锁住了就没法重新编译。加载前先拷一份到
@@ -59,9 +68,22 @@ namespace Tiny3D
             kRuntime
         };
 
+        /**
+         * @brief 后台构建的生命周期
+         * @remarks kSucceeded / kFailed 是等着被取走的终态，pollBuildState() 取过一次
+         *          就回到 kIdle
+         */
+        enum class BuildState
+        {
+            kIdle,
+            kRunning,
+            kSucceeded,
+            kFailed
+        };
+
         CppBuildSystem() = default;
 
-        ~CppBuildSystem() override = default;
+        ~CppBuildSystem() override;
 
         /**
          * @brief 绑定到已打开的工程
@@ -79,6 +101,39 @@ namespace Tiny3D
         bool hasCppSources() const;
 
         /**
+         * @brief 构建目录的独占锁
+         * @remarks 编辑器有四条会编译的路径（打开工程 / Play / 编译菜单 / 校验 Runtime），
+         *          共用一棵构建树之后它们绝不能并发跑 MSBuild，否则 tlog 与中间产物会互相
+         *          写坏。锁只约束编辑器自己：VS 里的 MSBuild 不认这个锁，那种冲突靠
+         *          isBusyOutputError() 事后识别
+         */
+        class BuildLock
+        {
+        public:
+            /// @param [in] path : 锁文件路径，父目录不存在会被创建
+            explicit BuildLock(const String &path);
+
+            ~BuildLock();
+
+            BuildLock(const BuildLock &) = delete;
+            BuildLock &operator =(const BuildLock &) = delete;
+
+            /// 是否真的拿到了锁
+            bool isLocked() const { return mHandle != -1; }
+
+        private:
+            /// Windows 存 HANDLE，类 Unix 存 fd；没拿到锁时是 -1
+            intptr_t mHandle {-1};
+        };
+
+        /**
+         * @brief cmake 的输出是否在抱怨产物被别的进程占着
+         * @remarks 命中时几乎都是 VS 正在编同一棵树，或者产物被调试器 / 杀毒软件按住。
+         *          这类失败给一句人能看懂的话，比甩一屏 MSBuild 日志有用
+         */
+        static bool isBusyOutputError(const String &output);
+
+        /**
          * @brief 判断产物是否已过期，需要重新编译
          * @param [in] variant : 构建变体
          * @return 产物不存在，或任一源码 / CMake 文件比产物新时返回 true
@@ -91,11 +146,36 @@ namespace Tiny3D
          * @param [in] variant : 构建变体
          * @param [out] output : cmake 的完整输出，供失败时展示给用户
          * @return 成功返回 T3D_OK
-         * @remarks 首次、CMakeCache 缺失、或 Assets/Source 根下 .h / .cpp 集合变化时会先
-         *          configure 再 build。configure 期 rpp 会生成 *.generated.cpp，
-         *          必须让 cmake 重新 GLOB 才能编进 DLL。
+         * @remarks 只编指定变体那一个 target，同一棵构建树里的其它变体不受影响。
+         *          首次、CMakeCache 缺失、或源码 / 反射产物的文件集合变化时会先
+         *          configure 再 build：*.generated.cpp 只能靠 configure 期的
+         *          file(GLOB) 进入 target。
          */
         TResult build(Variant variant, String &output);
+
+        /**
+         * @brief 在后台线程编译业务 C++ 插件
+         * @param [in] variant : 构建变体
+         * @return 成功投递返回 T3D_OK；已有后台构建在跑返回 T3D_ERR_FAIL
+         * @remarks cmake 一趟能跑几十秒，同步等它就是把整个编辑器主循环按住。这里只负责
+         *          起线程，调用方每帧 pollBuildState()，拿到终态再去做热重载
+         */
+        TResult buildAsync(Variant variant);
+
+        /// 后台构建是否还在跑
+        bool isBuildInFlight() const;
+
+        /**
+         * @brief 取后台构建的状态，终态只会返回一次
+         * @remarks 只能由主线程调用。返回终态时线程已经 join，getLastOutput() 可以读了
+         */
+        BuildState pollBuildState();
+
+        /// 后台构建当前在做什么，给进度提示显示；没有后台构建时返回空串
+        String getBuildStage() const;
+
+        /// 后台构建的变体，只在 isBuildInFlight() 为真时有意义
+        Variant getBuildingVariant() const { return mBuildingVariant; }
 
         /**
          * @brief 把 Editor 变体的产物拷到影子目录
@@ -126,20 +206,22 @@ namespace Tiny3D
         /// 影子目录
         const String &getShadowDir() const { return mShadowDir; }
 
-        /// 上一次 build 的完整输出
-        const String &getLastOutput() const { return mLastOutput; }
+        /// 上一次 build 的完整输出（后台线程也会写它，所以按值返回）
+        String getLastOutput() const;
 
-        /// IDE 用的 CMake 构建目录（{Project}/Temp/CppIDE）
-        String getIDEBuildDir() const;
+        /// 唯一的 CMake 构建目录（{Project}/Temp/CppBuild），编辑器与 IDE 共用
+        String getBuildDir() const;
+
+        /// 反射产物目录（{Project}/Temp/CppBuild/Generated），与 CMake 侧约定一致
+        String getGeneratedDir() const;
 
         /**
          * @brief 确保游戏工程顶层 C++ solution 已生成
          * @param [out] slnPath : 找到的 .sln 绝对路径
          * @param [out] output : cmake configure 的完整输出
          * @return 成功返回 T3D_OK；没有源码 / 没有 sln / configure 失败分别返回对应错误
-         * @remarks 对 Assets/Source 顶层 CMakeLists 做 configure，把 Editor 和
-         *          Runtime 打进同一个解决方案。构建目录与 Play 模式的
-         *          Temp/CppBuild 分开，互不干扰。
+         * @remarks 与 build() 走同一条 configure 路径、同一个构建目录，因此在 VS 里编过
+         *          之后编辑器不会再重编一遍，反之亦然
          */
         TResult ensureIDESolution(String &slnPath, String &output);
 
@@ -157,30 +239,52 @@ namespace Tiny3D
         /// 业务 C++ 源码目录（默认 Assets/Source，可由 CppSourceRelativePath 覆盖）
         String getCppSourceDir() const { return mCppSourceDir; }
 
-        /// 某个变体的 CMake 源码目录（如 Assets/Source/Editor）
-        String getCMakeSourceDir(Variant variant) const;
-
-        /// 某个变体的 CMake 构建目录
-        String getCMakeBuildDir(Variant variant) const;
+        /**
+         * @brief 需要时执行 cmake configure，顺带把引擎托管的 CMake 模板同步过去
+         * @param [out] output : cmake 的完整输出
+         * @param [in] verifyGeneratedProjects : 是否顺带检查生成的 vcxproj 有没有被写坏
+         * @remarks build() 与 ensureIDESolution() 都走这里，两个入口的 configure 参数
+         *          必须完全一致，否则同一个构建目录会被反复重新生成
+         */
+        TResult ensureConfigured(String &output,
+            bool verifyGeneratedProjects = false);
 
         /**
-         * @brief 执行 cmake configure
+         * @brief 无条件执行一次 cmake configure，成功后刷新文件集合 stamp
          * @remarks 工具链参数（-G / -A / -T / CMAKE_CXX_COMPILER）取自 SDK 导出的
          *          Tiny3DSDK.cmake，编辑器侧不硬编码任何生成器名字
          */
-        TResult configure(Variant variant, String &output);
+        TResult doConfigure(String &output);
 
-        /// Assets/Source 根下 *.h / *.cpp 的集合是否相对上次 configure 有变化
-        bool needsReconfigure(Variant variant) const;
+        /// 执行一次 cmake --build，只编指定变体那一个 target
+        TResult runBuild(Variant variant, String &output);
 
-        /// 收集 Assets/Source 根下 C++ 文件的相对路径名单（已排序，不递归子目录）
-        String collectCppFileList() const;
+        /// CMakeCache 缺失、工程文件损坏、或文件集合相对上次 configure 有变化
+        bool needsReconfigure() const;
 
-        /// 上次 configure 时记下的 C++ 文件名单路径
-        String getCppFileStampPath(Variant variant) const;
+        /// 参与 configure 判定的文件集合：源码文件名 + 反射产物文件名
+        String collectStamp() const;
 
-        /// 把当前 C++ 文件名单写到构建目录，供下次比较
-        void writeCppFileStamp(Variant variant, const String &list) const;
+        /// 上次 configure 时记下的文件集合
+        String getCppFileStampPath() const;
+
+        /// 构建目录的锁文件
+        String getBuildLockPath() const;
+
+        /// 记录后台构建当前阶段，供 getBuildStage() 读
+        void setBuildStage(const String &stage);
+
+        /// 记录本次 build 的完整输出
+        void setLastOutput(const String &output);
+
+        /// 后台构建线程跑完就 join，没有则立即返回
+        void joinBuildThread();
+
+        /// 把当前文件集合写到构建目录，供下次比较
+        void writeCppFileStamp(const String &list) const;
+
+        /// 清掉旧布局（编辑器与 IDE 各一棵树）留在磁盘上的构建目录
+        void removeLegacyBuildDirs() const;
 
         /// 从 SDK 的 Tiny3DSDK.cmake 里读出工具链配置，只读一次并缓存
         bool loadSDKConfig();
@@ -198,15 +302,9 @@ namespace Tiny3D
         String buildCMakeConfigureCommand(const String &sourceDir,
             const String &buildDir) const;
 
-        /// 为 IDE 打开生成顶层 solution
-        TResult configureIDE(String &output);
-
-        /// 顶层 IDE 工程是否需要重新 configure
-        bool needsIDEReconfigure() const;
-
         /// 从编辑器模板同步引擎托管的 CMake（GamePluginCommon / Player）
         /// @return 有文件被写入时返回 true，供调用方决定是否重新 configure
-        bool syncIDECMakeFromTemplate() const;
+        bool syncCMakeFromTemplate() const;
 
         /// 把模板相对路径同步到业务 C++ 源码目录，并替换 {ProjectName}
         bool syncTemplateFile(const String &relativePath) const;
@@ -232,6 +330,16 @@ namespace Tiny3D
 
         static bool readTextFile(const String &path, String &text);
         static bool writeTextFile(const String &path, const String &text);
+
+        /// 目录存在则整棵删掉，失败只记日志
+        static void removeDirIfExists(const String &dir);
+
+        /**
+         * @brief 收集目录下匹配任一后缀的文件名（不含路径），已排序、每行一个
+         * @remarks 比对的是后缀而不是扩展名，".generated.cpp" 这种复合后缀才能区分出来
+         */
+        static String collectFileNames(const String &dir,
+            const char *const *suffixes);
 
         /// 在构建目录根下找第一个 .sln
         static bool findSolutionFile(const String &buildDir, String &slnPath);
@@ -262,6 +370,17 @@ namespace Tiny3D
 
         /// 上一次 build 的完整输出
         String mLastOutput {};
+
+        /// 后台构建线程，跑完由 pollBuildState() 回收
+        std::thread mBuildThread {};
+        /// 后台构建状态
+        std::atomic<BuildState> mBuildState {BuildState::kIdle};
+        /// 后台构建当前阶段的可读描述
+        String mBuildStage {};
+        /// 保护 mLastOutput 与 mBuildStage：这两个由后台线程写、主线程读
+        mutable std::mutex mBuildMutex {};
+        /// 后台构建的变体，起线程之前写好，之后只读
+        Variant mBuildingVariant {Variant::kEditor};
     };
 
     #define CPP_BUILD_SYS (CppBuildSystem::getInstance())

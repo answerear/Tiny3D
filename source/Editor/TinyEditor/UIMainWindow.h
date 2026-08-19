@@ -93,6 +93,13 @@ namespace Tiny3D
         /// 资产文件被新增后重扫资产树并通知 Project 视图重建
         void refreshProjectView();
 
+        /**
+         * @brief 跟随后台 C++ 构建显示 / 关闭进度对话框
+         * @remarks cmake 的输出算不出百分比，所以是不确定进度的样式，只报当前阶段。
+         *          刻意不给取消按钮：中途 kill cmake 会在构建树里留下不一致的中间产物
+         */
+        void updateCppBuildProgress();
+
     protected:
         ImMenuBar   *mMenuBar {nullptr};
 
@@ -103,6 +110,11 @@ namespace Tiny3D
         UIProjectWindow *mProjectWnd {nullptr};
         UIConsoleWindow *mConsoleWnd {nullptr};
         UIPreferencesWindow *mPreferencesWnd {nullptr};
+
+        /// 后台 C++ 构建的进度对话框，首次构建时才创建
+        ImProgressDialog *mCppBuildProgressDlg {nullptr};
+        /// 进度对话框当前是否显示中
+        bool mCppBuildProgressShown {false};
     };
 
     NS_END

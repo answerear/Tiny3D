@@ -57,8 +57,10 @@ namespace Tiny3D
         // 上次会话残留的影子副本，此刻一定已经解锁，全部清掉
         CPP_BUILD_SYS.cleanShadowAssemblies("");
 
-        // 产物过期就先编一次。编不过也不该拦住工程打开——用户很可能正是要进来
-        // 改代码把它修好的，只是这种情况下场景里的自定义组件会缺失。
+        // 产物过期就先编一次。这一处刻意保持同步：场景反序列化必须等业务类型注册进
+        // RTTR，改成异步就要把整个工程打开时序拆散，而这发生在启动阶段，等一下可以接受。
+        // 编不过也不该拦住工程打开——用户很可能正是要进来改代码把它修好的，只是这种
+        // 情况下场景里的自定义组件会缺失。
         if (CPP_BUILD_SYS.needsBuild(CppBuildSystem::Variant::kEditor))
         {
             String output;
@@ -82,6 +84,10 @@ namespace Tiny3D
             T3D_AGENT.exitPlayMode();
         }
 
+        // 后台构建还在跑就没必要再落地了，工程都要关了。detachProject() 会等线程收工
+        mPendingAction = PendingAction::kNone;
+        mPendingBuildResult = false;
+
         unloadGamePlugin();
 
         // 卸载后所有影子副本都已解锁，扫一遍清空
@@ -91,9 +97,46 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void PlayModeController::onFrameUpdate()
+    {
+        if (mPendingAction == PendingAction::kNone || mPendingBuildResult)
+        {
+            return;
+        }
+
+        const CppBuildSystem::BuildState state = CPP_BUILD_SYS.pollBuildState();
+
+        if (state == CppBuildSystem::BuildState::kRunning)
+        {
+            return;
+        }
+
+        const bool succeeded = (state == CppBuildSystem::BuildState::kSucceeded);
+
+        // 热重载会把场景连同它的 GPU 资源销毁重建，只能在帧末安全点做。这中间
+        // mPendingAction 保持不变，菜单继续置灰，用户点不进来。
+        mPendingBuildResult = true;
+        T3D_AGENT.postFrameEndTask([this, succeeded]()
+            {
+                const PendingAction action = mPendingAction;
+
+                mPendingAction = PendingAction::kNone;
+                mPendingBuildResult = false;
+
+                onBuildFinished(action, succeeded);
+            });
+    }
+
+    //--------------------------------------------------------------------------
+
     bool PlayModeController::canPlay() const
     {
         if (!PROJECT_MGR.isProjectOpened())
+        {
+            return false;
+        }
+
+        if (isBuildInFlight())
         {
             return false;
         }
@@ -344,6 +387,17 @@ namespace Tiny3D
             return T3D_ERR_FAIL;
         }
 
+        // 代码有改动就先在后台编出来，编完由 onBuildFinished 接着进 Play。带着编译错误
+        // 进 Play 只会跑到旧代码，比直接中止更让人困惑。
+        if (CPP_BUILD_SYS.hasCppSources()
+            && CPP_BUILD_SYS.needsBuild(CppBuildSystem::Variant::kEditor))
+        {
+            EDITOR_LOG_INFO("C++ game plugin is out of date, building before play ...");
+
+            return beginAsyncBuild(CppBuildSystem::Variant::kEditor,
+                PendingAction::kPlay);
+        }
+
         mPendingModeChange = true;
         T3D_AGENT.postFrameEndTask([this]()
             {
@@ -383,7 +437,8 @@ namespace Tiny3D
         }
 
         // Play 期间业务 DLL 正在被调度，重载会把场景连根拔起，交互上也无从还原
-        return !isPlaying() && !mPendingModeChange && !mPendingCompile;
+        return !isPlaying() && !mPendingModeChange && !mPendingCompile
+            && !isBuildInFlight();
     }
 
     //--------------------------------------------------------------------------
@@ -396,35 +451,96 @@ namespace Tiny3D
             return T3D_ERR_FAIL;
         }
 
-        mPendingCompile = true;
-        T3D_AGENT.postFrameEndTask([this]()
-            {
-                mPendingCompile = false;
-                doCompileCpp();
-            });
+        // 没改过代码、或者刚在 Visual Studio 里编过，就别再启一趟 cmake：光是 cmake
+        // 启动、MSBuild 载解决方案、反射 stamp 校验加起来就是好几秒，而结论只会是
+        // 「全部最新」。产物仍可能比当前加载的那份新（VS 编的），热重载还是要走一遍。
+        if (!CPP_BUILD_SYS.needsBuild(CppBuildSystem::Variant::kEditor))
+        {
+            EDITOR_LOG_INFO("C++ game plugin is already up to date, skipping the build.");
+
+            mPendingCompile = true;
+            T3D_AGENT.postFrameEndTask([this]()
+                {
+                    mPendingCompile = false;
+                    applyBuiltAssembly();
+                });
+
+            return T3D_OK;
+        }
+
+        EDITOR_LOG_INFO("Compiling C++ game plugin ...");
+
+        return beginAsyncBuild(CppBuildSystem::Variant::kEditor,
+            PendingAction::kReload);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult PlayModeController::beginAsyncBuild(CppBuildSystem::Variant variant,
+        PendingAction action)
+    {
+        TResult ret = CPP_BUILD_SYS.buildAsync(variant);
+
+        if (T3D_FAILED(ret))
+        {
+            return ret;
+        }
+
+        mPendingAction = action;
+        mPendingBuildResult = false;
 
         return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult PlayModeController::doCompileCpp()
+    void PlayModeController::onBuildFinished(PendingAction action, bool succeeded)
     {
-        EDITOR_LOG_INFO("Compiling C++ game plugin ...");
-
-        String output;
-        TResult ret = CPP_BUILD_SYS.build(CppBuildSystem::Variant::kEditor,
-            output);
-
-        if (T3D_FAILED(ret))
+        switch (action)
         {
-            EDITOR_LOG_ERROR("Game plugin failed to build, the loaded assembly is "
-                "left untouched.");
-            return ret;
-        }
+        case PendingAction::kReload:
+            if (!succeeded)
+            {
+                EDITOR_LOG_ERROR("Game plugin failed to build, the loaded assembly is "
+                    "left untouched.");
+                return;
+            }
+            applyBuiltAssembly();
+            return;
 
+        case PendingAction::kPlay:
+            if (!succeeded)
+            {
+                EDITOR_LOG_ERROR("Play aborted : game plugin failed to build.");
+                return;
+            }
+            doPlay();
+            return;
+
+        case PendingAction::kValidate:
+            if (!succeeded)
+            {
+                EDITOR_LOG_ERROR("Runtime build failed. The most common cause is using "
+                    "editor-only API (EditorScene, PrefabUtility, Scene::getEditorCamera, "
+                    "resource overloads taking a UUID) in game code.");
+                return;
+            }
+            EDITOR_LOG_INFO("Runtime build succeeded, the game code is publishable.");
+            return;
+
+        default:
+            return;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult PlayModeController::applyBuiltAssembly()
+    {
         const String assembly =
             CPP_BUILD_SYS.getAssemblyPath(CppBuildSystem::Variant::kEditor);
+
+        TResult ret = T3D_OK;
 
         if (!isGamePluginLoaded())
         {
@@ -449,7 +565,7 @@ namespace Tiny3D
             return ret;
         }
 
-        EDITOR_LOG_INFO("Game plugin compiled and reloaded.");
+        EDITOR_LOG_INFO("Game plugin reloaded.");
 
         return T3D_OK;
     }
@@ -469,44 +585,15 @@ namespace Tiny3D
             return T3D_ERR_FAIL;
         }
 
+        // 需要编译的话 play() 已经先把后台构建跑完了，这里只剩把产物落地：产物比当前
+        // 加载的那份新就热重载，还没加载过就补加载
         if (CPP_BUILD_SYS.hasCppSources())
         {
-            if (CPP_BUILD_SYS.needsBuild(CppBuildSystem::Variant::kEditor))
+            TResult ret = applyBuiltAssembly();
+            if (T3D_FAILED(ret))
             {
-                String output;
-                TResult ret = CPP_BUILD_SYS.build(
-                    CppBuildSystem::Variant::kEditor, output);
-
-                if (T3D_FAILED(ret))
-                {
-                    // 带着编译错误进 Play 只会跑到旧代码，反而更让人困惑，直接中止
-                    EDITOR_LOG_ERROR("Play aborted : game plugin failed to build.");
-                    return ret;
-                }
-            }
-
-            const String assembly =
-                CPP_BUILD_SYS.getAssemblyPath(CppBuildSystem::Variant::kEditor);
-
-            if (!isGamePluginLoaded())
-            {
-                TResult ret = loadGamePlugin();
-                if (T3D_FAILED(ret))
-                {
-                    EDITOR_LOG_ERROR("Play aborted : failed to load game plugin.");
-                    return ret;
-                }
-            }
-            else if (Dir::exists(assembly)
-                && Dir::getLastWriteTime(assembly) > mLoadedAssemblyTime)
-            {
-                // 产物比当前加载的这份新，说明代码改过了，热重载让新代码生效
-                TResult ret = reloadGamePlugin();
-                if (T3D_FAILED(ret))
-                {
-                    EDITOR_LOG_ERROR("Play aborted : failed to reload game plugin.");
-                    return ret;
-                }
+                EDITOR_LOG_ERROR("Play aborted : failed to load game plugin.");
+                return ret;
             }
         }
 
@@ -573,23 +660,18 @@ namespace Tiny3D
             return T3D_ERR_NOT_FOUND;
         }
 
+        if (isBuildInFlight() || mPendingModeChange || mPendingCompile)
+        {
+            EDITOR_LOG_WARNING("Cannot validate the runtime build right now.");
+            return T3D_ERR_FAIL;
+        }
+
         EDITOR_LOG_INFO("Validating runtime build ...");
 
-        String output;
-        TResult ret = CPP_BUILD_SYS.build(CppBuildSystem::Variant::kRuntime, output);
-
-        if (T3D_FAILED(ret))
-        {
-            EDITOR_LOG_ERROR("Runtime build failed. The most common cause is using "
-                "editor-only API (EditorScene, PrefabUtility, Scene::getEditorCamera, "
-                "resource overloads taking a UUID) in game code.");
-        }
-        else
-        {
-            EDITOR_LOG_INFO("Runtime build succeeded, the game code is publishable.");
-        }
-
-        return ret;
+        // 这里不查 needsBuild：用户点的就是「给我一个确认」，即使产物已经最新也该跑一趟
+        // cmake 把结论摆出来。共用构建树之后这一趟本身就是增量的，代价很小。
+        return beginAsyncBuild(CppBuildSystem::Variant::kRuntime,
+            PendingAction::kValidate);
     }
 
     //--------------------------------------------------------------------------

@@ -27,9 +27,14 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <cstring>
 
 #if defined (T3D_OS_WINDOWS)
     #include <windows.h>
+#else
+    #include <fcntl.h>
+    #include <sys/file.h>
+    #include <unistd.h>
 #endif
 
 
@@ -49,6 +54,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    CppBuildSystem::~CppBuildSystem()
+    {
+        // 线程的 lambda 捕获了 this，绝不能带着活着的线程析构
+        joinBuildThread();
+    }
+
+    //--------------------------------------------------------------------------
+
     void CppBuildSystem::attachProject(const String &projectPath,
         const String &pluginName, const String &cppSourceRelativePath)
     {
@@ -63,17 +76,25 @@ namespace Tiny3D
         mCppSourceDir = Dir::formatPath(mProjectPath + sep + relative);
         mShadowDir = Dir::formatPath(mProjectPath + sep + "Temp" + sep + "ShadowAssemblies");
         mLastOutput.clear();
+
+        removeLegacyBuildDirs();
     }
 
     //--------------------------------------------------------------------------
 
     void CppBuildSystem::detachProject()
     {
+        // 后台构建还在用这些路径，先等它收工再清。关工程是用户主动发起的低频操作，
+        // 在这里等一下比让线程读到半清空的状态划算
+        joinBuildThread();
+        mBuildState.store(BuildState::kIdle);
+        setBuildStage(String());
+
         mProjectPath.clear();
         mPluginName.clear();
         mCppSourceDir.clear();
         mShadowDir.clear();
-        mLastOutput.clear();
+        setLastOutput(String());
     }
 
     //--------------------------------------------------------------------------
@@ -116,19 +137,59 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    String CppBuildSystem::getCMakeSourceDir(Variant variant) const
+    String CppBuildSystem::getBuildDir() const
     {
-        const String sub = (variant == Variant::kEditor) ? "Editor" : "Runtime";
-        return mCppSourceDir + Dir::getNativeSeparator() + sub;
+        const String sep(1, Dir::getNativeSeparator());
+        return mProjectPath + sep + "Temp" + sep + "CppBuild";
     }
 
     //--------------------------------------------------------------------------
 
-    String CppBuildSystem::getCMakeBuildDir(Variant variant) const
+    String CppBuildSystem::getGeneratedDir() const
+    {
+        // 与 GamePluginCommon.cmake 里传给 tiny3d_enable_reflection 的
+        // GENERATED_DIR（${CMAKE_BINARY_DIR}/Generated）必须保持一致
+        return getBuildDir() + Dir::getNativeSeparator() + "Generated";
+    }
+
+    //--------------------------------------------------------------------------
+
+    void CppBuildSystem::removeDirIfExists(const String &dir)
+    {
+        if (!Dir::exists(dir))
+        {
+            return;
+        }
+
+        if (Dir::removeDir(dir, true))
+        {
+            EDITOR_LOG_INFO("Removed legacy C++ build dir [%s].", dir.c_str());
+        }
+        else
+        {
+            EDITOR_LOG_WARNING("Failed to remove legacy C++ build dir [%s]. Delete it "
+                "by hand if the IDE keeps opening the stale solution there.", dir.c_str());
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void CppBuildSystem::removeLegacyBuildDirs() const
     {
         const String sep(1, Dir::getNativeSeparator());
-        const String sub = (variant == Variant::kEditor) ? "Editor" : "Runtime";
-        return mProjectPath + sep + "Temp" + sep + "CppBuild" + sep + sub;
+        const String buildDir = getBuildDir();
+
+        // 旧布局下编辑器给每个变体单开一棵树（CppBuild/Editor、CppBuild/Runtime），VS
+        // 解决方案又在 CppIDE 里自成一棵。新布局只有 CppBuild 一棵，而 CppBuild/Editor
+        // 在新布局里是 add_subdirectory 出来的子目录，两者靠「根上有没有 CMakeCache.txt」
+        // 区分：旧布局的 cache 在子目录里，新布局的在根上。
+        if (!Dir::exists(buildDir + sep + "CMakeCache.txt")
+            && Dir::exists(buildDir + sep + "Editor" + sep + "CMakeCache.txt"))
+        {
+            removeDirIfExists(buildDir);
+        }
+
+        removeDirIfExists(mProjectPath + sep + "Temp" + sep + "CppIDE");
     }
 
     //--------------------------------------------------------------------------
@@ -245,42 +306,129 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    String CppBuildSystem::getCppFileStampPath(Variant variant) const
+    CppBuildSystem::BuildLock::BuildLock(const String &path)
     {
-        return getCMakeBuildDir(variant) + Dir::getNativeSeparator()
-            + ".cpp_files.stamp";
+        String dir, name;
+        if (Dir::parsePath(path, dir, name) && !dir.empty() && !Dir::exists(dir))
+        {
+            // 首次构建时构建目录还不存在，锁文件得有地方放
+            Dir::makeDirs(dir);
+        }
+
+#if defined (T3D_OS_WINDOWS)
+        // dwShareMode 传 0：同一把锁被第二个进程 / 线程打开时直接 ERROR_SHARING_VIOLATION，
+        // 不需要额外的等待或重试逻辑
+        HANDLE handle = ::CreateFileA(T3D_LOCALE.UTF8ToANSI(path).c_str(),
+            GENERIC_WRITE, 0, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+
+        mHandle = reinterpret_cast<intptr_t>(handle);
+
+        if (handle == INVALID_HANDLE_VALUE)
+        {
+            mHandle = -1;
+        }
+#else
+        const int fd = ::open(path.c_str(), O_CREAT | O_RDWR, 0644);
+
+        if (fd < 0)
+        {
+            mHandle = -1;
+        }
+        else if (::flock(fd, LOCK_EX | LOCK_NB) != 0)
+        {
+            ::close(fd);
+            mHandle = -1;
+        }
+        else
+        {
+            mHandle = fd;
+        }
+#endif
     }
 
     //--------------------------------------------------------------------------
 
-    String CppBuildSystem::collectCppFileList() const
+    CppBuildSystem::BuildLock::~BuildLock()
     {
-        TArray<String> names;
-        const String sep(1, Dir::getNativeSeparator());
-        static const char *kExts[] =
+        if (mHandle == -1)
         {
-            ".h", ".hpp", ".hh", ".cpp", ".cc", ".cxx", nullptr
+            return;
+        }
+
+#if defined (T3D_OS_WINDOWS)
+        ::CloseHandle(reinterpret_cast<HANDLE>(mHandle));
+#else
+        ::flock(static_cast<int>(mHandle), LOCK_UN);
+        ::close(static_cast<int>(mHandle));
+#endif
+
+        mHandle = -1;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool CppBuildSystem::isBusyOutputError(const String &output)
+    {
+        static const char *kMarkers[] =
+        {
+            "LNK1104",                      // link 打不开输出文件
+            "MSB3021",                      // 拷贝失败，几乎总是被占用
+            "MSB3027",
+            "being used by another process",
+            "Text file busy",
+            nullptr
         };
 
-        if (!Dir::exists(mCppSourceDir))
+        for (int i = 0; kMarkers[i] != nullptr; ++i)
+        {
+            if (output.find(kMarkers[i]) != String::npos)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    //--------------------------------------------------------------------------
+
+    String CppBuildSystem::getCppFileStampPath() const
+    {
+        return getBuildDir() + Dir::getNativeSeparator() + ".cpp_files.stamp";
+    }
+
+    //--------------------------------------------------------------------------
+
+    String CppBuildSystem::getBuildLockPath() const
+    {
+        return getBuildDir() + Dir::getNativeSeparator() + ".build.lock";
+    }
+
+    //--------------------------------------------------------------------------
+
+    String CppBuildSystem::collectFileNames(const String &dir,
+        const char *const *suffixes)
+    {
+        if (!Dir::exists(dir))
         {
             return String();
         }
 
+        TArray<String> names;
+
         Dir finder;
-        const String pattern = mCppSourceDir + sep + "*";
+        const String pattern = dir + Dir::getNativeSeparator() + "*";
         bool working = finder.findFile(pattern);
         while (working)
         {
             if (!finder.isDots() && !finder.isDirectory())
             {
                 const String name = finder.getFileName();
-                const size_t dot = name.rfind('.');
-                const String ext = (dot == String::npos)
-                    ? String() : name.substr(dot);
-                for (int i = 0; kExts[i] != nullptr; ++i)
+                for (int i = 0; suffixes[i] != nullptr; ++i)
                 {
-                    if (ext == kExts[i])
+                    const size_t len = strlen(suffixes[i]);
+                    if (name.size() >= len
+                        && name.compare(name.size() - len, len, suffixes[i]) == 0)
                     {
                         names.push_back(name);
                         break;
@@ -305,59 +453,64 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool CppBuildSystem::needsReconfigure(Variant variant) const
+    String CppBuildSystem::collectStamp() const
     {
-        const String cacheFile = getCMakeBuildDir(variant)
-            + Dir::getNativeSeparator() + "CMakeCache.txt";
+        // 源码：CMake 侧的 file(GLOB) 也不递归，这里跟着不递归
+        static const char *kSourceSuffixes[] =
+        {
+            ".h", ".hpp", ".hh", ".cpp", ".cc", ".cxx", nullptr
+        };
+        // 反射产物：rpp 写出来的 *.generated.cpp 同样靠 configure 期的 GLOB 进 target，
+        // 集合变了就必须重新 configure，否则新生成的注册代码根本不参与编译
+        static const char *kGeneratedSuffixes[] = { ".generated.cpp", nullptr };
+
+        String stamp = collectFileNames(mCppSourceDir, kSourceSuffixes);
+        stamp += "--generated--\n";
+        stamp += collectFileNames(getGeneratedDir(), kGeneratedSuffixes);
+
+        return stamp;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool CppBuildSystem::needsReconfigure() const
+    {
+        const String cacheFile = getBuildDir() + Dir::getNativeSeparator()
+            + "CMakeCache.txt";
         if (!Dir::exists(cacheFile))
         {
             return true;
         }
 
-        const String stampPath = getCppFileStampPath(variant);
+        const String stampPath = getCppFileStampPath();
         if (!Dir::exists(stampPath))
         {
             return true;
         }
 
-        FileDataStream fs;
-        if (!fs.open(stampPath.c_str(), FileDataStream::E_MODE_READ_ONLY))
+        // 这里刻意不比源码 mtime：改一行函数体就重新 configure 的话，configure 期那次
+        // rpp、CMake 重新生成工程文件、以及 VS 的「工程已在外部修改」弹窗全都白付出，
+        // 而增量编译本来就是 MSBuild / ninja 该干的事
+        String previous;
+        if (!readTextFile(stampPath, previous))
         {
             return true;
         }
 
-        const size_t size = static_cast<size_t>(fs.size());
-        String previous;
-        previous.resize(size);
-        if (size > 0)
-        {
-            fs.read(&previous[0], size);
-        }
-        fs.close();
-
-        return previous != collectCppFileList();
+        return previous != collectStamp();
     }
 
     //--------------------------------------------------------------------------
 
-    void CppBuildSystem::writeCppFileStamp(Variant variant,
-        const String &list) const
+    void CppBuildSystem::writeCppFileStamp(const String &list) const
     {
-        const String stampPath = getCppFileStampPath(variant);
-        FileDataStream fs;
-        if (!fs.open(stampPath.c_str(),
-            FileDataStream::E_MODE_TRUNCATE | FileDataStream::E_MODE_WRITE_ONLY))
+        const String stampPath = getCppFileStampPath();
+
+        if (!writeTextFile(stampPath, list))
         {
             EDITOR_LOG_WARNING("Failed to write C++ file stamp [%s] !",
                 stampPath.c_str());
-            return;
         }
-
-        if (!list.empty())
-        {
-            fs.write((void*)list.data(), list.size());
-        }
-        fs.close();
     }
 
     //--------------------------------------------------------------------------
@@ -474,14 +627,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult CppBuildSystem::configure(Variant variant, String &output)
+    TResult CppBuildSystem::doConfigure(String &output)
     {
-        if (!loadSDKConfig())
-        {
-            return T3D_ERR_FILE_NOT_EXIST;
-        }
-
-        const String buildDir = getCMakeBuildDir(variant);
+        const String buildDir = getBuildDir();
 
         if (!Dir::exists(buildDir) && !Dir::makeDirs(buildDir))
         {
@@ -489,19 +637,139 @@ namespace Tiny3D
             return T3D_ERR_FAIL;
         }
 
-        const String cmd = buildCMakeConfigureCommand(getCMakeSourceDir(variant), buildDir);
+        const String cmd = buildCMakeConfigureCommand(mCppSourceDir, buildDir);
 
         EDITOR_LOG_INFO("Configuring game plugin : %s", cmd.c_str());
 
-        return runCommand(cmd, mCppSourceDir, output);
+        setBuildStage("Configuring C++ project ...");
+
+        String configureOutput;
+        TResult ret = runCommand(cmd, mCppSourceDir, configureOutput);
+
+        output += configureOutput;
+
+        if (T3D_FAILED(ret))
+        {
+            EDITOR_LOG_ERROR("Configure game plugin failed :\n%s", output.c_str());
+            return ret;
+        }
+
+        // stamp 必须在 configure 之后才收：configure 期的 rpp 会写出 *.generated.cpp，
+        // 那些文件也算进 stamp 里
+        writeCppFileStamp(collectStamp());
+
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
 
-    TResult CppBuildSystem::build(Variant variant, String &output)
+    TResult CppBuildSystem::ensureConfigured(String &output,
+        bool verifyGeneratedProjects)
     {
-        output.clear();
-        mLastOutput.clear();
+        if (!loadSDKConfig())
+        {
+            return T3D_ERR_FILE_NOT_EXIST;
+        }
+
+        const String cmakeLists = mCppSourceDir + Dir::getNativeSeparator()
+            + "CMakeLists.txt";
+        if (!Dir::exists(cmakeLists))
+        {
+            EDITOR_LOG_ERROR("Game plugin CMakeLists.txt not found at [%s] !",
+                cmakeLists.c_str());
+            return T3D_ERR_FILE_NOT_EXIST;
+        }
+
+        // 引擎托管的 CMake 从模板同步，不要去改已经生成的游戏工程
+        const bool templateSynced = syncCMakeFromTemplate();
+
+        // 工程文件被写坏（例如被历史版本的路径改写逻辑写坏）只挡住 IDE，cmake --build
+        // 照样能编，所以这个检查只在「Open C++ Project」那条路上做：它要递归遍历整棵
+        // 构建树读 vcxproj，放进每次编译的判定里就是白付出一次全树扫描
+        const bool corrupted = verifyGeneratedProjects
+            && hasCorruptedGeneratedProject(getBuildDir());
+
+        if (!templateSynced && !corrupted && !needsReconfigure())
+        {
+            return T3D_OK;
+        }
+
+        return doConfigure(output);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult CppBuildSystem::runBuild(Variant variant, String &output)
+    {
+        // 只编需要的那个 target。同一棵构建树里还挂着另一个变体和 TinyPlayer，
+        // 默认目标会把它们一起编掉，那是纯浪费
+        const String cmd = "cmake --build " + quote(getBuildDir())
+            + " --target " + quote(getAssemblyName(variant))
+            + " --config " + BUILD_CONFIG;
+
+        EDITOR_LOG_INFO("Building game plugin : %s", cmd.c_str());
+
+        setBuildStage("Compiling " + getAssemblyName(variant) + " ...");
+
+        String buildOutput;
+        TResult ret = runCommand(cmd, mCppSourceDir, buildOutput);
+
+        output += buildOutput;
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void CppBuildSystem::setBuildStage(const String &stage)
+    {
+        std::lock_guard<std::mutex> guard(mBuildMutex);
+        mBuildStage = stage;
+    }
+
+    //--------------------------------------------------------------------------
+
+    String CppBuildSystem::getBuildStage() const
+    {
+        std::lock_guard<std::mutex> guard(mBuildMutex);
+        return mBuildStage;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void CppBuildSystem::setLastOutput(const String &output)
+    {
+        std::lock_guard<std::mutex> guard(mBuildMutex);
+        mLastOutput = output;
+    }
+
+    //--------------------------------------------------------------------------
+
+    String CppBuildSystem::getLastOutput() const
+    {
+        std::lock_guard<std::mutex> guard(mBuildMutex);
+        return mLastOutput;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void CppBuildSystem::joinBuildThread()
+    {
+        if (mBuildThread.joinable())
+        {
+            mBuildThread.join();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult CppBuildSystem::buildAsync(Variant variant)
+    {
+        if (mBuildState.load() != BuildState::kIdle)
+        {
+            EDITOR_LOG_WARNING("A background C++ build is already in flight.");
+            return T3D_ERR_FAIL;
+        }
 
         if (!hasCppSources())
         {
@@ -509,40 +777,118 @@ namespace Tiny3D
             return T3D_ERR_NOT_FOUND;
         }
 
-        const String buildDir = getCMakeBuildDir(variant);
+        // 上一轮的终态已经被取走了，线程句柄可能还在，回收掉再复用
+        joinBuildThread();
 
-        // Assets/Source 根下的 .h / .cpp 集合变了必须重新 configure：file(GLOB) 和 rpp
-        // 新产出的 *.generated.cpp 都要进工程。只改已有文件内容则走增量 rpp。
-        if (needsReconfigure(variant))
-        {
-            String configureOutput;
-            TResult ret = configure(variant, configureOutput);
+        mBuildingVariant = variant;
+        setBuildStage("Preparing C++ build ...");
+        mBuildState.store(BuildState::kRunning);
 
-            output += configureOutput;
-
-            if (T3D_FAILED(ret))
+        // 引擎日志内部有锁，后台线程直接打没问题；真正跨线程的只有构建输出和阶段文本，
+        // 那两个走 mBuildMutex
+        mBuildThread = std::thread([this, variant]()
             {
-                mLastOutput = output;
-                EDITOR_LOG_ERROR("Configure game plugin failed :\n%s", output.c_str());
-                return ret;
-            }
+                String output;
+                const TResult ret = build(variant, output);
 
-            writeCppFileStamp(variant, collectCppFileList());
+                mBuildState.store(T3D_SUCCEEDED(ret)
+                    ? BuildState::kSucceeded : BuildState::kFailed);
+            });
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool CppBuildSystem::isBuildInFlight() const
+    {
+        return mBuildState.load() == BuildState::kRunning;
+    }
+
+    //--------------------------------------------------------------------------
+
+    CppBuildSystem::BuildState CppBuildSystem::pollBuildState()
+    {
+        const BuildState state = mBuildState.load();
+
+        if (state == BuildState::kIdle || state == BuildState::kRunning)
+        {
+            return state;
         }
 
-        String cmd = "cmake --build " + quote(buildDir) + " --config " + BUILD_CONFIG;
+        // 终态：线程已经跑完了，join 掉再把结果交出去，调用方拿到的一定是可以直接接着
+        // 做热重载的时刻
+        joinBuildThread();
 
-        EDITOR_LOG_INFO("Building game plugin : %s", cmd.c_str());
+        mBuildState.store(BuildState::kIdle);
+        setBuildStage(String());
 
-        String buildOutput;
-        TResult ret = runCommand(cmd, mCppSourceDir, buildOutput);
+        return state;
+    }
 
-        output += buildOutput;
-        mLastOutput = output;
+    //--------------------------------------------------------------------------
+
+    TResult CppBuildSystem::build(Variant variant, String &output)
+    {
+        output.clear();
+        setLastOutput(String());
+
+        if (!hasCppSources())
+        {
+            EDITOR_LOG_WARNING("No game plugin C++ sources to build.");
+            return T3D_ERR_NOT_FOUND;
+        }
+
+        BuildLock lock(getBuildLockPath());
+
+        if (!lock.isLocked())
+        {
+            EDITOR_LOG_WARNING("Another build is already running in [%s], skipping this "
+                "request.", getBuildDir().c_str());
+            return T3D_ERR_FAIL;
+        }
+
+        TResult ret = ensureConfigured(output);
 
         if (T3D_FAILED(ret))
         {
-            EDITOR_LOG_ERROR("Build game plugin failed :\n%s", output.c_str());
+            setLastOutput(output);
+            return ret;
+        }
+
+        ret = runBuild(variant, output);
+
+        // 构建期的 rpp 可能新增或删掉 *.generated.cpp——比如给已有的 .cpp 补了第一个
+        // TCLASS，源文件集合没变但产物集合变了。那些文件只能靠 configure 期的 file(GLOB)
+        // 进 target，所以集合一变就得重新 configure 再编一次，否则新注册代码不参与编译。
+        if (T3D_SUCCEEDED(ret) && needsReconfigure())
+        {
+            EDITOR_LOG_INFO("Reflection produced a different set of generated sources, "
+                "reconfiguring and building again ...");
+
+            ret = doConfigure(output);
+
+            if (T3D_SUCCEEDED(ret))
+            {
+                ret = runBuild(variant, output);
+            }
+        }
+
+        setLastOutput(output);
+
+        if (T3D_FAILED(ret))
+        {
+            if (isBusyOutputError(output))
+            {
+                EDITOR_LOG_ERROR("Build game plugin failed because the output files are "
+                    "held by another process. Visual Studio is most likely building the "
+                    "same solution right now — wait for it to finish and try again.\n%s",
+                    output.c_str());
+            }
+            else
+            {
+                EDITOR_LOG_ERROR("Build game plugin failed :\n%s", output.c_str());
+            }
         }
         else
         {
@@ -668,14 +1014,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    String CppBuildSystem::getIDEBuildDir() const
-    {
-        const String sep(1, Dir::getNativeSeparator());
-        return mProjectPath + sep + "Temp" + sep + "CppIDE";
-    }
-
-    //--------------------------------------------------------------------------
-
     bool CppBuildSystem::findSolutionFile(const String &buildDir, String &slnPath)
     {
         slnPath.clear();
@@ -699,63 +1037,11 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool CppBuildSystem::needsIDEReconfigure() const
-    {
-        const String buildDir = getIDEBuildDir();
-        const String cacheFile = buildDir + Dir::getNativeSeparator() + "CMakeCache.txt";
-        if (!Dir::exists(cacheFile))
-        {
-            return true;
-        }
-
-        String slnPath;
-        if (!findSolutionFile(buildDir, slnPath))
-        {
-            // 缓存在但没有 sln：可能是 Ninja 生成器，再 configure 一次也变不出 sln
-            return false;
-        }
-
-        if (getNewestSourceTime(mCppSourceDir) > Dir::getLastWriteTime(cacheFile))
-        {
-            return true;
-        }
-
-        // 源码没动但工程文件坏了（例如被历史版本的路径改写逻辑写坏），
-        // 让 cmake 重新生成一遍把它覆盖掉，否则 VS 永远打不开这个工程
-        return hasCorruptedGeneratedProject(buildDir);
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult CppBuildSystem::configureIDE(String &output)
-    {
-        if (!loadSDKConfig())
-        {
-            return T3D_ERR_FILE_NOT_EXIST;
-        }
-
-        const String buildDir = getIDEBuildDir();
-
-        if (!Dir::exists(buildDir) && !Dir::makeDirs(buildDir))
-        {
-            EDITOR_LOG_ERROR("Failed to create IDE build dir [%s] !", buildDir.c_str());
-            return T3D_ERR_FAIL;
-        }
-
-        const String cmd = buildCMakeConfigureCommand(mCppSourceDir, buildDir);
-
-        EDITOR_LOG_INFO("Configuring C++ IDE solution : %s", cmd.c_str());
-
-        return runCommand(cmd, mCppSourceDir, output);
-    }
-
-    //--------------------------------------------------------------------------
-
     TResult CppBuildSystem::ensureIDESolution(String &slnPath, String &output)
     {
         slnPath.clear();
         output.clear();
-        mLastOutput.clear();
+        setLastOutput(String());
 
         if (!hasCppSources())
         {
@@ -763,30 +1049,29 @@ namespace Tiny3D
             return T3D_ERR_NOT_FOUND;
         }
 
-        const String cmakeLists = mCppSourceDir + Dir::getNativeSeparator() + "CMakeLists.txt";
-        if (!Dir::exists(cmakeLists))
+        // configure 会重写整棵构建树的工程文件，不能和正在跑的构建撞上
+        BuildLock lock(getBuildLockPath());
+
+        if (!lock.isLocked())
         {
-            EDITOR_LOG_ERROR("Game plugin CMakeLists.txt not found at [%s] !",
-                cmakeLists.c_str());
-            return T3D_ERR_FILE_NOT_EXIST;
+            EDITOR_LOG_WARNING("A build is running in [%s], cannot regenerate the "
+                "solution right now.", getBuildDir().c_str());
+            return T3D_ERR_FAIL;
         }
 
-        // 引擎托管的 CMake 从模板同步，不要去改已经生成的游戏工程。
-        const bool templateSynced = syncIDECMakeFromTemplate();
+        // 与 build() 完全同一条 configure 路径、同一个构建目录，两个入口才不会互相
+        // 把对方生成的工程判成过期
+        TResult ret = ensureConfigured(output, true);
+        setLastOutput(output);
 
-        if (templateSynced || needsIDEReconfigure())
+        if (T3D_FAILED(ret))
         {
-            TResult ret = configureIDE(output);
-            mLastOutput = output;
-            if (T3D_FAILED(ret))
-            {
-                EDITOR_LOG_ERROR("Failed to configure C++ IDE solution !\n%s",
-                    output.c_str());
-                return ret;
-            }
+            EDITOR_LOG_ERROR("Failed to configure C++ IDE solution !\n%s",
+                output.c_str());
+            return ret;
         }
 
-        const String buildDir = getIDEBuildDir();
+        const String buildDir = getBuildDir();
         if (!findSolutionFile(buildDir, slnPath))
         {
             EDITOR_LOG_ERROR("No .sln was generated in [%s]. The editor toolchain "
@@ -795,7 +1080,8 @@ namespace Tiny3D
             return T3D_ERR_FILE_NOT_EXIST;
         }
 
-        // cmake 内部路径是 /，VS 调试页在 Windows 上必须是 '\'
+        // cmake 内部路径是 /，VS 调试页在 Windows 上必须是 '\'。
+        // 只在真要打开 IDE 时才遍历 vcxproj，编辑器编译不必为此付出代价
         fixGeneratedVsDebuggerPaths(buildDir);
 
         return T3D_OK;
@@ -899,7 +1185,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool CppBuildSystem::syncIDECMakeFromTemplate() const
+    bool CppBuildSystem::syncCMakeFromTemplate() const
     {
         bool changed = syncTemplateFile("GamePluginCommon.cmake");
         changed = syncTemplateFile(String("Player") + Dir::getNativeSeparator()

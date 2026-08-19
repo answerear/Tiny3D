@@ -149,6 +149,11 @@ namespace Tiny3D
 
     void UIMainWindow::onDestroy()
     {
+        // 对话框和其它子窗口一样是本窗口的子控件，由 ImWindow::onDestroy 统一销毁，
+        // 这里只把引用清掉
+        mCppBuildProgressDlg = nullptr;
+        mCppBuildProgressShown = false;
+
         unregisterAllMenuEvents();
         unregisterAllEvent();
         ImWindow::onDestroy();
@@ -160,7 +165,64 @@ namespace Tiny3D
     {
         checkFocused();
 
+        updateCppBuildProgress();
+
         return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIMainWindow::updateCppBuildProgress()
+    {
+        if (PlayModeController::getInstancePtr() == nullptr)
+        {
+            return;
+        }
+
+        const bool building = PLAY_MODE_CTRL.isBuildInFlight();
+
+        if (!building)
+        {
+            if (mCppBuildProgressShown && mCppBuildProgressDlg != nullptr)
+            {
+                mCppBuildProgressDlg->close();
+                mCppBuildProgressShown = false;
+            }
+            return;
+        }
+
+        if (mCppBuildProgressDlg == nullptr)
+        {
+            mCppBuildProgressDlg = new ImProgressDialog();
+
+            // 空按钮名 + 无关闭按钮 = 不可取消。半路 kill cmake 会在构建树里留下
+            // 半成品 obj 和错的 tlog，下次编译反而更慢更容易出怪问题
+            ImDialogButton button;
+            if (T3D_FAILED(mCppBuildProgressDlg->create(ID_CPP_BUILD_PROGRESS_DIALOG,
+                ESTR(TXT_COMPILE_CPP, "Compile C++"),
+                ImProgressDialog::Style::Indeterminate, button, this, false)))
+            {
+                EDITOR_LOG_ERROR("Failed to create the C++ build progress dialog !");
+                T3D_SAFE_DELETE(mCppBuildProgressDlg);
+                return;
+            }
+
+            mCppBuildProgressDlg->setSize(ImVec2(420.0f, 0.0f));
+        }
+
+        String stage = CPP_BUILD_SYS.getBuildStage();
+        if (stage.empty())
+        {
+            stage = "Working ...";
+        }
+
+        mCppBuildProgressDlg->setText(stage, false);
+
+        if (!mCppBuildProgressShown)
+        {
+            mCppBuildProgressDlg->show(ImDialog::ShowType::kOverlay);
+            mCppBuildProgressShown = true;
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -278,7 +340,11 @@ namespace Tiny3D
         // Validate Runtime Build
         // Runtime 变体平时不参与构建，误用编辑器专有 API 要到导出时才暴露，这里给个随时自查的入口
         IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_VALIDATE_RUNTIME_BUILD, "Validate Runtime Build", "", "",
-            [](ImWidget *widget) { return PROJECT_MGR.isProjectOpened() && !PLAY_MODE_CTRL.isPlaying(); },
+            [](ImWidget *widget)
+            {
+                return PROJECT_MGR.isProjectOpened() && !PLAY_MODE_CTRL.isPlaying()
+                    && !PLAY_MODE_CTRL.isBuildInFlight();
+            },
             nullptr,
             [](ImWidget *widget) { PLAY_MODE_CTRL.validateRuntimeBuild(); })
         
@@ -1350,7 +1416,9 @@ namespace Tiny3D
     {
         (void)id;
         (void)menuItem;
-        return PROJECT_MGR.isProjectOpened() && CPP_BUILD_SYS.hasCppSources();
+        // 生成解决方案要重写整棵构建树的工程文件，不能和正在跑的构建撞上
+        return PROJECT_MGR.isProjectOpened() && CPP_BUILD_SYS.hasCppSources()
+            && !PLAY_MODE_CTRL.isBuildInFlight();
     }
 
     //--------------------------------------------------------------------------

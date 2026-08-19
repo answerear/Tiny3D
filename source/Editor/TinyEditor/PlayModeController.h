@@ -27,6 +27,8 @@
 
 #include "EditorPrerequisites.h"
 
+#include "CppBuildSystem.h"
+
 
 namespace Tiny3D
 {
@@ -60,6 +62,19 @@ namespace Tiny3D
 
         /// 工程关闭前调用，卸载业务插件并清理影子副本
         void onProjectClosing();
+
+        /**
+         * @brief 每帧调用，推进后台 C++ 构建的状态机
+         * @remarks 构建跑在后台线程上，这里只负责查状态。查到跑完就把后续动作（热重载 /
+         *          进 Play / 报校验结论）投递到帧末安全点
+         */
+        void onFrameUpdate();
+
+        /// 后台 C++ 构建是否正在进行（含跑完还没落地的那一小段）
+        bool isBuildInFlight() const
+        {
+            return mPendingAction != PendingAction::kNone;
+        }
 
         /// 当前是否在 Play 态
         bool isPlaying() const { return T3D_AGENT.isPlaying(); }
@@ -102,14 +117,39 @@ namespace Tiny3D
         bool isGamePluginLoaded() const { return !mLoadedShadowName.empty(); }
 
     protected:
+        /// 后台构建跑完之后要接着做的事
+        enum class PendingAction
+        {
+            kNone,
+            /// 编译菜单：编完只热重载
+            kReload,
+            /// Play：编完热重载再进 Play
+            kPlay,
+            /// 校验 Runtime：编完只报结论，不动已加载的产物
+            kValidate
+        };
+
         /// play 的实际实现，只在帧末安全点被调用
         TResult doPlay();
 
         /// stop 的实际实现，只在帧末安全点被调用
         TResult doStop();
 
-        /// compileCpp 的实际实现，只在帧末安全点被调用
-        TResult doCompileCpp();
+        /**
+         * @brief 起一次后台构建，记下跑完要做什么
+         * @return 投递成功返回 T3D_OK
+         */
+        TResult beginAsyncBuild(CppBuildSystem::Variant variant, PendingAction action);
+
+        /// 后台构建落地，只在帧末安全点被调用
+        void onBuildFinished(PendingAction action, bool succeeded);
+
+        /**
+         * @brief 产物比当前加载的那份新就热重载，没加载过则补加载
+         * @remarks 产物可能是编辑器编的，也可能是 Visual Studio 编的——两边现在共用同一棵
+         *          构建树、同一个输出目录，所以这里只看产物的修改时间，不关心谁编的
+         */
+        TResult applyBuiltAssembly();
 
         /// 影子拷贝 + loadPluginFromPath
         TResult loadGamePlugin();
@@ -159,6 +199,10 @@ namespace Tiny3D
         bool mPendingModeChange {false};
         /// 已投递但尚未执行的编译请求，编译期间菜单项置灰，防止重复投递
         bool mPendingCompile {false};
+        /// 后台构建跑完之后要做的事，kNone 表示当前没有后台构建
+        PendingAction mPendingAction {PendingAction::kNone};
+        /// 构建结果已投递到帧末、还没执行，避免 onFrameUpdate 重复投递
+        bool mPendingBuildResult {false};
     };
 
     #define PLAY_MODE_CTRL (PlayModeController::getInstance())
