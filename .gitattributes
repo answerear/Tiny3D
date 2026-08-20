@@ -1,3 +1,4 @@
 # 跟踪所有 dll，lib 文件到Git LFS
 *.dll filter=lfs diff=lfs merge=lfs -text
 *.lib filter=lfs diff=lfs merge=lfs -text
+*.dylib filter=lfs diff=lfs merge=lfs -text
