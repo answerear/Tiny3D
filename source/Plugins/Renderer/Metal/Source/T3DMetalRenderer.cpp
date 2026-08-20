@@ -40,7 +40,7 @@ namespace Tiny3D
 
     MetalRenderer::MetalRenderer()
     {
-        mName = "MetalRenderer";
+        mName = METAL;
     }
 
     //--------------------------------------------------------------------------
