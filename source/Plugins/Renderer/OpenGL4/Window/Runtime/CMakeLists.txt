@@ -30,6 +30,7 @@ include_directories(
     "${TINY3D_GL4_BASE_DIR}/Include"
     "${TINY3D_GL4_WINDOW_DIR}/Include"
     "${TINY3D_GL4_RUNTIME_DIR}/Include"
+    "${SDL2_INCLUDE_DIR}"
     "${RTTR_INCLUDE_DIR}"
     "${T3D_COMMON_INCLUDE_DIR}"
     "${GLAD_INCLUDE_DIR}"

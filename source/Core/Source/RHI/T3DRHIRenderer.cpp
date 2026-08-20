@@ -63,7 +63,7 @@ namespace Tiny3D
         {
             return SHADER_LANGUAGE::kSPIRV;
         }
-        if (name == METAL)
+        if (name == METAL || name == "MetalRenderer")
         {
             return SHADER_LANGUAGE::kMSL;
         }

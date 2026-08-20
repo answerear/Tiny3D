@@ -22,6 +22,7 @@ include_directories(
     "${TINY3D_UTILS_SOURCE_DIR}/Include"
     "${TINY3D_GLES3_BASE_DIR}/Include"
     "${TINY3D_GLES3_RUNTIME_DIR}/Include"
+    "${SDL2_INCLUDE_DIR}"
     "${RTTR_INCLUDE_DIR}"
     "${T3D_COMMON_INCLUDE_DIR}"
     "${GLSLANG_INCLUDE_DIR}"

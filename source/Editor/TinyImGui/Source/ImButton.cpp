@@ -156,7 +156,7 @@ namespace Tiny3D
 
     TResult ImPushButton::create(uint32_t id, const String &title, ImButtonQueryCallback &queryEnabled, ImButtonQueryCallback &queryChecked, ImButtonClickedCallback &clicked, ImWidget *parent, const String &tips, const String &shortcut)
     {
-        return ImWidget::createInternal(id, title, parent, 5, &queryEnabled, clicked, &tips, &shortcut, &queryChecked);
+        return ImWidget::createInternal(id, title, parent, 5, &queryEnabled, &clicked, &tips, &shortcut, &queryChecked);
     }
 
     //--------------------------------------------------------------------------

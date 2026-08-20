@@ -104,10 +104,15 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             ${LIB_NAME}
             T3DPlatform
             T3DSystem
+            T3DLog
             T3DUtils
             T3DMath
+            T3DFramework
+            T3DCore
             rttr_core
             )
+
+        tiny3d_setup_macos_console_sample(${BIN_NAME})
 
         # Setup all properties for this Mac OS X project.
 #	    set_target_properties(${BIN_NAME}

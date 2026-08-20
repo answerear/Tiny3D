@@ -18,6 +18,9 @@
  ******************************************************************************/
 
 #include "Adapter/OSX/T3DOSXDir.h"
+#include <limits.h>
+#include <mach-o/dyld.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #import <Foundation/Foundation.h>
@@ -93,17 +96,32 @@ namespace Tiny3D
     
     String OSXDir::getAppPath() const
     {
-        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-        NSString *path = [[NSBundle mainBundle] bundlePath];
-        String appPath = [path UTF8String];
-        [pool release];
-        
-        return appPath;
+        char buf[PATH_MAX];
+        uint32_t size = sizeof(buf);
+        if (_NSGetExecutablePath(buf, &size) != 0)
+        {
+            return String();
+        }
+
+        char resolved[PATH_MAX];
+        if (realpath(buf, resolved) == nullptr)
+        {
+            strncpy(resolved, buf, sizeof(resolved) - 1);
+            resolved[sizeof(resolved) - 1] = '\0';
+        }
+
+        String path(resolved);
+        const size_t slash = path.find_last_of('/');
+        if (slash != String::npos)
+        {
+            path.erase(slash);
+        }
+        return path;
     }
     
     String OSXDir::getWritablePath() const
     {
-        return getAppPath() + "/Documents";
+        return getAppPath() + "/Save";
     }
     
     String OSXDir::getLibraryPath() const

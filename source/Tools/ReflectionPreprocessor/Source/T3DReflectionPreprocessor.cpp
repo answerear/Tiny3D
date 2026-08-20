@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -35,6 +35,8 @@
 #include <vector>
 #include <algorithm>
 #include <chrono>
+#include <cstdlib>
+#include <cstdio>
 
 
 namespace  Tiny3D
@@ -139,14 +141,13 @@ namespace  Tiny3D
             RP_LOG_INFO("Generating AST [%s] ...", path.c_str());
 
             // 尝试生成 PCH 加速后续解析
-            String pchPath = detectAndGeneratePCH(path, args);
+            String pchPath = detectAndGeneratePCH(path, args, opts.IsRebuild);
             if (!pchPath.empty())
             {
                 // 注入 -include-pch 参数（libclang 直接接收 cc1 参数，不需要 -Xclang）
                 mArgs.push_back("-include-pch");
-                args.push_back(mArgs.back().c_str());
                 mArgs.push_back(pchPath);
-                args.push_back(mArgs.back().c_str());
+                syncClangArgs(args);
             }
 
             // 增量模式先验一下缓存完整性。缓存缺失时增量产物和全量不等价，
@@ -175,6 +176,21 @@ namespace  Tiny3D
             }
 
             RP_LOG_INFO("Generating source files ...");
+
+            uint32_t processedCount = 0;
+            for (const auto &pf : pendingFiles)
+            {
+                if (pf.processed)
+                {
+                    ++processedCount;
+                }
+            }
+            if (opts.IsRebuild && processedCount == 0 && !pendingFiles.empty())
+            {
+                RP_LOG_ERROR("All source files failed to parse, keep existing generated sources.");
+                ret = T3D_ERR_RP_PARSE_SOURCE;
+                break;
+            }
 
             // 增量模式下，加载跳过文件的 .tpl 模板实例化信息注入 mGenerator
             if (!opts.IsRebuild)
@@ -383,8 +399,131 @@ namespace  Tiny3D
         {
             RP_LOG_ERROR("The file %s did not exist !", filename.c_str());
         }
-        
+
+        if (!args.empty())
+        {
+            appendSysroot(args);
+            appendResourceDir(args);
+            syncClangArgs(args);
+        }
+
         return args;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ReflectionPreprocessor::appendSysroot(ClangArgs &args)
+    {
+        for (const auto &s : mArgs)
+        {
+            if (s == "-isysroot" || StringUtil::startsWith(s, "-isysroot", false))
+            {
+                return;
+            }
+        }
+
+#if defined(T3D_OS_OSX)
+        String sdk;
+        if (const char *env = std::getenv("SDKROOT"))
+        {
+            sdk = env;
+        }
+
+        if (sdk.empty())
+        {
+            FILE *pipe = popen("xcrun --sdk macosx --show-sdk-path 2>/dev/null", "r");
+            if (pipe != nullptr)
+            {
+                char buf[1024] = {0};
+                if (fgets(buf, sizeof(buf), pipe) != nullptr)
+                {
+                    sdk = buf;
+                    while (!sdk.empty()
+                        && (sdk.back() == '\n' || sdk.back() == '\r'))
+                    {
+                        sdk.pop_back();
+                    }
+                }
+                pclose(pipe);
+            }
+        }
+
+        if (sdk.empty() || !Dir::exists(sdk))
+        {
+            RP_LOG_WARNING("No -isysroot in reflection settings and SDK lookup "
+                "failed; libclang may not find C++ standard headers.");
+            return;
+        }
+
+        RP_LOG_INFO("Using macOS sysroot: %s", sdk.c_str());
+        mArgs.push_back("-isysroot");
+        mArgs.push_back(sdk);
+        mArgs.push_back("-stdlib=libc++");
+        syncClangArgs(args);
+#endif
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ReflectionPreprocessor::appendResourceDir(ClangArgs &args)
+    {
+        // libclang 靠自己所在的目录反推 LLVM 安装布局，才能找到编译器内建头
+        // (stdarg.h、stddef.h 等)。这里的 libclang 是单独拷到 rpp 旁边的，那套
+        // 推断必然落空，所以显式指定，也免得依赖 clang 内部的布局约定。
+        // Windows 上这些内建头由 MSVC 的 UCRT 提供，不随包，目录不存在即跳过。
+        const char sep = Dir::getNativeSeparator();
+        const String appPath = Dir::getAppPath();
+        String resourceDir = appPath + sep + "clang-resource";
+        if (!Dir::exists(resourceDir))
+        {
+            // macOS bundle：头文件在 Contents/Resources，不能放进 Contents/MacOS
+            resourceDir = appPath + sep + ".." + sep + "Resources" + sep
+                + "clang-resource";
+        }
+
+        if (!Dir::exists(resourceDir))
+        {
+#if defined(T3D_OS_OSX)
+            FILE *pipe = popen("xcrun clang -print-resource-dir 2>/dev/null", "r");
+            if (pipe != nullptr)
+            {
+                char buf[1024] = {0};
+                if (fgets(buf, sizeof(buf), pipe) != nullptr)
+                {
+                    resourceDir = buf;
+                    while (!resourceDir.empty()
+                        && (resourceDir.back() == '\n' || resourceDir.back() == '\r'))
+                    {
+                        resourceDir.pop_back();
+                    }
+                }
+                pclose(pipe);
+            }
+#endif
+        }
+
+        if (!Dir::exists(resourceDir))
+        {
+            RP_LOG_WARNING("clang resource dir not found next to rpp, libclang may fail to parse.");
+            return;
+        }
+
+        RP_LOG_INFO("Using clang resource dir: %s", resourceDir.c_str());
+        mArgs.push_back("-resource-dir");
+        mArgs.push_back(resourceDir);
+        syncClangArgs(args);
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ReflectionPreprocessor::syncClangArgs(ClangArgs &args)
+    {
+        args.clear();
+        args.reserve(mArgs.size());
+        for (const auto &s : mArgs)
+        {
+            args.push_back(s.c_str());
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -1037,7 +1176,7 @@ namespace  Tiny3D
 
     //-------------------------------------------------------------------------
 
-    String ReflectionPreprocessor::detectAndGeneratePCH(const String &generatedPath, const ClangArgs &args)
+    String ReflectionPreprocessor::detectAndGeneratePCH(const String &generatedPath, const ClangArgs &args, bool rebuild)
     {
         if (mPrerequisitesHeader.empty())
         {
@@ -1045,23 +1184,42 @@ namespace  Tiny3D
             return String();
         }
 
-        // PCH 文件放在 generatedPath 下
+        // PCH 文件放在 generatedPath 下。只有带 .ok 标记的才允许复用：
+        // 以前缺 -isysroot 时仍会写出坏 PCH，复用会把 String 解析成 int。
         String pchPath = generatedPath + Dir::getNativeSeparator() + "prereq.pch";
+        String okPath = pchPath + ".ok";
 
-        // 检查 PCH 是否已存在且比头文件新
-        long_t pchTime = Dir::getLastWriteTime(pchPath);
-        long_t hdrTime = Dir::getLastWriteTime(mPrerequisitesHeader);
-        if (pchTime > 0 && pchTime >= hdrTime)
+        if (!rebuild && Dir::exists(okPath) && Dir::exists(pchPath))
         {
-            RP_LOG_INFO("[PCH] Reusing existing PCH: %s", pchPath.c_str());
-            return pchPath;
+            long_t pchTime = Dir::getLastWriteTime(pchPath);
+            long_t hdrTime = Dir::getLastWriteTime(mPrerequisitesHeader);
+            if (pchTime > 0 && pchTime >= hdrTime)
+            {
+                RP_LOG_INFO("[PCH] Reusing existing PCH: %s", pchPath.c_str());
+                return pchPath;
+            }
+        }
+        else if (rebuild)
+        {
+            RP_LOG_INFO("[PCH] Full rebuild, regenerating PCH.");
+            Dir::remove(pchPath);
+            Dir::remove(okPath);
         }
 
         TResult ret = ReflectionGenerator::generatePCH(mPrerequisitesHeader, pchPath, args);
         if (T3D_FAILED(ret))
         {
+            Dir::remove(pchPath);
+            Dir::remove(okPath);
             RP_LOG_WARNING("[PCH] PCH generation failed, will proceed without PCH.");
             return String();
+        }
+
+        FileDataStream marker;
+        if (marker.open(okPath.c_str(),
+            FileDataStream::E_MODE_WRITE_ONLY | FileDataStream::E_MODE_TRUNCATE))
+        {
+            marker.close();
         }
 
         return pchPath;

@@ -211,34 +211,15 @@ elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
             MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.hello"                         # Bundle ID for this app.
             MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"                             # Long version string for this app.
             MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"                              # Short version string for this app.
+            BUILD_WITH_INSTALL_RPATH 1
+            MACOSX_RPATH 1
+            BUILD_RPATH "@executable_path"
+            INSTALL_RPATH "@executable_path"
             XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path"
             XCODE_ATTRIBUTE_OTHER_CODE_SIGN_FLAGS "--deep"
             )
 
-        # Setup installing files for making a *.app for this project
-        set(APPS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/${BIN_NAME}.app")
-        set(DIRS "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}")
-        install(CODE "
-            include(BundleUtilities)
-            fixup_bundle(\"${APPS}\" \"\" \"${DIRS}\")
-            " COMPONENT Runtime)
-
-        install(TARGETS ${BIN_NAME}
-            BUNDLE DESTINATION bin/debug CONFIGURATIONS Debug
-            RUNTIME DESTINATION bin/debug CONFIGURATIONS Debug
-            LIBRARY DESTINATION bin/debug CONFIGURATIONS Debug
-            ARCHIVE DESTINATION lib/debug CONFIGURATIONS Debug
-            )
-
-        set(ASSETS_DIR "${APPS}/Contents/MacOS/assets/")
-
-        add_custom_command(TARGET ${BIN_NAME}
-            POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/../assets/config/OSX/Tiny3D.cfg" "${APPS}/Contents/MacOS"
-            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/*" "${APPS}/Contents/MacOS"
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${ASSETS_DIR}"
-            COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../assets/icon ${ASSETS_DIR}/icon
-            )
+        tiny3d_setup_macos_sample(${BIN_NAME})
     endif (TINY3D_OS_IOS)
 elseif (TINY3D_OS_LINUX)
     # Setup executable project for Linux.

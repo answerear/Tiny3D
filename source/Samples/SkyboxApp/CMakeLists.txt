@@ -178,6 +178,44 @@ elseif (TINY3D_OS_ANDROID)
             $<TARGET_FILE:BundleFSArchive>
             ${T3D_ANDROID_LIB_PATH}
         )
+elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
+    add_executable(
+        ${BIN_NAME} MACOSX_BUNDLE
+        ${SOURCE_FILES}
+        )
+
+    if (TINY3D_OS_IOS)
+        message(FATAL_ERROR "SkyboxApp is not supported on iOS yet")
+    elseif (TINY3D_OS_MACOSX)
+        target_link_libraries(
+            ${LIB_NAME}
+            T3DPlatform
+            T3DSystem
+            T3DLog
+            T3DUtils
+            T3DMath
+            T3DFramework
+            T3DCore
+            rttr_core
+            )
+
+        set_target_properties(${BIN_NAME}
+            PROPERTIES
+            MACOSX_BUNDLE_BUNDLE_NAME ${BIN_NAME}
+            MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/OSX/Info.plist"
+            MACOSX_BUNDLE_GUI_IDENTIFIER "com.tiny3d.skybox"
+            MACOSX_BUNDLE_LONG_VERSION_STRING "0.1.0.0"
+            MACOSX_BUNDLE_SHORT_VERSION_STRING "0.1.0"
+            BUILD_WITH_INSTALL_RPATH 1
+            MACOSX_RPATH 1
+            BUILD_RPATH "@executable_path"
+            INSTALL_RPATH "@executable_path"
+            XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path"
+            XCODE_ATTRIBUTE_OTHER_CODE_SIGN_FLAGS "--deep"
+            )
+
+        tiny3d_setup_macos_sample(${BIN_NAME})
+    endif (TINY3D_OS_IOS)
 elseif (TINY3D_OS_LINUX)
     # Setup executable project for Linux.
     add_executable(

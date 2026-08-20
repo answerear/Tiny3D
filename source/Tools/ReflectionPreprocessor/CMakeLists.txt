@@ -32,10 +32,49 @@ elseif (TINY3D_OS_LINUX)
 endif (TINY3D_OS_WINDOWS)
 
 
-set(LLVM_INCLUDE_DIR "${LLVM_HOME}/Include")
+set(LLVM_INCLUDE_DIR "${LLVM_HOME}/include")
 set(LLVM_LIB_DIR "${LLVM_HOME}/${LLVM_LIB_SUFFIXES}")
 set(LLVM_BIN_DIR "${LLVM_HOME}/${LLVM_LIB_SUFFIXES}")
+set(TINY3D_CLANG_RESOURCE_SRC "${LLVM_BIN_DIR}/clang-resource")
 #set(LLVM_LIB_DEBUG_DIR "${LLVM_HOME}/${LLVM_LIB_DEBUG_SUFFIXES}")
+
+# macOS 26 SDK 的 libc++ 依赖 Clang 16+ 的 __remove_cv 等 builtin。
+# 仓库里预编译的是 LLVM 15 libclang，解析标准库头会整片失败。
+# rpp 是本机工具，优先链接当前 Xcode 的 libclang。
+if (TINY3D_OS_MACOSX)
+    execute_process(
+        COMMAND xcrun --find clang
+        OUTPUT_VARIABLE _tiny3d_xcode_clang
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET)
+    if (_tiny3d_xcode_clang)
+        get_filename_component(_tiny3d_xcode_bin "${_tiny3d_xcode_clang}" DIRECTORY)
+        get_filename_component(_tiny3d_xcode_usr "${_tiny3d_xcode_bin}" DIRECTORY)
+        set(_tiny3d_xcode_libclang "${_tiny3d_xcode_usr}/lib/libclang.dylib")
+        if (EXISTS "${_tiny3d_xcode_libclang}")
+            execute_process(
+                COMMAND xcrun clang -print-resource-dir
+                OUTPUT_VARIABLE _tiny3d_xcode_resource
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+                ERROR_QUIET)
+            set(LLVM_LIB_DIR "${_tiny3d_xcode_usr}/lib")
+            set(LLVM_BIN_DIR "${_tiny3d_xcode_usr}/lib")
+            if (EXISTS "${_tiny3d_xcode_usr}/include/clang-c/Index.h")
+                set(LLVM_INCLUDE_DIR "${_tiny3d_xcode_usr}/include")
+            endif ()
+            if (_tiny3d_xcode_resource AND EXISTS "${_tiny3d_xcode_resource}/include")
+                set(TINY3D_CLANG_RESOURCE_SRC "${_tiny3d_xcode_resource}")
+            endif ()
+            message(STATUS "rpp uses Xcode libclang: ${_tiny3d_xcode_libclang}")
+            message(STATUS "rpp clang resource dir: ${TINY3D_CLANG_RESOURCE_SRC}")
+        endif ()
+        unset(_tiny3d_xcode_libclang)
+        unset(_tiny3d_xcode_resource)
+        unset(_tiny3d_xcode_usr)
+        unset(_tiny3d_xcode_bin)
+    endif ()
+    unset(_tiny3d_xcode_clang)
+endif ()
 
 # Setup project include files path
 include_directories(
@@ -117,9 +156,50 @@ elseif (TINY3D_OS_MACOSX)
         ${LIB_NAME}
         LINK_PRIVATE T3DPlatform
         LINK_PRIVATE T3DLog
+        LINK_PRIVATE T3DUtils
+        LINK_PRIVATE ${LLVM_LIB_DIR}/libclang.dylib
         )
 
-    set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME rpp)
+    # BUILD_RPATH 是追加在 CMake 自动推导的构建树 rpath 之上的，不要设
+    # BUILD_WITH_INSTALL_RPATH，否则 lib/OSX 下的 libT3D*.dylib 会找不到。
+    # rpp 是本机命令行工具，不是要分发的 GUI。关掉签名：clang-resource 是头文件，
+    # 不能放在 Contents/MacOS 里当嵌套代码签，Xcode 会报
+    # "code object is not signed at all / __stddef_header_macro.h"。
+    set_target_properties(${BIN_NAME} PROPERTIES
+        OUTPUT_NAME rpp
+        MACOSX_RPATH 1
+        BUILD_RPATH "@executable_path"
+        INSTALL_RPATH "@executable_path"
+        XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO"
+        XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO"
+        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ""
+        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "")
+
+    # rpp 是本机工具；macOS 上优先链 Xcode libclang，才能解析当前 SDK 的 libc++。
+
+    # libclang 的 install name 是 @rpath/…，必须跟 rpp 放在同一目录才能加载。
+    # clang-resource 是编译器内建头，必须放进 Contents/Resources，不能进 MacOS。
+    set(_tiny3d_rpp_runtime_copy
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${LLVM_BIN_DIR}/libclang.dylib"
+            "$<TARGET_FILE_DIR:${BIN_NAME}>"
+        COMMAND ${CMAKE_COMMAND} -E rm -rf
+            "$<TARGET_FILE_DIR:${BIN_NAME}>/clang-resource"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${TINY3D_CLANG_RESOURCE_SRC}"
+            "$<TARGET_FILE_DIR:${BIN_NAME}>/../Resources/clang-resource"
+    )
+    if (EXISTS "${LLVM_BIN_DIR}/libzstd.1.dylib")
+        list(APPEND _tiny3d_rpp_runtime_copy
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${LLVM_BIN_DIR}/libzstd.1.dylib"
+                "$<TARGET_FILE_DIR:${BIN_NAME}>")
+    endif ()
+    add_custom_command(TARGET ${BIN_NAME}
+        POST_BUILD
+        ${_tiny3d_rpp_runtime_copy}
+        COMMENT "Copying libclang runtime next to rpp")
+    unset(_tiny3d_rpp_runtime_copy)
 
     # Setup all properties for this Mac OS X project.
 #   set_target_properties(${BIN_NAME}

@@ -10,6 +10,15 @@ cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/../" CACHE PATH "Tiny3D install prefix")
 
+# macOS 预编译第三方库（FreeImage / ShaderConductor / FBX）目前只有 x86_64。
+# 必须在 project() 之前设置，Xcode 生成器才会把 ARCHS 写成 Intel。
+# iOS toolchain 会自己设 CMAKE_OSX_ARCHITECTURES，这里不要覆盖。
+if (NOT IOS AND CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+    if (NOT CMAKE_OSX_ARCHITECTURES)
+        set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "macOS build architecture")
+    endif ()
+endif ()
+
 project(Tiny3D)
 
 if (CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
@@ -107,6 +116,17 @@ elseif (APPLE AND NOT IOS)
     set(PROTOBUF_SUFFIXES "prebuilt/OSX")
 
     set(CMAKE_CXX_FLAGS "-std=c++11 -Wno-undefined-var-template")
+
+    message(STATUS "macOS architecture : ${CMAKE_OSX_ARCHITECTURES}")
+    if (CMAKE_OSX_ARCHITECTURES MATCHES "x86_64")
+        # Apple Silicon 上的 Homebrew 是 arm64，Intel 目标不能链 /opt/homebrew。
+        list(APPEND CMAKE_IGNORE_PREFIX_PATH "/opt/homebrew")
+        if (SDL2MAIN_LIBRARY MATCHES "/opt/homebrew/")
+            unset(SDL2MAIN_LIBRARY CACHE)
+            unset(SDL2_LIBRARY CACHE)
+            unset(SDL2_LIBRARY_TEMP CACHE)
+        endif ()
+    endif ()
 elseif (UNIX AND NOT APPLE)
     # Linux
     message(STATUS "Platform : Linux")
@@ -123,6 +143,13 @@ elseif (UNIX AND NOT APPLE)
 
     set(CMAKE_CXX_FLAGS "-std=c++11 -g -Wno-undefined-var-template")
 endif (WIN32)
+
+# ShaderConductor OSX 预编译库只有 x86_64。若仍按 arm64 配置，则跳过依赖它的主机工具。
+set(TINY3D_BUILD_SHADERCONDUCTOR_TOOLS TRUE)
+if (TINY3D_OS_MACOSX AND CMAKE_OSX_ARCHITECTURES MATCHES "arm64")
+    set(TINY3D_BUILD_SHADERCONDUCTOR_TOOLS FALSE)
+    message(STATUS "Skipping ShaderCrossCompiler/BuiltinGenerator (ShaderConductor prebuilt is x86_64-only)")
+endif ()
 
 
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -220,6 +247,12 @@ set(T3D_COMMON_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Common")
 # Search SDL2 library for all projects.
 set(SDL2DIR "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/sdl2" CACHE PATH "SDL2 library path")
 find_package(SDL2)
+
+# T3DPrerequisites.h includes SDL_main.h on Apple. Directory-level include_directories
+# are inherited by all subdirectories, so plugins/tools do not each need to repeat it.
+if (SDL2_INCLUDE_DIR)
+    include_directories("${SDL2_INCLUDE_DIR}")
+endif ()
 
 # Search GLAD library for OpenGL4 renderer.
 set(GLAD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/glad" CACHE PATH "GLAD library path")
@@ -359,31 +392,33 @@ endif (NOT TINY3D_BUILD_RTTR_TOOL)
 if (TINY3D_BUILD_TOOLS)
     add_subdirectory(Tools)
     #add_dependencies(ScriptCompiler T3DCore)
-    if (NOT TINY3D_BUILD_RTTR_TOOL)
+    if (NOT TINY3D_BUILD_RTTR_TOOL AND TINY3D_BUILD_SHADERCONDUCTOR_TOOLS)
 	    add_dependencies(ShaderCrossCompiler T3DCore)
 	    add_dependencies(BuiltinGenerator T3DCore)
         #add_dependencies(T3DPostBuild MetaGenerator)
-	endif (NOT TINY3D_BUILD_RTTR_TOOL)
+	endif (NOT TINY3D_BUILD_RTTR_TOOL AND TINY3D_BUILD_SHADERCONDUCTOR_TOOLS)
 endif(TINY3D_BUILD_TOOLS)
 
 
 if (TINY3D_BUILD_SAMPLES)
     # Build samples. Set all projects of samples.
     add_subdirectory(Samples)
-    add_dependencies(HelloApp T3DCore)
-    #add_dependencies(PlatformApp T3DCore)
-    #add_dependencies(FrameworkApp T3DCore)
+    if (NOT TINY3D_OS_MACOSX)
+        add_dependencies(HelloApp T3DCore)
+    endif (NOT TINY3D_OS_MACOSX)
     add_dependencies(CameraApp T3DCore)
     add_dependencies(GeometryApp T3DCore)
     add_dependencies(TextureApp T3DCore)
     add_dependencies(SceneApp T3DCore)
-	add_dependencies(DirectionalLightApp T3DCore)
-	add_dependencies(PointLightApp T3DCore)
-	add_dependencies(SpotLightApp T3DCore)
-	add_dependencies(LightApp T3DCore)
-	add_dependencies(ShadowApp T3DCore)
-	add_dependencies(BehaviourApp T3DCore)
-	add_dependencies(InputApp T3DCore)
+    add_dependencies(DirectionalLightApp T3DCore)
+    add_dependencies(PointLightApp T3DCore)
+    add_dependencies(SpotLightApp T3DCore)
+    add_dependencies(LightApp T3DCore)
+    add_dependencies(ShadowApp T3DCore)
+    add_dependencies(BehaviourApp T3DCore)
+    add_dependencies(InputApp T3DCore)
+    add_dependencies(SkeletalAnimationApp T3DCore)
+    add_dependencies(ResourceApp T3DCore)
     add_dependencies(SkyboxApp T3DCore)
     if (TINY3D_OS_DESKTOP)
         add_dependencies(TransformationApp T3DMath T3DLog T3DSystem)
@@ -401,7 +436,7 @@ endif ()
 # 编辑器与 Sample 是两条独立的资源链路，同一份内置资源要在两边各留一份且 UUID 一致。
 # 这个 target 手工触发（不接进任何构建流程），把 BuiltinGenerator 产出的天空盒资源
 # 同步到 assets/samples/meshes，并用 scc 烘焙出全语言变体的 .tshader。
-if (TINY3D_BUILD_TOOLS AND NOT TINY3D_BUILD_RTTR_TOOL)
+if (TINY3D_BUILD_TOOLS AND NOT TINY3D_BUILD_RTTR_TOOL AND TINY3D_BUILD_SHADERCONDUCTOR_TOOLS)
     add_custom_target(sync_builtin_to_samples
         COMMAND ${CMAKE_COMMAND}
             -DBUILTIN_DIR=${CMAKE_SOURCE_DIR}/../assets/editor/builtin

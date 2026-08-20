@@ -33,8 +33,7 @@ add_subdirectory(ResourceApp)
 add_subdirectory(SkyboxApp)
 
 if (TINY3D_OS_DESKTOP)
-	add_subdirectory(TransformationApp)
-	add_subdirectory(IntersectionApp)
-	add_subdirectory(PrefabApp)
+    add_subdirectory(TransformationApp)
+    add_subdirectory(IntersectionApp)
+    add_subdirectory(PrefabApp)
 endif (TINY3D_OS_DESKTOP)
-

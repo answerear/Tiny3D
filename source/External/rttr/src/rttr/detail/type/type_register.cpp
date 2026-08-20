@@ -525,7 +525,13 @@ void type_register_private::register_base_class_info(type_data* info)
     // sort the base classes after it registration index, that means the root class is always the first in the list,
     // followed by its derived classes, here it depends on the order of RTTR_ENABLE(CLASS)
     std::sort(base_classes.begin(), base_classes.end(), [](const base_class_info& left, const base_class_info& right)
-                                                         { return left.m_base_type.is_base_of(right.m_base_type); });
+    {
+        // is_base_of() is true for the same type. Apple libc++ Debug requires a
+        // strict-weak-ordering comparator (!comp(x, x)), otherwise std::sort aborts.
+        if (left.m_base_type == right.m_base_type)
+            return false;
+        return left.m_base_type.is_base_of(right.m_base_type);
+    });
 
     if (!base_classes.empty())
     {

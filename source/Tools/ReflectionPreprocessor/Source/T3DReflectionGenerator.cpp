@@ -26,6 +26,7 @@
 
 #include <SDL_syswm.h>
 
+#include <cctype>
 #include <fstream>
 
 #include "T3DRPErrorCode.h"
@@ -68,6 +69,163 @@ namespace Tiny3D
     //-------------------------------------------------------------------------
 
     #define DEFAULT_ROOT_NAME    "___###ASTRoot###___"
+
+    namespace
+    {
+        bool isIdentChar(char c)
+        {
+            return std::isalnum(static_cast<unsigned char>(c)) != 0 || c == '_';
+        }
+
+        // Replace each qualified-id that ends with simpleName (Type, NS::Type, ...)
+        // with the fully qualified name. Leaves already-complete names untouched.
+        String replaceQualifiedId(const String &spelling, const String &simpleName, const String &qualifiedName)
+        {
+            if (simpleName.empty() || qualifiedName.empty() || spelling.find(qualifiedName) != String::npos)
+            {
+                return spelling;
+            }
+
+            String result;
+            result.reserve(spelling.size() + qualifiedName.size());
+            size_t i = 0;
+            while (i < spelling.size())
+            {
+                size_t pos = spelling.find(simpleName, i);
+                if (pos == String::npos)
+                {
+                    result.append(spelling, i, String::npos);
+                    break;
+                }
+
+                const bool leftOk = (pos == 0) || !isIdentChar(spelling[pos - 1]);
+                const size_t end = pos + simpleName.size();
+                const bool rightOk = (end >= spelling.size()) || !isIdentChar(spelling[end]);
+                if (!leftOk || !rightOk)
+                {
+                    result.append(spelling, i, end - i);
+                    i = end;
+                    continue;
+                }
+
+                size_t start = pos;
+                while (start >= 2 && spelling[start - 1] == ':' && spelling[start - 2] == ':')
+                {
+                    size_t identEnd = start - 2;
+                    size_t identStart = identEnd;
+                    while (identStart > 0 && isIdentChar(spelling[identStart - 1]))
+                    {
+                        --identStart;
+                    }
+                    if (identStart == identEnd)
+                    {
+                        break;
+                    }
+                    start = identStart;
+                }
+
+                result.append(spelling, i, start - i);
+                result += qualifiedName;
+                i = end;
+            }
+            return result;
+        }
+
+        CXType unwrapNamedType(CXType type)
+        {
+            for (;;)
+            {
+                switch (type.kind)
+                {
+                case CXType_Pointer:
+                case CXType_LValueReference:
+                case CXType_RValueReference:
+                case CXType_MemberPointer:
+                    type = clang_getPointeeType(type);
+                    continue;
+                case CXType_Elaborated:
+                    type = clang_Type_getNamedType(type);
+                    continue;
+                case CXType_ConstantArray:
+                case CXType_IncompleteArray:
+                case CXType_VariableArray:
+                case CXType_DependentSizedArray:
+                    type = clang_getArrayElementType(type);
+                    continue;
+                default:
+                    return type;
+                }
+            }
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
+    String ReflectionGenerator::getQualifiedCursorName(CXCursor cxCursor) const
+    {
+        if (clang_Cursor_isNull(cxCursor) || clang_isInvalid(clang_getCursorKind(cxCursor)))
+        {
+            return "";
+        }
+
+        String name = toString(clang_getCursorSpelling(cxCursor));
+        if (name.empty())
+        {
+            return "";
+        }
+
+        TList<String> parts;
+        parts.push_front(name);
+
+        CXCursor parent = clang_getCursorSemanticParent(cxCursor);
+        while (!clang_Cursor_isNull(parent)
+            && clang_getCursorKind(parent) != CXCursor_TranslationUnit)
+        {
+            const CXCursorKind kind = clang_getCursorKind(parent);
+            if (kind == CXCursor_Namespace
+                || kind == CXCursor_ClassDecl
+                || kind == CXCursor_StructDecl
+                || kind == CXCursor_ClassTemplate
+                || kind == CXCursor_ClassTemplatePartialSpecialization
+                || kind == CXCursor_EnumDecl)
+            {
+                String parentName = toString(clang_getCursorSpelling(parent));
+                if (!parentName.empty())
+                {
+                    parts.push_front(parentName);
+                }
+            }
+            parent = clang_getCursorSemanticParent(parent);
+        }
+
+        String result;
+        for (const auto &part : parts)
+        {
+            if (!result.empty())
+            {
+                result += "::";
+            }
+            result += part;
+        }
+        return result;
+    }
+
+    //-------------------------------------------------------------------------
+
+    String ReflectionGenerator::getQualifiedTypeSpelling(CXType cxType) const
+    {
+        const String spelling = toString(clang_getTypeSpelling(cxType));
+        const CXType namedType = unwrapNamedType(cxType);
+        const CXCursor decl = clang_getTypeDeclaration(namedType);
+        const String qualified = getQualifiedCursorName(decl);
+        if (qualified.empty())
+        {
+            return spelling;
+        }
+
+        const String simpleName = toString(clang_getCursorSpelling(decl));
+        return replaceQualifiedId(spelling, simpleName, qualified);
+    }
     
     ReflectionGenerator::ReflectionGenerator()
         : mRoot(T3D_NEW ASTNode(DEFAULT_ROOT_NAME))
@@ -490,7 +648,7 @@ namespace Tiny3D
             return T3D_ERR_RP_PARSE_SOURCE;
         }
 
-        // 检查诊断信息
+        bool hasErrors = false;
         const auto cxNumDiag = clang_getNumDiagnostics(cxUnit);
         if (cxNumDiag != 0)
         {
@@ -500,14 +658,27 @@ namespace Tiny3D
                 CXDiagnosticSeverity cxSeverity = clang_getDiagnosticSeverity(cxDiag);
                 if (cxSeverity == CXDiagnostic_Error || cxSeverity == CXDiagnostic_Fatal)
                 {
-                    const char *diagStr = clang_getCString(clang_formatDiagnostic(cxDiag, clang_defaultDiagnosticDisplayOptions()));
+                    hasErrors = true;
+                    CXString formatted = clang_formatDiagnostic(cxDiag,
+                        clang_defaultDiagnosticDisplayOptions());
+                    const char *diagStr = clang_getCString(formatted);
                     RP_LOG_ERROR("[PCH] >>> %s", diagStr ? diagStr : "unknown error");
+                    clang_disposeString(formatted);
                 }
                 clang_disposeDiagnostic(cxDiag);
             }
         }
 
-        // 保存为 PCH 文件
+        if (hasErrors)
+        {
+            RP_LOG_ERROR("[PCH] Parse produced errors, discard PCH: %s",
+                pchOutputPath.c_str());
+            clang_disposeTranslationUnit(cxUnit);
+            clang_disposeIndex(cxIndex);
+            Dir::remove(pchOutputPath);
+            return T3D_ERR_RP_COMPILE_ERROR;
+        }
+
         int saveResult = clang_saveTranslationUnit(cxUnit, pchOutputPath.c_str(),
             clang_defaultSaveOptions(cxUnit));
 
@@ -517,6 +688,7 @@ namespace Tiny3D
         if (saveResult != CXSaveError_None)
         {
             RP_LOG_ERROR("[PCH] Failed to save PCH file: %s (error: %d)", pchOutputPath.c_str(), saveResult);
+            Dir::remove(pchOutputPath);
             return T3D_ERR_FAIL;
         }
 
@@ -2586,7 +2758,7 @@ namespace Tiny3D
             {
                 // 函数返回值
                 CXType cxResultType = clang_getResultType(cxType);
-                overload->RetType = toString(clang_getTypeSpelling(cxResultType));
+                overload->RetType = getQualifiedTypeSpelling(cxResultType);
 
                 if (cxResultType.kind != CXType_Void)
                 {
@@ -2626,7 +2798,7 @@ namespace Tiny3D
                     //     String argClass = toString(clang_getCursorSpelling(cxArgCursor));
                     //     int a = 0;
                     // }
-                    param.Type = toString(clang_getTypeSpelling(cxArgType));
+                    param.Type = getQualifiedTypeSpelling(cxArgType);
                     ASTTypeAlias alias = getASTNode(cxArgType);
                     param.Klass = alias.Klass;
                     param.cxCursor = alias.cxCursor;
@@ -3123,7 +3295,7 @@ namespace Tiny3D
             CXString cxName = clang_getCursorSpelling(cxCursor);
             String name = toString(cxName);
             ASTProperty *property = T3D_NEW ASTProperty(name);
-            property->DataType = toString(clang_getTypeSpelling(clang_getCursorType(cxCursor)));
+            property->DataType = getQualifiedTypeSpelling(clang_getCursorType(cxCursor));
             property->Specifiers = &itrSpec->second;
             property->PlatformGuard = queryPlatformGuard(
                 fileInfo.Path, fileInfo.StartLine);
@@ -4302,7 +4474,7 @@ namespace Tiny3D
                 param.Name = toString(clang_getCursorSpelling(cxArg));
                 // 参数类型
                 CXType cxArgType = clang_getArgType(cxType, i);
-                param.Type = toString(clang_getTypeSpelling(cxArgType));
+                param.Type = getQualifiedTypeSpelling(cxArgType);
                 ASTTypeAlias alias = getASTNode(cxArgType);
                 param.Klass = alias.Klass;
                 param.cxCursor = alias.cxCursor;
@@ -4311,7 +4483,7 @@ namespace Tiny3D
 
             // 返回值
             CXType cxResultType = clang_getResultType(cxType);
-            functionInstance->RetType = toString(clang_getTypeSpelling(cxResultType));
+            functionInstance->RetType = getQualifiedTypeSpelling(cxResultType);
             if (cxResultType.kind != CXType_Void)
             {
                 ASTTypeAlias alias = getASTNode(cxResultType);

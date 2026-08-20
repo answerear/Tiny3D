@@ -78,7 +78,8 @@ function(tiny3d_generate_sdk_config)
         "${_src}/Math/Include"
         "${_src}/Framework/Include"
         "${_src}/Core/Include"
-        ${RTTR_INCLUDE_DIR})
+        ${RTTR_INCLUDE_DIR}
+        ${SDL2_INCLUDE_DIR})
 
     # 游戏 sln 里的 TinyPlayer 工程编译这份源码，避免每个工程各抄一份宿主
     set(T3DSDK_PLAYER_DIR "${_src}/Player")

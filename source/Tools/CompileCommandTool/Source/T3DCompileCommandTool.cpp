@@ -58,16 +58,16 @@ namespace Tiny3D
                 break;
             }
 
-            // 解析编译参数，解出头文件路径和宏定义
-            StringList includePathes, macroDefinitions;
-            ret = parseFlags(flags, includePathes, macroDefinitions);
+            // 解析编译参数：-I / -D，以及 libclang 在 macOS 上找 C++ 标准库
+            // 所必需的 -isysroot / -stdlib / -arch 等。
+            StringList includePathes, macroDefinitions, otherFlags;
+            ret = parseFlags(flags, includePathes, macroDefinitions, otherFlags);
             if (!ret)
             {
                 break;
             }
 
-            // 把头文件路径和宏定义写到 ReflectionSettings.json 文件
-            ret = writeReflectionSettings(includePathes, macroDefinitions);
+            ret = writeReflectionSettings(includePathes, macroDefinitions, otherFlags);
             if (!ret)
             {
                 break;
@@ -184,7 +184,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool CompileCommandTool::parseFlags(const String &flags, StringList &includePathes, StringList &macroDefinitions)
+    bool CompileCommandTool::parseFlags(const String &flags, StringList &includePathes,
+        StringList &macroDefinitions, StringList &otherFlags)
     {
         const std::function<void(const String&, const String&, StringList&)> extract = [](const String &origin, const String &prefix, StringList &result)
         {
@@ -206,13 +207,72 @@ namespace Tiny3D
 
         extract(flags, "-I", includePathes);
         extract(flags, "-D", macroDefinitions);
-        
+
+        // compile_commands 的 command 是空格分隔的 clang 命令行。macOS 上
+        // <typeinfo> 等 libc++ 头在 SDK 里，必须把 -isysroot 原样交给 rpp。
+        std::vector<String> tokens;
+        String cur;
+        bool inQuote = false;
+        for (size_t i = 0; i < flags.size(); ++i)
+        {
+            const char c = flags[i];
+            if (c == '"')
+            {
+                inQuote = !inQuote;
+                continue;
+            }
+            if (!inQuote && c == ' ')
+            {
+                if (!cur.empty())
+                {
+                    tokens.push_back(cur);
+                    cur.clear();
+                }
+            }
+            else
+            {
+                cur.push_back(c);
+            }
+        }
+        if (!cur.empty())
+        {
+            tokens.push_back(cur);
+        }
+
+        auto takeValue = [&tokens, &otherFlags](size_t &i)
+        {
+            if (i + 1 < tokens.size())
+            {
+                ++i;
+                otherFlags.push_back(tokens[i]);
+            }
+        };
+
+        for (size_t i = 0; i < tokens.size(); ++i)
+        {
+            const String &token = tokens[i];
+            if (token == "-isysroot" || token == "-arch" || token == "-target"
+                || token == "-iframework")
+            {
+                otherFlags.push_back(token);
+                takeValue(i);
+            }
+            else if (token.compare(0, 9, "-isysroot") == 0
+                || token.compare(0, 8, "-stdlib=") == 0
+                || token.find("-mmacosx-version-min=") == 0
+                || token.compare(0, 8, "-target=") == 0)
+            {
+                otherFlags.push_back(token);
+            }
+        }
+
         return true;
     }
 
     //--------------------------------------------------------------------------
 
-    bool CompileCommandTool::writeReflectionSettings(const StringList &includePathes, const StringList &macroDefinitions)
+    bool CompileCommandTool::writeReflectionSettings(const StringList &includePathes,
+        const StringList &macroDefinitions, const StringList &otherFlags)
     {
         bool ret = true;
 
@@ -253,6 +313,10 @@ namespace Tiny3D
             writer.String("c++");
             writer.String("-std=c++17");
             writer.String("-fsyntax-only");
+            for (const auto &str : otherFlags)
+            {
+                writer.String(str);
+            }
             writer.EndArray();
         }
 

@@ -22,9 +22,17 @@
 #include "Adapter/Common/T3DTimerService.h"
 #include "Adapter/Desktop/T3DSDLDesktopWindow.h"
 #include "Adapter/Unix/T3DUnixTime.h"
+#include "Adapter/Unix/T3DPosixProcess.h"
+#include "Adapter/Unix/T3DPosixLocale.h"
+#include "Adapter/Unix/T3DPosixSyncObject.h"
 #include "Adapter/OSX/T3DOSXDir.h"
 #include "Adapter/OSX/T3DOSXDeviceInfo.h"
 #include "Adapter/OSX/T3DOSXConsole.h"
+#include "Adapter/OSX/T3DOSXPlatform.h"
+#include "Adapter/OSX/T3DOSXThread.h"
+#include "Adapter/OSX/T3DOSXSyncObject.h"
+#include "Adapter/OSX/T3DOSXFSMonitor.h"
+#include "Adapter/OSX/T3DOSXAssetManager.h"
 
 namespace Tiny3D
 {
@@ -73,9 +81,64 @@ namespace Tiny3D
 		return new OSXConsole();
 	}
 
+    IPlatform *OSXFactory::createPlatform()
+    {
+        return new OSXPlatform();
+    }
+
+    IThread *OSXFactory::createPlatformThread()
+    {
+        return new OSXThread();
+    }
+
+    ICriticalSection *OSXFactory::createPlatformCriticalSection()
+    {
+        return new OSXCriticalSection();
+    }
+
+    IMutex *OSXFactory::createPlatformMutex()
+    {
+        return new OSXMutex();
+    }
+
+    IRecursiveMutex *OSXFactory::createPlatformRecursiveMutex()
+    {
+        return new OSXRecursiveMutex();
+    }
+
+    ISemaphore *OSXFactory::createPlatformSemaphore()
+    {
+        return new OSXSemaphore();
+    }
+
+    IEvent *OSXFactory::createPlatformEvent()
+    {
+        return new PosixEvent();
+    }
+
+    IWaitCondition *OSXFactory::createPlatformWaitCondition()
+    {
+        return new PosixWaitCondition();
+    }
+
+    IProcess *OSXFactory::createPlatformProcess()
+    {
+        return new PosixProcess();
+    }
+
+    ILocale *OSXFactory::createPlatformLocale()
+    {
+        return new PosixLocale();
+    }
+
+    IFSMonitor *OSXFactory::createFileSystemMonitor()
+    {
+        return new OSXFSMonitor();
+    }
+
 	IZipAssetManager *OSXFactory::createPlatformZipAssetManager()
 	{
-		return nullptr;
+		return new OSXAssetManager();
 	}
 
     EPlatform OSXFactory::getPlatform()

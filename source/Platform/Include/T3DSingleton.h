@@ -26,7 +26,11 @@
 #define __T3D_SINGLETON_H__
 
 
+#if defined (T3D_OS_WINDOWS)
 #include <malloc.h>
+#else
+#include <stdlib.h>
+#endif
 
 #include "T3DType.h"
 #include "T3DMacro.h"

@@ -6,7 +6,9 @@
 #-------------------------------------------------------------------------------
 
 
-add_subdirectory(ImGuiDX11)
+if (TINY3D_OS_WINDOWS)
+    add_subdirectory(ImGuiDX11)
+endif (TINY3D_OS_WINDOWS)
 add_subdirectory(ImGuiTiny3D)
 
 

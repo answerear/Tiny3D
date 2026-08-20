@@ -99,10 +99,12 @@ if (TINY3D_OS_WINDOWS)
 elseif (TINY3D_OS_MACOSX)
 	# Mac OS X
 	
+	# T3DUtils 的源码不引用 T3DSystem，而 TINY3D_BUILD_RTTR_TOOL 构建里没有这个
+	# 目标（rpp 要链 T3DUtils），所以和 Windows 分支一样不链它。
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE T3DPlatform
-		LINK_PRIVATE T3DSystem
+		#LINK_PRIVATE T3DSystem
 		#LINK_PRIVATE rttr_core
 		)
 elseif (TINY3D_OS_LINUX)

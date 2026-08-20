@@ -27,6 +27,7 @@ include_directories(
     "${TINY3D_LOG_SOURCE_DIR}/Include"
 	"${TINY3D_UTILS_SOURCE_DIR}/Include"
     "${TINY3D_NULLRENDERER_SOURCE_DIR}/Include"
+    "${SDL2_INCLUDE_DIR}"
     "${RTTR_INCLUDE_DIR}"
     "${T3D_COMMON_INCLUDE_DIR}"
     )

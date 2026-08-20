@@ -35,6 +35,7 @@
 #include <fstream>
 #include <list>
 #include <functional>
+#include <vector>
 
 #define RAPIDJSON_HAS_STDSTRING 1
 #include <prettywriter.h>

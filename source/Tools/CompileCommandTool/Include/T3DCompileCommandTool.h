@@ -55,9 +55,11 @@ namespace Tiny3D
 
         bool readCompileCommands(String &flags);
 
-        bool parseFlags(const String &flags, StringList &includePathes, StringList &macroDefinitions);
+        bool parseFlags(const String &flags, StringList &includePathes,
+            StringList &macroDefinitions, StringList &otherFlags);
 
-        bool writeReflectionSettings(const StringList &includePathes, const StringList &macroDefinitions);
+        bool writeReflectionSettings(const StringList &includePathes,
+            const StringList &macroDefinitions, const StringList &otherFlags);
 
         CCTOptions mOptions;
     };

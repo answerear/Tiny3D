@@ -8,6 +8,8 @@
 /build-rpp-host
 /build-host
 /xcode-osx
+/build-osx
+/rttr-osx
 /xcode-simulator
 /xcode-ios
 /codeblocks-linux

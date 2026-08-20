@@ -25,6 +25,17 @@
 #include "Network/T3DSocket.h"
 #include "T3DPlatformErrorDef.h"
 
+#if defined (T3D_OS_OSX) || defined (T3D_OS_IOS)
+#include <libkern/OSByteOrder.h>
+#define T3D_HTONS(x) OSSwapHostToBigInt16((uint16_t)(x))
+#define T3D_NTOHS(x) OSSwapBigToHostInt16((uint16_t)(x))
+#define T3D_HTONL(x) OSSwapHostToBigInt32((uint32_t)(x))
+#else
+#define T3D_HTONS(x) ::htons(x)
+#define T3D_NTOHS(x) ::ntohs(x)
+#define T3D_HTONL(x) ::htonl(x)
+#endif
+
 
 namespace Tiny3D
 {
@@ -219,7 +230,7 @@ namespace Tiny3D
         SOCKADDR_IN addrRemote;
         memset(&addrRemote, 0, sizeof(addrRemote));
         addrRemote.sin_family = AF_INET;
-        addrRemote.sin_port = ::htons(unHostPort);
+        addrRemote.sin_port = T3D_HTONS(unHostPort);
         addrRemote.sin_addr.s_addr = inet_addr(strHostAddress.c_str());
 
         if (INADDR_NONE == addrRemote.sin_addr.s_addr)
@@ -259,7 +270,7 @@ namespace Tiny3D
         SOCKADDR_IN addrRemote;
         memset(&addrRemote, 0, sizeof(addrRemote));
         addrRemote.sin_family = AF_INET;
-        addrRemote.sin_port = ::htons(unHostPort);
+        addrRemote.sin_port = T3D_HTONS(unHostPort);
         addrRemote.sin_addr.s_addr = ulHostIP;
 
         if (::connect(mSocket, (SOCKADDR *)&addrRemote, sizeof(addrRemote)) == SOCKET_ERROR
@@ -303,7 +314,7 @@ namespace Tiny3D
 
         SOCKADDR_IN addrLocal;
         addrLocal.sin_family = AF_INET;
-        addrLocal.sin_port = ::htons(unSocketPort);
+        addrLocal.sin_port = T3D_HTONS(unSocketPort);
 
         if (!strSocketAddress.empty())
         {
@@ -311,7 +322,7 @@ namespace Tiny3D
         }
         else
         {
-            addrLocal.sin_addr.s_addr = ::htonl(INADDR_ANY);
+            addrLocal.sin_addr.s_addr = T3D_HTONL(INADDR_ANY);
         }
 
         if (::bind(mSocket, (SOCKADDR *)&addrLocal, sizeof(addrLocal)) == SOCKET_ERROR)
@@ -369,7 +380,7 @@ namespace Tiny3D
         SOCKADDR_IN addrRemote;
         memset(&addrRemote, 0, sizeof(addrRemote));
         addrRemote.sin_family = AF_INET;
-        addrRemote.sin_port = ::htons(unHostPort);
+        addrRemote.sin_port = T3D_HTONS(unHostPort);
         addrRemote.sin_addr.s_addr = inet_addr(strHostAddress.c_str());
 
         socklen_t addrLen = sizeof(addrRemote);
@@ -387,7 +398,7 @@ namespace Tiny3D
         SOCKADDR_IN addrRemote;
         memset(&addrRemote, 0, sizeof(addrRemote));
         addrRemote.sin_family = AF_INET;
-        addrRemote.sin_port = ::htons(unHostPort);
+        addrRemote.sin_port = T3D_HTONS(unHostPort);
         addrRemote.sin_addr.s_addr = inet_addr(strHostAddress.c_str());
 
         return ::sendto(mSocket, (char*)pBuffer, nBufLen, 0, (SOCKADDR *)&addrRemote, sizeof(SOCKADDR_IN));
@@ -484,7 +495,7 @@ namespace Tiny3D
             return T3D_ERR_SOCKET_ERROR;
         
         rSockName = tmp;
-        rSockPort = ::ntohs(addrLocal.sin_port);
+        rSockPort = T3D_NTOHS(addrLocal.sin_port);
 
         return T3D_OK;
     }
@@ -503,7 +514,7 @@ namespace Tiny3D
             return T3D_ERR_SOCKET_ERROR;
         
         rPeerName = tmp;
-        rPeerPort = ::ntohs(addrRemote.sin_port);
+        rPeerPort = T3D_NTOHS(addrRemote.sin_port);
 
         return T3D_OK;
     }

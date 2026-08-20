@@ -900,9 +900,13 @@ namespace Tiny3D
                     }
                     convertToSmartPtr(val, propType);
                 }
-                else if (propType.is_array())
+                else if (propType.is_array()
+                    || propType.is_sequential_container()
+                    || propType.is_associative_container())
                 {
-                    // 原生数组无法整体赋值，取出现有实例原地填充
+                    // 原生数组 / STL 容器无法（或不需要）走 RTTR 默认构造，
+                    // 取出现有实例原地填充。Apple libc++ 下 std::list 往往
+                    // 没有注册无参构造，否则会在读 Tiny3D.cfg 的 plugins 时失败。
                     val = prop.get_value(obj);
                     readInto(r, ctx, propType, val);
                 }

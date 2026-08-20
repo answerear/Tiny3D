@@ -708,6 +708,16 @@ namespace Tiny3D
             fullpath = path;
         }
         
+        // 根前缀在下面按分隔符拆分再重组的过程中会丢掉，必须先留一份。POSIX 绝对
+        // 路径以 '/' 开头，Windows UNC 路径以 '\\' 开头，而 "C:\" 这种盘符开头的
+        // 没有前导分隔符，不受影响。
+        size_t leadingSeps = 0;
+        while (leadingSeps < fullpath.length()
+            && (fullpath[leadingSeps] == '\\' || fullpath[leadingSeps] == '/'))
+        {
+            ++leadingSeps;
+        }
+
         TList<String> strings;
         String s;
         s.reserve(fullpath.size());
@@ -756,7 +766,7 @@ namespace Tiny3D
             strings.push_front(s);
         }
 
-        String ret;
+        String ret(leadingSeps, getNativeSeparator());
         ret.reserve(fullpath.size());
         
         // 重新用系统路径分隔符组合路径

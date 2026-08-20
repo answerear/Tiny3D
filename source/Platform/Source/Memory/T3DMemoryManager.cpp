@@ -32,6 +32,7 @@
 #elif defined (T3D_OS_LINUX)
 #elif defined (T3D_OS_IOS)
 #elif defined (T3D_OS_OSX)
+#include "Adapter/OSX/T3DOSXMemManager.h"
 #endif
 
 namespace Tiny3D
@@ -52,6 +53,8 @@ namespace Tiny3D
     #else
         static AndroidMemManager instance;
     #endif
+#elif defined (T3D_OS_OSX)
+        static OSXMemManager instance;
 #else
     #error "MemoryManager not implemented for this platform!"
 #endif

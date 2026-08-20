@@ -150,6 +150,17 @@ namespace Tiny3D
             return result;
         }
 
+        /**
+         * @brief 生成可在反射源码中使用的类型名
+         * @remarks Apple libclang 的 clang_getTypeSpelling 对嵌套类型只返回
+         *          源码处的短名（Type / ChildrenUUID），Windows LLVM 则会带上
+         *          外层类名。这里按声明的语义父结点补全限定名。
+         */
+        String getQualifiedTypeSpelling(CXType cxType) const;
+
+        /// 从声明 cursor 沿语义父结点拼出 A::B::C
+        String getQualifiedCursorName(CXCursor cxCursor) const;
+
         struct ASTTypeAlias
         {
             ASTTypeAlias()

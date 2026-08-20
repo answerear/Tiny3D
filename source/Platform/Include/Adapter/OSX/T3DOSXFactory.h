@@ -74,6 +74,18 @@ namespace Tiny3D
 		 */
 		virtual IConsole *createPlatformConsole() override;
 
+        virtual IPlatform *createPlatform() override;
+        virtual IThread *createPlatformThread() override;
+        virtual ICriticalSection *createPlatformCriticalSection() override;
+        virtual IMutex *createPlatformMutex() override;
+        virtual IRecursiveMutex *createPlatformRecursiveMutex() override;
+        virtual ISemaphore *createPlatformSemaphore() override;
+        virtual IEvent *createPlatformEvent() override;
+        virtual IWaitCondition *createPlatformWaitCondition() override;
+        virtual IProcess *createPlatformProcess() override;
+        virtual ILocale *createPlatformLocale() override;
+        virtual IFSMonitor *createFileSystemMonitor() override;
+
 		virtual IZipAssetManager *createPlatformZipAssetManager() override;
 		
 		/**

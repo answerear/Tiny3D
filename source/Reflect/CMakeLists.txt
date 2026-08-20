@@ -14,7 +14,7 @@ set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/..")
 
 set(WHITE_LIST "Tiny3D::TAabb;Tiny3D::TCapsule;Tiny3D::TDegree;Tiny3D::TFrustum;Tiny3D::TMatrix2;Tiny3D::TMatrix3;Tiny3D::TMatrix4;Tiny3D::TObb;Tiny3D::TPlane;Tiny3D::TQuaternion;Tiny3D::TRadian;Tiny3D::TRay;Tiny3D::TSize;Tiny3D::TPoint;Tiny3D::TRect;Tiny3D::TSphere;Tiny3D::TTriangle;Tiny3D::TVector2;Tiny3D::TVector3;Tiny3D::TVector4;")
 
-# RPP executable path: native build uses target file, cross-compilation uses host cache variable
+# RPP executable path: native build uses target file, otherwise a host-built rpp.
 if (CMAKE_CROSSCOMPILING)
     set(TINY3D_HOST_RPP "" CACHE FILEPATH
         "Path to host-built ReflectionPreprocessor (rpp) executable for cross-compilation")
@@ -23,16 +23,29 @@ if (CMAKE_CROSSCOMPILING)
             "Set -DTINY3D_HOST_RPP=/path/to/rpp to enable reflection generation.")
     endif()
     set(RPP_EXE "${TINY3D_HOST_RPP}")
-else()
+elseif (TARGET ReflectionPreprocessor)
     set(RPP_EXE "$<TARGET_FILE:ReflectionPreprocessor>")
+else ()
+    set(RPP_EXE "")
+    foreach (_tiny3d_rpp_candidate
+        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/rpp.app/Contents/MacOS/rpp"
+        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rpp.app/Contents/MacOS/rpp"
+        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/rpp"
+        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rpp")
+        if (_tiny3d_rpp_candidate AND EXISTS "${_tiny3d_rpp_candidate}")
+            set(RPP_EXE "${_tiny3d_rpp_candidate}")
+            break()
+        endif ()
+    endforeach ()
+    unset(_tiny3d_rpp_candidate)
 endif()
 
 # Helper macro to add reflection targets with existence check
 macro(add_reflect_target TARGET_NAME SETTINGS_SUBDIR SRC_SUBDIR ADDITIONAL_ARGS)
-    if (CMAKE_CROSSCOMPILING AND NOT TINY3D_HOST_RPP)
+    if ((CMAKE_CROSSCOMPILING AND NOT TINY3D_HOST_RPP) OR (NOT RPP_EXE))
         # No host RPP available: create a no-op target
         add_custom_target(${TARGET_NAME}
-            COMMAND ${CMAKE_COMMAND} -E echo "WARNING: Skipping reflection generation: ${SETTINGS_SUBDIR} (no TINY3D_HOST_RPP)"
+            COMMAND ${CMAKE_COMMAND} -E echo "WARNING: Skipping reflection generation: ${SETTINGS_SUBDIR} (no rpp)"
             COMMENT "Reflection generation skipped: ${SETTINGS_SUBDIR}"
         )
     else()
@@ -52,7 +65,7 @@ macro(add_reflect_target TARGET_NAME SETTINGS_SUBDIR SRC_SUBDIR ADDITIONAL_ARGS)
     endif()
 
     # Native build: ensure ReflectionPreprocessor is built before any reflect sub-target runs
-    if (NOT CMAKE_CROSSCOMPILING)
+    if (NOT CMAKE_CROSSCOMPILING AND TARGET ReflectionPreprocessor)
         add_dependencies(${TARGET_NAME} ReflectionPreprocessor)
     endif()
 

@@ -49,6 +49,15 @@ namespace Tiny3D
     protected:
         ClangArgs parseSettingsFile(const String &path);
 
+        /// 追加 -resource-dir，指向随 rpp 一起分发的 clang 内建头目录
+        void appendResourceDir(ClangArgs &args);
+
+        /// macOS：若配置里没有 -isysroot，补上 SDK 路径，否则找不到 <typeinfo>
+        void appendSysroot(ClangArgs &args);
+
+        /// 用 mArgs 重建 ClangArgs，避免 vector 扩容后 c_str 悬空
+        void syncClangArgs(ClangArgs &args);
+
         TResult collectProjectHeaders(const String &path);
         
         /// 待处理的源文件信息
@@ -103,7 +112,8 @@ namespace Tiny3D
         static bool hasReflectionMacros(const String &filePath);
 
         /// 检测并生成 PCH 文件，返回 PCH 文件路径（空字符串表示未生成）
-        String detectAndGeneratePCH(const String &generatedPath, const ClangArgs &args);
+        /// @param rebuild 为 true 时不复用已有 PCH（-r 全量生成）
+        String detectAndGeneratePCH(const String &generatedPath, const ClangArgs &args, bool rebuild);
 
     protected:
         static const String kReflectionSettingsFile;
