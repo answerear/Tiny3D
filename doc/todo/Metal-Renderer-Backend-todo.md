@@ -1346,6 +1346,7 @@ iOS 侧 `SysWMInfo`（`T3DSysWMInfo.h`）提供的是 `void *window`（`UIWindow
 - P0-14（scc target）、P0-15（烘焙 MSL 变体，至少一个测试 shader）
 - P0-8 的最小版本：`MetalMSLReflect` 只解析 buffer / texture / sampler 索引，暂不解析 cbuffer 成员偏移（先信任离线复制来的 offset / size）
 - 验收：几何位置正确、顶点色或单张贴图正确、无 Metal validation 报错（开启 `MTL_DEBUG_LAYER=1` 与 `MTL_SHADER_VALIDATION=1`）
+- **按文件拆开的具体改动清单见 §31.1**，后续 Phase 见 §31.2–§31.6
 
 ### Phase 1 — 材质与渲染纹理
 
@@ -1438,3 +1439,375 @@ MTL_DEBUG_LAYER_ERROR_MODE=assert
 1. **MSL 的 buffer / texture / sampler 索引是否等于 HLSL 的 b# / t# / s# 寄存器号**（§23.3 路径 C）。验证方法：用 `scc -t hlsl,msl_macos` 编译同一个 shader，人工比对产出的 HLSL register 声明与 MSL 的 `[[buffer(N)]]` 属性。这条结论决定了「离线复制反射参数」是否可行，影响范围极大。
 2. **`kMetalVertexBufferIndexBase` 取 23 是否足够**（§22.3）。若某个 shader 的 cbuffer 数量超过 23 个 buffer 索引，会与顶点缓冲区间重叠。验证方法：统计现有 shader 的最大 buffer 索引，并在 `bindCurrentPipeline` 里加断言。
 3. **引擎 `PixelBufferCubemap` 的六面顺序是否与 Metal 的 slice 顺序（+X, -X, +Y, -Y, +Z, -Z）一致**（§7.9）。验证方法：用六张不同纯色的贴图做 cubemap，逐面确认朝向。
+
+---
+
+## 31. 具体改动清单
+
+> 对照 2026-08-22 代码基线编写。清单里的行号与 §0–§30 相同，均指当前未改动的骨架。勾选框用于跟踪实施进度，**本节只列「改哪里、改成什么」，设计理由回指前文**。
+>
+> 推荐实施顺序：先离线（P0-14 → P0-15），再运行时编译/反射（P0-9 / P0-10 / P0-8 最小版），再绑定与 PSO（P0-1 → P0-7 → P0-3 / P0-4）。后一步依赖前一步的产物，不要并行乱改。
+
+### 31.0 约定
+
+- `[ ]` 未做 / `[x]` 已做。完成一项后把该项勾上，并在对应章节把状态从 ⚡/⚠️/❌ 改成 ✅。
+- 新增 `.h` / `.cpp` 放到 `Metal/Include` 与 `Metal/Source` 即可，`Runtime/CMakeLists.txt` 已用 `set_project_files` 收这两类文件，不必改 CMake（Editor 变体除外，见 §31.4）。
+- Phase 0 **不要**改 `RHIContext` 纯虚接口，也不要拆 `MetalContextBase`（那是 Phase 4 的事）。
+- 开发期必开 `MTL_DEBUG_LAYER=1`、`MTL_SHADER_VALIDATION=1`、`MTL_DEBUG_LAYER_ERROR_MODE=assert`（§30.1）。
+
+---
+
+### 31.1 Phase 0 — 打通第一个三角形
+
+#### 31.1.1 P0-14：修 scc 的 `msl` target 错位
+
+文件：`source/Tools/ShaderCrossCompiler/Source/T3DShaderCompiler.cpp`
+
+- [ ] `getShadingLanguage` lambda（约 718–736 行）补 `"msl"`：按当前构建平台映射到 `ShadingLanguage::Msl_macOS`（macOS）或 `Msl_iOS`（iOS）；没有平台宏时默认 `Msl_macOS`。
+- [ ] 同一 lambda 的 `else` **禁止**再静默返回 `ShadingLanguage::Hlsl`。未知 target 打 error 日志并让本次交叉编译失败（返回错误码 / 跳过该 target），`glsl` / `essl` / `spirv` 写错时同样不能再落到 HLSL。
+- [ ] `toShaderLanguage`（约 266–288 行）保持 `"msl"` / `"msl_macos"` / `"msl_ios"` → `kMSL`，与上一处集合对齐。
+- [ ] 自测：`scc -t msl` 与 `scc -t msl_macos` 产出的变体 `Language` 为 `kMSL`，源码是 MSL 而不是 HLSL；`scc -t not_a_lang` 直接失败。
+
+#### 31.1.2 P0-15：烘焙至少一个 MSL 变体
+
+- [ ] 在 **Windows 或 Intel Mac** 上执行（arm64 macOS 上 ShaderConductor 预编译库可能被跳过，见 §23.5）：
+
+```
+scc -t hlsl,glsl,essl,spirv,msl_macos <HelloApp 实际用到的 .shader>
+```
+
+  若 HelloApp 本身不走材质、只清屏，则改烤 `assets/samples/meshes/Tiny3DStandard.shader`（或 TextureApp / GeometryApp 用的那份），并在 Phase 0 验收时跑能画出几何的那个 Sample。
+- [ ] 打开产出的 `.tshader`，确认 `SHADER_LANGUAGE` 映射里同时有 `kHLSL` 与 `kMSL`，且 `kMSL` 的 `Code` 解码后是 MSL（能看到 `[[buffer(` / `main0`），不是 HLSL。
+- [ ] 把烘焙后的 `.tshader` 提交进仓库，供 arm64 运行时只消费、不再现场交叉编译。
+- [ ] 顺手用同一份 MSL 人工核对 §30.4 假设 1：`[[buffer(N)]]` / `[[texture(N)]]` / `[[sampler(N)]]` 是否等于 HLSL 的 `b#` / `t#` / `s#`。把结论写回本节（成立 / 不成立 + 反例）。
+
+#### 31.1.3 P0-9 / P0-10：MSL 编译入口与 `compileShader`
+
+文件：`source/Plugins/Renderer/Metal/Source/T3DMetalContext.mm`  
+文件：`source/Plugins/Renderer/Metal/Include/T3DMetalContext.h`
+
+- [ ] `compileMSLFunction`（约 638 行）候选名改为 **`main0` 置首**，其后保留 `main` / `vertex_main` / `fragment_main` / `vs_main` / `ps_main`。
+- [ ] 按 `shader->getShaderStage()` 推导期望的 `MTLFunctionType`（VS → `Vertex`，PS → `Fragment`，CS → `Kernel`）。遍历 `library.functionNames` 时用 `newFunctionWithName:` 取到后校验 `function.functionType`，不匹配则继续；不要再无条件取 `firstObject`。
+- [ ] `Impl` 增加 `std::unordered_map<const ShaderVariant *, id<MTLLibrary>> libraryCache`（或按源码指针 + 长度做键）。`compileMSLFunction` 与 `compileShader` 共用这一份，命中则跳过 `newLibraryWithSource`。
+- [ ] 编译失败时日志同时打出 `error.localizedDescription` 和源码前若干行（例如前 32 行），不要只打一句 `unknown`。
+- [ ] `compileShader`（约 1465–1478 行）**删掉** `getBytesCode` + `setBytesCode` 自赋值。成功路径：编译并缓存 `MTLLibrary` / `MTLFunction`，再调最小版反射（§31.1.4），然后 `return T3D_OK`。MSL 没有独立字节码，不要把源码写进 `mByteCode`。
+- [ ] `createVertexShader` / `createPixelShader` 改为从 cache 取 `MTLFunction`，避免同一 `ShaderVariant` 编两次。
+
+#### 31.1.4 P0-8 最小版：`MetalMSLReflect` 只改绑定索引
+
+新建（纯 C++，不 `#import <Metal/Metal.h>`）：
+
+- `source/Plugins/Renderer/Metal/Include/T3DMetalMSLReflect.h`
+- `source/Plugins/Renderer/Metal/Source/T3DMetalMSLReflect.cpp`
+
+- [ ] 对外提供：
+
+```cpp
+TResult MetalReflectMSLBindings(
+    const char *mslSource, size_t length,
+    ShaderConstantParams &constantParams,
+    ShaderSamplerParams &samplerParams);
+```
+
+- [ ] 用正则或手写扫描解析 SPIRV-Cross 常见声明，至少覆盖：
+  - `constant <Type>& <name> [[buffer(N)]]`
+  - `texture2d<float> <name> [[texture(N)]]`（以及 `texturecube` / `depth2d`）
+  - `sampler <name> [[sampler(N)]]` / `sampler_compare`
+- [ ] **只更新已有条目的索引**：按 `CBufferName` / `Name` 匹配 `constantParams`，调用 `setBindingPoint(N)`；按 `Name` 匹配 `samplerParams`，调用 `setTexBinding` / `setSamplerBinding`。`DataOffset` / `DataSize` / `DataType` 原样保留（信任离线从 HLSL 复制的布局）。
+- [ ] 名称要对 SPIRV-Cross 习惯做一次归一化：结构体类型的 `type_` 前缀、combined image sampler 拆分后的名字。匹配不上的条目打 warning，不要静默留下错误 binding。
+- [ ] `T3DMetalError.h` 增加 `T3D_ERR_METAL_REFLECTION`。源码为空或一个绑定都解析不到时返回该错误。
+- [ ] `MetalContext::reflectShaderAllBindings`（约 1482 行）改为：从 `shader->getBytesCode`（未编译时就是 MSL 源码）取文本，调 `MetalReflectMSLBindings`。
+- [ ] `MetalContext::reflectSamplerBindings`（约 1487 行）复用同一解析，只写 `samplerParams`。
+- [ ] 本阶段 **不要** 上 `MTLRenderPipelineReflection` 交叉校验（那是 Phase 1）。
+
+#### 31.1.5 P0-1：顶点缓冲移到 buffer table 高位
+
+文件：`source/Plugins/Renderer/Metal/Include/T3DMetalPrerequisites.h`  
+文件：`source/Plugins/Renderer/Metal/Source/T3DMetalContext.mm`
+
+- [ ] 在 `Tiny3D` 命名空间内增加：
+
+```cpp
+constexpr uint32_t kMetalMaxBufferSlots       = 31;
+constexpr uint32_t kMetalMaxVertexBufferSlots = 8;
+constexpr uint32_t kMetalVertexBufferIndexBase =
+    kMetalMaxBufferSlots - kMetalMaxVertexBufferSlots;   // 23
+```
+
+- [ ] `bindCurrentPipeline` 组装 `MTLVertexDescriptor`（约 592、603 行）：
+  - `vd.attributes[i].bufferIndex = kMetalVertexBufferIndexBase + slot`
+  - `vd.layouts[kMetalVertexBufferIndexBase + slot].stride / stepFunction`
+- [ ] 同函数绑定 VB（约 628–629 行）：`setVertexBuffer:... atIndex:kMetalVertexBufferIndexBase + i`
+- [ ] `setVertexBuffers` 即时绑定（约 1086–1087 行）：同样加 `kMetalVertexBufferIndexBase`。`slot >= kMetalMaxVertexBufferSlots` 时打一次 warning，不要静默 `continue`。
+- [ ] `bindConstantBuffers` / `bindTextures` / `bindSamplers` 的 index **保持反射值，不要加偏移**。
+- [ ] 在 `bindCurrentPipeline` 加断言：任一 pending cbuffer 的 index `< kMetalVertexBufferIndexBase`，否则与 VB 区间重叠（验证 §30.4 假设 2）。
+
+#### 31.1.6 P0-7：资源绑定改 pending 表
+
+文件：`T3DMetalContext.mm` 的 `Impl`（约 133 行起）与 `setVS*` / `setPS*` / `bindCurrentPipeline` / `ensureEncoder`  
+文件：`T3DMetalContext.h` 的 `protected` 区补声明
+
+- [ ] `Impl` 增加（数值与 Metal 每阶段上限对齐，VB 仍用现有 `vb[8]`）：
+
+```cpp
+id<MTLBuffer>       pendingVSBuffers[31] {};
+id<MTLBuffer>       pendingPSBuffers[31] {};
+id<MTLTexture>      pendingVSTextures[31] {};
+id<MTLTexture>      pendingPSTextures[31] {};
+id<MTLSamplerState> pendingVSSamplers[16] {};
+id<MTLSamplerState> pendingPSSamplers[16] {};
+uint32_t            dirtyVSBuffers {0}, dirtyPSBuffers {0};
+uint32_t            dirtyVSTextures {0}, dirtyPSTextures {0};
+uint32_t            dirtyVSSamplers {0}, dirtyPSSamplers {0};
+```
+
+  槽数不够用位图时，改成「整表 dirty」布尔即可，Phase 0 不追求最小更新。
+- [ ] `setVSConstantBuffers` / `setPSConstantBuffers` / `setVSPixelBuffers` / `setPSPixelBuffers` / `setVSSamplers` / `setPSSamplers`（约 1369–1421 行）：**只写 pending 表 + 置 dirty**，encoder 为 nil 时不再直接 return 丢掉绑定。
+- [ ] 删除或收缩现有静态函数 `bindConstantBuffers` / `bindTextures` / `bindSamplers` 里「encoder == nil 则 return」的即时绑定路径；改成一个 `applyPendingBindings()`：按 dirty 位把表下发到当前 encoder（VS 走 `setVertex*`，PS 走 `setFragment*`）。
+- [ ] `ensureEncoder` 在成功 `renderCommandEncoderWithDescriptor` 之后把所有 dirty 位置满（新 encoder 没有任何绑定）。
+- [ ] `bindCurrentPipeline` 在 `setRenderPipelineState` 之后调 `applyPendingBindings()`，再绑 VB（VB 仍走 `vb[8]` + `kMetalVertexBufferIndexBase`）。
+- [ ] `endEncoder` 只结束 encoder，**不要清空 pending 表**（跨 pass 保持绑定，对齐 D3D11 device context 语义）。
+
+#### 31.1.7 P0-3 / P0-4：PSO `rasterSampleCount` 与 cache key
+
+文件：`T3DMetalContext.mm` 的 `Impl` 与 `bindCurrentPipeline`（约 536–633 行）
+
+- [ ] 用 POD 替换 `uint64_t` 异或 key：
+
+```cpp
+struct MetalPSOKey
+{
+    void    *vsFn {nullptr};
+    void    *psFn {nullptr};
+    uint32_t colorFormats[8] {0};
+    uint32_t depthFormat {0};
+    uint32_t stencilFormat {0};
+    uint8_t  colorCount {1};
+    uint8_t  sampleCount {1};
+    uint64_t blendHash {0};
+    uint64_t vertexLayoutHash {0};
+
+    bool operator==(const MetalPSOKey &rhs) const;
+};
+```
+
+  配 `std::hash<MetalPSOKey>`。`blendHash` / `vertexLayoutHash` 由 `BlendDesc` / `VertexAttributes` 的内容算出（例如逐字段 FNV），**禁止**再用 `blendState.get()` / `vertexDecl.get()` 指针。
+- [ ] `Impl::psoCache` 类型改为 `std::unordered_map<MetalPSOKey, id<MTLRenderPipelineState>, ...>`。
+- [ ] `Impl` 增加 `uint8_t currentSampleCount {1}`。`ensureEncoder` 从 `colorTex.sampleCount` 读取（无颜色附件时用 `depthTex.sampleCount`），写入该字段。
+- [ ] 创建 PSO 时设置 `desc.rasterSampleCount = mImpl->currentSampleCount`（至少 1）。
+- [ ] Phase 0 仍只填 `colorAttachments[0]`，`colorCount = 1`；MRT 留给 Phase 3。`ps` 仍要求非空（`fragmentFunction = nil` 留给 Phase 2）。
+
+#### 31.1.8 Phase 0 验收
+
+- [ ] `MTL_DEBUG_LAYER=1` 下启动，无「buffer at index N 未绑定」、无 PSO 与附件采样数不匹配、无 scissor / 格式校验失败。
+- [ ] 能画出带顶点色或单张贴图的几何，位置正确（Z remap 已存在，本阶段不要改投影）。
+- [ ] 日志里能看到 `compileMSLFunction` 命中 `main0`，而不是落到 `firstObject`。
+- [ ] 同一 `ShaderVariant` 第二次 `create*Shader` / `compileShader` 不再走 `newLibraryWithSource`。
+
+---
+
+### 31.2 Phase 1 — 材质与渲染纹理
+
+#### 31.2.1 P0-8 完整版 + debug 交叉校验（§23.3）
+
+- [ ] `T3DMetalMSLReflect.cpp`：补 cbuffer 成员解析（名字、类型、offset、size）。SPIRV-Cross 结构体成员按声明顺序、标准对齐（float4 按 16 字节）推 offset；与离线复制值不一致时以 MSL 解析为准并打 error。
+- [ ] Debug 构建下，`bindCurrentPipeline` 第一次成功创建 PSO 时用 `MTLPipelineOptionArgumentInfo` 取 `MTLRenderPipelineReflection`，与路径 A 结果逐条比对，不一致打 error。Release 不走这条路径。
+
+#### 31.2.2 P0-11：blit 格式不一致时走全屏四边形（§17.2）
+
+文件：`T3DMetalContext.mm` `blit(Texture*, RenderTarget*, ...)`（约 1591 行）
+
+- [ ] 抽出 `blitTexture(id<MTLTexture> src, id<MTLTexture> dst, region...)`。
+- [ ] **快路**：src/dst 像素格式相同、尺寸相同、非 MSAA → 现有 `copyFromTexture`。
+- [ ] **通路**：其余情况用内置 MSL 全屏三角形（`vertex_id` 生成顶点，片元 `texture.sample`），以 dst 建临时 render pass，按 srcOffset / size 算 UV。不要再依赖 `framebufferOnly = NO` 才能呈现。
+- [ ] 把 blit shader 源码做成文件内字符串常量，启动时编一次并缓存 `MTLRenderPipelineState`（按 dst pixelFormat 分 key）。
+
+#### 31.2.3 P0-13：scissor clamp 与可复位（§3.2）
+
+文件：`setScissorRect`（约 844 行）、`applyEncoderState`（约 509 行）、`setRasterizerState`、`setRenderTarget`
+
+- [ ] 用 `getCurrentTargetSize` 把矩形 clamp 到 `[0,w] × [0,h]`；clamp 后宽或高为 0 则视为禁用（`hasScissor = false`），不要下发空矩形。
+- [ ] 最终生效条件改为 `hasScissor && rasterState && rasterState->getDesc().ScissorEnable`。
+- [ ] 提供复位：宽高传 0，或 `reset()` 里把 `hasScissor = false`。`setRasterizerState` / `setRenderTarget` 后重算一次。
+
+#### 31.2.4 P0-12 / P1-12：`writeBuffer` 加帧轮转（§17.6）
+
+- [ ] `Impl` 增加 N=3 的 ring：每帧一份 `id<MTLBuffer>` 大块（或 `MetalConstantBuffer` 持有 3 份 native）。
+- [ ] `beginRender` 递增帧索引；`endRender` 的 command buffer 挂 `addCompletedHandler:`，完成后标记该环槽可回收。
+- [ ] `writeBuffer`：`discardWholeBuffer == true` 时改绑到当前帧的那一份再 `memcpy`；`false` 时按 sub-range 写，并假定调用方不覆写在飞数据。形参必须重新命名为 `discardWholeBuffer`，不要再写成 `bool`。
+- [ ] 纹理分支继续走 `uploadTexture2D`，但 `bytesPerRow` 改按 §31.2.6 的块尺寸计算。
+
+#### 31.2.5 P1-5 / P1-6：纹理数据上传
+
+文件：`createPixelBuffer1D`（1159）、`createPixelBuffer2D`（1180）、`createPixelBuffer3D`（1216）、`createPixelBufferCubemap`（1238）、`uploadTexture2D`（1146）
+
+- [ ] 1D / 3D：显式 `storageMode = MTLStorageModeShared`，`replaceRegion` 上传 CPU 数据；nil 检查 + `T3D_LOG_ERROR`。
+- [ ] Cubemap：6 面循环 `replaceRegion:... slice:`。先用六张纯色贴图验证面序（§30.4 假设 3），不一致则在上传时重排，结论写回本节。
+- [ ] 2D：`mipmaps > 1` 时，CPU 已有各级则逐级 `replaceRegion`；否则 blit encoder `generateMipmapsForTexture:`（usage 允许 blit）。
+- [ ] 创建失败一律检查 `tex == nil` 并返回 nullptr。
+
+#### 31.2.6 P1-7 / P1-8：格式映射与 `bytesPerRow`
+
+文件：`T3DMetalMapping.mm` / `T3DMetalMapping.h` / `T3DMetalError.h`
+
+- [ ] 新增 `MetalFormatBlockSize(format, &blockW, &blockH, &bytesPerBlock)`。非压缩：`blockW = blockH = 1`，`bytesPerBlock = MetalBytesPerPixel`。压缩：`bytesPerRow = ceil(width / blockW) * bytesPerBlock`。
+- [ ] `uploadTexture2D` 与 `writeBuffer` 的纹理分支改用上述计算，禁止 `tex.width * MetalBytesPerPixel`。
+- [ ] `MetalMapPixelFormat` 补齐引擎 `PixelFormat`：sRGB、R8 / R16F / R32F、RG、RGBA16Float / RGBA32Float、以及按 `device.supportsFamily:` 可用的 BC / ASTC / ETC2。`default` 改为 `MTLPixelFormatInvalid` + error 日志，增加 `T3D_ERR_METAL_UNSUPPORTED_FORMAT`。
+- [ ] `E_PF_D24_UNORM_S8_UINT` → `Depth32Float_Stencil8` 处加注释（Apple Silicon 不支持 D24S8）；`MetalBytesPerPixel` 的 D24S8 分支改为 8，或改为先 map 再按 MTL 格式算大小。
+
+#### 31.2.7 P1-9：顶点 stride 优先用调用方传入值
+
+文件：`bindCurrentPipeline` 组装 `MTLVertexDescriptor`（约 585–606 行）
+
+- [ ] `vd.layouts[kMetalVertexBufferIndexBase + slot].stride` 优先取 `mImpl->vb[slot].stride`；仅当其为 0 时回落到「同 slot 内 `offset + size` 最大值」。
+
+#### 31.2.8 Phase 1 验收
+
+- [ ] `ResourceApp`（`LOAD_FROM_BUNDLE=1`）加载 `Tiny3DStandard` 的 kMSL 变体成功，`Default-Material` / `Test-Material` 出图。
+- [ ] 离屏 RT（RGBA8）blit 到窗口（BGRA8）无格式失配、无翻转、无错色。
+- [ ] scissor 超界不再触发 validation assert；关闭 ScissorEnable 后面面不再被旧矩形裁掉。
+- [ ] 连续多帧旋转相机，常量缓冲无随机闪烁（`writeBuffer` 环生效）。
+
+---
+
+### 31.3 Phase 2 — 阴影与数据传输
+
+#### 31.3.1 P0-2：允许 depth-only PSO（§15.2）
+
+文件：`bindCurrentPipeline`（约 538–565 行）
+
+- [ ] 去掉 `ps == nullptr` 即失败。`ps == nullptr` 时 `desc.fragmentFunction = nil`，`colorAttachments[0].pixelFormat = MTLPixelFormatInvalid`，只保留 depth / stencil 格式。
+- [ ] `MetalPSOKey::psFn` 用 `nullptr` 表示无 fragment；key 必须能区分「有 PS」与「无 PS」。
+- [ ] 确认 `ForwardRenderPipeline` 里 `setPixelShader(nullptr)` 的 shadow pass 能走到 `drawIndexedPrimitives`。
+
+#### 31.3.2 P0-5：深度 store action 按用途（§18.5）
+
+文件：`ensureEncoder`（约 440–456 行）、`setRenderTarget`、`Impl`
+
+- [ ] `Impl` 增加 `bool depthIsTransient {true}`。
+- [ ] `setRenderTarget`：深度来自引擎的 depth-stencil render texture 时置 `false`；回落到窗口临时 `windowDepthTex` 时置 `true`。
+- [ ] `ensureEncoder`：`depthIsTransient` 为 true 用 `MTLStoreActionDontCare`，否则 `MTLStoreActionStore`。stencil 附件同样处理。
+
+#### 31.3.3 P0-6：override `getDepthRemapMatrix`（§1.2）
+
+文件：`T3DMetalContext.h`、`T3DMetalContext.mm`
+
+- [ ] 声明 `const Matrix4& getDepthRemapMatrix() const override;`
+- [ ] 把 `setViewProjectionTransform` 里的 `conversionMat` 抽成文件内匿名命名空间常量 `kMetalZRemapMat`（对角 0.5 / 平移 0.5），两处共用。
+- [ ] `getDepthRemapMatrix` 返回该常量。行为对齐 `GL4Context::getDepthRemapMatrix`（`T3DGL4Context.cpp:464`）。**不要**照抄 GL4 的 Y 翻转。
+
+#### 31.3.4 P1-2 / P1-3 / P1-4 / P1-11
+
+- [ ] `blit(RT→Tex)`（1695）与 `blit(Tex→Tex)`（1700）：解析出 `id<MTLTexture>` 后调 Phase 1 的 `blitTexture`。窗口作 src 时取当前 drawable。
+- [ ] `copyBuffer`（1705）：改 `MTLBlitCommandEncoder copyFromBuffer:...`，录在当前 command buffer 上；不要再 `memcpy([buffer contents])`。
+- [ ] `reset()`（1554）：先 `endEncoder()`，再调 `resetRenderTarget()`；清空 pending 绑定表、`vb[8]`、`hasScissor`、三个 pending clear。`psoCache` 与 `libraryCache` 可保留。
+- [ ] 窗口深度：`windowDepthTex` 改为 `Depth32Float_Stencil8`（或按需），`ensureEncoder` 同步挂 stencil 附件。硬编码 `Depth32Float` 的路径删掉。
+
+#### 31.3.5 Phase 2 验收
+
+- [ ] `Skybox-Cubemap` 六个面朝向正确（依赖 Phase 1 cubemap 上传）。
+- [ ] `ForwardRenderPipeline` 阴影位置、软硬边与 D3D11 截图目视一致；深度无条带。
+- [ ] validation 下 depth-only PSO 创建成功，shadow map 采样不是未定义内容。
+
+---
+
+### 31.4 Phase 3 — 编辑器
+
+#### 31.4.1 P3-1：Editor CMake 挂接
+
+文件：`source/Plugins/Renderer/Metal/CMakeLists.txt`  
+文件：`source/Plugins/Renderer/Metal/Editor/CMakeLists.txt`  
+文件：`source/Plugins/Renderer/CMakeLists.txt`
+
+- [ ] 父 CMake 按 Null 插件写成：
+
+```cmake
+add_subdirectory(Runtime)
+if (TINY3D_BUILD_EDITOR)
+    add_subdirectory(Editor)
+endif (TINY3D_BUILD_EDITOR)
+```
+
+- [ ] Editor CMake 在现有 `.cpp` 行后补 `set_project_files(Source ${TINY3D_METALRENDERER_SOURCE_DIR}/Source/ .mm)`。
+- [ ] Editor 的 APPLE 分支补齐与 Runtime 相同的 Cocoa 链接、`-fobjc-arc`、rpath。
+- [ ] `Plugins/Renderer/CMakeLists.txt` 的 Metal 块补 `add_dependencies(MetalRendererEditor T3DCore T3DMath T3DLog T3DPlatform)`。
+- [ ] Plugin 壳继续复用 Runtime 的 `T3DMetalPlugin.cpp` / `T3DMetalPluginDLL.cpp`（与 Null 一致，不必新建 Editor Plugin）。
+- [ ] `MetalRenderer::getEditorInfo` 保持空实现，头文件注明「macOS 编辑器走 ImGuiTiny3D，不需要原生对象」。
+
+#### 31.4.2 P1-1：MRT（§2.3、§5.1）
+
+- [ ] `Impl`：`currentColor` / `currentResolve` 改为 `id<MTLTexture> currentColor[8]` / `currentResolve[8]` + `uint8_t colorCount`。
+- [ ] `setRenderTarget`：用 `getNumOfRenderTextures()` 循环填充。
+- [ ] `ensureEncoder`：按 `colorCount` 组装 `colorAttachments[i]`。
+- [ ] `bindCurrentPipeline`：按 `colorCount` 设每个 `pixelFormat` 与 `RenderTargetStates[i]`；`MetalPSOKey::colorFormats[8]` / `colorCount` 必须参与比较。
+
+#### 31.4.3 P1-10 / P2-1 / P2-5
+
+- [ ] `beginRender`：去掉预先 `acquireDrawable`，只建 command buffer；drawable 留给 `ensureEncoder` / blit 惰性获取。
+- [ ] `Impl` 增加 `dispatch_semaphore_t`（初值 3）。`beginRender` 前 wait；`endRender` 在 `commit` 前挂 completion handler 里 signal。
+- [ ] `MetalWindow::init`：按 `RenderWindowDesc` 建 MSAA 颜色纹理；`ensureEncoder` 窗口路径设 resolve 到 drawable。`displaySyncEnabled` 映射 vsync。
+- [ ] `MetalWindow::resize`：重算 `contentsScale`（`pixelW / viewSize.width`）。监听 `NSWindowDidChangeBackingPropertiesNotification`，DPI / 跨屏时同步 `drawableSize` 与 `contentsScale`。
+
+#### 31.4.4 Phase 3 验收
+
+- [ ] `TinyEditor` 主窗口、Scene / Game 视图正常绘制。
+- [ ] 缩放窗口、拖到另一块不同 DPI 的屏幕，画面不拉伸。
+- [ ] 编辑器交互延迟可接受（in-flight 帧数被限在 2–3）。
+
+---
+
+### 31.5 Phase 4 — Console、iOS 与健壮性
+
+#### 31.5.1 P3-2：Metal Console 变体（§25）
+
+- [ ] 目录改成 `Metal/Base` + `Metal/Console` + 现有 Runtime / Editor。`compileShader` 与 `MetalMSLReflect` 沉到 `MetalContextBase`。
+- [ ] `T3DRHIRenderer` 增加 `METAL_CONSOLE = "Metal Console"`，`getShadingLanguage()` 把 `METAL` 与 `METAL_CONSOLE` 都映射到 `kMSL`。
+- [ ] `T3DShaderCrossApp.cpp` 增加 `msl_macos` / `msl_ios` → `MetalRendererConsole` 分支，离开 D3D11 Console 的 `else`。
+- [ ] `TINY3D_BUILD_RENDERSYSTEM_METAL_CONSOLE` 仅在桌面 macOS 打开。Console **不**链 Metal.framework，反射只跑文本解析。
+
+#### 31.5.2 P3-3：iOS（§26）
+
+先独立处理平台层四项（`createPlatformZipAssetManager`、SDL2 iOS 库、`assets/config/iOS`、iOS Factory），再做：
+
+- [ ] `Plugins/Renderer/CMakeLists.txt` 打开 iOS 的 `TINY3D_BUILD_RENDERSYSTEM_METAL`。
+- [ ] `Metal/Runtime/CMakeLists.txt`：iOS 链 UIKit 而不是 Cocoa。
+- [ ] `T3DMetalWindow.mm` 用 `#if T3D_OS_IOS` 分出 UIWindow / UIView / `contentScaleFactor` 分支。
+- [ ] 资产用 `scc -t msl_ios` 单独打包，不要和 macOS 的 kMSL 变体塞进同一个 `ShaderVariantSet`。
+
+#### 31.5.3 P2 健壮性（可与 31.5.1 / 31.5.2 穿插）
+
+- [ ] P2-2：`applyEncoderState` 调用 `setDepthClipMode:`（`DepthClipEnable` → `Clip` / 否则 `Clamp`）。
+- [ ] P2-3：`createSamplerState` 映射 `BorderColor`；`ClampToBorderColor` 前做 `supportsFamily:`，不支持则降级 `ClampToEdge` 并打日志。
+- [ ] P2-6：`collectInformation` 打印 `hasUnifiedMemory`、`supportsFamily:`、`maxBufferLength`、`recommendedMaxWorkingSetSize`。
+- [ ] P2-7 / P2-8：`MetalMapBlendFactor` / `MetalMapPrimitive` / `MetalMapAddress` 的 `default` 打 warning，不要静默当 One / Triangle。
+- [ ] P2-9：`compileMSLFunction` 的 library cache 与 stage 校验若 Phase 0 已做，此处只补遗漏。
+- [ ] P2-11：`blit(RT→RT)` 在 src 为窗口时取 drawable 纹理。
+
+#### 31.5.4 Phase 4 验收
+
+- [ ] `scc -t msl_macos` 在 macOS 上独立完成编译与反射，不再借 D3D11 Console。
+- [ ] 用真实 MSL 反射核对（或推翻）§23.3 路径 C；结论写回 §30.4。
+- [ ] 平台层缺口清掉之后，iOS 模拟器或真机上 HelloApp 出图。
+
+---
+
+### 31.6 Phase 5 — 性能
+
+- [ ] P2-4：`createMTLBuffer` 按 `Usage` 分派。`kStatic` 且 `!device.hasUnifiedMemory` 时走 `StorageModePrivate` + staging blit；`kDynamic` 保持 Shared。统一内存设备上可全部 Shared。
+- [ ] P3-4：首次运行把 PSO 写入 `MTLBinaryArchive`，后续启动 `newRenderPipelineStateWithArchive`。
+- [ ] P3-5：明确只用于本 pass 的中间颜色附件可用 `DontCare` store action。
+- [ ] 用 Xcode Metal System Trace 与 GPU Frame Capture 对比同一场景的 Metal vs GL4 帧时间。
+- [ ] 验收：同一台 macOS 上 Metal 帧时间不劣于 GL4。
+
+---
+
+### 31.7 进度总表
+
+| 阶段 | 对应 P 项 | 状态 | 完成日期 |
+|------|-----------|------|----------|
+| Phase 0 第一个三角形 | P0-1, P0-3, P0-4, P0-7, P0-8 最小, P0-9, P0-10, P0-14, P0-15 | 未开始 | |
+| Phase 1 材质与 RT | P0-8 完整, P0-11, P0-12, P0-13, P1-5–P1-9, P1-12 | 未开始 | |
+| Phase 2 阴影 | P0-2, P0-5, P0-6, P1-2, P1-3, P1-4, P1-11 | 未开始 | |
+| Phase 3 编辑器 | P3-1, P1-1, P1-10, P2-1, P2-5 | 未开始 | |
+| Phase 4 Console / iOS | P3-2, P3-3, P2-2, P2-3, P2-6–P2-9, P2-11 | 未开始 | |
+| Phase 5 性能 | P2-4, P3-4, P3-5 | 未开始 | |
