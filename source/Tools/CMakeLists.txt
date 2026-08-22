@@ -18,7 +18,6 @@ set(TINY3D_DEP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies")
 
 
 if (TINY3D_OS_DESKTOP)
-    #add_subdirectory(ScriptCompiler)
 	add_subdirectory(CompileCommandTool)
 	# libclang.dylib 与目标架构对不上时不编 rpp（例如只剩单一切片的旧包）。
 	# 当前预编译是 x86_64+arm64 universal，和 Intel / Apple Silicon 都能对上。

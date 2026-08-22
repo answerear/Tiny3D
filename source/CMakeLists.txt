@@ -391,7 +391,6 @@ endif (NOT TINY3D_BUILD_RTTR_TOOL)
 
 if (TINY3D_BUILD_TOOLS)
     add_subdirectory(Tools)
-    #add_dependencies(ScriptCompiler T3DCore)
     if (NOT TINY3D_BUILD_RTTR_TOOL AND TINY3D_BUILD_SHADERCONDUCTOR_TOOLS)
 	    add_dependencies(ShaderCrossCompiler T3DCore)
 	    add_dependencies(BuiltinGenerator T3DCore)
