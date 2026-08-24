@@ -123,7 +123,8 @@ namespace Tiny3D
 
     D3D11PixelBuffer1D::~D3D11PixelBuffer1D()
     {
-        
+        D3D_SAFE_RELEASE(D3DSRView);
+        D3D_SAFE_RELEASE(D3DTexture);
     }
 
     //--------------------------------------------------------------------------
@@ -158,6 +159,21 @@ namespace Tiny3D
         return D3DSRView;
     }
     
+    //--------------------------------------------------------------------------
+
+    D3D11PixelBuffer3DPtr D3D11PixelBuffer3D::create()
+    {
+        return T3D_NEW D3D11PixelBuffer3D();
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11PixelBuffer3D::~D3D11PixelBuffer3D()
+    {
+        D3D_SAFE_RELEASE(D3DSRView);
+        D3D_SAFE_RELEASE(D3DTexture);
+    }
+
     //--------------------------------------------------------------------------
     
     void *D3D11PixelBuffer3D::getNativeObject() const

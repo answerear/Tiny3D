@@ -104,6 +104,25 @@ namespace Tiny3D
         virtual RHIPixelBuffer2DPtr createRenderTexture(PixelBuffer2D *buffer) = 0;
 
         /**
+         * \brief 按渲染纹理当前的描述重建底层 GPU 资源
+         * \param [in] rt : 目标渲染纹理，调用前其描述已被更新为新尺寸
+         * \param [in] width : 新宽度，用于与描述做一致性校验
+         * \param [in] height : 新高度
+         * \return 调用成功返回 T3D_OK；后端未实现时返回 T3D_ERR_NOT_IMPLEMENT
+         * \note 由 RenderTexture::resize 驱动，后端只负责重建 RHI 资源，不修改引擎侧描述
+         */
+        virtual TResult resizeRenderTexture(RenderTexture *rt, uint32_t width, uint32_t height) { return T3D_ERR_NOT_IMPLEMENT; }
+
+        /**
+         * \brief 改变渲染目标及其全部附件的大小
+         * \param [in] rt : 目标渲染目标，窗口型分派到 swapchain 重建，纹理型逐个附件重建
+         * \param [in] width : 新宽度
+         * \param [in] height : 新高度
+         * \return 调用成功返回 T3D_OK；后端未实现时返回 T3D_ERR_NOT_IMPLEMENT
+         */
+        virtual TResult resizeRenderTarget(RenderTarget *rt, uint32_t width, uint32_t height) { return T3D_ERR_NOT_IMPLEMENT; }
+
+        /**
          * \brief 设置当前渲染目标
          * \param [in] renderTarget : 目标 RenderTarget，可为 nullptr 表示解绑（由后端实现）
          * \return 调用成功返回 T3D_OK

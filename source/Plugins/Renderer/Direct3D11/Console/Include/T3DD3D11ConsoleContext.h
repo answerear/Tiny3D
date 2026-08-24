@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -15,6 +15,15 @@
 
 namespace Tiny3D
 {
+    /**
+     * \brief 无显示环境下的 D3D11 null backend，供 BundleBuilder / BuiltinGenerator
+     *        等命令行工具做离线 shader 编译与反射
+     * \remarks 只有从 D3D11ContextBase 继承的 compileShader / reflectShaderAllBindings /
+     *          reflectSamplerBindings 是有效的。其余 RHIContext 接口一律空实现：
+     *          绘制与状态设置直接返回 T3D_OK，资源创建返回 nullptr 并打一条警告日志。
+     *          这是设计意图，不要按 Window 后端的标准去「补全」。若离线工具确实需要真实
+     *          设备，正确做法是用 D3D_DRIVER_TYPE_NULL 或 WARP 初始化真正的 D3D11Context。
+     */
     class D3D11ConsoleContext : public D3D11ContextBase
     {
     public:

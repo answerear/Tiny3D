@@ -110,6 +110,14 @@ namespace Tiny3D
         T3D_ERR_D3D11_MAP_RESOURCE,
         /// 改变所有 frame buffer 大小失败
         T3D_ERR_D3D11_RESIZE_BUFFERS,
+        /// 创建 1D 纹理失败
+        T3D_ERR_D3D11_CREATE_TEXTURE1D,
+        /// 创建 3D 纹理失败
+        T3D_ERR_D3D11_CREATE_TEXTURE3D,
+        /// 资源拷贝的源与目标不兼容（类型/尺寸/格式/采样数不匹配）
+        T3D_ERR_D3D11_INCOMPATIBLE_COPY,
+        /// 该后端不支持请求的操作
+        T3D_ERR_D3D11_UNSUPPORTED_OPERATION,
     };
 }
 

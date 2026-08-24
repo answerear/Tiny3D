@@ -35,11 +35,10 @@ namespace Tiny3D
 
     D3D11RenderWindowPtr D3D11RenderWindow::create(RenderWindow *renderWindow)
     {
+        // SwapChain / BackBuffer / RTView / DSView 的创建都在
+        // D3D11Context::createRenderWindow 里完成，这里只负责产出空壳对象
+        (void)renderWindow;
         D3D11RenderWindowPtr window = T3D_NEW D3D11RenderWindow();
-        if (window && !window->init(renderWindow))
-        {
-            window = nullptr;
-        }
         return window;
     }
 
@@ -61,66 +60,6 @@ namespace Tiny3D
         D3D_SAFE_RELEASE(D3DRTView);
         D3D_SAFE_RELEASE(D3DBackBuffer);
         D3D_SAFE_RELEASE(D3DSwapChain);
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool D3D11RenderWindow::init(RenderWindow *renderWindow)
-    {
-        bool ret = true;
-
-        do
-        {
-            // TResult result;
-            // UINT uMSAAQuality = param.MSAA;
-            // UINT uMSAACount = 4;
-            //
-            // if (uMSAAQuality < 2)
-            //     uMSAAQuality = 0;
-            // else if (uMSAAQuality > 16)
-            //     uMSAAQuality = 16;
-            //
-            // DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
-            //
-            // result = D3D11_CONTEXT->checkMultiSampleQuality((UINT)renderWindow->getWidth(), (UINT)renderWindow->getHeight(), uMSAAQuality, uMSAACount, format);
-            // if (T3D_FAILED(result))
-            // {
-            //     ret = false;
-            //     break;
-            // }
-            //
-            // SysWMInfo info;
-            // renderWindow->getSystemInfo(info);
-            // result = D3D11_CONTEXT->createSwapChain((HWND)info.hWnd, (UINT)renderWindow->getWidth(), (UINT)renderWindow->getHeight(), format, renderWindow->isFullscreen(), &D3DSwapChain);
-            // if (T3D_FAILED(result))
-            // {
-            //     ret = false;
-            //     break;
-            // }
-            //
-            // result = D3D11_CONTEXT->createRenderWindowView(&D3DSwapChain, &D3DRTView);
-            // if (T3D_FAILED(result))
-            // {
-            //     ret = false;
-            //     break;
-            // }
-            //
-            // result = D3D11_CONTEXT->createDepthStencilView((UINT)renderWindow->getWidth(), (UINT)renderWindow->getHeight(), &D3DDSView);
-            // if (T3D_FAILED(result))
-            // {
-            //     ret = false;
-            //     break;
-            // }
-            
-            // result = D3D11_CONTEXT->setRenderTargets(1, &mD3DRTView, &mD3DDSView);
-            // if (T3D_FAILED(result))
-            // {
-            //     ret = false;
-            //     break;
-            // }
-        } while (false);
-
-        return ret;
     }
 
     //--------------------------------------------------------------------------

@@ -205,6 +205,8 @@ namespace Tiny3D
             {
                 ret = T3D_ERR_D3D11_GET_SHADER_DESC;
                 T3D_LOG_ERROR(LOG_TAG_D3D11CONTEXTBASE, "Get shader description failed ! DX ERROR [%d]", hr);
+                D3D_SAFE_RELEASE(pReflection);
+                D3D_SAFE_RELEASE(pShaderBlob);
                 break;
             }
 
@@ -217,8 +219,6 @@ namespace Tiny3D
                 {
                 case D3D_SIT_CBUFFER:
                     {
-                        uint32_t size = 0;
-                    
                         ID3D11ShaderReflectionConstantBuffer *pConstBufferReflection = pReflection->GetConstantBufferByName(bindDesc.Name);
                         D3D11_SHADER_BUFFER_DESC bufferDesc;
                         pConstBufferReflection->GetDesc(&bufferDesc);
@@ -308,6 +308,9 @@ namespace Tiny3D
                     break;
                 }
             }
+
+            D3D_SAFE_RELEASE(pReflection);
+            D3D_SAFE_RELEASE(pShaderBlob);
         } while (false);
         
         return ret;
@@ -317,7 +320,76 @@ namespace Tiny3D
 
     TResult D3D11ContextBase::reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams)
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        ID3DBlob *pShaderBlob = nullptr;
+        ID3D11ShaderReflection *pReflection = nullptr;
+
+        do
+        {
+            size_t bytesLength = 0;
+            const char *bytes = shader->getBytesCode(bytesLength);
+            HRESULT hr = D3DCreateBlob(bytesLength, &pShaderBlob);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_CREATE_BLOB;
+                T3D_LOG_ERROR(LOG_TAG_D3D11CONTEXTBASE, "reflectSamplerBindings: D3DCreateBlob failed ! DX ERROR [%d]", hr);
+                break;
+            }
+
+            memcpy(pShaderBlob->GetBufferPointer(), bytes, bytesLength);
+
+            hr = D3DReflect(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), IID_ID3D11ShaderReflection, (void **)&pReflection);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_SHADER_REFLECTION;
+                T3D_LOG_ERROR(LOG_TAG_D3D11CONTEXTBASE, "reflectSamplerBindings: D3DReflect failed ! DX ERROR [%d]", hr);
+                break;
+            }
+
+            D3D11_SHADER_DESC shaderDesc;
+            hr = pReflection->GetDesc(&shaderDesc);
+            if (FAILED(hr))
+            {
+                ret = T3D_ERR_D3D11_GET_SHADER_DESC;
+                T3D_LOG_ERROR(LOG_TAG_D3D11CONTEXTBASE, "reflectSamplerBindings: GetDesc failed ! DX ERROR [%d]", hr);
+                break;
+            }
+
+            // 只回填已有的 sampler 参数，不新建 —— 新建是 reflectShaderAllBindings 的职责
+            for (UINT i = 0; i < shaderDesc.BoundResources; ++i)
+            {
+                D3D11_SHADER_INPUT_BIND_DESC bindDesc;
+                pReflection->GetResourceBindingDesc(i, &bindDesc);
+
+                if (bindDesc.Type == D3D_SIT_TEXTURE)
+                {
+                    const auto itr = samplerParams.find(String(bindDesc.Name));
+                    if (itr != samplerParams.end())
+                    {
+                        itr->second->setTexBinding(bindDesc.BindPoint);
+                        itr->second->setTextureType(D3D11Mapping::get(bindDesc.Dimension));
+                    }
+                }
+                else if (bindDesc.Type == D3D_SIT_SAMPLER)
+                {
+                    String name = bindDesc.Name;
+                    if (StringUtil::startsWith(name, "sampler"))
+                    {
+                        const auto itr = samplerParams.find(name.substr(7));
+                        if (itr != samplerParams.end())
+                        {
+                            itr->second->setSamplerBinding(bindDesc.BindPoint);
+                        }
+                    }
+                }
+            }
+        } while (false);
+
+        D3D_SAFE_RELEASE(pReflection);
+        D3D_SAFE_RELEASE(pShaderBlob);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------

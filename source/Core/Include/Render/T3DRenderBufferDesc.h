@@ -136,16 +136,16 @@ namespace Tiny3D
     struct T3D_ENGINE_API PixelBuffer3DDesc
     {
         /// 纹理宽度（像素）
-        uint32_t    width;
+        uint32_t    width {0};
         /// 纹理高度（像素）
         TPROPERTY()
-        uint32_t    height;
+        uint32_t    height {0};
         /// 纹理深度（像素）
         TPROPERTY()
-        uint32_t    depth;
+        uint32_t    depth {0};
         /// mipmap 层数
         TPROPERTY()
-        uint32_t    mipmaps;
+        uint32_t    mipmaps {1};
         /// 像素格式
         TPROPERTY()
         PixelFormat format {PixelFormat::E_PF_UNKNOWN};

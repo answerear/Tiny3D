@@ -26,6 +26,8 @@
 #include "Render/T3DRenderTexture.h"
 #include "Render/T3DPixelBuffer.h"
 #include "Render/T3DRenderResourceManager.h"
+#include "Kernel/T3DAgent.h"
+#include "RHI/T3DRHIContext.h"
 
 
 namespace Tiny3D
@@ -65,6 +67,33 @@ namespace Tiny3D
     TEXTURE_TYPE RenderTexture::getTextureType() const
     {
         return TEXTURE_TYPE::TT_RENDER_TEXTURE;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult RenderTexture::resize(uint32_t width, uint32_t height)
+    {
+        if (width == 0 || height == 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_ENGINE, "RenderTexture::resize : invalid size [%u x %u] !", width, height);
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        if (mDesc.width == width && mDesc.height == height)
+        {
+            return T3D_OK;
+        }
+
+        mDesc.width = width;
+        mDesc.height = height;
+
+        if (mPixelBuffer == nullptr || mPixelBuffer->getRHIResource() == nullptr)
+        {
+            // 还没创建 GPU 资源，改完描述即可，后续 onCreate / onLoad 会按新尺寸创建
+            return T3D_OK;
+        }
+
+        return T3D_AGENT.getActiveRHIContext()->resizeRenderTexture(this, width, height);
     }
 
     //--------------------------------------------------------------------------

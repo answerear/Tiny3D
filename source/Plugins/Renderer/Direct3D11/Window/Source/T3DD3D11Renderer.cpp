@@ -26,6 +26,7 @@
 #include "T3DD3D11Renderer.h"
 #include "T3DD3D11Context.h"
 #include "T3DD3D11RenderWindow.h"
+#include "T3DD3D11Error.h"
 #ifdef T3D_EDITOR
 #include "T3DEditorInfoDX11.h"
 #endif
@@ -62,8 +63,14 @@ namespace Tiny3D
 
         do 
         {
+            // create() 内部已经完成了 Device / DeviceContext 的创建
             mContext = D3D11Context::create();
-            // ret = mContext->init();
+            if (mContext == nullptr)
+            {
+                ret = T3D_ERR_D3D11_CREATE_FAILED;
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create D3D11 context failed !");
+                break;
+            }
         } while (false);
 
         return ret;

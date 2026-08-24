@@ -181,6 +181,16 @@ namespace Tiny3D
     {
         D3D11_TEXTURE3D_DESC dst;
         memset(&dst, 0, sizeof(dst));
+
+        dst.Width = src.width;          // 设置纹理宽度
+        dst.Height = src.height;        // 设置纹理高度
+        dst.Depth = src.depth;          // 设置纹理深度
+        dst.MipLevels = src.mipmaps;    // 设置 Mipmap 层数
+        dst.Format = get(src.format);   // 设置纹理格式
+
+        // D3D11_TEXTURE3D_DESC 没有 ArraySize 和 SampleDesc，
+        // 因为 D3D11 的 3D 纹理不支持数组和 MSAA
+
         return dst;
     }
 

@@ -49,8 +49,6 @@ namespace Tiny3D
          */
         virtual ~D3D11RenderWindow();
 
-        bool init(RenderWindow *renderWindow);
-
         /**
          * @brief   双缓冲中交换离屏缓存到显示缓存，显示出图像
          * @return  调用成功返回 T3D_OK.
@@ -70,6 +68,10 @@ namespace Tiny3D
         ID3D11Texture2D         *D3DDSBuffer {nullptr};
         ///The d 3D ds view
         ID3D11DepthStencilView  *D3DDSView {nullptr};
+        /// 窗口自带深度模板缓冲的像素格式，创建与 resize 时都按该格式重建
+        PixelFormat             DepthStencilFormat {PixelFormat::E_PF_D24_UNORM_S8_UINT};
+        /// Present 的 SyncInterval，由 RenderWindowDesc::IsVsync 决定，1 为开启垂直同步
+        UINT                    PresentSyncInterval {0};
         
     protected:
         /**

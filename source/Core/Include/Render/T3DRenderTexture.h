@@ -72,7 +72,16 @@ namespace Tiny3D
          * \return TEXTURE_TYPE::TT_RENDER_TEXTURE
          */
         TEXTURE_TYPE getTextureType() const override;
-        
+
+        /**
+         * \brief 改变渲染纹理尺寸，先更新描述再让后端按新描述重建 GPU 资源
+         * \param [in] width : 新宽度，不能为 0
+         * \param [in] height : 新高度，不能为 0
+         * \return 调用成功返回 T3D_OK；尺寸非法返回 T3D_ERR_INVALID_PARAM
+         * \note 尺寸未变化时直接返回 T3D_OK，不触发重建
+         */
+        TResult resize(uint32_t width, uint32_t height);
+
     protected:
         /**
          * \brief 构造空白渲染纹理

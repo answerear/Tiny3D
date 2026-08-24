@@ -74,7 +74,7 @@ namespace Tiny3D
          * @param [in] h : 要改变的高度
          * @return 调用成功返回 T3D_OK
          */
-        TResult resizeRenderTexture(RenderTexture *rt, uint32_t w, uint32_t h);
+        TResult resizeRenderTexture(RenderTexture *rt, uint32_t w, uint32_t h) override;
 
         /**
          * 改变渲染目标大小
@@ -83,7 +83,7 @@ namespace Tiny3D
          * @param [in] h : 要改变的高度
          * @return 调用成功返回 T3D_OK
          */
-        TResult resizeRenderTarget(RenderTarget *rt, uint32_t w, uint32_t h);
+        TResult resizeRenderTarget(RenderTarget *rt, uint32_t w, uint32_t h) override;
 
         /**
          * \brief 设置当前渲染目标
@@ -490,18 +490,6 @@ namespace Tiny3D
         TResult setCSSamplers(uint32_t startSlot, const Samplers &samplers) override;
 
         /**
-         * \brief 反射着色器常量绑定信息、纹理绑定信息和纹理采样器绑定信息
-         * \param [in] shader : 要反射的着色器
-         * \param [out] constantParams : 绑定的常量缓冲区信息
-         * \param [out] samplerParams : 绑定的纹理采样信息
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult reflectShaderAllBindings(ShaderVariant *shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams) override;
-
-        TResult reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams) override;
-
-
-        /**
          * \brief 设置渲染图元类型
          * \param [in] primitive : 图元类型
          * \return 调用成功返回 T3D_OK
@@ -616,17 +604,140 @@ namespace Tiny3D
 
         TResult clearColor(const RenderTexturePtr *textures, uint32_t numOfTextures, const ColorRGB &color);
 
-        // TResult clearDepthStencil(RenderWindow *window, const Real &depth, uint8_t stencil);
-        
         TResult clearDepthStencil(RenderTexture *texture, const Real &depth, uint8_t stencil);
+
+        /**
+         * \brief 清除当前渲染目标的深度模板附件，clearDepth 与 clearDepthStencil 共用
+         * \param [in] clearFlags : D3D11_CLEAR_DEPTH / D3D11_CLEAR_STENCIL 的组合
+         * \param [in] depth : 深度清除值
+         * \param [in] stencil : 模板清除值
+         * \return 调用成功返回 T3D_OK；当前渲染目标没有任何深度模板附件时也返回 T3D_OK
+         */
+        TResult clearDepthStencilView(uint32_t clearFlags, Real depth, uint8_t stencil);
 
         void setupBlitQuad();
 
-        void setupInternalCBuffers();
+        /**
+         * \brief 用全屏四边形把源纹理的一块矩形区域绘制到目标 RTV 的一块矩形区域
+         * \param [in] pD3DSRV : 源纹理的着色器资源视图
+         * \param [in] pD3DRTView : 目标渲染目标视图
+         * \param [in] pD3DDSView : 目标深度模板视图，可为 nullptr
+         * \param [in] srcWidth : 源纹理完整宽度，用于把 srcOffset / srcSize 归一化成 UV
+         * \param [in] srcHeight : 源纹理完整高度
+         * \param [in] srcOffset : 源矩形左上角（像素）
+         * \param [in] srcSize : 源矩形尺寸（像素）
+         * \param [in] dstOffset : 目标矩形左上角（像素）
+         * \param [in] dstSize : 目标矩形尺寸（像素），与 srcSize 不等时发生缩放
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult blitRegion(ID3D11ShaderResourceView *pD3DSRV, ID3D11RenderTargetView *pD3DRTView, ID3D11DepthStencilView *pD3DDSView, uint32_t srcWidth, uint32_t srcHeight, const Vector3 &srcOffset, const Vector3 &srcSize, const Vector3 &dstOffset, const Vector3 &dstSize);
 
-        TResult blitAll(ID3D11Resource *pD3DSrc, ID3D11Resource *pD3DDst);
-        
-        TResult blitRegion(ID3D11ShaderResourceView *pD3DSRV, ID3D11RenderTargetView *pD3DRTView, ID3D11DepthStencilView *pD3DDSView, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 &dstOffset = Vector3::ZERO);
+        /**
+         * \brief 把扁平像素数据按 [arraySlice][mipLevel] 顺序切分为 D3D11 子资源数组
+         * \param [in] data : CPU 数据首地址，可为 nullptr（表示不上传初始数据）
+         * \param [in] dataSize : CPU 数据字节数，用于越界校验
+         * \param [in] format : 像素格式，用于计算每像素字节数
+         * \param [in] width : 顶层宽度
+         * \param [in] height : 顶层高度，1D 纹理传 1
+         * \param [in] depth : 顶层深度，非 3D 纹理传 1
+         * \param [in] mipLevels : mip 层数，至少 1
+         * \param [in] arraySize : 数组层数（Cubemap 传 6 * 立方体个数），至少 1
+         * \param [out] outSubresources : 输出的子资源描述数组，data 为空时返回空数组
+         * \return 像素格式未登记或数据不足以覆盖全部子资源时返回 T3D_ERR_INVALID_PARAM
+         */
+        TResult buildSubresourceData(const uint8_t *data, size_t dataSize, PixelFormat format, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevels, uint32_t arraySize, TArray<D3D11_SUBRESOURCE_DATA> &outSubresources);
+
+        /**
+         * \brief blit 操作的一个端点（源或目标）解析结果
+         */
+        struct BlitEndpoint
+        {
+            /// 用于 CopyResource / CopySubresourceRegion 的资源
+            ID3D11Resource              *Resource {nullptr};
+            /// 用于全屏四边形路径的源视图；不可采样时为 nullptr
+            ID3D11ShaderResourceView    *SRView {nullptr};
+            /// 用于全屏四边形路径的目标视图；不可作为 RT 时为 nullptr
+            ID3D11RenderTargetView      *RTView {nullptr};
+            /// 目标深度模板视图，可为 nullptr
+            ID3D11DepthStencilView      *DSView {nullptr};
+            /// 资源宽度
+            uint32_t                     Width {0};
+            /// 资源高度
+            uint32_t                     Height {0};
+            /// 资源深度，非 3D 资源为 1
+            uint32_t                     Depth {1};
+            /// 资源的 DXGI 格式
+            DXGI_FORMAT                  Format {DXGI_FORMAT_UNKNOWN};
+            /// 资源的 MSAA 采样数
+            uint32_t                     SampleCount {1};
+        };
+
+        /**
+         * \brief 用底层资源自身的 GetDesc 填充端点的尺寸、格式与采样数
+         * \param [in] resource : 已创建的 D3D11 纹理资源，为 nullptr 时不做任何事
+         * \param [in,out] out : 待填充的端点，视图成员保持不变
+         * \note 直接问 D3D11 而不是读引擎描述，能正确覆盖 MSAA Resolve 副本、BackBuffer 等场景
+         */
+        void describeD3DResource(ID3D11Resource *resource, BlitEndpoint &out);
+
+        /**
+         * \brief 从纹理解析出 blit 端点
+         * \param [in] tex : 源或目标纹理
+         * \param [in] asSource : true 表示作为拷贝源，MSAA 的 RenderTexture 会先做一次 Resolve
+         * \param [out] out : 解析结果
+         * \return 纹理类型不支持或底层资源未创建时返回对应错误码
+         */
+        TResult resolveBlitEndpoint(Texture *tex, bool asSource, BlitEndpoint &out);
+
+        /**
+         * \brief 从渲染目标解析出 blit 端点，纹理型只处理 attachment 0
+         * \param [in] rt : 源或目标渲染目标
+         * \param [in] asSource : true 表示作为拷贝源
+         * \param [out] out : 解析结果
+         * \return 底层资源未创建时返回对应错误码
+         */
+        TResult resolveBlitEndpoint(RenderTarget *rt, bool asSource, BlitEndpoint &out);
+
+        /**
+         * \brief 判断两个端点能否直接用 D3D11 的拷贝 API 传输
+         * \param [in] src : 源端点
+         * \param [in] dst : 目标端点
+         * \param [in] regionCopy : true 判断 CopySubresourceRegion，false 判断 CopyResource
+         * \return 兼容返回 true
+         */
+        bool isDirectCopyCompatible(const BlitEndpoint &src, const BlitEndpoint &dst, bool regionCopy) const;
+
+        /**
+         * \brief 在两个已解析端点之间执行传输，按兼容性依次尝试直接拷贝、MSAA Resolve、全屏四边形绘制
+         * \param [in] src : 源端点
+         * \param [in] dst : 目标端点
+         * \param [in] srcOffset : 源偏移
+         * \param [in] size : 传输尺寸，Vector3::ZERO 表示整资源
+         * \param [in] dstOffset : 目标偏移
+         * \return 无可用路径时返回 T3D_ERR_D3D11_INCOMPATIBLE_COPY
+         */
+        TResult doBlit(const BlitEndpoint &src, const BlitEndpoint &dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 &dstOffset);
+
+        /**
+         * \brief 从渲染缓冲区取出底层 D3D11 资源
+         * \param [in] buffer : 渲染缓冲区
+         * \return 类型不支持或 RHI 资源未创建时返回 nullptr
+         */
+        ID3D11Resource *getD3DResource(RenderBuffer *buffer);
+
+        /**
+         * \brief 按描述为 d3dBuffer 创建纹理与视图，createRenderTexture 与 resizeRenderTexture 共用
+         * \param [in] buffer : 引擎侧像素缓冲，提供描述与 Usage
+         * \param [in] d3dBuffer : 待填充的 RHI 对象，调用前其 COM 成员必须为 nullptr
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult buildRenderTextureResources(PixelBuffer2D *buffer, D3D11PixelBuffer2D *d3dBuffer);
+
+        /**
+         * \brief 释放 d3dBuffer 上的全部 COM 对象，并先解绑管线上可能残留的引用
+         * \param [in] d3dBuffer : 待清空的 RHI 对象
+         */
+        void releaseRenderTextureResources(D3D11PixelBuffer2D *d3dBuffer);
 
         using SetSamplerState = void (ID3D11DeviceContext::*)(UINT, UINT, ID3D11SamplerState * const *);
         
@@ -639,8 +750,6 @@ namespace Tiny3D
         using SetConstantBuffers = void (ID3D11DeviceContext::*)(UINT, UINT, ID3D11Buffer * const *);
         
         TResult setConstantBuffers(SetConstantBuffers setConstantBuffers, uint32_t startSlot, const ConstantBuffers &buffers);
-
-        TResult setConstantBuffer(uint32_t startSlot, const Buffer &buffer, ID3D11Buffer *pD3DBuffer);
 
         TResult createRenderWindow(D3D11RenderWindow *pD3DRenderWindow, uint32_t w, uint32_t h, uint32_t MSAACount, uint32_t MSAAQuality);
 

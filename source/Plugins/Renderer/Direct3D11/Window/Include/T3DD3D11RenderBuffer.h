@@ -132,10 +132,19 @@ namespace Tiny3D
     class D3D11PixelBuffer3D : public RHIPixelBuffer3D
     {
     public:
+        static D3D11PixelBuffer3DPtr create();
+
+        ~D3D11PixelBuffer3D() override;
+
         void *getNativeObject() const override;
-        
-        ID3D11Texture2D             *D3DTexture {nullptr};
+
+        /// 體積紋理對象
+        ID3D11Texture3D             *D3DTexture {nullptr};
+        /// 紋理資源對象，方便 shader 訪問
         ID3D11ShaderResourceView    *D3DSRView {nullptr};
+
+    protected:
+        D3D11PixelBuffer3D() = default;
     };
 
     class D3D11PixelBufferCubemap : public RHIPixelBufferCubemap
