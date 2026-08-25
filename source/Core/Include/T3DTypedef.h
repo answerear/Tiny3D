@@ -104,6 +104,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(ShaderConstantValue);
     T3D_DECLARE_SMART_PTR(ShaderSamplerParam);
     T3D_DECLARE_SMART_PTR(ShaderSamplerValue);
+    T3D_DECLARE_SMART_PTR(ShaderResourceParam);
     T3D_DECLARE_SMART_PTR(Technique);
     T3D_DECLARE_SMART_PTR(Pass);
     T3D_DECLARE_SMART_PTR(ShaderVariant);
@@ -170,6 +171,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(PixelBuffer3D);
     T3D_DECLARE_SMART_PTR(PixelBufferCubemap);
     T3D_DECLARE_SMART_PTR(ConstantBuffer);
+    T3D_DECLARE_SMART_PTR(StructuredBuffer);
     
     T3D_DECLARE_SMART_PTR(RenderStateManager);
     T3D_DECLARE_SMART_PTR(RenderBufferManager);
@@ -196,6 +198,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(RHIPixelBuffer3D);
     T3D_DECLARE_SMART_PTR(RHIPixelBufferCubemap);
     T3D_DECLARE_SMART_PTR(RHIConstantBuffer);
+    T3D_DECLARE_SMART_PTR(RHIStructuredBuffer);
     T3D_DECLARE_SMART_PTR(RHIVertexDeclaration);
     T3D_DECLARE_SMART_PTR(RHIRenderTarget);
     T3D_DECLARE_SMART_PTR(RHIRenderWindow);
@@ -257,6 +260,7 @@ namespace Tiny3D
     using ShaderConstantValues = TUnorderedMap<String, ShaderConstantValuePtr>;
     using ShaderSamplerParams = TUnorderedMap<String, ShaderSamplerParamPtr>;
     using ShaderSamplerValues = TUnorderedMap<String, ShaderSamplerValuePtr>;
+    using ShaderResourceParams = TUnorderedMap<String, ShaderResourceParamPtr>;
 
     /** \brief 渲染绑定与场景对象容器别名 */
     using ConstBuffers = TArray<Buffer>;
@@ -277,6 +281,14 @@ namespace Tiny3D
     using PixelBuffers = TArray<PixelBufferPtr>;
     using ConstantBuffers = TArray<ConstantBufferPtr>;
     using Samplers = TArray<SamplerStatePtr>;
+
+    /// 只读结构化缓冲绑定数组（SRV 路径）
+    using StructuredBuffers = TArray<StructuredBufferPtr>;
+    /// UAV 绑定数组；元素可以是 PixelBufferXD、StructuredBuffer 或带 UAV 的顶点缓冲，
+    /// 因此元素类型取三者唯一的共同基类 RenderBuffer
+    using UnorderedAccessBuffers = TArray<RenderBufferPtr>;
+    /// Append/Consume 与 Counter 缓冲的初始计数；kKeepUAVCounter 表示保持当前值
+    using UAVInitialCounts = TArray<uint32_t>;
 
     using RenderTextures = TArray<RenderTexture*>;
 

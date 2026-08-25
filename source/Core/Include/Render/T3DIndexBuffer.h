@@ -47,9 +47,10 @@ namespace Tiny3D
          * \param [in] memType : 内存驻留类型
          * \param [in] usage : 缓冲区用途
          * \param [in] accMode : CPU 访问模式（CPUAccessMode 组合）
+         * \param [in] gpuAccess : GPU 侧附加访问权限（GPUAccessFlags 组合）
          * \return 新建的 IndexBuffer 智能指针
          */
-        static IndexBufferPtr create(IndexType idxType, uint32_t idxCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
+        static IndexBufferPtr create(IndexType idxType, uint32_t idxCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, uint32_t gpuAccess = kGPUNone);
 
         /**
          * \brief 返回渲染资源类型标识
@@ -75,8 +76,9 @@ namespace Tiny3D
          * \param [in] memType : 内存驻留类型
          * \param [in] usage : 缓冲区用途
          * \param [in] accMode : CPU 访问模式
+         * \param [in] gpuAccess : GPU 侧附加访问权限（GPUAccessFlags 组合）
          */
-        IndexBuffer(IndexType idxType, uint32_t idxCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
+        IndexBuffer(IndexType idxType, uint32_t idxCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, uint32_t gpuAccess = kGPUNone);
 
         ~IndexBuffer() override = default;
         

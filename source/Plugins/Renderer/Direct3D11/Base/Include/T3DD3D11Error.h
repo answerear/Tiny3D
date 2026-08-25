@@ -118,6 +118,8 @@ namespace Tiny3D
         T3D_ERR_D3D11_INCOMPATIBLE_COPY,
         /// 该后端不支持请求的操作
         T3D_ERR_D3D11_UNSUPPORTED_OPERATION,
+        /// 创建 UnorderedAccessView 失败
+        T3D_ERR_D3D11_CREATE_UNORDERED_ACCESS_VIEW,
     };
 }
 

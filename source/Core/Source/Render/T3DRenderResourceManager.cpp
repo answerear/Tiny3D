@@ -33,6 +33,7 @@
 #include "Render/T3DIndexBuffer.h"
 #include "Render/T3DPixelBuffer.h"
 #include "Render/T3DConstantBuffer.h"
+#include "Render/T3DStructuredBuffer.h"
 #include "Render/T3DTextureDesc.h"
 #include "RHI/T3DRHIResource.h"
 
@@ -246,6 +247,7 @@ namespace  Tiny3D
         clear(mIBufferCache);
         clear(mPBufferCache);
         clear(mCBufferCache);
+        clear(mSBufferCache);
         clear(mVertexDeclarations);
     }
 
@@ -282,6 +284,12 @@ namespace  Tiny3D
             }
 
             ret = _GC(mCBufferCache);
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
+            ret = _GC(mSBufferCache);
             if (T3D_FAILED(ret))
             {
                 break;
@@ -406,6 +414,25 @@ namespace  Tiny3D
                 return ConstantBuffer::create(name, binding, buffer, memType, usage, accMode);
             },
             name, binding, buffer, memType, usage, accMode);
+    }
+
+    //--------------------------------------------------------------------------
+
+    StructuredBufferPtr RenderBufferManager::loadStructuredBuffer(const StructuredBufferDesc &desc,
+        MemoryType memType, Usage usage, CPUAccessMode accMode, uint32_t gpuAccess, const UUID &uuid)
+    {
+        UUID uid = uuid;
+        if (uuid == UUID::INVALID)
+        {
+            uid = UUID::generate();
+        }
+
+        return loadBuffer<StructuredBuffer>(mSBufferCache, uid,
+            [](const StructuredBufferDesc &desc, MemoryType memType, Usage usage, CPUAccessMode accMode, uint32_t gpuAccess)
+            {
+                return StructuredBuffer::create(desc, memType, usage, accMode, gpuAccess);
+            },
+            desc, memType, usage, accMode, gpuAccess);
     }
 
     //--------------------------------------------------------------------------

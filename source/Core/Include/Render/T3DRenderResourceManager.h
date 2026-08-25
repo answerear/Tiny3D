@@ -281,9 +281,22 @@ namespace Tiny3D
          * \return 加载成功返回 PixelBuffer2D；postLoad 失败时返回 nullptr
          */
         PixelBuffer2DPtr loadRenderTexture(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
+
+        /**
+         * \brief 按 UUID 加载或复用结构化缓冲
+         * \param [in] desc : 结构化缓冲描述
+         * \param [in] memType : 内存类型
+         * \param [in] usage : 缓冲用途；带 kGPUUnorderedAccess 时必须为 Usage::kStatic
+         * \param [in] accMode : CPU 访问模式
+         * \param [in] gpuAccess : GPU 侧附加访问权限（GPUAccessFlags 组合）
+         * \param [in] uuid : 缓存键；为 UUID::INVALID 时自动生成
+         * \return 加载成功返回 StructuredBuffer；描述非法或 postLoad 失败时返回 nullptr
+         */
+        StructuredBufferPtr loadStructuredBuffer(const StructuredBufferDesc &desc, MemoryType memType,
+            Usage usage, CPUAccessMode accMode, uint32_t gpuAccess, const UUID &uuid = UUID::INVALID);
         
         /**
-         * \brief 依次对顶点声明与四类缓冲缓存执行 _GC
+         * \brief 依次对顶点声明与各类缓冲缓存执行 _GC
          * \return 调用成功返回 T3D_OK
          */
         TResult GC() override;
@@ -316,6 +329,8 @@ namespace Tiny3D
         BufferCache mPBufferCache {};
         /// 常量缓冲缓存
         BufferCache mCBufferCache {};
+        /// 结构化缓冲缓存
+        BufferCache mSBufferCache {};
         /// 顶点声明缓存（键为属性 CRC 哈希）
         VertexDeclarations  mVertexDeclarations {};
     };

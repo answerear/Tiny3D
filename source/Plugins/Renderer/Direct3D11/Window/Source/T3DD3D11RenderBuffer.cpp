@@ -60,6 +60,9 @@ namespace Tiny3D
 
     D3D11VertexBuffer::~D3D11VertexBuffer()
     {
+        // 先视图后资源，否则退出时 ReportLiveDeviceObjects 会留下残余对象
+        D3D_SAFE_RELEASE(D3DUAView);
+        D3D_SAFE_RELEASE(D3DSRView);
         D3D_SAFE_RELEASE(D3DBuffer);
     }
 
@@ -81,12 +84,37 @@ namespace Tiny3D
 
     D3D11IndexBuffer::~D3D11IndexBuffer()
     {
+        D3D_SAFE_RELEASE(D3DUAView);
+        D3D_SAFE_RELEASE(D3DSRView);
         D3D_SAFE_RELEASE(D3DBuffer);
     }
 
     //--------------------------------------------------------------------------
 
     void *D3D11IndexBuffer::getNativeObject() const
+    {
+        return D3DBuffer;
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11StructuredBufferPtr D3D11StructuredBuffer::create()
+    {
+        return T3D_NEW D3D11StructuredBuffer();
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11StructuredBuffer::~D3D11StructuredBuffer()
+    {
+        D3D_SAFE_RELEASE(D3DUAView);
+        D3D_SAFE_RELEASE(D3DSRView);
+        D3D_SAFE_RELEASE(D3DBuffer);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void *D3D11StructuredBuffer::getNativeObject() const
     {
         return D3DBuffer;
     }
@@ -123,6 +151,7 @@ namespace Tiny3D
 
     D3D11PixelBuffer1D::~D3D11PixelBuffer1D()
     {
+        D3D_SAFE_RELEASE(D3DUAView);
         D3D_SAFE_RELEASE(D3DSRView);
         D3D_SAFE_RELEASE(D3DTexture);
     }
@@ -145,11 +174,12 @@ namespace Tiny3D
 
     D3D11PixelBuffer2D::~D3D11PixelBuffer2D()
     {
-        D3D_SAFE_RELEASE(D3DTexture);
+        D3D_SAFE_RELEASE(D3DUAView);
         D3D_SAFE_RELEASE(D3DSRView);
         D3D_SAFE_RELEASE(D3DRTView);
         D3D_SAFE_RELEASE(D3DDSView);
         D3D_SAFE_RELEASE(D3DResolveTex);
+        D3D_SAFE_RELEASE(D3DTexture);
     }
 
     //--------------------------------------------------------------------------
@@ -170,6 +200,7 @@ namespace Tiny3D
 
     D3D11PixelBuffer3D::~D3D11PixelBuffer3D()
     {
+        D3D_SAFE_RELEASE(D3DUAView);
         D3D_SAFE_RELEASE(D3DSRView);
         D3D_SAFE_RELEASE(D3DTexture);
     }

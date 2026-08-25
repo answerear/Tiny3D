@@ -107,11 +107,27 @@ namespace Tiny3D
             E_VAS_BINORMAL = 8,
         };
 
+        /**
+         * \brief 顶点属性的输入速率
+         * \remarks 实例数据通常是一个 float4x4 世界矩阵，占 4 个 E_VAT_FLOAT4。
+         *          Semantic 枚举没有专门的 instance 语义，约定复用
+         *          E_VAS_TEXCOORD + 高位 semanticIndex（如 TEXCOORD4~7），
+         *          HLSL 侧对应 `float4 instanceMatrix : TEXCOORD4;` 等。
+         */
+        TENUM()
+        enum class InputRate : uint32_t
+        {
+            /// 每个顶点推进一次（默认）
+            kPerVertex = 0,
+            /// 每 stepRate 个实例推进一次
+            kPerInstance = 1,
+        };
+
         /// 默认构造：slot=0, offset=0, FLOAT3, POSITION, semanticIndex=0
         VertexAttribute() : VertexAttribute(0, 0, Type::E_VAT_FLOAT3, Semantic::E_VAS_POSITION, 0) {}
 
         /**
-         * \brief 构造顶点属性
+         * \brief 构造 per-vertex 顶点属性
          * \param [in] slot : 顶点缓冲流索引
          * \param [in] offset : 属性在顶点中的字节偏移
          * \param [in] type : 属性数据类型
@@ -119,6 +135,22 @@ namespace Tiny3D
          * \param [in] semanticIndex : 语义索引（如 TEXCOORD0 的 0）
          */
         VertexAttribute(uint32_t slot, uint32_t offset, Type type, Semantic semantic, uint32_t semanticIndex);
+
+        /**
+         * \brief 构造指定输入速率的顶点属性
+         * \param [in] slot : 顶点缓冲流索引
+         * \param [in] offset : 属性在顶点中的字节偏移
+         * \param [in] type : 属性数据类型
+         * \param [in] semantic : 着色器语义
+         * \param [in] semanticIndex : 语义索引（如 TEXCOORD0 的 0）
+         * \param [in] inputRate : 输入速率
+         * \param [in] instanceStepRate : 实例数据步进率；kPerVertex 时须为 0，
+         *                                kPerInstance 时至少为 1
+         * \note 同一个 slot 内的所有属性必须使用相同的 inputRate，
+         *       混用会导致后端建立输入布局失败
+         */
+        VertexAttribute(uint32_t slot, uint32_t offset, Type type, Semantic semantic, uint32_t semanticIndex,
+            InputRate inputRate, uint32_t instanceStepRate);
 
         /// 返回顶点缓冲流索引
         TPROPERTY(RTTRFuncName="slot", RTTRFuncType="getter")
@@ -139,6 +171,14 @@ namespace Tiny3D
         /// 返回语义索引
         TPROPERTY(RTTRFuncName="semanticIndex", RTTRFuncType="getter")
         uint32_t getSemanticIndex() const { return mSemanticIndex; }
+
+        /// 返回输入速率
+        TPROPERTY(RTTRFuncName="inputRate", RTTRFuncType="getter")
+        InputRate getInputRate() const { return mInputRate; }
+
+        /// 返回实例数据步进率；kPerVertex 时恒为 0
+        TPROPERTY(RTTRFuncName="instanceStepRate", RTTRFuncType="getter")
+        uint32_t getInstanceStepRate() const { return mInstanceStepRate; }
 
         /**
          * \brief 返回该属性占用的字节数（按 mType 查表）
@@ -166,6 +206,14 @@ namespace Tiny3D
         /// 设置语义索引
         TPROPERTY(RTTRFuncName="semanticIndex", RTTRFuncType="setter")
         void setSemanticIndex(uint32_t index) { mSemanticIndex = index; }
+
+        /// 设置输入速率
+        TPROPERTY(RTTRFuncName="inputRate", RTTRFuncType="setter")
+        void setInputRate(InputRate rate) { mInputRate = rate; }
+
+        /// 设置实例数据步进率
+        TPROPERTY(RTTRFuncName="instanceStepRate", RTTRFuncType="setter")
+        void setInstanceStepRate(uint32_t stepRate) { mInstanceStepRate = stepRate; }
         
     protected:
         /// 属性数据类型
@@ -178,6 +226,10 @@ namespace Tiny3D
         uint32_t    mSlot {0};
         /// 语义索引
         uint32_t    mSemanticIndex {0};
+        /// 输入速率
+        InputRate   mInputRate {InputRate::kPerVertex};
+        /// 实例数据步进率；kPerVertex 时为 0，kPerInstance 时至少为 1
+        uint32_t    mInstanceStepRate {0};
     };
 }
 

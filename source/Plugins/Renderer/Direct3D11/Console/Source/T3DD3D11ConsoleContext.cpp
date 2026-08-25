@@ -101,9 +101,22 @@ namespace Tiny3D
     TResult D3D11ConsoleContext::setCSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) { return T3D_OK; }
     TResult D3D11ConsoleContext::setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) { return T3D_OK; }
     TResult D3D11ConsoleContext::setCSSamplers(uint32_t startSlot, const Samplers &samplers) { return T3D_OK; }
+    RHIStructuredBufferPtr D3D11ConsoleContext::createStructuredBuffer(StructuredBuffer *buffer) { T3D_RHI_UNSUPPORTED_PTR(supportsStructuredBuffer); }
+    TResult D3D11ConsoleContext::setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
+    TResult D3D11ConsoleContext::setPSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
+    TResult D3D11ConsoleContext::setCSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
+    TResult D3D11ConsoleContext::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
+    TResult D3D11ConsoleContext::dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) { T3D_RHI_UNSUPPORTED(supportsCompute); }
+    TResult D3D11ConsoleContext::dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset) { T3D_RHI_UNSUPPORTED(supportsIndirectDispatch); }
+    TResult D3D11ConsoleContext::uavBarrier(const UnorderedAccessBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
+    TResult D3D11ConsoleContext::copyStructureCount(RenderBuffer *dstBuffer, size_t dstOffset, RenderBuffer *srcBuffer) { T3D_RHI_UNSUPPORTED(supportsAppendConsumeBuffer); }
     TResult D3D11ConsoleContext::setPrimitiveType(PrimitiveType primitive) { return T3D_OK; }
     TResult D3D11ConsoleContext::render(uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex) { return T3D_OK; }
     TResult D3D11ConsoleContext::render(uint32_t vertexCount, uint32_t startVertex) { return T3D_OK; }
+    TResult D3D11ConsoleContext::renderIndexedInstanced(uint32_t indexCount, uint32_t instanceCount, uint32_t startIndex, int32_t baseVertex, uint32_t startInstance) { T3D_RHI_UNSUPPORTED(supportsInstancing); }
+    TResult D3D11ConsoleContext::renderInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t startVertex, uint32_t startInstance) { T3D_RHI_UNSUPPORTED(supportsInstancing); }
+    TResult D3D11ConsoleContext::renderIndexedIndirect(RenderBuffer *argsBuffer, size_t argsOffset) { T3D_RHI_UNSUPPORTED(supportsIndirectDraw); }
+    TResult D3D11ConsoleContext::renderIndirect(RenderBuffer *argsBuffer, size_t argsOffset) { T3D_RHI_UNSUPPORTED(supportsIndirectDraw); }
     TResult D3D11ConsoleContext::reset() { return T3D_OK; }
     TResult D3D11ConsoleContext::blit(RenderTarget *src, RenderTarget *dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset) { return T3D_OK; }
     TResult D3D11ConsoleContext::blit(Texture *src, RenderTarget *dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset) { return T3D_OK; }

@@ -23,52 +23,16 @@
  ******************************************************************************/
 
 
-#include "Render/T3DConstantBuffer.h"
-#include "Kernel/T3DAgent.h"
-#include "RHI/T3DRHIContext.h"
-#include "RHI/T3DRHIConstantBuffer.h"
+#include "RHI/T3DRHIStructuredBuffer.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    ConstantBufferPtr ConstantBuffer::create(const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, uint32_t gpuAccess /* = kGPUNone */)
+    RHIStructuredBuffer::RHIStructuredBuffer()
     {
-        return T3D_NEW ConstantBuffer(name, binding, buffer, memType, usage, accMode, gpuAccess);
-    }
 
-    //--------------------------------------------------------------------------
-
-    ConstantBuffer::ConstantBuffer(const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, uint32_t gpuAccess /* = kGPUNone */)
-        : RenderBuffer(buffer, memType, usage, accMode, gpuAccess)
-        , mName(name)
-        , mBinding(binding)
-    {
-        
-    }
-
-    //--------------------------------------------------------------------------
-
-    RenderResource::Type ConstantBuffer::getType() const
-    {
-        return Type::kConstantBuffer;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool ConstantBuffer::onLoad()
-    {
-        mRHIResource = T3D_AGENT.getActiveRHIContext()->createConstantBuffer(this);
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool ConstantBuffer::onUnload()
-    {
-        mRHIResource = nullptr;
-        return true;
     }
 
     //--------------------------------------------------------------------------

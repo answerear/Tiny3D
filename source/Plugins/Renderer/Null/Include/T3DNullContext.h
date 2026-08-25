@@ -465,6 +465,33 @@ namespace Tiny3D
          */
         TResult setCSSamplers(uint32_t startSlot, const Samplers &samplers) override;
 
+        /// 空后端不实现结构化缓冲，返回 nullptr
+        RHIStructuredBufferPtr createStructuredBuffer(StructuredBuffer *buffer) override;
+
+        /// 空后端不实现结构化缓冲绑定
+        TResult setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+
+        /// 空后端不实现结构化缓冲绑定
+        TResult setPSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+
+        /// 空后端不实现结构化缓冲绑定
+        TResult setCSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+
+        /// 空后端不实现 UAV 绑定
+        TResult setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts = UAVInitialCounts()) override;
+
+        /// 空后端不实现 compute dispatch
+        TResult dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) override;
+
+        /// 空后端不实现 indirect dispatch
+        TResult dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) override;
+
+        /// 空后端不实现 UAV 屏障
+        TResult uavBarrier(const UnorderedAccessBuffers &buffers) override;
+
+        /// 空后端不实现计数器拷贝
+        TResult copyStructureCount(RenderBuffer *dstBuffer, size_t dstOffset, RenderBuffer *srcBuffer) override;
+
         /**
          * \brief 编译着色器
          * \param [in,out] shader : 着色器变体对象
@@ -507,6 +534,18 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         TResult render(uint32_t vertexCount, uint32_t startVertex) override;
+
+        /// 空后端不实现实例化绘制
+        TResult renderIndexedInstanced(uint32_t indexCount, uint32_t instanceCount, uint32_t startIndex, int32_t baseVertex, uint32_t startInstance) override;
+
+        /// 空后端不实现实例化绘制
+        TResult renderInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t startVertex, uint32_t startInstance) override;
+
+        /// 空后端不实现 indirect draw
+        TResult renderIndexedIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) override;
+
+        /// 空后端不实现 indirect draw
+        TResult renderIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) override;
 
         /**
          * \brief 清除所有状态、渲染资源，包括 RenderTarget

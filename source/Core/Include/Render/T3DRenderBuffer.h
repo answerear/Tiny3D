@@ -93,6 +93,15 @@ namespace Tiny3D
         /// CPU 镜像数据字节数
         size_t getBufferSize() const { return mBuffer.DataSize; }
 
+        /**
+         * \brief GPU 侧资源的字节大小
+         * \return 默认与 CPU 镜像大小一致
+         * \remarks 允许无初始 CPU 数据的资源（典型是 compute 输出用的结构化缓冲）
+         *          仍然上报真实的 GPU 尺寸，供 indirect 参数偏移等越界校验使用；
+         *          否则那些校验会把「没有 CPU 镜像」误判成「零长度缓冲」。
+         */
+        virtual size_t getGPUSizeInBytes() const { return mBuffer.DataSize; }
+
         /// 内存驻留类型
         MemoryType getMemoryType() const { return mMemoryType; }
         
@@ -101,6 +110,14 @@ namespace Tiny3D
         
         /// CPU 访问模式（CPUAccessMode 组合）
         uint32_t getCPUAccessMode() const { return mAccessMode; }
+
+        /**
+         * \brief GPU 侧附加访问权限（GPUAccessFlags 组合）
+         * \return 构造时经一致性校验后的权限位
+         * \remarks 各后端在创建原生资源时统一从这里读取，据此决定是否额外附加
+         *          SRV / UAV / IndirectArgs 的绑定标记与视图。
+         */
+        uint32_t getGPUAccess() const { return mGPUAccess; }
         
     protected:
         /**
@@ -109,15 +126,31 @@ namespace Tiny3D
          * \param [in] memType : 内存驻留类型
          * \param [in] usage : 缓冲区用途
          * \param [in] accMode : CPU 访问模式
+         * \param [in] gpuAccess : GPU 侧附加访问权限（GPUAccessFlags 组合）
+         * \note 与 usage 冲突的权限位会被打日志后清掉，见 validateGPUAccess
          */
-        RenderBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
+        RenderBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode,
+            uint32_t gpuAccess = kGPUNone);
 
         ~RenderBuffer() override;
+
+        /**
+         * \brief 校验 GPU 权限位与 usage 的组合合法性，返回修正后的权限位
+         * \param [in] gpuAccess : 待校验的 GPUAccessFlags 组合
+         * \param [in] usage : 缓冲区用途
+         * \return 剔除非法位之后的权限位
+         * \remarks 放在基类构造里做，一次性拦住所有后端的同类踩坑：
+         *          D3D11 明确禁止 IMMUTABLE / DYNAMIC 资源创建 UAV，
+         *          Vulkan / GL 侧虽然限制不同，但这类组合在语义上本身就是矛盾的。
+         */
+        static uint32_t validateGPUAccess(uint32_t gpuAccess, Usage usage);
         
         Buffer      mBuffer {};
         MemoryType  mMemoryType {MemoryType::kVRAM};
         Usage       mUsage {Usage::kStatic};
         uint32_t    mAccessMode {kCPUNone};
+        /// GPU 侧附加访问权限（GPUAccessFlags 组合）
+        uint32_t    mGPUAccess {kGPUNone};
     };
 }
 

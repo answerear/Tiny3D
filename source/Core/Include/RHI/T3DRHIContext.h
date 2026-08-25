@@ -31,6 +31,7 @@
 #include "T3DTypedef.h"
 #include "Material/T3DShaderBinding.h"
 #include "Render/T3DRenderConstant.h"
+#include "RHI/T3DRHICapabilities.h"
 
 
 namespace Tiny3D
@@ -80,6 +81,16 @@ namespace Tiny3D
 
         /// 当前投影矩阵是否被 Y 翻转（OpenGL 渲染到 FBO 时由后端置 true）
         bool isProjectionFlipped() const { return mProjectionFlipped; }
+
+        /**
+         * \brief 返回当前后端的能力集
+         * \return 后端在 init() 中填充的能力集；未填充时全部为 false / 0
+         * \remarks 刻意不做成纯虚 getter：数据成员默认全 false，后端忘了填时上层
+         *          查到「不支持」而走降级路径，只损失性能不产生错误结果。
+         *          若改成纯虚，后端更容易随手返回一个全 true 的静态对象来过编译，
+         *          失败方向反而变得不安全。
+         */
+        const RHICapabilities &getCapabilities() const { return mCapabilities; }
 
         /**
          * \brief 返回深度重映射矩阵，将光空间 Z 从平台 NDC 范围映射到 [0,1]。
@@ -279,6 +290,16 @@ namespace Tiny3D
         virtual RHIConstantBufferPtr createConstantBuffer(ConstantBuffer *buffer) = 0;
 
         /**
+         * \brief 创建 RHI 结构化缓冲对象
+         * \param [in] buffer : 引擎的结构化缓冲对象
+         * \return 调用成功返回 RHI 对象；后端不支持或创建失败时返回 nullptr
+         * \note 是否创建 SRV / UAV 由 buffer->getGPUAccess() 决定。
+         *       普通纹理与顶点/索引缓冲的 UAV 不走这里，它们在各自已有的
+         *       createPixelBufferXD / createVertexBuffer 里按 getGPUAccess() 顺带建出。
+         */
+        virtual RHIStructuredBufferPtr createStructuredBuffer(StructuredBuffer *buffer) = 0;
+
+        /**
          * \brief 创建 RHI 像素缓冲区对象
          * \param [in] buffer : 引擎像素缓冲区对象
          * \return 调用成功返回 RHI 对象
@@ -345,6 +366,16 @@ namespace Tiny3D
         virtual TResult setVSSamplers(uint32_t startSlot, const Samplers &samplers) = 0;
 
         /**
+         * \brief 设置 vs 的只读结构化缓冲（SRV）
+         * \param [in] startSlot : 插槽，对应 shader 中 t# 寄存器索引
+         * \param [in] buffers : 结构化缓冲数组；元素为 nullptr 表示解绑该槽
+         * \return 调用成功返回 T3D_OK
+         * \note 结构化缓冲与像素缓冲共享同一组 t# 寄存器，插槽范围不要与
+         *       setVSPixelBuffers 重叠，否则后绑定的一方会覆盖前者
+         */
+        virtual TResult setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) = 0;
+
+        /**
          * \brief 创建 RHI 像素着色器对象
          * \param [in] shader : 引擎使用的像素着色器对象
          * \return 调用成功返回 RHI 对象
@@ -381,6 +412,15 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult setPSSamplers(uint32_t startSlot, const Samplers &samplers) = 0;
+
+        /**
+         * \brief 设置 ps 的只读结构化缓冲（SRV）
+         * \param [in] startSlot : 插槽，对应 shader 中 t# 寄存器索引
+         * \param [in] buffers : 结构化缓冲数组；元素为 nullptr 表示解绑该槽
+         * \return 调用成功返回 T3D_OK
+         * \note 插槽范围不要与 setPSPixelBuffers 重叠
+         */
+        virtual TResult setPSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) = 0;
         
         /**
          * \brief 创建 RHI 曲面细分着色器
@@ -535,6 +575,81 @@ namespace Tiny3D
         virtual TResult setCSSamplers(uint32_t startSlot, const Samplers &samplers) = 0;
 
         /**
+         * \brief 设置 cs 的只读结构化缓冲（SRV）
+         * \param [in] startSlot : 插槽，对应 shader 中 t# 寄存器索引
+         * \param [in] buffers : 结构化缓冲数组；元素为 nullptr 表示解绑该槽
+         * \return 调用成功返回 T3D_OK
+         * \note 插槽范围不要与 setCSPixelBuffers 重叠
+         */
+        virtual TResult setCSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) = 0;
+
+        /**
+         * \brief 设置 cs 的无序访问视图（UAV）
+         * \param [in] startSlot : UAV 插槽，对应 shader 中 u# 寄存器索引
+         * \param [in] buffers : 可读写资源数组，元素可为像素缓冲、结构化缓冲或
+         *                       带 kGPUUnorderedAccess 的顶点缓冲；元素为 nullptr 表示解绑该槽
+         * \param [in] initialCounts : Append/Consume 与 Counter 缓冲的初始计数值，
+         *                             长度须为 0 或与 buffers 等长；
+         *                             取 kKeepUAVCounter 表示保持当前计数；
+         *                             长度为 0 时等价于全部 kKeepUAVCounter
+         * \return 调用成功返回 T3D_OK；资源未带 kGPUUnorderedAccess 或槽位越界时
+         *         返回 T3D_ERR_INVALID_PARAM
+         * \note 同一资源不能同时绑定为 UAV 与 SRV。切换用途前须调用 uavBarrier，
+         *       否则 D3D11 会静默解除 SRV 绑定，其它后端行为未定义。
+         * \note 纹理资源当前只提供 mip 0 的 UAV。需要逐 mip 写入（GPU 生成 mip 链、
+         *       Hi-Z、体素化）时须先扩展后端的视图数组与本接口的 mip 参数。
+         */
+        virtual TResult setCSUnorderedAccessBuffers(uint32_t startSlot,
+            const UnorderedAccessBuffers &buffers,
+            const UAVInitialCounts &initialCounts = UAVInitialCounts()) = 0;
+
+        /**
+         * \brief 派发 compute shader
+         * \param [in] groupCountX : X 维线程组数量
+         * \param [in] groupCountY : Y 维线程组数量
+         * \param [in] groupCountZ : Z 维线程组数量
+         * \return 调用成功返回 T3D_OK；任一维为 0 或超出
+         *         getCapabilities().maxDispatchGroupCount 时返回 T3D_ERR_INVALID_PARAM
+         * \note 调用前须已通过 setComputeShader / setCS* 系列完成资源绑定
+         */
+        virtual TResult dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) = 0;
+
+        /**
+         * \brief 按 GPU 缓冲中的参数间接派发 compute shader
+         * \param [in] argsBuffer : 参数缓冲，须带 kGPUIndirectArgs，
+         *                          内容布局为 DispatchIndirectArgs
+         * \param [in] argsOffset : 参数在缓冲中的字节偏移，须为 4 的倍数
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) = 0;
+
+        /**
+         * \brief UAV 写后读同步点：保证之前的 UAV 写入对后续读取可见，并解除 UAV 绑定
+         * \param [in] buffers : 需要同步的资源列表；为空表示对所有当前绑定的 UAV 生效
+         * \return 调用成功返回 T3D_OK
+         * \remarks 各后端语义：
+         *          - D3D11：将这些资源占用的 CS UAV 槽置空。驱动自行跟踪 hazard，
+         *            无需显式 barrier；但不解绑就无法把同一资源当作 SRV 使用。
+         *          - Vulkan：vkCmdPipelineBarrier，含 storage image 的 layout 转换。
+         *          - OpenGL：glMemoryBarrier(SHADER_STORAGE | TEXTURE_FETCH |
+         *            SHADER_IMAGE_ACCESS | COMMAND_BARRIER)。
+         */
+        virtual TResult uavBarrier(const UnorderedAccessBuffers &buffers) = 0;
+
+        /**
+         * \brief 把 Append/Counter UAV 的当前元素计数拷贝到目标缓冲的指定偏移
+         * \param [in] dstBuffer : 目标缓冲，通常是 indirect 参数缓冲
+         * \param [in] dstOffset : 目标字节偏移，须为 4 的倍数
+         * \param [in] srcBuffer : 源结构化缓冲，创建时须置 hasCounter 或 isAppendConsume
+         * \return 调用成功返回 T3D_OK
+         * \note 这是纯 GPU 侧搬运，不涉及 CPU 同步，是 GPU-driven 剔除的关键原语：
+         *       compute 用 Append 缓冲收集可见实例，计数直接落进
+         *       DrawIndexedIndirectArgs::instanceCount 字段。
+         */
+        virtual TResult copyStructureCount(RenderBuffer *dstBuffer, size_t dstOffset,
+            RenderBuffer *srcBuffer) = 0;
+
+        /**
          * \brief 编译着色器
          * \param [in,out] shader : 着色器变体对象
          * \return 调用成功返回 T3D_OK
@@ -581,6 +696,52 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult render(uint32_t vertexCount, uint32_t startVertex) = 0;
+
+        /**
+         * \brief 索引实例化绘制
+         * \param [in] indexCount : 单个实例的索引数量
+         * \param [in] instanceCount : 实例数量
+         * \param [in] startIndex : 索引缓冲区起始位置
+         * \param [in] baseVertex : 加到每个索引值上的顶点基址，可为负
+         * \param [in] startInstance : 起始实例编号，非 0 时需要
+         *                             getCapabilities().supportsBaseInstance
+         * \return 调用成功返回 T3D_OK
+         * \note 刻意不复用 render 重载：render(a,b,c) 与 render(a,b) 已经靠参数个数
+         *       区分索引/非索引，再加 4/5 参重载后写错参数不会编译报错，只会画出
+         *       错误的东西。
+         */
+        virtual TResult renderIndexedInstanced(uint32_t indexCount, uint32_t instanceCount,
+            uint32_t startIndex, int32_t baseVertex, uint32_t startInstance) = 0;
+
+        /**
+         * \brief 非索引实例化绘制
+         * \param [in] vertexCount : 单个实例的顶点数量
+         * \param [in] instanceCount : 实例数量
+         * \param [in] startVertex : 顶点缓冲区起始位置
+         * \param [in] startInstance : 起始实例编号，非 0 时需要
+         *                             getCapabilities().supportsBaseInstance
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult renderInstanced(uint32_t vertexCount, uint32_t instanceCount,
+            uint32_t startVertex, uint32_t startInstance) = 0;
+
+        /**
+         * \brief 按 GPU 缓冲中的参数进行索引间接绘制
+         * \param [in] argsBuffer : 参数缓冲，须带 kGPUIndirectArgs，
+         *                          内容布局为 DrawIndexedIndirectArgs
+         * \param [in] argsOffset : 参数字节偏移，须为 4 的倍数
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult renderIndexedIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) = 0;
+
+        /**
+         * \brief 按 GPU 缓冲中的参数进行非索引间接绘制
+         * \param [in] argsBuffer : 参数缓冲，须带 kGPUIndirectArgs，
+         *                          内容布局为 DrawIndirectArgs
+         * \param [in] argsOffset : 参数字节偏移，须为 4 的倍数
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult renderIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) = 0;
 
         /**
          * \brief 清除所有状态、渲染资源，包括 RenderTarget
@@ -710,6 +871,8 @@ namespace Tiny3D
         Matrix4 mProjViewMatrix {false};
         /// 投影矩阵是否被 Y 翻转（OpenGL 渲染到 FBO 时由后端置 true）
         bool mProjectionFlipped {false};
+        /// 后端能力集，由派生类在 init() 中填充
+        RHICapabilities mCapabilities {};
     };
 }
 

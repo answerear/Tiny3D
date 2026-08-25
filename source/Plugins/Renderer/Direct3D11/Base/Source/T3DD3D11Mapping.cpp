@@ -144,6 +144,53 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    UINT D3D11Mapping::getBindFlags(uint32_t gpuAccess)
+    {
+        UINT dst = 0;
+
+        if ((gpuAccess & kGPUShaderResource) != 0)
+        {
+            dst |= D3D11_BIND_SHADER_RESOURCE;
+        }
+
+        if ((gpuAccess & kGPUUnorderedAccess) != 0)
+        {
+            dst |= D3D11_BIND_UNORDERED_ACCESS;
+        }
+
+        // kGPUIndirectArgs 在 D3D11 里是 MiscFlag 而非 BindFlag，见 getBufferMiscFlags
+
+        return dst;
+    }
+
+    //--------------------------------------------------------------------------
+
+    UINT D3D11Mapping::getBufferMiscFlags(StructuredBufferKind kind, uint32_t gpuAccess)
+    {
+        UINT dst = 0;
+
+        switch (kind)
+        {
+        case StructuredBufferKind::kStructured:
+            dst |= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+            break;
+        case StructuredBufferKind::kByteAddress:
+            dst |= D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;
+            break;
+        case StructuredBufferKind::kTyped:
+            break;
+        }
+
+        if ((gpuAccess & kGPUIndirectArgs) != 0)
+        {
+            dst |= D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;
+        }
+
+        return dst;
+    }
+
+    //--------------------------------------------------------------------------
+
     D3D11_TEXTURE1D_DESC D3D11Mapping::get(const PixelBuffer1DDesc &src)
     {
         D3D11_TEXTURE1D_DESC dst;

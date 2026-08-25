@@ -46,8 +46,10 @@ namespace Tiny3D
          * \param [in] memType : 内存驻留类型
          * \param [in] usage : 缓冲区用途
          * \param [in] accMode : CPU 访问模式
+         * \param [in] gpuAccess : GPU 侧附加访问权限（GPUAccessFlags 组合）
          */
-        PixelBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
+        PixelBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode,
+            uint32_t gpuAccess = kGPUNone);
 
     protected:
         ~PixelBuffer() override = default;
@@ -87,7 +89,10 @@ namespace Tiny3D
          * \param [in] accMode : CPU 访问模式
          */
         PixelBufferT(Descriptor_t *desc, MemoryType memType, Usage usage, uint32_t accMode)
-            : PixelBuffer(desc->buffer, memType, usage, accMode)
+            // shaderReadable 是 gpuAccess 之前的旧写法，两者在这里合并，
+            // 使后端只需读 getGPUAccess() 一处即可覆盖新旧调用点
+            : PixelBuffer(desc->buffer, memType, usage, accMode,
+                desc->gpuAccess | (desc->shaderReadable ? (uint32_t)kGPUShaderResource : (uint32_t)kGPUNone))
             , mDesc(desc)
         {
             

@@ -235,9 +235,27 @@ namespace Tiny3D
             mImpl->defaultDSS = [mImpl->device newDepthStencilStateWithDescriptor:dssDesc];
 
             collectInformation();
+            fillCapabilities();
         } while (false);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void MetalContext::fillCapabilities()
+    {
+        // 实例化与 per-instance step function 是 Metal 核心功能
+        mCapabilities.supportsInstancing = true;
+        mCapabilities.supportsBaseInstance = true;
+
+        // compute / UAV / indirect 链路尚未接入，保持 false 走上层降级路径
+        mCapabilities.supportsCompute = false;
+        mCapabilities.supportsUnorderedAccess = false;
+        mCapabilities.supportsStructuredBuffer = false;
+        mCapabilities.supportsIndirectDraw = false;
+        mCapabilities.supportsIndirectDispatch = false;
+        mCapabilities.supportsAppendConsumeBuffer = false;
     }
 
     //--------------------------------------------------------------------------
@@ -583,6 +601,8 @@ namespace Tiny3D
                 MTLVertexDescriptor *vd = [[MTLVertexDescriptor alloc] init];
                 const VertexAttributes &attrs = mImpl->vertexDecl->getAttributes();
                 uint32_t strides[8] = {0};
+                bool perInstance[8] = {false};
+                uint32_t stepRates[8] = {0};
                 for (size_t i = 0; i < attrs.size(); ++i)
                 {
                     const VertexAttribute &a = attrs[i];
@@ -595,13 +615,25 @@ namespace Tiny3D
                     {
                         strides[slot] = end;
                     }
+                    // 同 slot 的 InputRate 已由 VertexDeclaration::validateInputRates() 保证一致
+                    perInstance[slot] = (a.getInputRate() == VertexAttribute::InputRate::kPerInstance);
+                    stepRates[slot] = a.getInstanceStepRate();
                 }
                 for (uint32_t slot = 0; slot < 8; ++slot)
                 {
                     if (strides[slot] > 0)
                     {
                         vd.layouts[slot].stride = strides[slot];
-                        vd.layouts[slot].stepFunction = MTLVertexStepFunctionPerVertex;
+                        if (perInstance[slot])
+                        {
+                            vd.layouts[slot].stepFunction = MTLVertexStepFunctionPerInstance;
+                            vd.layouts[slot].stepRate = (stepRates[slot] > 0) ? stepRates[slot] : 1;
+                        }
+                        else
+                        {
+                            vd.layouts[slot].stepFunction = MTLVertexStepFunctionPerVertex;
+                            vd.layouts[slot].stepRate = 1;
+                        }
                     }
                 }
                 desc.vertexDescriptor = vd;
@@ -1455,10 +1487,24 @@ namespace Tiny3D
         return metalShader;
     }
 
-    TResult MetalContext::setComputeShader(ShaderVariant *) { return T3D_OK; }
-    TResult MetalContext::setCSConstantBuffers(uint32_t, const ConstantBuffers &) { return T3D_OK; }
-    TResult MetalContext::setCSPixelBuffers(uint32_t, const PixelBuffers &) { return T3D_OK; }
-    TResult MetalContext::setCSSamplers(uint32_t, const Samplers &) { return T3D_OK; }
+    // 这四个接口曾经返回 T3D_OK 但没有任何行为，调用方拿到「成功」却什么都没发生。
+    // Metal 的 compute encoder 链路尚未接入，改为显式声明不支持，避免继续假成功。
+    TResult MetalContext::setComputeShader(ShaderVariant *) { T3D_RHI_UNSUPPORTED(supportsCompute); }
+    TResult MetalContext::setCSConstantBuffers(uint32_t, const ConstantBuffers &) { T3D_RHI_UNSUPPORTED(supportsCompute); }
+    TResult MetalContext::setCSPixelBuffers(uint32_t, const PixelBuffers &) { T3D_RHI_UNSUPPORTED(supportsCompute); }
+    TResult MetalContext::setCSSamplers(uint32_t, const Samplers &) { T3D_RHI_UNSUPPORTED(supportsCompute); }
+
+    RHIStructuredBufferPtr MetalContext::createStructuredBuffer(StructuredBuffer *) { T3D_RHI_UNSUPPORTED_PTR(supportsStructuredBuffer); }
+    TResult MetalContext::setVSStructuredBuffers(uint32_t, const StructuredBuffers &) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
+    TResult MetalContext::setPSStructuredBuffers(uint32_t, const StructuredBuffers &) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
+    TResult MetalContext::setCSStructuredBuffers(uint32_t, const StructuredBuffers &) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
+    TResult MetalContext::setCSUnorderedAccessBuffers(uint32_t, const UnorderedAccessBuffers &, const UAVInitialCounts &) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
+    TResult MetalContext::dispatch(uint32_t, uint32_t, uint32_t) { T3D_RHI_UNSUPPORTED(supportsCompute); }
+    TResult MetalContext::dispatchIndirect(RenderBuffer *, size_t) { T3D_RHI_UNSUPPORTED(supportsIndirectDispatch); }
+    TResult MetalContext::uavBarrier(const UnorderedAccessBuffers &) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
+    TResult MetalContext::copyStructureCount(RenderBuffer *, size_t, RenderBuffer *) { T3D_RHI_UNSUPPORTED(supportsAppendConsumeBuffer); }
+    TResult MetalContext::renderIndexedIndirect(RenderBuffer *, size_t) { T3D_RHI_UNSUPPORTED(supportsIndirectDraw); }
+    TResult MetalContext::renderIndirect(RenderBuffer *, size_t) { T3D_RHI_UNSUPPORTED(supportsIndirectDraw); }
 
     //--------------------------------------------------------------------------
 
@@ -1499,6 +1545,17 @@ namespace Tiny3D
 
     TResult MetalContext::render(uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex)
     {
+        return renderIndexedInstanced(indexCount, 1, startIndex, (int32_t)baseVertex, 0);
+    }
+
+    TResult MetalContext::render(uint32_t vertexCount, uint32_t startVertex)
+    {
+        return renderInstanced(vertexCount, 1, startVertex, 0);
+    }
+
+    TResult MetalContext::renderIndexedInstanced(uint32_t indexCount, uint32_t instanceCount,
+        uint32_t startIndex, int32_t baseVertex, uint32_t startInstance)
+    {
         TResult ret = ensureEncoder();
         if (T3D_FAILED(ret))
         {
@@ -1526,13 +1583,14 @@ namespace Tiny3D
             indexType:indexType
             indexBuffer:indexBuffer
             indexBufferOffset:(NSUInteger)startIndex * indexSize
-            instanceCount:1
+            instanceCount:instanceCount
             baseVertex:baseVertex
-            baseInstance:0];
+            baseInstance:startInstance];
         return T3D_OK;
     }
 
-    TResult MetalContext::render(uint32_t vertexCount, uint32_t startVertex)
+    TResult MetalContext::renderInstanced(uint32_t vertexCount, uint32_t instanceCount,
+        uint32_t startVertex, uint32_t startInstance)
     {
         TResult ret = ensureEncoder();
         if (T3D_FAILED(ret))
@@ -1547,7 +1605,10 @@ namespace Tiny3D
         }
 
         [mImpl->encoder drawPrimitives:MetalMapPrimitive(mImpl->primitive)
-            vertexStart:startVertex vertexCount:vertexCount];
+            vertexStart:startVertex
+            vertexCount:vertexCount
+            instanceCount:instanceCount
+            baseInstance:startInstance];
         return T3D_OK;
     }
 

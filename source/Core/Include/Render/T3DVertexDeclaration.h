@@ -76,6 +76,15 @@ namespace Tiny3D
          */
         uint32_t getVertexSize(uint32_t source) const;
 
+        /**
+         * \brief 校验同一 slot 内所有属性的输入速率与步进率一致
+         * \return 全部一致返回 true；否则打错误日志并返回 false
+         * \remarks 各后端建立输入布局时对此有硬性要求（D3D11 混用 InputSlotClass 会让
+         *          CreateInputLayout 直接返回 E_INVALIDARG，且错误信息完全看不出原因），
+         *          因此在 onLoad 里提前拦住，把错误定位在顶点声明本身。
+         */
+        bool validateInputRates() const;
+
         /// 返回关联的顶点着色器变体
         ShaderVariant *getVertexShader() const { return mVertexShader; }
 

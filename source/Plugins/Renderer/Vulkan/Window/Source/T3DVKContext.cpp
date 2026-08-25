@@ -484,9 +484,40 @@ namespace Tiny3D
                     break;
             }
 
+            // 10. 填充能力位
+            fillCapabilities();
+
         } while (false);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void VKContext::fillCapabilities()
+    {
+        VkPhysicalDeviceProperties props {};
+        vkGetPhysicalDeviceProperties(mVkPhysicalDevice, &props);
+
+        // 实例化是 Vulkan 核心功能，无条件支持；startInstance 同样是核心参数
+        mCapabilities.supportsInstancing = true;
+        mCapabilities.supportsBaseInstance = true;
+
+        // 以下能力当前后端未实现对应 RHI 接口，保持 false 走上层降级路径
+        mCapabilities.supportsCompute = false;
+        mCapabilities.supportsUnorderedAccess = false;
+        mCapabilities.supportsStructuredBuffer = false;
+        mCapabilities.supportsIndirectDraw = false;
+        mCapabilities.supportsIndirectDispatch = false;
+        mCapabilities.supportsAppendConsumeBuffer = false;
+
+        for (uint32_t i = 0; i < 3; ++i)
+        {
+            mCapabilities.maxDispatchGroupCount[i] = props.limits.maxComputeWorkGroupCount[i];
+            mCapabilities.maxComputeGroupSize[i] = props.limits.maxComputeWorkGroupSize[i];
+        }
+        mCapabilities.maxComputeSharedMemory = props.limits.maxComputeSharedMemorySize;
+        mCapabilities.maxUnorderedAccessSlots = props.limits.maxPerStageDescriptorStorageBuffers;
     }
 
     //--------------------------------------------------------------------------
@@ -1692,10 +1723,32 @@ namespace Tiny3D
         // Create binding descriptions
         for (uint32_t slot : slots)
         {
+            // 同一 slot 内的 InputRate 已由 VertexDeclaration::validateInputRates() 保证一致，
+            // 因此取第一个匹配属性的速率即可
+            VertexAttribute::InputRate rate = VertexAttribute::InputRate::kPerVertex;
+            uint32_t stepRate = 0;
+            for (size_t i = 0; i < attrs.size(); ++i)
+            {
+                if (attrs[i].getSlot() == slot)
+                {
+                    rate = attrs[i].getInputRate();
+                    stepRate = attrs[i].getInstanceStepRate();
+                    break;
+                }
+            }
+
+            if (rate == VertexAttribute::InputRate::kPerInstance && stepRate > 1)
+            {
+                T3D_LOG_WARNING(LOG_TAG_VKRENDERER,
+                    "Vulkan core does not support instance step rate > 1 (slot %u, rate %u), fallback to 1 !",
+                    slot, stepRate);
+            }
+
             VkVertexInputBindingDescription binding {};
             binding.binding = slot;
             binding.stride = decl->getVertexSize(slot);
-            binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+            binding.inputRate = (rate == VertexAttribute::InputRate::kPerInstance)
+                ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
             mVertexBindings.push_back(binding);
         }
 
@@ -3028,7 +3081,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult VKContext::render(uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex)
+    TResult VKContext::prepareDrawCall(VkCommandBuffer &outCmdBuf)
     {
         if (!mRenderPassActive)
         {
@@ -3069,56 +3122,65 @@ namespace Tiny3D
             bindDescriptorSet(cmdBuf, pipelineLayout);
         }
 
-        vkCmdDrawIndexed(cmdBuf, indexCount, 1, startIndex, baseVertex, 0);
+        outCmdBuf = cmdBuf;
         return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult VKContext::render(uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex)
+    {
+        return renderIndexedInstanced(indexCount, 1, startIndex, (int32_t)baseVertex, 0);
     }
 
     //--------------------------------------------------------------------------
 
     TResult VKContext::render(uint32_t vertexCount, uint32_t startVertex)
     {
-        if (!mRenderPassActive)
-        {
-            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "render() called outside an active render pass !");
-            return T3D_ERR_INVALID_PARAM;
-        }
+        return renderInstanced(vertexCount, 1, startVertex, 0);
+    }
 
-        VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
+    //--------------------------------------------------------------------------
 
-        // Bind pipeline
-        VkPipeline pipeline = getOrCreatePipeline();
-        if (pipeline == VK_NULL_HANDLE)
-            return T3D_ERR_VK_CREATE_PIPELINE;
+    TResult VKContext::renderIndexedInstanced(uint32_t indexCount, uint32_t instanceCount,
+        uint32_t startIndex, int32_t baseVertex, uint32_t startInstance)
+    {
+        VkCommandBuffer cmdBuf = VK_NULL_HANDLE;
+        TResult ret = prepareDrawCall(cmdBuf);
+        if (T3D_FAILED(ret))
+            return ret;
 
-        if (pipeline != mVkCurrentPipeline)
-        {
-            vkCmdBindPipeline(cmdBuf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-            mVkCurrentPipeline = pipeline;
-        }
-
-        // Set dynamic depth bias
-        vkCmdSetDepthBias(cmdBuf,
-            mCurrentRasterizerDesc.DepthBias,
-            mCurrentRasterizerDesc.DepthBiasClamp,
-            mCurrentRasterizerDesc.SlopeScaledDepthBias);
-
-        if (mPendingScissorValid)
-        {
-            vkCmdSetScissor(cmdBuf, 0, 1, &mPendingScissor);
-        }
-
-        // Allocate and bind descriptor set (reflection-driven)
-        size_t dslHash = 0;
-        VkDescriptorSetLayout dsl = getOrCreateDescriptorSetLayout(dslHash);
-        if (dsl != VK_NULL_HANDLE)
-        {
-            VkPipelineLayout pipelineLayout = getOrCreatePipelineLayout(dsl, dslHash);
-            bindDescriptorSet(cmdBuf, pipelineLayout);
-        }
-
-        vkCmdDraw(cmdBuf, vertexCount, 1, startVertex, 0);
+        vkCmdDrawIndexed(cmdBuf, indexCount, instanceCount, startIndex, baseVertex, startInstance);
         return T3D_OK;
     }
+
+    //--------------------------------------------------------------------------
+
+    TResult VKContext::renderInstanced(uint32_t vertexCount, uint32_t instanceCount,
+        uint32_t startVertex, uint32_t startInstance)
+    {
+        VkCommandBuffer cmdBuf = VK_NULL_HANDLE;
+        TResult ret = prepareDrawCall(cmdBuf);
+        if (T3D_FAILED(ret))
+            return ret;
+
+        vkCmdDraw(cmdBuf, vertexCount, instanceCount, startVertex, startInstance);
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    RHIStructuredBufferPtr VKContext::createStructuredBuffer(StructuredBuffer *buffer) { T3D_RHI_UNSUPPORTED_PTR(supportsStructuredBuffer); }
+    TResult VKContext::setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
+    TResult VKContext::setPSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
+    TResult VKContext::setCSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
+    TResult VKContext::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
+    TResult VKContext::dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) { T3D_RHI_UNSUPPORTED(supportsCompute); }
+    TResult VKContext::dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset) { T3D_RHI_UNSUPPORTED(supportsIndirectDispatch); }
+    TResult VKContext::uavBarrier(const UnorderedAccessBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
+    TResult VKContext::copyStructureCount(RenderBuffer *dstBuffer, size_t dstOffset, RenderBuffer *srcBuffer) { T3D_RHI_UNSUPPORTED(supportsAppendConsumeBuffer); }
+    TResult VKContext::renderIndexedIndirect(RenderBuffer *argsBuffer, size_t argsOffset) { T3D_RHI_UNSUPPORTED(supportsIndirectDraw); }
+    TResult VKContext::renderIndirect(RenderBuffer *argsBuffer, size_t argsOffset) { T3D_RHI_UNSUPPORTED(supportsIndirectDraw); }
 
     //--------------------------------------------------------------------------
 

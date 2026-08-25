@@ -469,6 +469,16 @@ namespace Tiny3D
          */
         TResult setCSSamplers(uint32_t startSlot, const Samplers &samplers) override;
 
+        RHIStructuredBufferPtr createStructuredBuffer(StructuredBuffer *buffer) override;
+        TResult setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+        TResult setPSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+        TResult setCSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+        TResult setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts = UAVInitialCounts()) override;
+        TResult dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) override;
+        TResult dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) override;
+        TResult uavBarrier(const UnorderedAccessBuffers &buffers) override;
+        TResult copyStructureCount(RenderBuffer *dstBuffer, size_t dstOffset, RenderBuffer *srcBuffer) override;
+
         /**
          * \brief 编译着色器
          * \param [in,out] shader : 着色器变体对象
@@ -511,6 +521,30 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         TResult render(uint32_t vertexCount, uint32_t startVertex) override;
+
+        /**
+         * \brief 实例化的带索引绘制
+         * \param [in] indexCount : 单个实例的索引数量
+         * \param [in] instanceCount : 实例数量
+         * \param [in] startIndex : 索引缓冲区起始位置
+         * \param [in] baseVertex : 加到索引值上的基础顶点偏移
+         * \param [in] startInstance : 起始实例编号
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult renderIndexedInstanced(uint32_t indexCount, uint32_t instanceCount, uint32_t startIndex, int32_t baseVertex, uint32_t startInstance) override;
+
+        /**
+         * \brief 实例化的非索引绘制
+         * \param [in] vertexCount : 单个实例的顶点数量
+         * \param [in] instanceCount : 实例数量
+         * \param [in] startVertex : 顶点缓冲区起始位置
+         * \param [in] startInstance : 起始实例编号
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult renderInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t startVertex, uint32_t startInstance) override;
+
+        TResult renderIndexedIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) override;
+        TResult renderIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) override;
 
         /**
          * \brief 清除所有状态、渲染资源，包括 RenderTarget
@@ -592,6 +626,9 @@ namespace Tiny3D
         MetalContext();
 
         TResult collectInformation();
+
+        /// 填充 mCapabilities
+        void fillCapabilities();
 
         TResult ensureEncoder();
         TResult bindCurrentPipeline();

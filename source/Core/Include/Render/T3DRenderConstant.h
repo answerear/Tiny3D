@@ -268,6 +268,29 @@ namespace Tiny3D
     };
 
     /**
+     * \brief GPU 侧附加访问权限位标志
+     * \remarks 与 CPUAccessMode 对称。缓冲/纹理的「本职」绑定（顶点缓冲之于
+     *          VertexBuffer、着色器资源之于普通纹理）由资源类自身隐含，
+     *          本枚举只描述**额外**开放的能力，映射到 D3D11 的 BindFlags
+     *          附加位、Vulkan 的 VkBufferUsageFlags、GL 的 buffer target。
+     */
+    TENUM()
+    enum GPUAccessFlags : uint32_t
+    {
+        /// 无附加权限
+        kGPUNone            = 0,
+        /// 可作为着色器只读资源（SRV / sampled image / SSBO readonly）
+        kGPUShaderResource  = (1 << 0),
+        /// 可作为着色器读写资源（UAV / storage image / SSBO）
+        kGPUUnorderedAccess = (1 << 1),
+        /// 可作为 indirect draw / dispatch 的参数缓冲
+        kGPUIndirectArgs    = (1 << 2),
+    };
+
+    /// UAVInitialCounts 中表示「不修改计数器」的哨兵值，对应 D3D11 的 (UINT)-1
+    const uint32_t kKeepUAVCounter = 0xFFFFFFFFu;
+
+    /**
      * \brief 索引缓冲区位宽
      */
     TENUM()
@@ -276,6 +299,78 @@ namespace Tiny3D
         E_IT_16BITS = 0,    /// 16 位索引
         E_IT_32BITS,        /// 32 位索引
     };
+
+    /**
+     * \brief 非索引间接绘制参数
+     * \remarks 二进制布局与 D3D11 DrawInstancedIndirect /
+     *          VkDrawIndirectCommand / GL DrawArraysIndirectCommand 一致
+     */
+    TSTRUCT()
+    struct T3D_ENGINE_API DrawIndirectArgs
+    {
+        /// 单个实例的顶点数量
+        TPROPERTY()
+        uint32_t    vertexCountPerInstance {0};
+        /// 实例数量
+        TPROPERTY()
+        uint32_t    instanceCount {0};
+        /// 顶点缓冲区起始位置
+        TPROPERTY()
+        uint32_t    startVertexLocation {0};
+        /// 起始实例编号
+        TPROPERTY()
+        uint32_t    startInstanceLocation {0};
+    };
+
+    /**
+     * \brief 索引间接绘制参数
+     * \remarks 二进制布局与 D3D11 DrawIndexedInstancedIndirect /
+     *          VkDrawIndexedIndirectCommand / GL DrawElementsIndirectCommand 一致
+     */
+    TSTRUCT()
+    struct T3D_ENGINE_API DrawIndexedIndirectArgs
+    {
+        /// 单个实例的索引数量
+        TPROPERTY()
+        uint32_t    indexCountPerInstance {0};
+        /// 实例数量
+        TPROPERTY()
+        uint32_t    instanceCount {0};
+        /// 索引缓冲区起始位置
+        TPROPERTY()
+        uint32_t    startIndexLocation {0};
+        /// 有符号：允许负的顶点基址偏移
+        TPROPERTY()
+        int32_t     baseVertexLocation {0};
+        /// 起始实例编号
+        TPROPERTY()
+        uint32_t    startInstanceLocation {0};
+    };
+
+    /**
+     * \brief 间接派发参数
+     * \remarks 二进制布局与 D3D11 DispatchIndirect /
+     *          VkDispatchIndirectCommand / GL DispatchIndirectCommand 一致
+     */
+    TSTRUCT()
+    struct T3D_ENGINE_API DispatchIndirectArgs
+    {
+        /// X 维线程组数量
+        TPROPERTY()
+        uint32_t    threadGroupCountX {0};
+        /// Y 维线程组数量
+        TPROPERTY()
+        uint32_t    threadGroupCountY {0};
+        /// Z 维线程组数量
+        TPROPERTY()
+        uint32_t    threadGroupCountZ {0};
+    };
+
+    // 这三个结构直接以字节形式喂给各后端的 indirect API，布局被 D3D11 / Vulkan /
+    // OpenGL 三套 API 同时约束，任何字段增删或对齐变化都会静默画错东西。
+    static_assert(sizeof(DrawIndirectArgs) == 16, "DrawIndirectArgs layout must match native indirect args");
+    static_assert(sizeof(DrawIndexedIndirectArgs) == 20, "DrawIndexedIndirectArgs layout must match native indirect args");
+    static_assert(sizeof(DispatchIndirectArgs) == 12, "DispatchIndirectArgs layout must match native indirect args");
 }
 
 

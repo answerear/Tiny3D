@@ -33,10 +33,30 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RenderBuffer::RenderBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
+    uint32_t RenderBuffer::validateGPUAccess(uint32_t gpuAccess, Usage usage)
+    {
+        uint32_t validated = gpuAccess;
+
+        if ((validated & kGPUUnorderedAccess) != 0
+            && (usage == Usage::kImmutable || usage == Usage::kDynamic || usage == Usage::kCopy))
+        {
+            T3D_LOG_ERROR(LOG_TAG_RENDER, "kGPUUnorderedAccess is incompatible with usage [%u]. "
+                "Only Usage::kStatic buffers can be bound as unordered access views. "
+                "The flag is dropped !", (uint32_t)usage);
+            validated &= ~(uint32_t)kGPUUnorderedAccess;
+        }
+
+        return validated;
+    }
+
+    //--------------------------------------------------------------------------
+
+    RenderBuffer::RenderBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode,
+        uint32_t gpuAccess /* = kGPUNone */)
         : mMemoryType(memType)
         , mUsage(usage)
         , mAccessMode(accMode)
+        , mGPUAccess(validateGPUAccess(gpuAccess, usage))
     {
         if (memType == MemoryType::kBoth)
         {

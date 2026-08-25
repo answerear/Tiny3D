@@ -502,6 +502,97 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    RHIStructuredBufferPtr NullContext::createStructuredBuffer(StructuredBuffer *buffer)
+    {
+        T3D_RHI_UNSUPPORTED_PTR(supportsStructuredBuffer);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers)
+    {
+        T3D_RHI_UNSUPPORTED(supportsStructuredBuffer);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::setPSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers)
+    {
+        T3D_RHI_UNSUPPORTED(supportsStructuredBuffer);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::setCSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers)
+    {
+        T3D_RHI_UNSUPPORTED(supportsStructuredBuffer);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts)
+    {
+        T3D_RHI_UNSUPPORTED(supportsUnorderedAccess);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ)
+    {
+        T3D_RHI_UNSUPPORTED(supportsCompute);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset)
+    {
+        T3D_RHI_UNSUPPORTED(supportsIndirectDispatch);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::uavBarrier(const UnorderedAccessBuffers &buffers)
+    {
+        T3D_RHI_UNSUPPORTED(supportsUnorderedAccess);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::copyStructureCount(RenderBuffer *dstBuffer, size_t dstOffset, RenderBuffer *srcBuffer)
+    {
+        T3D_RHI_UNSUPPORTED(supportsAppendConsumeBuffer);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::renderIndexedInstanced(uint32_t indexCount, uint32_t instanceCount, uint32_t startIndex, int32_t baseVertex, uint32_t startInstance)
+    {
+        T3D_RHI_UNSUPPORTED(supportsInstancing);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::renderInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t startVertex, uint32_t startInstance)
+    {
+        T3D_RHI_UNSUPPORTED(supportsInstancing);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::renderIndexedIndirect(RenderBuffer *argsBuffer, size_t argsOffset)
+    {
+        T3D_RHI_UNSUPPORTED(supportsIndirectDraw);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::renderIndirect(RenderBuffer *argsBuffer, size_t argsOffset)
+    {
+        T3D_RHI_UNSUPPORTED(supportsIndirectDraw);
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult NullContext::reset()
     {
         return T3D_OK;

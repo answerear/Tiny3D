@@ -42,6 +42,25 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    VertexAttribute::VertexAttribute(uint32_t slot, uint32_t offset, Type type, Semantic semantic, uint32_t semanticIndex,
+        InputRate inputRate, uint32_t instanceStepRate)
+        : mType(type)
+        , mSemantic(semantic)
+        , mOffset(offset)
+        , mSlot(slot)
+        , mSemanticIndex(semanticIndex)
+        , mInputRate(inputRate)
+        , mInstanceStepRate(inputRate == InputRate::kPerInstance ? std::max(instanceStepRate, 1u) : 0)
+    {
+        if (inputRate == InputRate::kPerVertex && instanceStepRate != 0)
+        {
+            T3D_LOG_WARNING(LOG_TAG_RENDER, "Vertex attribute with kPerVertex input rate must have zero instance "
+                "step rate, but got [%u]. Forced to 0 !", instanceStepRate);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     uint32_t VertexAttribute::getSize() const
     {
         uint32_t s = 0;

@@ -78,6 +78,37 @@ namespace Tiny3D
 
     #define TXT_DESCRIPTION             "Description"
 
+    /** \brief 后端声明某个 RHI 接口不受支持时的统一 stub 宏 */
+
+    /**
+     * \brief 声明某个返回 TResult 的 RHI 接口在当前后端不受支持
+     * \remarks 三件事一次做完：
+     *          1) Debug 下断言对应能力位为 false，防止「能力位说支持但接口是 stub」
+     *          2) 打警告日志，让误用在日志里立刻可见
+     *          3) 返回 T3D_ERR_NOT_IMPLEMENT，而不是谎报 T3D_OK
+     *          只能在 RHIContext 派生类的成员函数内使用（依赖 getCapabilities()）
+     * \param capField : RHICapabilities 中对应的能力位字段名
+     */
+    #define T3D_RHI_UNSUPPORTED(capField)                                       \
+        do {                                                                    \
+            T3D_ASSERT(!getCapabilities().capField);                            \
+            T3D_LOG_WARNING(LOG_TAG_RENDER,                                     \
+                "%s is not supported by this RHI backend", __FUNCTION__);        \
+            return T3D_ERR_NOT_IMPLEMENT;                                       \
+        } while (false)
+
+    /**
+     * \brief T3D_RHI_UNSUPPORTED 的指针返回版本，用于 createXXX 系列接口
+     * \param capField : RHICapabilities 中对应的能力位字段名
+     */
+    #define T3D_RHI_UNSUPPORTED_PTR(capField)                                   \
+        do {                                                                    \
+            T3D_ASSERT(!getCapabilities().capField);                            \
+            T3D_LOG_WARNING(LOG_TAG_RENDER,                                     \
+                "%s is not supported by this RHI backend", __FUNCTION__);        \
+            return nullptr;                                                     \
+        } while (false)
+
     /** \brief Core 类型前向声明，供头文件间解耦引用 */
 
     class Object;
@@ -157,6 +188,7 @@ namespace Tiny3D
     class ShaderConstantValue;
     class ShaderSamplerParam;
     class ShaderSamplerValue;
+    class ShaderResourceParam;
     class ShaderVariant;
     class ShaderVariantSet;
     enum class SHADER_LANGUAGE : uint32_t;
@@ -223,6 +255,7 @@ namespace Tiny3D
     struct PixelBuffer1DDesc;
     struct PixelBuffer2DDesc;
     struct PixelBuffer3DDesc;
+    struct StructuredBufferDesc;
 
     class BlendState;
     class DepthStencilState;
@@ -239,6 +272,7 @@ namespace Tiny3D
     class PixelBuffer3D;
     class PixelBufferCubemap;
     class ConstantBuffer;
+    class StructuredBuffer;
 
     struct VertexAttribute;
 
@@ -269,6 +303,7 @@ namespace Tiny3D
     class RHIPixelBuffer3D;
     class RHIPixelBufferCubemap;
     class RHIConstantBuffer;
+    class RHIStructuredBuffer;
     class RHIVertexDeclaration;
     class RHIRenderTarget;
     class RHIRenderWindow;

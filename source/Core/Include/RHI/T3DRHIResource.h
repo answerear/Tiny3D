@@ -66,6 +66,8 @@ namespace Tiny3D
             kRenderWindow,          ///< 渲染窗口（交换链）
             kRenderTexture,         ///< 渲染纹理
             kShader,                ///< 着色器
+            // 新增类型一律追加在末尾，避免既有日志里已出现过的数值含义漂移
+            kStructuredBuffer,      ///< 结构化缓冲（Structured / ByteAddress / Typed）
         };
 
         /**

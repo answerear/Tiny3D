@@ -47,6 +47,21 @@ namespace Tiny3D
         static D3D11_USAGE get(Usage src);
 
         static UINT get(uint32_t accMode);
+
+        /**
+         * \brief 把引擎 GPUAccessFlags 映射为 D3D11 BindFlags 附加位
+         * \param [in] gpuAccess : GPUAccessFlags 组合
+         * \return D3D11_BIND_* 组合；kGPUIndirectArgs 不产生 BindFlags（它是 MiscFlag）
+         */
+        static UINT getBindFlags(uint32_t gpuAccess);
+
+        /**
+         * \brief 计算结构化缓冲的 D3D11 MiscFlags
+         * \param [in] kind : 缓冲形态
+         * \param [in] gpuAccess : GPUAccessFlags 组合
+         * \return D3D11_RESOURCE_MISC_* 组合
+         */
+        static UINT getBufferMiscFlags(StructuredBufferKind kind, uint32_t gpuAccess);
         
         static D3D11_TEXTURE1D_DESC get(const PixelBuffer1DDesc &src);
         

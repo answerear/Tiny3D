@@ -34,8 +34,9 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    PixelBuffer::PixelBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
-        : RenderBuffer(buffer, memType, usage, accMode)
+    PixelBuffer::PixelBuffer(const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode,
+        uint32_t gpuAccess /* = kGPUNone */)
+        : RenderBuffer(buffer, memType, usage, accMode, gpuAccess)
     {
         
     }

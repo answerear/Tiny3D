@@ -149,12 +149,48 @@ namespace Tiny3D
 #endif
 
             D3D_REF_COUNT("D3D11 #1", mD3DDevice);
+
+            fillCapabilities();
             
             // traceDebugInfo("D3D11 D3DObjects trace - After ", __FUNCTION__);
             setupBlitQuad();
         } while (false);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void D3D11Context::fillCapabilities()
+    {
+        // FL 11.0 起 compute / UAV / structured buffer / indirect 全部可用；
+        // FL 10.x 只有 4 个 UAV 槽的阉割版 CS 4.0，能力位一律不给，让上层走降级路径
+        const bool hasFullCompute = (mFeatureLevel >= D3D_FEATURE_LEVEL_11_0);
+
+        mCapabilities.supportsCompute = hasFullCompute;
+        mCapabilities.supportsUnorderedAccess = hasFullCompute;
+        mCapabilities.supportsStructuredBuffer = hasFullCompute;
+        mCapabilities.supportsIndirectDraw = hasFullCompute;
+        mCapabilities.supportsIndirectDispatch = hasFullCompute;
+        mCapabilities.supportsAppendConsumeBuffer = hasFullCompute;
+
+        // 实例化绘制从 FL 10.0 就有，且 D3D11 的 StartInstanceLocation 一直可以非零
+        mCapabilities.supportsInstancing = true;
+        mCapabilities.supportsBaseInstance = true;
+
+        if (hasFullCompute)
+        {
+            mCapabilities.maxDispatchGroupCount[0] = D3D11_CS_THREAD_GROUP_MAX_X;
+            mCapabilities.maxDispatchGroupCount[1] = D3D11_CS_THREAD_GROUP_MAX_Y;
+            mCapabilities.maxDispatchGroupCount[2] = D3D11_CS_THREAD_GROUP_MAX_Z;
+            mCapabilities.maxComputeGroupSize[0] = D3D11_CS_THREAD_GROUP_MAX_X;
+            mCapabilities.maxComputeGroupSize[1] = D3D11_CS_THREAD_GROUP_MAX_Y;
+            mCapabilities.maxComputeGroupSize[2] = D3D11_CS_THREAD_GROUP_MAX_Z;
+            mCapabilities.maxComputeSharedMemory = D3D11_CS_THREAD_LOCAL_TEMP_REGISTER_POOL;
+            // D3D11.0 只有 8 个 UAV 槽，D3D11.1 才放宽到 64
+            mCapabilities.maxUnorderedAccessSlots = (mFeatureLevel >= D3D_FEATURE_LEVEL_11_1)
+                ? D3D11_1_UAV_SLOT_COUNT : D3D11_PS_CS_UAV_REGISTER_COUNT;
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -576,6 +612,20 @@ namespace Tiny3D
                 texDesc.CPUAccessFlags = D3D11Mapping::get(buffer->getCPUAccessMode()); // 设置 CPU 访问标志
                 texDesc.MiscFlags = 0; // 设置其他标志
 
+                const bool wantsUAV = (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0;
+                if (wantsUAV)
+                {
+                    if (uMSAACount > 1)
+                    {
+                        T3D_LOG_WARNING(LOG_TAG_D3D11RENDERER, "MSAA render texture cannot have "
+                            "unordered access, ignore kGPUUnorderedAccess !");
+                    }
+                    else
+                    {
+                        texDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+                    }
+                }
+
                 HRESULT hr = mD3DDevice->CreateTexture2D(&texDesc, nullptr, &d3dPixelBuffer->D3DTexture);
                 if (FAILED(hr))
                 {
@@ -650,6 +700,17 @@ namespace Tiny3D
                     ret = T3D_ERR_D3D11_CREATE_SHADER_RESOURCE_VIEW;
                     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create SRV when create render texture ! DX ERROR [%d]", hr);
                     break;
+                }
+
+                if ((texDesc.BindFlags & D3D11_BIND_UNORDERED_ACCESS) != 0)
+                {
+                    // UAV 建在 MSAA 纹理本体上，此处 uMSAACount 必然为 1
+                    ret = buildTextureUAView(d3dPixelBuffer->D3DTexture, TEXTURE_TYPE::TT_2D,
+                        texDesc.Format, texDesc.ArraySize, uMSAACount, &d3dPixelBuffer->D3DUAView);
+                    if (T3D_FAILED(ret))
+                    {
+                        break;
+                    }
                 }
             }
             else
@@ -773,6 +834,7 @@ namespace Tiny3D
         if (T3D_FAILED(ret) && d3dPixelBuffer != nullptr)
         {
             // 半成品资源不能留给上层，否则后面无从判断哪些视图是有效的
+            D3D_SAFE_RELEASE(d3dPixelBuffer->D3DUAView);
             D3D_SAFE_RELEASE(d3dPixelBuffer->D3DSRView);
             D3D_SAFE_RELEASE(d3dPixelBuffer->D3DRTView);
             D3D_SAFE_RELEASE(d3dPixelBuffer->D3DDSView);
@@ -802,6 +864,15 @@ namespace Tiny3D
         mD3DDeviceContext->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRViews);
         mD3DDeviceContext->CSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRViews);
 
+        if (d3dBuffer->D3DUAView != nullptr)
+        {
+            ID3D11UnorderedAccessView *nullUAViews[D3D11_1_UAV_SLOT_COUNT] = {};
+            mD3DDeviceContext->CSSetUnorderedAccessViews(0, D3D11_1_UAV_SLOT_COUNT, nullUAViews, nullptr);
+            memset(mBoundCSUAVs, 0, sizeof(mBoundCSUAVs));
+            mBoundCSUAVCount = 0;
+        }
+
+        D3D_SAFE_RELEASE(d3dBuffer->D3DUAView);
         D3D_SAFE_RELEASE(d3dBuffer->D3DSRView);
         D3D_SAFE_RELEASE(d3dBuffer->D3DRTView);
         D3D_SAFE_RELEASE(d3dBuffer->D3DDSView);
@@ -1018,6 +1089,12 @@ namespace Tiny3D
         mD3DDeviceContext->HSGetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, mBackupState.HSShaderResources);
         mD3DDeviceContext->DSGetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, mBackupState.DSShaderResources);
         mD3DDeviceContext->CSGetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, mBackupState.CSShaderResources);
+
+        // CS 的 UAV 槽位；FL 11.0 以下没有可用的 UAV 槽，问了也只会拿到空数组
+        if (mCapabilities.supportsUnorderedAccess)
+        {
+            mD3DDeviceContext->CSGetUnorderedAccessViews(0, mCapabilities.maxUnorderedAccessSlots, mBackupState.CSUnorderedAccessViews);
+        }
 
         // 所有着色器
         mD3DDeviceContext->VSGetShader(&mBackupState.VS, mBackupState.VSInstances, &mBackupState.VSInstancesCount);
@@ -1660,8 +1737,20 @@ namespace Tiny3D
                 d3dDescs[i].Format = D3D11Mapping::get(attrib.getType());
                 d3dDescs[i].InputSlot = (UINT)attrib.getSlot();
                 d3dDescs[i].AlignedByteOffset = (UINT)attrib.getOffset();
-                d3dDescs[i].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-                d3dDescs[i].InstanceDataStepRate = 0;
+
+                if (attrib.getInputRate() == VertexAttribute::InputRate::kPerInstance)
+                {
+                    d3dDescs[i].InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;
+                    // stepRate 为 0 时 D3D11 会按「整批实例共用一份数据」处理，
+                    // 而引擎语义的默认值是每实例步进一次，所以要补成 1
+                    d3dDescs[i].InstanceDataStepRate = attrib.getInstanceStepRate() != 0
+                        ? (UINT)attrib.getInstanceStepRate() : 1;
+                }
+                else
+                {
+                    d3dDescs[i].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+                    d3dDescs[i].InstanceDataStepRate = 0;
+                }
             }
             
             auto lambda = [this](const D3D11InputDescs &d3dDescs, const D3D11VertexDeclarationPtr &d3dDecl, const ShaderVariantPtr &vertexShader)
@@ -1729,12 +1818,26 @@ namespace Tiny3D
                 break;
             }
             
+            const uint32_t gpuAccess = buffer->getGPUAccess();
+            if ((gpuAccess & kGPUUnorderedAccess) != 0 && d3dUsage != D3D11_USAGE_DEFAULT)
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Vertex buffer with unordered access requires "
+                    "Usage::kStatic !");
+                d3dBuffer = nullptr;
+                break;
+            }
+
             D3D11_BUFFER_DESC d3dDesc;
             memset(&d3dDesc, 0, sizeof(d3dDesc));
             d3dDesc.Usage = d3dUsage;
             d3dDesc.ByteWidth = (UINT)buffer->getBufferSize();
-            d3dDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+            d3dDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER | D3D11Mapping::getBindFlags(gpuAccess);
             d3dDesc.CPUAccessFlags = d3dAccess;
+            // 顶点缓冲要同时充当 compute 的 I/O，只能走 Raw 视图，
+            // structured 的 MiscFlag 与 D3D11_BIND_VERTEX_BUFFER 互斥
+            d3dDesc.MiscFlags = (gpuAccess & (kGPUShaderResource | kGPUUnorderedAccess)) != 0
+                ? D3D11Mapping::getBufferMiscFlags(StructuredBufferKind::kByteAddress, gpuAccess)
+                : D3D11Mapping::getBufferMiscFlags(StructuredBufferKind::kTyped, gpuAccess);
             
             auto lambda = [this](const D3D11_BUFFER_DESC &d3dDesc, const D3D11VertexBufferPtr &d3dBuffer, const VertexBufferPtr &buffer)
             {
@@ -1765,6 +1868,14 @@ namespace Tiny3D
                     }
 
                     d3dBuffer->D3DBuffer = pD3DBuffer;
+
+                    ret = buildBufferViews(pD3DBuffer, StructuredBufferKind::kByteAddress,
+                        PixelFormat::E_PF_UNKNOWN, 4, d3dDesc.ByteWidth / 4, buffer->getGPUAccess(),
+                        false, false, &d3dBuffer->D3DSRView, &d3dBuffer->D3DUAView);
+                    if (T3D_FAILED(ret))
+                    {
+                        break;
+                    }
                 } while (false);
                 
                 return ret;
@@ -1822,12 +1933,24 @@ namespace Tiny3D
                 break;
             }
             
+            const uint32_t gpuAccess = buffer->getGPUAccess();
+            if ((gpuAccess & kGPUUnorderedAccess) != 0 && d3dUsage != D3D11_USAGE_DEFAULT)
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Index buffer with unordered access requires "
+                    "Usage::kStatic !");
+                d3dBuffer = nullptr;
+                break;
+            }
+
             D3D11_BUFFER_DESC d3dDesc;
             memset(&d3dDesc, 0, sizeof(d3dDesc));
             d3dDesc.Usage = d3dUsage;
             d3dDesc.ByteWidth = (UINT)buffer->getBufferSize();
-            d3dDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+            d3dDesc.BindFlags = D3D11_BIND_INDEX_BUFFER | D3D11Mapping::getBindFlags(gpuAccess);
             d3dDesc.CPUAccessFlags = d3dAccess;
+            d3dDesc.MiscFlags = (gpuAccess & (kGPUShaderResource | kGPUUnorderedAccess)) != 0
+                ? D3D11Mapping::getBufferMiscFlags(StructuredBufferKind::kByteAddress, gpuAccess)
+                : D3D11Mapping::getBufferMiscFlags(StructuredBufferKind::kTyped, gpuAccess);
             
             auto lambda = [this](const D3D11_BUFFER_DESC &d3dDesc, const D3D11IndexBufferPtr &d3dBuffer, const IndexBufferPtr &buffer)
             {
@@ -1858,6 +1981,14 @@ namespace Tiny3D
                     }
 
                     d3dBuffer->D3DBuffer = pD3DBuffer;
+
+                    ret = buildBufferViews(pD3DBuffer, StructuredBufferKind::kByteAddress,
+                        PixelFormat::E_PF_UNKNOWN, 4, d3dDesc.ByteWidth / 4, buffer->getGPUAccess(),
+                        false, false, &d3dBuffer->D3DSRView, &d3dBuffer->D3DUAView);
+                    if (T3D_FAILED(ret))
+                    {
+                        break;
+                    }
                 } while (false);
                 
                 return ret;
@@ -1952,6 +2083,285 @@ namespace Tiny3D
         } while (false);
         
         return d3dBuffer;
+    }
+
+    //--------------------------------------------------------------------------
+
+    RHIStructuredBufferPtr D3D11Context::createStructuredBuffer(StructuredBuffer *buffer)
+    {
+        D3D11StructuredBufferPtr d3dBuffer = D3D11StructuredBuffer::create();
+
+        do
+        {
+            D3D11_USAGE d3dUsage;
+            uint32_t d3dAccess = 0;
+
+            TResult ret = D3D11Mapping::get(buffer->getUsage(), buffer->getCPUAccessMode(), d3dUsage, d3dAccess);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to mapping usage & cpu access mode when create structured buffer !");
+                d3dBuffer = nullptr;
+                break;
+            }
+
+            const StructuredBufferDesc &desc = buffer->getDescriptor();
+            const uint32_t gpuAccess = buffer->getGPUAccess();
+
+            // D3D11 只允许 DEFAULT 资源建 UAV，DYNAMIC / IMMUTABLE / STAGING 一律 E_INVALIDARG
+            if ((gpuAccess & kGPUUnorderedAccess) != 0 && d3dUsage != D3D11_USAGE_DEFAULT)
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Structured buffer with unordered access requires "
+                    "Usage::kStatic !");
+                d3dBuffer = nullptr;
+                break;
+            }
+
+            const size_t byteWidth = buffer->getGPUSizeInBytes();
+
+            D3D11_BUFFER_DESC d3dDesc;
+            memset(&d3dDesc, 0, sizeof(d3dDesc));
+            d3dDesc.Usage = d3dUsage;
+            d3dDesc.ByteWidth = (UINT)byteWidth;
+            d3dDesc.BindFlags = D3D11Mapping::getBindFlags(gpuAccess);
+            d3dDesc.CPUAccessFlags = d3dAccess;
+            d3dDesc.MiscFlags = D3D11Mapping::getBufferMiscFlags(desc.kind, gpuAccess);
+            if (desc.kind == StructuredBufferKind::kStructured)
+            {
+                d3dDesc.StructureByteStride = desc.elementSize;
+            }
+
+            auto lambda = [this](const D3D11_BUFFER_DESC &d3dDesc, const D3D11StructuredBufferPtr &d3dBuffer, const StructuredBufferPtr &buffer)
+            {
+                TResult ret = T3D_OK;
+
+                do
+                {
+                    D3D11_SUBRESOURCE_DATA initData;
+                    memset(&initData, 0, sizeof(initData));
+                    D3D11_SUBRESOURCE_DATA *pInitData = nullptr;
+
+                    if (buffer->getBuffer().Data != nullptr)
+                    {
+                        initData.pSysMem = buffer->getBuffer().Data;
+                        pInitData = &initData;
+                    }
+
+                    ID3D11Buffer *pD3DBuffer = nullptr;
+                    HRESULT hr = mD3DDevice->CreateBuffer(&d3dDesc, pInitData, &pD3DBuffer);
+                    if (FAILED(hr))
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create structured buffer ! DX ERROR [%d]", hr);
+                        ret = T3D_ERR_D3D11_CREATE_BUFFER;
+                        break;
+                    }
+
+                    d3dBuffer->D3DBuffer = pD3DBuffer;
+
+                    const StructuredBufferDesc &desc = buffer->getDescriptor();
+                    ret = buildBufferViews(pD3DBuffer, desc.kind, desc.format, desc.elementSize,
+                        desc.elementCount, buffer->getGPUAccess(), desc.hasCounter, desc.isAppendConsume,
+                        &d3dBuffer->D3DSRView, &d3dBuffer->D3DUAView);
+                    if (T3D_FAILED(ret))
+                    {
+                        break;
+                    }
+                } while (false);
+
+                return ret;
+            };
+
+            ret = ENQUEUE_UNIQUE_COMMAND(lambda, d3dDesc, d3dBuffer, StructuredBufferPtr(buffer));
+            if (T3D_FAILED(ret))
+            {
+                d3dBuffer = nullptr;
+                break;
+            }
+        } while (false);
+
+        return d3dBuffer;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::buildBufferViews(ID3D11Buffer *d3dBuffer, StructuredBufferKind kind,
+        PixelFormat format, uint32_t elementSize, uint32_t elementCount, uint32_t gpuAccess,
+        bool hasCounter, bool isAppendConsume, ID3D11ShaderResourceView **outSRV,
+        ID3D11UnorderedAccessView **outUAV)
+    {
+        if (outSRV != nullptr)
+        {
+            *outSRV = nullptr;
+        }
+
+        if (outUAV != nullptr)
+        {
+            *outUAV = nullptr;
+        }
+
+        if ((gpuAccess & (kGPUShaderResource | kGPUUnorderedAccess)) == 0)
+        {
+            return T3D_OK;
+        }
+
+        // Raw 视图按 4 字节寻址，元素数以字节总量换算；结构化与 typed 按元素个数
+        const uint32_t byteWidth = elementSize * elementCount;
+        const uint32_t numElements = (kind == StructuredBufferKind::kByteAddress)
+            ? byteWidth / 4 : elementCount;
+
+        // 这三种形态的 Format 是硬性约定，填错会在建视图时直接 E_INVALIDARG
+        DXGI_FORMAT viewFormat = DXGI_FORMAT_UNKNOWN;
+        switch (kind)
+        {
+        case StructuredBufferKind::kStructured:
+            viewFormat = DXGI_FORMAT_UNKNOWN;
+            break;
+        case StructuredBufferKind::kByteAddress:
+            viewFormat = DXGI_FORMAT_R32_TYPELESS;
+            break;
+        case StructuredBufferKind::kTyped:
+            viewFormat = D3D11Mapping::get(format);
+            break;
+        }
+
+        if ((gpuAccess & kGPUShaderResource) != 0 && outSRV != nullptr)
+        {
+            D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+            memset(&srvDesc, 0, sizeof(srvDesc));
+            srvDesc.Format = viewFormat;
+            // Raw 视图只有 BUFFEREX 维度支持，统一走 BUFFEREX 省一个分支
+            srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
+            srvDesc.BufferEx.FirstElement = 0;
+            srvDesc.BufferEx.NumElements = numElements;
+            srvDesc.BufferEx.Flags = (kind == StructuredBufferKind::kByteAddress)
+                ? D3D11_BUFFEREX_SRV_FLAG_RAW : 0;
+
+            HRESULT hr = mD3DDevice->CreateShaderResourceView(d3dBuffer, &srvDesc, outSRV);
+            if (FAILED(hr))
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create buffer shader resource view ! "
+                    "DX ERROR [%d]", hr);
+                return T3D_ERR_D3D11_CREATE_SHADER_RESOURCE_VIEW;
+            }
+        }
+
+        if ((gpuAccess & kGPUUnorderedAccess) != 0 && outUAV != nullptr)
+        {
+            D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
+            memset(&uavDesc, 0, sizeof(uavDesc));
+            uavDesc.Format = viewFormat;
+            uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+            uavDesc.Buffer.FirstElement = 0;
+            uavDesc.Buffer.NumElements = numElements;
+            uavDesc.Buffer.Flags = 0;
+
+            if (kind == StructuredBufferKind::kByteAddress)
+            {
+                uavDesc.Buffer.Flags |= D3D11_BUFFER_UAV_FLAG_RAW;
+            }
+
+            // APPEND 与 COUNTER 互斥，引擎侧已在 StructuredBuffer::validateDescriptor 保证
+            if (isAppendConsume)
+            {
+                uavDesc.Buffer.Flags |= D3D11_BUFFER_UAV_FLAG_APPEND;
+            }
+            else if (hasCounter)
+            {
+                uavDesc.Buffer.Flags |= D3D11_BUFFER_UAV_FLAG_COUNTER;
+            }
+
+            HRESULT hr = mD3DDevice->CreateUnorderedAccessView(d3dBuffer, &uavDesc, outUAV);
+            if (FAILED(hr))
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create buffer unordered access view ! "
+                    "DX ERROR [%d]", hr);
+                return T3D_ERR_D3D11_CREATE_UNORDERED_ACCESS_VIEW;
+            }
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::buildTextureUAView(ID3D11Resource *resource, TEXTURE_TYPE texType,
+        DXGI_FORMAT format, uint32_t arraySize, uint32_t sampleCount,
+        ID3D11UnorderedAccessView **outUAV)
+    {
+        *outUAV = nullptr;
+
+        // MSAA 纹理没有 UAV 维度可用，静默跳过会让上层以为写成功了，所以要显式警告
+        if (sampleCount > 1)
+        {
+            T3D_LOG_WARNING(LOG_TAG_D3D11RENDERER, "MSAA texture cannot have an unordered access view, "
+                "skip creating it !");
+            return T3D_OK;
+        }
+
+        D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
+        memset(&uavDesc, 0, sizeof(uavDesc));
+        uavDesc.Format = format;
+
+        switch (texType)
+        {
+        case TEXTURE_TYPE::TT_1D:
+            {
+                if (arraySize > 1)
+                {
+                    uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE1DARRAY;
+                    uavDesc.Texture1DArray.MipSlice = 0;
+                    uavDesc.Texture1DArray.FirstArraySlice = 0;
+                    uavDesc.Texture1DArray.ArraySize = arraySize;
+                }
+                else
+                {
+                    uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE1D;
+                    uavDesc.Texture1D.MipSlice = 0;
+                }
+            }
+            break;
+        case TEXTURE_TYPE::TT_2D:
+        case TEXTURE_TYPE::TT_CUBE:
+            {
+                // Cubemap 的 UAV 只能按 2D 数组表达，6 * 立方体个数就是数组层数
+                if (arraySize > 1)
+                {
+                    uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2DARRAY;
+                    uavDesc.Texture2DArray.MipSlice = 0;
+                    uavDesc.Texture2DArray.FirstArraySlice = 0;
+                    uavDesc.Texture2DArray.ArraySize = arraySize;
+                }
+                else
+                {
+                    uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+                    uavDesc.Texture2D.MipSlice = 0;
+                }
+            }
+            break;
+        case TEXTURE_TYPE::TT_3D:
+            {
+                uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE3D;
+                uavDesc.Texture3D.MipSlice = 0;
+                uavDesc.Texture3D.FirstWSlice = 0;
+                uavDesc.Texture3D.WSize = (UINT)-1;
+            }
+            break;
+        default:
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Unsupported texture type [%d] for unordered "
+                    "access view !", (int32_t)texType);
+                return T3D_ERR_D3D11_CREATE_UNORDERED_ACCESS_VIEW;
+            }
+        }
+
+        HRESULT hr = mD3DDevice->CreateUnorderedAccessView(resource, &uavDesc, outUAV);
+        if (FAILED(hr))
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to create texture unordered access view ! "
+                "DX ERROR [%d]", hr);
+            return T3D_ERR_D3D11_CREATE_UNORDERED_ACCESS_VIEW;
+        }
+
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------
@@ -2079,11 +2489,19 @@ namespace Tiny3D
         Buffer ownedBuffer;
         cloneSubresourceData(desc.buffer, subresources, ownedBuffer);
 
+        const uint32_t gpuAccess = buffer->getGPUAccess();
+        if ((gpuAccess & kGPUUnorderedAccess) != 0 && d3dUsage != D3D11_USAGE_DEFAULT)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "createPixelBuffer1D : unordered access requires "
+                "Usage::kStatic !");
+            return nullptr;
+        }
+
         D3D11_TEXTURE1D_DESC d3dDesc = D3D11Mapping::get(desc);
         d3dDesc.MipLevels = mipLevels;
         d3dDesc.ArraySize = arraySize;
         d3dDesc.Usage = d3dUsage;
-        d3dDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+        d3dDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11Mapping::getBindFlags(gpuAccess);
         d3dDesc.CPUAccessFlags = d3dAccess;
         d3dDesc.MiscFlags = 0;
 
@@ -2134,6 +2552,16 @@ namespace Tiny3D
 
                 d3dBuffer->D3DTexture = pD3DTex1D;
                 d3dBuffer->D3DSRView = pD3DSRView;
+
+                if ((d3dDesc.BindFlags & D3D11_BIND_UNORDERED_ACCESS) != 0)
+                {
+                    ret = buildTextureUAView(pD3DTex1D, TEXTURE_TYPE::TT_1D, d3dDesc.Format,
+                        d3dDesc.ArraySize, 1, &d3dBuffer->D3DUAView);
+                    if (T3D_FAILED(ret))
+                    {
+                        break;
+                    }
+                }
             } while (false);
 
             ownedBuffer.release();
@@ -2178,6 +2606,14 @@ namespace Tiny3D
         Buffer ownedBuffer;
         cloneSubresourceData(desc.buffer, subresources, ownedBuffer);
 
+        const uint32_t gpuAccess = buffer->getGPUAccess();
+        if ((gpuAccess & kGPUUnorderedAccess) != 0 && d3dUsage != D3D11_USAGE_DEFAULT)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "createPixelBuffer2D : unordered access requires "
+                "Usage::kStatic !");
+            return nullptr;
+        }
+
         D3D11_TEXTURE2D_DESC d3dDesc = D3D11Mapping::get(desc);
         d3dDesc.MipLevels = mipLevels;
         d3dDesc.ArraySize = arraySize;
@@ -2186,6 +2622,17 @@ namespace Tiny3D
         d3dDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
         d3dDesc.CPUAccessFlags = d3dAccess;
         d3dDesc.MiscFlags = 0;
+
+        // MSAA 纹理没有 UAV 维度，请求了也只能忽略，这里就不要污染 BindFlags
+        if (d3dDesc.SampleDesc.Count == 1)
+        {
+            d3dDesc.BindFlags |= D3D11Mapping::getBindFlags(gpuAccess);
+        }
+        else if ((gpuAccess & kGPUUnorderedAccess) != 0)
+        {
+            T3D_LOG_WARNING(LOG_TAG_D3D11RENDERER, "createPixelBuffer2D : MSAA texture cannot have "
+                "unordered access, ignore kGPUUnorderedAccess !");
+        }
 
         D3D11_SHADER_RESOURCE_VIEW_DESC d3dSRVDesc;
         memset(&d3dSRVDesc, 0, sizeof(d3dSRVDesc));
@@ -2234,6 +2681,16 @@ namespace Tiny3D
 
                 d3dBuffer->D3DTexture = pD3DTex2D;
                 d3dBuffer->D3DSRView = pD3DSRView;
+
+                if ((d3dDesc.BindFlags & D3D11_BIND_UNORDERED_ACCESS) != 0)
+                {
+                    ret = buildTextureUAView(pD3DTex2D, TEXTURE_TYPE::TT_2D, d3dDesc.Format,
+                        d3dDesc.ArraySize, d3dDesc.SampleDesc.Count, &d3dBuffer->D3DUAView);
+                    if (T3D_FAILED(ret))
+                    {
+                        break;
+                    }
+                }
             } while (false);
 
             ownedBuffer.release();
@@ -2278,10 +2735,18 @@ namespace Tiny3D
         Buffer ownedBuffer;
         cloneSubresourceData(desc.buffer, subresources, ownedBuffer);
 
+        const uint32_t gpuAccess = buffer->getGPUAccess();
+        if ((gpuAccess & kGPUUnorderedAccess) != 0 && d3dUsage != D3D11_USAGE_DEFAULT)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "createPixelBuffer3D : unordered access requires "
+                "Usage::kStatic !");
+            return nullptr;
+        }
+
         D3D11_TEXTURE3D_DESC d3dDesc = D3D11Mapping::get(desc);
         d3dDesc.MipLevels = mipLevels;
         d3dDesc.Usage = d3dUsage;
-        d3dDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+        d3dDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11Mapping::getBindFlags(gpuAccess);
         d3dDesc.CPUAccessFlags = d3dAccess;
         d3dDesc.MiscFlags = 0;
 
@@ -2321,6 +2786,16 @@ namespace Tiny3D
 
                 d3dBuffer->D3DTexture = pD3DTex3D;
                 d3dBuffer->D3DSRView = pD3DSRView;
+
+                if ((d3dDesc.BindFlags & D3D11_BIND_UNORDERED_ACCESS) != 0)
+                {
+                    ret = buildTextureUAView(pD3DTex3D, TEXTURE_TYPE::TT_3D, d3dDesc.Format,
+                        1, 1, &d3dBuffer->D3DUAView);
+                    if (T3D_FAILED(ret))
+                    {
+                        break;
+                    }
+                }
             } while (false);
 
             ownedBuffer.release();
@@ -2523,6 +2998,13 @@ namespace Tiny3D
     {
         return setPixelBuffers(&ID3D11DeviceContext::VSSetShaderResources, startSlot, buffers);
     }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers)
+    {
+        return setStructuredBuffers(&ID3D11DeviceContext::VSSetShaderResources, startSlot, buffers);
+    }
     
     //--------------------------------------------------------------------------
     
@@ -2610,6 +3092,13 @@ namespace Tiny3D
     TResult D3D11Context::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
     {
         return setPixelBuffers(&ID3D11DeviceContext::PSSetShaderResources, startSlot, buffers);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setPSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers)
+    {
+        return setStructuredBuffers(&ID3D11DeviceContext::PSSetShaderResources, startSlot, buffers);
     }
     
     //--------------------------------------------------------------------------
@@ -2972,6 +3461,268 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult D3D11Context::setCSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers)
+    {
+        return setStructuredBuffers(&ID3D11DeviceContext::CSSetShaderResources, startSlot, buffers);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts)
+    {
+        if (!initialCounts.empty() && initialCounts.size() != buffers.size())
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "setCSUnorderedAccessBuffers : initial count array "
+                "size [%zu] does not match buffer count [%zu] !", initialCounts.size(), buffers.size());
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        if (startSlot + buffers.size() > D3D11_1_UAV_SLOT_COUNT)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "setCSUnorderedAccessBuffers : slot range [%u, %zu) "
+                "exceeds the %d available UAV slots !", startSlot, startSlot + buffers.size(),
+                D3D11_1_UAV_SLOT_COUNT);
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        auto lambda = [this](uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts)
+        {
+            TArray<ID3D11UnorderedAccessView*> d3dUAViews(buffers.size(), nullptr);
+
+            for (uint32_t i = 0; i < buffers.size(); ++i)
+            {
+                RenderBuffer *buffer = buffers[i].get();
+                if (buffer == nullptr)
+                {
+                    // 显式解绑该槽位
+                    continue;
+                }
+
+                d3dUAViews[i] = getD3DUAView(buffer);
+                if (d3dUAViews[i] == nullptr)
+                {
+                    T3D_LOG_WARNING(LOG_TAG_D3D11RENDERER, "setCSUnorderedAccessBuffers : buffer at "
+                        "slot [%u] has no unordered access view, is kGPUUnorderedAccess missing ?",
+                        startSlot + i);
+                }
+            }
+
+            // 空的 initialCounts 要传 nullptr，传全 0 会把 Append 缓冲的计数清零
+            const UINT *pInitialCounts = initialCounts.empty() ? nullptr : (const UINT*)initialCounts.data();
+            mD3DDeviceContext->CSSetUnorderedAccessViews(startSlot, (UINT)d3dUAViews.size(),
+                d3dUAViews.data(), pInitialCounts);
+
+            for (uint32_t i = 0; i < d3dUAViews.size(); ++i)
+            {
+                mBoundCSUAVs[startSlot + i] = d3dUAViews[i];
+            }
+
+            mBoundCSUAVCount = std::max<uint32_t>(mBoundCSUAVCount, startSlot + (uint32_t)d3dUAViews.size());
+
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, buffers, initialCounts);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ)
+    {
+        if (groupCountX == 0 || groupCountY == 0 || groupCountZ == 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "dispatch : group count [%u, %u, %u] must not contain "
+                "zero !", groupCountX, groupCountY, groupCountZ);
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        const uint32_t *maxGroups = mCapabilities.maxDispatchGroupCount;
+        if (groupCountX > maxGroups[0] || groupCountY > maxGroups[1] || groupCountZ > maxGroups[2])
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "dispatch : group count [%u, %u, %u] exceeds device "
+                "limit [%u, %u, %u] !", groupCountX, groupCountY, groupCountZ,
+                maxGroups[0], maxGroups[1], maxGroups[2]);
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        auto lambda = [this](uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ)
+        {
+            mD3DDeviceContext->Dispatch(groupCountX, groupCountY, groupCountZ);
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, groupCountX, groupCountY, groupCountZ);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset)
+    {
+        TResult ret = validateIndirectArgs(argsBuffer, argsOffset, sizeof(DispatchIndirectArgs));
+        if (T3D_FAILED(ret))
+        {
+            return ret;
+        }
+
+        // 参数缓冲的引用要活到命令真正执行，靠智能指针而不是裸 COM 指针延寿
+        auto lambda = [this](const RenderBufferPtr &argsBuffer, UINT argsOffset)
+        {
+            ID3D11Buffer *pD3DArgs = static_cast<ID3D11Buffer*>(getD3DResource(argsBuffer.get()));
+            mD3DDeviceContext->DispatchIndirect(pD3DArgs, argsOffset);
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(argsBuffer), (UINT)argsOffset);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::uavBarrier(const UnorderedAccessBuffers &buffers)
+    {
+        auto lambda = [this](const UnorderedAccessBuffers &buffers)
+        {
+            if (buffers.empty())
+            {
+                // D3D11 没有显式屏障 API，唯一可靠的手段是把 UAV 全解绑再绑回，
+                // 迫使驱动在两次 dispatch 之间刷写缓存
+                if (mBoundCSUAVCount == 0)
+                {
+                    return T3D_OK;
+                }
+
+                ID3D11UnorderedAccessView *nullUAViews[D3D11_1_UAV_SLOT_COUNT] = {};
+                mD3DDeviceContext->CSSetUnorderedAccessViews(0, mBoundCSUAVCount, nullUAViews, nullptr);
+                mD3DDeviceContext->CSSetUnorderedAccessViews(0, mBoundCSUAVCount, mBoundCSUAVs, nullptr);
+                return T3D_OK;
+            }
+
+            // 精确路径：只对指定资源所在的槽位做一次解绑再绑回
+            for (const auto &buffer : buffers)
+            {
+                ID3D11UnorderedAccessView *pD3DUAView = getD3DUAView(buffer.get());
+                if (pD3DUAView == nullptr)
+                {
+                    continue;
+                }
+
+                for (uint32_t slot = 0; slot < mBoundCSUAVCount; ++slot)
+                {
+                    if (mBoundCSUAVs[slot] != pD3DUAView)
+                    {
+                        continue;
+                    }
+
+                    ID3D11UnorderedAccessView *nullUAView = nullptr;
+                    mD3DDeviceContext->CSSetUnorderedAccessViews(slot, 1, &nullUAView, nullptr);
+                    mD3DDeviceContext->CSSetUnorderedAccessViews(slot, 1, &pD3DUAView, nullptr);
+                }
+            }
+
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, buffers);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::copyStructureCount(RenderBuffer *dstBuffer, size_t dstOffset, RenderBuffer *srcBuffer)
+    {
+        if (dstBuffer == nullptr || srcBuffer == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "copyStructureCount : null buffer !");
+            return T3D_ERR_INVALID_POINTER;
+        }
+
+        if ((dstOffset % 4) != 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "copyStructureCount : destination offset [%zu] must be "
+                "a multiple of 4 !", dstOffset);
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        if (dstOffset + sizeof(uint32_t) > dstBuffer->getGPUSizeInBytes())
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "copyStructureCount : offset [%zu] + 4 exceeds "
+                "destination buffer size [%zu] !", dstOffset, dstBuffer->getGPUSizeInBytes());
+            return T3D_ERR_OUT_OF_BOUND;
+        }
+
+        if (srcBuffer->getType() != RenderResource::Type::kStructuredBuffer)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "copyStructureCount : source must be a structured "
+                "buffer with a hidden counter !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        if (!static_cast<StructuredBuffer*>(srcBuffer)->hasUAVCounter())
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "copyStructureCount : source structured buffer has no "
+                "hidden counter, declare it with hasCounter or isAppendConsume !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        auto lambda = [this](const RenderBufferPtr &dstBuffer, UINT dstOffset, const RenderBufferPtr &srcBuffer)
+        {
+            ID3D11Buffer *pD3DDst = static_cast<ID3D11Buffer*>(getD3DResource(dstBuffer.get()));
+            ID3D11UnorderedAccessView *pD3DSrcUAV = getD3DUAView(srcBuffer.get());
+
+            if (pD3DDst == nullptr || pD3DSrcUAV == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "copyStructureCount : underlying D3D11 objects are "
+                    "not ready !");
+                return T3D_ERR_INVALID_POINTER;
+            }
+
+            mD3DDeviceContext->CopyStructureCount(pD3DDst, dstOffset, pD3DSrcUAV);
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(dstBuffer), (UINT)dstOffset, RenderBufferPtr(srcBuffer));
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::validateIndirectArgs(RenderBuffer *argsBuffer, size_t argsOffset, size_t argsSize)
+    {
+        if (argsBuffer == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Indirect args buffer is null !");
+            return T3D_ERR_INVALID_POINTER;
+        }
+
+        if ((argsBuffer->getGPUAccess() & kGPUIndirectArgs) == 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Indirect args buffer was not created with "
+                "kGPUIndirectArgs !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        if ((argsOffset % 4) != 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Indirect args offset [%zu] must be a multiple of 4 !",
+                argsOffset);
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        if (argsOffset + argsSize > argsBuffer->getGPUSizeInBytes())
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Indirect args offset [%zu] + size [%zu] exceeds buffer "
+                "size [%zu] !", argsOffset, argsSize, argsBuffer->getGPUSizeInBytes());
+            return T3D_ERR_OUT_OF_BOUND;
+        }
+
+        if (argsBuffer->getRHIResource() == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Indirect args buffer has no RHI resource, is it loaded ?");
+            return T3D_ERR_INVALID_POINTER;
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult D3D11Context::setPrimitiveType(PrimitiveType primitive)
     {
         D3D11_PRIMITIVE_TOPOLOGY topology = D3D11Mapping::get(primitive);
@@ -3013,6 +3764,83 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult D3D11Context::renderIndexedInstanced(uint32_t indexCount, uint32_t instanceCount, uint32_t startIndex, int32_t baseVertex, uint32_t startInstance)
+    {
+        if (instanceCount == 0)
+        {
+            // 与 D3D11 的行为一致（不画任何东西），但显式返回省掉一次驱动往返
+            return T3D_OK;
+        }
+
+        auto lambda = [this](uint32_t indexCount, uint32_t instanceCount, uint32_t startIndex, int32_t baseVertex, uint32_t startInstance)
+        {
+            mD3DDeviceContext->DrawIndexedInstanced(indexCount, instanceCount, startIndex, baseVertex, startInstance);
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, indexCount, instanceCount, startIndex, baseVertex, startInstance);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::renderInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t startVertex, uint32_t startInstance)
+    {
+        if (instanceCount == 0)
+        {
+            return T3D_OK;
+        }
+
+        auto lambda = [this](uint32_t vertexCount, uint32_t instanceCount, uint32_t startVertex, uint32_t startInstance)
+        {
+            mD3DDeviceContext->DrawInstanced(vertexCount, instanceCount, startVertex, startInstance);
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, vertexCount, instanceCount, startVertex, startInstance);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::renderIndexedIndirect(RenderBuffer *argsBuffer, size_t argsOffset)
+    {
+        TResult ret = validateIndirectArgs(argsBuffer, argsOffset, sizeof(DrawIndexedIndirectArgs));
+        if (T3D_FAILED(ret))
+        {
+            return ret;
+        }
+
+        auto lambda = [this](const RenderBufferPtr &argsBuffer, UINT argsOffset)
+        {
+            ID3D11Buffer *pD3DArgs = static_cast<ID3D11Buffer*>(getD3DResource(argsBuffer.get()));
+            mD3DDeviceContext->DrawIndexedInstancedIndirect(pD3DArgs, argsOffset);
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(argsBuffer), (UINT)argsOffset);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::renderIndirect(RenderBuffer *argsBuffer, size_t argsOffset)
+    {
+        TResult ret = validateIndirectArgs(argsBuffer, argsOffset, sizeof(DrawIndirectArgs));
+        if (T3D_FAILED(ret))
+        {
+            return ret;
+        }
+
+        auto lambda = [this](const RenderBufferPtr &argsBuffer, UINT argsOffset)
+        {
+            ID3D11Buffer *pD3DArgs = static_cast<ID3D11Buffer*>(getD3DResource(argsBuffer.get()));
+            mD3DDeviceContext->DrawInstancedIndirect(pD3DArgs, argsOffset);
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(argsBuffer), (UINT)argsOffset);
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult D3D11Context::reset()
     {
         mCurrentRenderTarget = nullptr;
@@ -3043,6 +3871,17 @@ namespace Tiny3D
             D3D_SAFE_RELEASE_ARRAY(mBackupState.DSShaderResources);
             mD3DDeviceContext->CSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, mBackupState.CSShaderResources);
             D3D_SAFE_RELEASE_ARRAY(mBackupState.CSShaderResources);
+
+            // 还原 CS 的 UAV 槽位
+            if (mCapabilities.supportsUnorderedAccess)
+            {
+                mD3DDeviceContext->CSSetUnorderedAccessViews(0, mCapabilities.maxUnorderedAccessSlots, mBackupState.CSUnorderedAccessViews, nullptr);
+                D3D_SAFE_RELEASE_ARRAY(mBackupState.CSUnorderedAccessViews);
+            }
+
+            // 引擎自己的 UAV 绑定已被上面的还原覆盖，跟踪表必须一起失效
+            memset(mBoundCSUAVs, 0, sizeof(mBoundCSUAVs));
+            mBoundCSUAVCount = 0;
 
             // 还原所有着色器
             mD3DDeviceContext->VSSetShader(mBackupState.VS, mBackupState.VSInstances, mBackupState.VSInstancesCount);
@@ -3898,6 +4737,70 @@ namespace Tiny3D
             return smart_pointer_cast<D3D11PixelBuffer3D>(rhiResource)->D3DTexture;
         case RHIResource::ResourceType::kPixelBufferCubemap:
             return smart_pointer_cast<D3D11PixelBufferCubemap>(rhiResource)->D3DTexture;
+        case RHIResource::ResourceType::kStructuredBuffer:
+            return smart_pointer_cast<D3D11StructuredBuffer>(rhiResource)->D3DBuffer;
+        default:
+            return nullptr;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    ID3D11ShaderResourceView *D3D11Context::getD3DSRView(RenderBuffer *buffer)
+    {
+        if (buffer == nullptr || buffer->getRHIResource() == nullptr)
+        {
+            return nullptr;
+        }
+
+        const RHIResourcePtr &rhiResource = buffer->getRHIResource();
+
+        switch (rhiResource->getResourceType())
+        {
+        case RHIResource::ResourceType::kPixelBuffer1D:
+            return smart_pointer_cast<D3D11PixelBuffer1D>(rhiResource)->D3DSRView;
+        case RHIResource::ResourceType::kPixelBuffer2D:
+            return smart_pointer_cast<D3D11PixelBuffer2D>(rhiResource)->D3DSRView;
+        case RHIResource::ResourceType::kPixelBuffer3D:
+            return smart_pointer_cast<D3D11PixelBuffer3D>(rhiResource)->D3DSRView;
+        case RHIResource::ResourceType::kPixelBufferCubemap:
+            return smart_pointer_cast<D3D11PixelBufferCubemap>(rhiResource)->D3DSRView;
+        case RHIResource::ResourceType::kStructuredBuffer:
+            return smart_pointer_cast<D3D11StructuredBuffer>(rhiResource)->D3DSRView;
+        case RHIResource::ResourceType::kVertexBuffer:
+            return smart_pointer_cast<D3D11VertexBuffer>(rhiResource)->D3DSRView;
+        case RHIResource::ResourceType::kIndexBuffer:
+            return smart_pointer_cast<D3D11IndexBuffer>(rhiResource)->D3DSRView;
+        default:
+            return nullptr;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    ID3D11UnorderedAccessView *D3D11Context::getD3DUAView(RenderBuffer *buffer)
+    {
+        if (buffer == nullptr || buffer->getRHIResource() == nullptr)
+        {
+            return nullptr;
+        }
+
+        const RHIResourcePtr &rhiResource = buffer->getRHIResource();
+
+        switch (rhiResource->getResourceType())
+        {
+        case RHIResource::ResourceType::kStructuredBuffer:
+            return smart_pointer_cast<D3D11StructuredBuffer>(rhiResource)->D3DUAView;
+        case RHIResource::ResourceType::kVertexBuffer:
+            return smart_pointer_cast<D3D11VertexBuffer>(rhiResource)->D3DUAView;
+        case RHIResource::ResourceType::kIndexBuffer:
+            return smart_pointer_cast<D3D11IndexBuffer>(rhiResource)->D3DUAView;
+        case RHIResource::ResourceType::kPixelBuffer1D:
+            return smart_pointer_cast<D3D11PixelBuffer1D>(rhiResource)->D3DUAView;
+        case RHIResource::ResourceType::kPixelBuffer2D:
+            return smart_pointer_cast<D3D11PixelBuffer2D>(rhiResource)->D3DUAView;
+        case RHIResource::ResourceType::kPixelBuffer3D:
+            return smart_pointer_cast<D3D11PixelBuffer3D>(rhiResource)->D3DUAView;
         default:
             return nullptr;
         }
@@ -3936,32 +4839,33 @@ namespace Tiny3D
         
             for (uint32_t i = 0 ; i < buffers.size(); ++i)
             {
-                const auto &buffer = buffers[i];
-
-                if (buffer != nullptr)
-                {
-                    switch (buffer->getRHIResource()->getResourceType())
-                    {
-                    case RHIResource::ResourceType::kPixelBuffer1D:
-                        d3dSRViews[i] = smart_pointer_cast<D3D11PixelBuffer1D>(buffers[i]->getRHIResource())->D3DSRView;
-                        break;
-                    case RHIResource::ResourceType::kPixelBuffer2D:
-                        d3dSRViews[i] = smart_pointer_cast<D3D11PixelBuffer2D>(buffers[i]->getRHIResource())->D3DSRView;
-                        break;
-                    case RHIResource::ResourceType::kPixelBuffer3D:
-                        d3dSRViews[i] = smart_pointer_cast<D3D11PixelBuffer3D>(buffers[i]->getRHIResource())->D3DSRView;
-                        break;
-                    case RHIResource::ResourceType::kPixelBufferCubemap:
-                        d3dSRViews[i] = smart_pointer_cast<D3D11PixelBufferCubemap>(buffers[i]->getRHIResource())->D3DSRView;
-                        break;
-                    }    
-                }
+                d3dSRViews[i] = getD3DSRView(buffers[i].get());
             }
             
             (mD3DDeviceContext->*setShaderResources)(startSlot, (UINT)d3dSRViews.size(), d3dSRViews.data());
             return T3D_OK;
         };
         
+        return ENQUEUE_UNIQUE_COMMAND(lambda, setShaderResources, startSlot, buffers);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setStructuredBuffers(SetShaderResources setShaderResources, uint32_t startSlot, const StructuredBuffers &buffers)
+    {
+        auto lambda = [this](SetShaderResources setShaderResources, uint32_t startSlot, const StructuredBuffers &buffers)
+        {
+            TArray<ID3D11ShaderResourceView*> d3dSRViews(buffers.size(), nullptr);
+
+            for (uint32_t i = 0; i < buffers.size(); ++i)
+            {
+                d3dSRViews[i] = getD3DSRView(buffers[i].get());
+            }
+
+            (mD3DDeviceContext->*setShaderResources)(startSlot, (UINT)d3dSRViews.size(), d3dSRViews.data());
+            return T3D_OK;
+        };
+
         return ENQUEUE_UNIQUE_COMMAND(lambda, setShaderResources, startSlot, buffers);
     }
     

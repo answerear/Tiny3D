@@ -210,6 +210,23 @@ namespace Tiny3D
                 break;
             }
 
+            ShaderResourceParams resourceParams;
+
+            // bindDesc.NumSamples 在结构化缓冲上返回的是 structure byte stride，
+            // 字段名与实际语义不符，是 D3D11 反射 API 的历史包袱
+            auto addResourceParam = [&resourceParams](const D3D11_SHADER_INPUT_BIND_DESC &bindDesc,
+                ShaderResourceParam::Kind kind, uint32_t elementStride, bool hasCounter)
+            {
+                String name = bindDesc.Name;
+                ShaderResourceParamPtr param = ShaderResourceParam::create(name, kind,
+                    bindDesc.BindPoint, elementStride, hasCounter);
+                resourceParams.emplace(name, param);
+
+                T3D_LOG_DEBUG(LOG_TAG_D3D11CONTEXTBASE,
+                    "Shader reflection - resource name : %s, kind : %u, binding : %u, stride : %u, counter : %d",
+                    name.c_str(), (uint32_t)kind, bindDesc.BindPoint, elementStride, hasCounter ? 1 : 0);
+            };
+
             for (UINT i = 0; i < shaderDesc.BoundResources; ++i)
             {
                 D3D11_SHADER_INPUT_BIND_DESC bindDesc;
@@ -247,6 +264,13 @@ namespace Tiny3D
                     break;
                 case D3D_SIT_TEXTURE:
                     {
+                        // Buffer<T> 也走 D3D_SIT_TEXTURE，靠 Dimension 才能与真正的纹理区分
+                        if (bindDesc.Dimension == D3D_SRV_DIMENSION_BUFFER)
+                        {
+                            addResourceParam(bindDesc, ShaderResourceParam::Kind::kTypedSRV, 0, false);
+                            break;
+                        }
+
                         String name = bindDesc.Name;
 
                         ShaderSamplerParamPtr param;
@@ -301,11 +325,62 @@ namespace Tiny3D
                         T3D_LOG_DEBUG(LOG_TAG_D3D11CONTEXTBASE, "Shader reflection - Name:%s, sampler binding point : %d", param->getName().c_str(), param->getSamplerBinding());
                     }
                     break;
+                case D3D_SIT_STRUCTURED:
+                    addResourceParam(bindDesc, ShaderResourceParam::Kind::kStructuredSRV, bindDesc.NumSamples, false);
+                    break;
+                case D3D_SIT_BYTEADDRESS:
+                    addResourceParam(bindDesc, ShaderResourceParam::Kind::kByteAddressSRV, 0, false);
+                    break;
+                case D3D_SIT_UAV_RWSTRUCTURED:
+                    addResourceParam(bindDesc, ShaderResourceParam::Kind::kStructuredUAV, bindDesc.NumSamples, false);
+                    break;
+                case D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER:
+                    addResourceParam(bindDesc, ShaderResourceParam::Kind::kStructuredUAV, bindDesc.NumSamples, true);
+                    break;
+                case D3D_SIT_UAV_RWBYTEADDRESS:
+                    addResourceParam(bindDesc, ShaderResourceParam::Kind::kByteAddressUAV, 0, false);
+                    break;
+                case D3D_SIT_UAV_RWTYPED:
+                    {
+                        // RWBuffer<T> 与 RWTexture*<T> 共用同一个 bind type，靠 Dimension 区分
+                        const ShaderResourceParam::Kind kind =
+                            (bindDesc.Dimension == D3D_SRV_DIMENSION_BUFFER)
+                            ? ShaderResourceParam::Kind::kTypedUAV
+                            : ShaderResourceParam::Kind::kTextureUAV;
+                        addResourceParam(bindDesc, kind, 0, false);
+                    }
+                    break;
+                case D3D_SIT_UAV_APPEND_STRUCTURED:
+                    addResourceParam(bindDesc, ShaderResourceParam::Kind::kAppendUAV, bindDesc.NumSamples, true);
+                    break;
+                case D3D_SIT_UAV_CONSUME_STRUCTURED:
+                    addResourceParam(bindDesc, ShaderResourceParam::Kind::kConsumeUAV, bindDesc.NumSamples, true);
+                    break;
+                default:
+                    T3D_LOG_WARNING(LOG_TAG_D3D11CONTEXTBASE,
+                        "Shader reflection - unhandled bind type (%d) for resource '%s', binding ignored !",
+                        bindDesc.Type, bindDesc.Name);
+                    break;
                 }
 
                 if (T3D_FAILED(ret))
                 {
                     break;
+                }
+            }
+
+            if (T3D_OK == ret)
+            {
+                shader->setShaderResourceParams(resourceParams);
+
+                if (shader->getShaderStage() == SHADER_STAGE::kCompute)
+                {
+                    UINT sizeX = 0, sizeY = 0, sizeZ = 0;
+                    pReflection->GetThreadGroupSize(&sizeX, &sizeY, &sizeZ);
+                    shader->setThreadGroupSize(sizeX, sizeY, sizeZ);
+
+                    T3D_LOG_DEBUG(LOG_TAG_D3D11CONTEXTBASE,
+                        "Shader reflection - thread group size : (%u, %u, %u)", sizeX, sizeY, sizeZ);
                 }
             }
 

@@ -55,6 +55,10 @@ namespace Tiny3D
         void *getNativeObject() const override;
         
         ID3D11Buffer    *D3DBuffer {nullptr};
+        /// 只在 kGPUShaderResource 时创建，让 shader 能把顶点数据当只读缓冲读
+        ID3D11ShaderResourceView    *D3DSRView {nullptr};
+        /// 只在 kGPUUnorderedAccess 时创建，让 compute 能直接写顶点数据
+        ID3D11UnorderedAccessView   *D3DUAView {nullptr};
         
     protected:
         D3D11VertexBuffer() = default;
@@ -70,9 +74,32 @@ namespace Tiny3D
         void *getNativeObject() const override;
         
         ID3D11Buffer    *D3DBuffer {nullptr};
+        /// 只在 kGPUShaderResource 时创建
+        ID3D11ShaderResourceView    *D3DSRView {nullptr};
+        /// 只在 kGPUUnorderedAccess 时创建，让 compute 能直接写索引数据
+        ID3D11UnorderedAccessView   *D3DUAView {nullptr};
         
     protected:
         D3D11IndexBuffer() = default;
+    };
+
+    class D3D11StructuredBuffer : public RHIStructuredBuffer
+    {
+    public:
+        static D3D11StructuredBufferPtr create();
+
+        ~D3D11StructuredBuffer() override;
+
+        void *getNativeObject() const override;
+
+        ID3D11Buffer    *D3DBuffer {nullptr};
+        /// 只在 kGPUShaderResource 时创建
+        ID3D11ShaderResourceView    *D3DSRView {nullptr};
+        /// 只在 kGPUUnorderedAccess 时创建
+        ID3D11UnorderedAccessView   *D3DUAView {nullptr};
+
+    protected:
+        D3D11StructuredBuffer() = default;
     };
 
     class D3D11ConstantBuffer : public RHIConstantBuffer
@@ -101,6 +128,8 @@ namespace Tiny3D
         
         ID3D11Texture1D             *D3DTexture {nullptr};
         ID3D11ShaderResourceView    *D3DSRView {nullptr};
+        /// 只在 kGPUUnorderedAccess 时创建；当前只覆盖 mip 0
+        ID3D11UnorderedAccessView   *D3DUAView {nullptr};
         
     protected:
         D3D11PixelBuffer1D() = default;
@@ -125,6 +154,8 @@ namespace Tiny3D
         ID3D11Texture2D             *D3DResolveTex {nullptr};
         /// 只有用於 depth stencil 的時候才有值
         ID3D11DepthStencilView      *D3DDSView {nullptr};
+        /// 只在 kGPUUnorderedAccess 时创建；当前只覆盖 mip 0
+        ID3D11UnorderedAccessView   *D3DUAView {nullptr};
     protected:
         D3D11PixelBuffer2D() = default;
     };
@@ -142,6 +173,8 @@ namespace Tiny3D
         ID3D11Texture3D             *D3DTexture {nullptr};
         /// 紋理資源對象，方便 shader 訪問
         ID3D11ShaderResourceView    *D3DSRView {nullptr};
+        /// 只在 kGPUUnorderedAccess 时创建；当前只覆盖 mip 0
+        ID3D11UnorderedAccessView   *D3DUAView {nullptr};
 
     protected:
         D3D11PixelBuffer3D() = default;

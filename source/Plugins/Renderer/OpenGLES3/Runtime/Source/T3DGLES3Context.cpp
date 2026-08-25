@@ -90,9 +90,53 @@ namespace Tiny3D
                 break;
             }
 
+            fillCapabilities();
         } while (false);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GLES3Context::fillCapabilities()
+    {
+        // 实例化与 divisor 是 GLES 3.0 核心功能，但 GLES 无 base instance
+        mCapabilities.supportsInstancing = true;
+        mCapabilities.supportsBaseInstance = false;
+
+        // 以下能力当前后端未实现对应 RHI 接口，保持 false 走上层降级路径
+        mCapabilities.supportsCompute = false;
+        mCapabilities.supportsUnorderedAccess = false;
+        mCapabilities.supportsStructuredBuffer = false;
+        mCapabilities.supportsIndirectDraw = false;
+        mCapabilities.supportsIndirectDispatch = false;
+        mCapabilities.supportsAppendConsumeBuffer = false;
+
+        if (mGLESMinor < 1)
+        {
+            // GLES 3.0 没有 compute 相关 limit 可查
+            return;
+        }
+
+        for (GLuint i = 0; i < 3; ++i)
+        {
+            GLint count = 0;
+            GLint size = 0;
+            glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, i, &count);
+            glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, i, &size);
+            mCapabilities.maxDispatchGroupCount[i] = (uint32_t)count;
+            mCapabilities.maxComputeGroupSize[i] = (uint32_t)size;
+        }
+
+        GLint sharedMemory = 0;
+        glGetIntegerv(GL_MAX_COMPUTE_SHARED_MEMORY_SIZE, &sharedMemory);
+        mCapabilities.maxComputeSharedMemory = (uint32_t)sharedMemory;
+
+        GLint storageBuffers = 0;
+        glGetIntegerv(GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS, &storageBuffers);
+        mCapabilities.maxUnorderedAccessSlots = (uint32_t)storageBuffers;
+
+        while (glGetError() != GL_NO_ERROR) {}
     }
 
     //--------------------------------------------------------------------------
@@ -1220,6 +1264,16 @@ namespace Tiny3D
                                     (GLsizei)strides[i],
                                     reinterpret_cast<const void*>((uintptr_t)attrib.getOffset()));
                             }
+
+                            if (attrib.getInputRate() == VertexAttribute::InputRate::kPerInstance)
+                            {
+                                const uint32_t stepRate = attrib.getInstanceStepRate();
+                                glVertexAttribDivisor(j, (GLuint)(stepRate > 0 ? stepRate : 1));
+                            }
+                            else
+                            {
+                                glVertexAttribDivisor(j, 0);
+                            }
                         }
                     }
                 }
@@ -2044,6 +2098,38 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult GLES3Context::ensureProgramLinked()
+    {
+        if (mCurrentProgram == 0 || !mProgramDirty)
+            return T3D_OK;
+
+        glLinkProgram(mCurrentProgram);
+
+        GLint linked = 0;
+        glGetProgramiv(mCurrentProgram, GL_LINK_STATUS, &linked);
+        if (!linked)
+        {
+            GLint logLen = 0;
+            glGetProgramiv(mCurrentProgram, GL_INFO_LOG_LENGTH, &logLen);
+            if (logLen > 0)
+            {
+                TArray<char> log(logLen + 1, 0);
+                glGetProgramInfoLog(mCurrentProgram, logLen, nullptr, log.data());
+                T3D_LOG_ERROR(LOG_TAG_GLES3RENDERER, "Program link error: %s", log.data());
+            }
+            return T3D_ERR_GLES3_LINK_PROGRAM;
+        }
+
+        glUseProgram(mCurrentProgram);
+        bindPendingUniformBlocks(mCurrentProgram);
+        setupSamplerBindings(mCurrentProgram);
+        mProgramDirty = false;
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult GLES3Context::render(uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex)
     {
         auto lambda = [this](uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex)
@@ -2052,31 +2138,9 @@ namespace Tiny3D
 
             do
             {
-                if (mCurrentProgram != 0 && mProgramDirty)
-                {
-                    glLinkProgram(mCurrentProgram);
-
-                    GLint linked = 0;
-                    glGetProgramiv(mCurrentProgram, GL_LINK_STATUS, &linked);
-                    if (!linked)
-                    {
-                        GLint logLen = 0;
-                        glGetProgramiv(mCurrentProgram, GL_INFO_LOG_LENGTH, &logLen);
-                        if (logLen > 0)
-                        {
-                            TArray<char> log(logLen + 1, 0);
-                            glGetProgramInfoLog(mCurrentProgram, logLen, nullptr, log.data());
-                            T3D_LOG_ERROR(LOG_TAG_GLES3RENDERER, "Program link error: %s", log.data());
-                        }
-                        ret = T3D_ERR_GLES3_LINK_PROGRAM;
-                        break;
-                    }
-
-                    glUseProgram(mCurrentProgram);
-                    bindPendingUniformBlocks(mCurrentProgram);
-                    setupSamplerBindings(mCurrentProgram);
-                    mProgramDirty = false;
-                }
+                ret = ensureProgramLinked();
+                if (T3D_FAILED(ret))
+                    break;
 
                 const void *offset = reinterpret_cast<const void*>((uintptr_t)(startIndex * mIndexSize));
 
@@ -2117,31 +2181,9 @@ namespace Tiny3D
 
             do
             {
-                if (mCurrentProgram != 0 && mProgramDirty)
-                {
-                    glLinkProgram(mCurrentProgram);
-
-                    GLint linked = 0;
-                    glGetProgramiv(mCurrentProgram, GL_LINK_STATUS, &linked);
-                    if (!linked)
-                    {
-                        GLint logLen = 0;
-                        glGetProgramiv(mCurrentProgram, GL_INFO_LOG_LENGTH, &logLen);
-                        if (logLen > 0)
-                        {
-                            TArray<char> log(logLen + 1, 0);
-                            glGetProgramInfoLog(mCurrentProgram, logLen, nullptr, log.data());
-                            T3D_LOG_ERROR(LOG_TAG_GLES3RENDERER, "Program link error: %s", log.data());
-                        }
-                        ret = T3D_ERR_GLES3_LINK_PROGRAM;
-                        break;
-                    }
-
-                    glUseProgram(mCurrentProgram);
-                    bindPendingUniformBlocks(mCurrentProgram);
-                    setupSamplerBindings(mCurrentProgram);
-                    mProgramDirty = false;
-                }
+                ret = ensureProgramLinked();
+                if (T3D_FAILED(ret))
+                    break;
 
                 glDrawArrays(mPrimitiveType, startVertex, vertexCount);
 
@@ -2153,6 +2195,111 @@ namespace Tiny3D
 
         return ENQUEUE_UNIQUE_COMMAND(lambda, vertexCount, startVertex);
     }
+
+    //--------------------------------------------------------------------------
+
+    TResult GLES3Context::renderIndexedInstanced(uint32_t indexCount, uint32_t instanceCount,
+        uint32_t startIndex, int32_t baseVertex, uint32_t startInstance)
+    {
+        if (startInstance != 0)
+        {
+            // GLES3 无 base instance 支持，只能由上层改用偏移后的实例缓冲
+            T3D_LOG_ERROR(LOG_TAG_GLES3RENDERER,
+                "GLES3 does not support non-zero startInstance (%u) !", startInstance);
+            return T3D_ERR_NOT_IMPLEMENT;
+        }
+
+        auto lambda = [this](uint32_t indexCount, uint32_t instanceCount, uint32_t startIndex, int32_t baseVertex)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                ret = ensureProgramLinked();
+                if (T3D_FAILED(ret))
+                    break;
+
+                const void *offset = reinterpret_cast<const void*>((uintptr_t)(startIndex * mIndexSize));
+
+                GLint boundEBO = 0;
+                glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &boundEBO);
+                if (boundEBO == 0)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::renderIndexedInstanced(): No EBO bound! Skipping draw to avoid crash.");
+                    ret = T3D_ERR_GLES3_INVALID_USAGE;
+                    break;
+                }
+
+                if (baseVertex != 0 && mGLESMinor >= 2)
+                {
+                    glDrawElementsInstancedBaseVertex(mPrimitiveType, indexCount, mIndexType,
+                        offset, instanceCount, baseVertex);
+                }
+                else
+                {
+                    if (baseVertex != 0)
+                    {
+                        T3D_LOG_WARNING(LOG_TAG_GLES3RENDERER,
+                            "baseVertex (%d) requires GLES 3.2, ignored !", baseVertex);
+                    }
+                    glDrawElementsInstanced(mPrimitiveType, indexCount, mIndexType, offset, instanceCount);
+                }
+
+                GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::renderIndexedInstanced");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, indexCount, instanceCount, startIndex, baseVertex);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GLES3Context::renderInstanced(uint32_t vertexCount, uint32_t instanceCount,
+        uint32_t startVertex, uint32_t startInstance)
+    {
+        if (startInstance != 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GLES3RENDERER,
+                "GLES3 does not support non-zero startInstance (%u) !", startInstance);
+            return T3D_ERR_NOT_IMPLEMENT;
+        }
+
+        auto lambda = [this](uint32_t vertexCount, uint32_t instanceCount, uint32_t startVertex)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                ret = ensureProgramLinked();
+                if (T3D_FAILED(ret))
+                    break;
+
+                glDrawArraysInstanced(mPrimitiveType, startVertex, vertexCount, instanceCount);
+
+                GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::renderInstanced");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, vertexCount, instanceCount, startVertex);
+    }
+
+    //--------------------------------------------------------------------------
+
+    RHIStructuredBufferPtr GLES3Context::createStructuredBuffer(StructuredBuffer *buffer) { T3D_RHI_UNSUPPORTED_PTR(supportsStructuredBuffer); }
+    TResult GLES3Context::setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
+    TResult GLES3Context::setPSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
+    TResult GLES3Context::setCSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
+    TResult GLES3Context::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
+    TResult GLES3Context::dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) { T3D_RHI_UNSUPPORTED(supportsCompute); }
+    TResult GLES3Context::dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset) { T3D_RHI_UNSUPPORTED(supportsIndirectDispatch); }
+    TResult GLES3Context::uavBarrier(const UnorderedAccessBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
+    TResult GLES3Context::copyStructureCount(RenderBuffer *dstBuffer, size_t dstOffset, RenderBuffer *srcBuffer) { T3D_RHI_UNSUPPORTED(supportsAppendConsumeBuffer); }
+    TResult GLES3Context::renderIndexedIndirect(RenderBuffer *argsBuffer, size_t argsOffset) { T3D_RHI_UNSUPPORTED(supportsIndirectDraw); }
+    TResult GLES3Context::renderIndirect(RenderBuffer *argsBuffer, size_t argsOffset) { T3D_RHI_UNSUPPORTED(supportsIndirectDraw); }
 
     //--------------------------------------------------------------------------
 

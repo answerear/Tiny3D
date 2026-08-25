@@ -234,6 +234,13 @@ namespace Tiny3D
         RHIConstantBufferPtr createConstantBuffer(ConstantBuffer *buffer) override;
 
         /**
+         * \brief 创建 RHI 结构化缓冲对象
+         * \param [in] buffer : 引擎的结构化缓冲对象
+         * \return 调用成功返回 RHI 对象
+         */
+        RHIStructuredBufferPtr createStructuredBuffer(StructuredBuffer *buffer) override;
+
+        /**
          * \brief 创建 RHI 像素缓冲区对象
          * \param [in] buffer : 引擎像素缓冲区对象
          * \return 调用成功返回 RHI 对象
@@ -292,6 +299,14 @@ namespace Tiny3D
         TResult setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
 
         /**
+         * \brief 设置 vs 的结构化缓冲（只读 SRV 路径）
+         * \param [in] startSlot : 起始 t 寄存器槽位
+         * \param [in] buffers : 结构化缓冲对象数组
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+
+        /**
          * \brief 设置 vs 纹理采样器
          * \param [in] startSlot : 采样器的插槽，对应 shader 中采样器寄存器索引
          * \param [in] samplers : 纹理采样器对象数组
@@ -328,6 +343,14 @@ namespace Tiny3D
          * \return 调用成功返回 3D_OK
          */
         TResult setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+
+        /**
+         * \brief 设置 ps 的结构化缓冲（只读 SRV 路径）
+         * \param [in] startSlot : 起始 t 寄存器槽位
+         * \param [in] buffers : 结构化缓冲对象数组
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setPSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
 
         /**
          * \brief 设置 ps 纹理采样器
@@ -490,6 +513,56 @@ namespace Tiny3D
         TResult setCSSamplers(uint32_t startSlot, const Samplers &samplers) override;
 
         /**
+         * \brief 设置 cs 的结构化缓冲（只读 SRV 路径）
+         * \param [in] startSlot : 起始 t 寄存器槽位
+         * \param [in] buffers : 结构化缓冲对象数组
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setCSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+
+        /**
+         * \brief 设置 cs 的可读写资源（UAV）
+         * \param [in] startSlot : 起始 u 寄存器槽位
+         * \param [in] buffers : 待绑定资源数组，元素可为 nullptr 表示解绑该槽位
+         * \param [in] initialCounts : Append/Consume 或带计数器缓冲的初始计数；空数组表示全部保持原值
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts = UAVInitialCounts()) override;
+
+        /**
+         * \brief 派发计算任务
+         * \param [in] groupCountX : X 维线程组数
+         * \param [in] groupCountY : Y 维线程组数
+         * \param [in] groupCountZ : Z 维线程组数
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) override;
+
+        /**
+         * \brief 用 GPU 缓冲中的参数派发计算任务
+         * \param [in] argsBuffer : 参数缓冲，必须带 kGPUIndirectArgs
+         * \param [in] argsOffset : 参数在缓冲内的字节偏移，必须是 4 的倍数
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset) override;
+
+        /**
+         * \brief 插入 UAV 写后读屏障
+         * \param [in] buffers : 需要同步的资源；空数组表示全量屏障
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult uavBarrier(const UnorderedAccessBuffers &buffers) override;
+
+        /**
+         * \brief 把 UAV 的隐藏计数器复制到普通缓冲的指定偏移
+         * \param [in] dst : 目标缓冲，通常带 kGPUIndirectArgs
+         * \param [in] dstOffset : 目标偏移，必须是 4 的倍数
+         * \param [in] src : 带隐藏计数器的源缓冲
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult copyStructureCount(RenderBuffer *dstBuffer, size_t dstOffset, RenderBuffer *srcBuffer) override;
+
+        /**
          * \brief 设置渲染图元类型
          * \param [in] primitive : 图元类型
          * \return 调用成功返回 T3D_OK
@@ -512,6 +585,43 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         TResult render( uint32_t vertexCount, uint32_t startVertex) override;
+
+        /**
+         * \brief 实例化绘制，带顶点索引
+         * \param [in] indexCount : 单个实例的索引数量
+         * \param [in] instanceCount : 实例数量
+         * \param [in] startIndex : 索引缓冲区起始位置
+         * \param [in] baseVertex : 索引基础顶点偏移
+         * \param [in] startInstance : 起始实例编号
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult renderIndexedInstanced(uint32_t indexCount, uint32_t instanceCount, uint32_t startIndex, int32_t baseVertex, uint32_t startInstance) override;
+
+        /**
+         * \brief 实例化绘制，不带顶点索引
+         * \param [in] vertexCount : 单个实例的顶点数量
+         * \param [in] instanceCount : 实例数量
+         * \param [in] startVertex : 顶点缓冲区起始位置
+         * \param [in] startInstance : 起始实例编号
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult renderInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t startVertex, uint32_t startInstance) override;
+
+        /**
+         * \brief 用 GPU 缓冲中的参数做带索引的实例化绘制
+         * \param [in] argsBuffer : 参数缓冲，布局同 DrawIndexedIndirectArgs
+         * \param [in] argsOffset : 参数字节偏移，必须是 4 的倍数
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult renderIndexedIndirect(RenderBuffer *argsBuffer, size_t argsOffset) override;
+
+        /**
+         * \brief 用 GPU 缓冲中的参数做不带索引的实例化绘制
+         * \param [in] argsBuffer : 参数缓冲，布局同 DrawIndirectArgs
+         * \param [in] argsOffset : 参数字节偏移，必须是 4 的倍数
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult renderIndirect(RenderBuffer *argsBuffer, size_t argsOffset) override;
 
         /**
          * \brief 清除所有状态、渲染资源，包括 RenderTarget
@@ -599,6 +709,12 @@ namespace Tiny3D
         ~D3D11Context() override;
 
         void traceDebugInfo(const String &tag = "", const String &func = "");
+
+        /**
+         * \brief 按已创建设备的 feature level 填充 mCapabilities
+         * \note 必须在 mFeatureLevel 确定之后、任何资源创建之前调用
+         */
+        void fillCapabilities();
         
         TResult clearColor(RenderWindow *window, const ColorRGB &color);
 
@@ -726,6 +842,59 @@ namespace Tiny3D
         ID3D11Resource *getD3DResource(RenderBuffer *buffer);
 
         /**
+         * \brief 从渲染缓冲区取出 UAV
+         * \param [in] buffer : 渲染缓冲区
+         * \return 资源未带 kGPUUnorderedAccess、类型不支持或 RHI 资源未创建时返回 nullptr
+         * \note 纹理类资源当前只有 mip 0 的 UAV
+         */
+        ID3D11UnorderedAccessView *getD3DUAView(RenderBuffer *buffer);
+
+        /**
+         * \brief 从渲染缓冲区取出 SRV
+         * \param [in] buffer : 渲染缓冲区
+         * \return 不可采样、类型不支持或 RHI 资源未创建时返回 nullptr
+         */
+        ID3D11ShaderResourceView *getD3DSRView(RenderBuffer *buffer);
+
+        /**
+         * \brief 为缓冲创建 SRV / UAV，createStructuredBuffer 与 VB / IB 的 UAV 补齐共用
+         * \param [in] d3dBuffer : 已创建的 D3D11 缓冲
+         * \param [in] kind : 缓冲形态，非结构化缓冲传 kByteAddress 或 kTyped
+         * \param [in] format : kTyped 时的元素格式
+         * \param [in] elementSize : 单个元素字节数
+         * \param [in] elementCount : 元素个数
+         * \param [in] gpuAccess : GPUAccessFlags 组合
+         * \param [in] hasCounter : 是否附加隐藏计数器
+         * \param [in] isAppendConsume : 是否为 Append/Consume 缓冲
+         * \param [out] outSRV : 输出的 SRV，未请求时置 nullptr
+         * \param [out] outUAV : 输出的 UAV，未请求时置 nullptr
+         * \return 创建失败时返回 T3D_ERR_D3D11_CREATE_SHADER_RESOURCE_VIEW 或 T3D_ERR_D3D11_CREATE_UNORDERED_ACCESS_VIEW
+         */
+        TResult buildBufferViews(ID3D11Buffer *d3dBuffer, StructuredBufferKind kind, PixelFormat format, uint32_t elementSize, uint32_t elementCount, uint32_t gpuAccess, bool hasCounter, bool isAppendConsume, ID3D11ShaderResourceView **outSRV, ID3D11UnorderedAccessView **outUAV);
+
+        /**
+         * \brief 为纹理创建 mip 0 的 UAV
+         * \param [in] resource : 纹理资源
+         * \param [in] texType : 纹理维度
+         * \param [in] format : DXGI 格式，不能是 typeless / sRGB
+         * \param [in] arraySize : 数组层数
+         * \param [in] sampleCount : MSAA 采样数，大于 1 时打警告并跳过
+         * \param [out] outUAV : 输出的 UAV
+         * \return 创建失败时返回 T3D_ERR_D3D11_CREATE_UNORDERED_ACCESS_VIEW
+         */
+        TResult buildTextureUAView(ID3D11Resource *resource, TEXTURE_TYPE texType, DXGI_FORMAT format, uint32_t arraySize, uint32_t sampleCount, ID3D11UnorderedAccessView **outUAV);
+
+        /**
+         * \brief 校验 indirect 参数缓冲的权限位、对齐与范围
+         * \param [in] argsBuffer : 参数缓冲
+         * \param [in] argsOffset : 字节偏移
+         * \param [in] argsSize : 本次调用需要读取的参数字节数
+         * \return 校验失败时返回对应错误码
+         * \note 只做校验不取原生指针，底层缓冲要在 RHI 命令执行时才取，避免跨命令持有裸 COM 指针
+         */
+        TResult validateIndirectArgs(RenderBuffer *argsBuffer, size_t argsOffset, size_t argsSize);
+
+        /**
          * \brief 按描述为 d3dBuffer 创建纹理与视图，createRenderTexture 与 resizeRenderTexture 共用
          * \param [in] buffer : 引擎侧像素缓冲，提供描述与 Usage
          * \param [in] d3dBuffer : 待填充的 RHI 对象，调用前其 COM 成员必须为 nullptr
@@ -746,6 +915,8 @@ namespace Tiny3D
         using SetShaderResources = void (ID3D11DeviceContext::*)(UINT, UINT, ID3D11ShaderResourceView * const *);
         
         TResult setPixelBuffers(SetShaderResources setShaderResources, uint32_t startSlot, const PixelBuffers &buffers);
+
+        TResult setStructuredBuffers(SetShaderResources setShaderResources, uint32_t startSlot, const StructuredBuffers &buffers);
 
         using SetConstantBuffers = void (ID3D11DeviceContext::*)(UINT, UINT, ID3D11Buffer * const *);
         
@@ -791,6 +962,8 @@ namespace Tiny3D
             ID3D11ShaderResourceView    *HSShaderResources[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] {nullptr};
             ID3D11ShaderResourceView    *DSShaderResources[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] {nullptr};
             ID3D11ShaderResourceView    *CSShaderResources[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] {nullptr};
+
+            ID3D11UnorderedAccessView   *CSUnorderedAccessViews[D3D11_1_UAV_SLOT_COUNT] {nullptr};
 
             ID3D11SamplerState          *VSSamplers[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] {nullptr};
             ID3D11SamplerState          *PSSamplers[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] {nullptr};
@@ -867,6 +1040,11 @@ namespace Tiny3D
         RenderTargetPtr     mCurrentRenderTarget {nullptr};
 
         BackUpDX11State     mBackupState {};
+
+        /// 当前绑定到 CS 的 UAV 槽位，uavBarrier 的全量路径靠它做「解绑再绑回」
+        ID3D11UnorderedAccessView   *mBoundCSUAVs[D3D11_1_UAV_SLOT_COUNT] {nullptr};
+        /// mBoundCSUAVs 中最高有效槽位 + 1，避免每次屏障都扫满 64 个槽
+        uint32_t                     mBoundCSUAVCount {0};
     };
 }
 

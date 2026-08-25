@@ -77,6 +77,9 @@ namespace Tiny3D
             kConstantBuffer,
             /// 顶点声明
             kVertexDeclaration,
+            // 新增类型一律追加在末尾，避免既有日志里已出现过的数值含义漂移
+            /// 结构化缓冲（Structured / ByteAddress / Typed）
+            kStructuredBuffer,
         };
         
         ~RenderResource() override = default;

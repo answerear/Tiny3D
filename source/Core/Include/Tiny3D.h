@@ -81,6 +81,7 @@
 #include <Material/T3DTechnique.h>
 #include <Material/T3DShaderConstantParam.h>
 #include <Material/T3DShaderSamplerParam.h>
+#include <Material/T3DShaderResourceParam.h>
 #include <Material/T3DShaderKeyword.h>
 #include <Material/T3DShaderVariant.h>
 #include <Material/T3DShaderBinding.h>
@@ -144,6 +145,7 @@
 #include <Render/T3DIndexBuffer.h>
 #include <Render/T3DPixelBuffer.h>
 #include <Render/T3DConstantBuffer.h>
+#include <Render/T3DStructuredBuffer.h>
 #include <Render/T3DRenderResourceManager.h>
 #include <Render/T3DRenderTarget.h>
 #include <Render/T3DRenderTexture.h>
@@ -163,6 +165,8 @@
 #include <RHI/T3DRHIIndexBuffer.h>
 #include <RHI/T3DRHIPixelBuffer.h>
 #include <RHI/T3DRHIConstantBuffer.h>
+#include <RHI/T3DRHIStructuredBuffer.h>
+#include <RHI/T3DRHICapabilities.h>
 #include <RHI/T3DRHIRenderTarget.h>
 #include <RHI/T3DRHIRenderWindow.h>
 #include <RHI/T3DRHIRenderTexture.h>

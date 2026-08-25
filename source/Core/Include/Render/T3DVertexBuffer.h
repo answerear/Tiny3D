@@ -46,9 +46,12 @@ namespace Tiny3D
          * \param [in] memType : 内存类型
          * \param [in] usage : 缓冲用途
          * \param [in] accMode : CPU 访问模式
+         * \param [in] gpuAccess : GPU 侧附加访问权限（GPUAccessFlags 组合）；
+         *                         带 kGPUUnorderedAccess 时后端会额外建 UAV，
+         *                         让 compute 能直接写这块顶点数据
          * \return 新创建的 VertexBuffer 指针
          */
-        static VertexBufferPtr create(uint32_t vertexSize, uint32_t vertexCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
+        static VertexBufferPtr create(uint32_t vertexSize, uint32_t vertexCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, uint32_t gpuAccess = kGPUNone);
 
         /**
          * \brief 返回渲染资源类型标识
@@ -71,8 +74,9 @@ namespace Tiny3D
          * \param [in] memType : 内存类型
          * \param [in] usage : 缓冲用途
          * \param [in] accMode : CPU 访问模式
+         * \param [in] gpuAccess : GPU 侧附加访问权限（GPUAccessFlags 组合）
          */
-        VertexBuffer(uint32_t vertexSize, uint32_t vertexCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
+        VertexBuffer(uint32_t vertexSize, uint32_t vertexCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, uint32_t gpuAccess = kGPUNone);
 
         ~VertexBuffer() override = default;
         

@@ -46,9 +46,10 @@ namespace Tiny3D
          * \param [in] memType : 内存驻留类型
          * \param [in] usage : 缓冲区用途
          * \param [in] accMode : CPU 访问模式（CPUAccessMode 组合）
+         * \param [in] gpuAccess : GPU 侧附加访问权限（GPUAccessFlags 组合）
          * \return 新建的 ConstantBuffer 智能指针
          */
-        static ConstantBufferPtr create(const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
+        static ConstantBufferPtr create(const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, uint32_t gpuAccess = kGPUNone);
         
         ~ConstantBuffer() override = default;
 
@@ -73,8 +74,9 @@ namespace Tiny3D
          * \param [in] memType : 内存驻留类型
          * \param [in] usage : 缓冲区用途
          * \param [in] accMode : CPU 访问模式
+         * \param [in] gpuAccess : GPU 侧附加访问权限（GPUAccessFlags 组合）
          */
-        ConstantBuffer(const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode);
+        ConstantBuffer(const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, uint32_t gpuAccess = kGPUNone);
 
         /**
          * \brief 通过活动 RHI 上下文创建 RHIConstantBuffer

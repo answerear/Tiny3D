@@ -70,6 +70,52 @@ namespace Tiny3D
         Buffer  buffer {};
     };
 
+    /**
+     * \brief 结构化缓冲的形态
+     * \remarks 形态决定了后端能否让这块内存同时充当 IA 阶段的顶点/索引缓冲：
+     *          kStructured 与顶点/索引/常量缓冲绑定互斥，需要 compute 直接写
+     *          顶点数据时必须选 kByteAddress 或 kTyped。
+     */
+    TENUM()
+    enum class StructuredBufferKind : uint32_t
+    {
+        /// StructuredBuffer<T> / RWStructuredBuffer<T>，按 elementSize 步进
+        kStructured = 0,
+        /// ByteAddressBuffer / RWByteAddressBuffer，4 字节寻址；可与顶点/索引缓冲共存
+        kByteAddress,
+        /// Buffer<T> / RWBuffer<T>，按 format 做格式化取值；可与顶点缓冲共存
+        kTyped,
+    };
+
+    /**
+     * \brief 结构化缓冲创建描述
+     */
+    TSTRUCT()
+    struct T3D_ENGINE_API StructuredBufferDesc
+    {
+        /// 缓冲形态
+        TPROPERTY()
+        StructuredBufferKind    kind {StructuredBufferKind::kStructured};
+        /// 单个元素字节数；kStructured 必填且须为 4 的倍数，kByteAddress 固定按 4 处理
+        TPROPERTY()
+        uint32_t    elementSize {0};
+        /// 元素个数
+        TPROPERTY()
+        uint32_t    elementCount {0};
+        /// kTyped 时的元素格式，其余形态忽略
+        TPROPERTY()
+        PixelFormat format {PixelFormat::E_PF_UNKNOWN};
+        /// 是否为 UAV 附加隐藏计数器（对应 D3D11_BUFFER_UAV_FLAG_COUNTER）
+        TPROPERTY()
+        bool    hasCounter {false};
+        /// 是否为 Append/Consume 缓冲（对应 D3D11_BUFFER_UAV_FLAG_APPEND）
+        TPROPERTY()
+        bool    isAppendConsume {false};
+        /// 初始 CPU 数据
+        TPROPERTY()
+        Buffer  buffer {};
+    };
+
 
     /**
      * \brief 一维像素缓冲区（1D 纹理）创建描述
@@ -93,8 +139,13 @@ namespace Tiny3D
         TPROPERTY()
         Buffer  buffer {};
         /// 是否允许 shader 采样读取
+        /// \deprecated 已被 gpuAccess 的 kGPUShaderResource 位取代，
+        ///             构造时会折叠进 gpuAccess，待全部调用点迁移后删除
         TPROPERTY()
         bool    shaderReadable {false};
+        /// GPU 侧附加访问权限（GPUAccessFlags 组合）
+        TPROPERTY()
+        uint32_t    gpuAccess {kGPUNone};
     };
 
     /**
@@ -125,8 +176,13 @@ namespace Tiny3D
         TPROPERTY()
         Buffer  buffer {};
         /// 是否允许 shader 采样读取
+        /// \deprecated 已被 gpuAccess 的 kGPUShaderResource 位取代，
+        ///             构造时会折叠进 gpuAccess，待全部调用点迁移后删除
         TPROPERTY()
         bool    shaderReadable {false};
+        /// GPU 侧附加访问权限（GPUAccessFlags 组合）
+        TPROPERTY()
+        uint32_t    gpuAccess {kGPUNone};
     };
 
     /**
@@ -153,8 +209,13 @@ namespace Tiny3D
         TPROPERTY()
         Buffer  buffer {};
         /// 是否允许 shader 采样读取
+        /// \deprecated 已被 gpuAccess 的 kGPUShaderResource 位取代，
+        ///             构造时会折叠进 gpuAccess，待全部调用点迁移后删除
         TPROPERTY()
         bool    shaderReadable {false};
+        /// GPU 侧附加访问权限（GPUAccessFlags 组合）
+        TPROPERTY()
+        uint32_t    gpuAccess {kGPUNone};
     };
 }
 

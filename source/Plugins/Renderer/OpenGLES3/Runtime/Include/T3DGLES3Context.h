@@ -117,9 +117,23 @@ namespace Tiny3D
         TResult reflectShaderAllBindings(ShaderVariant *shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams) override;
         TResult reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams) override;
 
+        RHIStructuredBufferPtr createStructuredBuffer(StructuredBuffer *buffer) override;
+        TResult setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+        TResult setPSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+        TResult setCSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+        TResult setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts = UAVInitialCounts()) override;
+        TResult dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) override;
+        TResult dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) override;
+        TResult uavBarrier(const UnorderedAccessBuffers &buffers) override;
+        TResult copyStructureCount(RenderBuffer *dstBuffer, size_t dstOffset, RenderBuffer *srcBuffer) override;
+
         TResult setPrimitiveType(PrimitiveType primitive) override;
         TResult render(uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex) override;
         TResult render(uint32_t vertexCount, uint32_t startVertex) override;
+        TResult renderIndexedInstanced(uint32_t indexCount, uint32_t instanceCount, uint32_t startIndex, int32_t baseVertex, uint32_t startInstance) override;
+        TResult renderInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t startVertex, uint32_t startInstance) override;
+        TResult renderIndexedIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) override;
+        TResult renderIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) override;
         TResult reset() override;
 
         TResult blit(RenderTarget *src, RenderTarget *dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) override;
@@ -149,6 +163,15 @@ namespace Tiny3D
 
         void bindPendingUniformBlocks(GLuint program);
         void setupSamplerBindings(GLuint program);
+
+        /// 按 GLES 版本填充 mCapabilities，必须在 GL 上下文就绪后调用
+        void fillCapabilities();
+
+        /**
+         * \brief draw call 之前确保当前 program 已链接并激活
+         * \return 链接失败返回 T3D_ERR_GLES3_LINK_PROGRAM
+         */
+        TResult ensureProgramLinked();
 
     protected:
         GLuint  mCurrentProgram {0};

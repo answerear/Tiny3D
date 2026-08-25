@@ -119,9 +119,22 @@ namespace Tiny3D
         TResult setCSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
         TResult setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
         TResult setCSSamplers(uint32_t startSlot, const Samplers &samplers) override;
+        RHIStructuredBufferPtr createStructuredBuffer(StructuredBuffer *buffer) override;
+        TResult setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+        TResult setPSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+        TResult setCSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+        TResult setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts = UAVInitialCounts()) override;
+        TResult dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) override;
+        TResult dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) override;
+        TResult uavBarrier(const UnorderedAccessBuffers &buffers) override;
+        TResult copyStructureCount(RenderBuffer *dstBuffer, size_t dstOffset, RenderBuffer *srcBuffer) override;
         TResult setPrimitiveType(PrimitiveType primitive) override;
         TResult render(uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex) override;
         TResult render(uint32_t vertexCount, uint32_t startVertex) override;
+        TResult renderIndexedInstanced(uint32_t indexCount, uint32_t instanceCount, uint32_t startIndex, int32_t baseVertex, uint32_t startInstance) override;
+        TResult renderInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t startVertex, uint32_t startInstance) override;
+        TResult renderIndexedIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) override;
+        TResult renderIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) override;
         TResult reset() override;
         TResult blit(RenderTarget *src, RenderTarget *dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) override;
         TResult blit(Texture *src, RenderTarget *dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) override;
@@ -327,6 +340,16 @@ namespace Tiny3D
 
         /// Bind descriptor set with reflection-driven resource matching
         TResult bindDescriptorSet(VkCommandBuffer cmdBuf, VkPipelineLayout pipelineLayout);
+
+        /// 按物理设备属性填充 mCapabilities
+        void fillCapabilities();
+
+        /**
+         * \brief 提交 draw call 前的公共准备：管线、动态状态、描述符集
+         * \param [out] outCmdBuf : 本帧的命令缓冲
+         * \return 不在 render pass 内或管线创建失败时返回对应错误码
+         */
+        TResult prepareDrawCall(VkCommandBuffer &outCmdBuf);
 
         /// Get or create a graphics pipeline based on current render state
         VkPipeline getOrCreatePipeline();

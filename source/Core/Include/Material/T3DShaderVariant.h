@@ -30,6 +30,7 @@
 #include "T3DTypedef.h"
 #include "Material/T3DShaderKeyword.h"
 #include "Material/T3DShaderBinding.h"
+#include "Material/T3DShaderResourceParam.h"
 
 
 namespace Tiny3D
@@ -186,6 +187,45 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="ShaderSamplerParams", RTTRFuncType="getter")
         const ShaderSamplerParams &getShaderSamplerParams() const { return mSamplerParams; }
 
+        /// 获取反射得到的缓冲型资源（结构化缓冲 / UAV）参数列表
+        TPROPERTY(RTTRFuncName="ShaderResourceParams", RTTRFuncType="getter")
+        const ShaderResourceParams &getShaderResourceParams() const { return mResourceParams; }
+
+        /**
+         * \brief 设置缓冲型资源参数列表
+         * \param [in] params : 反射产出的资源绑定表
+         * \remarks 由后端在 reflectShaderAllBindings() 中回填
+         */
+        void setShaderResourceParams(const ShaderResourceParams &params) { mResourceParams = params; }
+
+        /**
+         * \brief 获取 compute shader 的线程组尺寸
+         * \param [out] x : 线程组 X 维尺寸
+         * \param [out] y : 线程组 Y 维尺寸
+         * \param [out] z : 线程组 Z 维尺寸
+         * \remarks 非 compute 阶段或未反射时三者均为 0；上层据此把线程数换算成组数
+         */
+        void getThreadGroupSize(uint32_t &x, uint32_t &y, uint32_t &z) const
+        {
+            x = mThreadGroupSize[0];
+            y = mThreadGroupSize[1];
+            z = mThreadGroupSize[2];
+        }
+
+        /**
+         * \brief 设置 compute shader 的线程组尺寸
+         * \param [in] x : 线程组 X 维尺寸
+         * \param [in] y : 线程组 Y 维尺寸
+         * \param [in] z : 线程组 Z 维尺寸
+         * \remarks 由后端在 reflectShaderAllBindings() 中回填
+         */
+        void setThreadGroupSize(uint32_t x, uint32_t y, uint32_t z)
+        {
+            mThreadGroupSize[0] = x;
+            mThreadGroupSize[1] = y;
+            mThreadGroupSize[2] = z;
+        }
+
         /**
          * \brief 从同 keyword 的另一语言变体复制反射参数
          * \param [in] other : 源变体
@@ -196,6 +236,10 @@ namespace Tiny3D
         {
             mConstantParams = other.mConstantParams;
             mSamplerParams = other.mSamplerParams;
+            mResourceParams = other.mResourceParams;
+            mThreadGroupSize[0] = other.mThreadGroupSize[0];
+            mThreadGroupSize[1] = other.mThreadGroupSize[1];
+            mThreadGroupSize[2] = other.mThreadGroupSize[2];
         }
 
         /// 获取 RHI 着色器对象
@@ -250,6 +294,34 @@ namespace Tiny3D
         /// 设置采样器参数列表（RTTR setter）
         TPROPERTY(RTTRFuncName="ShaderSamplerParams", RTTRFuncType="setter")
         void setShaderSamplerParams(const ShaderSamplerParams &params) { mSamplerParams = params; }
+
+        /// 设置资源参数列表（RTTR setter）
+        TPROPERTY(RTTRFuncName="ShaderResourceParams", RTTRFuncType="setter")
+        void setShaderResourceParamsForRTTR(const ShaderResourceParams &params) { mResourceParams = params; }
+
+        /// 获取线程组 X 维尺寸（RTTR getter）
+        TPROPERTY(RTTRFuncName="ThreadGroupSizeX", RTTRFuncType="getter")
+        uint32_t getThreadGroupSizeX() const { return mThreadGroupSize[0]; }
+
+        /// 设置线程组 X 维尺寸（RTTR setter）
+        TPROPERTY(RTTRFuncName="ThreadGroupSizeX", RTTRFuncType="setter")
+        void setThreadGroupSizeX(uint32_t size) { mThreadGroupSize[0] = size; }
+
+        /// 获取线程组 Y 维尺寸（RTTR getter）
+        TPROPERTY(RTTRFuncName="ThreadGroupSizeY", RTTRFuncType="getter")
+        uint32_t getThreadGroupSizeY() const { return mThreadGroupSize[1]; }
+
+        /// 设置线程组 Y 维尺寸（RTTR setter）
+        TPROPERTY(RTTRFuncName="ThreadGroupSizeY", RTTRFuncType="setter")
+        void setThreadGroupSizeY(uint32_t size) { mThreadGroupSize[1] = size; }
+
+        /// 获取线程组 Z 维尺寸（RTTR getter）
+        TPROPERTY(RTTRFuncName="ThreadGroupSizeZ", RTTRFuncType="getter")
+        uint32_t getThreadGroupSizeZ() const { return mThreadGroupSize[2]; }
+
+        /// 设置线程组 Z 维尺寸（RTTR setter）
+        TPROPERTY(RTTRFuncName="ThreadGroupSizeZ", RTTRFuncType="setter")
+        void setThreadGroupSizeZ(uint32_t size) { mThreadGroupSize[2] = size; }
         
     protected:
         /**
@@ -326,6 +398,12 @@ namespace Tiny3D
         
         /// 反射得到的纹理/采样器参数
         ShaderSamplerParams     mSamplerParams {};
+
+        /// 反射得到的缓冲型资源（结构化缓冲 / UAV）参数
+        ShaderResourceParams    mResourceParams {};
+
+        /// compute shader 的 numthreads 尺寸，非 compute 阶段为全 0
+        uint32_t                mThreadGroupSize[3] {0, 0, 0};
 
         /// RHI 着色器对象
         RHIShaderPtr    mRHIShader {nullptr};

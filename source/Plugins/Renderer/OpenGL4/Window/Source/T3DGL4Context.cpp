@@ -94,9 +94,56 @@ namespace Tiny3D
                 glslang::InitializeProcess();
                 mGlslangInitialized = true;
             }
+
+            fillCapabilities();
         } while (false);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::fillCapabilities()
+    {
+        GLint major = 0;
+        GLint minor = 0;
+        glGetIntegerv(GL_MAJOR_VERSION, &major);
+        glGetIntegerv(GL_MINOR_VERSION, &minor);
+
+        const bool has42 = (major > 4) || (major == 4 && minor >= 2);
+
+        // 实例化与 divisor 是 GL 3.3 核心功能；base instance 需要 GL 4.2
+        mCapabilities.supportsInstancing = true;
+        mCapabilities.supportsBaseInstance = has42;
+
+        // 以下能力当前后端未实现对应 RHI 接口，保持 false 走上层降级路径
+        mCapabilities.supportsCompute = false;
+        mCapabilities.supportsUnorderedAccess = false;
+        mCapabilities.supportsStructuredBuffer = false;
+        mCapabilities.supportsIndirectDraw = false;
+        mCapabilities.supportsIndirectDispatch = false;
+        mCapabilities.supportsAppendConsumeBuffer = false;
+
+        for (GLuint i = 0; i < 3; ++i)
+        {
+            GLint count = 0;
+            GLint size = 0;
+            glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, i, &count);
+            glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, i, &size);
+            mCapabilities.maxDispatchGroupCount[i] = (uint32_t)count;
+            mCapabilities.maxComputeGroupSize[i] = (uint32_t)size;
+        }
+
+        GLint sharedMemory = 0;
+        glGetIntegerv(GL_MAX_COMPUTE_SHARED_MEMORY_SIZE, &sharedMemory);
+        mCapabilities.maxComputeSharedMemory = (uint32_t)sharedMemory;
+
+        GLint storageBuffers = 0;
+        glGetIntegerv(GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS, &storageBuffers);
+        mCapabilities.maxUnorderedAccessSlots = (uint32_t)storageBuffers;
+
+        // 查询计算相关 limit 时若 GL 版本不足会置错误标志，此处清理避免污染后续 GL_CHECK_ERROR
+        while (glGetError() != GL_NO_ERROR) {}
     }
 
     //--------------------------------------------------------------------------
@@ -1571,6 +1618,16 @@ namespace Tiny3D
                                     (GLsizei)strides[i],
                                     reinterpret_cast<const void*>((uintptr_t)attrib.getOffset()));
                             }
+
+                            if (attrib.getInputRate() == VertexAttribute::InputRate::kPerInstance)
+                            {
+                                const uint32_t stepRate = attrib.getInstanceStepRate();
+                                glVertexAttribDivisor(j, (GLuint)(stepRate > 0 ? stepRate : 1));
+                            }
+                            else
+                            {
+                                glVertexAttribDivisor(j, 0);
+                            }
                         }
                     }
                 }
@@ -2516,6 +2573,38 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult GL4Context::ensureProgramLinked()
+    {
+        if (mCurrentProgram == 0 || !mProgramDirty)
+            return T3D_OK;
+
+        glLinkProgram(mCurrentProgram);
+
+        GLint linked = 0;
+        glGetProgramiv(mCurrentProgram, GL_LINK_STATUS, &linked);
+        if (!linked)
+        {
+            GLint logLen = 0;
+            glGetProgramiv(mCurrentProgram, GL_INFO_LOG_LENGTH, &logLen);
+            if (logLen > 0)
+            {
+                TArray<char> log(logLen + 1, 0);
+                glGetProgramInfoLog(mCurrentProgram, logLen, nullptr, log.data());
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Program link error: %s", log.data());
+            }
+            return T3D_ERR_GL4_LINK_PROGRAM;
+        }
+
+        glUseProgram(mCurrentProgram);
+        bindPendingUniformBlocks(mCurrentProgram);
+        setupSamplerBindings(mCurrentProgram);
+        mProgramDirty = false;
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult GL4Context::render(uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex)
     {
         auto lambda = [this](uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex)
@@ -2524,31 +2613,9 @@ namespace Tiny3D
 
             do
             {
-                if (mCurrentProgram != 0 && mProgramDirty)
-                {
-                    glLinkProgram(mCurrentProgram);
-
-                    GLint linked = 0;
-                    glGetProgramiv(mCurrentProgram, GL_LINK_STATUS, &linked);
-                    if (!linked)
-                    {
-                        GLint logLen = 0;
-                        glGetProgramiv(mCurrentProgram, GL_INFO_LOG_LENGTH, &logLen);
-                        if (logLen > 0)
-                        {
-                            TArray<char> log(logLen + 1, 0);
-                            glGetProgramInfoLog(mCurrentProgram, logLen, nullptr, log.data());
-                            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Program link error: %s", log.data());
-                        }
-                        ret = T3D_ERR_GL4_LINK_PROGRAM;
-                        break;
-                    }
-
-                    glUseProgram(mCurrentProgram);
-                    bindPendingUniformBlocks(mCurrentProgram);
-                    setupSamplerBindings(mCurrentProgram);
-                    mProgramDirty = false;
-                }
+                ret = ensureProgramLinked();
+                if (T3D_FAILED(ret))
+                    break;
 
                 const void *offset = reinterpret_cast<const void*>((uintptr_t)(startIndex * mIndexSize));
 
@@ -2583,31 +2650,9 @@ namespace Tiny3D
 
             do
             {
-                if (mCurrentProgram != 0 && mProgramDirty)
-                {
-                    glLinkProgram(mCurrentProgram);
-
-                    GLint linked = 0;
-                    glGetProgramiv(mCurrentProgram, GL_LINK_STATUS, &linked);
-                    if (!linked)
-                    {
-                        GLint logLen = 0;
-                        glGetProgramiv(mCurrentProgram, GL_INFO_LOG_LENGTH, &logLen);
-                        if (logLen > 0)
-                        {
-                            TArray<char> log(logLen + 1, 0);
-                            glGetProgramInfoLog(mCurrentProgram, logLen, nullptr, log.data());
-                            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Program link error: %s", log.data());
-                        }
-                        ret = T3D_ERR_GL4_LINK_PROGRAM;
-                        break;
-                    }
-
-                    glUseProgram(mCurrentProgram);
-                    bindPendingUniformBlocks(mCurrentProgram);
-                    setupSamplerBindings(mCurrentProgram);
-                    mProgramDirty = false;
-                }
+                ret = ensureProgramLinked();
+                if (T3D_FAILED(ret))
+                    break;
 
                 glDrawArrays(mPrimitiveType, startVertex, vertexCount);
 
@@ -2619,6 +2664,114 @@ namespace Tiny3D
 
         return ENQUEUE_UNIQUE_COMMAND(lambda, vertexCount, startVertex);
     }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Context::renderIndexedInstanced(uint32_t indexCount, uint32_t instanceCount,
+        uint32_t startIndex, int32_t baseVertex, uint32_t startInstance)
+    {
+        if (startInstance != 0 && !mCapabilities.supportsBaseInstance)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER,
+                "renderIndexedInstanced() with non-zero startInstance requires GL 4.2+ !");
+            return T3D_ERR_NOT_IMPLEMENT;
+        }
+
+        auto lambda = [this](uint32_t indexCount, uint32_t instanceCount, uint32_t startIndex, int32_t baseVertex, uint32_t startInstance)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                ret = ensureProgramLinked();
+                if (T3D_FAILED(ret))
+                    break;
+
+                const void *offset = reinterpret_cast<const void*>((uintptr_t)(startIndex * mIndexSize));
+
+                GLint boundEBO = 0;
+                glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &boundEBO);
+                if (boundEBO == 0)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::renderIndexedInstanced(): No EBO bound! Skipping draw to avoid crash.");
+                    ret = T3D_ERR_GL4_INVALID_USAGE;
+                    break;
+                }
+
+                if (startInstance != 0)
+                {
+                    glDrawElementsInstancedBaseVertexBaseInstance(mPrimitiveType, indexCount,
+                        mIndexType, offset, instanceCount, baseVertex, startInstance);
+                }
+                else
+                {
+                    glDrawElementsInstancedBaseVertex(mPrimitiveType, indexCount, mIndexType,
+                        offset, instanceCount, baseVertex);
+                }
+
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::renderIndexedInstanced");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, indexCount, instanceCount, startIndex, baseVertex, startInstance);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Context::renderInstanced(uint32_t vertexCount, uint32_t instanceCount,
+        uint32_t startVertex, uint32_t startInstance)
+    {
+        if (startInstance != 0 && !mCapabilities.supportsBaseInstance)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER,
+                "renderInstanced() with non-zero startInstance requires GL 4.2+ !");
+            return T3D_ERR_NOT_IMPLEMENT;
+        }
+
+        auto lambda = [this](uint32_t vertexCount, uint32_t instanceCount, uint32_t startVertex, uint32_t startInstance)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                ret = ensureProgramLinked();
+                if (T3D_FAILED(ret))
+                    break;
+
+                if (startInstance != 0)
+                {
+                    glDrawArraysInstancedBaseInstance(mPrimitiveType, startVertex, vertexCount,
+                        instanceCount, startInstance);
+                }
+                else
+                {
+                    glDrawArraysInstanced(mPrimitiveType, startVertex, vertexCount, instanceCount);
+                }
+
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::renderInstanced");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, vertexCount, instanceCount, startVertex, startInstance);
+    }
+
+    //--------------------------------------------------------------------------
+
+    RHIStructuredBufferPtr GL4Context::createStructuredBuffer(StructuredBuffer *buffer) { T3D_RHI_UNSUPPORTED_PTR(supportsStructuredBuffer); }
+    TResult GL4Context::setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
+    TResult GL4Context::setPSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
+    TResult GL4Context::setCSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
+    TResult GL4Context::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
+    TResult GL4Context::dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) { T3D_RHI_UNSUPPORTED(supportsCompute); }
+    TResult GL4Context::dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset) { T3D_RHI_UNSUPPORTED(supportsIndirectDispatch); }
+    TResult GL4Context::uavBarrier(const UnorderedAccessBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
+    TResult GL4Context::copyStructureCount(RenderBuffer *dstBuffer, size_t dstOffset, RenderBuffer *srcBuffer) { T3D_RHI_UNSUPPORTED(supportsAppendConsumeBuffer); }
+    TResult GL4Context::renderIndexedIndirect(RenderBuffer *argsBuffer, size_t argsOffset) { T3D_RHI_UNSUPPORTED(supportsIndirectDraw); }
+    TResult GL4Context::renderIndirect(RenderBuffer *argsBuffer, size_t argsOffset) { T3D_RHI_UNSUPPORTED(supportsIndirectDraw); }
 
     //--------------------------------------------------------------------------
 

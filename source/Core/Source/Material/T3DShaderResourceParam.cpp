@@ -23,52 +23,50 @@
  ******************************************************************************/
 
 
-#include "Render/T3DConstantBuffer.h"
-#include "Kernel/T3DAgent.h"
-#include "RHI/T3DRHIContext.h"
-#include "RHI/T3DRHIConstantBuffer.h"
+#include "Material/T3DShaderResourceParam.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    ConstantBufferPtr ConstantBuffer::create(const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, uint32_t gpuAccess /* = kGPUNone */)
+    ShaderResourceParamPtr ShaderResourceParam::create(const String &name, Kind kind,
+        uint32_t binding, uint32_t elementStride, bool hasCounter)
     {
-        return T3D_NEW ConstantBuffer(name, binding, buffer, memType, usage, accMode, gpuAccess);
+        return T3D_NEW ShaderResourceParam(name, kind, binding, elementStride, hasCounter);
     }
 
     //--------------------------------------------------------------------------
 
-    ConstantBuffer::ConstantBuffer(const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, uint32_t gpuAccess /* = kGPUNone */)
-        : RenderBuffer(buffer, memType, usage, accMode, gpuAccess)
-        , mName(name)
+    ShaderResourceParam::ShaderResourceParam(const String &name, Kind kind,
+        uint32_t binding, uint32_t elementStride, bool hasCounter)
+        : mName(name)
+        , mKind(kind)
         , mBinding(binding)
+        , mElementStride(elementStride)
+        , mHasCounter(hasCounter)
     {
-        
+
     }
 
     //--------------------------------------------------------------------------
 
-    RenderResource::Type ConstantBuffer::getType() const
+    ShaderResourceParam::~ShaderResourceParam()
     {
-        return Type::kConstantBuffer;
+
     }
 
     //--------------------------------------------------------------------------
 
-    bool ConstantBuffer::onLoad()
+    ShaderResourceParamPtr ShaderResourceParam::clone() const
     {
-        mRHIResource = T3D_AGENT.getActiveRHIContext()->createConstantBuffer(this);
-        return true;
-    }
-
-    //--------------------------------------------------------------------------
-
-    bool ConstantBuffer::onUnload()
-    {
-        mRHIResource = nullptr;
-        return true;
+        ShaderResourceParamPtr param = T3D_NEW ShaderResourceParam();
+        param->mName = mName;
+        param->mKind = mKind;
+        param->mBinding = mBinding;
+        param->mElementStride = mElementStride;
+        param->mHasCounter = mHasCounter;
+        return param;
     }
 
     //--------------------------------------------------------------------------
