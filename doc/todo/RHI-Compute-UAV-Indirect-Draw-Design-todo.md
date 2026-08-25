@@ -95,7 +95,7 @@ flowchart LR
 | **视图挂在资源 wrapper 上** | `D3D11PixelBuffer2D` 同时持有 `D3DTexture` / `D3DSRView` / `D3DRTView` / `D3DDSView` / `D3DResolveTex` | UAV 也作为 `D3DUAView` 成员挂上去，不新建视图对象 |
 | **命令线程化** | `ENQUEUE_UNIQUE_COMMAND`（`T3DRHIThread.h:210`）→ `enqueue_unique_command`（`T3DRHIThread.h:157-177`） | 所有新增 GPU 调用一律走这个宏 |
 | **按资源类型 switch 取原生对象** | `setPixelBuffers`（`T3DD3D11Context.cpp:3931-3966`）、`writeBuffer`（`T3DD3D11Context.cpp:3353-3445`）、`getD3DResource` helper | UAV 取视图复用同一个 switch 骨架 |
-| **虚接口默认实现返回未实现** | `resizeRenderTexture` / `resizeRenderTarget` 是**非纯虚**，基类默认 `return T3D_ERR_NOT_IMPLEMENT`（`T3DRHIContext.h:114,123`） | 本文所有新增 `RHIContext` 接口一律照此办理，见 §6.1 |
+| **纯虚接口 + 后端强制表态** | `RHIContext` 绝大多数接口都是纯虚（`createRenderWindow` / `setRenderTarget` / `render` / `blit` 等，`T3DRHIContext.h:97-653`），后端漏实现直接编译失败 | 本文所有新增 `RHIContext` 接口一律纯虚，见 §6.1 |
 | **描述结构 + 缓存管理器** | `RenderBufferManager::loadVertexBuffer` 等（`T3DRenderResourceManager.h:200-283`）+ `loadBuffer` 模板（`:306-307`） | 新增 `loadStructuredBuffer` |
 | **状态备份/恢复** | `BackUpDX11State` 已覆盖 CS 的 SRV / Sampler / CB / Shader（`T3DD3D11Context.h`） | 需补 UAV 槽位备份，见 §7.6 |
 
@@ -180,14 +180,16 @@ flowchart TB
     subgraph RHI["RHI 抽象层"]
         CAP["RHICapabilities"]
         RSB["RHIStructuredBuffer"]
-        API["RHIContext 新增 10 个虚接口<br/>默认 T3D_ERR_NOT_IMPLEMENT"]
+        API["RHIContext 新增 13 个纯虚接口<br/>后端漏实现 = 编译失败"]
     end
 
-    subgraph Backends["后端插件"]
+    subgraph Backends["9 个具体后端，全部必须表态"]
         D3D["D3D11：全量实现"]
-        VK["Vulkan：全量（后续）"]
-        GL4["GL4.3+：全量（后续）"]
-        ES3["GLES3：仅 Instanced"]
+        VK["Vulkan：全量（五期）"]
+        GL4["GL4.3+：全量（五期）"]
+        MTL["Metal：全量（五期）<br/>顺带修假成功空壳"]
+        ES3["GLES3：仅 Instanced<br/>其余规约 stub"]
+        NUL["4 个 Console/Null：<br/>全部规约 stub"]
     end
 
     Core --> RHI
@@ -200,7 +202,7 @@ flowchart TB
 |-------|------|------|
 | UAV 是独立资源对象还是资源成员？ | **资源 wrapper 的成员** `D3DUAView` | 与既有 `D3DSRView` / `D3DRTView` / `D3DDSView` 一致；避免引入需要独立生命周期管理的第三类对象 |
 | UAV 绑定数组用什么元素类型？ | **`TArray<RenderBufferPtr>`** | UAV 可以是纹理也可以是缓冲，`RenderBuffer` 是二者唯一的共同基类；`PixelBuffers` 那样的 `TArray<PixelBufferPtr>` 装不下结构化缓冲 |
-| 新接口纯虚还是带默认实现？ | **带默认实现，返回 `T3D_ERR_NOT_IMPLEMENT`** | 遵循 `resizeRenderTexture` 已确立的先例（`T3DRHIContext.h:114`）；避免一次性强迫 5 个后端补 10 个空 override |
+| 新接口纯虚还是带默认实现？ | **全部纯虚 `= 0`** | 强制每个后端显式表态「真实现」还是「明确不支持」，把遗漏变成**编译期错误**而不是运行期静默行为。代价与收益见 §6.1 |
 | 实例化绘制的接口名？ | **`renderInstanced` / `renderIndexedInstanced`**，不复用 `render` 重载 | 现有 `render(a,b,c)` 与 `render(a,b)` 已经靠参数个数区分，再加 4/5 参重载会**编译通过但语义写错**，是极难发现的 bug |
 | 能力查询是虚函数还是数据成员？ | **`RHIContext` 的 protected 数据成员 + 非虚 getter** | 与 `mViewMatrix` / `mProjectionFlipped`（`T3DRHIContext.h:704-712`）同构；后端在 `init()` 里填，零 override 成本 |
 | 同步用 barrier 还是自动解绑？ | **显式 `uavBarrier(资源列表)`** | D3D11 只需解绑，Vulkan 需要 image layout transition（必须知道是哪些资源），GL 需要 `glMemoryBarrier`。列表版是唯一能同时喂饱三者的形态 |
@@ -529,23 +531,135 @@ D3D11、Vulkan、OpenGL 三者的 indirect 参数**字段顺序与宽度完全�
         RHICapabilities mCapabilities {};
 ```
 
-**默认全 false 是刻意的**：未改动的后端自动表现为「不支持」，与 §6.1 的 `T3D_ERR_NOT_IMPLEMENT` 默认实现语义一致，不会出现「能力位说支持但接口返回未实现」的自相矛盾状态。
+**这里刻意不用纯虚 getter**，而是 protected 数据成员 + 非虚 getter，理由是失败方向：
+
+- 数据成员默认全 false，后端忘了填 → 上层查到「不支持」→ 走降级路径 → **只损失性能，不产生错误结果**。
+- 若改成纯虚 `getCapabilities()`，后端必须返回点什么，反而更容易随手返回一个全 true 的静态对象来「过编译」，失败方向变成不安全的。
+
+能力位与接口实现的一致性由 §6.1.3 的 `T3D_RHI_UNSUPPORTED` 宏强制：stub 了接口却把能力位设成 true，会在 debug 下断言失败。这比让 getter 变纯虚有效得多 —— 纯虚只能强制「有个返回值」，管不住返回值对不对。
 
 ---
 
 ## 6. RHI 接口设计
 
-### 6.1 接口引入原则
+### 6.1 接口引入原则：全部纯虚
 
-`D3D11-Renderer-Backend-Implementation-Plan.md` §8.2 第 5 条指出：新增纯虚函数会强制 GL4 / GLES3 / Vulkan / Metal / Reference3D **全部补 override**。本文规避这一点 —— 沿用 D0 决策已经确立的先例：
+**本文新增的全部 `RHIContext` 接口一律声明为纯虚（`= 0`），不提供基类默认实现。**
 
-```106:123:source/Core/Include/RHI/T3DRHIContext.h
-        virtual TResult resizeRenderTexture(RenderTexture *rt, uint32_t width, uint32_t height) { return T3D_ERR_NOT_IMPLEMENT; }
-        // ...
-        virtual TResult resizeRenderTarget(RenderTarget *rt, uint32_t width, uint32_t height) { return T3D_ERR_NOT_IMPLEMENT; }
+`D3D11-Renderer-Backend-Implementation-Plan.md` §8.2 第 5 条把「新增纯虚函数会强制所有后端补 override」列为暂缓理由之一。本文**不接受**这个理由 —— 那恰恰是纯虚的价值所在，而不是它的代价。
+
+#### 6.1.1 为什么必须纯虚
+
+带默认实现的虚函数会产生一种危险的中间状态：**后端作者不知道自己漏了什么**。新接口加进 `RHIContext` 后，所有后端照常编译通过、照常运行，直到某天有人在 Vulkan 上跑一个 compute pass，拿到 `T3D_ERR_NOT_IMPLEMENT` 才发现从来没人实现过它。
+
+这不是假设。**Metal 后端已经踩过一模一样的坑**：
+
+```1458:1461:source/Plugins/Renderer/Metal/Source/T3DMetalContext.mm
+    TResult MetalContext::setComputeShader(ShaderVariant *) { return T3D_OK; }
+    TResult MetalContext::setCSConstantBuffers(uint32_t, const ConstantBuffers &) { return T3D_OK; }
+    TResult MetalContext::setCSPixelBuffers(uint32_t, const PixelBuffers &) { return T3D_OK; }
+    TResult MetalContext::setCSSamplers(uint32_t, const Samplers &) { return T3D_OK; }
 ```
 
-**本文新增的全部 `RHIContext` 接口一律为非纯虚，基类默认返回 `T3D_ERR_NOT_IMPLEMENT`（资源创建类返回 `nullptr`）。** 后端按需 override，未 override 的后端得到明确错误码而不是静默无操作。
+`MetalContext` 其余部分是真实实现（有 encoder 管理、pipeline 绑定、真实 draw call），唯独这四个 compute 绑定接口是**返回 `T3D_OK` 的空壳**。调用方拿到「成功」，实际什么都没发生。这比编译不过难查一个数量级：没有编译错误、没有运行时错误、没有日志，只有画面不对。
+
+纯虚把这类遗漏前移到编译期。加一个纯虚接口后，**9 个后端全部编译失败**，每个作者被迫做一次显式选择：真实现，还是明确声明不支持。两者都可接受，**唯独「没想过这件事」不可接受**。
+
+#### 6.1.2 影响面：9 个具体后端
+
+`RHIContext` 的派生体系是「4 个抽象中间基类 + 9 个具体上下文」：
+
+| 具体后端类 | 位置 | 本特性的预期实现程度 |
+|-----------|------|-------------------|
+| `D3D11Context` | `Direct3D11/Window` | **全量真实现**（§7） |
+| `VKContext` | `Vulkan/Window` | 全量真实现（后续期） |
+| `GL4Context` | `OpenGL4/Window` | 全量真实现（4.3+），低版本按能力位降级 |
+| `GLES3Context` | `OpenGLES3/Runtime` | 仅实例化；compute / indirect 走规约 stub |
+| `MetalContext` | `Metal` | 全量真实现（后续期），**顺带修掉上面那四个假成功空壳** |
+| `D3D11ConsoleContext` | `Direct3D11/Console` | 全部规约 stub（离线编译用 null backend） |
+| `VKConsoleContext` | `Vulkan/Console` | 全部规约 stub |
+| `GL4ConsoleContext` | `OpenGL4/Console` | 全部规约 stub |
+| `NullContext` | `Null` | 全部规约 stub |
+
+中间基类 `D3D11ContextBase` / `VKContextBase` / `GL4ContextBase` / `GLES3ContextBase` 本身是抽象类，**不要在这一层加默认实现** —— 那等于把默认实现换个地方藏起来，Console 后端会重新变回静默继承，纯虚的意义就没了。
+
+13 个新接口 × 9 个后端 = 117 处实现，其中约半数是规约 stub。这个数字看起来大，但 stub 是**一行宏调用**（§6.1.3），且每一处都是一次有意识的决策记录。
+
+#### 6.1.3 「明确不支持」的实现规约
+
+后端确实无法支持某个接口时（GLES3.0 的 compute、Console/Null 后端的一切 GPU 操作），**不允许 `return T3D_OK;`，也不允许空函数体**。统一走下面这对宏。
+
+**位置：`source/Core/Include/T3DPrerequisites.h`**，紧接在 `LOG_TAG_*` 定义块（`:66-77`）之后：
+
+```cpp
+    /** \brief 后端声明某个 RHI 接口不受支持时的统一 stub 宏 */
+
+    /**
+     * \brief 声明某个返回 TResult 的 RHI 接口在当前后端不受支持
+     * \remarks 三件事一次做完：
+     *          1) Debug 下断言对应能力位为 false，防止「能力位说支持但接口是 stub」
+     *          2) 打警告日志，让误用在日志里立刻可见
+     *          3) 返回 T3D_ERR_NOT_IMPLEMENT，而不是谎报 T3D_OK
+     *          只能在 RHIContext 派生类的成员函数内使用（依赖 getCapabilities()）
+     * \param capField : RHICapabilities 中对应的能力位字段名
+     */
+    #define T3D_RHI_UNSUPPORTED(capField)                                       \
+        do {                                                                    \
+            T3D_ASSERT(!getCapabilities().capField);                            \
+            T3D_LOG_WARNING(LOG_TAG_RENDER,                                     \
+                "%s is not supported by this RHI backend", __FUNCTION__);       \
+            return T3D_ERR_NOT_IMPLEMENT;                                       \
+        } while (false)
+
+    /**
+     * \brief T3D_RHI_UNSUPPORTED 的指针返回版本，用于 createXXX 系列接口
+     * \param capField : RHICapabilities 中对应的能力位字段名
+     */
+    #define T3D_RHI_UNSUPPORTED_PTR(capField)                                   \
+        do {                                                                    \
+            T3D_ASSERT(!getCapabilities().capField);                            \
+            T3D_LOG_WARNING(LOG_TAG_RENDER,                                     \
+                "%s is not supported by this RHI backend", __FUNCTION__);       \
+            return nullptr;                                                     \
+        } while (false)
+```
+
+**为什么放 `T3DPrerequisites.h` 而不是 `T3DRHIContext.h`**：
+
+| 理由 | 说明 |
+|------|------|
+| 依赖已就位 | `T3D_ASSERT` 来自 `T3DMacro.h`（`T3DPrerequisites.h:29` 已包含），`T3D_LOG_WARNING` 来自 `T3DLog.h`（`:47`），`T3D_ERR_NOT_IMPLEMENT` 来自 `T3DPlatformLib.h`（`:44`）—— 三个依赖在该头文件里全部现成 |
+| 与 `LOG_TAG_RENDER` 同处一文件 | 宏体里直接用了这个 tag，定义在同一处便于对照，改 tag 时不会漏 |
+| 职责分离 | `T3DRHIContext.h` 定义的是**接口契约**，不该混入给实现方用的辅助工具；`T3DPrerequisites.h` 本就是 Core 的跨切面宏与前向声明集散地 |
+| 覆盖面 | 所有后端插件的 prerequisites 头文件都间接包含它，不需要为了一个 stub 宏去 include RHI 接口头 |
+
+宏体只做文本替换，不引入对 `RHICapabilities` 类型的编译期依赖，因此放在前向声明区之前也不会有循环包含问题。
+
+**用法**：
+
+```cpp
+    // 返回 TResult 的接口
+    TResult GLES3Context::dispatch(uint32_t x, uint32_t y, uint32_t z)
+    {
+        T3D_RHI_UNSUPPORTED(supportsCompute);
+    }
+
+    // 返回智能指针的资源创建接口
+    RHIStructuredBufferPtr NullContext::createStructuredBuffer(StructuredBuffer *buffer)
+    {
+        T3D_RHI_UNSUPPORTED_PTR(supportsStructuredBuffer);
+    }
+```
+
+> **Release 下的行为差异**：`T3D_ASSERT` 在非 `T3D_DEBUG` 构建里展开为空（`T3DMacro.h:87-93`），因此 `capField` 拼错只会在 Debug 构建暴露。这是可接受的 —— Debug 是更严格的那个构建，能力位一致性检查本来就只在 Debug 生效。但 CI 若只跑 Release，这层保护等于没有，**需要确保 Debug 构建也在 CI 覆盖范围内**。
+
+这个宏顺带解决了**纯虚解决不了的第二类遗漏**：编译器能强制你写实现，但管不住你把能力位填错。`T3D_ASSERT(!getCapabilities().capField)` 把「stub 了接口却把能力位设成 true」变成 debug 下的断言失败 —— 这正是 §5.5 里能力位与接口实现两者必须一致的强制手段。
+
+> 反向的不一致（真实现了接口但忘了打开能力位）不会断言失败，但失败方向是安全的：上层查到 false 就走降级路径，只损失性能不产生错误结果。这是 §5.5 把能力位默认值全设为 false 的原因。
+
+#### 6.1.4 对排期的影响
+
+纯虚意味着**每一期加接口时，9 个后端必须同期完成编译修复**，不能像原方案那样把跨后端对齐整体推到最后一期。§10 的排期已按此重排：每期末尾都有一个「全后端表态」的收口任务，是该期的编译门槛；把 stub 换成真实现则作为各后端的独立后续任务。
 
 ### 6.2 资源创建
 
@@ -558,7 +672,7 @@ D3D11、Vulkan、OpenGL 三者的 indirect 参数**字段顺序与宽度完全�
          * \return 调用成功返回 RHI 对象；后端不支持或创建失败时返回 nullptr
          * \note 是否创建 SRV / UAV 由 buffer->getGPUAccess() 决定
          */
-        virtual RHIStructuredBufferPtr createStructuredBuffer(StructuredBuffer *buffer) { return nullptr; }
+        virtual RHIStructuredBufferPtr createStructuredBuffer(StructuredBuffer *buffer) = 0;
 ```
 
 普通纹理与顶点/索引缓冲的 UAV **不新增创建接口** —— 它们在各自已有的 `createPixelBufferXD` / `createVertexBuffer` 里根据 `getGPUAccess()` 顺带建出来，见 §7.2。
@@ -583,7 +697,7 @@ D3D11、Vulkan、OpenGL 三者的 indirect 参数**字段顺序与宽度完全�
          */
         virtual TResult setCSUnorderedAccessBuffers(uint32_t startSlot,
             const UnorderedAccessBuffers &buffers,
-            const UAVInitialCounts &initialCounts = UAVInitialCounts()) { return T3D_ERR_NOT_IMPLEMENT; }
+            const UAVInitialCounts &initialCounts = UAVInitialCounts()) = 0;
 ```
 
 命名与既有的 `setCSPixelBuffers` / `setCSConstantBuffers` 保持同族。
@@ -600,7 +714,7 @@ D3D11、Vulkan、OpenGL 三者的 indirect 参数**字段顺序与宽度完全�
          *         时返回 T3D_ERR_INVALID_PARAM
          * \note 调用前须已通过 setComputeShader / setCS* 系列完成资源绑定
          */
-        virtual TResult dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) { return T3D_ERR_NOT_IMPLEMENT; }
+        virtual TResult dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) = 0;
 
         /**
          * \brief 按 GPU 缓冲中的参数间接派发 compute shader
@@ -609,7 +723,7 @@ D3D11、Vulkan、OpenGL 三者的 indirect 参数**字段顺序与宽度完全�
          * \param [in] argsOffset : 参数在缓冲中的字节偏移，须为 4 的倍数
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) { return T3D_ERR_NOT_IMPLEMENT; }
+        virtual TResult dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) = 0;
 
         /**
          * \brief UAV 写后读同步点：保证之前的 UAV 写入对后续读取可见，并解除 UAV 绑定
@@ -622,7 +736,7 @@ D3D11、Vulkan、OpenGL 三者的 indirect 参数**字段顺序与宽度完全�
          *          - OpenGL：glMemoryBarrier(SHADER_STORAGE | TEXTURE_FETCH |
          *            SHADER_IMAGE_ACCESS | COMMAND_BARRIER)。
          */
-        virtual TResult uavBarrier(const UnorderedAccessBuffers &buffers) { return T3D_ERR_NOT_IMPLEMENT; }
+        virtual TResult uavBarrier(const UnorderedAccessBuffers &buffers) = 0;
 
         /**
          * \brief 把 Append/Counter UAV 的当前元素计数拷贝到目标缓冲的指定偏移
@@ -635,7 +749,7 @@ D3D11、Vulkan、OpenGL 三者的 indirect 参数**字段顺序与宽度完全�
          *       DrawIndexedIndirectArgs::instanceCount 字段。
          */
         virtual TResult copyStructureCount(RenderBuffer *dstBuffer, size_t dstOffset,
-            RenderBuffer *srcBuffer) { return T3D_ERR_NOT_IMPLEMENT; }
+            RenderBuffer *srcBuffer) = 0;
 ```
 
 ### 6.5 实例化与间接绘制
@@ -654,7 +768,7 @@ D3D11、Vulkan、OpenGL 三者的 indirect 参数**字段顺序与宽度完全�
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult renderIndexedInstanced(uint32_t indexCount, uint32_t instanceCount,
-            uint32_t startIndex, int32_t baseVertex, uint32_t startInstance) { return T3D_ERR_NOT_IMPLEMENT; }
+            uint32_t startIndex, int32_t baseVertex, uint32_t startInstance) = 0;
 
         /**
          * \brief 非索引实例化绘制
@@ -665,7 +779,7 @@ D3D11、Vulkan、OpenGL 三者的 indirect 参数**字段顺序与宽度完全�
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult renderInstanced(uint32_t vertexCount, uint32_t instanceCount,
-            uint32_t startVertex, uint32_t startInstance) { return T3D_ERR_NOT_IMPLEMENT; }
+            uint32_t startVertex, uint32_t startInstance) = 0;
 
         /**
          * \brief 按 GPU 缓冲中的参数进行索引间接绘制
@@ -674,7 +788,7 @@ D3D11、Vulkan、OpenGL 三者的 indirect 参数**字段顺序与宽度完全�
          * \param [in] argsOffset : 参数字节偏移，须为 4 的倍数
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult renderIndexedIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) { return T3D_ERR_NOT_IMPLEMENT; }
+        virtual TResult renderIndexedIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) = 0;
 
         /**
          * \brief 按 GPU 缓冲中的参数进行非索引间接绘制
@@ -682,28 +796,33 @@ D3D11、Vulkan、OpenGL 三者的 indirect 参数**字段顺序与宽度完全�
          * \param [in] argsOffset : 参数字节偏移，须为 4 的倍数
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult renderIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) { return T3D_ERR_NOT_IMPLEMENT; }
+        virtual TResult renderIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) = 0;
 ```
 
 > **为什么不复用 `render` 重载**：现有 `render(uint32_t, uint32_t, uint32_t)` 是索引绘制，`render(uint32_t, uint32_t)` 是非索引绘制。再加 4 参与 5 参重载后，`render(a, b, c, d)` 究竟是「非索引实例化」还是别的什么，只能靠数参数判断。写错**不会编译报错**，只会画出错误的东西。distinct 命名是这里唯一负责任的选择。顺带一提，现有 `render` 的 `baseVertex` 声明为 `uint32_t`，而 `DrawIndexed` 的对应参数是 `INT` —— 新接口用 `int32_t` 修正这一点，旧接口暂不动以免影响调用点。
 
 ### 6.6 新增接口汇总
 
-| 接口 | 类别 | 默认返回 |
-|------|------|---------|
-| `createStructuredBuffer` | 资源创建 | `nullptr` |
-| `setCSUnorderedAccessBuffers` | 绑定 | `T3D_ERR_NOT_IMPLEMENT` |
-| `dispatch` | 派发 | `T3D_ERR_NOT_IMPLEMENT` |
-| `dispatchIndirect` | 派发 | `T3D_ERR_NOT_IMPLEMENT` |
-| `uavBarrier` | 同步 | `T3D_ERR_NOT_IMPLEMENT` |
-| `copyStructureCount` | 同步 | `T3D_ERR_NOT_IMPLEMENT` |
-| `renderIndexedInstanced` | 绘制 | `T3D_ERR_NOT_IMPLEMENT` |
-| `renderInstanced` | 绘制 | `T3D_ERR_NOT_IMPLEMENT` |
-| `renderIndexedIndirect` | 绘制 | `T3D_ERR_NOT_IMPLEMENT` |
-| `renderIndirect` | 绘制 | `T3D_ERR_NOT_IMPLEMENT` |
-| `getCapabilities` | 查询 | 非虚，读 `mCapabilities` |
+全部为**纯虚**，后端漏实现即编译失败；确实不支持时按 §6.1.3 的 `T3D_RHI_UNSUPPORTED` 规约 stub。
 
-共 10 个虚接口 + 1 个非虚 getter。
+| 接口 | 类别 | 引入期 | stub 时对应的能力位 |
+|------|------|-------|-------------------|
+| `createStructuredBuffer` | 资源创建 | 二期 | `supportsStructuredBuffer` |
+| `setVSStructuredBuffers` | 绑定（SRV） | 三期 | `supportsStructuredBuffer` |
+| `setPSStructuredBuffers` | 绑定（SRV） | 三期 | `supportsStructuredBuffer` |
+| `setCSStructuredBuffers` | 绑定（SRV） | 三期 | `supportsStructuredBuffer` |
+| `setCSUnorderedAccessBuffers` | 绑定（UAV） | 三期 | `supportsUnorderedAccess` |
+| `dispatch` | 派发 | 三期 | `supportsCompute` |
+| `uavBarrier` | 同步 | 三期 | `supportsUnorderedAccess` |
+| `copyStructureCount` | 同步 | 四期 | `supportsAppendConsumeBuffer` |
+| `dispatchIndirect` | 派发 | 四期 | `supportsIndirectDispatch` |
+| `renderInstanced` | 绘制 | 一期 | `supportsInstancing` |
+| `renderIndexedInstanced` | 绘制 | 一期 | `supportsInstancing` |
+| `renderIndirect` | 绘制 | 四期 | `supportsIndirectDraw` |
+| `renderIndexedIndirect` | 绘制 | 四期 | `supportsIndirectDraw` |
+| `getCapabilities` | 查询 | 一期 | 非虚，读 `mCapabilities`（见 §5.5） |
+
+共 **13 个纯虚接口** + 1 个非虚 getter，跨 9 个后端合计 117 处实现（其中约半数为规约 stub）。
 
 ### 6.7 典型调用序列
 
@@ -749,7 +868,7 @@ ctx->renderIndexedIndirect(drawArgsSB, 0);
          * \param [in] buffers : 结构化缓冲数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) { return T3D_ERR_NOT_IMPLEMENT; }
+        virtual TResult setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) = 0;
         // 同理 setPSStructuredBuffers / setCSStructuredBuffers
 ```
 
@@ -1326,12 +1445,30 @@ ctx->renderIndexedIndirect(drawArgsSB, 0);
 | **OpenGL 4.0/4.1/4.2** | ✅ | ❌ | ✅（4.0+ 有 indirect draw） | `supportsCompute = false`，`supportsIndirectDraw = true` |
 | **OpenGL ES 3.1+** | ✅ | ✅ | ✅ | 移动端需实测驱动质量 |
 | **OpenGL ES 3.0** | ✅ | ❌ | ❌ | **只有实例化可用**，且 `supportsBaseInstance = false` |
-| **Metal** | ✅ | ✅ | ✅ | 后端尚未实现，见 `Metal-Renderer-Backend-todo.md` |
-| **Reference3D（软渲染）** | 可软件模拟 | ❌ | ❌ | 见 `Reference3D-Software-Renderer-Design-todo.md`；实例化退化为循环 draw 即可 |
+| **Metal** | ✅ | ✅ | ✅ | 后端已有真实实现（encoder / pipeline / draw 齐全），但 compute 绑定当前是假成功空壳（§6.1.1），本特性顺带修掉 |
+| **Console / Null 后端**<br/>（D3D11 / VK / GL4 Console + `NullContext`） | ❌ | ❌ | ❌ | 全部走 §6.1.3 规约 stub；这些后端只服务离线 shader 编译与反射，本就不该有运行时 GPU 能力 |
+| **Reference3D（软渲染）** | 可软件模拟 | ❌ | ❌ | **尚无代码**，仅有 `Reference3D-Software-Renderer-Design-todo.md`；届时实例化退化为循环 draw 即可 |
 
-**降级契约**（写进 `RHICapabilities` 的类注释）：上层在使用任何 GPU-driven 路径前必须查能力位。能力位为 false 时，接口本身也会返回 `T3D_ERR_NOT_IMPLEMENT` —— 二者语义一致，不会出现「能力位说支持但接口未实现」的矛盾状态。这是 §5.5 把默认值全设为 false 的原因。
+**降级契约**（写进 `RHICapabilities` 的类注释）：上层在使用任何 GPU-driven 路径前必须查能力位。能力位为 false 时，对应接口的实现是 §6.1.3 的规约 stub，返回 `T3D_ERR_NOT_IMPLEMENT` 并打警告日志 —— 二者由 `T3D_RHI_UNSUPPORTED` 的断言强制保持一致，不会出现「能力位说支持但接口是空壳」的矛盾状态。
 
-**GLES3.0 的实例化限制要专门处理**：`startInstance != 0` 在 ES3.0 无法表达。后端 override 里遇到非零 `startInstance` 应返回 `T3D_ERR_NOT_IMPLEMENT` 并打日志，而不是静默忽略参数画出错误结果。
+**GLES3.0 的实例化限制要专门处理**：`startInstance != 0` 在 ES3.0 无法表达。注意这里**不能整个接口走 stub** —— `renderInstanced` 本身在 ES3.0 是支持的（`supportsInstancing = true`），只有非零 `startInstance` 不支持（`supportsBaseInstance = false`）。正确做法是在实现内部对参数分支：
+
+```cpp
+    TResult GLES3Context::renderInstanced(uint32_t vertexCount, uint32_t instanceCount,
+        uint32_t startVertex, uint32_t startInstance)
+    {
+        if (startInstance != 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GLES3RENDERER,
+                "renderInstanced: non-zero startInstance [%u] requires "
+                "supportsBaseInstance, not available on GLES 3.x", startInstance);
+            return T3D_ERR_NOT_IMPLEMENT;
+        }
+        // ... glDrawArraysInstanced ...
+    }
+```
+
+**绝不能静默忽略 `startInstance`** —— 那会画出「看起来对但实例索引全错」的结果，是最难排查的一类 bug。`supportsBaseInstance` 这个独立能力位就是为了让上层能提前避开这条路径而存在的。
 
 ---
 
@@ -1366,49 +1503,76 @@ ctx->renderIndexedIndirect(drawArgsSB, 0);
 
 ## 10. 分期与任务表
 
-虽然 Implementation-Plan §8.3 的结论是「作为一个完整特性一次性设计好」，但**设计一次性完成**不等于**实现一次性交付**。按依赖关系拆成四期，每期结束都是一个可编译、可验证、可回滚的状态：
+虽然 Implementation-Plan §8.3 的结论是「作为一个完整特性一次性设计好」，但**设计一次性完成**不等于**实现一次性交付**。按依赖关系拆成四期，每期结束都是一个可编译、可验证、可回滚的状态。
+
+> **纯虚带来的排期约束**（§6.1.4）：每一期只要往 `RHIContext` 加了纯虚接口，**9 个后端当期就必须全部编译通过**，跨后端对齐不能整体推到最后。因此每期末尾都有一个 `x9 全后端表态` 收口任务，它是该期的**编译门槛**，不可跳过。把 stub 换成真实现则是各后端的独立后续任务（五期），可以按后端优先级分别排。
 
 | 期 | 分组 | 任务 | 预估 | 依赖 | 状态 |
 |----|------|------|------|------|------|
 | **一期** | **A 能力查询 + 实例化**（不依赖 UAV，可独立先行） | | | | |
-| | A1 | `RHICapabilities` 结构 + `RHIContext::mCapabilities` / `getCapabilities` | 0.3d | 无 | ⏸ |
-| | A2 | D3D11 `init()` 填充能力位 | 0.3d | A1 | ⏸ |
-| | A3 | `VertexAttribute` 增加 `InputRate` / `mInstanceStepRate` + 新构造重载 | 0.5d | 无 | ⏸ |
-| | A4 | `VertexDeclaration::hash()` 纳入新字段 + 同 slot input rate 一致性校验 | 0.3d | A3 | ⏸ |
-| | A5 | D3D11 `createVertexDeclaration` 支持 per-instance | 0.2d | A3 | ⏸ |
-| | A6 | `RHIContext::renderInstanced` / `renderIndexedInstanced` + D3D11 实现 | 0.5d | A1 | ⏸ |
+| | A1 | `RHICapabilities` 结构 + `RHIContext::mCapabilities` / `getCapabilities`；同时把 `T3D_RHI_UNSUPPORTED` / `T3D_RHI_UNSUPPORTED_PTR` 加进 `T3DPrerequisites.h`（§6.1.3，A9 起所有 stub 都依赖它） | 0.4d | 无 | ✅ |
+| | A2 | D3D11 `init()` 填充能力位 | 0.3d | A1 | ✅ |
+| | A3 | `VertexAttribute` 增加 `InputRate` / `mInstanceStepRate` + 新构造重载 | 0.5d | 无 | ✅ |
+| | A4 | `VertexDeclaration::hash()` 纳入新字段 + 同 slot input rate 一致性校验 | 0.3d | A3 | ✅ |
+| | A5 | D3D11 `createVertexDeclaration` 支持 per-instance | 0.2d | A3 | ✅ |
+| | A6 | `RHIContext::renderInstanced` / `renderIndexedInstanced`（纯虚）+ D3D11 实现 | 0.5d | A1 | ✅ |
+| | **A9** | **全后端表态（编译门槛）**：VK / GL4 / GLES3 / Metal 真实现实例化（各 API 都原生支持，成本低）；4 个 Console/Null 后端走 `T3D_RHI_UNSUPPORTED` stub；9 个后端全部填 `mCapabilities` 的 instancing 相关位 | 1.5d | A6 | ✅ |
 | **二期** | **B GPU 访问抽象 + 结构化缓冲** | | | | |
-| | B1 | `GPUAccessFlags` 枚举 + `RenderBuffer::mGPUAccess` + 一致性校验 | 0.5d | 无 | ⏸ |
-| | B2 | 各 Desc 增加 `gpuAccess`；`shaderReadable` 兼容折叠 | 0.3d | B1 | ⏸ |
-| | B3 | `VertexBuffer/IndexBuffer/ConstantBuffer::create` 追加默认参数 | 0.2d | B1 | ⏸ |
-| | B4 | `StructuredBufferDesc` + `StructuredBuffer` + `RHIStructuredBuffer` | 1d | B1 | ⏸ |
-| | B5 | `RenderBufferManager::loadStructuredBuffer` + GC | 0.3d | B4 | ⏸ |
-| | B6 | `D3D11Mapping::getBindFlags` / `getBufferMiscFlags` | 0.3d | B1 | ⏸ |
-| | B7 | `D3D11StructuredBuffer` 类 + `createStructuredBuffer` | 1d | B4 + B6 | ⏸ |
-| | B8 | 现有资源创建路径补 UAV（VB / IB / PixelBufferXD / RenderTexture） | 1d | B6 | ⏸ |
-| | B9 | `getD3DUAView` / `getD3DSRView` helper（顺带统一 `setPixelBuffers` 的 switch） | 0.5d | B7 + B8 | ⏸ |
+| | B1 | `GPUAccessFlags` 枚举 + `RenderBuffer::mGPUAccess` + 一致性校验 | 0.5d | 无 | ✅ |
+| | B2 | 各 Desc 增加 `gpuAccess`；`shaderReadable` 兼容折叠 | 0.3d | B1 | ✅ |
+| | B3 | `VertexBuffer/IndexBuffer/ConstantBuffer::create` 追加默认参数 | 0.2d | B1 | ✅ |
+| | B4 | `StructuredBufferDesc` + `StructuredBuffer` + `RHIStructuredBuffer` | 1d | B1 | ✅ |
+| | B5 | `RenderBufferManager::loadStructuredBuffer` + GC | 0.3d | B4 | ✅ |
+| | B6 | `D3D11Mapping::getBindFlags` / `getBufferMiscFlags` | 0.3d | B1 | ✅ |
+| | B7 | `D3D11StructuredBuffer` 类 + `createStructuredBuffer` | 1d | B4 + B6 | ✅ |
+| | B8 | 现有资源创建路径补 UAV（VB / IB / PixelBufferXD / RenderTexture） | 1d | B6 | ✅ |
+| | B9 | `getD3DUAView` / `getD3DSRView` helper（顺带统一 `setPixelBuffers` 的 switch） | 0.5d | B7 + B8 | ✅ |
+| | **B10** | **全后端表态（编译门槛）**：`createStructuredBuffer` 是本期唯一新增纯虚接口；VK / GL4 / Metal 可真实现（SSBO / MTLBuffer 成本不高），GLES3 与 4 个 Console/Null 后端走 stub | 1d | B7 | ✅ |
 | **三期** | **C Compute Dispatch + UAV** | | | | |
-| | C1 | `setCSUnorderedAccessBuffers` + `mBoundCSUAVs` 跟踪 | 0.8d | B9 | ⏸ |
-| | C2 | `dispatch` | 0.3d | C1 | ⏸ |
-| | C3 | `uavBarrier`（全量 + 精确两种路径） | 0.5d | C1 | ⏸ |
-| | C4 | `set{VS,PS,CS}StructuredBuffers`（SRV 路径） | 0.5d | B9 | ⏸ |
-| | C5 | `BackUpDX11State` 补 CS UAV 备份/恢复 | 0.3d | C1 | ⏸ |
-| | C6 | `ShaderResourceParam` + D3D11 UAV/结构化缓冲反射 | 1d | 无 | ⏸ |
-| | C7 | `ShaderVariant` 线程组尺寸反射与持久化 | 0.5d | C6 | ⏸ |
+| | C1 | `setCSUnorderedAccessBuffers` + `mBoundCSUAVs` 跟踪 | 0.8d | B9 | ✅ |
+| | C2 | `dispatch` | 0.3d | C1 | ✅ |
+| | C3 | `uavBarrier`（全量 + 精确两种路径） | 0.5d | C1 | ✅ |
+| | C4 | `set{VS,PS,CS}StructuredBuffers`（SRV 路径） | 0.5d | B9 | ✅ |
+| | C5 | `BackUpDX11State` 补 CS UAV 备份/恢复 | 0.3d | C1 | ✅ |
+| | C6 | `ShaderResourceParam` + D3D11 UAV/结构化缓冲反射 | 1d | 无 | ✅ |
+| | C7 | `ShaderVariant` 线程组尺寸反射与持久化 | 0.5d | C6 | ✅ |
+| | **C9** | **全后端表态（编译门槛）**：本期新增 5 个纯虚接口（`setCSUnorderedAccessBuffers` / `dispatch` / `uavBarrier` / `set{VS,PS,CS}StructuredBuffers`）。8 个后端 stub + `MetalContext` 顺带修掉 §6.1.1 的四个假成功空壳（改为 stub 或真实现，二选一但必须显式） | 2d | C4 | ✅ |
 | **四期** | **D Indirect** | | | | |
-| | D1 | 三个 IndirectArgs POD + `static_assert` 布局断言 | 0.2d | 无 | ⏸ |
-| | D2 | `copyStructureCount` | 0.5d | C1 + D1 | ⏸ |
-| | D3 | `renderIndirect` / `renderIndexedIndirect` | 0.5d | D1 | ⏸ |
-| | D4 | `dispatchIndirect` | 0.3d | C2 + D1 | ⏸ |
-| **五期** | **E 跨后端对齐**（各后端独立排期） | | | | |
-| | E1 | Vulkan 全量 override | 3d | 一~四期 | ⏸ |
-| | E2 | GL4 全量 override（4.3+ 分支 + 低版本降级） | 3d | 一~四期 | ⏸ |
-| | E3 | GLES3 仅 Instanced + 能力位 | 1d | 一期 | ⏸ |
-| | E4 | Reference3D / Console 能力位置 false + 断言日志 | 0.3d | A1 | ⏸ |
+| | D1 | 三个 IndirectArgs POD + `static_assert` 布局断言 | 0.2d | 无 | ✅ |
+| | D2 | `copyStructureCount` | 0.5d | C1 + D1 | ✅ |
+| | D3 | `renderIndirect` / `renderIndexedIndirect` | 0.5d | D1 | ✅ |
+| | D4 | `dispatchIndirect` | 0.3d | C2 + D1 | ✅ |
+| | **D9** | **全后端表态（编译门槛）**：本期新增 4 个纯虚接口（`copyStructureCount` / `dispatchIndirect` / `renderIndirect` / `renderIndexedIndirect`），8 个后端 stub | 1.5d | D3 | ✅ |
+| **五期** | **E 把 stub 换成真实现**（各后端独立排期，不阻塞前四期） | | | | |
+| | E1 | Vulkan：compute / UAV / indirect 全量真实现 | 3d | 四期 | ⏸ |
+| | E2 | GL4：4.3+ 全量真实现 + 低版本按能力位保留 stub | 3d | 四期 | ⏸ |
+| | E3 | Metal：compute / UAV / indirect 全量真实现 | 3d | 四期 | ⏸ |
+| | E4 | GLES3：ES3.1 分支真实现 + 设备黑名单（见 §12.5） | 2d | 四期 | ⏸ |
 
-**总计约 20 人日**（不含五期的跨后端对齐）。
+**前四期合计约 24 人日**（含每期的全后端表态收口），五期各后端另计约 11 人日。
 
-**推荐推进顺序**：一期完全独立且立即产生价值（大批量重复几何体的 draw call 合并），建议先做并单独验证；二期是三/四期的地基，必须整体完成才有意义；三期结束时 compute 链路打通，可以写第一个真实的 compute shader；四期打通 GPU-driven 闭环。
+**纯虚对工作量的实际影响**：相比原「带默认实现」方案增加约 6 人日，全部落在 A9 / B10 / C9 / D9 四个收口任务上。这 6 人日买到的是**「Metal 那种假成功空壳不可能再出现」的结构性保证** —— 任何后端要么真实现，要么在代码里留下一行带断言的显式声明，没有第三种状态。
+
+**推荐推进顺序**：一期完全独立且立即产生价值（大批量重复几何体的 draw call 合并），建议先做并单独验证；二期是三/四期的地基，必须整体完成才有意义；三期结束时 compute 链路打通，可以写第一个真实的 compute shader；四期打通 GPU-driven 闭环。五期可以按后端优先级插空做，不阻塞主线。
+
+### 10.1 实现进度说明
+
+前四期（A / B / C / D，共 26 项）已全部落地，D3D11 为全量真实现，其余后端按 §8.2 的能力位表态。
+
+各后端的实际实现程度：
+
+| 后端 | 实例化 | 结构化缓冲 / Compute / UAV / Indirect |
+|------|-------|-----------------------------------|
+| `D3D11Context` | 真实现 | 真实现 |
+| `VKContext` | 真实现（原生支持 `firstInstance`） | `T3D_RHI_UNSUPPORTED` stub，留给 E1 |
+| `GL4Context` | 真实现（`glDraw*InstancedBaseInstance`，4.2 以下按能力位降级） | stub，留给 E2 |
+| `GLES3Context` | 真实现（`startInstance` 必须为 0，能力位已关掉 base instance） | stub，留给 E4 |
+| `MetalContext` | 真实现（`baseInstance`） | stub，留给 E3；§6.1.1 的四个假成功空壳已改为带断言的 stub |
+| 4 个 Console / Null 后端 | stub | stub |
+
+编译验证状态：Windows / VS2019-x64 全解决方案通过，覆盖 `T3DCore`、`D3D11Renderer`、`GL4Renderer`、`VKRenderer`、`NullRenderer` 及三个 Console 变体、编辑器与全部 samples。`GLES3Context` 与 `MetalContext` 在本平台不参与构建，两者的改动尚未经编译器检查。
+
+§11 的运行期验证（RenderDoc 抓帧、回读比对、debug layer HAZARD 检查）尚未执行。
 
 ---
 
@@ -1485,7 +1649,23 @@ GLES 3.1 的 compute 在低端 Android 设备上驱动质量参差不齐（部�
 
 ### 12.6 与 `Reference3D` 软渲染后端的关系
 
-`Reference3D-Software-Renderer-Design-todo.md` 规划的软件光栅化后端天然无法支持 compute / UAV。能力位全 false + 接口返回 `T3D_ERR_NOT_IMPLEMENT` 是正确的表现，**但实例化绘制可以低成本软件模拟**（内部循环 N 次），建议 E4 任务里顺手实现，避免上层为了软渲染后端专门写一条降级分支。
+`Reference3D-Software-Renderer-Design-todo.md` 规划的软件光栅化后端目前**尚无代码**，因此不在本文的 9 个后端清单里，前四期不受它影响。
+
+但它落地时会立刻撞上纯虚 —— 这是好事：新后端从第一天起就被强制对这 13 个接口逐一表态，不会出现「先跑起来再说，compute 以后再补」然后永远忘记的情况。届时的正确做法是 compute / UAV / indirect 全部走 `T3D_RHI_UNSUPPORTED` 规约 stub，**但实例化绘制应当低成本软件模拟**（内部循环 N 次即可），避免上层为了软渲染后端专门写一条降级分支。这条要同步进该文档的后端骨架章节。
+
+---
+
+### 12.7 纯虚方案的残留风险：stub 走过场
+
+纯虚强制的是「必须写点什么」，强制不了「认真想过」。可预见的滥用是：某个后端作者为了让编译过，把本来能低成本真实现的接口也一律 `T3D_RHI_UNSUPPORTED` 掉。**编译器和断言都拦不住这个**。
+
+三条缓解措施：
+
+1. **A9 / B10 / C9 / D9 四个收口任务在文档里就已指明各后端的预期实现程度**（§6.1.2 的表格）。评审时按这张表逐项对照，stub 与预期不符的必须给出理由。
+2. **启动时 dump 能力集**。在 `Agent` 完成渲染器创建后加一行 `T3D_LOG_INFO(LOG_TAG_ENGINE, ...)` 打印 `getCapabilities()` 全部字段。能力集是 stub 密度的直接体现 —— 一个号称完整的后端如果能力位大面积为 false，日志里一眼可见。
+3. **`T3D_RHI_UNSUPPORTED` 的警告日志本身就是审计线索**。跑一遍 `assets/samples` 后 grep 日志里的 `is not supported by this RHI backend`，就能拿到「实际被调用到的 stub」清单 —— 这些是真正需要优先补真实现的，比逐个读代码高效。
+
+这三条都不是强制手段，但组合起来足以让 stub 走过场变成一件「会被看见」的事。相比原方案里「漏实现完全不可见」，已经是数量级的改善。
 
 ---
 
@@ -1495,7 +1675,8 @@ GLES 3.1 的 compute 在低端 Android 设备上驱动质量参差不齐（部�
 |------|------|
 | `D3D11-Renderer-Backend-Implementation-Plan.md` §8 | **本文是该节的立项落地**。该节的 F1 / F2 任务在本文完成后可标记为「已转入独立立项」 |
 | `D3D11-Renderer-Backend-todo.md` | 本文实现后需回填 `dispatch` / UAV / instanced / indirect 的实现状态 |
-| `VK-Renderer-Backend-todo.md` / `GL4-Renderer-Backend-todo.md` / `GLES3-Renderer-Backend-todo.md` / `Metal-Renderer-Backend-todo.md` | §10 五期任务 E1~E3 的落点，各自文档需增加对应条目 |
-| `Reference3D-Software-Renderer-Design-todo.md` | §12.6 的降级策略需同步进该文档 |
+| `VK-Renderer-Backend-todo.md` / `GL4-Renderer-Backend-todo.md` / `GLES3-Renderer-Backend-todo.md` / `Metal-Renderer-Backend-todo.md` | §10 五期任务 E1~E4 的落点，各自文档需增加对应条目 |
+| `Metal-Renderer-Backend-todo.md` | 额外需登记 §6.1.1 发现的**已有缺陷**：`setComputeShader` / `setCS*` 四个方法返回 `T3D_OK` 但无实际行为，属于当前就存在的假成功空壳，不必等本特性即可先修为显式错误 |
+| `Reference3D-Software-Renderer-Design-todo.md` | §12.6 的降级策略需同步进该文档的后端骨架章节 |
 | `ShaderConductor-Replacement-todo.md` | §9.2 的四条跨编译验证点应纳入替换方案的验收标准 |
 | `Shader-MultiBackend-Variant-Design-todo.md` | §7.7 的 `ShaderResourceParam` 与线程组尺寸需要进入 shader 变体的序列化元数据 |
