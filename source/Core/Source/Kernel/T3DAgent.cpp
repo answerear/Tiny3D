@@ -74,6 +74,22 @@ namespace Tiny3D
 
     typedef TResult (*DLL_START_PLUGIN)(void);
     typedef TResult (*DLL_STOP_PLUGIN)(void);
+
+    /// 串联两个同一时序槽位的渲染回调，first 先跑；任一为空时直接返回另一个
+    static TFunction<void()> combineEngineRender(const TFunction<void()> &first, const TFunction<void()> &second)
+    {
+        if (first == nullptr)
+        {
+            return second;
+        }
+
+        if (second == nullptr)
+        {
+            return first;
+        }
+
+        return [first, second]() { first(); second(); };
+    }
     
     //--------------------------------------------------------------------------
     
@@ -653,7 +669,10 @@ namespace Tiny3D
             update();
 
             // 渲染一帧
-            renderOneFrame();
+            renderOneFrame(
+                [theApp]() { theApp->onPreRender(); },
+                [theApp]() { theApp->onRender(); },
+                [theApp]() { theApp->onPostRender(); });
 
             // 帧结束
             endFrame();
@@ -668,12 +687,12 @@ namespace Tiny3D
     
     void Agent::renderOneFrame()
     {
-        renderOneFrame(nullptr, nullptr);
+        renderOneFrame(nullptr, nullptr, nullptr);
     }
 
     //--------------------------------------------------------------------------
 
-    void Agent::renderOneFrame(const PreEngineRender &preRender, const PostEngineRender &postRender)
+    void Agent::renderOneFrame(const PreEngineRender &preRender, const OnEngineRender &onRender, const PostEngineRender &postRender)
     {
         if (preRender != nullptr)
         {
@@ -692,6 +711,12 @@ namespace Tiny3D
             
             // 渲染
             mRenderPipeline->render(ctx);
+        }
+
+        // 提交之前最后的录制机会：blit / copyBuffer / GPU 读回的 Copy 都在这里发起
+        if (onRender != nullptr)
+        {
+            onRender();
         }
 
         // 结束一帧渲染（Vulkan: endCmdBuf + submit）
@@ -736,6 +761,38 @@ namespace Tiny3D
         // 连做两次，第二次的 exchange 会清掉第一次执行完的命令，两条表就都空了
         flushRHICommands();
         flushRHICommands();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Agent::syncRHIThread()
+    {
+#if (T3D_ENABLE_RHI_THREAD)
+        if (mRHIRunnable == nullptr || !mRHIRunnable->isRunning())
+        {
+            // 命令本来就在主线程同步执行完了，没有需要推的队列
+            return;
+        }
+
+        // beginFrame 发出的那批可能还在跑，必须等它自己结束。
+        // 不等就 flush，exchange 会在 RHI 线程遍历命令表的同时把表清掉
+        waitRHIBatch();
+
+        drainRHICommands();
+#endif
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Agent::waitRHIBatch()
+    {
+#if (T3D_ENABLE_RHI_THREAD)
+        if (mRHIBatchInFlight)
+        {
+            mRHIEvent.wait();
+            mRHIBatchInFlight = false;
+        }
+#endif
     }
 
     //--------------------------------------------------------------------------
@@ -802,6 +859,7 @@ namespace Tiny3D
         }
 #if (T3D_ENABLE_RHI_THREAD)
         T3D_RHI_THREAD.resume();
+        mRHIBatchInFlight = true;
 #endif
     }
 
@@ -844,9 +902,8 @@ namespace Tiny3D
             T3D_INPUT.endFrame();
         }
 
-#if (T3D_ENABLE_RHI_THREAD)
-        mRHIEvent.wait();
-#endif
+        // 本帧若已经被 syncRHIThread 等过（GPU 读回路径），这里就不能再等一次
+        waitRHIBatch();
 
         // 更新动画
         if (mAniPlayerMgr != nullptr)
@@ -894,8 +951,11 @@ namespace Tiny3D
                 updateData.update();
             }
 
-            // 渲染一帧
-            renderOneFrame(updateData.preRender, updateData.postRender);
+            // 渲染一帧。两个来源都非空时先跑编辑器回调，再跑 Application 的
+            renderOneFrame(
+                combineEngineRender(updateData.preRender, [theApp]() { theApp->onPreRender(); }),
+                combineEngineRender(updateData.onRender, [theApp]() { theApp->onRender(); }),
+                combineEngineRender(updateData.postRender, [theApp]() { theApp->onPostRender(); }));
 
             // 帧结束
             endFrame();

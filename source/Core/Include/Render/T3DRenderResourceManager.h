@@ -198,7 +198,7 @@ namespace Tiny3D
          * \return 加载成功返回 VertexBuffer；postLoad 失败时返回 nullptr
          */
         VertexBufferPtr loadVertexBuffer(uint32_t vertexSize, uint32_t vertexCount, 
-            const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
+            const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid = UUID::INVALID);
 
         /**
          * \brief 按 UUID 加载或复用索引缓冲
@@ -212,7 +212,7 @@ namespace Tiny3D
          * \return 加载成功返回 IndexBuffer；postLoad 失败时返回 nullptr
          */
         IndexBufferPtr loadIndexBuffer(IndexType indexType, uint32_t indexCount,
-            const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
+            const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid = UUID::INVALID);
 
         /**
          * \brief 按 UUID 加载或复用常量缓冲
@@ -225,7 +225,7 @@ namespace Tiny3D
          * \param [in] uuid : 缓存键；为 UUID::INVALID 时自动生成
          * \return 加载成功返回 ConstantBuffer；postLoad 失败时返回 nullptr
          */
-        ConstantBufferPtr loadConstantBuffer(const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
+        ConstantBufferPtr loadConstantBuffer(const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid = UUID::INVALID);
 
         /**
          * \brief 按 UUID 加载或复用一维像素缓冲
@@ -236,7 +236,7 @@ namespace Tiny3D
          * \param [in] uuid : 缓存键；为 UUID::INVALID 时自动生成
          * \return 加载成功返回 PixelBuffer1D；postLoad 失败时返回 nullptr
          */
-        PixelBuffer1DPtr loadPixelBuffer1D(PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
+        PixelBuffer1DPtr loadPixelBuffer1D(PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid = UUID::INVALID);
         
         /**
          * \brief 按 UUID 加载或复用二维像素缓冲（非渲染纹理）
@@ -247,7 +247,7 @@ namespace Tiny3D
          * \param [in] uuid : 缓存键；为 UUID::INVALID 时自动生成
          * \return 加载成功返回 PixelBuffer2D；postLoad 失败时返回 nullptr
          */
-        PixelBuffer2DPtr loadPixelBuffer2D(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
+        PixelBuffer2DPtr loadPixelBuffer2D(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid = UUID::INVALID);
         
         /**
          * \brief 按 UUID 加载或复用三维像素缓冲
@@ -258,7 +258,7 @@ namespace Tiny3D
          * \param [in] uuid : 缓存键；为 UUID::INVALID 时自动生成
          * \return 加载成功返回 PixelBuffer3D；postLoad 失败时返回 nullptr
          */
-        PixelBuffer3DPtr loadPixelBuffer3D(PixelBuffer3DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
+        PixelBuffer3DPtr loadPixelBuffer3D(PixelBuffer3DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid = UUID::INVALID);
 
         /**
          * \brief 按 UUID 加载或复用立方体贴图像素缓冲
@@ -269,7 +269,7 @@ namespace Tiny3D
          * \param [in] uuid : 缓存键；为 UUID::INVALID 时自动生成
          * \return 加载成功返回 PixelBufferCubemap；postLoad 失败时返回 nullptr
          */
-        PixelBufferCubemapPtr loadPixelBufferCubemap(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
+        PixelBufferCubemapPtr loadPixelBufferCubemap(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid = UUID::INVALID);
 
         /**
          * \brief 按 UUID 加载或复用渲染纹理（PixelBuffer2D，shaderReadable=true）
@@ -280,7 +280,7 @@ namespace Tiny3D
          * \param [in] uuid : 缓存键；为 UUID::INVALID 时自动生成
          * \return 加载成功返回 PixelBuffer2D；postLoad 失败时返回 nullptr
          */
-        PixelBuffer2DPtr loadRenderTexture(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid = UUID::INVALID);
+        PixelBuffer2DPtr loadRenderTexture(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid = UUID::INVALID);
 
         /**
          * \brief 按 UUID 加载或复用结构化缓冲
@@ -293,7 +293,7 @@ namespace Tiny3D
          * \return 加载成功返回 StructuredBuffer；描述非法或 postLoad 失败时返回 nullptr
          */
         StructuredBufferPtr loadStructuredBuffer(const StructuredBufferDesc &desc, MemoryType memType,
-            Usage usage, CPUAccessMode accMode, uint32_t gpuAccess, const UUID &uuid = UUID::INVALID);
+            Usage usage, uint32_t accMode, uint32_t gpuAccess, const UUID &uuid = UUID::INVALID);
         
         /**
          * \brief 依次对顶点声明与各类缓冲缓存执行 _GC

@@ -144,6 +144,86 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    uint32_t D3D11Mapping::getBytesPerPixel(DXGI_FORMAT format)
+    {
+        switch (format)
+        {
+        case DXGI_FORMAT_R32G32B32A32_TYPELESS:
+        case DXGI_FORMAT_R32G32B32A32_FLOAT:
+        case DXGI_FORMAT_R32G32B32A32_UINT:
+        case DXGI_FORMAT_R32G32B32A32_SINT:
+            return 16;
+        case DXGI_FORMAT_R32G32B32_TYPELESS:
+        case DXGI_FORMAT_R32G32B32_FLOAT:
+        case DXGI_FORMAT_R32G32B32_UINT:
+        case DXGI_FORMAT_R32G32B32_SINT:
+            return 12;
+        case DXGI_FORMAT_R16G16B16A16_TYPELESS:
+        case DXGI_FORMAT_R16G16B16A16_FLOAT:
+        case DXGI_FORMAT_R16G16B16A16_UNORM:
+        case DXGI_FORMAT_R16G16B16A16_UINT:
+        case DXGI_FORMAT_R16G16B16A16_SNORM:
+        case DXGI_FORMAT_R16G16B16A16_SINT:
+        case DXGI_FORMAT_R32G32_TYPELESS:
+        case DXGI_FORMAT_R32G32_FLOAT:
+        case DXGI_FORMAT_R32G32_UINT:
+        case DXGI_FORMAT_R32G32_SINT:
+            return 8;
+        case DXGI_FORMAT_R10G10B10A2_TYPELESS:
+        case DXGI_FORMAT_R10G10B10A2_UNORM:
+        case DXGI_FORMAT_R10G10B10A2_UINT:
+        case DXGI_FORMAT_R11G11B10_FLOAT:
+        case DXGI_FORMAT_R8G8B8A8_TYPELESS:
+        case DXGI_FORMAT_R8G8B8A8_UNORM:
+        case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
+        case DXGI_FORMAT_R8G8B8A8_UINT:
+        case DXGI_FORMAT_R8G8B8A8_SNORM:
+        case DXGI_FORMAT_R8G8B8A8_SINT:
+        case DXGI_FORMAT_R16G16_TYPELESS:
+        case DXGI_FORMAT_R16G16_FLOAT:
+        case DXGI_FORMAT_R16G16_UNORM:
+        case DXGI_FORMAT_R16G16_UINT:
+        case DXGI_FORMAT_R16G16_SNORM:
+        case DXGI_FORMAT_R16G16_SINT:
+        case DXGI_FORMAT_R32_FLOAT:
+        case DXGI_FORMAT_R32_UINT:
+        case DXGI_FORMAT_R32_SINT:
+        case DXGI_FORMAT_B8G8R8A8_UNORM:
+        case DXGI_FORMAT_B8G8R8X8_UNORM:
+        case DXGI_FORMAT_B8G8R8A8_TYPELESS:
+        case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
+        case DXGI_FORMAT_B8G8R8X8_TYPELESS:
+        case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
+            return 4;
+        case DXGI_FORMAT_R8G8_TYPELESS:
+        case DXGI_FORMAT_R8G8_UNORM:
+        case DXGI_FORMAT_R8G8_UINT:
+        case DXGI_FORMAT_R8G8_SNORM:
+        case DXGI_FORMAT_R8G8_SINT:
+        case DXGI_FORMAT_R16_FLOAT:
+        case DXGI_FORMAT_R16_UNORM:
+        case DXGI_FORMAT_R16_UINT:
+        case DXGI_FORMAT_R16_SNORM:
+        case DXGI_FORMAT_R16_SINT:
+        case DXGI_FORMAT_B5G6R5_UNORM:
+        case DXGI_FORMAT_B5G5R5A1_UNORM:
+        case DXGI_FORMAT_B4G4R4A4_UNORM:
+            return 2;
+        case DXGI_FORMAT_R8_TYPELESS:
+        case DXGI_FORMAT_R8_UNORM:
+        case DXGI_FORMAT_R8_UINT:
+        case DXGI_FORMAT_R8_SNORM:
+        case DXGI_FORMAT_R8_SINT:
+        case DXGI_FORMAT_A8_UNORM:
+            return 1;
+        default:
+            // 压缩格式（BC*）、深度模板格式与 typeless 深度格式都落到这里
+            return 0;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     UINT D3D11Mapping::getBindFlags(uint32_t gpuAccess)
     {
         UINT dst = 0;
@@ -697,10 +777,12 @@ namespace Tiny3D
             {
             case Usage::kImmutable:
                 {
-                    if (mode != kCPUNone)
+                    // kCPURead 只是「引擎允许把这块数据读回」的许可，读回走内部
+                    // staging 中转，资源本身仍然是 IMMUTABLE 且不带原生 CPU 访问位
+                    if ((mode & ~(uint32_t)CPUAccessMode::kCPURead) != 0)
                     {
                         ret = T3D_ERR_INVALID_PARAM;
-                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Usage is kImmutable, so access mode must be kCPUNone !");
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Usage is kImmutable, so access mode must be kCPUNone or kCPURead !");
                     }
                     else
                     {
@@ -711,23 +793,10 @@ namespace Tiny3D
                 break;
             case Usage::kStatic:
                 {
-                    if (mode == CPUAccessMode::kCPUNone)
-                    {
-                        // 静态缓冲，CPU不可读写，只能初始化时候设置数据
-                        d3dUsage = D3D11_USAGE_IMMUTABLE;
-                        d3dAccessFlag = 0;
-                    }
-                    else if (mode == CPUAccessMode::kCPUWrite)
-                    {
-                        d3dUsage = D3D11_USAGE_DEFAULT;
-                        d3dAccessFlag = D3D11_CPU_ACCESS_WRITE;
-                    }
-                    else
-                    {
-                        // 其他 CPU 访问标签在这里都是非法
-                        ret = T3D_ERR_INVALID_PARAM;
-                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Usage is kStatic, so access mode must be kCPUNone or kCPUWrite !");
-                    }
+                    // DEFAULT 资源的 CPUAccessFlags 必须为 0：CPU 写走
+                    // UpdateSubresource，CPU 读走 beginRead* 的 staging 中转
+                    d3dUsage = D3D11_USAGE_DEFAULT;
+                    d3dAccessFlag = 0;
                 }
                 break;
             case Usage::kDynamic:
@@ -739,35 +808,33 @@ namespace Tiny3D
                         d3dAccessFlag = 0;
                         T3D_LOG_WARNING(LOG_TAG_D3D11RENDERER, "Usage is kDynamic, but CPU access mode is kCPUNone. Here suggests kStatic instead of kDynamic !");
                     }
-                    else if ((mode == (CPUAccessMode::kCPURead | CPUAccessMode::kCPUWrite)))
-                    {
-                        // CPU读写，GPU读写
-                        d3dUsage = D3D11_USAGE_STAGING;
-                        d3dAccessFlag = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
-                    }
-                    else if (mode == CPUAccessMode::kCPURead)
-                    {
-                        // CPU读，GPU读写
-                        d3dUsage = D3D11_USAGE_STAGING;
-                        d3dAccessFlag = D3D11_CPU_ACCESS_READ;
-                    }
                     else if (mode == CPUAccessMode::kCPUWrite)
                     {
                         // CPU写，GPU读
                         d3dUsage = D3D11_USAGE_DYNAMIC;
                         d3dAccessFlag = D3D11_CPU_ACCESS_WRITE;
                     }
-                    // else if (mode == CPUAccessMode::GPU_COPY)
-                    // {
-                    //     // CPU读写，GPU读写
-                    //     d3dUsage = D3D11_USAGE_STAGING;
-                    //     d3dAccessFlag = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
-                    // }
                     else
                     {
-                        // 无效 CPU 访问方式参数
+                        // DYNAMIC 资源不能 Map 读。要读回请用 kStatic|kCPURead 或 kCopy
                         ret = T3D_ERR_INVALID_PARAM;
-                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Invalid CPU access mode parameter !");
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Usage is kDynamic, so access mode must be kCPUNone or kCPUWrite ! "
+                            "Use Usage::kStatic with kCPURead for readback instead !");
+                    }
+                }
+                break;
+            case Usage::kCopy:
+                {
+                    // 引擎内部读回 staging 走这条，不能绑管线
+                    if (mode == CPUAccessMode::kCPUNone)
+                    {
+                        ret = T3D_ERR_INVALID_PARAM;
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Usage is kCopy, so access mode must contain kCPURead or kCPUWrite !");
+                    }
+                    else
+                    {
+                        d3dUsage = D3D11_USAGE_STAGING;
+                        d3dAccessFlag = get(mode);
                     }
                 }
                 break;

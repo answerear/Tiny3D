@@ -27,6 +27,9 @@
 #include "Render/T3DRenderResourceManager.h" 
 #include "Render/T3DPixelBuffer.h"
 #include "Resource/T3DImage.h"
+#include "Kernel/T3DAgent.h"
+#include "RHI/T3DRHIContext.h"
+#include "T3DErrorDef.h"
 
 namespace Tiny3D
 {
@@ -51,6 +54,7 @@ namespace Tiny3D
     {
         Resource::cloneProperties(src);
         const Texture *texture = static_cast<const Texture*>(src);
+        mCPUAccessMode = texture->mCPUAccessMode;
     }
     
     //--------------------------------------------------------------------------
@@ -70,6 +74,41 @@ namespace Tiny3D
             // 新生成一个 sampler state 对象
             mSamplerState = T3D_RENDER_STATE_MGR.loadSamplerState(desc, hashDst);
         }
+    }
+
+    //--------------------------------------------------------------------------
+
+    ReadbackHandle Texture::beginRead(const ReadbackRegion &region)
+    {
+        PixelBuffer *pixelBuffer = getPixelBuffer();
+        if (pixelBuffer == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_ENGINE, "Texture::beginRead : texture [%s] has no pixel buffer !", getName().c_str());
+            return ReadbackHandle::invalid();
+        }
+
+        RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+        if (ctx == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_ENGINE, "Texture::beginRead : no active RHI context !");
+            return ReadbackHandle::invalid();
+        }
+
+        return ctx->beginReadTexture(pixelBuffer, region);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Texture::endRead(ReadbackHandle handle, Buffer &dst)
+    {
+        RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+        if (ctx == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_ENGINE, "Texture::endRead : no active RHI context !");
+            return T3D_ERR_INVALID_POINTER;
+        }
+
+        return ctx->endReadTexture(handle, dst);
     }
 
     //--------------------------------------------------------------------------
@@ -179,16 +218,17 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
-    Texture2DPtr Texture2D::create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data)
+    Texture2DPtr Texture2D::create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data, uint32_t accMode)
     {
-        return T3D_NEW Texture2D(name, width, height, format, mipmaps, MSAACount, MSAAQuality, data);
+        return T3D_NEW Texture2D(name, width, height, format, mipmaps, MSAACount, MSAAQuality, data, false, accMode);
     }
 
     //--------------------------------------------------------------------------
 
-    Texture2D::Texture2D(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data, bool shaderReadable)
+    Texture2D::Texture2D(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data, bool shaderReadable, uint32_t accMode)
         : Texture(name)
     {
+        mCPUAccessMode = accMode;
         mDesc.width = width;
         mDesc.height = height;
         mDesc.format = format;
@@ -227,17 +267,19 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    Texture2DPtr Texture2D::create(const String &name, Image *image, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality)
+    Texture2DPtr Texture2D::create(const String &name, Image *image, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, uint32_t accMode)
     {
-        return T3D_NEW Texture2D(name, image, mipmaps, MSAACount, MSAAQuality);
+        return T3D_NEW Texture2D(name, image, mipmaps, MSAACount, MSAAQuality, false, accMode);
     }
 
     //--------------------------------------------------------------------------
 
-    Texture2D::Texture2D(const String &name, Image *image, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable)
+    Texture2D::Texture2D(const String &name, Image *image, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable, uint32_t accMode)
         : Texture(name)
     {
         T3D_ASSERT(image != nullptr);
+
+        mCPUAccessMode = accMode;
         
         mDesc.width = image->getWidth();
         mDesc.height = image->getHeight();
@@ -279,7 +321,7 @@ namespace Tiny3D
                 break;
             }
 
-            mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&mDesc, MemoryType::kVRAM, Usage::kImmutable, CPUAccessMode::kCPUNone);
+            mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&mDesc, MemoryType::kVRAM, Usage::kImmutable, mCPUAccessMode);
         } while (false);
         
         return ret;
@@ -298,7 +340,7 @@ namespace Tiny3D
             {
                 break;
             }
-            mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&mDesc, MemoryType::kVRAM, Usage::kImmutable, CPUAccessMode::kCPUNone);
+            mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&mDesc, MemoryType::kVRAM, Usage::kImmutable, mCPUAccessMode);
         } while (false);
         
         return ret;

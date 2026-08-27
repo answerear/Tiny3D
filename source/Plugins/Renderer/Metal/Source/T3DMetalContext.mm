@@ -1789,6 +1789,26 @@ namespace Tiny3D
         return T3D_OK;
     }
 
+    ReadbackHandle MetalContext::beginReadBuffer(RenderBuffer *src, size_t offset, size_t size)
+    {
+        T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, ReadbackHandle::invalid());
+    }
+
+    TResult MetalContext::endReadBuffer(ReadbackHandle handle, Buffer &dst)
+    {
+        T3D_RHI_UNSUPPORTED(supportsReadback);
+    }
+
+    ReadbackHandle MetalContext::beginReadTexture(RenderBuffer *src, const ReadbackRegion &region)
+    {
+        T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, ReadbackHandle::invalid());
+    }
+
+    TResult MetalContext::endReadTexture(ReadbackHandle handle, Buffer &dst)
+    {
+        T3D_RHI_UNSUPPORTED(supportsReadback);
+    }
+
     TResult MetalContext::writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool)
     {
         if (renderBuffer == nullptr || renderBuffer->getRHIResource() == nullptr || buffer.Data == nullptr)

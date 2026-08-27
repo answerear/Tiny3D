@@ -2536,6 +2536,34 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ReadbackHandle GLES3Context::beginReadBuffer(RenderBuffer *src, size_t offset, size_t size)
+    {
+        T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, ReadbackHandle::invalid());
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GLES3Context::endReadBuffer(ReadbackHandle handle, Buffer &dst)
+    {
+        T3D_RHI_UNSUPPORTED(supportsReadback);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ReadbackHandle GLES3Context::beginReadTexture(RenderBuffer *src, const ReadbackRegion &region)
+    {
+        T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, ReadbackHandle::invalid());
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GLES3Context::endReadTexture(ReadbackHandle handle, Buffer &dst)
+    {
+        T3D_RHI_UNSUPPORTED(supportsReadback);
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult GLES3Context::writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer)
     {
         TResult ret = T3D_OK;

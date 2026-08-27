@@ -121,6 +121,12 @@ namespace Tiny3D
         TResult copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset = 0, size_t size = 0, size_t dstOffset = 0) override;
         TResult writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer = false) override;
 
+        /// GPU 读回未实现
+        ReadbackHandle beginReadBuffer(RenderBuffer *src, size_t offset, size_t size) override;
+        TResult endReadBuffer(ReadbackHandle handle, Buffer &dst) override;
+        ReadbackHandle beginReadTexture(RenderBuffer *src, const ReadbackRegion &region) override;
+        TResult endReadTexture(ReadbackHandle handle, Buffer &dst) override;
+
         TResult beginRender() override { return T3D_OK; }
         TResult endRender() override { return T3D_OK; }
 

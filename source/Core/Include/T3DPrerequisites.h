@@ -109,6 +109,19 @@ namespace Tiny3D
             return nullptr;                                                     \
         } while (false)
 
+    /**
+     * \brief T3D_RHI_UNSUPPORTED 的任意返回值版本，用于返回句柄 / 结构体的接口
+     * \param capField : RHICapabilities 中对应的能力位字段名
+     * \param value : 不受支持时返回的值
+     */
+    #define T3D_RHI_UNSUPPORTED_VALUE(capField, value)                          \
+        do {                                                                    \
+            T3D_ASSERT(!getCapabilities().capField);                            \
+            T3D_LOG_WARNING(LOG_TAG_RENDER,                                     \
+                "%s is not supported by this RHI backend", __FUNCTION__);        \
+            return value;                                                       \
+        } while (false)
+
     /** \brief Core 类型前向声明，供头文件间解耦引用 */
 
     class Object;

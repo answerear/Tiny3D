@@ -30,6 +30,7 @@
 #include "T3DD3D11Mapping.h"
 #include "T3DD3D11RenderState.h"
 #include "T3DD3D11Shader.h"
+#include "Kernel/T3DAgent.h"
 
 
 namespace Tiny3D
@@ -66,6 +67,10 @@ namespace Tiny3D
     D3D11Context::~D3D11Context()
     {
         mCurrentRenderTarget = nullptr;
+
+        // 没被 endRead* 认领的请求直接丢掉，staging 由池子统一 Release
+        mPendingReadbacks.clear();
+        destroyStagingPool();
 
         // Unbind all pipeline state to release internal references held by
         // the DeviceContext, then flush to ensure GPU has finished processing.
@@ -177,6 +182,9 @@ namespace Tiny3D
         // 实例化绘制从 FL 10.0 就有，且 D3D11 的 StartInstanceLocation 一直可以非零
         mCapabilities.supportsInstancing = true;
         mCapabilities.supportsBaseInstance = true;
+
+        // STAGING 资源 + CopyResource + Map(READ) 从 FL 9.1 就有
+        mCapabilities.supportsReadback = true;
 
         if (hasFullCompute)
         {
@@ -573,6 +581,17 @@ namespace Tiny3D
 
             DXGI_FORMAT format = D3D11Mapping::get(buffer->getDescriptor().format);
 
+            // 走完整映射而不是单独译 CPUAccessMode：渲染纹理是 DEFAULT 资源，
+            // kCPURead 只是读回许可，落到原生 CPUAccessFlags 上会让 CreateTexture2D 失败
+            D3D11_USAGE d3dUsage = D3D11_USAGE_DEFAULT;
+            uint32_t d3dAccess = 0;
+            ret = D3D11Mapping::get(buffer->getUsage(), buffer->getCPUAccessMode(), d3dUsage, d3dAccess);
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "buildRenderTextureResources : invalid usage [%d] / access mode [%u] !", buffer->getUsage(), buffer->getCPUAccessMode());
+                break;
+            }
+
             if (uMSAACount == 0)
             {
                 uMSAACount = 1;
@@ -607,9 +626,9 @@ namespace Tiny3D
                 D3D11_TEXTURE2D_DESC texDesc = D3D11Mapping::get(buffer->getDescriptor());  
                 texDesc.SampleDesc.Count = uMSAACount;
                 texDesc.SampleDesc.Quality = uMSAAQuality;
-                texDesc.Usage = D3D11Mapping::get(buffer->getUsage()); // 设置纹理用途
+                texDesc.Usage = d3dUsage; // 设置纹理用途
                 texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE; // 设置纹理绑定标志
-                texDesc.CPUAccessFlags = D3D11Mapping::get(buffer->getCPUAccessMode()); // 设置 CPU 访问标志
+                texDesc.CPUAccessFlags = d3dAccess; // 设置 CPU 访问标志
                 texDesc.MiscFlags = 0; // 设置其他标志
 
                 const bool wantsUAV = (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0;
@@ -774,9 +793,9 @@ namespace Tiny3D
                 depthStencilDesc.SampleDesc.Count = uMSAACount;
                 depthStencilDesc.SampleDesc.Quality = uMSAAQuality;
                 depthStencilDesc.Format = d3dTexFormat;
-                depthStencilDesc.Usage = D3D11Mapping::get(buffer->getUsage());
+                depthStencilDesc.Usage = d3dUsage;
                 depthStencilDesc.BindFlags = uBindFlags;
-                depthStencilDesc.CPUAccessFlags = D3D11Mapping::get(buffer->getCPUAccessMode());
+                depthStencilDesc.CPUAccessFlags = d3dAccess;
                 depthStencilDesc.MiscFlags = 0;
                 
                 HRESULT hr = mD3DDevice->CreateTexture2D(&depthStencilDesc, nullptr, &d3dPixelBuffer->D3DTexture);
@@ -4185,6 +4204,647 @@ namespace Tiny3D
         };
 
         return ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(src), RenderBufferPtr(dst), srcOffset, size, dstOffset);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ID3D11Resource *D3D11Context::acquireStagingBuffer(uint32_t byteWidth)
+    {
+        for (auto &entry : mStagingPool)
+        {
+            if (!entry.InUse && entry.Usage == StagingEntry::Kind::kBuffer && entry.ByteWidth >= byteWidth)
+            {
+                entry.InUse = true;
+                return entry.Resource;
+            }
+        }
+
+        D3D11_BUFFER_DESC desc;
+        memset(&desc, 0, sizeof(desc));
+        desc.ByteWidth = byteWidth;
+        desc.Usage = D3D11_USAGE_STAGING;
+        desc.BindFlags = 0;
+        desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+
+        ID3D11Buffer *staging = nullptr;
+        HRESULT hr = mD3DDevice->CreateBuffer(&desc, nullptr, &staging);
+        if (FAILED(hr))
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "acquireStagingBuffer : failed to create staging buffer [%u bytes] ! DX ERROR [%d]", byteWidth, hr);
+            return nullptr;
+        }
+
+        StagingEntry entry;
+        entry.Resource = staging;
+        entry.Usage = StagingEntry::Kind::kBuffer;
+        entry.ByteWidth = byteWidth;
+        entry.InUse = true;
+        mStagingPool.push_back(entry);
+
+        return staging;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ID3D11Resource *D3D11Context::acquireStagingTexture(uint32_t dimension, DXGI_FORMAT format, uint32_t width, uint32_t height, uint32_t depth)
+    {
+        for (auto &entry : mStagingPool)
+        {
+            if (!entry.InUse && entry.Usage == StagingEntry::Kind::kStagingTexture
+                && entry.Dimension == dimension && entry.Format == format
+                && entry.Width == width && entry.Height == height && entry.Depth == depth)
+            {
+                entry.InUse = true;
+                return entry.Resource;
+            }
+        }
+
+        ID3D11Resource *staging = nullptr;
+        HRESULT hr = S_OK;
+
+        if (dimension == 1)
+        {
+            D3D11_TEXTURE1D_DESC desc;
+            memset(&desc, 0, sizeof(desc));
+            desc.Width = width;
+            desc.MipLevels = 1;
+            desc.ArraySize = 1;
+            desc.Format = format;
+            desc.Usage = D3D11_USAGE_STAGING;
+            desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+
+            ID3D11Texture1D *tex = nullptr;
+            hr = mD3DDevice->CreateTexture1D(&desc, nullptr, &tex);
+            staging = tex;
+        }
+        else if (dimension == 3)
+        {
+            D3D11_TEXTURE3D_DESC desc;
+            memset(&desc, 0, sizeof(desc));
+            desc.Width = width;
+            desc.Height = height;
+            desc.Depth = depth;
+            desc.MipLevels = 1;
+            desc.Format = format;
+            desc.Usage = D3D11_USAGE_STAGING;
+            desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+
+            ID3D11Texture3D *tex = nullptr;
+            hr = mD3DDevice->CreateTexture3D(&desc, nullptr, &tex);
+            staging = tex;
+        }
+        else
+        {
+            D3D11_TEXTURE2D_DESC desc;
+            memset(&desc, 0, sizeof(desc));
+            desc.Width = width;
+            desc.Height = height;
+            desc.MipLevels = 1;
+            desc.ArraySize = 1;
+            desc.Format = format;
+            desc.SampleDesc.Count = 1;
+            desc.Usage = D3D11_USAGE_STAGING;
+            desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+
+            ID3D11Texture2D *tex = nullptr;
+            hr = mD3DDevice->CreateTexture2D(&desc, nullptr, &tex);
+            staging = tex;
+        }
+
+        if (FAILED(hr) || staging == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "acquireStagingTexture : failed to create %uD staging texture [%u x %u x %u fmt=%d] ! DX ERROR [%d]", dimension, width, height, depth, format, hr);
+            return nullptr;
+        }
+
+        StagingEntry entry;
+        entry.Resource = staging;
+        entry.Usage = StagingEntry::Kind::kStagingTexture;
+        entry.Dimension = dimension;
+        entry.Format = format;
+        entry.Width = width;
+        entry.Height = height;
+        entry.Depth = depth;
+        entry.InUse = true;
+        mStagingPool.push_back(entry);
+
+        return staging;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ID3D11Resource *D3D11Context::acquireResolveTexture(DXGI_FORMAT format, uint32_t width, uint32_t height)
+    {
+        for (auto &entry : mStagingPool)
+        {
+            if (!entry.InUse && entry.Usage == StagingEntry::Kind::kResolveTexture
+                && entry.Format == format && entry.Width == width && entry.Height == height)
+            {
+                entry.InUse = true;
+                return entry.Resource;
+            }
+        }
+
+        D3D11_TEXTURE2D_DESC desc;
+        memset(&desc, 0, sizeof(desc));
+        desc.Width = width;
+        desc.Height = height;
+        desc.MipLevels = 1;
+        desc.ArraySize = 1;
+        desc.Format = format;
+        desc.SampleDesc.Count = 1;
+        desc.Usage = D3D11_USAGE_DEFAULT;
+
+        ID3D11Texture2D *tex = nullptr;
+        HRESULT hr = mD3DDevice->CreateTexture2D(&desc, nullptr, &tex);
+        if (FAILED(hr))
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "acquireResolveTexture : failed to create resolve texture [%u x %u fmt=%d] ! DX ERROR [%d]", width, height, format, hr);
+            return nullptr;
+        }
+
+        StagingEntry entry;
+        entry.Resource = tex;
+        entry.Usage = StagingEntry::Kind::kResolveTexture;
+        entry.Dimension = 2;
+        entry.Format = format;
+        entry.Width = width;
+        entry.Height = height;
+        entry.Depth = 1;
+        entry.InUse = true;
+        mStagingPool.push_back(entry);
+
+        return tex;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void D3D11Context::releaseStaging(ID3D11Resource *resource)
+    {
+        if (resource == nullptr)
+        {
+            return;
+        }
+
+        for (auto &entry : mStagingPool)
+        {
+            if (entry.Resource == resource)
+            {
+                entry.InUse = false;
+                return;
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void D3D11Context::destroyStagingPool()
+    {
+        for (auto &entry : mStagingPool)
+        {
+            D3D_SAFE_RELEASE(entry.Resource)
+        }
+
+        mStagingPool.clear();
+    }
+
+    //--------------------------------------------------------------------------
+
+    ReadbackHandle D3D11Context::allocReadbackRequest(RenderBuffer *src, bool isTexture, ReadbackRequest *&outRequest)
+    {
+        outRequest = nullptr;
+
+        if (src == nullptr || src->getRHIResource() == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "readback : source buffer is null or has no RHI resource !");
+            return ReadbackHandle::invalid();
+        }
+
+        if ((src->getCPUAccessMode() & kCPURead) != kCPURead)
+        {
+            // kCPURead 是引擎的读回许可，不是让资源带上原生 CPU_ACCESS_READ。
+            // 活纹理 / RT / VB 仍然是 DEFAULT 或 IMMUTABLE，读回走内部 staging
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "readback : source was not created with kCPURead, "
+                "readback is rejected. Declare kCPURead at creation time; it does not turn the "
+                "resource into a STAGING one !");
+            return ReadbackHandle::invalid();
+        }
+
+        const RHIResource::ResourceType type = src->getRHIResource()->getResourceType();
+        const bool isTextureResource = (type == RHIResource::ResourceType::kPixelBuffer1D
+            || type == RHIResource::ResourceType::kPixelBuffer2D
+            || type == RHIResource::ResourceType::kPixelBuffer3D
+            || type == RHIResource::ResourceType::kPixelBufferCubemap);
+        const bool isLinearResource = (type == RHIResource::ResourceType::kVertexBuffer
+            || type == RHIResource::ResourceType::kIndexBuffer
+            || type == RHIResource::ResourceType::kConstantBuffer
+            || type == RHIResource::ResourceType::kStructuredBuffer);
+
+        if (isTexture && !isTextureResource)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "beginReadTexture : resource type [%d] is not a texture, use beginReadBuffer !", (int32_t)type);
+            return ReadbackHandle::invalid();
+        }
+
+        if (!isTexture && !isLinearResource)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "beginReadBuffer : resource type [%d] is not a linear buffer, use beginReadTexture !", (int32_t)type);
+            return ReadbackHandle::invalid();
+        }
+
+        // 0xFFFFFFFF 是 ReadbackHandle 的无效标记，不能发出去
+        if (mNextReadbackIndex >= 0xFFFFFFFFu)
+        {
+            mNextReadbackIndex = 0;
+        }
+
+        ReadbackHandle handle;
+        handle.index = mNextReadbackIndex++;
+        handle.generation = mReadbackGeneration++;
+
+        ReadbackRequest &request = mPendingReadbacks[handle.index];
+        request.Handle = handle;
+        request.Src = RenderBufferPtr(src);
+        request.IsTexture = isTexture;
+
+        outRequest = &request;
+
+        return handle;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ReadbackHandle D3D11Context::beginReadBuffer(RenderBuffer *src, size_t offset, size_t size)
+    {
+        ReadbackRequest *request = nullptr;
+        ReadbackHandle handle = allocReadbackRequest(src, false, request);
+        if (!handle.isValid())
+        {
+            return handle;
+        }
+
+        request->BufferOffset = offset;
+        request->BufferSize = size;
+        request->BytesPerPixel = 1;
+
+        // 真实尺寸要问 GPU 侧的 ByteWidth，和 copyBuffer 的越界校验保持同一口径，
+        // 所以整段逻辑放在 RHI 线程上执行。这里只入队，绝不 Map
+        auto lambda = [this](ReadbackRequest *request, const RenderBufferPtr &src) -> TResult
+        {
+            request->CopyRecorded = true;
+
+            ID3D11Resource *srcResource = getD3DResource(src.get());
+            if (srcResource == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "beginReadBuffer : failed to retrieve underlying D3D11 buffer !");
+                request->CopyResult = T3D_ERR_INVALID_POINTER;
+                return request->CopyResult;
+            }
+
+            D3D11_BUFFER_DESC srcDesc;
+            static_cast<ID3D11Buffer *>(srcResource)->GetDesc(&srcDesc);
+
+            const size_t offset = std::min<size_t>(request->BufferOffset, srcDesc.ByteWidth);
+            const size_t copySize = (request->BufferSize == 0) ? (srcDesc.ByteWidth - offset) : request->BufferSize;
+
+            if (copySize == 0 || offset + copySize > srcDesc.ByteWidth)
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "beginReadBuffer : out of range ! [%zu + %zu / %u]", offset, copySize, srcDesc.ByteWidth);
+                request->CopyResult = T3D_ERR_INVALID_PARAM;
+                return request->CopyResult;
+            }
+
+            ID3D11Resource *staging = acquireStagingBuffer(static_cast<uint32_t>(copySize));
+            if (staging == nullptr)
+            {
+                request->CopyResult = T3D_ERR_D3D11_CREATE_BUFFER;
+                return request->CopyResult;
+            }
+
+            request->Staging = staging;
+            request->CopyWidth = static_cast<uint32_t>(copySize);
+            request->TightRowPitch = static_cast<uint32_t>(copySize);
+            request->TightSlicePitch = static_cast<uint32_t>(copySize);
+            request->TotalBytes = copySize;
+
+            // 线性缓冲的 D3D11_BOX 只有 X 方向有意义，其余维度必须填成 0..1
+            D3D11_BOX box;
+            box.left = static_cast<UINT>(offset);
+            box.right = static_cast<UINT>(offset + copySize);
+            box.top = 0;
+            box.bottom = 1;
+            box.front = 0;
+            box.back = 1;
+
+            mD3DDeviceContext->CopySubresourceRegion(staging, 0, 0, 0, 0, srcResource, 0, &box);
+
+            request->CopyResult = T3D_OK;
+            return T3D_OK;
+        };
+
+        ENQUEUE_UNIQUE_COMMAND(lambda, request, RenderBufferPtr(src));
+
+        return handle;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ReadbackHandle D3D11Context::beginReadTexture(RenderBuffer *src, const ReadbackRegion &region)
+    {
+        ReadbackRequest *request = nullptr;
+        ReadbackHandle handle = allocReadbackRequest(src, true, request);
+        if (!handle.isValid())
+        {
+            return handle;
+        }
+
+        request->Region = region;
+
+        auto lambda = [this](ReadbackRequest *request, const RenderBufferPtr &src) -> TResult
+        {
+            request->CopyRecorded = true;
+
+            ID3D11Resource *srcResource = getD3DResource(src.get());
+            if (srcResource == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "beginReadTexture : failed to retrieve underlying D3D11 texture !");
+                request->CopyResult = T3D_ERR_INVALID_POINTER;
+                return request->CopyResult;
+            }
+
+            BlitEndpoint desc;
+            describeD3DResource(srcResource, desc);
+
+            uint32_t dimension = 2;
+            uint32_t mipLevels = 1;
+            uint32_t arraySize = 1;
+
+            D3D11_RESOURCE_DIMENSION resDim = D3D11_RESOURCE_DIMENSION_UNKNOWN;
+            srcResource->GetType(&resDim);
+
+            if (resDim == D3D11_RESOURCE_DIMENSION_TEXTURE1D)
+            {
+                dimension = 1;
+                D3D11_TEXTURE1D_DESC d;
+                static_cast<ID3D11Texture1D *>(srcResource)->GetDesc(&d);
+                mipLevels = d.MipLevels;
+                arraySize = d.ArraySize;
+            }
+            else if (resDim == D3D11_RESOURCE_DIMENSION_TEXTURE3D)
+            {
+                dimension = 3;
+                D3D11_TEXTURE3D_DESC d;
+                static_cast<ID3D11Texture3D *>(srcResource)->GetDesc(&d);
+                mipLevels = d.MipLevels;
+            }
+            else if (resDim == D3D11_RESOURCE_DIMENSION_TEXTURE2D)
+            {
+                D3D11_TEXTURE2D_DESC d;
+                static_cast<ID3D11Texture2D *>(srcResource)->GetDesc(&d);
+                mipLevels = d.MipLevels;
+                arraySize = d.ArraySize;
+            }
+            else
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "beginReadTexture : resource is not a texture !");
+                request->CopyResult = T3D_ERR_D3D11_UNSUPPORTED_OPERATION;
+                return request->CopyResult;
+            }
+
+            const uint32_t bpp = D3D11Mapping::getBytesPerPixel(desc.Format);
+            if (bpp == 0)
+            {
+                // 压缩格式按块编码、深度模板是位域，都不能用「每像素 N 字节」打包
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "beginReadTexture : format [%d] is not supported for readback "
+                    "(compressed and depth / stencil formats are out of scope) !", desc.Format);
+                request->CopyResult = T3D_ERR_D3D11_UNSUPPORTED_OPERATION;
+                return request->CopyResult;
+            }
+
+            const ReadbackRegion &region = request->Region;
+            if (region.mipLevel >= mipLevels || region.arraySlice >= arraySize)
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "beginReadTexture : out of range ! mip [%u / %u] slice [%u / %u]", region.mipLevel, mipLevels, region.arraySlice, arraySize);
+                request->CopyResult = T3D_ERR_INVALID_PARAM;
+                return request->CopyResult;
+            }
+
+            const uint32_t mipWidth = std::max<uint32_t>(1, desc.Width >> region.mipLevel);
+            const uint32_t mipHeight = std::max<uint32_t>(1, desc.Height >> region.mipLevel);
+            const uint32_t mipDepth = std::max<uint32_t>(1, desc.Depth >> region.mipLevel);
+
+            const uint32_t offsetX = static_cast<uint32_t>(region.offset.x());
+            const uint32_t offsetY = (dimension >= 2) ? static_cast<uint32_t>(region.offset.y()) : 0;
+            const uint32_t offsetZ = (dimension == 3) ? static_cast<uint32_t>(region.offset.z()) : 0;
+
+            uint32_t copyWidth = static_cast<uint32_t>(region.size.x());
+            uint32_t copyHeight = (dimension >= 2) ? static_cast<uint32_t>(region.size.y()) : 1;
+            uint32_t copyDepth = (dimension == 3) ? static_cast<uint32_t>(region.size.z()) : 1;
+
+            // size 全 0 表示该 mip / slice 的整层
+            if (copyWidth == 0)
+            {
+                copyWidth = mipWidth - std::min(offsetX, mipWidth);
+            }
+            if (copyHeight == 0)
+            {
+                copyHeight = (dimension >= 2) ? (mipHeight - std::min(offsetY, mipHeight)) : 1;
+            }
+            if (copyDepth == 0)
+            {
+                copyDepth = (dimension == 3) ? (mipDepth - std::min(offsetZ, mipDepth)) : 1;
+            }
+
+            if (copyWidth == 0 || copyHeight == 0 || copyDepth == 0
+                || offsetX + copyWidth > mipWidth
+                || (dimension >= 2 && offsetY + copyHeight > mipHeight)
+                || (dimension == 3 && offsetZ + copyDepth > mipDepth))
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "beginReadTexture : region out of range ! "
+                    "offset [%u %u %u] size [%u %u %u] mip size [%u %u %u]",
+                    offsetX, offsetY, offsetZ, copyWidth, copyHeight, copyDepth, mipWidth, mipHeight, mipDepth);
+                request->CopyResult = T3D_ERR_INVALID_PARAM;
+                return request->CopyResult;
+            }
+
+            // D3D11 的子资源索引恒为 arraySlice * mipLevels + mipLevel，与 buildSubresourceData 一致
+            uint32_t srcSubresource = region.arraySlice * mipLevels + region.mipLevel;
+
+            // 只有 Resolve 中转是从池子里租来的；srcResource 本身是调用方的活资源，
+            // 任何情况下都不能还进池子
+            ID3D11Resource *resolved = nullptr;
+
+            if (desc.SampleCount > 1)
+            {
+                // ResolveSubresource 的目标不能是 STAGING，先落到一张 DEFAULT 上。
+                // MSAA 纹理没有 mip，Resolve 之后子资源恒为 0
+                resolved = acquireResolveTexture(desc.Format, desc.Width, desc.Height);
+                if (resolved == nullptr)
+                {
+                    request->CopyResult = T3D_ERR_D3D11_CREATE_TEXTURE2D;
+                    return request->CopyResult;
+                }
+
+                mD3DDeviceContext->ResolveSubresource(resolved, 0, srcResource, srcSubresource, desc.Format);
+
+                srcResource = resolved;
+                srcSubresource = 0;
+            }
+
+            ID3D11Resource *staging = acquireStagingTexture(dimension, desc.Format, copyWidth, copyHeight, copyDepth);
+            if (staging == nullptr)
+            {
+                if (resolved != nullptr)
+                {
+                    releaseStaging(resolved);
+                }
+                request->CopyResult = T3D_ERR_D3D11_CREATE_TEXTURE2D;
+                return request->CopyResult;
+            }
+
+            request->Staging = staging;
+            request->Subresource = srcSubresource;
+            request->BytesPerPixel = bpp;
+            request->CopyWidth = copyWidth;
+            request->CopyHeight = copyHeight;
+            request->CopyDepth = copyDepth;
+            request->TightRowPitch = copyWidth * bpp;
+            request->TightSlicePitch = request->TightRowPitch * copyHeight;
+            request->TotalBytes = static_cast<size_t>(request->TightSlicePitch) * copyDepth;
+
+            D3D11_BOX box;
+            box.left = offsetX;
+            box.right = offsetX + copyWidth;
+            box.top = offsetY;
+            box.bottom = offsetY + copyHeight;
+            box.front = offsetZ;
+            box.back = offsetZ + copyDepth;
+
+            mD3DDeviceContext->CopySubresourceRegion(staging, 0, 0, 0, 0, srcResource, srcSubresource, &box);
+
+            if (resolved != nullptr)
+            {
+                // Resolve 中转已经用完，还回池子；immediate context 是顺序执行的，
+                // 后面的读回再租到同一张时，本次 Copy 早就录完了
+                releaseStaging(resolved);
+            }
+
+            request->CopyResult = T3D_OK;
+            return T3D_OK;
+        };
+
+        ENQUEUE_UNIQUE_COMMAND(lambda, request, RenderBufferPtr(src));
+
+        return handle;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::endReadBuffer(ReadbackHandle handle, Buffer &dst)
+    {
+        return finishReadback(handle, false, dst);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::endReadTexture(ReadbackHandle handle, Buffer &dst)
+    {
+        return finishReadback(handle, true, dst);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::finishReadback(ReadbackHandle handle, bool expectTexture, Buffer &dst)
+    {
+        auto itr = mPendingReadbacks.find(handle.index);
+        if (!handle.isValid() || itr == mPendingReadbacks.end()
+            || itr->second.Handle.generation != handle.generation
+            || itr->second.IsTexture != expectTexture)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "endRead : invalid or already consumed readback handle !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        // 本帧的 Copy 还躺在入队表里没执行。syncRHIThread 先等 beginFrame 那批跑完，
+        // 再把入队表推去执行，Copy 完成之后才轮到下面的 Map
+        T3D_AGENT.syncRHIThread();
+
+        ReadbackRequest &request = itr->second;
+        TResult ret = request.CopyResult;
+
+        if (T3D_OK == ret && !request.CopyRecorded)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "endRead : copy command has not been executed. "
+                "beginRead* must be called inside onRender, endRead* inside onPostRender !");
+            ret = T3D_ERR_FAIL;
+        }
+
+        if (T3D_OK == ret)
+        {
+            // Map 只能发生在 RHI 线程：immediate context 不是自由线程的。
+            // 结果写回 request，跨线程时 ENQUEUE 的返回值只是入队结果，拿不到执行结果
+            auto lambda = [this](ReadbackRequest *request, Buffer *dst) -> TResult
+            {
+                D3D11_MAPPED_SUBRESOURCE mapped;
+                memset(&mapped, 0, sizeof(mapped));
+
+                HRESULT hr = mD3DDeviceContext->Map(request->Staging, 0, D3D11_MAP_READ, 0, &mapped);
+                if (FAILED(hr))
+                {
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "endRead : failed to map staging resource ! DX ERROR [%d]", hr);
+                    request->CopyResult = T3D_ERR_D3D11_MAP_RESOURCE;
+                    return request->CopyResult;
+                }
+
+                uint8_t *out = dst->Data;
+                const uint8_t *in = static_cast<const uint8_t *>(mapped.pData);
+
+                if (request->IsTexture)
+                {
+                    // GPU 的 RowPitch 通常大于 width * bpp，整块 memcpy 会把 padding 当像素
+                    for (uint32_t z = 0; z < request->CopyDepth; ++z)
+                    {
+                        for (uint32_t y = 0; y < request->CopyHeight; ++y)
+                        {
+                            memcpy(out + z * request->TightSlicePitch + y * request->TightRowPitch,
+                                in + z * mapped.DepthPitch + y * mapped.RowPitch,
+                                request->TightRowPitch);
+                        }
+                    }
+                }
+                else
+                {
+                    // staging 是按请求 size 建的独立缓冲，Map 起点就是 0
+                    memcpy(out, in, request->TotalBytes);
+                }
+
+                mD3DDeviceContext->Unmap(request->Staging, 0);
+
+                request->CopyResult = T3D_OK;
+                return T3D_OK;
+            };
+
+            dst.release();
+            dst.DataSize = request.TotalBytes;
+            dst.Data = T3D_POD_NEW_ARRAY(uint8_t, request.TotalBytes);
+
+            ENQUEUE_UNIQUE_COMMAND(lambda, &request, &dst);
+
+            // 把 Map 推去执行，返回时 dst 已经填好
+            T3D_AGENT.syncRHIThread();
+
+            ret = request.CopyResult;
+        }
+
+        releaseStaging(request.Staging);
+        mPendingReadbacks.erase(itr);
+
+        if (T3D_FAILED(ret))
+        {
+            dst.release();
+        }
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------

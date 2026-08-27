@@ -2946,6 +2946,34 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ReadbackHandle GL4Context::beginReadBuffer(RenderBuffer *src, size_t offset, size_t size)
+    {
+        T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, ReadbackHandle::invalid());
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Context::endReadBuffer(ReadbackHandle handle, Buffer &dst)
+    {
+        T3D_RHI_UNSUPPORTED(supportsReadback);
+    }
+
+    //--------------------------------------------------------------------------
+
+    ReadbackHandle GL4Context::beginReadTexture(RenderBuffer *src, const ReadbackRegion &region)
+    {
+        T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, ReadbackHandle::invalid());
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Context::endReadTexture(ReadbackHandle handle, Buffer &dst)
+    {
+        T3D_RHI_UNSUPPORTED(supportsReadback);
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult GL4Context::writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer)
     {
         TResult ret = T3D_OK;

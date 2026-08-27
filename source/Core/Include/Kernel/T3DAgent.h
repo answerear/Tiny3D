@@ -45,21 +45,28 @@ namespace Tiny3D
 {
     // using PollEvents = TFunction<bool()>;
     using Update = TFunction<void()>;
+    /// beginRender 之前的回调
     using PreEngineRender = TFunction<void()>;
+    /// pipeline.render 之后、endRender 之前的回调
+    using OnEngineRender = TFunction<void()>;
+    /// endRender 之后、swapBuffers 之前的回调
     using PostEngineRender = TFunction<void()>;
     using FrameEndTask = TFunction<void()>;
 
     /**
      * \brief 编辑器主循环注入回调（供 runForEditor 使用）
      * \remarks update 在 Agent::update 之后、渲染之前调用；
-     *          preRender / postRender 分别在 RHI beginRender 前、endRender 后调用。
+     *          preRender / onRender / postRender 分别在 RHI beginRender 前、
+     *          endRender 前、endRender 后调用。
+     *          三个 typedef 底层都是 TFunction<void()>，分开命名只为让调用点看得出时序。
      */
     struct EditorRunningData
     {
         // PollEvents          pollEvents {nullptr};
         Update              update {nullptr};       ///< 可选：自定义逻辑更新
-        PreEngineRender     preRender {nullptr};    ///< 可选：渲染前回调
-        PostEngineRender    postRender {nullptr};   ///< 可选：渲染后回调
+        PreEngineRender     preRender {nullptr};    ///< 可选：beginRender 之前
+        OnEngineRender      onRender {nullptr};     ///< 可选：beginRender 内、endRender 之前
+        PostEngineRender    postRender {nullptr};   ///< 可选：endRender 之后
     };
 
     /**
@@ -338,6 +345,16 @@ namespace Tiny3D
         void drainRHICommands();
 
         /**
+         * \brief 在帧中间把 RHI 线程拉到空闲并排空命令队列
+         * \remarks 与 drainRHICommands 的区别：本函数先等 beginFrame 那批命令自己跑完，
+         *          再 drain 本帧刚入队的命令。GPU 读回的 endRead* 必须用它——
+         *          onPostRender 发生在 endFrame 的 wait 之前，本帧的 Copy 还躺在
+         *          入队表里没执行，直接 drain 等于在 RHI 线程遍历命令表的同时 exchange。
+         *          等过的那次会记账，endFrame 不会重复 wait。
+         */
+        void syncRHIThread();
+
+        /**
          * \brief 投递一个在帧末安全点执行的任务
          * \param [in] task : 待执行任务，空任务被忽略
          * \remarks 帧中间 RHI 线程正在执行上一帧的命令，此时销毁 GPU 资源就是跨线程
@@ -435,11 +452,12 @@ namespace Tiny3D
         void stopRenderThread();
 
         /**
-         * \brief 执行单帧渲染：可选 pre/post、管线 cull/render、swapBuffers、渲染资源 GC
-         * \param [in] preRender : 渲染前回调，可为空
-         * \param [in] postRender : 渲染后回调，可为空
+         * \brief 执行单帧渲染：可选 pre/on/post 回调、管线 cull/render、swapBuffers、渲染资源 GC
+         * \param [in] preRender : beginRender 之前，可为空
+         * \param [in] onRender : pipeline.render 之后、endRender 之前，可为空
+         * \param [in] postRender : endRender 之后、swapBuffers 之前，可为空
          */
-        void renderOneFrame(const PreEngineRender &preRender, const PostEngineRender &postRender);
+        void renderOneFrame(const PreEngineRender &preRender, const OnEngineRender &onRender, const PostEngineRender &postRender);
 
         /**
          * \brief 派发事件，并对当前 Scene 执行 FixedUpdate（最多 8 步）与 Update/LateUpdate
@@ -461,6 +479,13 @@ namespace Tiny3D
          * \remarks 只能由 endFrame 在 mRHIEvent.wait() 之后调用
          */
         void runFrameEndTasks();
+
+        /**
+         * \brief 等 beginFrame 发出的那批 RHI 命令执行完毕，最多等一次
+         * \remarks 用 mRHIBatchInFlight 记账，endFrame 与 syncRHIThread 谁先调到谁等，
+         *          另一个直接跳过，避免多等一次 mRHIEvent 把自己挂死
+         */
+        void waitRHIBatch();
 
     protected:
         typedef TMap<String, Plugin*>       Plugins;
@@ -526,6 +551,7 @@ namespace Tiny3D
         RunnableThread          mRHIThread {};                      ///< RHI 工作线程
         RHIThreadPtr            mRHIRunnable {nullptr};             ///< RHI 线程执行体
         Event                   mRHIEvent {};                       ///< 与 RHI 线程同步的事件
+        bool                    mRHIBatchInFlight {false};          ///< beginFrame 发出的那批命令是否还没等过
 
         FrameEndTasks           mFrameEndTasks {};                  ///< 帧末安全点待执行的任务
 

@@ -34,15 +34,15 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RenderTexturePtr RenderTexture::create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable)
+    RenderTexturePtr RenderTexture::create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable, uint32_t accMode)
     {
-        return T3D_NEW RenderTexture(name, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable);
+        return T3D_NEW RenderTexture(name, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable, accMode);
     }
     
     //--------------------------------------------------------------------------
     
-    RenderTexture::RenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable)
-        : Texture2D(name, width, height, format, mipmaps, MSAACount, MSAAQuality, Buffer{}, shaderReadable)
+    RenderTexture::RenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable, uint32_t accMode)
+        : Texture2D(name, width, height, format, mipmaps, MSAACount, MSAAQuality, Buffer{}, shaderReadable, accMode)
     {
 
     }
@@ -100,7 +100,7 @@ namespace Tiny3D
 
     ResourcePtr RenderTexture::clone() const
     {
-        RenderTexturePtr texture = create(getName(), mDesc.width, mDesc.height, mDesc.format, mDesc.mipmaps, mDesc.sampleDesc.Count, mDesc.sampleDesc.Quality, mDesc.shaderReadable);
+        RenderTexturePtr texture = create(getName(), mDesc.width, mDesc.height, mDesc.format, mDesc.mipmaps, mDesc.sampleDesc.Count, mDesc.sampleDesc.Quality, mDesc.shaderReadable, mCPUAccessMode);
         texture->cloneProperties(this);
         return texture;
     }
@@ -116,7 +116,7 @@ namespace Tiny3D
 
     TResult RenderTexture::onCreate()
     {
-        mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadRenderTexture(&mDesc, MemoryType::kVRAM, Usage::kStatic, CPUAccessMode::kCPUNone);
+        mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadRenderTexture(&mDesc, MemoryType::kVRAM, Usage::kStatic, mCPUAccessMode);
         return T3D_OK;
     }
 
@@ -124,7 +124,7 @@ namespace Tiny3D
 
     TResult RenderTexture::onLoad(Archive *archive)
     {
-        mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadRenderTexture(&mDesc, MemoryType::kVRAM, Usage::kStatic, CPUAccessMode::kCPUNone);
+        mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadRenderTexture(&mDesc, MemoryType::kVRAM, Usage::kStatic, mCPUAccessMode);
         return T3D_OK;
     }
 

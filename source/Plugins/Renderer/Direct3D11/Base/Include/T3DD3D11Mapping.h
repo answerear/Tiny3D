@@ -62,6 +62,15 @@ namespace Tiny3D
          * \return D3D11_RESOURCE_MISC_* 组合
          */
         static UINT getBufferMiscFlags(StructuredBufferKind kind, uint32_t gpuAccess);
+
+        /**
+         * \brief 查询 DXGI 格式每像素字节数
+         * \param [in] format : DXGI 格式
+         * \return 每像素字节数；压缩格式、深度模板格式与未登记格式一律返回 0
+         * \remarks 供 GPU 读回按行紧凑打包用。返回 0 即表示「本期不支持读回这种格式」，
+         *          压缩格式的「块」概念和深度模板的位域解释都不能用一个 bpp 概括。
+         */
+        static uint32_t getBytesPerPixel(DXGI_FORMAT format);
         
         static D3D11_TEXTURE1D_DESC get(const PixelBuffer1DDesc &src);
         

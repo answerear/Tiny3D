@@ -42,10 +42,10 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    RenderTexturePtr TextureManager::createRenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable)
+    RenderTexturePtr TextureManager::createRenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable, uint32_t accMode)
     {
-        return smart_pointer_cast<RenderTexture>(createResource(name, 8,
-            TEXTURE_TYPE::TT_RENDER_TEXTURE, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable));
+        return smart_pointer_cast<RenderTexture>(createResource(name, 9,
+            TEXTURE_TYPE::TT_RENDER_TEXTURE, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable, accMode));
     }
 
     //--------------------------------------------------------------------------
@@ -62,29 +62,29 @@ namespace Tiny3D
     
     Texture2DPtr TextureManager::createTexture2D(const String &name, uint32_t width, uint32_t height,
         PixelFormat format, const Buffer &data, uint32_t mipmaps/* = 0*/, uint32_t MSAACount/* = 0*/, uint32_t MSAAQuality/* = 0*/,
-        const UUID &uuid/* = UUID::INVALID*/)
+        const UUID &uuid/* = UUID::INVALID*/, uint32_t accMode/* = kCPUNone*/)
     {
 #if defined (T3D_EDITOR)
         // 编辑器/工具环境下允许指定 UUID（用于保留已有资源 guid），创建时即设好
+        return smart_pointer_cast<Texture2D>(createResource(name, 11,
+            TEXTURE_TYPE::TT_2D, width, height, format,
+            data.Data, data.DataSize, mipmaps, MSAACount, MSAAQuality, accMode, &uuid));
+#else
         return smart_pointer_cast<Texture2D>(createResource(name, 10,
             TEXTURE_TYPE::TT_2D, width, height, format,
-            data.Data, data.DataSize, mipmaps, MSAACount, MSAAQuality, &uuid));
-#else
-        return smart_pointer_cast<Texture2D>(createResource(name, 9,
-            TEXTURE_TYPE::TT_2D, width, height, format,
-            data.Data, data.DataSize, mipmaps, MSAACount, MSAAQuality));
+            data.Data, data.DataSize, mipmaps, MSAACount, MSAAQuality, accMode));
 #endif
     }
 
     //--------------------------------------------------------------------------
 
-    Texture2DPtr TextureManager::createTexture2D(const String &name, Image *image, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const UUID &uuid/* = UUID::INVALID*/)
+    Texture2DPtr TextureManager::createTexture2D(const String &name, Image *image, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const UUID &uuid/* = UUID::INVALID*/, uint32_t accMode/* = kCPUNone*/)
     {
 #if defined (T3D_EDITOR)
         // 编辑器/工具环境下允许指定 UUID（用于保留已有资源 guid），创建时即设好
-        return smart_pointer_cast<Texture2D>(createResource(name, 6, TEXTURE_TYPE::TT_2D, image, mipmaps, MSAACount, MSAAQuality, &uuid));
+        return smart_pointer_cast<Texture2D>(createResource(name, 7, TEXTURE_TYPE::TT_2D, image, mipmaps, MSAACount, MSAAQuality, accMode, &uuid));
 #else
-        return smart_pointer_cast<Texture2D>(createResource(name, 5, TEXTURE_TYPE::TT_2D, image, mipmaps, MSAACount, MSAAQuality));
+        return smart_pointer_cast<Texture2D>(createResource(name, 6, TEXTURE_TYPE::TT_2D, image, mipmaps, MSAACount, MSAAQuality, accMode));
 #endif
     }
 
@@ -204,8 +204,8 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_2D:
             {
-                T3D_ASSERT(argc == 5 || argc == 6 || argc == 9 || argc == 10);
-                if (argc == 9 || argc == 10)
+                T3D_ASSERT(argc == 6 || argc == 7 || argc == 10 || argc == 11);
+                if (argc == 10 || argc == 11)
                 {
                     uint32_t width = va_arg(args, uint32_t);
                     uint32_t height = va_arg(args, uint32_t);
@@ -216,24 +216,26 @@ namespace Tiny3D
                     uint32_t mipmaps = va_arg(args, uint32_t);
                     uint32_t MSAACount = va_arg(args, uint32_t);
                     uint32_t MSAAQuality = va_arg(args, uint32_t);
-                    texture = Texture2D::create(name, width, height, format, mipmaps, MSAACount, MSAAQuality, data);
+                    uint32_t accMode = va_arg(args, uint32_t);
+                    texture = Texture2D::create(name, width, height, format, mipmaps, MSAACount, MSAAQuality, data, accMode);
 #if defined (T3D_EDITOR)
-                    if (argc == 10)
+                    if (argc == 11)
                     {
                         const UUID *uuid = va_arg(args, const UUID*);
                         applyCreationUUID(texture, uuid != nullptr ? *uuid : UUID::INVALID);
                     }
 #endif
                 }
-                else if (argc == 5 || argc == 6)
+                else if (argc == 6 || argc == 7)
                 {
                     Image *image = va_arg(args, Image*);
                     uint32_t mipmaps = va_arg(args, uint32_t);
                     uint32_t MSAACount = va_arg(args, uint32_t);
                     uint32_t MSAAQuality = va_arg(args, uint32_t);
-                    texture = Texture2D::create(name, image, mipmaps, MSAACount, MSAAQuality);
+                    uint32_t accMode = va_arg(args, uint32_t);
+                    texture = Texture2D::create(name, image, mipmaps, MSAACount, MSAAQuality, accMode);
 #if defined (T3D_EDITOR)
-                    if (argc == 6)
+                    if (argc == 7)
                     {
                         const UUID *uuid = va_arg(args, const UUID*);
                         applyCreationUUID(texture, uuid != nullptr ? *uuid : UUID::INVALID);
@@ -312,7 +314,7 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_RENDER_TEXTURE:
             {
-                T3D_ASSERT(argc == 8);
+                T3D_ASSERT(argc == 9);
                 uint32_t width = va_arg(args, uint32_t);
                 uint32_t height = va_arg(args, uint32_t);
                 PixelFormat format = va_arg(args, PixelFormat);
@@ -320,7 +322,8 @@ namespace Tiny3D
                 uint32_t MSAACount = va_arg(args, uint32_t);
                 uint32_t MSAAQuality = va_arg(args, uint32_t);
                 bool shaderReadable = static_cast<bool>(va_arg(args, int));
-                texture = RenderTexture::create(name, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable);
+                uint32_t accMode = va_arg(args, uint32_t);
+                texture = RenderTexture::create(name, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable, accMode);
             }
             break;
         }

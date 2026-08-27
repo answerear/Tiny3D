@@ -51,14 +51,35 @@ namespace Tiny3D
         virtual size_t readData(size_t offset, size_t size, void *dst);
 
         /**
-         * \brief 异步读取缓冲数据（当前实现未接通 RHI，仅做前置校验）
+         * \brief 异步读取缓冲数据（尚未接通 RHI，仅做前置校验）
          * \param [in] offset : 起始字节偏移
          * \param [in] size : 请求读取的字节数
          * \param [in] callback : 读取完成回调
          * \return 调用成功返回 T3D_OK；静态/RAM/无 CPU 读权限时返回对应错误码
-         * \note 当前 RHI 异步读取路径为 TODO，校验通过后仍返回 T3D_OK
+         * \note 回调式无栅栏异步读回还没实现，校验通过后直接返回 T3D_OK，
+         *       callback 不会被触发。要真正把 GPU 数据取回 CPU，用
+         *       beginRead / endRead 这对接口。
          */
         virtual TResult readData(size_t offset, size_t size, RenderBuffeReadCallback callback);
+
+        /**
+         * \brief 发起本缓冲的 GPU→CPU 读回，只录制 Copy 不等待
+         * \param [in] offset : 起始字节偏移
+         * \param [in] size : 读回字节数，传 0 表示从 offset 到缓冲末尾
+         * \return 成功返回读回票据，失败返回 ReadbackHandle::invalid()
+         * \remarks 必须在 Application::onRender 里调用，配对的 endRead 放 onPostRender。
+         *          创建时必须声明 kCPURead，否则被拒。
+         */
+        ReadbackHandle beginRead(size_t offset = 0, size_t size = 0);
+
+        /**
+         * \brief 消费 beginRead 的结果
+         * \param [in] handle : beginRead 返回的票据
+         * \param [out] dst : 读回的数据，调用方负责 release()
+         * \return 调用成功返回 T3D_OK
+         * \warning 阻塞等待 GPU，只用于验证 / 截帧，不要放进游戏热路径
+         */
+        TResult endRead(ReadbackHandle handle, Buffer &dst);
 
         /**
          * \brief 向缓冲区写入数据，同步更新 CPU 镜像并通过 RHI 提交到 GPU

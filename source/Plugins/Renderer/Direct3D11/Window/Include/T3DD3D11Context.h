@@ -693,6 +693,43 @@ namespace Tiny3D
          */
         TResult writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer = false) override;
 
+        /**
+         * \brief 发起线性缓冲的 GPU→CPU 读回，只把 Copy→staging 录进命令流
+         * \param [in] src : 源缓冲，必须是 VB / IB / CB / StructuredBuffer 且带 kCPURead
+         * \param [in] offset : 起始字节偏移
+         * \param [in] size : 读取字节数，0 表示从 offset 到末尾
+         * \return 成功返回读回票据，失败返回 ReadbackHandle::invalid()
+         * \note 必须在 beginRender / endRender 之间调用
+         */
+        ReadbackHandle beginReadBuffer(RenderBuffer *src, size_t offset, size_t size) override;
+
+        /**
+         * \brief 推完命令队列并 Map staging，把线性缓冲数据填进 dst
+         * \param [in] handle : beginReadBuffer 返回的票据
+         * \param [out] dst : 由本函数分配的紧凑字节数据，调用方负责 release()
+         * \return 调用成功返回 T3D_OK
+         * \warning 阻塞等待 GPU
+         */
+        TResult endReadBuffer(ReadbackHandle handle, Buffer &dst) override;
+
+        /**
+         * \brief 发起纹理的 GPU→CPU 读回，只把 Resolve / Copy→staging 录进命令流
+         * \param [in] src : 源像素缓冲，必须带 kCPURead
+         * \param [in] region : 子区域，mip + arraySlice 选定子资源
+         * \return 成功返回读回票据，失败返回 ReadbackHandle::invalid()
+         * \note 压缩格式与深度模板格式本期拒绝
+         */
+        ReadbackHandle beginReadTexture(RenderBuffer *src, const ReadbackRegion &region) override;
+
+        /**
+         * \brief 推完命令队列并 Map staging，按行紧凑打包填进 dst
+         * \param [in] handle : beginReadTexture 返回的票据
+         * \param [out] dst : 由本函数分配的紧凑像素数据，调用方负责 release()
+         * \return 调用成功返回 T3D_OK
+         * \warning 阻塞等待 GPU
+         */
+        TResult endReadTexture(ReadbackHandle handle, Buffer &dst) override;
+
         TResult beginRender() override { return T3D_OK; }
         TResult endRender() override { return T3D_OK; }
 
@@ -929,6 +966,143 @@ namespace Tiny3D
         TResult setRenderTarget(const RenderTexturePtr *renderTexture, uint32_t numOfTextures, RenderTexture *depthStencil);
 
         void backupRenderState();
+
+        /**
+         * \brief 一次 GPU 读回请求的全部状态
+         * \remarks 主线程在 beginRead* 里填校验结果并插进 mPendingReadbacks，
+         *          RHI 线程在 Copy 命令里填 staging 与实际尺寸，
+         *          主线程在 endRead* 里（drain 之后）读走。
+         *          记录存活在 std::map 的节点里，节点地址稳定，
+         *          RHI 线程持有的裸指针不会因为后续 insert 失效。
+         */
+        struct ReadbackRequest
+        {
+            /// 对应的票据
+            ReadbackHandle      Handle {};
+            /// 自持有源资源，保证 Copy 执行时源还活着
+            RenderBufferPtr     Src {nullptr};
+            /// true 走纹理路径，false 走线性缓冲路径
+            bool                IsTexture {false};
+            /// 线性缓冲的起始字节偏移
+            size_t              BufferOffset {0};
+            /// 线性缓冲请求读取的字节数，0 表示到末尾
+            size_t              BufferSize {0};
+            /// 纹理子区域
+            ReadbackRegion      Region {};
+            /// 从池里租来的 staging，归还由 endRead* 负责，请求本身不 Release
+            ID3D11Resource     *Staging {nullptr};
+            /// 源子资源下标
+            uint32_t            Subresource {0};
+            /// 每像素字节数，线性缓冲恒为 1
+            uint32_t            BytesPerPixel {0};
+            /// 紧凑行距 = CopyWidth * BytesPerPixel
+            uint32_t            TightRowPitch {0};
+            /// 紧凑层距 = TightRowPitch * CopyHeight
+            uint32_t            TightSlicePitch {0};
+            /// 实际拷贝的宽 / 高 / 深（纹素）
+            uint32_t            CopyWidth {0};
+            uint32_t            CopyHeight {1};
+            uint32_t            CopyDepth {1};
+            /// dst 需要的总字节数
+            size_t              TotalBytes {0};
+            /// Copy 命令是否已在 RHI 线程执行完
+            bool                CopyRecorded {false};
+            /// Copy 命令的执行结果
+            TResult             CopyResult {T3D_OK};
+        };
+
+        /**
+         * \brief 读回中转资源池中的一块资源
+         * \remarks 只在 RHI 线程上租借 / 归还，析构时在主线程 drain 之后统一 Release
+         */
+        struct StagingEntry
+        {
+            /// 中转资源的用途
+            enum class Kind : uint32_t
+            {
+                kBuffer = 0,        ///< STAGING 线性缓冲
+                kStagingTexture,    ///< STAGING 纹理，Map 的就是它
+                kResolveTexture,    ///< DEFAULT 非 MSAA 纹理，只做 Resolve 中转
+            };
+
+            /// 底层资源
+            ID3D11Resource     *Resource {nullptr};
+            /// 用途
+            Kind                Usage {Kind::kBuffer};
+            /// 纹理维度（1 / 2 / 3），缓冲为 0。CopySubresourceRegion 要求两端同类型
+            uint32_t            Dimension {0};
+            /// 纹理格式，缓冲为 DXGI_FORMAT_UNKNOWN
+            DXGI_FORMAT         Format {DXGI_FORMAT_UNKNOWN};
+            /// 纹理尺寸
+            uint32_t            Width {0};
+            uint32_t            Height {0};
+            uint32_t            Depth {0};
+            /// 缓冲字节数
+            uint32_t            ByteWidth {0};
+            /// 是否已被某个未完成的请求占用
+            bool                InUse {false};
+        };
+
+        /**
+         * \brief 从池里租一块能装下 byteWidth 的 staging 缓冲，没有就新建
+         * \param [in] byteWidth : 需要的字节数
+         * \return 租到的资源；创建失败返回 nullptr
+         * \note 只能在 RHI 线程调用
+         */
+        ID3D11Resource *acquireStagingBuffer(uint32_t byteWidth);
+
+        /**
+         * \brief 从池里租一块尺寸格式都匹配的 staging 纹理，没有就新建
+         * \param [in] dimension : 纹理维度，1 / 2 / 3；Cubemap 的单面按 2 处理
+         * \param [in] format : DXGI 格式
+         * \param [in] width : 宽
+         * \param [in] height : 高，1D 传 1
+         * \param [in] depth : 深，非 3D 传 1
+         * \return 租到的资源；创建失败返回 nullptr
+         * \note 只能在 RHI 线程调用。尺寸必须精确匹配：CopySubresourceRegion 的
+         *       目标子资源尺寸要能装下源区域，池里按整层大小建，直接要求相等最省心
+         */
+        ID3D11Resource *acquireStagingTexture(uint32_t dimension, DXGI_FORMAT format, uint32_t width, uint32_t height, uint32_t depth);
+
+        /**
+         * \brief 为 MSAA 源租一张同尺寸的非 MSAA DEFAULT 纹理做 Resolve 中转
+         * \param [in] format : DXGI 格式
+         * \param [in] width : 宽
+         * \param [in] height : 高
+         * \return 租到的资源；创建失败返回 nullptr
+         * \note ResolveSubresource 的目标不能是 STAGING，所以要多一跳
+         */
+        ID3D11Resource *acquireResolveTexture(DXGI_FORMAT format, uint32_t width, uint32_t height);
+
+        /**
+         * \brief 把 staging 还回池子，供后续读回复用
+         * \param [in] resource : acquireStaging* 租出去的资源，nullptr 时不做任何事
+         */
+        void releaseStaging(ID3D11Resource *resource);
+
+        /**
+         * \brief Release 池里所有 staging 资源
+         * \note 只能在 RHI 线程空闲之后调用，否则会拆掉正在被 Copy 的目标
+         */
+        void destroyStagingPool();
+
+        /**
+         * \brief endReadBuffer / endReadTexture 的公共实现
+         * \param [in] handle : 读回票据
+         * \param [in] expectTexture : true 校验票据来自 beginReadTexture
+         * \param [out] dst : 由本函数分配的紧凑数据
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult finishReadback(ReadbackHandle handle, bool expectTexture, Buffer &dst);
+
+        /**
+         * \brief 校验读回源并分配票据，两条 beginRead* 的公共前半段
+         * \param [in] src : 源资源
+         * \param [in] isTexture : true 走纹理路径
+         * \param [out] outRequest : 新建的请求记录，失败时不写
+         * \return 校验通过返回有效票据，否则返回 ReadbackHandle::invalid()
+         */
+        ReadbackHandle allocReadbackRequest(RenderBuffer *src, bool isTexture, ReadbackRequest *&outRequest);
         
     protected:
         /**
@@ -1045,6 +1219,15 @@ namespace Tiny3D
         ID3D11UnorderedAccessView   *mBoundCSUAVs[D3D11_1_UAV_SLOT_COUNT] {nullptr};
         /// mBoundCSUAVs 中最高有效槽位 + 1，避免每次屏障都扫满 64 个槽
         uint32_t                     mBoundCSUAVCount {0};
+
+        /// 未完成的读回请求，键是票据的 index。用 map 是为了节点地址稳定
+        TMap<uint32_t, ReadbackRequest> mPendingReadbacks;
+        /// staging 池，按尺寸线性查找即可，读回不是热路径
+        TArray<StagingEntry>            mStagingPool;
+        /// 下一个票据的 index
+        uint32_t                        mNextReadbackIndex {0};
+        /// 票据世代号，index 复用时靠它区分新旧
+        uint32_t                        mReadbackGeneration {1};
     };
 }
 

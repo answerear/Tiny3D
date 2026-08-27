@@ -291,6 +291,41 @@ namespace Tiny3D
     const uint32_t kKeepUAVCounter = 0xFFFFFFFFu;
 
     /**
+     * \brief GPU 读回时选择的纹理子区域
+     * \remarks size 全 0 表示该 mip / slice 的整层。offset / size 的单位是纹素，
+     *          按源资源的维度解释（1D 只用 x，2D 用 x/y，3D 用 x/y/z）。
+     */
+    struct ReadbackRegion
+    {
+        /// mip 层级
+        uint32_t mipLevel {0};
+        /// 数组层；Cubemap 传面号（0-5）或 cubeIndex * 6 + face
+        uint32_t arraySlice {0};
+        /// 区域起点（纹素）
+        Vector3  offset {Vector3::ZERO};
+        /// 区域尺寸（纹素），全 0 表示整层
+        Vector3  size {Vector3::ZERO};
+    };
+
+    /**
+     * \brief beginRead* 返回的读回票据，用于在 endRead* 认领对应的 staging 数据
+     * \remarks 只是一个不透明句柄，调用方不要解释字段含义。
+     */
+    struct ReadbackHandle
+    {
+        /// 世代号，用于识别已消费 / 过期的句柄
+        uint32_t generation {0};
+        /// pending 表下标，0xFFFFFFFF 表示无效
+        uint32_t index {0xFFFFFFFFu};
+
+        /// 是否为有效句柄
+        bool isValid() const { return index != 0xFFFFFFFFu; }
+
+        /// 返回一个无效句柄
+        static ReadbackHandle invalid() { return ReadbackHandle(); }
+    };
+
+    /**
      * \brief 索引缓冲区位宽
      */
     TENUM()

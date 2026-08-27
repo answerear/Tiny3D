@@ -363,7 +363,7 @@ namespace  Tiny3D
     //--------------------------------------------------------------------------
     
     VertexBufferPtr RenderBufferManager::loadVertexBuffer(uint32_t vertexSize, uint32_t vertexCount,
-        const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid)
+        const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid)
     {
         UUID uid = uuid;
         if (uuid == UUID::INVALID)
@@ -372,7 +372,7 @@ namespace  Tiny3D
         }
 
         return loadBuffer<VertexBuffer>(mVBufferCache, uid,
-            [](const Buffer &buffer, uint32_t vertexSize, uint32_t vertexCount, MemoryType memType, Usage usage, CPUAccessMode accMode) -> RenderBufferPtr
+            [](const Buffer &buffer, uint32_t vertexSize, uint32_t vertexCount, MemoryType memType, Usage usage, uint32_t accMode) -> RenderBufferPtr
             {
                 return VertexBuffer::create(vertexSize, vertexCount, buffer, memType, usage, accMode);
             },
@@ -382,7 +382,7 @@ namespace  Tiny3D
     //--------------------------------------------------------------------------
 
     IndexBufferPtr RenderBufferManager::loadIndexBuffer(IndexType indexType, uint32_t indexCount,
-        const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid)
+        const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid)
     {
         UUID uid = uuid;
         if (uuid == UUID::INVALID)
@@ -400,7 +400,7 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ConstantBufferPtr RenderBufferManager::loadConstantBuffer(const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid)
+    ConstantBufferPtr RenderBufferManager::loadConstantBuffer(const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid)
     {
         UUID uid = uuid;
         if (uuid == UUID::INVALID)
@@ -409,7 +409,7 @@ namespace  Tiny3D
         }
 
         return loadBuffer<ConstantBuffer>(mCBufferCache, uid,
-            [](const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, CPUAccessMode accMode)
+            [](const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
             {
                 return ConstantBuffer::create(name, binding, buffer, memType, usage, accMode);
             },
@@ -419,7 +419,7 @@ namespace  Tiny3D
     //--------------------------------------------------------------------------
 
     StructuredBufferPtr RenderBufferManager::loadStructuredBuffer(const StructuredBufferDesc &desc,
-        MemoryType memType, Usage usage, CPUAccessMode accMode, uint32_t gpuAccess, const UUID &uuid)
+        MemoryType memType, Usage usage, uint32_t accMode, uint32_t gpuAccess, const UUID &uuid)
     {
         UUID uid = uuid;
         if (uuid == UUID::INVALID)
@@ -428,7 +428,7 @@ namespace  Tiny3D
         }
 
         return loadBuffer<StructuredBuffer>(mSBufferCache, uid,
-            [](const StructuredBufferDesc &desc, MemoryType memType, Usage usage, CPUAccessMode accMode, uint32_t gpuAccess)
+            [](const StructuredBufferDesc &desc, MemoryType memType, Usage usage, uint32_t accMode, uint32_t gpuAccess)
             {
                 return StructuredBuffer::create(desc, memType, usage, accMode, gpuAccess);
             },
@@ -437,7 +437,7 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
 
-    PixelBuffer1DPtr RenderBufferManager::loadPixelBuffer1D(PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid)
+    PixelBuffer1DPtr RenderBufferManager::loadPixelBuffer1D(PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid)
     {
         UUID uid = uuid;
         if (uuid == UUID::INVALID)
@@ -446,7 +446,7 @@ namespace  Tiny3D
         }
 
         return loadBuffer<PixelBuffer1D>(mPBufferCache, uid,
-            [](PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode)
+            [](PixelBuffer1DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode)
             {
                 return PixelBuffer1D::create(desc, memType, usage, accMode);
             },
@@ -455,7 +455,7 @@ namespace  Tiny3D
     
     //--------------------------------------------------------------------------
 
-    PixelBuffer2DPtr RenderBufferManager::loadPixelBuffer2D(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid)
+    PixelBuffer2DPtr RenderBufferManager::loadPixelBuffer2D(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid)
     {
         UUID uid = uuid;
         if (uuid == UUID::INVALID)
@@ -464,7 +464,7 @@ namespace  Tiny3D
         }
 
         return loadBuffer<PixelBuffer2D>(mPBufferCache, uid,
-            [](PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode)
+            [](PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode)
             {
                 return PixelBuffer2D::create(desc, memType, usage, accMode, false);
             },
@@ -473,7 +473,7 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
 
-    PixelBuffer3DPtr RenderBufferManager::loadPixelBuffer3D(PixelBuffer3DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid)
+    PixelBuffer3DPtr RenderBufferManager::loadPixelBuffer3D(PixelBuffer3DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid)
     {
         UUID uid = uuid;
         if (uuid == UUID::INVALID)
@@ -482,7 +482,7 @@ namespace  Tiny3D
         }
 
         return loadBuffer<PixelBuffer3D>(mPBufferCache, uid,
-            [](PixelBuffer3DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode)
+            [](PixelBuffer3DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode)
             {
                 return PixelBuffer3D::create(desc, memType, usage, accMode);
             },
@@ -491,7 +491,7 @@ namespace  Tiny3D
     
     //--------------------------------------------------------------------------
 
-    PixelBufferCubemapPtr RenderBufferManager::loadPixelBufferCubemap(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid)
+    PixelBufferCubemapPtr RenderBufferManager::loadPixelBufferCubemap(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid)
     {
         UUID uid = uuid;
         if (uuid == UUID::INVALID)
@@ -500,7 +500,7 @@ namespace  Tiny3D
         }
 
         return loadBuffer<PixelBufferCubemap>(mPBufferCache, uid,
-            [](PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode)
+            [](PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode)
             {
                 return PixelBufferCubemap::create(desc, memType, usage, accMode);
             },
@@ -509,7 +509,7 @@ namespace  Tiny3D
 
     //--------------------------------------------------------------------------
 
-    PixelBuffer2DPtr RenderBufferManager::loadRenderTexture(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode, const UUID &uuid)
+    PixelBuffer2DPtr RenderBufferManager::loadRenderTexture(PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid)
     {
         UUID uid = uuid;
         if (uuid == UUID::INVALID)
@@ -518,7 +518,7 @@ namespace  Tiny3D
         }
 
         return loadBuffer<PixelBuffer2D>(mPBufferCache, uid,
-            [](PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, CPUAccessMode accMode)
+            [](PixelBuffer2DDesc *desc, MemoryType memType, Usage usage, uint32_t accMode)
             {
                 return PixelBuffer2D::create(desc, memType, usage, accMode, true);
             },

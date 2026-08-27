@@ -134,10 +134,39 @@ namespace Tiny3D
                 break;
             }
             
-            // TODO: 通过 RHIContext 读数据
+            // TODO: 回调式无栅栏异步读回还没实现，需要 RHI 侧先提供 fence 查询。
+            //       当前请改用 beginRead / endRead。
         } while (false);
         
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ReadbackHandle RenderBuffer::beginRead(size_t offset, size_t size)
+    {
+        RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+        if (ctx == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_ENGINE, "RenderBuffer::beginRead : no active RHI context !");
+            return ReadbackHandle::invalid();
+        }
+
+        return ctx->beginReadBuffer(this, offset, size);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult RenderBuffer::endRead(ReadbackHandle handle, Buffer &dst)
+    {
+        RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+        if (ctx == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_ENGINE, "RenderBuffer::endRead : no active RHI context !");
+            return T3D_ERR_INVALID_POINTER;
+        }
+
+        return ctx->endReadBuffer(handle, dst);
     }
 
     //--------------------------------------------------------------------------

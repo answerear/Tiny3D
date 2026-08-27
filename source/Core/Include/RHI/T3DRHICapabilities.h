@@ -62,6 +62,8 @@ namespace Tiny3D
         bool        supportsIndirectDispatch {false};
         /// 支持 Append/Consume 缓冲与隐藏计数器
         bool        supportsAppendConsumeBuffer {false};
+        /// 支持 GPU→CPU 读回（beginRead* / endRead*）
+        bool        supportsReadback {false};
 
         /// 每维最大线程组数
         uint32_t    maxDispatchGroupCount[3] {0, 0, 0};
