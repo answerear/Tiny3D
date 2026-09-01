@@ -152,6 +152,14 @@ namespace Tiny3D
             return ReadbackHandle::invalid();
         }
 
+        if ((mAccessMode & kCPURead) != kCPURead)
+        {
+            T3D_LOG_ERROR(LOG_TAG_ENGINE, "RenderBuffer::beginRead : source was not created with kCPURead, "
+                "readback is rejected. Declare kCPURead at creation time; it does not turn the "
+                "resource into a STAGING one !");
+            return ReadbackHandle::invalid();
+        }
+
         return ctx->beginReadBuffer(this, offset, size);
     }
 
