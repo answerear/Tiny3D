@@ -106,6 +106,14 @@ void TextureApp::onRender()
 
     APP_LOG_DEBUG("TextureApp::onRender");
 
+    RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+    if (ctx == nullptr || !ctx->getCapabilities().supportsReadback)
+    {
+        APP_LOG_DEBUG("readback is not supported by this RHI backend, skip verification");
+        mReadbackDone = true;
+        return;
+    }
+
     ReadbackRegion region;
     mReadbackHandle = mReadbackTex->beginRead(region);
     if (!mReadbackHandle.isValid())
