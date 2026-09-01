@@ -48,7 +48,7 @@ namespace Tiny3D
          * \param [in] MSAACount : MSAA 采样数
          * \param [in] MSAAQuality : MSAA 质量
          * \param [in] shaderReadable : 是否允许着色器采样读取
-         * \param [in] accMode : CPU 访问许可，传 kCPURead 才允许 beginRead 读回
+         * \param [in] accMode : CPU 访问许可，传 kCPURead 才允许 map 读回
          * \return 新创建的 RenderTexture 指针
          */
         static RenderTexturePtr create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable, uint32_t accMode = kCPUNone);

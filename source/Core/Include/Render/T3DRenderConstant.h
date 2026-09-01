@@ -308,7 +308,7 @@ namespace Tiny3D
     };
 
     /**
-     * \brief beginRead* 返回的读回票据，用于在 endRead* 认领对应的 staging 数据
+     * \brief map 返回的读回票据，用于在 unmap 认领对应的 staging 数据
      * \remarks 只是一个不透明句柄，调用方不要解释字段含义。
      */
     struct ReadbackHandle

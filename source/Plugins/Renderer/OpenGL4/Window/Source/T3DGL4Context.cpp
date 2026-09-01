@@ -2946,28 +2946,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ReadbackHandle GL4Context::beginReadBuffer(RenderBuffer *src, size_t offset, size_t size)
+    ReadbackHandle GL4Context::map(RenderBuffer *src, size_t offset, size_t size)
     {
         T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, ReadbackHandle::invalid());
     }
 
     //--------------------------------------------------------------------------
 
-    TResult GL4Context::endReadBuffer(ReadbackHandle handle, Buffer &dst)
-    {
-        T3D_RHI_UNSUPPORTED(supportsReadback);
-    }
-
-    //--------------------------------------------------------------------------
-
-    ReadbackHandle GL4Context::beginReadTexture(RenderBuffer *src, const ReadbackRegion &region)
+    ReadbackHandle GL4Context::map(RenderBuffer *src, const ReadbackRegion &region)
     {
         T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, ReadbackHandle::invalid());
     }
 
     //--------------------------------------------------------------------------
 
-    TResult GL4Context::endReadTexture(ReadbackHandle handle, Buffer &dst)
+    TResult GL4Context::unmap(ReadbackHandle handle, Buffer &dst)
     {
         T3D_RHI_UNSUPPORTED(supportsReadback);
     }

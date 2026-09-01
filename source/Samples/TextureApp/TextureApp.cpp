@@ -115,17 +115,17 @@ void TextureApp::onRender()
     }
 
     ReadbackRegion region;
-    mReadbackHandle = mReadbackTex->beginRead(region);
+    mReadbackHandle = mReadbackTex->map(region);
     if (!mReadbackHandle.isValid())
     {
-        APP_LOG_DEBUG("beginRead(kCPURead) returned invalid handle !");
+        APP_LOG_DEBUG("map(kCPURead) returned invalid handle !");
         T3D_ASSERT(false);
     }
 
-    ReadbackHandle denied = mDeniedTex->beginRead(region);
+    ReadbackHandle denied = mDeniedTex->map(region);
     if (denied.isValid())
     {
-        APP_LOG_DEBUG("beginRead(kCPUNone) should have been rejected !");
+        APP_LOG_DEBUG("map(kCPUNone) should have been rejected !");
         T3D_ASSERT(false);
     }
 }
@@ -142,8 +142,8 @@ void TextureApp::onPostRender()
     const size_t expectSize = static_cast<size_t>(kReadbackWidth) * kReadbackHeight * 4;
 
     Buffer dst;
-    TResult ret = mReadbackTex->endRead(mReadbackHandle, dst);
-    APP_LOG_DEBUG("endRead ret=%d size=%zu (expect %zu)", ret, dst.DataSize, expectSize);
+    TResult ret = mReadbackTex->unmap(mReadbackHandle, dst);
+    APP_LOG_DEBUG("unmap ret=%d size=%zu (expect %zu)", ret, dst.DataSize, expectSize);
 
     if (ret == T3D_OK)
     {
@@ -170,8 +170,8 @@ void TextureApp::onPostRender()
     dst.release();
 
     Buffer again;
-    TResult againRet = mReadbackTex->endRead(mReadbackHandle, again);
-    APP_LOG_DEBUG("endRead(consumed handle) ret=%d (expect T3D_ERR_INVALID_PARAM)", againRet);
+    TResult againRet = mReadbackTex->unmap(mReadbackHandle, again);
+    APP_LOG_DEBUG("unmap(consumed handle) ret=%d (expect T3D_ERR_INVALID_PARAM)", againRet);
     T3D_ASSERT(againRet == T3D_ERR_INVALID_PARAM);
     again.release();
 

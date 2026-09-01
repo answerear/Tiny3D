@@ -135,7 +135,7 @@ namespace Tiny3D
             }
             
             // TODO: 回调式无栅栏异步读回还没实现，需要 RHI 侧先提供 fence 查询。
-            //       当前请改用 beginRead / endRead。
+            //       当前请改用 map / unmap。
         } while (false);
         
         return ret;
@@ -143,38 +143,38 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ReadbackHandle RenderBuffer::beginRead(size_t offset, size_t size)
+    ReadbackHandle RenderBuffer::map(size_t offset, size_t size)
     {
         RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
         if (ctx == nullptr)
         {
-            T3D_LOG_ERROR(LOG_TAG_ENGINE, "RenderBuffer::beginRead : no active RHI context !");
+            T3D_LOG_ERROR(LOG_TAG_ENGINE, "RenderBuffer::map : no active RHI context !");
             return ReadbackHandle::invalid();
         }
 
         if ((mAccessMode & kCPURead) != kCPURead)
         {
-            T3D_LOG_ERROR(LOG_TAG_ENGINE, "RenderBuffer::beginRead : source was not created with kCPURead, "
+            T3D_LOG_ERROR(LOG_TAG_ENGINE, "RenderBuffer::map : source was not created with kCPURead, "
                 "readback is rejected. Declare kCPURead at creation time; it does not turn the "
                 "resource into a STAGING one !");
             return ReadbackHandle::invalid();
         }
 
-        return ctx->beginReadBuffer(this, offset, size);
+        return ctx->map(this, offset, size);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult RenderBuffer::endRead(ReadbackHandle handle, Buffer &dst)
+    TResult RenderBuffer::unmap(ReadbackHandle handle, Buffer &dst)
     {
         RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
         if (ctx == nullptr)
         {
-            T3D_LOG_ERROR(LOG_TAG_ENGINE, "RenderBuffer::endRead : no active RHI context !");
+            T3D_LOG_ERROR(LOG_TAG_ENGINE, "RenderBuffer::unmap : no active RHI context !");
             return T3D_ERR_INVALID_POINTER;
         }
 
-        return ctx->endReadBuffer(handle, dst);
+        return ctx->unmap(handle, dst);
     }
 
     //--------------------------------------------------------------------------

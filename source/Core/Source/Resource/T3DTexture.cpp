@@ -78,45 +78,45 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ReadbackHandle Texture::beginRead(const ReadbackRegion &region)
+    ReadbackHandle Texture::map(const ReadbackRegion &region)
     {
         PixelBuffer *pixelBuffer = getPixelBuffer();
         if (pixelBuffer == nullptr)
         {
-            T3D_LOG_ERROR(LOG_TAG_ENGINE, "Texture::beginRead : texture [%s] has no pixel buffer !", getName().c_str());
+            T3D_LOG_ERROR(LOG_TAG_ENGINE, "Texture::map : texture [%s] has no pixel buffer !", getName().c_str());
             return ReadbackHandle::invalid();
         }
 
         RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
         if (ctx == nullptr)
         {
-            T3D_LOG_ERROR(LOG_TAG_ENGINE, "Texture::beginRead : no active RHI context !");
+            T3D_LOG_ERROR(LOG_TAG_ENGINE, "Texture::map : no active RHI context !");
             return ReadbackHandle::invalid();
         }
 
         if ((pixelBuffer->getCPUAccessMode() & kCPURead) != kCPURead)
         {
-            T3D_LOG_ERROR(LOG_TAG_ENGINE, "Texture::beginRead : [%s] was not created with kCPURead, "
+            T3D_LOG_ERROR(LOG_TAG_ENGINE, "Texture::map : [%s] was not created with kCPURead, "
                 "readback is rejected. Declare kCPURead at creation time; it does not turn the "
                 "resource into a STAGING one !", getName().c_str());
             return ReadbackHandle::invalid();
         }
 
-        return ctx->beginReadTexture(pixelBuffer, region);
+        return ctx->map(pixelBuffer, region);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult Texture::endRead(ReadbackHandle handle, Buffer &dst)
+    TResult Texture::unmap(ReadbackHandle handle, Buffer &dst)
     {
         RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
         if (ctx == nullptr)
         {
-            T3D_LOG_ERROR(LOG_TAG_ENGINE, "Texture::endRead : no active RHI context !");
+            T3D_LOG_ERROR(LOG_TAG_ENGINE, "Texture::unmap : no active RHI context !");
             return T3D_ERR_INVALID_POINTER;
         }
 
-        return ctx->endReadTexture(handle, dst);
+        return ctx->unmap(handle, dst);
     }
 
     //--------------------------------------------------------------------------

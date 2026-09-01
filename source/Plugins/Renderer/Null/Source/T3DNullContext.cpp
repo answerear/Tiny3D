@@ -642,28 +642,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ReadbackHandle NullContext::beginReadBuffer(RenderBuffer *src, size_t offset, size_t size)
+    ReadbackHandle NullContext::map(RenderBuffer *src, size_t offset, size_t size)
     {
         T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, ReadbackHandle::invalid());
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::endReadBuffer(ReadbackHandle handle, Buffer &dst)
-    {
-        T3D_RHI_UNSUPPORTED(supportsReadback);
-    }
-
-    //--------------------------------------------------------------------------
-
-    ReadbackHandle NullContext::beginReadTexture(RenderBuffer *src, const ReadbackRegion &region)
+    ReadbackHandle NullContext::map(RenderBuffer *src, const ReadbackRegion &region)
     {
         T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, ReadbackHandle::invalid());
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::endReadTexture(ReadbackHandle handle, Buffer &dst)
+    TResult NullContext::unmap(ReadbackHandle handle, Buffer &dst)
     {
         T3D_RHI_UNSUPPORTED(supportsReadback);
     }

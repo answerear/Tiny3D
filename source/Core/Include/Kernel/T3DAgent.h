@@ -347,7 +347,7 @@ namespace Tiny3D
         /**
          * \brief 在帧中间把 RHI 线程拉到空闲并排空命令队列
          * \remarks 与 drainRHICommands 的区别：本函数先等 beginFrame 那批命令自己跑完，
-         *          再 drain 本帧刚入队的命令。GPU 读回的 endRead* 必须用它——
+         *          再 drain 本帧刚入队的命令。GPU 读回的 unmap 必须用它——
          *          onPostRender 发生在 endFrame 的 wait 之前，本帧的 Copy 还躺在
          *          入队表里没执行，直接 drain 等于在 RHI 线程遍历命令表的同时 exchange。
          *          等过的那次会记账，endFrame 不会重复 wait。

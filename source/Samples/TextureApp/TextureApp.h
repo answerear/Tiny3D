@@ -56,7 +56,7 @@ protected:  /// from Tiny3D::Application
     static const uint32_t kReadbackWidth  = 61;
     static const uint32_t kReadbackHeight = 37;
 
-    Tiny3D::Texture2DPtr   mReadbackTex {nullptr};   ///< kCPURead，允许 beginRead
+    Tiny3D::Texture2DPtr   mReadbackTex {nullptr};   ///< kCPURead，允许 map
     Tiny3D::Texture2DPtr   mDeniedTex   {nullptr};   ///< kCPUNone 对照组，必须被拒
     Tiny3D::ReadbackHandle mReadbackHandle {};
     bool                   mReadbackDone {false};

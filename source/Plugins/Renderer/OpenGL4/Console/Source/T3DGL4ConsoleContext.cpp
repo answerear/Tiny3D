@@ -221,8 +221,7 @@ namespace Tiny3D
     TResult GL4ConsoleContext::blit(Texture *src, Texture *dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset) { return T3D_OK; }
     TResult GL4ConsoleContext::copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset, size_t size, size_t dstOffset) { return T3D_OK; }
     TResult GL4ConsoleContext::writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer) { return T3D_OK; }
-    ReadbackHandle GL4ConsoleContext::beginReadBuffer(RenderBuffer *src, size_t offset, size_t size) { T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, ReadbackHandle::invalid()); }
-    TResult GL4ConsoleContext::endReadBuffer(ReadbackHandle handle, Buffer &dst) { T3D_RHI_UNSUPPORTED(supportsReadback); }
-    ReadbackHandle GL4ConsoleContext::beginReadTexture(RenderBuffer *src, const ReadbackRegion &region) { T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, ReadbackHandle::invalid()); }
-    TResult GL4ConsoleContext::endReadTexture(ReadbackHandle handle, Buffer &dst) { T3D_RHI_UNSUPPORTED(supportsReadback); }
+    ReadbackHandle GL4ConsoleContext::map(RenderBuffer *src, size_t offset, size_t size) { T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, ReadbackHandle::invalid()); }
+    ReadbackHandle GL4ConsoleContext::map(RenderBuffer *src, const ReadbackRegion &region) { T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, ReadbackHandle::invalid()); }
+    TResult GL4ConsoleContext::unmap(ReadbackHandle handle, Buffer &dst) { T3D_RHI_UNSUPPORTED(supportsReadback); }
 }

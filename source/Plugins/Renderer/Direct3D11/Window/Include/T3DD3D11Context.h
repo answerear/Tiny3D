@@ -701,16 +701,7 @@ namespace Tiny3D
          * \return 成功返回读回票据，失败返回 ReadbackHandle::invalid()
          * \note 必须在 beginRender / endRender 之间调用
          */
-        ReadbackHandle beginReadBuffer(RenderBuffer *src, size_t offset, size_t size) override;
-
-        /**
-         * \brief 推完命令队列并 Map staging，把线性缓冲数据填进 dst
-         * \param [in] handle : beginReadBuffer 返回的票据
-         * \param [out] dst : 由本函数分配的紧凑字节数据，调用方负责 release()
-         * \return 调用成功返回 T3D_OK
-         * \warning 阻塞等待 GPU
-         */
-        TResult endReadBuffer(ReadbackHandle handle, Buffer &dst) override;
+        ReadbackHandle map(RenderBuffer *src, size_t offset, size_t size) override;
 
         /**
          * \brief 发起纹理的 GPU→CPU 读回，只把 Resolve / Copy→staging 录进命令流
@@ -719,16 +710,16 @@ namespace Tiny3D
          * \return 成功返回读回票据，失败返回 ReadbackHandle::invalid()
          * \note 压缩格式与深度模板格式本期拒绝
          */
-        ReadbackHandle beginReadTexture(RenderBuffer *src, const ReadbackRegion &region) override;
+        ReadbackHandle map(RenderBuffer *src, const ReadbackRegion &region) override;
 
         /**
-         * \brief 推完命令队列并 Map staging，按行紧凑打包填进 dst
-         * \param [in] handle : beginReadTexture 返回的票据
-         * \param [out] dst : 由本函数分配的紧凑像素数据，调用方负责 release()
+         * \brief 推完命令队列并映射 staging，把读回数据填进 dst
+         * \param [in] handle : map 返回的票据
+         * \param [out] dst : 由本函数分配的紧凑数据，调用方负责 release()
          * \return 调用成功返回 T3D_OK
          * \warning 阻塞等待 GPU
          */
-        TResult endReadTexture(ReadbackHandle handle, Buffer &dst) override;
+        TResult unmap(ReadbackHandle handle, Buffer &dst) override;
 
         TResult beginRender() override { return T3D_OK; }
         TResult endRender() override { return T3D_OK; }
@@ -969,9 +960,9 @@ namespace Tiny3D
 
         /**
          * \brief 一次 GPU 读回请求的全部状态
-         * \remarks 主线程在 beginRead* 里填校验结果并插进 mPendingReadbacks，
+         * \remarks 主线程在 map 里填校验结果并插进 mPendingReadbacks，
          *          RHI 线程在 Copy 命令里填 staging 与实际尺寸，
-         *          主线程在 endRead* 里（drain 之后）读走。
+         *          主线程在 unmap 里（drain 之后）读走。
          *          记录存活在 std::map 的节点里，节点地址稳定，
          *          RHI 线程持有的裸指针不会因为后续 insert 失效。
          */
@@ -989,7 +980,7 @@ namespace Tiny3D
             size_t              BufferSize {0};
             /// 纹理子区域
             ReadbackRegion      Region {};
-            /// 从池里租来的 staging，归还由 endRead* 负责，请求本身不 Release
+            /// 从池里租来的 staging，归还由 unmap 负责，请求本身不 Release
             ID3D11Resource     *Staging {nullptr};
             /// 源子资源下标
             uint32_t            Subresource {0};
@@ -1087,16 +1078,15 @@ namespace Tiny3D
         void destroyStagingPool();
 
         /**
-         * \brief endReadBuffer / endReadTexture 的公共实现
+         * \brief unmap 的公共实现：等 GPU 完成并把 staging 数据填进 dst
          * \param [in] handle : 读回票据
-         * \param [in] expectTexture : true 校验票据来自 beginReadTexture
          * \param [out] dst : 由本函数分配的紧凑数据
          * \return 调用成功返回 T3D_OK
          */
-        TResult finishReadback(ReadbackHandle handle, bool expectTexture, Buffer &dst);
+        TResult finishReadback(ReadbackHandle handle, Buffer &dst);
 
         /**
-         * \brief 校验读回源并分配票据，两条 beginRead* 的公共前半段
+         * \brief 校验读回源并分配票据，两条 map 重载的公共前半段
          * \param [in] src : 源资源
          * \param [in] isTexture : true 走纹理路径
          * \param [out] outRequest : 新建的请求记录，失败时不写

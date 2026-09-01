@@ -83,7 +83,7 @@ namespace Tiny3D
 
         /**
          * \brief 获取创建时声明的 CPU 访问许可（CPUAccessMode 组合）
-         * \return 默认 kCPUNone；带 kCPURead 才允许 beginRead
+         * \return 默认 kCPUNone；带 kCPURead 才允许 map
          */
         uint32_t getCPUAccessMode() const { return mCPUAccessMode; }
 
@@ -91,19 +91,19 @@ namespace Tiny3D
          * \brief 发起本纹理的 GPU→CPU 读回，只录制 Copy
          * \param [in] region : 待读回的子区域
          * \return 成功返回读回票据，失败返回 ReadbackHandle::invalid()
-         * \remarks 必须在 Application::onRender 里调用，配对的 endRead 放 onPostRender。
+         * \remarks 必须在 Application::onRender 里调用，配对的 unmap 放 onPostRender。
          *          创建时必须声明 kCPURead，否则被拒。
          */
-        ReadbackHandle beginRead(const ReadbackRegion &region);
+        ReadbackHandle map(const ReadbackRegion &region);
 
         /**
-         * \brief 消费 beginRead 的结果
-         * \param [in] handle : beginRead 返回的票据
+         * \brief 消费 map 的结果
+         * \param [in] handle : map 返回的票据
          * \param [out] dst : 紧凑排布的像素数据，调用方负责 release()
          * \return 调用成功返回 T3D_OK
          * \warning 阻塞等待 GPU，只用于验证 / 截帧，不要放进游戏热路径
          */
-        TResult endRead(ReadbackHandle handle, Buffer &dst);
+        TResult unmap(ReadbackHandle handle, Buffer &dst);
         
     private:
         /// RTTR 默认构造入口
@@ -262,14 +262,14 @@ namespace Tiny3D
          * \brief 用原始像素数据创建 2D 纹理
          * \param [in] MSAACount : MSAA 采样数
          * \param [in] MSAAQuality : MSAA 质量
-         * \param [in] accMode : CPU 访问许可，传 kCPURead 才允许 beginRead 读回
+         * \param [in] accMode : CPU 访问许可，传 kCPURead 才允许 map 读回
          */
         static Texture2DPtr create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data, uint32_t accMode = kCPUNone);
 
         /**
          * \brief 从 Image 创建 2D 纹理
          * \param [in] iamge : 源 Image 对象，不可为 nullptr
-         * \param [in] accMode : CPU 访问许可，传 kCPURead 才允许 beginRead 读回
+         * \param [in] accMode : CPU 访问许可，传 kCPURead 才允许 map 读回
          * \remarks 引用 Image 像素指针并持有 mImage 智能指针
          */
         static Texture2DPtr create(const String &name, Image *iamge, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, uint32_t accMode = kCPUNone);

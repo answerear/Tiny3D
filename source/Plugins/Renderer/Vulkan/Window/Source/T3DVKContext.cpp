@@ -3346,28 +3346,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ReadbackHandle VKContext::beginReadBuffer(RenderBuffer *src, size_t offset, size_t size)
+    ReadbackHandle VKContext::map(RenderBuffer *src, size_t offset, size_t size)
     {
         T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, ReadbackHandle::invalid());
     }
 
     //--------------------------------------------------------------------------
 
-    TResult VKContext::endReadBuffer(ReadbackHandle handle, Buffer &dst)
-    {
-        T3D_RHI_UNSUPPORTED(supportsReadback);
-    }
-
-    //--------------------------------------------------------------------------
-
-    ReadbackHandle VKContext::beginReadTexture(RenderBuffer *src, const ReadbackRegion &region)
+    ReadbackHandle VKContext::map(RenderBuffer *src, const ReadbackRegion &region)
     {
         T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, ReadbackHandle::invalid());
     }
 
     //--------------------------------------------------------------------------
 
-    TResult VKContext::endReadTexture(ReadbackHandle handle, Buffer &dst)
+    TResult VKContext::unmap(ReadbackHandle handle, Buffer &dst)
     {
         T3D_RHI_UNSUPPORTED(supportsReadback);
     }

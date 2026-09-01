@@ -68,7 +68,7 @@ namespace Tiny3D
     {
         mCurrentRenderTarget = nullptr;
 
-        // 没被 endRead* 认领的请求直接丢掉，staging 由池子统一 Release
+        // 没被 unmap 认领的请求直接丢掉，staging 由池子统一 Release
         mPendingReadbacks.clear();
         destroyStagingPool();
 
@@ -4442,13 +4442,13 @@ namespace Tiny3D
 
         if (isTexture && !isTextureResource)
         {
-            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "beginReadTexture : resource type [%d] is not a texture, use beginReadBuffer !", (int32_t)type);
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "map : resource type [%d] is not a texture, use the buffer overload !", (int32_t)type);
             return ReadbackHandle::invalid();
         }
 
         if (!isTexture && !isLinearResource)
         {
-            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "beginReadBuffer : resource type [%d] is not a linear buffer, use beginReadTexture !", (int32_t)type);
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "map : resource type [%d] is not a linear buffer, use the texture overload !", (int32_t)type);
             return ReadbackHandle::invalid();
         }
 
@@ -4474,7 +4474,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ReadbackHandle D3D11Context::beginReadBuffer(RenderBuffer *src, size_t offset, size_t size)
+    ReadbackHandle D3D11Context::map(RenderBuffer *src, size_t offset, size_t size)
     {
         ReadbackRequest *request = nullptr;
         ReadbackHandle handle = allocReadbackRequest(src, false, request);
@@ -4496,7 +4496,7 @@ namespace Tiny3D
             ID3D11Resource *srcResource = getD3DResource(src.get());
             if (srcResource == nullptr)
             {
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "beginReadBuffer : failed to retrieve underlying D3D11 buffer !");
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "map : failed to retrieve underlying D3D11 buffer !");
                 request->CopyResult = T3D_ERR_INVALID_POINTER;
                 return request->CopyResult;
             }
@@ -4509,7 +4509,7 @@ namespace Tiny3D
 
             if (copySize == 0 || offset + copySize > srcDesc.ByteWidth)
             {
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "beginReadBuffer : out of range ! [%zu + %zu / %u]", offset, copySize, srcDesc.ByteWidth);
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "map : buffer out of range ! [%zu + %zu / %u]", offset, copySize, srcDesc.ByteWidth);
                 request->CopyResult = T3D_ERR_INVALID_PARAM;
                 return request->CopyResult;
             }
@@ -4549,7 +4549,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ReadbackHandle D3D11Context::beginReadTexture(RenderBuffer *src, const ReadbackRegion &region)
+    ReadbackHandle D3D11Context::map(RenderBuffer *src, const ReadbackRegion &region)
     {
         ReadbackRequest *request = nullptr;
         ReadbackHandle handle = allocReadbackRequest(src, true, request);
@@ -4567,7 +4567,7 @@ namespace Tiny3D
             ID3D11Resource *srcResource = getD3DResource(src.get());
             if (srcResource == nullptr)
             {
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "beginReadTexture : failed to retrieve underlying D3D11 texture !");
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "map : failed to retrieve underlying D3D11 texture !");
                 request->CopyResult = T3D_ERR_INVALID_POINTER;
                 return request->CopyResult;
             }
@@ -4606,7 +4606,7 @@ namespace Tiny3D
             }
             else
             {
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "beginReadTexture : resource is not a texture !");
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "map : resource is not a texture !");
                 request->CopyResult = T3D_ERR_D3D11_UNSUPPORTED_OPERATION;
                 return request->CopyResult;
             }
@@ -4615,7 +4615,7 @@ namespace Tiny3D
             if (bpp == 0)
             {
                 // 压缩格式按块编码、深度模板是位域，都不能用「每像素 N 字节」打包
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "beginReadTexture : format [%d] is not supported for readback "
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "map : format [%d] is not supported for readback "
                     "(compressed and depth / stencil formats are out of scope) !", desc.Format);
                 request->CopyResult = T3D_ERR_D3D11_UNSUPPORTED_OPERATION;
                 return request->CopyResult;
@@ -4624,7 +4624,7 @@ namespace Tiny3D
             const ReadbackRegion &region = request->Region;
             if (region.mipLevel >= mipLevels || region.arraySlice >= arraySize)
             {
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "beginReadTexture : out of range ! mip [%u / %u] slice [%u / %u]", region.mipLevel, mipLevels, region.arraySlice, arraySize);
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "map : out of range ! mip [%u / %u] slice [%u / %u]", region.mipLevel, mipLevels, region.arraySlice, arraySize);
                 request->CopyResult = T3D_ERR_INVALID_PARAM;
                 return request->CopyResult;
             }
@@ -4660,7 +4660,7 @@ namespace Tiny3D
                 || (dimension >= 2 && offsetY + copyHeight > mipHeight)
                 || (dimension == 3 && offsetZ + copyDepth > mipDepth))
             {
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "beginReadTexture : region out of range ! "
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "map : region out of range ! "
                     "offset [%u %u %u] size [%u %u %u] mip size [%u %u %u]",
                     offsetX, offsetY, offsetZ, copyWidth, copyHeight, copyDepth, mipWidth, mipHeight, mipDepth);
                 request->CopyResult = T3D_ERR_INVALID_PARAM;
@@ -4740,28 +4740,20 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::endReadBuffer(ReadbackHandle handle, Buffer &dst)
+    TResult D3D11Context::unmap(ReadbackHandle handle, Buffer &dst)
     {
-        return finishReadback(handle, false, dst);
+        return finishReadback(handle, dst);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::endReadTexture(ReadbackHandle handle, Buffer &dst)
-    {
-        return finishReadback(handle, true, dst);
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult D3D11Context::finishReadback(ReadbackHandle handle, bool expectTexture, Buffer &dst)
+    TResult D3D11Context::finishReadback(ReadbackHandle handle, Buffer &dst)
     {
         auto itr = mPendingReadbacks.find(handle.index);
         if (!handle.isValid() || itr == mPendingReadbacks.end()
-            || itr->second.Handle.generation != handle.generation
-            || itr->second.IsTexture != expectTexture)
+            || itr->second.Handle.generation != handle.generation)
         {
-            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "endRead : invalid or already consumed readback handle !");
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "unmap : invalid or already consumed readback handle !");
             return T3D_ERR_INVALID_PARAM;
         }
 
@@ -4774,8 +4766,8 @@ namespace Tiny3D
 
         if (T3D_OK == ret && !request.CopyRecorded)
         {
-            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "endRead : copy command has not been executed. "
-                "beginRead* must be called inside onRender, endRead* inside onPostRender !");
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "unmap : copy command has not been executed. "
+                "map must be called inside onRender, unmap inside onPostRender !");
             ret = T3D_ERR_FAIL;
         }
 
@@ -4791,7 +4783,7 @@ namespace Tiny3D
                 HRESULT hr = mD3DDeviceContext->Map(request->Staging, 0, D3D11_MAP_READ, 0, &mapped);
                 if (FAILED(hr))
                 {
-                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "endRead : failed to map staging resource ! DX ERROR [%d]", hr);
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "unmap : failed to map staging resource ! DX ERROR [%d]", hr);
                     request->CopyResult = T3D_ERR_D3D11_MAP_RESOURCE;
                     return request->CopyResult;
                 }

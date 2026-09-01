@@ -794,7 +794,7 @@ namespace Tiny3D
             case Usage::kStatic:
                 {
                     // DEFAULT 资源的 CPUAccessFlags 必须为 0：CPU 写走
-                    // UpdateSubresource，CPU 读走 beginRead* 的 staging 中转
+                    // UpdateSubresource，CPU 读走 map / unmap 的 staging 中转
                     d3dUsage = D3D11_USAGE_DEFAULT;
                     d3dAccessFlag = 0;
                 }

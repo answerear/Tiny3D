@@ -57,7 +57,7 @@ namespace Tiny3D
          * \param [in] MSAACount : MSAA 采样数，默认 1
          * \param [in] MSAAQuality : MSAA 质量等级，默认 0
          * \param [in] shaderReadable : 是否允许着色器读取，默认 false
-         * \param [in] accMode : CPU 访问许可，传 kCPURead 才允许 Texture::beginRead 读回
+         * \param [in] accMode : CPU 访问许可，传 kCPURead 才允许 Texture::map 读回
          * \return 成功返回 RenderTexture 智能指针，失败返回 nullptr
          */
         RenderTexturePtr createRenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps = 1, uint32_t MSAACount = 1, uint32_t MSAAQuality = 0, bool shaderReadable = false, uint32_t accMode = kCPUNone);
@@ -84,7 +84,7 @@ namespace Tiny3D
          * \param [in] MSAACount : MSAA 采样数，默认 1
          * \param [in] MSAAQuality : MSAA 质量等级，默认 0
          * \param [in] uuid : 资源 UUID；T3D_EDITOR 下可指定以保留已有 guid，默认 UUID::INVALID
-         * \param [in] accMode : CPU 访问许可，传 kCPURead 才允许 Texture::beginRead 读回
+         * \param [in] accMode : CPU 访问许可，传 kCPURead 才允许 Texture::map 读回
          * \return 成功返回 Texture2D 智能指针，失败返回 nullptr
          */
         Texture2DPtr createTexture2D(const String &name, uint32_t width, uint32_t height, PixelFormat format, const Buffer &data, uint32_t mipmaps = 1, uint32_t MSAACount = 1, uint32_t MSAAQuality = 0, const UUID &uuid = UUID::INVALID, uint32_t accMode = kCPUNone);
@@ -97,7 +97,7 @@ namespace Tiny3D
          * \param [in] MSAACount : MSAA 采样数，默认 1
          * \param [in] MSAAQuality : MSAA 质量等级，默认 0
          * \param [in] uuid : 资源 UUID；T3D_EDITOR 下可指定以保留已有 guid，默认 UUID::INVALID
-         * \param [in] accMode : CPU 访问许可，传 kCPURead 才允许 Texture::beginRead 读回
+         * \param [in] accMode : CPU 访问许可，传 kCPURead 才允许 Texture::map 读回
          * \return 成功返回 Texture2D 智能指针，失败返回 nullptr
          */
         Texture2DPtr createTexture2D(const String &name, Image *image, uint32_t mipmaps = 1, uint32_t MSAACount = 1, uint32_t MSAAQuality = 0, const UUID &uuid = UUID::INVALID, uint32_t accMode = kCPUNone);

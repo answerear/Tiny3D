@@ -820,40 +820,31 @@ namespace Tiny3D
          * \param [in] size : 读取字节数，0 表示从 offset 到末尾
          * \return 成功返回读回票据；参数非法或后端不支持时返回 ReadbackHandle::invalid()
          * \remarks 必须在 beginRender / endRender 之间调用（应用层即 onRender）。
-         *          本接口只把 Copy→staging 录进当前命令流，立即返回，不做任何 Map。
+         *          本接口只把 Copy→staging 录进当前命令流，立即返回，不阻塞、不映射 staging。
          *          kCPURead 是引擎的读回许可，不会让源资源带上原生 CPU_ACCESS_READ。
          */
-        virtual ReadbackHandle beginReadBuffer(RenderBuffer *src, size_t offset, size_t size) = 0;
-
-        /**
-         * \brief 消费 beginReadBuffer 的结果
-         * \param [in] handle : beginReadBuffer 返回的票据
-         * \param [out] dst : 由实现分配并填充的紧凑字节数据，调用方负责 release()
-         * \return 调用成功返回 T3D_OK；无效票据返回 T3D_ERR_INVALID_PARAM
-         * \warning **会阻塞等待 GPU 完成**。这是验证 / CI / 按键截帧的路径，
-         *          禁止放进游戏热路径。必须在 endRender 之后调用（应用层即 onPostRender）。
-         */
-        virtual TResult endReadBuffer(ReadbackHandle handle, Buffer &dst) = 0;
+        virtual ReadbackHandle map(RenderBuffer *src, size_t offset, size_t size) = 0;
 
         /**
          * \brief 发起纹理 / 渲染纹理（1D/2D/3D/Cube）的 GPU→CPU 读回
          * \param [in] src : 源像素缓冲，创建时必须带 kCPURead 许可
          * \param [in] region : 待读回的子区域，mip + arraySlice 选定子资源
          * \return 成功返回读回票据；参数非法或后端不支持时返回 ReadbackHandle::invalid()
-         * \remarks 时序约束同 beginReadBuffer。MSAA 源由实现先 Resolve 再 Copy。
+         * \remarks 时序约束同线性缓冲重载。MSAA 源由实现先 Resolve 再 Copy。
          */
-        virtual ReadbackHandle beginReadTexture(RenderBuffer *src, const ReadbackRegion &region) = 0;
+        virtual ReadbackHandle map(RenderBuffer *src, const ReadbackRegion &region) = 0;
 
         /**
-         * \brief 消费 beginReadTexture 的结果
-         * \param [in] handle : beginReadTexture 返回的票据
-         * \param [out] dst : 由实现分配并填充的紧凑像素数据，调用方负责 release()
+         * \brief 消费 map 的结果
+         * \param [in] handle : map 返回的票据
+         * \param [out] dst : 由实现分配并填充的紧凑数据，调用方负责 release()
          * \return 调用成功返回 T3D_OK；无效票据返回 T3D_ERR_INVALID_PARAM
-         * \remarks dst 是紧凑排布：rowPitch = width * bpp，slicePitch = rowPitch * height，
-         *          不含 GPU 侧的行对齐 padding。
-         * \warning 阻塞语义同 endReadBuffer。
+         * \remarks 纹理路径下 dst 是紧凑排布：rowPitch = width * bpp，
+         *          slicePitch = rowPitch * height，不含 GPU 侧的行对齐 padding。
+         * \warning **会阻塞等待 GPU 完成**。这是验证 / CI / 按键截帧的路径，
+         *          禁止放进游戏热路径。必须在 endRender 之后调用（应用层即 onPostRender）。
          */
-        virtual TResult endReadTexture(ReadbackHandle handle, Buffer &dst) = 0;
+        virtual TResult unmap(ReadbackHandle handle, Buffer &dst) = 0;
 
         /**
          * \brief 获取主渲染 context 的原生句柄

@@ -116,7 +116,7 @@ namespace Tiny3D
         /**
          * \brief 渲染帧回调：管线 render 之后、RHI endRender 之前
          * \remarks 这是应用层唯一合法的 GPU 命令录制点，blit / copyBuffer /
-         *          自定义 beginPass-draw-endPass / RHIContext::beginRead* 都在这里发起。
+         *          自定义 beginPass-draw-endPass / RHIContext::map 都在这里发起。
          *          进来时管线已经 endPass 并 reset，不要假设当前 RT / viewport /
          *          着色器还在；自己绑定的状态用完请 ctx->reset()。
          */
@@ -124,7 +124,7 @@ namespace Tiny3D
 
         /**
          * \brief 渲染帧回调：RHI endRender 之后、swapBuffers 之前
-         * \remarks GPU 命令已提交，这里只能消费结果（RHIContext::endRead*、断言、
+         * \remarks GPU 命令已提交，这里只能消费结果（RHIContext::unmap、断言、
          *          读回回调），不要把它当成跨后端的 GPU 录制点。
          */
         virtual void onPostRender() {}
