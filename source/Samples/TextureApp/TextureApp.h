@@ -34,8 +34,12 @@ public:
     TextureApp();
     virtual ~TextureApp();
 
-protected:
+protected:  /// from Tiny3D::Application
     TResult applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
+    void applicationWillTerminate() override;
+    void onPreRender() override;
+    void onRender() override;
+    void onPostRender() override;
 
     void buildCamera(Tiny3D::Transform3D *parent);
     void buildCube(Tiny3D::Transform3D *parent);
@@ -44,6 +48,18 @@ protected:
     Tiny3D::MaterialPtr buildMaterial();
     Tiny3D::MeshPtr buildMesh(const Tiny3D::UUID &materialUUID);
     void buildAabb(Tiny3D::Mesh *mesh, Tiny3D::SubMesh *submesh, Tiny3D::AabbBound *bound);
+
+    /// 建两张不参与绘制的程序化纹理，专门用来验收 GPU 读回
+    void buildReadbackTextures();
+
+    /// 故意选不是 32 对齐的宽度：GPU RowPitch 会大于 width*4，按行拷贝写错立刻出条纹
+    static const uint32_t kReadbackWidth  = 61;
+    static const uint32_t kReadbackHeight = 37;
+
+    Tiny3D::Texture2DPtr   mReadbackTex {nullptr};   ///< kCPURead，允许 beginRead
+    Tiny3D::Texture2DPtr   mDeniedTex   {nullptr};   ///< kCPUNone 对照组，必须被拒
+    Tiny3D::ReadbackHandle mReadbackHandle {};
+    bool                   mReadbackDone {false};
 };
 
 

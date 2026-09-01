@@ -77,8 +77,127 @@ TResult TextureApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 
     // cube
     buildCube(root);
+
+    buildReadbackTextures();
     
     return T3D_OK;
+}
+
+void TextureApp::applicationWillTerminate()
+{
+    mReadbackTex = nullptr;
+    mDeniedTex = nullptr;
+}
+
+void TextureApp::onPreRender()
+{
+    if (!mReadbackDone)
+    {
+        APP_LOG_DEBUG("TextureApp::onPreRender");
+    }
+}
+
+void TextureApp::onRender()
+{
+    if (mReadbackDone)
+    {
+        return;
+    }
+
+    APP_LOG_DEBUG("TextureApp::onRender");
+
+    ReadbackRegion region;
+    mReadbackHandle = mReadbackTex->beginRead(region);
+    if (!mReadbackHandle.isValid())
+    {
+        APP_LOG_DEBUG("beginRead(kCPURead) returned invalid handle !");
+        T3D_ASSERT(false);
+    }
+
+    ReadbackHandle denied = mDeniedTex->beginRead(region);
+    if (denied.isValid())
+    {
+        APP_LOG_DEBUG("beginRead(kCPUNone) should have been rejected !");
+        T3D_ASSERT(false);
+    }
+}
+
+void TextureApp::onPostRender()
+{
+    if (mReadbackDone || !mReadbackHandle.isValid())
+    {
+        return;
+    }
+
+    APP_LOG_DEBUG("TextureApp::onPostRender");
+
+    const size_t expectSize = static_cast<size_t>(kReadbackWidth) * kReadbackHeight * 4;
+
+    Buffer dst;
+    TResult ret = mReadbackTex->endRead(mReadbackHandle, dst);
+    APP_LOG_DEBUG("endRead ret=%d size=%zu (expect %zu)", ret, dst.DataSize, expectSize);
+
+    if (ret == T3D_OK)
+    {
+        size_t bad = 0;
+        for (uint32_t y = 0; y < kReadbackHeight; ++y)
+        {
+            for (uint32_t x = 0; x < kReadbackWidth; ++x)
+            {
+                const uint8_t *p = dst.Data + (y * kReadbackWidth + x) * 4;
+                if (p[0] != static_cast<uint8_t>(x) || p[1] != static_cast<uint8_t>(y) || p[2] != 0x80 || p[3] != 0xFF)
+                {
+                    ++bad;
+                }
+            }
+        }
+        APP_LOG_DEBUG("mismatched pixels = %zu", bad);
+        T3D_ASSERT(bad == 0);
+        T3D_ASSERT(dst.DataSize == expectSize);
+    }
+    else
+    {
+        T3D_ASSERT(false);
+    }
+    dst.release();
+
+    Buffer again;
+    TResult againRet = mReadbackTex->endRead(mReadbackHandle, again);
+    APP_LOG_DEBUG("endRead(consumed handle) ret=%d (expect T3D_ERR_INVALID_PARAM)", againRet);
+    T3D_ASSERT(againRet == T3D_ERR_INVALID_PARAM);
+    again.release();
+
+    mReadbackDone = true;
+}
+
+void TextureApp::buildReadbackTextures()
+{
+    auto makePixels = []() -> Buffer
+    {
+        Buffer buf;
+        buf.DataSize = static_cast<size_t>(kReadbackWidth) * kReadbackHeight * 4;
+        buf.Data = T3D_POD_NEW_ARRAY(uint8_t, buf.DataSize);
+        for (uint32_t y = 0; y < kReadbackHeight; ++y)
+        {
+            for (uint32_t x = 0; x < kReadbackWidth; ++x)
+            {
+                uint8_t *p = buf.Data + (y * kReadbackWidth + x) * 4;
+                p[0] = static_cast<uint8_t>(x);
+                p[1] = static_cast<uint8_t>(y);
+                p[2] = 0x80;
+                p[3] = 0xFF;
+            }
+        }
+        return buf;
+    };
+
+    mReadbackTex = T3D_TEXTURE_MGR.createTexture2D("__rb_src__", kReadbackWidth, kReadbackHeight,
+        PixelFormat::E_PF_R8G8B8A8, makePixels(), 1, 1, 0, Tiny3D::UUID::INVALID, kCPURead);
+    T3D_ASSERT(mReadbackTex != nullptr);
+
+    mDeniedTex = T3D_TEXTURE_MGR.createTexture2D("__rb_denied__", kReadbackWidth, kReadbackHeight,
+        PixelFormat::E_PF_R8G8B8A8, makePixels(), 1, 1, 0);
+    T3D_ASSERT(mDeniedTex != nullptr);
 }
 
 void TextureApp::buildCamera(Transform3D *parent)
@@ -157,7 +276,7 @@ Texture2DPtr TextureApp::buildTexture()
 
     ImagePtr image = T3D_ASSET_MGR.loadImage("assets/samples/textures/blocks.png");
     T3D_ASSERT(image != nullptr);
-    Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", image);
+    Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", image, 1, 1, 0, Tiny3D::UUID::INVALID, kCPURead);
     return texture;
 }
 
