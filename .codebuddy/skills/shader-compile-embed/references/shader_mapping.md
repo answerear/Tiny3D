@@ -17,6 +17,10 @@ All shader source files are located in `assets/samples/shaders/`:
 | `SkinForwardPass.vshader` | Vertex | Skinned mesh forward pass |
 | `GPUSkinShadowPass.vshader` | Vertex | GPU skinning shadow pass |
 | `GPUSkinForwardPass.vshader` | Vertex | GPU skinning forward pass |
+| `PostProcessFullscreen.vshader` | Vertex | Fullscreen triangle for camera post-process |
+| `GrayscaleEffect.pshader` | Pixel | Engine grayscale post-process |
+| `InvertEffect.pshader` | Pixel | Sample invert post-process |
+| `TintEffect.pshader` | Pixel | Sample tint post-process |
 
 ## Compiled Output Files
 
@@ -50,6 +54,10 @@ These are conditionally included by `SampleShaders.cpp` via platform macros.
 | `SkinForwardPass_vertex.hlsl` | `SKIN_FORWARD_VERTEX_SHADER` |
 | `GPUSkinShadowPass_vertex.hlsl` | `GPU_SKIN_SHADOW_VERTEX_SHADER` |
 | `GPUSkinForwardPass_vertex.hlsl` | `GPU_SKIN_FORWARD_VERTEX_SHADER` |
+| `PostProcessFullscreen_vertex.hlsl` | `POSTPROCESS_VERTEX_SHADER` |
+| `InvertEffect_fragment.hlsl` | `INVERT_PIXEL_SHADER` |
+| `TintEffect_fragment.hlsl` | `TINT_PIXEL_SHADER` |
+| `GrayscaleEffect_fragment.hlsl` | `GRAYSCALE_PIXEL_SHADER` |
 
 ### GLSL Variables (_GL suffix)
 
@@ -66,6 +74,10 @@ These are conditionally included by `SampleShaders.cpp` via platform macros.
 | `SkinForwardPass_vertex.glsl` | `SKIN_FORWARD_VERTEX_SHADER_GL` |
 | `GPUSkinShadowPass_vertex.glsl` | `GPU_SKIN_SHADOW_VERTEX_SHADER_GL` |
 | `GPUSkinForwardPass_vertex.glsl` | `GPU_SKIN_FORWARD_VERTEX_SHADER_GL` |
+| `PostProcessFullscreen_vertex.glsl` | `POSTPROCESS_VERTEX_SHADER_GL` |
+| `InvertEffect_fragment.glsl` | `INVERT_PIXEL_SHADER_GL` |
+| `TintEffect_fragment.glsl` | `TINT_PIXEL_SHADER_GL` |
+| `GrayscaleEffect_fragment.glsl` | `GRAYSCALE_PIXEL_SHADER_GL` |
 
 ## scc.exe Parameters
 

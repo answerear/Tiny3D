@@ -73,7 +73,11 @@ python <skill_dir>/scripts/embed_shaders.py \
     --map "SkinShadowPass_vertex.hlsl:SKIN_SHADOW_VERTEX_SHADER" \
     --map "SkinForwardPass_vertex.hlsl:SKIN_FORWARD_VERTEX_SHADER" \
     --map "GPUSkinShadowPass_vertex.hlsl:GPU_SKIN_SHADOW_VERTEX_SHADER" \
-    --map "GPUSkinForwardPass_vertex.hlsl:GPU_SKIN_FORWARD_VERTEX_SHADER"
+    --map "GPUSkinForwardPass_vertex.hlsl:GPU_SKIN_FORWARD_VERTEX_SHADER" \
+    --map "PostProcessFullscreen_vertex.hlsl:POSTPROCESS_VERTEX_SHADER" \
+    --map "InvertEffect_fragment.hlsl:INVERT_PIXEL_SHADER" \
+    --map "TintEffect_fragment.hlsl:TINT_PIXEL_SHADER" \
+    --map "GrayscaleEffect_fragment.hlsl:GRAYSCALE_PIXEL_SHADER"
 ```
 
 The `--map` parameter uses the format `<hlsl_filename>:<CPP_VARIABLE>`. The script automatically:
@@ -99,7 +103,11 @@ python <skill_dir>/scripts/embed_spirv.py \
     --map "SkinShadowPass_vertex.spirv:SKIN_SHADOW_VERTEX_SHADER_VK" \
     --map "SkinForwardPass_vertex.spirv:SKIN_FORWARD_VERTEX_SHADER_VK" \
     --map "GPUSkinShadowPass_vertex.spirv:GPU_SKIN_SHADOW_VERTEX_SHADER_VK" \
-    --map "GPUSkinForwardPass_vertex.spirv:GPU_SKIN_FORWARD_VERTEX_SHADER_VK"
+    --map "GPUSkinForwardPass_vertex.spirv:GPU_SKIN_FORWARD_VERTEX_SHADER_VK" \
+    --map "PostProcessFullscreen_vertex.spirv:POSTPROCESS_VERTEX_SHADER_VK" \
+    --map "InvertEffect_fragment.spirv:INVERT_PIXEL_SHADER_VK" \
+    --map "TintEffect_fragment.spirv:TINT_PIXEL_SHADER_VK" \
+    --map "GrayscaleEffect_fragment.spirv:GRAYSCALE_PIXEL_SHADER_VK"
 ```
 
 The `--map` parameter uses the format `<spirv_filename>:<CPP_VARIABLE>`. For each mapping, the script generates:

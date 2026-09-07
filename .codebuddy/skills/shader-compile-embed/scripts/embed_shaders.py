@@ -102,6 +102,8 @@ def replace_var(content, var_name, shader_dir, shader_file):
     match = pattern.search(content)
     if match:
         prefix = match.group(1).rstrip()
+        if prefix.endswith('='):
+            prefix = prefix[:-1].rstrip()
         new_content = prefix + ' =\n' + cpp_str + ';\n'
         content = content[:match.start()] + new_content + content[match.end():]
         print(f'  Replaced {var_name}')

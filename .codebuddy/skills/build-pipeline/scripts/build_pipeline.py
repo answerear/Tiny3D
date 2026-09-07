@@ -189,6 +189,10 @@ def run_step_shader_compile_embed(workspace):
         "SkinForwardPass_vertex.hlsl:SKIN_FORWARD_VERTEX_SHADER",
         "GPUSkinShadowPass_vertex.hlsl:GPU_SKIN_SHADOW_VERTEX_SHADER",
         "GPUSkinForwardPass_vertex.hlsl:GPU_SKIN_FORWARD_VERTEX_SHADER",
+        "PostProcessFullscreen_vertex.hlsl:POSTPROCESS_VERTEX_SHADER",
+        "InvertEffect_fragment.hlsl:INVERT_PIXEL_SHADER",
+        "TintEffect_fragment.hlsl:TINT_PIXEL_SHADER",
+        "GrayscaleEffect_fragment.hlsl:GRAYSCALE_PIXEL_SHADER",
     ]
 
     cmd_embed = [
