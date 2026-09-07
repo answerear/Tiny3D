@@ -2241,11 +2241,9 @@ Hull/Domain 属于 GLES 3.2 才有的能力（`GL_TESS_CONTROL_SHADER` / `GL_TES
 
 GLES3 后端的需求分散在多份设计文档中，本节记录它们与本文档的对应关系，以及哪些说法已经与代码脱节。
 
-### A.10.1 GPU Readback：接口尚未进入 RHI
+### A.10.1 GPU Readback：接口已进 RHI，GLES3 仍是 stub
 
-`doc/todo/GPU-Readback-onRender-Design-todo.md` §5 / §7.1 规划了四个 readback 接口，要求在 `T3DGLES3Context` 中先加 stub（第一期 GLES3 定位为 stub），并在 §7.3 要求实现后回填本文档。
-
-**核对结果**：`T3DRHIContext.h` 中目前**搜不到任何 `beginRead*` / `endRead*` / readback 相关声明**，该设计尚未落到 RHI 接口层。因此本附录 A.7 的 93 个接口口径不含 readback，统计成立；这四个接口进入 RHI 后总数变为 97，需同步更新统计。届时 GLES3 的 `Usage::kCopy` 映射到 `GL_STREAM_READ`（该文档 §3.1 已指定）。
+`doc/todo/GPU-Readback-onRender-Design-todo.md` 第一期已落地。RHI 接口是三个纯虚 `map` / `map(region)` / `unmap`（不是草案里的四个 `beginRead*` / `endRead*`）。`T3DGLES3Context` 已 stub，`supportsReadback` 保持 false。第一期 GLES3 定位仍是 stub；真实现时 `Usage::kCopy` 映射到 `GL_STREAM_READ`（该文档 §3.1 已指定）。本附录 A.7 的 93 个接口口径需加上这 3 个 stub。
 
 ### A.10.2 Compute / UAV / Indirect：对应 RHI-Compute 的第五期 E4
 

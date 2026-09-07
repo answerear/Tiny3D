@@ -1189,6 +1189,7 @@
 | **P0 - 修复缺陷** | `createPixelBuffer2D` 的 subresource 数组 | ✅ 改由 `buildSubresourceData` 逐 slice / 逐 mip 构建并做数据量校验，越界读已消除 |
 | **P0 - 修复缺陷** | 窗口自带 DepthStencil | ✅ 恢复创建并统一了 `setRenderTarget` / `clearDepth*` 的回退路径 |
 | **P1 - 核心功能** | 四个 `blit` 重载 + `copyBuffer` | ✅ 统一走 `resolveBlitEndpoint` + `doBlit`，不支持的组合明确报错 |
+| **P1 - 管线** | 相机效果链替换「源 RT 直接 blit 上屏」 | ✅ `ForwardRenderPipeline::runCameraPostprocessing`：无效果走原 blit；有 `CameraEffectBehaviour` 时过效果链再 blit。MSAA 源先 resolve。临时 RT 按 `(width, height, format)` 分桶，blit + `reset` 后还池，`destroy` 清池。见 `Camera-PostProcess-Design-todo.md` B1–B5 |
 | **P1 - 窗口管理** | `resizeRenderTexture` / `resizeRenderTarget` | ✅ 已实现并提升为 `RHIContext` 虚接口，引擎侧入口为 `RenderTexture::resize` |
 | **P2 - 资源创建** | `createPixelBuffer1D` / `createPixelBuffer3D` | ✅ 已实现，`D3D11PixelBuffer3D` 类与 `D3D11Mapping::get(PixelBuffer3DDesc)` 一并补全 |
 | **P2 - 资源创建** | `createPixelBufferCubemap` 支持 mipmap | ✅ 支持完整 mip 链与 Cubemap Array |

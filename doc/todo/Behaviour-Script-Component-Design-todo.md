@@ -140,6 +140,15 @@ Object
 | `onDisable()` | `enabled` true→false，或销毁前 | N | — |
 | `onDestroy()` | 帧末延迟销毁时 | 1 | 已 Awake 过 |
 
+**没有 `Behaviour::onRender`。** 渲染后的四类诉求各走各的钩子，见 `Camera-PostProcess-Design-todo.md`：
+
+| 诉求 | 钩子 | 说明 |
+|---|---|---|
+| 纯 CPU 收尾 | `onLateUpdate` | 已有，渲染还不改变场景状态 |
+| 读回消费 | 下一帧 `onUpdate` | 本帧 `map`，下帧拿结果 |
+| 本相机前后回调 | `CameraBehaviour::onPreRender` / `onPostRender` | 只扫相机自己的 GameObject |
+| 图像后处理 | `CameraEffectBehaviour::onRenderImage` | 挂在相机上，插进管线 blit |
+
 > 兼容性：保留 `Component::onStart()` / `onUpdate()` 现有**无参**签名，`Behaviour` 在其上引入 **Awake/OnEnable 同步 + Start 延迟** 的初始化模型。所有回调均不带 dt 参数，帧间隔由全局 `Time` 单例提供（见 §4.5），与 Unity `Time.deltaTime` 一致。
 
 ### 4.2 初始化模型：Awake/OnEnable 同步、Start 延迟

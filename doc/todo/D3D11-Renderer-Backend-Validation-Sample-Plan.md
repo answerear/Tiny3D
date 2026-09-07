@@ -4,8 +4,11 @@
 >
 > - 实现方案：`doc/todo/D3D11-Renderer-Backend-Implementation-Plan.md`
 > - 接口状态：`doc/todo/D3D11-Renderer-Backend-todo.md`
+> - GPU 读回：`doc/todo/GPU-Readback-onRender-Design-todo.md`（A0–A7 已落地）
 >
-> 结论先行：本方案**不做**逐像素/逐字节的自动断言，因为引擎层目前没有 GPU 读回能力（见 §1.1）。正确性判定靠「程序化生成的可辨识图案 + 屏幕观察 + RenderDoc 抓帧 + D3D11 debug layer」四件套。这是当前工具链下能做到的上限，不是偷懒。
+> **状态（2026-09）**：§1.1 / §1.2 / §9.1 / §9.4 描述的是立项前缺口。`Application::onRender` / `onPostRender` 与 D3D11 `RHIContext::map` / `unmap` 已经落地；TextureApp 第一帧已做读回冒烟。BlitApp **还没**改用 `onRender` 做像素断言，所以本方案大部分用例仍靠人眼 + RenderDoc。下文历史分析保留，新工作按 readback 文档 §6 / §14 升级。
+>
+> 结论先行（立项时）：本方案**当时**不做逐像素/逐字节的自动断言，因为引擎层没有 GPU 读回。正确性判定靠「程序化生成的可辨识图案 + 屏幕观察 + RenderDoc 抓帧 + D3D11 debug layer」四件套。钩子和读回补上之后，图案生成 / `expectedColor` 仍可直接复用。
 
 ---
 
@@ -24,7 +27,7 @@
 
 - 不做性能测试
 - 不做跨后端一致性对比（GL4 / Vulkan 的对应接口尚未 override，见 §6.3）
-- 不追求 CI 可跑的无人值守自动化（缺 readback，做不到；见 §9）
+- 不追求 CI 可跑的无人值守自动化（BlitApp 尚未接 `map` / `unmap`；见 §9。引擎侧读回已可用）
 
 ---
 
@@ -32,7 +35,7 @@
 
 这三条是写代码前必须知道的，否则方向会跑偏。
 
-### 1.1 引擎层没有 GPU readback，无法做自动断言
+### 1.1 引擎层没有 GPU readback，无法做自动断言（立项时；现已过时）
 
 排查过引擎里所有可能的读回路径，结论是都不可用：
 
@@ -44,9 +47,11 @@
 | `RenderBuffer::copyData` | T3DRenderBuffer.cpp:189-201 | 两个重载都是 `// TODO: 暂不支持`，恒返回 0 |
 | `TextureManager::saveTexture` | T3DTextureManager.h:192-200 | 序列化磁盘资源，不是从 GPU 读像素 |
 
-**推论**：sample 里写不出 `T3D_ASSERT(pixel == expected)` 这种断言。因此像素图案的设计必须让**人眼和 RenderDoc 能一眼判读**，这是 §3 存在的理由。
+**推论（立项时）**：sample 里写不出 `T3D_ASSERT(pixel == expected)` 这种断言。因此像素图案的设计必须让**人眼和 RenderDoc 能一眼判读**，这是 §3 存在的理由。
 
-### 1.2 应用层唯一的 RHI 挂钩点是 `runForEditor`
+**现状**：D3D11 Window 已实现 `map` / `unmap`，创建时带 `kCPURead` 即可读回。TextureApp 已用这条路径做第一帧断言。BlitApp 升级后可以把「看屏幕」换成 `T3D_ASSERT`。图案函数仍然有用。
+
+### 1.2 应用层唯一的 RHI 挂钩点是 `runForEditor`（立项时；现已过时）
 
 `Agent::run()`（T3DAgent.cpp:640-665）每帧固定跑：
 
@@ -69,7 +74,9 @@ struct EditorRunningData
 
 调用点在 T3DAgent.cpp:678-681（preRender）与 T3DAgent.cpp:700-703（postRender）。
 
-**推论**：BlitApp 要手动发 `ctx->blit()`，必须重写 `go()` 改用 `runForEditor`，不能用 `SampleWindowApp::go()` 里的 `run()`。
+**推论（立项时）**：BlitApp 要手动发 `ctx->blit()`，必须重写 `go()` 改用 `runForEditor`，不能用 `SampleWindowApp::go()` 里的 `run()`。
+
+**现状**：`Application::onRender` 发生在 `pipeline->render` 之后、`endRender` 之前，正是跨后端合法的录制窗口。BlitApp **不要再劫持 `runForEditor`**，覆写 `onRender` / `onPostRender` 即可。`Behaviour::onUpdate` 仍然不能发 RHI 绘制命令。
 
 > 不要试图在 `Behaviour::onUpdate()` 里发 RHI 绘制命令。`update` 发生在渲染 pass 之外，时序不对，`setRenderTarget` 之类的调用会和管线自己的状态互相踩。`onUpdate` 只用来读输入、切用例。
 
@@ -649,11 +656,11 @@ source/Samples/TextureApp/TextureCaseBehaviour.cpp
 
 写在这里是为了避免给出「已验证」的错觉。以下几点本方案覆盖不到：
 
-### 9.1 无法自动化回归
+### 9.1 无法自动化回归（立项时；引擎侧已补，sample 未全部接上）
 
-没有 readback，全部判读靠人。改动 D3D11 后端后需要人工重跑一遍这些用例，无法挂 CI。
+立项时没有 readback，全部判读靠人。
 
-**建议后续单独立项做 RHI readback**：在 `RHIContext` 加 `readTexture` / `readBuffer` 接口，D3D11 侧用 `D3D11_USAGE_STAGING` + `CopyResource` + `Map` 实现。做完之后，这批 sample 可以原地升级——图案生成逻辑和期望值计算（`SamplePattern::expectedColor`）都能直接复用，只需把「看屏幕」换成 `T3D_ASSERT(actual == expected)`。这也是 §3.3 要求 `expectedColor` 独立成函数的原因。
+**现状**：RHI 同步读回已落地，见 `GPU-Readback-onRender-Design-todo.md`。TextureApp 第一帧已断言；BlitApp 及其它用例仍靠人眼。升级时复用 `SamplePattern::expectedColor`，在 `onRender` 里 `map`、`onPostRender` 里 `unmap`。异步 / CI 无人值守仍待 readback 文档 §8。
 
 ### 9.2 Cubemap 的带缩放 blit 本身未实现
 
@@ -665,11 +672,11 @@ source/Samples/TextureApp/TextureCaseBehaviour.cpp
 - 压缩纹理格式（BC1-BC7）的子资源切分：`buildSubresourceData` 用 `Image::getBPP(format) / 8` 算 pitch，对块压缩格式不成立。当前引擎是否支持压缩格式需另行确认，本方案只测非压缩格式
 - 非 D3D11 后端的对应实现
 
-### 9.4 时序上的一个保留意见
+### 9.4 时序上的一个保留意见（立项时；挂钩点已补）
 
-BlitApp 在 `postRender`（即 `ctx->endRender()` 之后）发 blit 命令，对 D3D11 是安全的——D3D11 后端的 `beginRender` / `endRender` 按设计是空实现（T3DD3D11Context.h:586-590）。
+立项时 BlitApp 只能在 `postRender`（`endRender` 之后）发 blit，对 D3D11 碰巧安全（`beginRender` / `endRender` 是空实现），对 Vulkan 不成立。
 
-但这个位置对 Vulkan 不成立，Vulkan 的 `endRender` 会 `endCommandBuffer` + `queueSubmit`，之后再发渲染命令是错的。所以 BlitApp 的这个结构**是 D3D11 专用的**，将来若要扩展到 Vulkan 需要改用 `preRender` 或者引入新的挂钩点。这一点在 §6.3 的后端检查里已经拦住了，但要在代码注释里写明原因，避免后来者照搬。
+**现状**：合法录制窗口是 `Application::onRender`（`pipeline->render` 之后、`endRender` 之前）。BlitApp 升级时把 blit / `map` 放这里，不要再走 `postRender`。`onPostRender` 只做 `unmap` 和断言。
 
 ---
 

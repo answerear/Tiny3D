@@ -1637,7 +1637,9 @@ A4 改 `VertexDeclaration::hash()` 会让**所有**现有顶点声明的哈希�
 
 `copyStructureCount` 解决的是 GPU→GPU 搬运。若上层确实需要把计数读回 CPU（例如编辑器里显示「本帧剔除后剩余 N 个实例」），需要 `CopyStructureCount` → staging buffer → `Map(READ)`，这是一次 GPU 同步点。在当前的 RHI 线程模型下，这意味着主线程要等 RHI 线程执行完命令，**且要等 GPU 真正完成**。
 
-正确做法是异步回读（N 帧延迟 + `ID3D11Query` 或轮询 `Map` 的 `DO_NOT_WAIT`），这套机制 `RenderBuffer::readData(offset, size, callback)`（`T3DRenderBuffer.h:61`）已经预留了签名但注释明确写着「当前 RHI 异步读取路径为 TODO」。**建议与该 TODO 合并成一个独立的「GPU 异步回读」立项**，不要在本特性里顺手做一个同步阻塞版本 —— 那会成为帧率杀手且很难再拿掉。
+正确做法是异步回读（N 帧延迟 + `ID3D11Query` 或轮询 `Map` 的 `DO_NOT_WAIT`）。
+
+**现状**：同步阻塞读回已由 `GPU-Readback-onRender-Design-todo.md` 落地为 `RHIContext::map` / `unmap`（`onRender` 录 Copy，`onPostRender` 里 `syncRHIThread` + Map）。`RenderBuffer::readData(offset, size, callback)` 仍是 TODO，文案改为「请改用 map / unmap」。异步 query / UAV 计数回读不要在本特性里另做阻塞版本，并进 readback 文档 §8。
 
 ### 12.4 单 UAV per resource 的限制何时会不够
 

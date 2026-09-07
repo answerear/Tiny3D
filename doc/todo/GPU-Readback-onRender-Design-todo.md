@@ -4,12 +4,13 @@
 >
 > 结论先行：这两件事是**同一条 GPU 生命周期上的两段**，必须一起设计。Copy→staging 必须录在 `endRender` 之前，Map 必须发生在 `endRender` 提交之后。中间缺的就是 `onRender`。
 >
-> 本文档为施工蓝图，代码片段均以「建议实现」形式给出并标注现有参考位置，**不代表已落地**。
+> **第一期（A0–A7）已落地。** 下文保留设计 Rational；接口名、同步原语、sample 接线以代码为准，和当初草案的差异见 §0.3。剩余工作见 §14。
 >
 > 相关文档：
 >
-> - 验证计划：`doc/todo/D3D11-Renderer-Backend-Validation-Sample-Plan.md`（§1.1 无 readback，§1.2 只能劫持 `runForEditor`，§9.4 `postRender` 对 Vulkan 不成立）
-> - Compute / UAV：`doc/todo/RHI-Compute-UAV-Indirect-Draw-Design-todo.md` §12.3（UAV 计数回读建议并入本立项，不要另做阻塞版本）
+> - 验证计划：`doc/todo/D3D11-Renderer-Backend-Validation-Sample-Plan.md`（§1.1 / §1.2 / §9.1 / §9.4 描述的是立项前缺口，现状见该文档文首状态）
+> - Compute / UAV：`doc/todo/RHI-Compute-UAV-Indirect-Draw-Design-todo.md` §12.3（同步读回已由本立项承接；异步 query / UAV 计数回读仍待 §8）
+> - 相机后处理与渲染后业务回调：`doc/todo/Camera-PostProcess-Design-todo.md`（§2.5 拒绝 `Behaviour::onRender` 的正面替代：`onLateUpdate` / 相机组件 / 订阅回调）
 > - 命令线程化：`source/Core/Include/RHI/T3DRHIThread.h`
 
 涉及的主要文件：
@@ -27,24 +28,46 @@
 
 ### 0.1 本期目标
 
-| # | 目标 | 说明 |
-|---|------|------|
-| 1 | **应用层 `onRender`** | 在 `pipeline->render` 之后、`ctx->endRender()` 之前插入挂钩点，sample 不再劫持 `runForEditor` |
-| 2 | **两阶段 GPU 读回** | `beginRead*` 只录 Copy→staging；`endRead*` 在提交后 Map，把数据打成紧凑 CPU `Buffer` |
-| 3 | **D3D11 真实现** | staging 池 + `CopyResource` / `CopySubresourceRegion` / MSAA Resolve + 按行打包 |
-| 4 | **其它后端强制表态** | 新接口一律纯虚；未实现的后端走 `T3D_RHI_UNSUPPORTED(supportsReadback)` |
-| 5 | **接通 `kCPURead` 作为读回许可** | 创建时带 `kCPURead` 才允许 `beginRead*`；**不**把该位置成 D3D11 `CPU_ACCESS_READ`（见 §3.0） |
-| 6 | **修正 `CPUAccessMode` → 原生 flag 的错误绑定** | `D3D11Mapping::get(Usage, mode)` 目前把 `kCPURead` 建成 `STAGING`，和许可语义冲突 |
+| # | 目标 | 状态 | 说明 |
+|---|------|------|------|
+| 1 | **应用层 `onRender`** | ✅ | `Application::onPreRender` / `onRender` / `onPostRender`；`run` / `runForEditor` 走同一条三参数 `renderOneFrame` |
+| 2 | **两阶段 GPU 读回** | ✅ | `RHIContext::map` 只录 Copy→staging；`unmap` 在提交后 Map，把数据打成紧凑 CPU `Buffer` |
+| 3 | **D3D11 真实现** | ✅ | staging 池 + `CopySubresourceRegion` / MSAA Resolve + 按行打包；`supportsReadback = true` |
+| 4 | **其它后端强制表态** | ✅ | 三个纯虚；未实现的后端走 `T3D_RHI_UNSUPPORTED_VALUE` / `T3D_RHI_UNSUPPORTED` |
+| 5 | **接通 `kCPURead` 作为读回许可** | ✅ | 创建时带 `kCPURead` 才允许 `map`；**不**把该位置成 D3D11 `CPU_ACCESS_READ`（见 §3.0） |
+| 6 | **修正 `CPUAccessMode` → 原生 flag 的错误绑定** | ✅ | `D3D11Mapping::get(Usage, mode)` 按 §3.0.4：`kCPURead` 不再建成 `STAGING` |
+
+### 0.3 落地对照（以代码为准）
+
+当初草案把接口写成 `beginReadBuffer` / `beginReadTexture` / `endReadBuffer` / `endReadTexture`。落地时收成三个纯虚，名字跟引擎其它缓冲 API 对齐：
+
+| 草案 | 落地 | 位置 |
+|------|------|------|
+| `beginReadBuffer(src, offset, size)` | `RHIContext::map(src, offset, size)` | `T3DRHIContext.h` |
+| `beginReadTexture(src, region)` | `RHIContext::map(src, region)` | 同上，重载 |
+| `endReadBuffer` / `endReadTexture` | `RHIContext::unmap(handle, dst)` | 一条消费接口，线性 / 纹理共用 |
+| `RenderBuffer::beginRead` / `endRead` | `RenderBuffer::map` / `unmap` | `T3DRenderBuffer.h` |
+| `Texture::beginRead` / `endRead` | `Texture::map` / `unmap` | `T3DTexture.h`，内部转到 PixelBuffer |
+
+其它和草案不一致、但已经写进代码的决定：
+
+1. **`unmap` 用 `Agent::syncRHIThread()`，不是直接 `drainRHICommands()`。** `onPostRender` 发生在 `endFrame` 的 wait 之前，本帧 Copy 还在入队表。直接 drain 会和 RHI 线程正在遍历的那张表撞车。`syncRHIThread` 先 `waitRHIBatch()` 再 drain，并把这次 wait 记账，避免 `endFrame` 再等一次（`T3DAgent.h:347-355`，`T3DAgent.cpp:768-783`）。§11 当初标成「第一期最大实现风险」的 drain 时序，落地时就是靠这个函数收住的。
+2. **pending 表是 `std::map`，不是 `TArray`。** 节点地址稳定，RHI 线程持有的 `ReadbackRequest*` 不会因为后续 insert 失效（`T3DD3D11Context.h:966-968`）。
+3. **staging 池按 Kind 分三类**：STAGING 线性缓冲、STAGING 纹理、DEFAULT 非 MSAA Resolve 中转。Resolve 目标不能是 STAGING，所以多一跳（`T3DD3D11Context.h:1012-1017`）。
+4. **`T3D_RHI_UNSUPPORTED_VALUE` 已补。** stub 的 `map` 用它返回 `ReadbackHandle::invalid()`（`T3DPrerequisites.h:117-123`）。
+5. **创建路径的 `accMode` 只接到了 2D 纹理和 RenderTexture。** `createTexture2D` 两个重载、`createRenderTexture` 有默认 `kCPUNone` 的 `accMode`。`createTexture1D` / `3D` / `Cubemap` / `Texture2DArray` / `CubemapArray` 还没有，要读回这些类型目前只能走底层 `RenderBuffer` 的 `accMode`，或等后续补参数。
+6. **TextureApp 已经接上读回冒烟**（当初 §0.2 写「第一期不改 sample」）。启动后第一帧：`kCPURead` 的 64×64 程序化纹理 `map`/`unmap` 比对像素；`kCPUNone` 对照被拒；consumed handle 再 `unmap` 得到 `T3D_ERR_INVALID_PARAM`。BlitApp **还没**改，仍是验证计划的后续。
+7. **异步 `readData(callback)` 仍只做校验。** TODO 文案改成「请改用 `map` / `unmap`」（`T3DRenderBuffer.cpp:137-138`）。真正接通仍待 §8。
 
 ### 0.2 本期边界（明确不做）
 
-- **不把同步 `RenderBuffer::readData(offset, size, void *dst)` 改成隐式 GPU 阻塞读。** 它继续只读 CPU 镜像（`MemoryType != kVRAM` 时的缓存）。偷偷改语义会让所有「我以为在读上传前副本」的调用点变成帧率杀手。GPU 权威数据一律走 `beginRead*` / `endRead*`。
+- **不把同步 `RenderBuffer::readData(offset, size, void *dst)` 改成隐式 GPU 阻塞读。** 它继续只读 CPU 镜像（`MemoryType != kVRAM` 时的缓存）。偷偷改语义会让所有「我以为在读上传前副本」的调用点变成帧率杀手。GPU 权威数据一律走 `map` / `unmap`。
 - **不把 `CPUAccessMode` 和 `GPUAccessFlags` 合成一个枚举。** 它们对应 D3D11 两套完全不同的字段，组合约束正交（见 §3.0.3）。
 - **不把 `kCPURead` 映射成源资源自身的 `D3D11_CPU_ACCESS_READ`。** 活纹理 / RT / VB 仍然是 DEFAULT 或 IMMUTABLE；读回用引擎内部 staging。创建时带 `kCPURead` 只表示「引擎允许对这块 GPU 数据做读回」。
-- **不在 `Behaviour` 上加 `onRender`。** 那是 Unity `OnRenderObject` 一类「跟相机 pass 走」的回调，会再次和 `setRenderTarget` 抢状态。验证计划 §1.2 已经否过这条路。
+- **不在 `Behaviour` 上加 `onRender`。** 那是 Unity `OnRenderObject` 一类「跟相机 pass 走」的回调，会再次和 `setRenderTarget` 抢状态。验证计划 §1.2 已经否过这条路。业务层「渲染后逻辑 / 后处理」的替代路径见 `Camera-PostProcess-Design-todo.md`，本文 §2.5 只记账不展开。
 - **不改编辑器 ImGui 时序。** 现在 `preRender` 在 `beginRender` 前清屏、`postRender` 在 `endRender` 后画，对 Vulkan 同样不合法，但本期只把新钩子放到正确位置，ImGui 迁移另立项。
 - **第一期不做**：压缩格式（BC1–BC7）读回、深度/模板 CPU 解释、异步环形缓冲 + `ID3D11Query`（作为二期，见 §8）、游戏帧里的常规阻塞读回。
-- **第一期不改 TextureApp / BlitApp 代码。** 钩子和读回落地后，验证计划可以原地升级；升级本身是验证计划的后续任务。
+- **BlitApp / 验证计划其它用例仍未升级。** TextureApp 已接冒烟（见 §0.3 / §6）；BlitApp 的 blit / copyBuffer 断言、以及验证计划正文回填，仍是后续任务。
 
 ---
 
@@ -106,7 +129,7 @@ Map(READ) + 按行 memcpy             ★ 消费阶段，必须在 GPU 完成之
 
 如果把 Copy 和 Map 都塞进现在的 `postRender`：D3D11 能骗过自己（`endRender` 是空实现，`T3DD3D11Context.h` 注释与 `T3DRHIContext.h:828-841` 一致），Vulkan 两边都错。验证计划 §9.4 已经写了这条保留意见。
 
-**跨后端唯一合法的同步读回**：`onRender` 里 `beginRead*`（只录 Copy），`endRender` 提交，`onPostRender` 里 `endRead*`（drain + Map）。
+**跨后端唯一合法的同步读回**：`onRender` 里 `map`（只录 Copy），`endRender` 提交，`onPostRender` 里 `unmap`（`syncRHIThread` + Map）。
 
 ```mermaid
 sequenceDiagram
@@ -119,11 +142,11 @@ sequenceDiagram
     Agent->>Ctx: pipeline.render()
     Agent->>App: onRender()
     App->>Ctx: blit / copyBuffer / 自定义绘制
-    App->>Ctx: beginReadTexture()  // 只录 Copy→staging
+    App->>Ctx: map(src, region)    // 只录 Copy→staging
     Agent->>Ctx: endRender()       // Vulkan submit；D3D11 nop
     Ctx->>GPU: 提交
     Agent->>App: onPostRender()
-    App->>Ctx: endReadTexture()    // drain RHI 线程 + 等 GPU + Map
+    App->>Ctx: unmap(handle, dst)  // syncRHIThread + 等 GPU + Map
     Ctx-->>App: 紧凑 Buffer
     Agent->>Ctx: swapBuffers()
 ```
@@ -137,8 +160,8 @@ sequenceDiagram
 | 钩子 | 时序 | 允许做的事 | 禁止做的事 |
 |------|------|-----------|-----------|
 | `preRender` | `beginRender` 之前 | CPU 准备（ImGui::Render 生成 draw list） | 录制需要进**当前** command buffer 的 GPU 命令 |
-| **`onRender`** | `pipeline->render` 之后、`endRender` 之前 | blit、copyBuffer、自定义 beginPass/draw/endPass、`beginRead*` | 假设管线的 RT / viewport / shader 还在；在热路径 new/delete GPU 资源 |
-| `postRender` | `endRender` 之后、`swapBuffers` 之前 | `endRead*`、断言、读回回调 | 把这里当成跨后端的 GPU 录制点 |
+| **`onRender`** | `pipeline->render` 之后、`endRender` 之前 | blit、copyBuffer、自定义 beginPass/draw/endPass、`map` | 假设管线的 RT / viewport / shader 还在；在热路径 new/delete GPU 资源 |
+| `postRender` | `endRender` 之后、`swapBuffers` 之前 | `unmap`、断言、读回回调 | 把这里当成跨后端的 GPU 录制点 |
 
 Vulkan 的 `beginPass` / `endPass` 由管线自己配对。`onRender` 发生在管线 `endPass` 之后，正好是 blit / `CopyResource` 该在的位置（`T3DRHIContext.h:856` 已写：blit 在 pass 外）。
 
@@ -272,7 +295,7 @@ postRender : endRender 之后、swapBuffers 之前，可为空
 
 进来时管线已经 `endPass`，且 `ForwardRenderPipeline` 各相机结束时会 `reset`。**不要假设当前 RT / viewport / 着色器还在。**
 
-允许：`blit`、`copyBuffer`、`setRenderTarget`、自定义 `beginPass` / `render` / `endPass`、`beginRead*`。
+允许：`blit`、`copyBuffer`、`setRenderTarget`、自定义 `beginPass` / `render` / `endPass`、`map`。
 
 约束：
 
@@ -287,9 +310,11 @@ postRender : endRender 之后、swapBuffers 之前，可为空
 |------|-------------|
 | BlitApp 继续劫持 `runForEditor` | 把 D3D11 空 `endRender` 当成跨后端事实，验证计划 §9.4 已否 |
 | 只加 `Application::onRender`、编辑器不改 | sample 和编辑器时序分叉，以后 ImGui 迁移还得再改一遍 Agent |
-| `Behaviour::onRender` | 跟相机 pass 绑定，BlitApp 要的是「所有相机画完、command buffer 还开着」 |
+| `Behaviour::onRender` | 跟相机 pass 绑定，BlitApp 要的是「所有相机画完、command buffer 还开着」。全场景再扫一趟 update 组件既贵又会诱导在任意对象里 `setRenderTarget`。**业务层「渲染后」不是没地方挂**：纯 CPU 收尾用已有 `onLateUpdate`；读回结果下一帧 `onUpdate` 消费；图像后处理挂在相机 GameObject 上插进现有 blit；非相机对象发 GPU 命令用订阅式回调。正面方案见 `doc/todo/Camera-PostProcess-Design-todo.md` |
 | 把 blit 塞进 `preRender` | 发生在 `beginRender` 之前，Vulkan 没有 command buffer |
 | 把 blit 留在 `postRender` | 发生在 submit 之后，Vulkan 再录命令是错的 |
+
+`Application::onRender` 和相机后处理不冲突：前者是应用级最后一个录制窗口（本立项 A1），后者是管线内、每台相机 blit 之前的效果链。时序关系见后处理文档 §6。
 
 ### 2.6 编辑器现状（本期不动，只记账）
 
@@ -318,7 +343,7 @@ postRender : endRender 之后、swapBuffers 之前，可为空
 
 `MemoryType` 的原意是：「热路径用 RAM 镜像快读快写，不必每次 Map GPU」。镜像存的是**上次 CPU 写入的版本**。GPU 后来用 UAV / RT 改过的内容，镜像是过期的，必须走读回才能看到权威数据。这两件事正交：
 
-| 组合 | 同步 `readData(void*)` | `beginRead*` |
+| 组合 | 同步 `readData(void*)` | `map` / `unmap` |
 |------|----------------------|--------------|
 | `kVRAM + kCPUNone` | 读不到（无镜像，也无许可） | 拒绝 |
 | `kVRAM + kCPURead` | 读不到（无镜像） | 允许，staging 中转，看到 GPU 权威数据 |
@@ -377,10 +402,10 @@ struct ResourceAccess
 | Usage | CPUAccess | 原生 USAGE | 原生 CPUAccessFlags | 引擎行为 |
 |-------|-----------|------------|---------------------|----------|
 | `kImmutable` | `kCPUNone` | IMMUTABLE | 0 | 初始化上传，之后 CPU 不碰 |
-| `kImmutable` | `kCPURead` | IMMUTABLE | 0 | 同上，但允许 `beginRead*`（staging 中转） |
+| `kImmutable` | `kCPURead` | IMMUTABLE | 0 | 同上，但允许 `map`（staging 中转） |
 | `kStatic` | `kCPUNone` | DEFAULT | 0 | GPU 可写（RT / UAV），CPU 不碰 |
 | `kStatic` | `kCPUWrite` | DEFAULT | 0 | CPU 写走 `UpdateSubresource`，**不是** Map |
-| `kStatic` | `kCPURead` | DEFAULT | 0 | 允许 `beginRead*` |
+| `kStatic` | `kCPURead` | DEFAULT | 0 | 允许 `map` |
 | `kStatic` | `kCPUReadWrite` | DEFAULT | 0 | UpdateSubresource + 读回 |
 | `kDynamic` | `kCPUWrite` | DYNAMIC | WRITE | `Map(WRITE_DISCARD)`，现状保留 |
 | `kDynamic` | `kCPURead` | **非法** | — | D3D11 DYNAMIC 不能 Map READ。要读回改用 `kStatic\|kCPURead` 或 `kCopy` |
@@ -404,7 +429,7 @@ struct ResourceAccess
 - `TextureManager::createTexture2D` 等目前没有 `accMode`，第一期给要读回的用例加可选参数，默认仍 `kCPUNone`。验证 sample 建程序化纹理时传入 `kCPURead`。
 - `RenderTexture` 同理：离屏 RT 若要断言像素，创建时 `kStatic + kCPURead`（原生仍是 DEFAULT，可当 RTV）。
 
-`beginRead*` 对 `kCPUNone` 的源返回 invalid handle 并打日志，与现在异步 `readData` 的校验**同方向**，但错误文案改成「创建时未声明 kCPURead，不是把资源建成 STAGING」。
+`map` 对 `kCPUNone` 的源返回 invalid handle 并打日志，与现在异步 `readData` 的校验**同方向**，但错误文案改成「创建时未声明 kCPURead，不是把资源建成 STAGING」。这已经落地（`T3DD3D11Context.cpp:4423-4430`）。
 
 ### 3.1 数据路径（许可通过之后）
 
@@ -422,9 +447,10 @@ CPU 紧凑 Buffer（rowPitch = width * bpp）
 
 ### 3.2 RHI 接口（纯虚，所有后端必须表态）
 
-放在 `T3DRHIContext.h` 的 `copyBuffer` / `writeBuffer` 附近（约 805-814 行之后）：
+已落地在 `T3DRHIContext.h` 的 `copyBuffer` / `writeBuffer` 附近。结构体放在 `T3DRenderConstant.h`（和 `Usage` / `CPUAccessMode` 一起），**没有**放进 `T3DTypedef.h`。
 
 ```cpp
+// T3DRenderConstant.h
 struct ReadbackRegion
 {
     uint32_t mipLevel {0};
@@ -438,62 +464,40 @@ struct ReadbackHandle
     uint32_t generation {0};
     uint32_t index {0xFFFFFFFFu};
     bool isValid() const { return index != 0xFFFFFFFFu; }
-    static ReadbackHandle invalid() { return {}; }
+    static ReadbackHandle invalid() { return ReadbackHandle(); }
 };
 
-/// 线性缓冲（VB / IB / CB / StructuredBuffer）→ 发起 GPU Copy 到 staging
-/// 必须在 beginRender / endRender 之间调用。立即返回票据，不 Map。
-virtual ReadbackHandle beginReadBuffer(RenderBuffer *src, size_t offset, size_t size) = 0;
-
-/// 消费 beginReadBuffer 的结果。必须在 endRender 之后调用。
-/// dst 由实现填成紧凑字节（无 GPU pitch 对齐）。阻塞直到 GPU 完成。
-virtual TResult endReadBuffer(ReadbackHandle handle, Buffer &dst) = 0;
-
-/// 纹理 / RT / PixelBuffer（1D/2D/3D/Cube，用 mip+slice 选子资源）
-virtual ReadbackHandle beginReadTexture(RenderBuffer *src, const ReadbackRegion &region) = 0;
-
-/// 消费 beginReadTexture 的结果。dst 紧凑排布：slicePitch = rowPitch * height，rowPitch = width * bpp。
-virtual TResult endReadTexture(ReadbackHandle handle, Buffer &dst) = 0;
+// T3DRHIContext.h —— 三个纯虚，线性 / 纹理共用 unmap
+virtual ReadbackHandle map(RenderBuffer *src, size_t offset, size_t size) = 0;
+virtual ReadbackHandle map(RenderBuffer *src, const ReadbackRegion &region) = 0;
+virtual TResult        unmap(ReadbackHandle handle, Buffer &dst) = 0;
 ```
-
-`ReadbackRegion` / `ReadbackHandle` 建议放在 `T3DRenderConstant.h`（和 `Usage` / `CPUAccessMode` 一起），或 `T3DRHIContext.h` 里 `RHIContext` 之前。不要放进 `T3DTypedef.h` 的智能指针清单。
 
 约定：
 
 1. **`dst` 由引擎填成紧凑排布。** D3D11 `Map` 回来的 `RowPitch` 经常大于 `width * bpp`，直接整块 memcpy 会把 padding 算进像素。调用方（`SamplePattern::expectedColor`）按紧密布局比对。
 2. **源必须带 `kCPURead`。** 这是引擎许可，不是原生 `CPU_ACCESS_READ`。`kCPUNone` 的源返回 invalid handle。内部 staging 是实现细节，调用方看不到。
-3. `begin*` 在 `src == nullptr`、无 RHI 资源、越界、无 `kCPURead` 时返回 `ReadbackHandle::invalid()` 并打错误日志，不要崩。
-4. `end*` 遇到 invalid handle 返回 `T3D_ERR_INVALID_PARAM`。
-5. `end*` 在数据未就绪时**阻塞**。这是验证 / CI / 按键截一帧的路径，文档和函数注释必须写明「会卡住等 GPU，禁止当游戏热路径」。
+3. `map` 在 `src == nullptr`、无 RHI 资源、越界、无 `kCPURead` 时返回 `ReadbackHandle::invalid()` 并打错误日志，不要崩。
+4. `unmap` 遇到 invalid / 已消费 handle 返回 `T3D_ERR_INVALID_PARAM`。
+5. `unmap` 在数据未就绪时**阻塞**。这是验证 / CI / 按键截一帧的路径，注释已写明「会卡住等 GPU，禁止当游戏热路径」。
 6. 窗口 BackBuffer 可以 Copy 到同格式 staging（截屏）；验证优先读离屏 RT，少踩 sRGB / tearing。
 7. MSAA 源：staging 不能是 MSAA。先 `ResolveSubresource` 到一张非 MSAA DEFAULT，再 Copy 进 staging。复用 `doBlit` 已有的 Resolve 分支。
 8. 第一期只保证非压缩 UNORM 8-bit 颜色，以及线性缓冲的原始字节。压缩格式、深度模板返回 `T3D_ERR_NOT_IMPLEMENT` 或 `T3D_ERR_D3D11_UNSUPPORTED_OPERATION`。
 
-**禁止**提供「在 `onRender` 里一次 `readTexture` 就把像素填进 `void*`」的同步 API 当正式接口。D3D11 能实现，Vulkan 会把错误语义写死。
+**禁止**提供「在 `onRender` 里一次 `readTexture` 就把像素填进 `void*`」的同步 API 当正式接口。D3D11 能实现，Vulkan 会把错误语义写死。落地时也没有加这种一步接口。
 
 ### 3.3 能力位
 
 `RHICapabilities`（`T3DRHICapabilities.h:47-74`）追加：
 
 ```cpp
-/// 支持 GPU→CPU 读回（beginRead* / endRead*）
+/// 支持 GPU→CPU 读回（map / unmap）
 bool supportsReadback {false};
 ```
 
-D3D11 Window 后端在 `init()` 填 `true`（就在 `supportsInstancing = true` 旁边，`T3DD3D11Context.cpp:178`）。其它后端保持默认 `false`，接口用 `T3D_RHI_UNSUPPORTED(supportsReadback)`。
+D3D11 Window 后端在 `init()` 填 `true`（`T3DD3D11Context.cpp:187`）。其它后端保持默认 `false`。
 
-`begin*` 的 stub 不能用这个宏（宏 `return T3D_ERR_NOT_IMPLEMENT`，而 `begin*` 返回 `ReadbackHandle`）。补一个指针/句柄版，或在 stub 里手写：
-
-```cpp
-ReadbackHandle SomeContext::beginReadBuffer(RenderBuffer *, size_t, size_t)
-{
-    T3D_ASSERT(!getCapabilities().supportsReadback);
-    T3D_LOG_WARNING(LOG_TAG_RENDER, "%s is not supported by this RHI backend", __FUNCTION__);
-    return ReadbackHandle::invalid();
-}
-```
-
-`end*` 可以直接 `T3D_RHI_UNSUPPORTED(supportsReadback)`。
+`map` 的 stub 用已补的 `T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, ReadbackHandle::invalid())`；`unmap` 用 `T3D_RHI_UNSUPPORTED(supportsReadback)`。
 
 ### 3.4 引擎层封装
 
@@ -502,34 +506,32 @@ ReadbackHandle SomeContext::beginReadBuffer(RenderBuffer *, size_t, size_t)
 | 现有接口 | 新语义 |
 |----------|--------|
 | 同步 `readData(offset, size, void *dst)` | **保持原样**：只读 CPU 镜像。不碰 GPU。 |
-| 异步 `readData(offset, size, callback)` | 接通 GPU 路径。**保留** `kCPURead` 许可校验，改文案。内部 = `beginReadBuffer` + 帧后 `endReadBuffer` + 回调。 |
+| 异步 `readData(offset, size, callback)` | **第一期未接通。** 保留 `kCPURead` 许可校验，TODO 改为「请改用 map / unmap」。真正接通放到二期和 query 一起做。 |
 
 异步版本改造要点（`T3DRenderBuffer.cpp:107-141`）：
 
 1. **保留「必须 `kCPURead`」分支**（129-134 行），文案改为「创建时未声明 kCPURead，读回被拒绝」。不要让人以为要给资源加 `D3D11_CPU_ACCESS_READ`。
 2. `MemoryType != kVRAM` 且只想读镜像时继续建议走同步接口，这条警告保留。镜像可能过期，见 §3.0.1。
-3. `kVRAM` / `kBoth` 且带 `kCPURead`：调 `ctx->beginReadBuffer(this, offset, size)`。`endReadBuffer` 必须在 `onPostRender`，不要在 `readData(callback)` 内部立刻 Map。
-4. 第一期异步接口可以仍只做校验 + 日志「请改用 beginReadBuffer，且必须在 onRender/onPostRender 配对调用」，真正接通放到二期和 query 一起做。
+3. `kVRAM` / `kBoth` 且带 `kCPURead`：调用方自己在 `onRender` 里 `map`、`onPostRender` 里 `unmap`。不要在 `readData(callback)` 内部立刻 Map。
+4. 第一期异步接口仍只做校验 + TODO「请改用 map / unmap」。真正接通放到二期和 query 一起做。
 
-第一期更干净的做法：**异步 `readData(callback)` 仍只做校验 + 打 TODO 日志说「请改用 beginReadBuffer，且必须在 onRender/onPostRender 配对调用」**，真正接通放到二期和 query 一起做。避免在引擎里偷偷攒一个跨帧队列却没有 `onRender` 时机保证 Copy 已录制。
-
-推荐第一期引擎层只加薄封装，不改异步 `readData` 的完成语义：
+引擎层薄封装已落地，不改异步 `readData` 的完成语义：
 
 ```cpp
 // T3DRenderBuffer.h
-ReadbackHandle beginRead(size_t offset, size_t size);
-TResult        endRead(ReadbackHandle handle, Buffer &dst);
+ReadbackHandle map(size_t offset = 0, size_t size = 0);
+TResult        unmap(ReadbackHandle handle, Buffer &dst);
 ```
 
-内部转到 `T3D_AGENT.getActiveRHIContext()->beginReadBuffer/endReadBuffer`。`Texture` 对称：
+内部转到 `T3D_AGENT.getActiveRHIContext()->map/unmap`。`Texture` 对称：
 
 ```cpp
 // T3DTexture.h（基类）
-ReadbackHandle beginRead(const ReadbackRegion &region);
-TResult        endRead(ReadbackHandle handle, Buffer &dst);
+ReadbackHandle map(const ReadbackRegion &region);
+TResult        unmap(ReadbackHandle handle, Buffer &dst);
 ```
 
-内部 `getPixelBuffer()` 转 `beginReadTexture`。Cubemap 走 `mCubePixelBuffer`，已有 `Cubemap::getPixelBuffer()`（`T3DTexture.h:582`）。
+内部 `getPixelBuffer()` 转 `ctx->map(pixelBuffer, region)`。Cubemap 走 `getPixelBuffer()`。
 
 ### 3.5 错误码
 
@@ -591,12 +593,12 @@ uint32_t                            mReadbackGeneration {1};
 
 Staging 资源：`D3D11_USAGE_STAGING` + `D3D11_CPU_ACCESS_READ`，BindFlags = 0。按尺寸分桶，用时取、用完还，不要每帧 Create/Release。退出时在 context 析构里全部 Release，避免 `ReportLiveDeviceObjects` 报账。
 
-### 4.2 `beginReadBuffer`
+### 4.2 `map`（线性缓冲）
 
 主线程（`onRender` 调用点）做校验，lambda 只做 Copy：
 
 1. `src == nullptr` / 无 RHI 资源 → invalid handle。
-2. 资源类型必须是 `kVertexBuffer` / `kIndexBuffer` / `kConstantBuffer` / `kStructuredBuffer`。纹理走 `beginReadTexture`。
+2. 资源类型必须是 `kVertexBuffer` / `kIndexBuffer` / `kConstantBuffer` / `kStructuredBuffer`。纹理走 `map(src, region)`。
 3. 用 `ID3D11Buffer::GetDesc` 的真实 `ByteWidth` 做边界校验，与 `copyBuffer` 一致（`T3DD3D11Context.cpp:4143-4153`）。`size == 0` 表示从 offset 到末尾。
 4. 从池里取或创建 `ByteWidth` 足够的 staging buffer。
 5. 分配 handle，填 `ReadbackRequest`，`ENQUEUE_UNIQUE_COMMAND`：
@@ -605,17 +607,17 @@ Staging 资源：`D3D11_USAGE_STAGING` + `D3D11_CPU_ACCESS_READ`，BindFlags = 0
 6. lambda 参数传 `RenderBufferPtr(src)`，不要传裸指针（RHI 线程约束，见 Compute 文档 §3.2）。
 7. 立刻返回 handle。**不要在这条命令里 Map。**
 
-### 4.3 `beginReadTexture`
+### 4.3 `map`（纹理）
 
-1. 资源类型 `kPixelBuffer1D/2D/3D/Cubemap`。线性缓冲走 `beginReadBuffer`。
+1. 资源类型 `kPixelBuffer1D/2D/3D/Cubemap`。线性缓冲走 `map(src, offset, size)`。
 2. `mipLevel` / `arraySlice` 换算 D3D11 子资源下标：`arraySlice * mipLevels + mipLevel`，与 `buildSubresourceData`（`T3DD3D11Context.cpp:1959`）一致。Cubemap 的 `arraySlice` 是面号（0–5）或 `cubeIndex * 6 + face`。
 3. `region.size` 为 0 时用该 mip 的 `max(1, dim >> mip)`。
 4. 压缩格式、深度格式第一期拒绝。
 5. MSAA（`SampleDesc.Count > 1`）：先 Resolve 到池里一张同尺寸非 MSAA DEFAULT（`D3D11PixelBuffer2D` 已有 `D3DResolveTex` 可复用则复用），再 Copy 到 staging。`ResolveSubresource` 的目标不能是 STAGING。
-6. 窗口 BackBuffer：没有 `RenderBuffer`，第一期**不**从 swapchain 直接读。要读窗口内容，sample 应 blit 到离屏 RT 再 `beginReadTexture`。若以后做截屏，另开 `beginReadRenderTarget(RenderTarget*)`。
+6. 窗口 BackBuffer：没有 `RenderBuffer`，第一期**不**从 swapchain 直接读。要读窗口内容，sample 应 blit 到离屏 RT 再 `map(src, region)`。若以后做截屏，另开 `map(RenderTarget*)`。
 7. `ENQUEUE_UNIQUE_COMMAND` 录 `CopyResource` / `CopySubresourceRegion`。同样不 Map。
 
-### 4.4 `endReadBuffer` / `endReadTexture`
+### 4.4 `unmap`
 
 必须在 `endRender` 之后调用（sample 放 `onPostRender`）。
 
@@ -675,7 +677,7 @@ Vulkan 上同一套 API：`begin*` 录 Copy 进当前 command buffer；`endRende
 
 ## 5. 其它后端
 
-`RHIContext` 新增四个纯虚，漏写直接编译失败。这是 Compute 文档 §6.1 的同一条规约。
+`RHIContext` 新增三个纯虚（两个 `map` 重载 + `unmap`），漏写直接编译失败。这是 Compute 文档 §6.1 的同一条规约。已全部落地。
 
 | 后端 | 第一期 |
 |------|--------|
@@ -687,13 +689,15 @@ Vulkan 上同一套 API：`begin*` 录 Copy 进当前 command buffer；`endRende
 | Metal | stub |
 | Null | stub |
 
-后续 Vulkan 实现要点（只记账，本期不写代码）：Copy 进 host-visible buffer / image，`endRender` 的 fence 就是完成信号；`end*` 等 fence 后 `vkMapMemory`。`onRender` 的位置已经保证 Copy 和场景绘制在同一次 submit 里。
+后续 Vulkan 实现要点（只记账）：Copy 进 host-visible buffer / image，`endRender` 的 fence 就是完成信号；`unmap` 等 fence 后 `vkMapMemory`。`onRender` 的位置已经保证 Copy 和场景绘制在同一次 submit 里。
 
 ---
 
-## 6. Sample 如何升级（验证计划的后续，本期只规定契约）
+## 6. Sample 如何升级
 
-BlitApp **不再**重写 `go()` 去调 `runForEditor`。`SampleWindowApp::go()` 继续 `theEngine->run()`（`SampleApp.cpp:43-56`）。应用覆写两个空虚函数：
+**TextureApp 冒烟已落地**（`TextureApp.cpp`）：启动后第一帧对 `__rb_src__`（`kCPURead`）`map` / `unmap` 比对 64×64 程序化像素，对 `__rb_denied__`（`kCPUNone`）确认被拒，consumed handle 再 `unmap` 期望 `T3D_ERR_INVALID_PARAM`。`supportsReadback == false` 时打日志并跳过，不崩。画面仍走 Camera + Material。
+
+BlitApp **还没改**。契约不变：`SampleWindowApp::go()` 继续 `theEngine->run()`，不要再劫持 `runForEditor`。应用覆写两个空虚函数：
 
 ```cpp
 void BlitApp::onRender()
@@ -701,7 +705,7 @@ void BlitApp::onRender()
     RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
     dispatchCurrentCase(ctx);     // blit / copyBuffer / 窗口 DSV 绘制
     ReadbackRegion region;
-    mReadback = ctx->beginReadTexture(mDstColorRT->getPixelBuffer(), region);
+    mReadback = mDstColorRT->map(region);   // 或 ctx->map(pixelBuffer, region)
 }
 
 void BlitApp::onPostRender()
@@ -709,8 +713,7 @@ void BlitApp::onPostRender()
     if (!mReadback.isValid())
         return;
     Buffer pixels;
-    RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
-    if (ctx->endReadTexture(mReadback, pixels) == T3D_OK)
+    if (mDstColorRT->unmap(mReadback, pixels) == T3D_OK)
     {
         const ColorRGB expected = SamplePattern::expectedColor(...);
         assertPixels(pixels, expected);
@@ -719,8 +722,6 @@ void BlitApp::onPostRender()
     mReadback = ReadbackHandle::invalid();
 }
 ```
-
-TextureApp：画面仍走 Camera + Material。`onRender` 只对当前 mip/slice 发 `beginReadTexture`，`onPostRender` 和 `expectedColor` 比。人眼、RenderDoc、断言三条腿并存。
 
 `copyBuffer` 用例可以读回目标 VB 字节直接比，三角形可视化可留着给人看。
 
@@ -732,51 +733,39 @@ TextureApp：画面仍走 Camera + Material。`onRender` 只对当前 mip/slice 
 
 ## 7. 文件改动清单
 
-### 7.1 必须改（第一期）
+### 7.1 第一期已改（对照用，不必再做）
 
-| 文件 | 改动 |
-|------|------|
-| `source/Platform/Include/Application/T3DApplication.h` | 加 `onPreRender` / `onRender` / `onPostRender` 默认空虚函数 |
-| `source/Platform/Source/Application/T3DApplication.cpp` | 空实现（若头文件内联则不必） |
-| `source/Core/Include/Kernel/T3DAgent.h` | `OnEngineRender` typedef；`EditorRunningData::onRender`；`renderOneFrame` 三参数 |
-| `source/Core/Source/Kernel/T3DAgent.cpp` | `run` / `runForEditor` / `renderOneFrame` 按 §2.3 |
-| `source/Core/Include/RHI/T3DRHICapabilities.h` | `supportsReadback` |
-| `source/Core/Include/RHI/T3DRHIContext.h` | `ReadbackRegion` / `ReadbackHandle`（或放 RenderConstant）+ 四个纯虚 |
-| `source/Core/Include/Render/T3DRenderConstant.h` 或新建小头 | 若结构体不放 RHIContext.h |
-| `source/Core/Include/Render/T3DRenderBuffer.h` / `.cpp` | `beginRead` / `endRead` 薄封装；异步 `readData` 保留 `kCPURead` 许可校验，改文案 |
-| `source/Plugins/Renderer/Direct3D11/Base/Source/T3DD3D11Mapping.cpp` | `get(Usage, mode)` 按 §3.0.4 改：`kCPURead` 不再建成 STAGING；DEFAULT/IMMUTABLE 的原生 CPUAccessFlags 恒 0 |
-| `source/Core/Include/Resource/T3DTextureManager.h` / `.cpp`、`T3DRenderTexture.cpp` | 可选 `accMode`，默认 `kCPUNone`；要读回的资源传 `kCPURead` |
-| `source/Core/Include/Resource/T3DTexture.h` / `T3DTexture.cpp` | `beginRead` / `endRead` 转到 PixelBuffer |
-| `source/Plugins/Renderer/Direct3D11/Window/Include/T3DD3D11Context.h` | pending 表、staging 池、四个 override |
-| `source/Plugins/Renderer/Direct3D11/Window/Source/T3DD3D11Context.cpp` | 真实现；`init()` 置 `supportsReadback` |
-| 下列后端 Context 头/源 | 四个接口 stub，见 §5 |
+| 文件 | 落地结果 |
+|------|---------|
+| `T3DApplication.h` | `onPreRender` / `onRender` / `onPostRender` 默认空虚函数 |
+| `T3DAgent.h` / `.cpp` | `OnEngineRender`；`EditorRunningData::onRender`；`renderOneFrame` 三参数；`syncRHIThread` |
+| `T3DRHICapabilities.h` | `supportsReadback` |
+| `T3DRenderConstant.h` | `ReadbackRegion` / `ReadbackHandle` |
+| `T3DRHIContext.h` | 三个纯虚：`map` × 2 + `unmap` |
+| `T3DRenderBuffer.h` / `.cpp` | `map` / `unmap` 薄封装；异步 `readData` 保留许可校验，TODO 改文案 |
+| `T3DD3D11Mapping.cpp` | 按 §3.0.4：`kCPURead` 不再建成 STAGING |
+| `T3DTextureManager.h` / `.cpp` | `createTexture2D` 两个重载、`createRenderTexture` 有可选 `accMode` |
+| `T3DTexture.h` / `.cpp` | `map` / `unmap` 转到 PixelBuffer |
+| `T3DD3D11Context.{h,cpp}` | pending 表、staging 池、三个 override；`init()` 置 `supportsReadback` |
+| 其它后端 Context | 三个接口 stub，见 §5 |
+| `TextureApp.{h,cpp}` | 第一帧读回冒烟（超出原「不改 sample」边界） |
 
-后端 stub 文件（每个加声明 + `T3D_RHI_UNSUPPORTED` / invalid handle）：
+### 7.2 仍未改
 
-- `T3DD3D11ConsoleContext.{h,cpp}`
-- `T3DGL4Context.{h,cpp}`、`T3DGL4ConsoleContext.{h,cpp}`
-- `T3DGLES3Context.{h,cpp}`
-- `T3DVKContext.{h,cpp}`、`T3DVKConsoleContext.{h,cpp}`
-- `T3DMetalContext.{h,cpp}`
-- `T3DNullContext.{h,cpp}`
-
-GL4 / GLES3 / Vulkan 若 Window 与 Console 共用 Base 类，stub 可以只写在 Base，避免写两遍。以实际继承关系为准：D3D11 的 blit 在 Window 不在 Base，Console 要单独 stub。
-
-### 7.2 第一期不改
-
-- `source/Samples/**`（BlitApp / TextureApp 升级跟验证计划走）
+- `source/Samples/BlitApp/**`（blit / copyBuffer 断言跟验证计划走）
+- `createTexture1D` / `3D` / `Cubemap` / `Texture2DArray` / `CubemapArray` 的 `accMode`
 - `source/Editor/TinyEditor/EditorApp.cpp`、`LauncherApp.cpp`（`onRender` 保持空）
 - `Image::save`、`TextureManager::saveTexture`
 - `RenderBuffer::copyData` 两个 TODO（那是 GPU→GPU，不是读回）
 
-### 7.3 文档回填（实现完成后）
+### 7.3 文档回填
 
-| 文档 | 回填内容 |
-|------|---------|
-| `D3D11-Renderer-Backend-Validation-Sample-Plan.md` §1.1 / §1.2 / §5.1 / §9.1 / §9.4 | 删掉「只能劫持 runForEditor」；BlitApp 改用 `onRender`；§9.1 从「无法自动化」改成「readback 落地后可断言」 |
-| `D3D11-Renderer-Backend-todo.md` | 登记 `beginRead*` / `endRead*` / `onRender` |
-| `RHI-Compute-UAV-Indirect-Draw-Design-todo.md` §12.3 | 标明「同步读回已由本立项承接；异步 query 仍待二期」 |
-| `VK/GL4/GLES3/Metal-Renderer-Backend-todo.md` | 各加一条 readback stub → 真实现 |
+| 文档 | 状态 |
+|------|------|
+| 本文 §0.3 / §6 / §9 / §14 | 已按代码回填 |
+| `D3D11-Renderer-Backend-Validation-Sample-Plan.md` §1.1 / §1.2 / §9.1 / §9.4 | 文首加状态说明；BlitApp 升级仍待做 |
+| `RHI-Compute-UAV-Indirect-Draw-Design-todo.md` §12.3 | 标明同步读回已承接 |
+| `GL4` / `GLES3` 后端 todo A.10.1 | stub 已进 RHI，不再写「接口尚未进入」 |
 
 ---
 
@@ -784,11 +773,11 @@ GL4 / GLES3 / Vulkan 若 Window 与 Console 共用 Base 类，stub 可以只写�
 
 与 Compute 文档 §12.3 合并，不要再做一个「永远阻塞」的正式游戏 API。
 
-- `begin*` 录 Copy，同时插入 `ID3D11Query(D3D11_QUERY_EVENT)`（Vulkan 用 fence）。
+- `map` 录 Copy，同时插入 `ID3D11Query(D3D11_QUERY_EVENT)`（Vulkan 用 fence）。
 - staging 做 2～3 帧环形缓冲，避免写正在 Map 的那块。
 - 之后某帧 `onPostRender` 里 `GetData(..., D3D11_ASYNC_GETDATA_DONOTFLUSH)` / `Map(..., D3D11_MAP_FLAG_DO_NOT_WAIT)`，完成再把回调抛回主线程。
 - 延迟帧数可放进 `RHICapabilities`（例如 `readbackLatencyFrames {2}`）。
-- 那时再真正接通 `RenderBuffer::readData(callback)`：在 `onRender` 自动 `beginReadBuffer`，在 N 帧后的 `onPostRender` 调 callback。这意味着 Agent 要在 `onRender` 前或后扫一圈「待发起的异步读」，所以二期才做，避免第一期就把 Agent 和读回队列缠死。
+- 那时再真正接通 `RenderBuffer::readData(callback)`：在 `onRender` 自动 `map`，在 N 帧后的 `onPostRender` 调 callback。这意味着 Agent 要在 `onRender` 前或后扫一圈「待发起的异步读」，所以二期才做，避免第一期就把 Agent 和读回队列缠死。
 
 UAV 计数回读（`CopyStructureCount` → staging → Map）是这条异步路径的第一个非 sample 用户。
 
@@ -796,23 +785,20 @@ UAV 计数回读（`CopyStructureCount` → staging → Map）是这条异步路
 
 ## 9. 分步实现顺序
 
-顺序不能倒。没有 `onRender` 就把 Copy 录进 `postRender`，等于把 D3D11 空 `endRender` 写进 API。
+A0–A7 **已落地**。顺序当时不能倒：没有 `onRender` 就把 Copy 录进 `postRender`，等于把 D3D11 空 `endRender` 写进 API。
 
-| 步 | 内容 | 验收 | 预估 |
-|----|------|------|------|
-| **A0** | 按 §3.0.4 修正 `D3D11Mapping::get(Usage, mode)`；`kDynamic + kCPUWrite` 行为不变 | 现有动态 VB / CB / ImGui 仍可 Map 写；`kStatic + kCPURead` 能建成 DEFAULT 且 debug layer 不报 CPUAccess 非法 | 0.5d |
-| **A1** | `Application` 三个空虚函数；`EditorRunningData::onRender`；`renderOneFrame` 三参数；`run` / `runForEditor` 接线 | 现有全部 sample + 编辑器行为不变；在一个 sample 里临时 `T3D_LOG` 确认 `onRender` 发生在 `beginRender` 之后、`endRender` 之前 | 0.5d |
-| **A2** | `RHIContext` 四纯虚 + `ReadbackRegion` / `ReadbackHandle` + `supportsReadback`；所有后端 stub | 全解决方案编译过 | 0.5d |
-| **A3** | D3D11 `beginReadBuffer` / `endReadBuffer`（只做 VB，不含纹理）；无 `kCPURead` 则拒绝 | 小实验：`kCPURead` 的 VB `copyBuffer` 后读回字节与源一致；`kCPUNone` 被拒；RHI 线程开/关各跑一遍 | 1d |
-| **A4** | D3D11 `beginReadTexture` / `endReadTexture`（2D 非 MSAA、单 mip）；Texture/RT 可选 `accMode` | 程序化纯色纹理（创建时 `kCPURead`）读回 RGB 与写入一致；确认按行拷贝，无 pitch 花纹 | 1d |
-| **A5** | mip / array slice / cubemap face；MSAA Resolve | 与 `buildSubresourceData` 下标一致；MSAA 源能读到 resolve 后的颜色 | 0.5d |
-| **A6** | `RenderBuffer` / `Texture` 薄封装；异步 `readData` 保留许可校验、改文案 | 旧的同步 `readData(void*)` 仍只读镜像 | 0.3d |
-| **A7** | 两种线程模式 + debug layer + `ReportLiveDeviceObjects`（反复读回无 staging 泄漏） | 无 ERROR；退出无异常 live object | 0.5d |
-| 合计 | | | 约 4.8d |
+| 步 | 内容 | 状态 |
+|----|------|------|
+| **A0** | 按 §3.0.4 修正 `D3D11Mapping::get(Usage, mode)` | ✅ |
+| **A1** | `Application` 三个空虚函数；`EditorRunningData::onRender`；`renderOneFrame` 三参数；`syncRHIThread` | ✅ |
+| **A2** | `RHIContext` 三纯虚 + `ReadbackRegion` / `ReadbackHandle` + `supportsReadback`；所有后端 stub | ✅ |
+| **A3** | D3D11 线性 `map` / `unmap`；无 `kCPURead` 则拒绝 | ✅（和 A4 一起合进 D3D11Context） |
+| **A4** | D3D11 纹理 `map` / `unmap`（2D + mip/slice + 区域）；Texture/RT 可选 `accMode` | ✅ TextureApp 冒烟覆盖 2D 整层 |
+| **A5** | mip / array slice / cubemap face；MSAA Resolve | ✅ 代码路径在；sample 尚未用 mip/MSAA 断言 |
+| **A6** | `RenderBuffer` / `Texture` 薄封装；异步 `readData` 改文案 | ✅ |
+| **A7** | 线程同步用 `syncRHIThread`；staging 池析构 Release | ✅ 实现在；反复 1000 帧 + `ReportLiveDeviceObjects` 未单独记验收 |
 
-A0 可以单独合，且必须在 A3 之前：不修正映射就给纹理加 `kCPURead` 会建成 STAGING。A1 也可以单独合，不依赖读回。A3 起必须已经有 `onRender`。
-
-建议验证用最小脚手架：`applicationDidFinishLaunching` 建一张 64×64 纯色纹理，**`accMode = kCPURead`**，`onRender` 里 `beginReadTexture`，`onPostRender` 里 `endReadTexture` + 比对。另建一张 `kCPUNone` 的对照，确认被拒。
+最小脚手架已经是 TextureApp 自己：64×64 程序化纹理，`accMode = kCPURead`，`onRender` 里 `map`，`onPostRender` 里 `unmap` + 比对；另建 `kCPUNone` 对照。
 
 ---
 
@@ -846,8 +832,8 @@ swapBuffers
 | 压缩 / 深度 | 明确错误码，不崩 |
 | 源为 `kCPUNone` 的 Immutable 纹理 | 拒绝（默认贴图路径，这是故意的） |
 | 源为 `kImmutable + kCPURead` | 成功，原生仍是 IMMUTABLE、无 CPU_ACCESS_READ，debug layer 不报错 |
-| `kBoth + kCPURead` 先 `readData(void*)` 再 `beginRead*` | 镜像是上传副本；读回是 GPU 权威（RT/UAV 写过之后二者应不同） |
-| invalid handle 调 `end*` | `T3D_ERR_INVALID_PARAM` |
+| `kBoth + kCPURead` 先 `readData(void*)` 再 `map` | 镜像是上传副本；读回是 GPU 权威（RT/UAV 写过之后二者应不同） |
+| invalid handle 调 `unmap` | `T3D_ERR_INVALID_PARAM`（TextureApp 已覆盖 consumed handle） |
 
 ### 10.3 线程与生命周期
 
@@ -868,23 +854,25 @@ swapBuffers
 
 | 风险 | 缓解 |
 |------|------|
-| 有人在 `onRender` 里调 `endRead*` | 文档 + `end*` 检查「Copy 命令是否已提交」。D3D11 上碰巧能工作（Map 会等），但不要鼓励。Debug 下可断言「当前不在 beginRender/endRender 之间」，需要 context 留一个 `mInsideRender` 标志，A1 顺手打上 |
-| `drainRHICommands` 在 `onPostRender` 里把下一帧命令也推掉 | `onPostRender` 在 `endRender` 之后、`endFrame` 的 `mRHIEvent.wait` 之前。本帧 render 命令应已在 `beginFrame` 时被上一轮 resume 消费，或仍在入队侧。**实现 A3 前必须对着 `beginFrame`/`endFrame`/`drain` 的双缓冲把时序画一遍**，必要时 `end*` 只用一次 `flush` + 等本条命令完成，而不是无脑 `drain` 两次。这是第一期最大的实现风险 |
+| 有人在 `onRender` 里调 `unmap` | `unmap` 检查 `CopyRecorded`。没执行过 Copy 会打「map must be called inside onRender, unmap inside onPostRender」并返回 `T3D_ERR_FAIL`。没有单独的 `mInsideRender` 标志 |
+| `drainRHICommands` 在 `onPostRender` 里和 RHI 线程撞车 | **已用 `syncRHIThread` 收住**：先 `waitRHIBatch()` 再 drain，并把 wait 记账，`endFrame` 不会重复等。这是落地时对 §11 原「最大实现风险」的实际解法 |
 | staging `Map` 与源资源 HAZARD | Copy 后 Map staging，不要 Map 源。debug layer 若报，说明 Copy 没在 Map 之前执行，回到 RHI 线程顺序问题 |
 | `Buffer::Data` 跨线程 | 分配在主线程，填在 RHI 线程，`drain` 的 happens-before 保证主线程随后可读。不要在 RHI 线程 `T3D_DELETE` 主线程还握着的指针 |
-| 纯虚迫使 Console/Null 也要写四个函数 | 这是故意的，与 compute 接口同一策略 |
+| 纯虚迫使 Console/Null 也要写三个函数 | 这是故意的，与 compute 接口同一策略 |
 
-关于 `drain` 时序，落地 A3 时按下面核对，写进代码注释：
+落地后的时序（写进 `syncRHIThread` / `unmap` 注释）：
 
 ```
 beginFrame:        resume RHI 线程，交换队列，执行「上一帧入队」的命令
-update / render:   主线程往入队队列写本帧命令（含 onRender 的 Copy）
+update / render:   主线程往入队队列写本帧命令（含 onRender 的 map / Copy）
 endRender:         D3D11 空；Vulkan submit（也是入队命令）
-onPostRender:      本帧 Copy 可能还在入队队列、尚未执行
-endFrame:          wait RHI 线程（等的是 beginFrame 那批，即上一帧）
+onPostRender:      本帧 Copy 还在入队队列、尚未执行
+  unmap:           syncRHIThread = waitRHIBatch + drain → Copy 执行完
+                   再 ENQUEUE Map，再 syncRHIThread 一次
+endFrame:          若本帧已被 syncRHIThread 等过，不再重复 wait
 ```
 
-因此 **`onPostRender` 里本帧 Copy 默认还没执行**。`end*` 必须主动 `flush`（`resume` + `wait`）把入队队列推去执行，再 Map。这与 `runFrameEndTasks` 里「先 flush 再销毁」是同一模式（`T3DAgent.cpp:762-765`）。用 `flushRHICommands` 一次可能不够（注释写明要两次才清空双缓冲），`drainRHICommands` 就是为此准备的。A3 实现时用「Copy 入队 → drain → Map 入队 → drain」验证；若两次 drain 把不该跑的命令也跑了，再收窄成带完成事件的单条命令。
+因此 **`onPostRender` 里本帧 Copy 默认还没执行**。`unmap` 必须用 `syncRHIThread`，不能直接 `drainRHICommands`。
 
 ---
 
@@ -892,13 +880,30 @@ endFrame:          wait RHI 线程（等的是 beginFrame 那批，即上一帧�
 
 | 文档 | 关系 |
 |------|------|
-| `D3D11-Renderer-Backend-Validation-Sample-Plan.md` | **本文是 §1.1 / §1.2 / §9.1 / §9.4 的立项落地。** 验证计划里「BlitApp 重写 go() 用 postRender」在 A1 完成后作废；「无法自动断言」在 A4 完成后作废。验证计划本文不改，等实现合入再回填 |
+| `D3D11-Renderer-Backend-Validation-Sample-Plan.md` | **本文是 §1.1 / §1.2 / §9.1 / §9.4 的立项落地。** 「BlitApp 重写 go() 用 postRender」在 A1 后作废；「无法自动断言」在 A4 后作废。验证计划文首已加状态；BlitApp 用例升级仍待做 |
 | `RHI-Compute-UAV-Indirect-Draw-Design-todo.md` §12.3 | 同步读回由本文承接；异步 query / UAV 计数回读仍待 §8 |
 | `D3D11-Renderer-Backend-Implementation-Plan.md` | 不新增 blit/copy 语义，只消费已落地的 Copy 路径 |
+| `Camera-PostProcess-Design-todo.md` | **§2.5 拒绝 `Behaviour::onRender` 的正面替代，相机后处理已由该文档承接并落地（B1–B5）。** 相机效果链插在管线 blit 上，不占用 `Application::onRender`；读回不要塞进 `onRenderImage` |
 | 各后端 todo | stub 清单见 §5 / §7.1 |
 
 ---
 
 ## 13. 一句话
 
-**`onRender` 负责在提交前把 GPU→GPU 的 Copy 录进去，`onPostRender` 负责在提交后把 staging Map 回 CPU。** 缺中间那一格，读回在 D3D11 上能凑合、在 Vulkan 上从一开始就是错的。
+**`onRender` 里 `map` 负责在提交前把 GPU→GPU 的 Copy 录进去，`onPostRender` 里 `unmap` 负责在提交后把 staging Map 回 CPU。** 缺中间那一格，读回在 D3D11 上能凑合、在 Vulkan 上从一开始就是错的。
+
+---
+
+## 14. 剩余工作
+
+第一期引擎能力已经能用。还没做、也不该假装做完的：
+
+| # | 内容 | 说明 |
+|---|------|------|
+| 1 | BlitApp 接 `onRender` / `map` / `unmap` | 验证计划 §1.2 的真正收口；不要再劫持 `runForEditor` |
+| 2 | TextureApp 对其它 mip / slice / MSAA 做断言 | A5 代码在，sample 只测了 2D 整层 |
+| 3 | `createTexture1D` / `3D` / `Cubemap` / Array 的 `accMode` | 现在只有 2D 和 RenderTexture 能在创建时声明 `kCPURead` |
+| 4 | 异步 `readData(callback)` + query | §8，和 Compute 文档 §12.3 合并 |
+| 5 | 其它后端真实现 | stub 已齐；Vulkan 按 §5 记账 |
+| 6 | 压缩格式 / 深度模板读回 | 第一期明确拒绝，保持 |
+| 7 | 编辑器 ImGui 迁到 `onRender` | 仍按 §2.6，另立项 |

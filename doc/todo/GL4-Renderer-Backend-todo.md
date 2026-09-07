@@ -1271,15 +1271,20 @@ TResult GL4Context::blit(RenderTarget *src, RenderTarget *dst, ...)
 
 GL4 后端的需求分散在多份设计文档中，本节记录它们与本文档的对应关系，以及哪些说法已经与代码脱节。
 
-### A.10.1 GPU Readback：接口尚未进入 RHI
+### A.10.1 GPU Readback：接口已进 RHI，GL4 仍是 stub
 
-`doc/todo/GPU-Readback-onRender-Design-todo.md` §5 / §7.1 规划了四个 readback 接口，要求在 `T3DGL4Context`、`T3DGL4ConsoleContext`、`T3DGLES3Context` 中先加 stub，并在 §7.3 要求实现后回填本文档。
+`doc/todo/GPU-Readback-onRender-Design-todo.md` 第一期已落地。RHI 接口不是当初草案的四个 `beginRead*` / `endRead*`，而是三个纯虚：
 
-**核对结果**：`T3DRHIContext.h` 中目前**搜不到任何 `beginRead*` / `endRead*` / readback 相关声明**，该设计尚未落到 RHI 接口层。因此：
+- `RHIContext::map(RenderBuffer *, size_t, size_t)`
+- `RHIContext::map(RenderBuffer *, const ReadbackRegion &)`
+- `RHIContext::unmap(ReadbackHandle, Buffer &)`
 
-- 本文档 A.7 的 93 个接口口径**不包含** readback，统计成立；
-- 这四个接口进入 RHI 之后，总数变为 97，本附录的统计需同步更新；
-- 届时 GL4 的 `Usage::kCopy` 需映射到 `GL_STREAM_READ`（该文档 §3.1 已指定）。
+`T3DGL4Context` / `T3DGL4ConsoleContext` 已用 `T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, …)` / `T3D_RHI_UNSUPPORTED` stub，`supportsReadback` 保持 false。
+
+因此：
+
+- 本文档 A.7 的 93 个接口口径需加上这 3 个 stub，总数按 96 理解（若原先按 93 统计）；
+- GL4 真实现仍待做：`Usage::kCopy` 映射到 `GL_STREAM_READ`（该文档 §3.1 已指定），时序跟 D3D11 一样——`onRender` 里 `map` 只录 Copy，`onPostRender` 里 `unmap` 再读。
 
 ### A.10.2 Compute / UAV / Indirect：对应 RHI-Compute 的第五期 E2
 
