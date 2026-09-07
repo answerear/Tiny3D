@@ -244,7 +244,7 @@ namespace Tiny3D
          * \param [in] data : 数据指针
          * \param [in] size : 数据字节数
          */
-        void setData(ShaderVariantInstance *shader, const String &name, const void *data, size_t size)
+        void setData(ShaderVariantInstance *shader, const String &name, const void *data, uint32_t size)
         {
             if (shader != nullptr)
             {
