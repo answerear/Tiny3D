@@ -410,8 +410,9 @@ namespace Tiny3D
             break;
         }
 
-        // 顏色紋理
-        RenderTexturePtr renderTexture = T3D_TEXTURE_MGR.createRenderTexture(name, desc.Width, desc.Height, format, 1, desc.MSAA.Count, desc.MSAA.Quality);
+        // 顏色紋理。后处理要把它当 SRV 采样，必须 shaderReadable。
+        RenderTexturePtr renderTexture = T3D_TEXTURE_MGR.createRenderTexture(
+            name, desc.Width, desc.Height, format, 1, desc.MSAA.Count, desc.MSAA.Quality, true);
 
         // 深度模板紋理
         name = name + "_DS";

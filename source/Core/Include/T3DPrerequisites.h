@@ -221,6 +221,8 @@ namespace Tiny3D
     // Component
     class Component;
     class Behaviour;
+    class CameraBehaviour;
+    class CameraEffectBehaviour;
     class Camera;
     class TransformNode;
     class Transform3D;

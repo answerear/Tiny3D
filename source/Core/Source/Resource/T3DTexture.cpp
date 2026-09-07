@@ -78,6 +78,22 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void Texture::ensureDefaultSampler()
+    {
+        if (mSamplerState != nullptr)
+        {
+            return;
+        }
+
+        SamplerDesc samplerDesc;
+        samplerDesc.AddressU = TextureAddressMode::kClamp;
+        samplerDesc.AddressV = TextureAddressMode::kClamp;
+        samplerDesc.AddressW = TextureAddressMode::kClamp;
+        setSamplerDesc(samplerDesc);
+    }
+
+    //--------------------------------------------------------------------------
+
     ReadbackHandle Texture::map(const ReadbackRegion &region)
     {
         PixelBuffer *pixelBuffer = getPixelBuffer();
@@ -330,6 +346,12 @@ namespace Tiny3D
             }
 
             mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&mDesc, MemoryType::kVRAM, Usage::kImmutable, mCPUAccessMode);
+
+            // 可采样 RT / 纹理必须带 SamplerState，否则 PS 绑定的是空采样器
+            if (mDesc.shaderReadable)
+            {
+                ensureDefaultSampler();
+            }
         } while (false);
         
         return ret;

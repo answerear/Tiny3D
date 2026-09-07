@@ -82,6 +82,13 @@ namespace Tiny3D
         void setSamplerDesc(const SamplerDesc &desc);
 
         /**
+         * \brief 若尚未创建采样器，补一个线性 Clamp 默认采样器
+         * \remarks 后处理把 RenderTexture 当 SRV 采样时必须有 SamplerState，
+         *          否则 D3D11 会报 DEVICE_DRAW_SAMPLER_NOT_SET
+         */
+        void ensureDefaultSampler();
+
+        /**
          * \brief 获取创建时声明的 CPU 访问许可（CPUAccessMode 组合）
          * \return 默认 kCPUNone；带 kCPURead 才允许 map
          */

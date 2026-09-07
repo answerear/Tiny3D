@@ -57,6 +57,13 @@ namespace Tiny3D
         Behaviour *asBehaviour() override { return this; }
 
         /**
+         * \brief 运行时快速判定是否相机后处理效果
+         * \return 默认 nullptr；CameraEffectBehaviour 覆写为返回 this
+         * \note 效果链收集不要只靠 RTTR is_derived_from：抽象基类跨模块时可能漏检
+         */
+        virtual CameraEffectBehaviour *asCameraEffectBehaviour() { return nullptr; }
+
+        /**
          * \brief 设置 enabled 并在已 Awake 后按复合运行态补发 onEnable / onDisable
          * \param [in] enabled : 新的开关值；与当前值相同时无操作
          */

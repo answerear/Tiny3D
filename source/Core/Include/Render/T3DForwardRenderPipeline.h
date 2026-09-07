@@ -28,6 +28,7 @@
 
 
 #include "T3DRenderPipeline.h"
+#include "Kernel/T3DConstant.h"
 #include "Material/T3DPassInstance.h"
 #include "Material/T3DShaderConstantParam.h"
 #include "Material/T3DShaderVariantInstance.h"
@@ -99,9 +100,20 @@ namespace Tiny3D
         TResult removeLight(Light *light) override;
 
         /**
-         * \brief 释放阴影 RT 与天空盒绘制缓存（VB、VertexDeclaration 等）
+         * \brief 释放阴影 RT、天空盒绘制缓存与临时 RT 池
          */
         void destroy() override;
+
+        /**
+         * \brief 用全屏三角形把 material 从 src 画到 dst
+         * \param [in] ctx : RHI 上下文
+         * \param [in] material : 后处理材质，须含 ForwardBase Pass
+         * \param [in] src : 源纹理，绑定为 _MainTex
+         * \param [in] dst : 输出目标
+         * \return 调用成功返回 T3D_OK
+         * \remarks 进入时不假设当前 RT / viewport / shader；用完 reset
+         */
+        TResult drawFullscreen(RHIContext *ctx, Material *material, RenderTexture *src, RenderTexture *dst);
 
     protected:
         using Lights = TUnorderedMap<UUID, Light*, UUIDHash, UUIDEqual>;
@@ -255,6 +267,49 @@ namespace Tiny3D
          * \remarks 在不透明队列之后、透明队列之前调用，被遮挡像素靠已有深度剔除
          */
         TResult renderSkybox(RHIContext *ctx, Camera *camera, Material *skyboxMaterial);
+
+        /**
+         * \brief 只遍历相机自己的 GameObject，分发 onPreRender / onPostRender
+         * \param [in] ctx : RHI 上下文
+         * \param [in] camera : 目标相机
+         * \param [in] preRender : true 调 onPreRender，false 调 onPostRender
+         */
+        void invokeCameraBehaviours(RHIContext *ctx, Camera *camera, bool preRender);
+
+        /**
+         * \brief 对一台「源 RT ≠ 最终目标」的相机跑效果链
+         * \param [in] ctx : RHI 上下文
+         * \param [in] camera : 目标相机
+         * \param [in] src : 本相机场景绘制结果
+         * \return 链的最后一张纹理；无 enabled 效果时原样返回 src
+         * \remarks 最后一张临时 RT 由调用方在 blit 上屏并 reset 之后 releaseTempRT
+         */
+        RenderTexture *runCameraPostprocessing(RHIContext *ctx, Camera *camera, RenderTexture *src);
+
+        /**
+         * \brief MSAA 源先 resolve 成非 MSAA 临时 RT，否则原样返回
+         */
+        RenderTexture *resolveIfMultisampled(RHIContext *ctx, RenderTexture *src);
+
+        /**
+         * \brief 按 (width, height, format) 从池里取一张可采样临时 RT
+         */
+        RenderTexture *acquireTempRT(uint32_t width, uint32_t height, PixelFormat format);
+
+        /**
+         * \brief 把临时 RT 从 in-use 还回对应桶
+         */
+        void releaseTempRT(RenderTexture *rt);
+
+        /**
+         * \brief 卸载池里全部纹理；destroy 时调用
+         */
+        void clearTempRTPool();
+
+        /**
+         * \brief 确保全屏三角形 VB 已创建（与天空盒共用）
+         */
+        TResult ensureFullscreenVB();
         
     protected:
         /**
@@ -293,6 +348,41 @@ namespace Tiny3D
         VertexDeclarationPtr mSkyboxVertexDecl {nullptr};
         /// 上一次生成 mSkyboxVertexDecl 所用的 VS 变体
         ShaderVariant *mSkyboxVertexDeclShader {nullptr};
+
+        /// 后处理全屏三角形的顶点声明；InputLayout 依赖 VS 字节码
+        VertexDeclarationPtr mPostProcessVertexDecl {nullptr};
+        /// 上一次生成 mPostProcessVertexDecl 所用的 VS 变体
+        ShaderVariant *mPostProcessVertexDeclShader {nullptr};
+
+        /**
+         * \brief 临时 RT 池分桶键
+         */
+        struct TempRTKey
+        {
+            uint32_t    width {0};
+            uint32_t    height {0};
+            PixelFormat format {PixelFormat::E_PF_UNKNOWN};
+
+            bool operator<(const TempRTKey &rhs) const
+            {
+                if (width != rhs.width)
+                {
+                    return width < rhs.width;
+                }
+                if (height != rhs.height)
+                {
+                    return height < rhs.height;
+                }
+                return static_cast<uint32_t>(format) < static_cast<uint32_t>(rhs.format);
+            }
+        };
+
+        /// 按尺寸/格式分桶的空闲临时 RT
+        TMap<TempRTKey, TArray<RenderTexturePtr>> mTempRTPool;
+        /// 本帧已借出、尚未归还的临时 RT
+        TArray<RenderTexturePtr>                  mTempRTInUse;
+        /// 临时 RT 名称序号，避免 TextureManager 重名
+        uint32_t                                  mTempRTSerial {0};
 
 #if defined(T3D_EDITOR)
         /// cull 阶段缓存的编辑器相机，render 时用来判断是否应用 Scene 着色模式

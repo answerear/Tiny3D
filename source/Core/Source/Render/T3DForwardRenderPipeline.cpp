@@ -24,6 +24,8 @@
 
 
 #include "Render/T3DForwardRenderPipeline.h"
+#include "Behaviour/T3DCameraBehaviour.h"
+#include "Behaviour/T3DCameraEffectBehaviour.h"
 #include "Material/T3DTechniqueInstance.h"
 #include "Material/T3DTechnique.h"
 #include "Material/T3DPass.h"
@@ -53,7 +55,11 @@
 #include "Light/T3DPointLight.h"
 #include "Light/T3DSpotLight.h"
 #include "Resource/T3DTextureManager.h"
+#include "Render/T3DPixelBuffer.h"
 #include "T3DErrorDef.h"
+
+#include <algorithm>
+#include <string>
 
 
 namespace Tiny3D
@@ -106,6 +112,9 @@ namespace Tiny3D
         mSkyboxVB = nullptr;
         mSkyboxVertexDecl = nullptr;
         mSkyboxVertexDeclShader = nullptr;
+        mPostProcessVertexDecl = nullptr;
+        mPostProcessVertexDeclShader = nullptr;
+        clearTempRTPool();
     }
 
     //--------------------------------------------------------------------------
@@ -495,6 +504,9 @@ namespace Tiny3D
             rt = camera->getRenderTarget();
         }
 
+        // 清屏之前：此时尚未绑 srcRT，回调可以改 viewport / clear，不要自己 setRenderTarget
+        invokeCameraBehaviours(ctx, camera, true);
+
         ctx->setRenderTarget(rt);
         
         // 设置 viewport
@@ -551,25 +563,41 @@ namespace Tiny3D
 
         ctx->endPass();
 
-        // 把相机渲染纹理渲染到相机对应的渲染目标上
-        // if (camera->getRenderTarget()->getType() == RenderTarget::Type::E_RT_WINDOW)
-        if (camera->getRenderTarget()->getRenderTexture() != camera->getRenderTexture())
+        invokeCameraBehaviours(ctx, camera, false);
+
+        RenderTexture *srcColor = (rt != nullptr) ? rt->getRenderTexture().get() : nullptr;
+        RenderTexture *finalColor = (camera->getRenderTarget() != nullptr)
+            ? camera->getRenderTarget()->getRenderTexture().get()
+            : nullptr;
+        RenderTexture *result = srcColor;
+
+        // 只对「源 RT ≠ 最终目标」的相机跑效果链；直接画到纹理的相机第一期不偷建中间 RT
+        if (srcColor != nullptr && finalColor != srcColor)
+        {
+            result = runCameraPostprocessing(ctx, camera, srcColor);
+        }
+
+        if (result != nullptr && finalColor != result)
         {
             T3D_ASSERT(rt->getType() == RenderTarget::Type::E_RT_TEXTURE);
             const Viewport &vp = camera->getViewport();
-            Real left = Real(rt->getRenderTexture()->getWidth()) * vp.Left;
-            Real top = Real(rt->getRenderTexture()->getHeight()) * vp.Top;
-            Real width = Real(rt->getRenderTexture()->getWidth()) * vp.Width;
-            Real height = Real(rt->getRenderTexture()->getHeight()) * vp.Height;
+            Real left = Real(result->getWidth()) * vp.Left;
+            Real top = Real(result->getHeight()) * vp.Top;
+            Real width = Real(result->getWidth()) * vp.Width;
+            Real height = Real(result->getHeight()) * vp.Height;
             Vector3 offset(left, top, 0.0f);
             Vector3 box(width, height, 0.0f);
-            
-            ctx->blit(rt->getRenderTexture(), camera->getRenderTarget(), offset, box, offset);
-            // ctx->blit(rt, camera->getRenderTarget());
+
+            ctx->blit(result, camera->getRenderTarget(), offset, box, offset);
         }
 
-        // 重置所有状态
+        // 重置所有状态后再还池，避免临时 RT 还绑着
         ctx->reset();
+
+        if (result != srcColor)
+        {
+            releaseTempRT(result);
+        }
         
         return T3D_OK;
     }
@@ -738,34 +766,10 @@ namespace Tiny3D
             return T3D_OK;
         }
 
-        if (mSkyboxVB == nullptr)
+        TResult vbRet = ensureFullscreenVB();
+        if (T3D_FAILED(vbRet))
         {
-            // 覆盖整个 NDC 的大三角形，只带 POSITION。z 分量在 VS 里被强行改成 w，
-            // 这里给什么都无所谓
-            const Vector3 vertices[3] =
-            {
-                Vector3(-REAL_ONE, -REAL_ONE, REAL_ONE),
-                Vector3( 3 * REAL_ONE, -REAL_ONE, REAL_ONE),
-                Vector3(-REAL_ONE,  3 * REAL_ONE, REAL_ONE),
-            };
-
-            Buffer vbData;
-            vbData.DataSize = sizeof(vertices);
-            vbData.Data = T3D_POD_NEW_ARRAY(uint8_t, vbData.DataSize);
-            memcpy(vbData.Data, vertices, vbData.DataSize);
-
-            // kVRAM 下 RenderBuffer 直接接管 vbData.Data，由它的析构负责释放，
-            // 这里不能再 release：D3D11 的 CreateBuffer 是丢到 RHI 线程上晚一步
-            // 执行的，提前释放会让它读到已经回收的内存
-            mSkyboxVB = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(
-                sizeof(Vector3), 3, vbData,
-                MemoryType::kVRAM, Usage::kImmutable, kCPUNone);
-
-            if (mSkyboxVB == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to create skybox vertex buffer !");
-                return T3D_ERR_RES_LOAD_FAILED;
-            }
+            return vbRet;
         }
 
         // InputLayout 是跟 VS 字节码绑定的，shader 变体一换就得重建
@@ -1242,6 +1246,344 @@ namespace Tiny3D
         }
 #endif
         
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ForwardRenderPipeline::invokeCameraBehaviours(RHIContext *ctx, Camera *camera, bool preRender)
+    {
+        if (camera == nullptr || camera->getGameObject() == nullptr)
+        {
+            return;
+        }
+
+        auto behaviours = camera->getGameObject()->getComponents<CameraBehaviour>();
+        for (auto &b : behaviours)
+        {
+            if (b != nullptr && b->isActiveAndEnabled())
+            {
+                if (preRender)
+                {
+                    b->onPreRender(ctx);
+                }
+                else
+                {
+                    b->onPostRender(ctx);
+                }
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    RenderTexture *ForwardRenderPipeline::runCameraPostprocessing(
+        RHIContext *ctx, Camera *camera, RenderTexture *src)
+    {
+        if (src == nullptr || camera == nullptr || camera->getGameObject() == nullptr)
+        {
+            return src;
+        }
+
+        TArray<CameraEffectBehaviour *> enabled;
+        for (const auto &item : camera->getGameObject()->getAllComponents())
+        {
+            if (item.second == nullptr)
+            {
+                continue;
+            }
+
+            Behaviour *behaviour = item.second->asBehaviour();
+            if (behaviour == nullptr)
+            {
+                continue;
+            }
+
+            CameraEffectBehaviour *effect = behaviour->asCameraEffectBehaviour();
+            if (effect != nullptr && effect->isActiveAndEnabled())
+            {
+                enabled.push_back(effect);
+            }
+        }
+
+        if (enabled.empty())
+        {
+            return src;
+        }
+
+        // TUnorderedMultimap 返回顺序不保证稳定，必须显式排序
+        std::stable_sort(enabled.begin(), enabled.end(),
+            [](const CameraEffectBehaviour *a, const CameraEffectBehaviour *b)
+            {
+                return a->getEffectOrder() < b->getEffectOrder();
+            });
+
+        RenderTexture *cur = resolveIfMultisampled(ctx, src);
+
+        for (CameraEffectBehaviour *effect : enabled)
+        {
+            RenderTexture *dst = acquireTempRT(cur->getWidth(), cur->getHeight(), cur->getPixelFormat());
+            if (dst == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to acquire temp RT for camera post-processing");
+                break;
+            }
+
+            RenderTexture *depth = nullptr;
+            if (camera->getSrcRenderTarget() != nullptr)
+            {
+                depth = camera->getSrcRenderTarget()->getDepthStencil().get();
+            }
+
+            effect->onRenderImage(ctx, cur, dst, depth);
+
+            if (cur != src)
+            {
+                releaseTempRT(cur);
+            }
+            cur = dst;
+        }
+
+        return cur;
+    }
+
+    //--------------------------------------------------------------------------
+
+    RenderTexture *ForwardRenderPipeline::resolveIfMultisampled(RHIContext *ctx, RenderTexture *src)
+    {
+        if (src == nullptr || ctx == nullptr)
+        {
+            return src;
+        }
+
+        PixelBuffer *pixelBuffer = src->getPixelBuffer();
+        const bool canSample = pixelBuffer != nullptr
+            && (pixelBuffer->getGPUAccess() & kGPUShaderResource) != 0;
+        if (src->getMSAADesc().Count <= 1 && canSample)
+        {
+            return src;
+        }
+
+        RenderTexture *resolved = acquireTempRT(src->getWidth(), src->getHeight(), src->getPixelFormat());
+        if (resolved == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to acquire temp RT for MSAA resolve");
+            return src;
+        }
+
+        ctx->blit(src, resolved);
+        return resolved;
+    }
+
+    //--------------------------------------------------------------------------
+
+    RenderTexture *ForwardRenderPipeline::acquireTempRT(uint32_t width, uint32_t height, PixelFormat format)
+    {
+        TempRTKey key;
+        key.width = width;
+        key.height = height;
+        key.format = format;
+
+        TArray<RenderTexturePtr> &bucket = mTempRTPool[key];
+        RenderTexturePtr rt;
+        if (!bucket.empty())
+        {
+            rt = bucket.back();
+            bucket.pop_back();
+        }
+        else
+        {
+            String name = "__@$TempRT_";
+            name += std::to_string(mTempRTSerial++);
+            name += "$@__";
+            rt = T3D_TEXTURE_MGR.createRenderTexture(name, width, height, format, 1, 1, 0, true, kCPUNone);
+            if (rt == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to create temp render texture %ux%u", width, height);
+                return nullptr;
+            }
+        }
+
+        mTempRTInUse.push_back(rt);
+        return rt.get();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ForwardRenderPipeline::releaseTempRT(RenderTexture *rt)
+    {
+        if (rt == nullptr)
+        {
+            return;
+        }
+
+        for (auto it = mTempRTInUse.begin(); it != mTempRTInUse.end(); ++it)
+        {
+            if (it->get() == rt)
+            {
+                TempRTKey key;
+                key.width = rt->getWidth();
+                key.height = rt->getHeight();
+                key.format = rt->getPixelFormat();
+                mTempRTPool[key].push_back(*it);
+                mTempRTInUse.erase(it);
+                return;
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ForwardRenderPipeline::clearTempRTPool()
+    {
+        for (auto &rt : mTempRTInUse)
+        {
+            if (rt != nullptr)
+            {
+                T3D_TEXTURE_MGR.unload(rt);
+            }
+        }
+        mTempRTInUse.clear();
+
+        for (auto &bucket : mTempRTPool)
+        {
+            for (auto &rt : bucket.second)
+            {
+                if (rt != nullptr)
+                {
+                    T3D_TEXTURE_MGR.unload(rt);
+                }
+            }
+        }
+        mTempRTPool.clear();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::ensureFullscreenVB()
+    {
+        if (mSkyboxVB != nullptr)
+        {
+            return T3D_OK;
+        }
+
+        const Vector3 vertices[3] =
+        {
+            Vector3(-REAL_ONE, -REAL_ONE, REAL_ONE),
+            Vector3( 3 * REAL_ONE, -REAL_ONE, REAL_ONE),
+            Vector3(-REAL_ONE,  3 * REAL_ONE, REAL_ONE),
+        };
+
+        Buffer vbData;
+        vbData.DataSize = sizeof(vertices);
+        vbData.Data = T3D_POD_NEW_ARRAY(uint8_t, vbData.DataSize);
+        memcpy(vbData.Data, vertices, vbData.DataSize);
+
+        mSkyboxVB = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(
+            sizeof(Vector3), 3, vbData,
+            MemoryType::kVRAM, Usage::kImmutable, kCPUNone);
+
+        if (mSkyboxVB == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to create fullscreen vertex buffer !");
+            return T3D_ERR_RES_LOAD_FAILED;
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::drawFullscreen(RHIContext *ctx, Material *material, RenderTexture *src, RenderTexture *dst)
+    {
+        if (ctx == nullptr || material == nullptr || src == nullptr || dst == nullptr)
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        TResult vbRet = ensureFullscreenVB();
+        if (T3D_FAILED(vbRet))
+        {
+            return vbRet;
+        }
+
+        TechniqueInstancePtr tech = material->getCurrentTechnique();
+        if (tech == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_RENDER, "drawFullscreen: material has no current technique");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        const auto itrPass = tech->getPassInstances().find(ShaderLab::kBuiltinLightModeForwardBase);
+        if (itrPass == tech->getPassInstances().end() || itrPass->second == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_RENDER, "drawFullscreen: material has no ForwardBase pass");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        PassInstance *pass = itrPass->second;
+        ShaderVariantInstance *vsInstance = pass->getCurrentVertexShader();
+        if (vsInstance == nullptr || vsInstance->getShaderVariant() == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_RENDER, "drawFullscreen: material has no vertex shader");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        if (mPostProcessVertexDecl == nullptr
+            || mPostProcessVertexDeclShader != vsInstance->getShaderVariant())
+        {
+            VertexAttributes attrs;
+            attrs.push_back(VertexAttribute(
+                0, 0,
+                VertexAttribute::Type::E_VAT_FLOAT3,
+                VertexAttribute::Semantic::E_VAS_POSITION, 0));
+
+            mPostProcessVertexDecl = T3D_RENDER_BUFFER_MGR.addVertexDeclaration(attrs, vsInstance->getShaderVariant());
+            mPostProcessVertexDeclShader = vsInstance->getShaderVariant();
+            if (mPostProcessVertexDecl == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to create post-process vertex declaration !");
+                return T3D_ERR_RES_LOAD_FAILED;
+            }
+        }
+
+        src->ensureDefaultSampler();
+        material->setTexture("_MainTex", src->getUUID());
+
+        RenderTargetPtr rt = RenderTarget::create(dst);
+        if (rt == nullptr)
+        {
+            return T3D_ERR_INVALID_POINTER;
+        }
+
+        ctx->setRenderTarget(rt);
+        Viewport vp;
+        ctx->setViewport(vp);
+
+        RenderState *renderState = pass->getPass()->getRenderState();
+        if (renderState == nullptr)
+        {
+            renderState = tech->getTechnique()->getRenderState();
+        }
+
+        setupRenderState(ctx, renderState);
+        setupShaders(ctx, material, pass);
+
+        ctx->beginPass();
+        ctx->setPrimitiveType(PrimitiveType::kTriangleList);
+        ctx->setVertexDeclaration(mPostProcessVertexDecl);
+
+        VertexBuffers vbs;
+        vbs.push_back(mSkyboxVB);
+        VertexStrides strides;
+        strides.push_back(sizeof(Vector3));
+        VertexOffsets offsets;
+        offsets.push_back(0);
+        ctx->setVertexBuffers(0, vbs, strides, offsets);
+        ctx->render(3, 0);
+        ctx->endPass();
+        ctx->reset();
+
         return T3D_OK;
     }
 
