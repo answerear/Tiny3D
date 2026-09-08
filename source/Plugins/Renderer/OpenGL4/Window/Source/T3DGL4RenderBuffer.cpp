@@ -150,4 +150,22 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    GL4StructuredBufferPtr GL4StructuredBuffer::create()
+    {
+        return T3D_NEW GL4StructuredBuffer();
+    }
+
+    GL4StructuredBuffer::~GL4StructuredBuffer()
+    {
+        GL_SAFE_DELETE_BUFFER(GLCounterBuffer);
+        GL_SAFE_DELETE_BUFFER(GLBuffer);
+    }
+
+    void *GL4StructuredBuffer::getNativeObject() const
+    {
+        return (void *)(uintptr_t)GLBuffer;
+    }
+
+    //--------------------------------------------------------------------------
 }

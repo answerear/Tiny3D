@@ -13,7 +13,7 @@
 
 namespace Tiny3D
 {
-    struct GL4BlendStateData
+    struct GL4RTBlendData
     {
         bool        enabled {false};
         GLenum      srcRGB {GL_ONE};
@@ -23,6 +23,13 @@ namespace Tiny3D
         GLenum      opRGB {GL_FUNC_ADD};
         GLenum      opAlpha {GL_FUNC_ADD};
         GLboolean   colorMask[4] {GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE};
+    };
+
+    struct GL4BlendStateData
+    {
+        bool            independentBlend {false};
+        bool            alphaToCoverage {false};
+        GL4RTBlendData  targets[T3D_MAX_RENDER_TARGET] {};
     };
 
     class GL4BlendState : public RHIBlendState

@@ -19,6 +19,7 @@ namespace Tiny3D
         static GLenum get(PixelFormat format);
         static GLenum getInternalFormat(PixelFormat format);
         static GLenum getPixelType(PixelFormat format);
+        static uint32_t getBytesPerPixel(PixelFormat format);
 
         static GLenum get(BlendFactor factor);
         static GLenum get(BlendOperation op);

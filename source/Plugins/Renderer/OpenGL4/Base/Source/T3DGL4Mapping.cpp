@@ -86,6 +86,37 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    uint32_t GL4Mapping::getBytesPerPixel(PixelFormat format)
+    {
+        switch (format)
+        {
+        case PixelFormat::E_PF_PALETTE8:
+            return 1;
+        case PixelFormat::E_PF_B5G6R5:
+        case PixelFormat::E_PF_B5G5R5A1:
+        case PixelFormat::E_PF_B4R4G4A4:
+        case PixelFormat::E_PF_D16_UNORM:
+            return 2;
+        case PixelFormat::E_PF_R8G8B8:
+        case PixelFormat::E_PF_B8G8R8:
+            return 3;
+        case PixelFormat::E_PF_R8G8B8A8:
+        case PixelFormat::E_PF_B8G8R8A8:
+        case PixelFormat::E_PF_R8G8B8X8:
+        case PixelFormat::E_PF_B8G8R8X8:
+        case PixelFormat::E_PF_D24_UNORM_S8_UINT:
+        case PixelFormat::E_PF_D32_FLOAT:
+            return 4;
+        case PixelFormat::E_PF_D32_FLOAT_S8X24_UINT:
+            return 8;
+        default:
+            break;
+        }
+        return 0;
+    }
+
+    //--------------------------------------------------------------------------
+
     GLenum GL4Mapping::get(BlendFactor factor)
     {
         switch (factor)

@@ -116,6 +116,23 @@ namespace Tiny3D
     protected:
         GL4PixelBufferCubemap() = default;
     };
+
+    class GL4StructuredBuffer : public RHIStructuredBuffer
+    {
+    public:
+        static GL4StructuredBufferPtr create();
+        ~GL4StructuredBuffer() override;
+        void *getNativeObject() const override;
+
+        GLuint GLBuffer {0};
+        /// Append/Consume 或 hasCounter 时的 4 字节计数器
+        GLuint GLCounterBuffer {0};
+        uint32_t ElementCount {0};
+        uint32_t ElementSize {0};
+        bool HasCounter {false};
+    protected:
+        GL4StructuredBuffer() = default;
+    };
 }
 
 

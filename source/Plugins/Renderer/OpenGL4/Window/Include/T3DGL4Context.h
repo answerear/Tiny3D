@@ -60,6 +60,9 @@ namespace Tiny3D
 
         TResult resetRenderTarget() override;
 
+        TResult resizeRenderTexture(RenderTexture *rt, uint32_t width, uint32_t height) override;
+        TResult resizeRenderTarget(RenderTarget *rt, uint32_t width, uint32_t height) override;
+
         TResult setViewport(const Viewport &viewport) override;
 
         TResult setScissorRect(int32_t x, int32_t y, uint32_t width, uint32_t height) override;
@@ -204,6 +207,7 @@ namespace Tiny3D
         TResult stageConstantBuffers(const ConstantBuffers &buffers);
         TResult bindPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers);
         TResult bindSamplers(uint32_t startSlot, const Samplers &samplers);
+        TResult bindStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers);
 
         void bindPendingUniformBlocks(GLuint program);
         void setupSamplerBindings(GLuint program);
@@ -212,10 +216,65 @@ namespace Tiny3D
         void fillCapabilities();
 
         /**
-         * \brief draw call 之前确保当前 program 已链接并激活
+         * \brief draw call 之前确保当前 graphics program 已链接并激活
          * \return 链接失败返回 T3D_ERR_GL4_LINK_PROGRAM
          */
         TResult ensureProgramLinked();
+
+        /**
+         * \brief dispatch 之前确保当前 compute program 已链接并激活
+         */
+        TResult ensureComputeProgramLinked();
+
+        TResult compileGLSLShader(GLenum shaderType, const String &source, GLuint &outHandle, const char *stageName);
+        TResult attachGraphicsShader(ShaderVariant *shader, ShaderVariant *&currentVariant);
+
+        void releaseRenderTextureResources(GL4PixelBuffer2D *pb);
+        TResult buildRenderTextureResources(PixelBuffer2D *buffer, GL4PixelBuffer2D *pb);
+
+        GLuint getGLBufferHandle(RenderBuffer *buffer) const;
+        TResult validateIndirectArgs(RenderBuffer *argsBuffer, size_t argsOffset, size_t argsSize);
+
+        struct BlitEndpoint
+        {
+            GLuint      fbo {0};
+            GLuint      texture {0};
+            GLuint      resolveFbo {0};
+            GLuint      resolveTex {0};
+            uint32_t    width {0};
+            uint32_t    height {0};
+            uint32_t    sampleCount {1};
+            bool        isWindow {false};
+            bool        isDepth {false};
+            bool        needsScratchFbo {false};
+        };
+
+        TResult resolveBlitEndpoint(Texture *tex, bool asSource, BlitEndpoint &out);
+        TResult resolveBlitEndpoint(RenderTarget *rt, bool asSource, BlitEndpoint &out);
+        TResult doBlit(const BlitEndpoint &src, const BlitEndpoint &dst,
+            const Vector3 &srcOffset, const Vector3 &size, const Vector3 &dstOffset);
+
+        struct ReadbackRequest
+        {
+            ReadbackHandle      Handle {};
+            RenderBufferPtr     Src {nullptr};
+            bool                IsTexture {false};
+            bool                CopyRecorded {false};
+            TResult             CopyResult {T3D_OK};
+            GLuint              Staging {0};
+            size_t              TotalBytes {0};
+            uint32_t            TightRowPitch {0};
+            uint32_t            TightSlicePitch {0};
+            uint32_t            CopyWidth {1};
+            uint32_t            CopyHeight {1};
+            uint32_t            CopyDepth {1};
+            size_t              BufferOffset {0};
+            size_t              BufferSize {0};
+            ReadbackRegion      Region {};
+        };
+
+        ReadbackHandle allocReadbackRequest(RenderBuffer *src, bool isTexture, ReadbackRequest *&outRequest);
+        TResult finishReadback(ReadbackHandle handle, Buffer &dst);
 
         //-------------------------------------------------------------------
         // glslang CPU-side reflection cache
@@ -248,8 +307,11 @@ namespace Tiny3D
         bool mGlslangInitialized {false};
 
     protected:
-        /// 当前激活的 GL Program
+        /// 当前激活的 graphics GL Program
         GLuint  mCurrentProgram {0};
+        /// 当前激活的 compute GL Program（与 graphics 分离）
+        GLuint  mCurrentComputeProgram {0};
+        bool    mComputeProgramDirty {false};
         /// 当前图元类型
         GLenum  mPrimitiveType {GL_TRIANGLES};
         /// 当前索引类型
@@ -272,9 +334,21 @@ namespace Tiny3D
         /// 当前是否渲染到 FBO（非 backbuffer），用于 Y 翻转判断
         bool    mRenderingToFBO {false};
 
-        /// 当前绑定的 VS/PS ShaderVariant（用于 setupSamplerBindings 查找 slot）
+        /// 当前绑定的各阶段 ShaderVariant（用于 setupSamplerBindings 查找 slot）
         ShaderVariant *mCurrentVSVariant {nullptr};
         ShaderVariant *mCurrentPSVariant {nullptr};
+        ShaderVariant *mCurrentHSVariant {nullptr};
+        ShaderVariant *mCurrentDSVariant {nullptr};
+        ShaderVariant *mCurrentGSVariant {nullptr};
+        ShaderVariant *mCurrentCSVariant {nullptr};
+
+        /// blit 用的临时 FBO（给没有自带 FBO 的普通纹理）
+        GLuint  mScratchReadFBO {0};
+        GLuint  mScratchDrawFBO {0};
+
+        uint32_t mNextReadbackIndex {0};
+        uint32_t mReadbackGeneration {1};
+        TMap<uint32_t, ReadbackRequest> mPendingReadbacks;
 
         /// 主窗口 GL context 句柄（用于 multi-viewport 恢复）
 #if defined(T3D_OS_WINDOWS)

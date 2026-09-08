@@ -62,6 +62,10 @@ namespace Tiny3D
         T3D_ERR_GL4_PRESENT,
         /// 无效的用途
         T3D_ERR_GL4_INVALID_USAGE,
+        /// 不兼容的复制 / blit
+        T3D_ERR_GL4_INCOMPATIBLE_COPY,
+        /// 当前资源类型不支持该操作
+        T3D_ERR_GL4_UNSUPPORTED_OPERATION,
     };
 }
 

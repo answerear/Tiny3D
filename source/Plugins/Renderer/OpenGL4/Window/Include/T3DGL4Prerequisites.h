@@ -144,6 +144,7 @@ namespace Tiny3D
     class GL4PixelBuffer2D;
     class GL4PixelBuffer3D;
     class GL4PixelBufferCubemap;
+    class GL4StructuredBuffer;
     class GL4Shader;
     class GL4VertexShader;
     class GL4PixelShader;
@@ -171,6 +172,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(GL4PixelBuffer2D);
     T3D_DECLARE_SMART_PTR(GL4PixelBuffer3D);
     T3D_DECLARE_SMART_PTR(GL4PixelBufferCubemap);
+    T3D_DECLARE_SMART_PTR(GL4StructuredBuffer);
     T3D_DECLARE_SMART_PTR(GL4Shader);
     T3D_DECLARE_SMART_PTR(GL4VertexShader);
     T3D_DECLARE_SMART_PTR(GL4PixelShader);
