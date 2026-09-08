@@ -884,6 +884,8 @@ glCopyImageSubData(srcTex, GL_TEXTURE_2D, 0, 0, 0, 0,
     dstTex, GL_TEXTURE_2D, 0, 0, 0, 0, width, height, 1);
 ```
 
+**Tiny3D RHI 契约（后处理依赖）：** 四个 `RHIContext::blit` 重载里，`size == Vector3::ZERO` 表示整资源传输（D3D11 `doBlit` 已如此）。`CopyResource` 对纹理对应 `blit(Texture*, Texture*)`，不要只用 `glCopyBufferSubData`。GL4 插件当前只实现了 `blit(Texture*, RenderTarget*)`，且未处理 `ZERO`；`blit(Texture*, Texture*)` 仍是空实现。这会卡住相机后处理的 MSAA resolve 与 Copy 效果，见 `doc/todo/Camera-PostProcess-Design-todo.md` §12。
+
 ---
 
 ## 14. 同步

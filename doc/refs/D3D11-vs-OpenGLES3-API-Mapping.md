@@ -951,6 +951,8 @@ void* pixels = glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, width * height * 4, GL_
 glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
 ```
 
+**Tiny3D RHI 契约（后处理依赖）：** 四个 `RHIContext::blit` 重载里，`size == Vector3::ZERO` 表示整资源传输。`CopyResource` 对纹理对应 `blit(Texture*, Texture*)`。GLES3 插件当前只实现了 `blit(Texture*, RenderTarget*)`（含 `glInvalidateFramebuffer`），且未处理 `ZERO`；`blit(Texture*, Texture*)` 仍是空实现。嵌入后处理 shader 是 `#version 310 es`，MSAA RT 用 `glTexStorage2DMultisample`，都要求 GLES 3.1+。详见 `doc/todo/Camera-PostProcess-Design-todo.md` §12、`doc/todo/GLES3-Renderer-Backend-todo.md` A.10.5。
+
 ---
 
 ## 14. 同步

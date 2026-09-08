@@ -328,7 +328,7 @@ protected:
 | `setVSConstantBuffers() / setPSConstantBuffers()` | 延迟 UBO 暂存 (stageConstantBuffers) |
 | `setPSPixelBuffers() / setPSSamplers()` | 纹理和采样器绑定 |
 | `render()` | 延迟 Program Link + 绘制 (glDrawElementsBaseVertex / glDrawArrays) |
-| `blit()` | 帧缓冲拷贝 (glBlitFramebuffer) |
+| `blit()` | 帧缓冲拷贝 (`glBlitFramebuffer`)。**四个重载里目前只有 `Texture→RenderTarget` 有实现**；`Texture→Texture`（后处理 MSAA resolve）与另外两个仍是空 `T3D_OK`。已实现的那条也不把 `size==ZERO` 当成整张拷贝。状态与补齐顺序见 `doc/todo/GL4-Renderer-Backend-todo.md` A.10.5、`doc/todo/Camera-PostProcess-Design-todo.md` §12 |
 | `writeBuffer()` | Buffer 数据写入 (DSA: glNamedBufferData / glNamedBufferSubData) |
 | `swapBackBuffer()` | 交换前后缓冲 (SwapBuffers / glXSwapBuffers) |
 
@@ -674,6 +674,8 @@ Context::createXxx(params)
     → glBlitFramebuffer(..., GL_COLOR_BUFFER_BIT, GL_NEAREST)
     → Shader 读取 GLResolveTex (非多采样纹理)
 ```
+
+上述 resolve 只写在 **`blit(Texture*, RenderTarget*)`** 里。相机后处理的 `resolveIfMultisampled` 走的是 **`blit(Texture*, Texture*)`**，该重载尚未实现；`bindPixelBuffers` 也不会改绑 `GLResolveTex`。因此 MSAA 相机进效果链时，设计上的 resolve 路径目前是空的。
 
 ---
 

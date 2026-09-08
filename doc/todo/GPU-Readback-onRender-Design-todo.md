@@ -883,7 +883,7 @@ endFrame:          若本帧已被 syncRHIThread 等过，不再重复 wait
 | `D3D11-Renderer-Backend-Validation-Sample-Plan.md` | **本文是 §1.1 / §1.2 / §9.1 / §9.4 的立项落地。** 「BlitApp 重写 go() 用 postRender」在 A1 后作废；「无法自动断言」在 A4 后作废。验证计划文首已加状态；BlitApp 用例升级仍待做 |
 | `RHI-Compute-UAV-Indirect-Draw-Design-todo.md` §12.3 | 同步读回由本文承接；异步 query / UAV 计数回读仍待 §8 |
 | `D3D11-Renderer-Backend-Implementation-Plan.md` | 不新增 blit/copy 语义，只消费已落地的 Copy 路径 |
-| `Camera-PostProcess-Design-todo.md` | **§2.5 拒绝 `Behaviour::onRender` 的正面替代，相机后处理已由该文档承接并落地（B1–B5）。** 相机效果链插在管线 blit 上，不占用 `Application::onRender`；读回不要塞进 `onRenderImage` |
+| `Camera-PostProcess-Design-todo.md` | **§2.5 拒绝 `Behaviour::onRender` 的正面替代，相机后处理已由该文档承接并落地（B1–B5）。** 相机效果链插在管线 blit 上，不占用 `Application::onRender`；读回不要塞进 `onRenderImage`。GL4 / GLES3 的 `map` / `unmap` 仍是 stub，PostProcessingApp 的 P2 像素断言只在 D3D11 能做；那两端还被 blit 缺口挡住效果链本身（该文档 §12） |
 | 各后端 todo | stub 清单见 §5 / §7.1 |
 
 ---

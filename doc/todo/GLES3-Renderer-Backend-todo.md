@@ -2139,6 +2139,8 @@ Hull/Domain 属于 GLES 3.2 才有的能力（`GL_TESS_CONTROL_SHADER` / `GL_TES
 | `setComputeShader` attach 到图形 program | T3DGLES3Context.cpp:2025 | 见 A.6.2 的警告，补齐 compute 前必须修 |
 | 压缩纹理格式映射缺失 | `T3DGLES3Mapping.cpp` | 无任何 `glCompressedTexImage2D` 调用，也无 ETC2/EAC/ASTC 格式映射。上文第 7.7 节要求「GLES3 必须支持 ETC2/EAC…需在 GLES3Mapping 中映射引擎格式到 ETC2/ASTC」，**未落地**。移动端纹理内存与带宽依赖压缩格式，这是实际上线前必须补的一项 |
 | `resizeRenderTexture` / `resizeRenderTarget` 未 override | 基类 T3DRHIContext.h:125 / T3DRHIContext.h:134 | 渲染纹理动态改分辨率走不通。D3D11 已实现，GL4 同样缺失 |
+| `blit(Tex→RT)` 不把 `size==ZERO` 当成整张拷贝 | T3DGLES3Context.cpp:2385 | 与 GL4 同一写法。`CameraEffectBehaviour::blitCopy` 默认 `ZERO`，Copy 效果 blit 一块 0×0。带明确 size 的上屏 blit 不受影响 |
+| `bindPixelBuffers` 不切 MSAA 的 `GLResolveTex` | T3DGLES3Context.cpp:2881 | 2D 永远绑 `GLTexture` + `GL_TEXTURE_2D`。MSAA 路径用了 `glTexStorage2DMultisample`（GLES 3.1+），可采样对象是 `GLResolveTex` |
 
 ---
 
@@ -2199,7 +2201,8 @@ Hull/Domain 属于 GLES 3.2 才有的能力（`GL_TESS_CONTROL_SHADER` / `GL_TES
 
 | 项 | 原因 | 实现要点 |
 |----|------|---------|
-| `blit(RT→RT)` / `blit(RT→Tex)` / `blit(Tex→Tex)` | 上文第 17 章已规划、数据传输是管线核心 | `glBlitFramebuffer`（临时 FBO 挂载目标纹理）；建议仿照 D3D11 的 `resolveBlitEndpoint` + `doBlit` 统一收口 |
+| `blit(RT→RT)` / `blit(RT→Tex)` / `blit(Tex→Tex)` | 上文第 17 章已规划。**后处理只卡在 `Tex→Tex`**：`resolveIfMultisampled` 走这个重载，空实现会把未写入的临时 RT 交给效果链（见 A.10.5） | `glBlitFramebuffer`（临时 FBO 挂载目标纹理）；`ZERO` 当整张；MSAA 先 resolve。建议仿照 D3D11 统一收口。**先做 `Tex→Tex`，并给已有 `Tex→RT` 补 `ZERO` 语义** |
+| `blit(Tex→RT)` 的 `ZERO` 语义 | Copy 效果（`blitCopy`）默认 `size=ZERO` | 与 D3D11 对齐：`size==ZERO` 用源纹理宽高 |
 | 压缩纹理（ETC2 / EAC / ASTC） | 移动端纹理内存与带宽的前置条件 | `GLES3Mapping` 补格式映射 + `glCompressedTexImage2D` 上传路径 |
 | `reflectSamplerBindings` | GL4 与 D3D11 均已实现，GLES3 缺失会导致采样器 binding 元数据不全 | 可直接参考 `T3DGL4Context.cpp:2486` |
 | `resizeRenderTexture` / `resizeRenderTarget` | 渲染纹理动态分辨率 | 重建 GLTexture / GLFBO / MSAA RBO / Resolve 附件全套 |
@@ -2273,9 +2276,39 @@ GLES3 后端的需求分散在多份设计文档中，本节记录它们与本�
 
 另外 `doc/todo/ShaderConductor-Replacement-todo.md` §2.3 要求 `convertToESSLVersion` 映射表原样保留，§6.2.2 指出 ESSL 100 需要 `flatten_buffer_block()`——当前 shader 均为 `#pragma target 4.0`，暂不触发，但 GLES 3.0 设备上若出现低版本 ESSL 产出需注意。
 
-### A.10.5 需要修正的上游文档
+### A.10.5 相机后处理：与 GL4 同一套 blit 缺口，外加 3.1 门槛
+
+`doc/todo/Camera-PostProcess-Design-todo.md` B1–B5 已合。效果链是后端无关的管线代码；**GLES3 差的是 blit 契约，不是缺全屏绘制或 ESSL 变体**。对照总表见该文档 §12。GL4 侧同构分析见 `GL4-Renderer-Backend-todo.md` A.10.5。
+
+效果链实际打到的 RHI：
+
+| 调用点 | 重载 | GLES3 Runtime |
+|--------|------|----------------|
+| `resolveIfMultisampled` | `blit(Texture*, Texture*)`，`size` 默认 `ZERO` | ❌ `T3DGLES3Context.cpp:2464` 空实现，`return T3D_OK`，连 TODO 注释都没有 |
+| `CameraEffectBehaviour::blitCopy` | `blit(Texture*, RenderTarget*)`，`size` 默认 `ZERO` | ⚠️ 有 `glBlitFramebuffer` + `glInvalidateFramebuffer`，但不把 `ZERO` 当整张 |
+| `drawFullscreen`（灰度 / 反相 / 染色） | `setRenderTarget` + VS/PS + `_MainTex` + `render(3,0)` | ✅ 绘制接口齐。ESSL 由 `PostProcessShaderSources` 在 Android 上选取（`POSTPROCESS_*_GLES`） |
+| 无效果 / 链结束后上屏 | `blit(Texture*, RenderTarget*)`，带明确 size | ✅ 无效果回归可以看 |
+
+GLES3 相对 GL4 **多出来的约束**：
+
+- 嵌入 shader 是 `#version 310 es`。`createRenderTexture` 的 MSAA 路径用 `glTexStorage2DMultisample`（`T3DGLES3Context.cpp:310`），也是 GLES 3.1+。**3.0 设备编不过后处理 shader，也建不出 MSAA 中间 RT。** 失败路径现在会落到 `blitCopy`，而 Copy 自己也被 `ZERO` 语义卡住。
+- `reflectSamplerBindings` 仍是空 `T3D_OK`（`T3DGLES3ContextBase.cpp:396`）。`reflectShaderAllBindings` 已经能把 `SPIRV_Cross_Combined_MainTexsampler_MainTex` 还原成 `_MainTex`；`ShaderVariant::createRHI` 若只走前者，binding 会丢。补 `reflectSamplerBindings` 本来就是 A.8 P1，后处理把它从「元数据不全」抬成「效果链采样可能绑错」。
+- 没有 `glClipControl`。深度停在 [-1,1]。ESSL 全屏 VS 的 UV 与 GLSL 一样是 `y*0.5+0.5`，和 HLSL 的 `0.5-y*0.5` 相反。blit 补齐后要单独对是否上下颠倒。
+- 真机只有 Android。Desktop EGL / ANGLE（第 24 章）还没做，Windows 上没法用本后端跑 PostProcessingApp。
+
+因此：
+
+- **非 MSAA + GLES 3.1+ + shader 效果**：接口清单上可以跑。blit 补齐前仍不要当验收平台。
+- **MSAA 相机或 Copy 效果**：与 GL4 一样静默失败——空 resolve 把未写入的临时 RT 交给后续效果。
+- `map` / `unmap` 仍是 stub（A.10.1）。P2 像素断言做不了。
+
+补齐顺序与 A.8 P1 一致：**先 `blit(Tex→Tex)` + 已有 `Tex→RT` 的 `ZERO` 语义**，再让 `bindPixelBuffers` 对 MSAA 源绑 `GLResolveTex`，并补 `reflectSamplerBindings`。`RT→RT` / `RT→Tex` 当前效果链用不到。不要再静默 `T3D_OK`。
+
+`doc/todo/PostProcessingApp-Design-todo.md` 已按本节回填。Android 真机过效果链要等 blit 落地，且设备至少 GLES 3.1。
+
+### A.10.6 需要修正的上游文档
 
 | 文档 | 问题 |
 |------|------|
 | `doc/Tiny3D-Architecture.md` §3.6 | RHI 后端表写的是 "OpenGL ES **2/3**"、平台仅标「Android / 可选」，未反映 GLES3Renderer 已是 Android 上注册的主渲染器（`assets/config/Android/Tiny3D.cfg:56`）；同表也完全没有 OpenGL 4 |
-| `doc/refs/D3D11-vs-OpenGLES3-API-Mapping.md` | 内容质量较好（§16 完整 compute 章节 + 附录 B 版本能力矩阵 + 附录 C 的 TBR/`glInvalidateFramebuffer` 说明），缺的是与 Tiny3D RHI 接口的一一对应，以及 EGL 生命周期与引擎 `RenderWindow` 的集成说明。实现 E4 与第 24 章跨平台方案时，这两块需要自行补齐 |
+| `doc/refs/D3D11-vs-OpenGLES3-API-Mapping.md` | 内容质量较好（§16 完整 compute 章节 + 附录 B 版本能力矩阵 + 附录 C 的 TBR/`glInvalidateFramebuffer` 说明），缺的是与 Tiny3D RHI 接口的一一对应，以及 EGL 生命周期与引擎 `RenderWindow` 的集成说明。实现 E4 与第 24 章跨平台方案时，这两块需要自行补齐。四个 blit 的 `ZERO`=整张契约也没有写进映射表 |

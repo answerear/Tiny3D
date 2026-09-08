@@ -2,12 +2,13 @@
 
 > 用一个独立 Sample 验收已落地的相机回调与效果链（`Camera-PostProcess-Design-todo.md` B1–B5），并顺带演示「sample 自己写效果」该怎么挂。
 >
-> **本文是施工蓝图，代码尚未落地。**
+> **Sample 已落地**（场景、热键预设、Copy / 灰度 / 反相 / 染色、GLSL / ESSL 嵌入变体）。人眼 + 热键验收仍以 **D3D11 Window** 为准。GL4 / GLES3 的 shader 变体已经能选到，但效果链被 blit 缺口挡住，见 `Camera-PostProcess-Design-todo.md` §12。
 >
 > 相关文档：
 >
-> - 后处理施工蓝图：`doc/todo/Camera-PostProcess-Design-todo.md`（B1–B5 已合；§9 测试要点由本文承接）
+> - 后处理施工蓝图：`doc/todo/Camera-PostProcess-Design-todo.md`（B1–B5 已合；§9 测试要点由本文承接；§12 记 GL4 / GLES3 blit 契约）
 > - GPU 读回：`doc/todo/GPU-Readback-onRender-Design-todo.md`（像素断言走 `Application::onRender` / `onPostRender` 的 `map` / `unmap`，**不要**写进 `onRenderImage`）
+> - GL4 / GLES3 后端：`doc/todo/GL4-Renderer-Backend-todo.md` A.10.5、`doc/todo/GLES3-Renderer-Backend-todo.md` A.10.5
 > - 现有 Sample 骨架：`source/Samples/BehaviourApp`（场景）、`source/Samples/InputApp`（`T3D_INPUT.getKeyDown`）、`source/Samples/TextureApp`（读回冒烟）
 
 ---
@@ -22,16 +23,15 @@
 | **日志时序** | 相机上挂 `LogCameraBehaviour` | `pre → draw → post → onRenderImage → blit → Application::onRender` |
 | **可选像素断言** | `Application::onRender` 里 `map` 相机中间 RT | 拷贝预设与无效果预设的中心像素一致；灰度预设饱和度为 0 |
 
-第一期验收只要求 **D3D11 Window**。灰度 / 反相 / 染色的 shader 跟引擎内置灰度一样只编 HLSL；其它后端回退为 blit 拷贝，画面上看不出效果，但不应崩溃。
+第一期人眼验收只要求 **D3D11 Window**。灰度 / 反相 / 染色的嵌入变体已经按后端选好了（`PostProcessShaderSources.cpp`）：Windows 上 D3D11 走 HLSL、GL4 走 GLSL、Vulkan 走 SPIR-V；Android 上 GLES3 走 ESSL、Vulkan 走 SPIR-V。**不是「其它后端回退 blit 拷贝」**——GL4 / GLES3 会真的去编后处理 shader、走 `drawFullscreen`。挡住它们的是 RHI blit：`blit(Texture*, Texture*)` 空实现、`blit(Texture*, RenderTarget*)` 不把 `size==ZERO` 当成整张拷贝。MSAA 相机或 Copy 预设在这两个后端上会静默吃空 RT / 空拷贝，不是「看不出效果但不崩」那么温和。详见后处理文档 §12。
 
-**现在就能做、不必等 Sample 写完的检查：**
+**D3D11 上现在就能做的检查：**
 
-1. 重新 configure，把 `Include/Behaviour`、`Source/Behaviour` 和 `Generated/T3D*Effect*.generated.cpp` 编进 Core。
-2. 在任意已有窗口相机 Sample（BehaviourApp / SkyboxApp）的 `buildCamera` 末尾加一行 `go->addComponent<GrayscaleEffectBehaviour>();`，D3D11 下画面应变灰。
-3. 去掉这行或 `setEnabled(false)`，画面应恢复。
-4. 不挂任何效果时，画面、RT 数量应与改造前一致。
+1. 跑 `PostProcessingApp`，预设 0 应与普通前向场景一致。
+2. 热键 2 / 3 / 7：灰度 / 反相 / 染色一眼能看出来；热键 1（Copy）应与预设 0 观感一致。
+3. 不挂任何效果（或全部 `setEnabled(false)`）时，画面、RT 数量应与改造前一致。
 
-Sample 的价值是把 §9 的用例收成**可切换预设**，并补上引擎里没有的「反相 / 染色」演示效果，避免每次改 BehaviourApp。
+GL4 / GLES3 上只能先做第 1、3 条（无效果走带明确 size 的上屏 blit）。有 Copy 或 MSAA 时不要当验收，见后处理文档 §12。
 
 ---
 
@@ -56,7 +56,8 @@ Sample 的价值是把 §9 的用例收成**可切换预设**，并补上引擎�
 - **不做 HDR / bloom / tonemapping。** 中间 RT 仍是 `E_PF_B8G8R8A8`。
 - **不改编辑器 Scene 相机。** 本 Sample 是独立 exe，不挂编辑器。
 - **不把 Sample 脚本做成引擎组件。** `LogCameraBehaviour`、`InvertEffectBehaviour`、`TintEffectBehaviour`、`PostProcessControllerBehaviour` **只进 `PostProcessingApp` 工程**，文件落在 `source/Samples/PostProcessingApp/`，由该 target 编译与 `tiny3d_enable_reflection`。禁止放到 `source/Core/Include/Behaviour/`、`source/Core/Source/Behaviour/`，也不要加进 T3DCore / T3DCoreEditor 的 CMake。类名不要加 `T3D` 前缀（与 `RotateBehaviour` 同一套）。
-- **第一期不强制像素级 CI。** 读回断言标成 P2；P1 靠人眼 + 日志 + D3D11 debug layer。
+- **第一期不强制像素级 CI。** 读回断言标成 P2；P1 靠人眼 + 日志 + D3D11 debug layer。GL4 / GLES3 的 `map` / `unmap` 仍是 stub，P2 像素断言这两端做不了。
+- **第一期不把 GL4 / GLES3 当效果验收平台。** shader 变体已经在，缺的是 blit 契约；补齐后再用本 Sample 人眼过一遍。
 - **不在 `onRenderImage` 里 `map` / `unmap`。**
 
 ---
@@ -279,7 +280,7 @@ S0 可单独合。S1 是最小可用验证。S3 才真正测 `getEffectOrder`。
 | 9 | D3D11 debug layer | 无「不能把 MSAA 当 SRV」 |
 | 10 | 连续跑一会儿再切预设 | 不崩；关 App 时 `ReportLiveDeviceObjects` 不随切预设次数涨 |
 
-明确不测：HDR / bloom、Vulkan 效果质量、B6、在效果里读回。
+明确不测：HDR / bloom、Vulkan 效果质量、B6、在效果里读回。GL4 / GLES3 的效果观感等 blit 补齐后再测（后处理文档 §12）；无效果回归（预设 0）这两端现在就能看，走的是带明确 size 的上屏 `blit(Tex→RT)`。
 
 ---
 
@@ -288,7 +289,8 @@ S0 可单独合。S1 是最小可用验证。S3 才真正测 `getEffectOrder`。
 | 风险 | 缓解 |
 |------|------|
 | 立方体材质太灰，灰度看不出来 | 五个立方体用纯红 / 绿 / 蓝 / 黄 / 品红 |
-| 反相 shader 非 HLSL 静默变拷贝 | 启动时若 `getShadingLanguage() != kHLSL` 打 warning；文档写明第一期只在 D3D11 看效果 |
+| 反相 / 灰度 shader 在 GL 上选得到但画面空 | 不是变体缺失。`getXxxEffectShader` 已按 `OPENGL4` / Android GLES 选 GLSL / ESSL。空画面优先查 `resolveIfMultisampled` 的 `blit(Tex→Tex)` 和 Copy 的 `ZERO` 语义，见后处理文档 §12 |
+| GL 全屏 VS 与 HLSL UV 公式不一致 | HLSL：`0.5 - y*0.5`；GLSL / ESSL：`y*0.5 + 0.5`。blit 补齐后对一下是否上下颠倒，不要先改管线 |
 | 切预设时 `add`/`remove` 组件 | 禁止；只 `setEnabled` / `setEffectOrder` |
 | 有人把 `map` 写进 `onRenderImage` | 读回只允许 `Application::onRender` |
 | 相机没走中间 RT | `setRenderTarget(窗口)`，不要 `setRenderTarget(纹理)` |
@@ -303,9 +305,11 @@ S0 可单独合。S1 是最小可用验证。S3 才真正测 `getEffectOrder`。
 
 | 文档 | 关系 |
 |------|------|
-| `Camera-PostProcess-Design-todo.md` | 本文是它 §9 / §7.3「后处理验证另开 sample」的落地计划 |
+| `Camera-PostProcess-Design-todo.md` | 本文是它 §9 / §7.3「后处理验证另开 sample」的落地计划；GL4 / GLES3 缺口见该文档 §12 |
 | `D3D11-Renderer-Backend-Validation-Sample-Plan.md` | BlitApp / TextureApp 继续测 blit / 读回；本 Sample 只测相机效果链 |
-| `GPU-Readback-onRender-Design-todo.md` | P2 读回复用 A1 钩子；不改 Agent 帧循环 |
+| `GPU-Readback-onRender-Design-todo.md` | P2 读回复用 A1 钩子；不改 Agent 帧循环。GL4 / GLES3 读回仍是 stub |
+| `GL4-Renderer-Backend-todo.md` A.10.5 | GL4 后处理接口完成度与补齐顺序 |
+| `GLES3-Renderer-Backend-todo.md` A.10.5 | GLES3 同上，外加 ESSL 3.1 门槛 |
 
 ---
 

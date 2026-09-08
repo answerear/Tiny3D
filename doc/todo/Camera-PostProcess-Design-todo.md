@@ -4,14 +4,15 @@
 >
 > 结论先行：**帧末的纯 CPU 逻辑用已有的 `onLateUpdate`；消费 GPU 读回结果用下一帧 `onUpdate`；发额外 GPU 命令用订阅式回调或 `Application::onRender`；图像后处理做成挂在相机 GameObject 上的组件，插进管线现有那一行 blit。** 不要在 `Behaviour` 上加遍历式 `onRender`。
 >
-> **第一期（B1–B5）已落地。** `CameraBehaviour` / `CameraEffectBehaviour` / 临时 RT 池 / MSAA resolve / `GrayscaleEffectBehaviour` + `CopyEffectBehaviour` 已进 Core。订阅式 `RenderCallback`（B6）仍后做。下文保留设计 Rational；接口以代码为准。
+> **第一期（B1–B5）已落地。** `CameraBehaviour` / `CameraEffectBehaviour` / 临时 RT 池 / MSAA resolve 已进 Core。`CopyEffectBehaviour` / `GrayscaleEffectBehaviour` 以及反相、染色目前在 `PostProcessingApp`（不是 Core 内置组件）。订阅式 `RenderCallback`（B6）仍后做。下文保留设计 Rational；接口以代码为准。GL4 / GLES3 对效果链的 RHI 缺口见 §12。
 >
 > 相关文档：
 >
 > - GPU 读回与应用级钩子：`doc/todo/GPU-Readback-onRender-Design-todo.md`（§2.5 拒绝 `Behaviour::onRender`；`Application::onRender` 是应用级最后一个录制窗口）
 > - Behaviour 生命周期：`doc/todo/Behaviour-Script-Component-Design-todo.md`
 > - 验证计划：`doc/todo/D3D11-Renderer-Backend-Validation-Sample-Plan.md`
-> - 后处理 Sample：`doc/todo/PostProcessingApp-Design-todo.md`（B1–B5 的热键预设验收，尚未落地）
+> - 后处理 Sample：`doc/todo/PostProcessingApp-Design-todo.md`（热键预设已落地；人眼验收仍以 D3D11 为准，GL4 / GLES3 被 blit 缺口挡住，见 §12）
+> - GL4 / GLES3 后端：`doc/todo/GL4-Renderer-Backend-todo.md` A.10.5、`doc/todo/GLES3-Renderer-Backend-todo.md` A.10.5
 
 涉及的主要文件：
 
@@ -289,7 +290,7 @@ RenderTexture *ForwardRenderPipeline::runCameraPostprocessing(
 
 ### 4.4 四个必须提前想清楚的点
 
-**MSAA。** `Camera::setupRenderTexture` 建中间 RT 时透传了 `desc.MSAA.Count`（`T3DCamera.cpp:414-418`）。MSAA 纹理不能当 SRV 采样，效果链第一步必须先 resolve 成非 MSAA。D3D11 的 `blit` 里已有 `ResolveSubresource` 分支可以复用。忘了这一步，第一个效果就会拿到不能绑的纹理。
+**MSAA。** `Camera::setupRenderTexture` 建中间 RT 时透传了 `desc.MSAA.Count`（`T3DCamera.cpp:414-418`）。MSAA 纹理不能当 SRV 采样，效果链第一步必须先 resolve 成非 MSAA。D3D11 的 `blit` 里已有 `ResolveSubresource` 分支可以复用。**GL4 / GLES3 的 `blit(Texture*, Texture*)` 仍是空实现（静默 `T3D_OK`），`resolveIfMultisampled` 在这两个后端会把未写入的临时 RT 交给效果链。** 忘了这一步，第一个效果就会拿到不能绑的纹理。详见 §12。
 
 **格式没有 HDR 余量。** 现在中间 RT 是 `E_PF_B8G8R8A8`，8 位定点。bloom、tonemapping 需要 `R16G16B16A16_FLOAT` 才有意义，否则高光在进后处理前就被 clamp 掉了。第一期用 LDR 跑通灰度、模糊即可。二期在 `Camera` 上加「HDR 输出」开关决定中间 RT 格式。
 
@@ -490,9 +491,11 @@ endFrame
 
 | 文档 | 回填内容 |
 |------|---------|
-| `GPU-Readback-onRender-Design-todo.md` §12 | 标明「相机后处理已由本文承接」 |
-| `D3D11-Renderer-Backend-todo.md` | 登记效果链 blit 替换、临时 RT 池 |
+| `GPU-Readback-onRender-Design-todo.md` §12 | ✅ 标明「相机后处理已由本文承接」；并记下 GL4 / GLES3 读回仍是 stub |
+| `D3D11-Renderer-Backend-todo.md` | ✅ 登记效果链 blit 替换、临时 RT 池；并交叉引用 GL4 / GLES3 blit 未对齐 |
 | `Behaviour-Script-Component-Design-todo.md` | 生命周期表补 `CameraBehaviour` / `CameraEffectBehaviour`，并写明没有 `onRender` |
+| `GL4-Renderer-Backend-todo.md` A.10.5 / `GLES3-Renderer-Backend-todo.md` A.10.5 | ✅ 按代码登记后处理所需 blit / 绘制 / shader 变体完成度 |
+| `PostProcessingApp-Design-todo.md` | ✅ 去掉「只编 HLSL / 其它后端回退拷贝」；Sample 已落地，GL 验收等 blit |
 
 ---
 
@@ -505,7 +508,7 @@ endFrame
 | **B2** | 临时 RT 池（acquire / release / destroy 清池） | ✅ 已落地 | 0.5d |
 | **B3** | `CameraEffectBehaviour` + `runCameraPostprocessing`；无效果时走原 blit | ✅ 已落地（含 `CopyEffectBehaviour`） | 1d |
 | **B4** | MSAA resolve 接入效果链第一步 | ✅ 已落地 | 0.5d |
-| **B5** | `GrayscaleEffectBehaviour` + `getEffectOrder` 稳定排序 | ✅ 已落地；灰度 shader 第一期仅 HLSL，其它后端回退 blit 拷贝 | 0.5d |
+| **B5** | `GrayscaleEffectBehaviour` + `getEffectOrder` 稳定排序 | ✅ 已落地。灰度 / 反相 / 染色已有 HLSL + GLSL + ESSL + SPIR-V 嵌入变体（`PostProcessShaderSources`）；GL4 / GLES3 效果链被 blit 缺口挡住，见 §12 | 0.5d |
 | **B6** | （可选）§5 订阅式 `RenderCallback` | 一个 debug 线 Behaviour 在 `onEnable`/`onDisable` 配对订阅，销毁后不再被调用 | 0.5d |
 | 合计 | | | 约 3.5d（不含 B6 为 3.0d） |
 
@@ -560,7 +563,8 @@ Application::onPostRender
 ### 9.4 明确不测
 
 - HDR / bloom 观感
-- Vulkan / GL 上的效果质量（接口是后端无关的，第一期只在 D3D11 验收）
+- Vulkan 上的效果质量（四个 `blit` 同样未齐，不在第一期验收）
+- GL4 / GLES3 的效果观感（**不是「接口后端无关所以不用测」**，是这两个后端的 blit 契约还没对齐 D3D11，见 §12；补齐后再用 PostProcessingApp 人眼验收）
 - 订阅式回调与效果链抢 RT（B6 单独测生命周期，不测和效果的交互）
 - 在 `onRenderImage` 里做 `map` / `unmap`（明确禁止，见 §4.5）
 
@@ -572,7 +576,7 @@ Application::onPostRender
 |------|------|
 | 效果没写满 `dst`，下一帧看到池子脏数据 | 文档写死；第一期拷贝 / 灰度效果都是全屏覆盖。Debug 下可清成品红再交给效果，漏写一眼能看出来 |
 | `getComponents` 顺序漂移 | 强制 `getEffectOrder` + `stable_sort` |
-| MSAA 源直接采样 | `runCameraPostprocessing` 第一步 resolve；无效果时仍走原 blit，不强制 resolve |
+| MSAA 源直接采样 | `runCameraPostprocessing` 第一步 resolve；无效果时仍走原 blit，不强制 resolve。**GL4 / GLES3 上这条 resolve 目前是空操作**，见 §12 |
 | 临时 RT 当当前 RT 还绑着就还池 | blit 完成、`ctx->reset()` 之后再 `releaseTempRT(result)` |
 | `CameraEffectBehaviour` 里 `setRenderTarget` 把后续 blit 搞乱 | `runCameraPostprocessing` 返回后 blit 自己重新绑最终目标；要求效果用完 `reset` |
 | 有人把「读回」写进 `onRenderImage` | §4.5 禁止；读回只认 `Application::onRender` / `onPostRender` |
@@ -588,9 +592,79 @@ Application::onPostRender
 | `Behaviour-Script-Component-Design-todo.md` | 生命周期继续以 `onLateUpdate` 为脚本收尾。本文新增的两个基类是 Behaviour 的派生，不扩展 Behaviour 自身的虚函数表 |
 | `D3D11-Renderer-Backend-Validation-Sample-Plan.md` | BlitApp / TextureApp 继续用应用级 `onRender` 做断言，不改成 `CameraEffectBehaviour`。后处理验证见 `PostProcessingApp-Design-todo.md` |
 | `Skybox-Support-Design-todo.md` | 天空盒仍在不透明与透明队列之间画（现有 `drawCameraQueue`）。效果链在整台相机 `endPass` 之后，天空盒已经被画进源 RT |
+| `GL4-Renderer-Backend-todo.md` A.10.5 | GL4 Window 对后处理的接口完成度：绘制 / 采样 / GLSL 变体已齐，`blit(Tex→Tex)` 与 `blit(Tex→RT)` 的 `ZERO` 语义未对齐 |
+| `GLES3-Renderer-Backend-todo.md` A.10.5 | GLES3 与 GL4 同一套 blit 缺口；另有 ESSL `#version 310 es` 与 MSAA `glTexStorage2DMultisample` 的 3.1 门槛 |
 
 ---
 
-## 12. 一句话
+## 12. 后端对后处理的支持（D3D11 / GL4 / GLES3）
+
+> 管线与效果组件是后端无关的；**blit 契约不是**。第一期人眼验收仍以 D3D11 Window 为准。本节记录效果链实际打到哪些 RHI，以及 GL4 / GLES3 差在哪。接口状态以 2026-09 代码为准。
+
+### 12.1 效果链实际调用的 RHI
+
+| 调用点 | 实际重载 | 用途 |
+|--------|----------|------|
+| `ForwardRenderPipeline::resolveIfMultisampled` | `blit(Texture*, Texture*)`，`size` 默认 `ZERO` | MSAA 源、或没有 `kGPUShaderResource` 的源，先 resolve 到临时 RT |
+| `CameraEffectBehaviour::blitCopy`（Copy 效果） | `blit(Texture*, RenderTarget*)`，`size` 默认 `ZERO` | 整张拷贝 |
+| `ForwardRenderPipeline::drawFullscreen`（灰度 / 反相 / 染色） | `setRenderTarget` + 绑 VS/PS / `_MainTex` + `render(3, 0)` + `reset` | 全屏三角采样上一环节 |
+| 效果链结束后上屏 | `blit(Texture*, RenderTarget*)`，带明确 `offset/size` | 结果送到窗口 |
+
+`blit(RT→RT)`、`blit(RT→Tex)`、`copyBuffer` 当前后处理**不会调**。`map` / `unmap` 禁止写进 `onRenderImage`。Compute / UAV 是二期 bloom 一类，不是第一期缺口。
+
+D3D11 四个 `blit` 收口到 `resolveBlitEndpoint` + `doBlit`，**`size == Vector3::ZERO` 表示整资源传输**。这是 GL 后端必须对齐的契约，不是「传了 ZERO 就 blit 一块 0×0」。
+
+### 12.2 各后端对照
+
+| 能力 | D3D11 Window | GL4 Window | GLES3 Runtime |
+|------|--------------|------------|---------------|
+| `createRenderTexture` / `setRenderTarget` / `setViewport` | ✅ | ✅ | ✅ |
+| VS/PS 编译、反射、`setPSPixelBuffers` / `setPSSamplers` | ✅ | ✅（含 `SPIRV_Cross_Combined` → `_MainTex`） | ✅ `reflectShaderAllBindings` 同样还原 `_MainTex`；`reflectSamplerBindings` 仍是空 `T3D_OK`（`T3DGLES3ContextBase.cpp:396`），createRHI 路径若只靠后者会丢 binding |
+| `drawFullscreen` 所需的 VAO / VB / `render(vertexCount)` | ✅ | ✅ | ✅ |
+| 嵌入 shader | HLSL | GLSL（`POSTPROCESS_*_GL`，`#version 400`） | ESSL（`POSTPROCESS_*_GLES`，**`#version 310 es`**） |
+| 无效果时上屏 `blit(Tex→RT)`（带明确 size） | ✅ | ✅ | ✅（另有 `glInvalidateFramebuffer`） |
+| `blit(Tex→RT)`，`size == ZERO` 当整张拷贝 | ✅ | ❌ 算出 0×0 区域 | ❌ 与 GL4 同一写法 |
+| `blit(Texture*, Texture*)` | ✅ | ❌ 空实现，`return T3D_OK`（`T3DGL4Context.cpp:2934`） | ❌ 空实现，`return T3D_OK`（`T3DGLES3Context.cpp:2464`） |
+| `bindPixelBuffers` 绑 MSAA RT 的可采样对象 | SRV 走 resolve 后的资源 | 永远绑 `GLTexture` + `GL_TEXTURE_2D`，不切 `GLResolveTex` | 同 GL4 |
+| `map` / `unmap`（像素断言，不在效果链内） | ✅ | 🚧 `supportsReadback=false` | 🚧 同上 |
+| Console / 离线变体 | null backend | `GL4ConsoleContext` 四个 blit 全空 | 无独立 Console；只在 Android 跑 |
+
+非 MSAA、且相机颜色 RT `shaderReadable=true`（`T3DCamera.cpp:413-415` 已如此）时，`resolveIfMultisampled` 会直接返回 `src`，**不踩** `blit(Tex→Tex)`。这条路径上，shader 效果只依赖绘制 / 采样，GL4 / GLES3 接口是齐的。Copy 效果和 MSAA 相机仍会踩到上表两处 blit 缺口。
+
+### 12.3 缺口怎样把效果链卡死
+
+**1. `blit(Texture*, Texture*)` 未实现 —— 主缺口。**
+
+`resolveIfMultisampled`（`T3DForwardRenderPipeline.cpp:1374`）在需要 resolve 时 `acquireTempRT` 后调用 `ctx->blit(src, resolved)`，然后**返回这张临时 RT**，不是失败回退到 `src`。GL4 / GLES3 空实现返回 `T3D_OK`，临时 RT 从未写入。后续灰度 / 反相再怎么画，采样的也不是相机画面。
+
+窗口 MSAA > 1，或源 RT 没有 `kGPUShaderResource`，一开始就会进这条路径。
+
+**2. 已实现的 `blit(Texture*, RenderTarget*)` 不认 `ZERO`。**
+
+`blitCopy`（`T3DCameraEffectBehaviour.cpp:62`）用默认参数，D3D11 会整张拷贝，GL 算出 `srcX1 = srcX0 + 0`。Copy 预设在 GL4 / GLES3 上静默得到空 / 脏 `dst`。最终上屏那次带了明确宽高，所以**无效果时的窗口 blit 可以正常**。
+
+**3. MSAA 采样侧没接 `GLResolveTex`。**
+
+即便以后补了 Tex→Tex，`bindPixelBuffers` 对 2D 永远绑 `GLTexture`、target 写死 `GL_TEXTURE_2D`。MSAA 颜色附件是 `GL_TEXTURE_2D_MULTISAMPLE`，可采样对象是 `GLResolveTex`。resolve 没做时，效果 shader 里的 `sampler2D` 绑不上合法 2D 纹理。
+
+### 12.4 GLES3 多出来的约束
+
+- 嵌入片元 / 顶点是 `#version 310 es`，`glTexStorage2DMultisample` 也是 GLES 3.1+。**3.0 设备编不过后处理 shader，MSAA 中间 RT 也建不出来。** 失败时应回退 blit 拷贝，但 Copy 自己也被 `ZERO` 语义卡住。
+- 没有 `glClipControl`。GL4 用 `glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE)` + FBO 投影 Y 翻转；GLES3 深度停在 [-1,1]。全屏 VS 的 UV：HLSL 用 `0.5 - y*0.5`，GLSL / ESSL 用 `y*0.5 + 0.5`。blit 补齐后要单独对一下是否上下颠倒，这不是缺 API。
+- 真机目前只有 Android。Desktop EGL / ANGLE 变体还没做（`GLES3-Renderer-Backend-todo.md` 第 24 章）。
+
+### 12.5 补齐顺序（不在本文排期，记到后端 todo）
+
+1. **`blit(Texture*, Texture*)`**：`glBlitFramebuffer`；`ZERO` 当整张；MSAA 先 resolve 再拷。与 D3D11 一样建议四个重载统一收口，避免再抄一份。
+2. **已有 `blit(Texture*, RenderTarget*)` 补 `ZERO` 语义**，Copy 效果才能用。
+3. `bindPixelBuffers`：MSAA 源绑 `GLResolveTex` / `GL_TEXTURE_2D`。
+4. 空 blit 不要再静默 `T3D_OK`，至少 `T3D_ERR_NOT_IMPLEMENT` + 日志。
+5. GLES3：`reflectSamplerBindings` 按 GL4 补上；3.0 设备对 `#version 310 es` 要有明确失败路径。
+
+`blit(RT→RT)` / `blit(RT→Tex)` 可以后做，当前效果链用不到。落地条目见 `GL4-Renderer-Backend-todo.md` A.9 / A.10.5 与 `GLES3-Renderer-Backend-todo.md` A.8 / A.10.5。
+
+---
+
+## 13. 一句话
 
 **脚本收尾用 `onLateUpdate`，读回用下一帧，图像处理挂在相机上插进那一行 blit，应用级收尾继续用 `Application::onRender`。** 这四件事不要合成一个 `Behaviour::onRender`。
