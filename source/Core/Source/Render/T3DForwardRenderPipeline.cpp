@@ -1371,7 +1371,9 @@ namespace Tiny3D
             return src;
         }
 
-        ctx->blit(src, resolved);
+        const Vector3 fullSize(static_cast<Real>(src->getWidth()),
+            static_cast<Real>(src->getHeight()), REAL_ONE);
+        ctx->blit(src, resolved, Vector3::ZERO, fullSize, Vector3::ZERO);
         return resolved;
     }
 
@@ -1547,7 +1549,17 @@ namespace Tiny3D
             }
         }
 
-        src->ensureDefaultSampler();
+        // 后处理源是单 mip RT。默认 SamplerDesc.MipFilter=kLinear 在 GL 上会
+        // 绑成 GL_LINEAR_MIPMAP_LINEAR，缺 mip 链时 texture() 恒返回黑
+        //（灰度/染色=黑屏，反相=白屏）。全屏 pass 是 1:1 逐像素，用 Point。
+        SamplerDesc samplerDesc;
+        samplerDesc.MinFilter = FilterOptions::kPoint;
+        samplerDesc.MagFilter = FilterOptions::kPoint;
+        samplerDesc.MipFilter = FilterOptions::kNone;
+        samplerDesc.AddressU = TextureAddressMode::kClamp;
+        samplerDesc.AddressV = TextureAddressMode::kClamp;
+        samplerDesc.AddressW = TextureAddressMode::kClamp;
+        src->setSamplerDesc(samplerDesc);
         material->setTexture("_MainTex", src->getUUID());
 
         RenderTargetPtr rt = RenderTarget::create(dst);
@@ -1559,6 +1571,7 @@ namespace Tiny3D
         ctx->setRenderTarget(rt);
         Viewport vp;
         ctx->setViewport(vp);
+        ctx->clearColor(ColorRGB::BLACK);
 
         RenderState *renderState = pass->getPass()->getRenderState();
         if (renderState == nullptr)

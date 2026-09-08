@@ -826,6 +826,10 @@ namespace Tiny3D
                         width, height, 0, pixelFmt, pixelType, nullptr);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                    // RT 只有 mip 0，不封顶的话 MIPMAP 类过滤会因 mip 链不完整恒采到黑
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
                     glBindTexture(GL_TEXTURE_2D, 0);
 
                     glGenFramebuffers(1, &glPixelBuffer->GLResolveFBO);
@@ -851,6 +855,10 @@ namespace Tiny3D
                         width, height, 0, pixelFmt, pixelType, nullptr);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                    // RT 只有 mip 0，不封顶的话 MIPMAP 类过滤会因 mip 链不完整恒采到黑
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
                     glBindTexture(GL_TEXTURE_2D, 0);
 
                     glGenFramebuffers(1, &glPixelBuffer->GLFBO);
@@ -1155,6 +1163,64 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    GL4Context::ClearMaskGuard::ClearMaskGuard(GLbitfield mask)
+        : mMask(mask)
+    {
+        // scissor 对所有 buffer bit 都生效，写掩码则各管各的
+        mScissorEnabled = glIsEnabled(GL_SCISSOR_TEST);
+        if (mScissorEnabled)
+        {
+            glDisable(GL_SCISSOR_TEST);
+        }
+
+        if (mMask & GL_COLOR_BUFFER_BIT)
+        {
+            glGetBooleanv(GL_COLOR_WRITEMASK, mColorMask);
+            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        }
+
+        if (mMask & GL_DEPTH_BUFFER_BIT)
+        {
+            glGetBooleanv(GL_DEPTH_WRITEMASK, &mDepthMask);
+            glDepthMask(GL_TRUE);
+        }
+
+        if (mMask & GL_STENCIL_BUFFER_BIT)
+        {
+            glGetIntegerv(GL_STENCIL_WRITEMASK, &mStencilMaskFront);
+            glGetIntegerv(GL_STENCIL_BACK_WRITEMASK, &mStencilMaskBack);
+            glStencilMask(~0u);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    GL4Context::ClearMaskGuard::~ClearMaskGuard()
+    {
+        if (mMask & GL_STENCIL_BUFFER_BIT)
+        {
+            glStencilMaskSeparate(GL_FRONT, static_cast<GLuint>(mStencilMaskFront));
+            glStencilMaskSeparate(GL_BACK, static_cast<GLuint>(mStencilMaskBack));
+        }
+
+        if (mMask & GL_DEPTH_BUFFER_BIT)
+        {
+            glDepthMask(mDepthMask);
+        }
+
+        if (mMask & GL_COLOR_BUFFER_BIT)
+        {
+            glColorMask(mColorMask[0], mColorMask[1], mColorMask[2], mColorMask[3]);
+        }
+
+        if (mScissorEnabled)
+        {
+            glEnable(GL_SCISSOR_TEST);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult GL4Context::clearColor(const ColorRGB &color)
     {
         auto lambda = [this](ColorRGB color)
@@ -1163,6 +1229,7 @@ namespace Tiny3D
 
             do
             {
+                ClearMaskGuard guard(GL_COLOR_BUFFER_BIT);
                 glClearColor(color.red(), color.green(), color.blue(), 1.0f);
                 glClear(GL_COLOR_BUFFER_BIT);
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::clearColor");
@@ -1187,6 +1254,7 @@ namespace Tiny3D
 
             do
             {
+                ClearMaskGuard guard(GL_DEPTH_BUFFER_BIT);
                 glClearDepth((GLdouble)depth);
                 glClear(GL_DEPTH_BUFFER_BIT);
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::clearDepth");
@@ -1211,6 +1279,7 @@ namespace Tiny3D
 
             do
             {
+                ClearMaskGuard guard(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
                 glClearDepth((GLdouble)depth);
                 glClearStencil((GLint)stencil);
                 glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -1377,7 +1446,7 @@ namespace Tiny3D
         GLfloat maxAniso = static_cast<GLfloat>(desc.MaxAnisotropy);
         GLfloat lodBias = desc.MipLODBias;
         GLfloat minLOD = desc.MinLOD;
-        GLfloat maxLOD = desc.MaxLOD;
+        GLfloat maxLOD = (desc.MaxLOD > 1000.0f) ? 1000.0f : desc.MaxLOD;
         GLfloat borderColor[4] = {
             desc.BorderColor.blue(), desc.BorderColor.green(),
             desc.BorderColor.red(), desc.BorderColor.alpha()
@@ -2650,6 +2719,15 @@ namespace Tiny3D
                     if (uniform.blockIndex != blockIdx)
                         continue;
 
+                    if (uniform.glDefineType == GL_SAMPLER_1D
+                        || uniform.glDefineType == GL_SAMPLER_2D
+                        || uniform.glDefineType == GL_SAMPLER_3D
+                        || uniform.glDefineType == GL_SAMPLER_CUBE
+                        || uniform.glDefineType == GL_SAMPLER_2D_SHADOW)
+                    {
+                        continue;
+                    }
+
                     uint32_t dataSize = 0;
                     ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_FLOAT;
 
@@ -2692,13 +2770,11 @@ namespace Tiny3D
                 }
             }
 
-            // Reflect standalone Uniforms (texture samplers)
+            // 按 GL 类型识别采样器。glslang 的 uniform.index 语义随版本变化，
+            // 用它反推 standalone / block 成员不可靠，直接看类型。
             uint32_t samplerIndex = 0;
             for (const auto &uniform : data.uniforms)
             {
-                if (uniform.blockIndex >= 0)
-                    continue;
-
                 bool isSampler = false;
                 TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
 
@@ -2775,9 +2851,6 @@ namespace Tiny3D
             uint32_t samplerIndex = 0;
             for (const auto &uniform : data.uniforms)
             {
-                if (uniform.blockIndex >= 0)
-                    continue;
-
                 bool isSampler = false;
                 TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
 
@@ -3480,6 +3553,7 @@ namespace Tiny3D
                 glBindVertexArray(0);
                 glBindBuffer(GL_ARRAY_BUFFER, 0);
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                unbindTextureUnits();
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
                 GL_SAFE_DELETE_PROGRAM(mCurrentProgram);
@@ -4086,7 +4160,9 @@ namespace Tiny3D
                 const auto itr = params.find(texName);
                 if (itr != params.end())
                 {
-                    return static_cast<int32_t>(itr->second->getSamplerBinding());
+                    // GL 的 sampler uniform 值是 texture unit 号，语义上对应 texBinding。
+                    // GL4 反射把 texBinding / samplerBinding 赋成同一个序号，两者等价。
+                    return static_cast<int32_t>(itr->second->getTexBinding());
                 }
             }
             return -1;
@@ -4244,10 +4320,10 @@ namespace Tiny3D
             {
                 for (uint32_t i = 0; i < bindings.size(); ++i)
                 {
-                    if (bindings[i].handle == 0) continue;
                     glActiveTexture(GL_TEXTURE0 + startSlot + i);
                     glBindTexture(bindings[i].target, bindings[i].handle);
                 }
+                glActiveTexture(GL_TEXTURE0);
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::bindPixelBuffers");
             } while (false);
 
@@ -4288,10 +4364,9 @@ namespace Tiny3D
             {
                 for (uint32_t i = 0; i < samplerHandles.size(); ++i)
                 {
-                    if (samplerHandles[i] != 0)
-                    {
-                        glBindSampler(startSlot + i, samplerHandles[i]);
-                    }
+                    // handle==0 也要绑：sampler object 是全局状态，不显式解绑就会
+                    // 把上一 pass 的采样参数（比如 comparison 模式）留给下一 pass。
+                    glBindSampler(startSlot + i, samplerHandles[i]);
                 }
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::bindSamplers");
             } while (false);
@@ -4561,6 +4636,23 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void GL4Context::unbindTextureUnits()
+    {
+        for (int i = 0; i < 16; ++i)
+        {
+            glActiveTexture(GL_TEXTURE0 + i);
+            glBindTexture(GL_TEXTURE_1D, 0);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+            glBindTexture(GL_TEXTURE_3D, 0);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+            glBindSampler(i, 0);
+        }
+        glActiveTexture(GL_TEXTURE0);
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult GL4Context::doBlit(const BlitEndpoint &src, const BlitEndpoint &dst,
         const Vector3 &srcOffset, const Vector3 &size, const Vector3 &dstOffset)
     {
@@ -4568,6 +4660,10 @@ namespace Tiny3D
 
         do
         {
+            // 池化临时 RT 上一帧可能还绑在某个 texture unit 上，这里先摘干净，
+            // 避免同一张纹理既挂在 unit 上又当 FBO 附件写。
+            unbindTextureUnits();
+
             GLint prevFBO = 0;
             glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFBO);
 
@@ -4631,19 +4727,34 @@ namespace Tiny3D
                 ? (GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)
                 : GL_COLOR_BUFFER_BIT;
 
-            if (src.sampleCount > 1 && src.resolveFbo != 0)
+            auto bindRead = [](GLuint fbo, bool isWindow, bool isDepth)
             {
-                glBindFramebuffer(GL_READ_FRAMEBUFFER, src.fbo != 0 ? src.fbo : readFBO);
-                glBindFramebuffer(GL_DRAW_FRAMEBUFFER, src.resolveFbo);
-                glBlitFramebuffer(0, 0, (GLint)src.width, (GLint)src.height,
-                    0, 0, (GLint)src.width, (GLint)src.height,
-                    mask, GL_NEAREST);
-                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "blit: MSAA resolve");
-                readFBO = src.resolveFbo;
+                glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+                if (isDepth)
+                {
+                    return;
+                }
+                glReadBuffer(isWindow || fbo == 0 ? GL_BACK : GL_COLOR_ATTACHMENT0);
+            };
+            auto bindDraw = [](GLuint fbo, bool isWindow, bool isDepth)
+            {
+                glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+                if (isDepth)
+                {
+                    return;
+                }
+                glDrawBuffer(isWindow || fbo == 0 ? GL_BACK : GL_COLOR_ATTACHMENT0);
+            };
+
+            // MSAA 源直接 resolve 到目标，不要先写入 GLResolveTex 再拷一次。
+            // 中间 resolve 贴图常被 bindPixelBuffers 绑在 unit 上，再当 FBO 写就是 feedback。
+            if (src.sampleCount > 1 && src.fbo != 0)
+            {
+                readFBO = src.fbo;
             }
 
-            glBindFramebuffer(GL_READ_FRAMEBUFFER, readFBO);
-            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, drawFBO);
+            bindRead(readFBO, src.isWindow, src.isDepth);
+            bindDraw(drawFBO, dst.isWindow, dst.isDepth);
             glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1,
                 dstX0, dstY0, dstX1, dstY1,
                 mask, GL_NEAREST);

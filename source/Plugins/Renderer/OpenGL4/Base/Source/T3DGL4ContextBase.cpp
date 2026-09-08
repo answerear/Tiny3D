@@ -388,6 +388,15 @@ namespace Tiny3D
                     if (uniform.blockIndex != blockIdx)
                         continue;
 
+                    if (uniform.glDefineType == GL_SAMPLER_1D
+                        || uniform.glDefineType == GL_SAMPLER_2D
+                        || uniform.glDefineType == GL_SAMPLER_3D
+                        || uniform.glDefineType == GL_SAMPLER_CUBE
+                        || uniform.glDefineType == GL_SAMPLER_2D_SHADOW)
+                    {
+                        continue;
+                    }
+
                     uint32_t dataSize = 0;
                     ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_FLOAT;
 
@@ -432,9 +441,6 @@ namespace Tiny3D
             uint32_t samplerIndex = 0;
             for (const auto &uniform : data.uniforms)
             {
-                if (uniform.blockIndex >= 0)
-                    continue;
-
                 bool isSampler = false;
                 TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
 
@@ -461,6 +467,11 @@ namespace Tiny3D
                         {
                             name = remainder.substr(0, samplerPos);
                         }
+                    }
+
+                    if (name.find("_MainTex") != String::npos)
+                    {
+                        name = "_MainTex";
                     }
 
                     ShaderSamplerParamPtr param;

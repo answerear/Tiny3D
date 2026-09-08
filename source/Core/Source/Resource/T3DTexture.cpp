@@ -86,6 +86,11 @@ namespace Tiny3D
         }
 
         SamplerDesc samplerDesc;
+        samplerDesc.MinFilter = FilterOptions::kLinear;
+        samplerDesc.MagFilter = FilterOptions::kLinear;
+        // RT / 未显式设采样器的纹理通常只有 mip 0。GL 上 MipFilter=kLinear
+        // 会变成 GL_LINEAR_MIPMAP_LINEAR，缺 mip 链时采样恒为黑。
+        samplerDesc.MipFilter = FilterOptions::kNone;
         samplerDesc.AddressU = TextureAddressMode::kClamp;
         samplerDesc.AddressV = TextureAddressMode::kClamp;
         samplerDesc.AddressW = TextureAddressMode::kClamp;

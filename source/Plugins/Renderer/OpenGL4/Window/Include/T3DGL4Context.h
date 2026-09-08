@@ -212,6 +212,25 @@ namespace Tiny3D
         void bindPendingUniformBlocks(GLuint program);
         void setupSamplerBindings(GLuint program);
 
+        /// 解开所有常用纹理单元上的 texture / sampler，避免同一张纹理既被采样
+        /// 又当 FBO 附件，以及上一 pass 留下的 comparison sampler 影响下一 pass。
+        void unbindTextureUnits();
+
+        /// glClear 被写掩码和 scissor 约束，而 D3D11 的 ClearXXXView 无视管线
+        /// 状态。RHI 层要对齐 D3D11 语义，clear 前后必须自己开关掩码。
+        struct ClearMaskGuard
+        {
+            explicit ClearMaskGuard(GLbitfield mask);
+            ~ClearMaskGuard();
+
+            GLbitfield  mMask {0};
+            GLboolean   mColorMask[4] {GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE};
+            GLboolean   mDepthMask {GL_TRUE};
+            GLint       mStencilMaskFront {~0};
+            GLint       mStencilMaskBack {~0};
+            GLboolean   mScissorEnabled {GL_FALSE};
+        };
+
         /// 按 GL 版本与实现限制填充 mCapabilities，必须在 GLAD 加载后调用
         void fillCapabilities();
 
