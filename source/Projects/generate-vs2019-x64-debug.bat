@@ -1,4 +1,11 @@
 
+@rem ============ Setup MSVC environment (VS2019 / v142) ==========
+@rem cct bakes %INCLUDE% into ReflectionSettings.json and rpp needs it to find the
+@rem MSVC / Windows SDK headers, so this has to happen before cct and rpp run.
+@call "%~dp0setup-msvc-env.bat" "[16.0,17.0)" 14.29
+@if not %ERRORLEVEL% == 0 goto end
+@cd /d "%~dp0"
+
 @rem ================= Generate base projects =====================
 @cd ..
 @rmdir /Q /S vs2019-x64

@@ -31,8 +31,9 @@ Run the script **<setup_env.bat>** in directory **<$(Root)/source/Projects>**
 
 **Build**
 
-1. Run the script **<start_vsenv.bat>** in directory **<$(Root)/source/Projects>**
-2. Run the script **<generate-vs2019-x64-debug.bat>** in directory **<$(Root)/source/Projects>** for debug, and run the script **<generate-vs2019-x64.bat>** in the same directory for release.
+1. Run the script **<generate-vs2019-x64-debug.bat>** in directory **<$(Root)/source/Projects>** for debug, and run the script **<generate-vs2019-x64.bat>** in the same directory for release.
+
+The debug script sets up the MSVC environment itself (see **<setup-msvc-env.bat>**), so it no longer has to be started from a developer prompt. **<start_vsenv.bat>** in the same directory still opens one if you want a shell with the toolchain on `PATH`.
 
 **Remarks**
 If you run the samples code in visual studio and exception occur in startup, you should install "Graphics Tools".

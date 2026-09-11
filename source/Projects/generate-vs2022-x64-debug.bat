@@ -1,4 +1,11 @@
 
+@rem =============== Setup MSVC environment (VS2022) ==============
+@rem cct bakes %INCLUDE% into ReflectionSettings.json and rpp needs it to find the
+@rem MSVC / Windows SDK headers, so this has to happen before cct and rpp run.
+@call "%~dp0setup-msvc-env.bat" "[17.0,18.0)"
+@if not %ERRORLEVEL% == 0 goto end
+@cd /d "%~dp0"
+
 @rem ================= Generate base projects =====================
 @cd ..
 @rmdir /Q /S vs2022-x64
