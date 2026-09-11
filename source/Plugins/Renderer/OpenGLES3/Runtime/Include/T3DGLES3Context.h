@@ -26,6 +26,9 @@ namespace Tiny3D
 
         TResult resizeRenderWindow(GLES3RenderWindow *rw, uint32_t w, uint32_t h);
 
+        /// eglMakeCurrent 之后二次确认 GLES 版本并刷新能力位
+        void confirmDeviceVersion();
+
         //-------------------------------------------------------------------
         // RHIContext overrides
         //-------------------------------------------------------------------
@@ -41,6 +44,9 @@ namespace Tiny3D
         TResult setRenderTarget(RenderTarget *renderTarget) override;
 
         TResult resetRenderTarget() override;
+
+        TResult resizeRenderTexture(RenderTexture *rt, uint32_t width, uint32_t height) override;
+        TResult resizeRenderTarget(RenderTarget *rt, uint32_t width, uint32_t height) override;
 
         TResult setViewport(const Viewport &viewport) override;
 
@@ -144,7 +150,6 @@ namespace Tiny3D
         TResult copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset = 0, size_t size = 0, size_t dstOffset = 0) override;
         TResult writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer = false) override;
 
-        /// GPU 读回未实现
         ReadbackHandle map(RenderBuffer *src, size_t offset, size_t size) override;
         ReadbackHandle map(RenderBuffer *src, const ReadbackRegion &region) override;
         TResult unmap(ReadbackHandle handle, Buffer &dst) override;
@@ -165,21 +170,101 @@ namespace Tiny3D
         TResult stageConstantBuffers(const ConstantBuffers &buffers);
         TResult bindPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers);
         TResult bindSamplers(uint32_t startSlot, const Samplers &samplers);
+        TResult bindStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers);
 
         void bindPendingUniformBlocks(GLuint program);
         void setupSamplerBindings(GLuint program);
+
+        void unbindTextureUnits();
+
+        /// glClear 被写掩码和 scissor 约束，而 D3D11 的 ClearXXXView 无视管线
+        /// 状态。RHI 层要对齐 D3D11 语义，clear 前后必须自己开关掩码。
+        struct ClearMaskGuard
+        {
+            explicit ClearMaskGuard(GLbitfield mask);
+            ~ClearMaskGuard();
+
+            GLbitfield  mMask {0};
+            GLboolean   mColorMask[4] {GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE};
+            GLboolean   mDepthMask {GL_TRUE};
+            GLint       mStencilMaskFront {~0};
+            GLint       mStencilMaskBack {~0};
+            GLboolean   mScissorEnabled {GL_FALSE};
+        };
 
         /// 按 GLES 版本填充 mCapabilities，必须在 GL 上下文就绪后调用
         void fillCapabilities();
 
         /**
-         * \brief draw call 之前确保当前 program 已链接并激活
+         * \brief draw call 之前确保当前 graphics program 已链接并激活
          * \return 链接失败返回 T3D_ERR_GLES3_LINK_PROGRAM
          */
         TResult ensureProgramLinked();
 
+        /**
+         * \brief dispatch 之前确保当前 compute program 已链接并激活
+         */
+        TResult ensureComputeProgramLinked();
+
+        TResult compileGLSLShader(GLenum shaderType, const String &source, GLuint &outHandle, const char *stageName);
+        /// 挂新 shader 之前，把程序上同一阶段的旧 shader 摘下来
+        void detachShaderStage(GLuint program, GLuint shader);
+        TResult attachGraphicsShader(ShaderVariant *shader, ShaderVariant *&currentVariant);
+
+        void releaseRenderTextureResources(GLES3PixelBuffer2D *pb);
+        TResult buildRenderTextureResources(PixelBuffer2D *buffer, GLES3PixelBuffer2D *glPixelBuffer);
+
+        GLuint getGLBufferHandle(RenderBuffer *buffer) const;
+        TResult validateIndirectArgs(RenderBuffer *argsBuffer, size_t argsOffset, size_t argsSize);
+
+        bool supportsTessellation() const;
+        bool supportsIndexedBlend() const;
+
+        struct BlitEndpoint
+        {
+            GLuint      fbo {0};
+            GLuint      texture {0};
+            GLuint      resolveFbo {0};
+            GLuint      resolveTex {0};
+            uint32_t    width {0};
+            uint32_t    height {0};
+            uint32_t    sampleCount {1};
+            bool        isWindow {false};
+            bool        isDepth {false};
+            bool        needsScratchFbo {false};
+        };
+
+        TResult resolveBlitEndpoint(Texture *tex, bool asSource, BlitEndpoint &out);
+        TResult resolveBlitEndpoint(RenderTarget *rt, bool asSource, BlitEndpoint &out);
+        TResult doBlit(const BlitEndpoint &src, const BlitEndpoint &dst,
+            const Vector3 &srcOffset, const Vector3 &size, const Vector3 &dstOffset);
+
+        struct ReadbackRequest
+        {
+            ReadbackHandle      Handle {};
+            RenderBufferPtr     Src {nullptr};
+            bool                IsTexture {false};
+            bool                CopyRecorded {false};
+            TResult             CopyResult {T3D_OK};
+            GLuint              Staging {0};
+            size_t              TotalBytes {0};
+            uint32_t            TightRowPitch {0};
+            uint32_t            TightSlicePitch {0};
+            uint32_t            CopyWidth {1};
+            uint32_t            CopyHeight {1};
+            uint32_t            CopyDepth {1};
+            size_t              BufferOffset {0};
+            size_t              BufferSize {0};
+            ReadbackRegion      Region {};
+        };
+
+        ReadbackHandle allocReadbackRequest(RenderBuffer *src, bool isTexture, ReadbackRequest *&outRequest);
+        TResult finishReadback(ReadbackHandle handle, Buffer &dst);
+
     protected:
         GLuint  mCurrentProgram {0};
+        GLuint  mCurrentComputeProgram {0};
+        bool    mComputeProgramDirty {false};
         GLenum  mPrimitiveType {GL_TRIANGLES};
         GLenum  mIndexType {GL_UNSIGNED_SHORT};
         uint32_t mIndexSize {2};
@@ -192,6 +277,22 @@ namespace Tiny3D
 
         ShaderVariant *mCurrentVSVariant {nullptr};
         ShaderVariant *mCurrentPSVariant {nullptr};
+        ShaderVariant *mCurrentHSVariant {nullptr};
+        ShaderVariant *mCurrentDSVariant {nullptr};
+        ShaderVariant *mCurrentGSVariant {nullptr};
+        ShaderVariant *mCurrentCSVariant {nullptr};
+
+        /// 被 doBlit 与 map(texture) 共用：每次使用前必须重新 attach，不能按附件缓存跳过
+        GLuint  mScratchReadFBO {0};
+        GLuint  mScratchDrawFBO {0};
+
+        uint32_t mNextReadbackIndex {0};
+        uint32_t mReadbackGeneration {1};
+        TMap<uint32_t, ReadbackRequest> mPendingReadbacks;
+
+        uint32_t mMaxTextureImageUnits {32};
+        uint32_t mMaxVertexShaderStorageBlocks {0};
+        bool    mSupportsIndexedBlend {false};
     };
 }
 

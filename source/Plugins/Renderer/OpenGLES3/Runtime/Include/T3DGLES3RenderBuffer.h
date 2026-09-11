@@ -61,6 +61,22 @@ namespace Tiny3D
         GLES3ConstantBuffer() = default;
     };
 
+    class GLES3StructuredBuffer : public RHIStructuredBuffer
+    {
+    public:
+        static GLES3StructuredBufferPtr create();
+        ~GLES3StructuredBuffer() override;
+        void *getNativeObject() const override;
+
+        GLuint      GLBuffer {0};
+        GLuint      GLCounterBuffer {0};
+        uint32_t    ElementCount {0};
+        uint32_t    ElementSize {0};
+        bool        HasCounter {false};
+    protected:
+        GLES3StructuredBuffer() = default;
+    };
+
     class GLES3PixelBuffer1D : public RHIPixelBuffer1D
     {
     public:

@@ -50,6 +50,7 @@ namespace Tiny3D
     class GLES3VertexBuffer;
     class GLES3IndexBuffer;
     class GLES3ConstantBuffer;
+    class GLES3StructuredBuffer;
     class GLES3PixelBuffer1D;
     class GLES3PixelBuffer2D;
     class GLES3PixelBuffer3D;
@@ -73,6 +74,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(GLES3VertexBuffer);
     T3D_DECLARE_SMART_PTR(GLES3IndexBuffer);
     T3D_DECLARE_SMART_PTR(GLES3ConstantBuffer);
+    T3D_DECLARE_SMART_PTR(GLES3StructuredBuffer);
     T3D_DECLARE_SMART_PTR(GLES3PixelBuffer1D);
     T3D_DECLARE_SMART_PTR(GLES3PixelBuffer2D);
     T3D_DECLARE_SMART_PTR(GLES3PixelBuffer3D);

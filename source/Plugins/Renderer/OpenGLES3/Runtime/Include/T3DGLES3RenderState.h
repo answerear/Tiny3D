@@ -13,7 +13,7 @@
 
 namespace Tiny3D
 {
-    struct GLES3BlendStateData
+    struct GLES3BlendTargetData
     {
         bool        enabled {false};
         GLenum      srcRGB {GL_ONE};
@@ -23,6 +23,13 @@ namespace Tiny3D
         GLenum      opRGB {GL_FUNC_ADD};
         GLenum      opAlpha {GL_FUNC_ADD};
         GLboolean   colorMask[4] {GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE};
+    };
+
+    struct GLES3BlendStateData
+    {
+        bool                    independentBlend {false};
+        bool                    alphaToCoverage {false};
+        GLES3BlendTargetData    targets[T3D_MAX_RENDER_TARGET] {};
     };
 
     class GLES3BlendState : public RHIBlendState
@@ -43,6 +50,7 @@ namespace Tiny3D
         bool        depthWriteEnabled {true};
         GLenum      depthFunc {GL_LESS};
         bool        stencilEnabled {false};
+        uint8_t     stencilRef {0};
         uint8_t     stencilReadMask {0xFF};
         uint8_t     stencilWriteMask {0xFF};
         GLenum      frontStencilFail {GL_KEEP};

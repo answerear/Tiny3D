@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #undef min
+#undef max
 
 
 namespace Tiny3D

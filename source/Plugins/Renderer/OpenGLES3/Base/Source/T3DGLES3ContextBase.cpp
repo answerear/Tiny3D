@@ -11,6 +11,8 @@
 #include <glslang/Public/ShaderLang.h>
 #include <glslang/Public/ResourceLimits.h>
 
+#include <algorithm>
+
 
 namespace Tiny3D
 {
@@ -188,12 +190,16 @@ namespace Tiny3D
 
         do
         {
-            EShLanguage glslangStage;
+            EShLanguage glslangStage = EShLangVertex;
+            int minVersion = 300;
             switch (shader->getShaderStage())
             {
             case SHADER_STAGE::kVertex:   glslangStage = EShLangVertex; break;
             case SHADER_STAGE::kPixel:    glslangStage = EShLangFragment; break;
-            case SHADER_STAGE::kGeometry: glslangStage = EShLangGeometry; break;
+            case SHADER_STAGE::kGeometry: glslangStage = EShLangGeometry; minVersion = 320; break;
+            case SHADER_STAGE::kCompute:  glslangStage = EShLangCompute; minVersion = 310; break;
+            case SHADER_STAGE::kHull:     glslangStage = EShLangTessControl; minVersion = 320; break;
+            case SHADER_STAGE::kDomain:   glslangStage = EShLangTessEvaluation; minVersion = 320; break;
             default:
                 T3D_LOG_ERROR(LOG_TAG_GLES3CONTEXTBASE, "glslangCompileAndReflect: unsupported shader stage !");
                 ret = T3D_ERR_GLES3_SHADER_REFLECTION;
@@ -203,6 +209,15 @@ namespace Tiny3D
             if (T3D_FAILED(ret))
                 break;
 
+            const int deviceVersion = 300 + mGLESMinor * 10;
+            if (deviceVersion < minVersion)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GLES3CONTEXTBASE,
+                    "shader stage requires ESSL %d, device provides %d !", minVersion, deviceVersion);
+                ret = T3D_ERR_GLES3_NOT_SUPPORTED;
+                break;
+            }
+
             size_t bytesLength = 0;
             const char *source = shader->getBytesCode(bytesLength);
 
@@ -210,9 +225,7 @@ namespace Tiny3D
             int sourceLen = static_cast<int>(bytesLength);
             glslangShader.setStringsWithLengths(&source, &sourceLen, 1);
 
-            int profileVersion = 300;
-            if (mGLESMinor >= 2) profileVersion = 320;
-            else if (mGLESMinor >= 1) profileVersion = 310;
+            const int profileVersion = std::max(deviceVersion, minVersion);
 
             const TBuiltInResource *resources = GetDefaultResources();
             if (!glslangShader.parse(resources, profileVersion, EEsProfile, false, false, EShMsgDefault))
@@ -344,27 +357,24 @@ namespace Tiny3D
 
                 switch (uniform.glDefineType)
                 {
-                case GL_SAMPLER_2D:         isSampler = true; texType = TEXTURE_TYPE::TT_2D; break;
-                case GL_SAMPLER_3D:         isSampler = true; texType = TEXTURE_TYPE::TT_3D; break;
-                case GL_SAMPLER_CUBE:       isSampler = true; texType = TEXTURE_TYPE::TT_CUBE; break;
-                case GL_SAMPLER_2D_SHADOW:  isSampler = true; texType = TEXTURE_TYPE::TT_2D; break;
+                case GL_SAMPLER_2D:
+                case GL_SAMPLER_2D_SHADOW:
+                case GL_SAMPLER_2D_ARRAY:
+                case GL_SAMPLER_2D_ARRAY_SHADOW:
+                case GL_INT_SAMPLER_2D:
+                case GL_UNSIGNED_INT_SAMPLER_2D:
+                    isSampler = true; texType = TEXTURE_TYPE::TT_2D; break;
+                case GL_SAMPLER_3D:
+                    isSampler = true; texType = TEXTURE_TYPE::TT_3D; break;
+                case GL_SAMPLER_CUBE:
+                case GL_SAMPLER_CUBE_SHADOW:
+                    isSampler = true; texType = TEXTURE_TYPE::TT_CUBE; break;
                 default: break;
                 }
 
                 if (isSampler)
                 {
-                    String name = uniform.name;
-
-                    const String kSpirvPrefix = "SPIRV_Cross_Combined";
-                    if (StringUtil::startsWith(name, kSpirvPrefix, false))
-                    {
-                        String remainder = name.substr(kSpirvPrefix.size());
-                        String::size_type samplerPos = remainder.find("sampler");
-                        if (samplerPos != String::npos && samplerPos > 0)
-                        {
-                            name = remainder.substr(0, samplerPos);
-                        }
-                    }
+                    String name = stripCombinedSamplerName(uniform.name);
 
                     ShaderSamplerParamPtr param;
                     const auto it = samplerParams.find(name);
@@ -393,9 +403,81 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    String GLES3ContextBase::stripCombinedSamplerName(const String &name)
+    {
+        const String kSpirvPrefix = "SPIRV_Cross_Combined";
+        if (StringUtil::startsWith(name, kSpirvPrefix, false))
+        {
+            String remainder = name.substr(kSpirvPrefix.size());
+            String::size_type samplerPos = remainder.find("sampler");
+            if (samplerPos != String::npos && samplerPos > 0)
+            {
+                return remainder.substr(0, samplerPos);
+            }
+        }
+        return name;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult GLES3ContextBase::reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams)
     {
-        return T3D_OK;
+        TResult ret = T3D_OK;
+
+        do
+        {
+            auto itr = mReflectionCache.find(shader);
+            if (itr == mReflectionCache.end())
+            {
+                T3D_LOG_ERROR(LOG_TAG_GLES3CONTEXTBASE, "reflectSamplerBindings: no cached reflection data (compileShader not called?)");
+                ret = T3D_ERR_GLES3_SHADER_REFLECTION;
+                break;
+            }
+
+            const GlslangReflectionData &data = itr->second;
+
+            uint32_t samplerIndex = 0;
+            for (const auto &uniform : data.uniforms)
+            {
+                bool isSampler = false;
+                TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
+
+                switch (uniform.glDefineType)
+                {
+                case GL_SAMPLER_2D:
+                case GL_SAMPLER_2D_SHADOW:
+                case GL_SAMPLER_2D_ARRAY:
+                case GL_SAMPLER_2D_ARRAY_SHADOW:
+                case GL_INT_SAMPLER_2D:
+                case GL_UNSIGNED_INT_SAMPLER_2D:
+                    isSampler = true; texType = TEXTURE_TYPE::TT_2D; break;
+                case GL_SAMPLER_3D:
+                    isSampler = true; texType = TEXTURE_TYPE::TT_3D; break;
+                case GL_SAMPLER_CUBE:
+                case GL_SAMPLER_CUBE_SHADOW:
+                    isSampler = true; texType = TEXTURE_TYPE::TT_CUBE; break;
+                default: break;
+                }
+
+                if (isSampler)
+                {
+                    String name = stripCombinedSamplerName(uniform.name);
+
+                    auto it = samplerParams.find(name);
+                    if (it != samplerParams.end())
+                    {
+                        it->second->setTexBinding(samplerIndex);
+                        it->second->setSamplerBinding(samplerIndex);
+                        it->second->setTextureType(texType);
+                    }
+
+                    samplerIndex++;
+                }
+            }
+
+        } while (false);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------

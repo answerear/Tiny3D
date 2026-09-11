@@ -62,6 +62,8 @@ namespace Tiny3D
 
         TResult glslangCompileAndReflect(ShaderVariant *shader);
 
+        static String stripCombinedSamplerName(const String &name);
+
         TMap<ShaderVariant*, GlslangReflectionData> mReflectionCache;
         bool mGlslangInitialized {false};
 

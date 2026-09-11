@@ -12,26 +12,148 @@
 #define GL_BGRA_EXT 0x80E1
 #endif
 
+#ifndef GL_CLAMP_TO_BORDER_EXT
+#define GL_CLAMP_TO_BORDER_EXT 0x812D
+#endif
+
+#ifndef GL_TEXTURE_MAX_ANISOTROPY_EXT
+#define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
+#endif
+
+#ifndef GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT
+#define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
+#endif
+
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
     bool GLES3Mapping::sBGRAExtSupported = false;
+    bool GLES3Mapping::sAnisotropicSupported = false;
+    bool GLES3Mapping::sBorderClampSupported = false;
+    bool GLES3Mapping::sDrawBuffersIndexedSupported = false;
+    bool GLES3Mapping::sTessellationSupported = false;
+    bool GLES3Mapping::sBaseVertexExtSupported = false;
+    bool GLES3Mapping::sColorBufferFloatSupported = false;
+    GLfloat GLES3Mapping::sMaxAnisotropy = 1.0f;
 
     //--------------------------------------------------------------------------
 
     void GLES3Mapping::detectExtensions()
     {
-        const char *exts = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
-        if (exts != nullptr)
+        sBGRAExtSupported = false;
+        sAnisotropicSupported = false;
+        sBorderClampSupported = false;
+        sDrawBuffersIndexedSupported = false;
+        sTessellationSupported = false;
+        sBaseVertexExtSupported = false;
+        sColorBufferFloatSupported = false;
+        sMaxAnisotropy = 1.0f;
+
+        GLint numExt = 0;
+        glGetIntegerv(GL_NUM_EXTENSIONS, &numExt);
+        for (GLint i = 0; i < numExt; ++i)
         {
-            sBGRAExtSupported = (strstr(exts, "GL_EXT_texture_format_BGRA8888") != nullptr);
+            const char *ext = reinterpret_cast<const char *>(glGetStringi(GL_EXTENSIONS, static_cast<GLuint>(i)));
+            if (ext == nullptr)
+            {
+                continue;
+            }
+
+            if (strcmp(ext, "GL_EXT_texture_format_BGRA8888") == 0)
+            {
+                sBGRAExtSupported = true;
+            }
+            else if (strcmp(ext, "GL_EXT_texture_filter_anisotropic") == 0)
+            {
+                sAnisotropicSupported = true;
+            }
+            else if (strcmp(ext, "GL_EXT_texture_border_clamp") == 0)
+            {
+                sBorderClampSupported = true;
+            }
+            else if (strcmp(ext, "GL_OES_draw_buffers_indexed") == 0)
+            {
+                sDrawBuffersIndexedSupported = true;
+            }
+            else if (strcmp(ext, "GL_EXT_tessellation_shader") == 0)
+            {
+                sTessellationSupported = true;
+            }
+            else if (strcmp(ext, "GL_EXT_draw_elements_base_vertex") == 0)
+            {
+                sBaseVertexExtSupported = true;
+            }
+            else if (strcmp(ext, "GL_EXT_color_buffer_float") == 0)
+            {
+                sColorBufferFloatSupported = true;
+            }
         }
+
+        if (sAnisotropicSupported)
+        {
+            glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &sMaxAnisotropy);
+            if (sMaxAnisotropy < 1.0f)
+            {
+                sMaxAnisotropy = 1.0f;
+            }
+        }
+
+        while (glGetError() != GL_NO_ERROR) {}
 
         T3D_LOG_INFO(LOG_TAG_GLES3RENDERER,
             "GL_EXT_texture_format_BGRA8888: %s",
             sBGRAExtSupported ? "supported" : "not supported");
+        T3D_LOG_INFO(LOG_TAG_GLES3RENDERER,
+            "GL_EXT_texture_filter_anisotropic: %s (max=%.1f)",
+            sAnisotropicSupported ? "supported" : "not supported", sMaxAnisotropy);
+        T3D_LOG_INFO(LOG_TAG_GLES3RENDERER,
+            "GL_EXT_texture_border_clamp: %s",
+            sBorderClampSupported ? "supported" : "not supported");
+        T3D_LOG_INFO(LOG_TAG_GLES3RENDERER,
+            "GL_OES_draw_buffers_indexed: %s",
+            sDrawBuffersIndexedSupported ? "supported" : "not supported");
+        T3D_LOG_INFO(LOG_TAG_GLES3RENDERER,
+            "GL_EXT_tessellation_shader: %s",
+            sTessellationSupported ? "supported" : "not supported");
+        T3D_LOG_INFO(LOG_TAG_GLES3RENDERER,
+            "GL_EXT_draw_elements_base_vertex: %s",
+            sBaseVertexExtSupported ? "supported" : "not supported");
+        T3D_LOG_INFO(LOG_TAG_GLES3RENDERER,
+            "GL_EXT_color_buffer_float: %s",
+            sColorBufferFloatSupported ? "supported" : "not supported");
+    }
+
+    //--------------------------------------------------------------------------
+
+    uint32_t GLES3Mapping::getBytesPerPixel(PixelFormat format)
+    {
+        switch (format)
+        {
+        case PixelFormat::E_PF_PALETTE8:
+            return 1;
+        case PixelFormat::E_PF_B5G6R5:
+        case PixelFormat::E_PF_B5G5R5A1:
+        case PixelFormat::E_PF_B4R4G4A4:
+        case PixelFormat::E_PF_D16_UNORM:
+            return 2;
+        case PixelFormat::E_PF_R8G8B8:
+        case PixelFormat::E_PF_B8G8R8:
+            return 3;
+        case PixelFormat::E_PF_R8G8B8A8:
+        case PixelFormat::E_PF_B8G8R8A8:
+        case PixelFormat::E_PF_R8G8B8X8:
+        case PixelFormat::E_PF_B8G8R8X8:
+        case PixelFormat::E_PF_D24_UNORM_S8_UINT:
+        case PixelFormat::E_PF_D32_FLOAT:
+            return 4;
+        case PixelFormat::E_PF_D32_FLOAT_S8X24_UINT:
+            return 8;
+        default:
+            break;
+        }
+        return 0;
     }
 
     //--------------------------------------------------------------------------
@@ -213,7 +335,21 @@ namespace Tiny3D
         case TextureAddressMode::kWrap:       return GL_REPEAT;
         case TextureAddressMode::kMirror:     return GL_MIRRORED_REPEAT;
         case TextureAddressMode::kClamp:      return GL_CLAMP_TO_EDGE;
-        case TextureAddressMode::kBorder:     return GL_CLAMP_TO_EDGE;
+        case TextureAddressMode::kBorder:
+            if (sBorderClampSupported)
+            {
+                return GL_CLAMP_TO_BORDER_EXT;
+            }
+            {
+                static bool sBorderWarned = false;
+                if (!sBorderWarned)
+                {
+                    T3D_LOG_WARNING(LOG_TAG_GLES3RENDERER,
+                        "TextureAddressMode::kBorder requires GL_EXT_texture_border_clamp, falling back to CLAMP_TO_EDGE");
+                    sBorderWarned = true;
+                }
+            }
+            return GL_CLAMP_TO_EDGE;
         case TextureAddressMode::kMirrorOnce: return GL_MIRRORED_REPEAT;
         default: break;
         }

@@ -180,6 +180,7 @@ namespace Tiny3D
         T3D_LOG_INFO(LOG_TAG_GLES3RENDERER, "RenderWindow created (%u x %u)", mWidth, mHeight);
 
         GLES3Mapping::detectExtensions();
+        ctx->confirmDeviceVersion();
 
         return true;
     }

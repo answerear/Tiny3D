@@ -87,6 +87,26 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+    // GLES3StructuredBuffer
+    //--------------------------------------------------------------------------
+
+    GLES3StructuredBufferPtr GLES3StructuredBuffer::create()
+    {
+        return T3D_NEW GLES3StructuredBuffer();
+    }
+
+    GLES3StructuredBuffer::~GLES3StructuredBuffer()
+    {
+        GL_SAFE_DELETE_BUFFER(GLCounterBuffer);
+        GL_SAFE_DELETE_BUFFER(GLBuffer);
+    }
+
+    void *GLES3StructuredBuffer::getNativeObject() const
+    {
+        return (void *)(intptr_t)GLBuffer;
+    }
+
+    //--------------------------------------------------------------------------
     // GLES3PixelBuffer1D
     //--------------------------------------------------------------------------
 

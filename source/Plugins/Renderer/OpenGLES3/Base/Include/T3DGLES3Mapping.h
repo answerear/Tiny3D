@@ -19,6 +19,15 @@ namespace Tiny3D
         static void detectExtensions();
         static bool isBGRAFormat(PixelFormat format);
         static bool isBGRAExtSupported() { return sBGRAExtSupported; }
+        static bool isAnisotropicSupported() { return sAnisotropicSupported; }
+        static bool isBorderClampSupported() { return sBorderClampSupported; }
+        static bool isDrawBuffersIndexedSupported() { return sDrawBuffersIndexedSupported; }
+        static bool isTessellationSupported() { return sTessellationSupported; }
+        static bool isBaseVertexExtSupported() { return sBaseVertexExtSupported; }
+        static bool isColorBufferFloatSupported() { return sColorBufferFloatSupported; }
+        static GLfloat getMaxAnisotropy() { return sMaxAnisotropy; }
+
+        static uint32_t getBytesPerPixel(PixelFormat format);
 
         static GLenum get(PixelFormat format);
         static GLenum getInternalFormat(PixelFormat format);
@@ -48,6 +57,13 @@ namespace Tiny3D
 
     private:
         static bool sBGRAExtSupported;
+        static bool sAnisotropicSupported;
+        static bool sBorderClampSupported;
+        static bool sDrawBuffersIndexedSupported;
+        static bool sTessellationSupported;
+        static bool sBaseVertexExtSupported;
+        static bool sColorBufferFloatSupported;
+        static GLfloat sMaxAnisotropy;
     };
 }
 
