@@ -534,6 +534,7 @@ namespace Tiny3D
             if (cxNumDiag != 0)
             {
                 bool hasErrors = false;
+                bool hasFatal = false;
                 RP_LOG_INFO("> Diagnostics:");
                 for (uint32_t i = 0; i < cxNumDiag; ++i)
                 {
@@ -542,6 +543,7 @@ namespace Tiny3D
                     if (cxSeverity == CXDiagnostic_Error || cxSeverity == CXDiagnostic_Fatal)
                     {
                         hasErrors = true;
+                        hasFatal = hasFatal || (cxSeverity == CXDiagnostic_Fatal);
                         RP_LOG_ERROR(">>> %s", toString(clang_formatDiagnostic(cxDiag, clang_defaultDiagnosticDisplayOptions())).c_str());
                     }
                     else
@@ -552,7 +554,14 @@ namespace Tiny3D
                     clang_disposeDiagnostic(cxDiag);
                 }
 
-                if (hasErrors)
+                // fatal 说明这个 TU 根本没编完（多半是头文件找不到），和单纯的
+                // 类型错误不同，同一套参数下别的文件也一样过不去
+                if (hasFatal)
+                {
+                    ret = T3D_ERR_RP_FATAL_DIAGNOSTIC;
+                    break;
+                }
+                else if (hasErrors)
                 {
                     ret = T3D_ERR_RP_COMPILE_ERROR;
                     break;
@@ -725,6 +734,7 @@ namespace Tiny3D
             if (cxNumDiag != 0)
             {
                 bool hasErrors = false;
+                bool hasFatal = false;
                 RP_LOG_INFO("> Diagnostics:");
                 for (uint32_t i = 0; i < cxNumDiag; ++i)
                 {
@@ -733,6 +743,7 @@ namespace Tiny3D
                     if (cxSeverity == CXDiagnostic_Error || cxSeverity == CXDiagnostic_Fatal)
                     {
                         hasErrors = true;
+                        hasFatal = hasFatal || (cxSeverity == CXDiagnostic_Fatal);
                         RP_LOG_ERROR(">>> %s", toString(clang_formatDiagnostic(cxDiag, clang_defaultDiagnosticDisplayOptions())).c_str());
                     }
                     else
@@ -743,7 +754,14 @@ namespace Tiny3D
                     clang_disposeDiagnostic(cxDiag);
                 }
 
-                if (hasErrors)
+                // fatal 说明这个 TU 根本没编完（多半是头文件找不到），和单纯的
+                // 类型错误不同，同一套参数下别的文件也一样过不去
+                if (hasFatal)
+                {
+                    ret = T3D_ERR_RP_FATAL_DIAGNOSTIC;
+                    break;
+                }
+                else if (hasErrors)
                 {
                     ret = T3D_ERR_RP_COMPILE_ERROR;
                     break;

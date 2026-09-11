@@ -55,6 +55,32 @@ namespace Tiny3D
         /// macOS：若配置里没有 -isysroot，补上 SDK 路径，否则找不到 <typeinfo>
         void appendSysroot(ClangArgs &args);
 
+        /**
+         * @brief Windows：配置里没给系统头路径时，探测 MSVC 与 Windows SDK 补上
+         * @remarks 这里的 libclang 只认 %INCLUDE% 去找 MSVC / Windows SDK 头，注册表
+         *      与 COM 那套自动探测在它身上不生效。从 Visual Studio 或 vcvarsall 起的
+         *      构建自带这套环境变量，Android Studio 的 Gradle 进程没有，于是
+         *      <WinSock.h> 之类的头会找不到、整个工程的 AST 全军覆没。
+         *      优先级：配置里的 SystemIncludePath > %INCLUDE% > 这里的探测。
+         *      探测到的版本可能与编译工程的工具集不一致，所以只当兜底用；引擎自己的
+         *      generate 流程会把路径钉死写进 ReflectionSettings.json。
+         *      环境变量 T3D_RPP_VS_YEAR 可以指定用哪一代，例如 "2019"。
+         */
+        void appendMSVCIncludes(ClangArgs &args);
+
+        /**
+         * @brief 解析前确认系统头搜索路径可用
+         * @remarks 缺了这一步，每个 TU 都会以 "'xxx.h' file not found" 失败，而且要
+         *      等全部文件跑完才看得出来，日志里还是几百条一模一样的报错。
+         */
+        TResult verifySystemIncludes() const;
+
+        /// 定位 MSVC 工具链的 include 目录，找不到返回空串
+        static String findVCToolsInclude();
+
+        /// 定位 Windows 10/11 SDK 带版本号的 Include 目录，找不到返回空串
+        static String findWindowsSDKIncludeRoot();
+
         /// 用 mArgs 重建 ClangArgs，避免 vector 扩容后 c_str 悬空
         void syncClangArgs(ClangArgs &args);
 
@@ -95,6 +121,21 @@ namespace Tiny3D
          */
         bool checkIncrementalCache(const String &generatedPath, bool dumpAST,
                                    String &reason) const;
+
+        /**
+         * @brief 删掉 .deps/.tpl 里已经没有对应源文件的孤儿缓存
+         * @param [in] generatedPath : Generated 目录
+         * @param [in] sourcePath : 源码根目录
+         * @remarks 源文件被删掉、或者头文件不再带反射宏之后，留下的孤儿缓存会让
+         *      checkIncrementalCache 永远判定不一致，从此每次构建都退回全量。
+         *      孤儿本身对增量没有价值，清掉即可，不必因此放弃整个缓存。
+         */
+        void pruneOrphanCacheFiles(const String &generatedPath,
+                                   const String &sourcePath) const;
+
+        /// 递归收集本轮应当处理的源文件 title，口径必须与 collectSourceFiles 一致
+        void collectExpectedSourceTitles(const String &path,
+                                         std::unordered_set<std::string> &titles) const;
 
         /// 写入 .deps 依赖文件
         void writeDepsFile(const String &depsFile, const String &srcFile, const StringList &deps) const;

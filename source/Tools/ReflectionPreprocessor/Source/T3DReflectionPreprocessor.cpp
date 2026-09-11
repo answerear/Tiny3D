@@ -87,6 +87,14 @@ namespace  Tiny3D
                 break;
             }
 
+            // 系统头搜索路径要在解析之前就确定下来，缺了它后面每个文件都会以
+            // 同样的 "file not found" 失败，白跑几分钟才看得出问题
+            ret = verifySystemIncludes();
+            if (T3D_FAILED(ret))
+            {
+                break;
+            }
+
             RP_LOG_INFO("Starting reflection [%s] ...", opts.SourcePath.c_str());
 
             // 设置自动反射类
@@ -154,6 +162,10 @@ namespace  Tiny3D
             // 与其生成一份错的，不如整体退回全量重新生成
             if (!opts.IsRebuild)
             {
+                // 源文件删掉、或者头文件不再带反射宏之后，遗留的孤儿缓存会让下面
+                // 的校验永远判定不一致，从此每次构建都被迫退回全量
+                pruneOrphanCacheFiles(path, opts.SourcePath);
+
                 String reason;
                 if (!checkIncrementalCache(path, opts.DumpAST, reason))
                 {
@@ -185,9 +197,14 @@ namespace  Tiny3D
                     ++processedCount;
                 }
             }
-            if (opts.IsRebuild && processedCount == 0 && !pendingFiles.empty())
+            // 解析失败的文件不能悄悄放过：产物会停留在上一轮的状态，而退出码是 0，
+            // 构建照常通过，等到运行期反射对不上才发现，届时已经无从追溯
+            const uint32_t totalCount = (uint32_t)pendingFiles.size();
+            if (processedCount != totalCount)
             {
-                RP_LOG_ERROR("All source files failed to parse, keep existing generated sources.");
+                RP_LOG_ERROR("%u of %u source file(s) failed to parse, "
+                    "keep existing generated sources.",
+                    totalCount - processedCount, totalCount);
                 ret = T3D_ERR_RP_PARSE_SOURCE;
                 break;
             }
@@ -228,6 +245,7 @@ namespace  Tiny3D
     {
     public:
         static const std::string kTagIncludePath;
+        static const std::string kTagSystemIncludePath;
         static const std::string kTagMacroDefinition;
         static const std::string kTagOtherFlags;
         static const std::string kTagGeneratedPath;
@@ -256,6 +274,10 @@ namespace  Tiny3D
                 {
                     mState |= kExpectIncludePath;
                 }
+                else if (name == kTagSystemIncludePath)
+                {
+                    mState |= kExpectSystemIncludePath;
+                }
                 else if (name == kTagMacroDefinition)
                 {
                     mState |= kExpectMacroDefinition;
@@ -278,6 +300,16 @@ namespace  Tiny3D
                     // arg = mPath + Dir::getNativeSeparator() + arg;
                     arg = Dir::formatPath(arg);
                     arg = "-I" + arg;
+                    mArgs.push_back(std::move(arg));
+                    mClangArgs.push_back(mArgs.back().c_str());
+                }
+                else if (mState & kExpectSystemIncludePath)
+                {
+                    // 工具链自带的头文件路径。用 -isystem 而不是 -I，既排在项目
+                    // 路径之后，也不会把系统头自身的警告刷进日志
+                    std::string arg(str);
+                    mArgs.push_back("-isystem");
+                    mClangArgs.push_back(mArgs.back().c_str());
                     mArgs.push_back(std::move(arg));
                     mClangArgs.push_back(mArgs.back().c_str());
                 }
@@ -349,13 +381,15 @@ namespace  Tiny3D
             kExpectIncludePath = 0x00000100,
             kExpectMacroDefinition = 0x00000200,
             kExpectOtherFlags = 0x00000400,
-            kExpectGeneratedPath = 0x00000800
+            kExpectGeneratedPath = 0x00000800,
+            kExpectSystemIncludePath = 0x00001000
         };
 
         uint32_t mState;
     };
 
     const std::string JsonHandler::kTagIncludePath = "IncludePath";
+    const std::string JsonHandler::kTagSystemIncludePath = "SystemIncludePath";
     const std::string JsonHandler::kTagMacroDefinition = "MacroDefinition";
     const std::string JsonHandler::kTagOtherFlags = "OtherFlags";
     const std::string JsonHandler::kTagGeneratedPath = "GeneratedPath";
@@ -383,15 +417,6 @@ namespace  Tiny3D
                 RP_LOG_ERROR("Parse json failed ! %s", ss.str().c_str());
                 args.clear();
             }
-            else
-            {
-#ifdef T3D_RP_DEBUG
-                mArgs.push_back("-IC:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Professional\\VC\\Tools\\MSVC\\14.29.30133\\include");
-                args.push_back(mArgs.back().c_str());
-                mArgs.push_back("-IC:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\ucrt");
-                args.push_back(mArgs.back().c_str());
-#endif
-            }
             
             fs.close();
         }
@@ -403,6 +428,7 @@ namespace  Tiny3D
         if (!args.empty())
         {
             appendSysroot(args);
+            appendMSVCIncludes(args);
             appendResourceDir(args);
             syncClangArgs(args);
         }
@@ -460,6 +486,284 @@ namespace  Tiny3D
         mArgs.push_back(sdk);
         mArgs.push_back("-stdlib=libc++");
         syncClangArgs(args);
+#endif
+    }
+
+    //-------------------------------------------------------------------------
+
+    String ReflectionPreprocessor::findVCToolsInclude()
+    {
+#if defined(T3D_OS_WINDOWS)
+        // vcvarsall 起的环境里直接就有，不必再猜
+        if (const char *env = std::getenv("VCToolsInstallDir"))
+        {
+            String dir = env;
+            while (!dir.empty() && (dir.back() == '\\' || dir.back() == '/'))
+            {
+                dir.pop_back();
+            }
+
+            String include = dir + "\\include";
+            if (!dir.empty() && Dir::exists(include))
+            {
+                return include;
+            }
+        }
+
+        // 只扫默认安装位置。装到别处的话没法靠猜，那种环境应该用配置里的
+        // SystemIncludePath，别指望这个兜底
+        StringList vsRoots;
+        static const char *kProgramFilesEnvs[] = {
+            "ProgramFiles(x86)", "ProgramFiles"
+        };
+        for (const auto *name : kProgramFilesEnvs)
+        {
+            if (const char *env = std::getenv(name))
+            {
+                if (env[0] != '\0')
+                {
+                    vsRoots.push_back(String(env) + "\\Microsoft Visual Studio");
+                }
+            }
+        }
+
+        // T3D_RPP_VS_YEAR 可以指定用哪一代，比如 "2019"，不设就挑最新的
+        String wantedYear;
+        if (const char *env = std::getenv("T3D_RPP_VS_YEAR"))
+        {
+            wantedYear = env;
+        }
+
+        String best;
+        auto pickNewer = [&best](const String &candidate)
+        {
+            // 目录名形如 14.29.30133，位数一致，字典序即版本序
+            if (candidate > best)
+            {
+                best = candidate;
+            }
+        };
+
+        auto forEachSubDir = [](const String &parent,
+            const std::function<void(const String &)> &visit)
+        {
+            Dir dir;
+            bool working = dir.findFile(parent + "\\*");
+            while (working)
+            {
+                if (!dir.isDots() && dir.isDirectory())
+                {
+                    visit(dir.getFilePath());
+                }
+                working = dir.findNextFile();
+            }
+            dir.close();
+        };
+
+        for (const auto &vsRoot : vsRoots)
+        {
+            if (!Dir::exists(vsRoot))
+            {
+                continue;
+            }
+
+            forEachSubDir(vsRoot, [&](const String &yearDir)
+            {
+                String parent, year, ext;
+                Dir::parsePath(yearDir + "\\.", parent, year, ext);
+                if (!wantedYear.empty() && year != wantedYear)
+                {
+                    return;
+                }
+
+                forEachSubDir(yearDir, [&](const String &editionDir)
+                {
+                    const String toolsRoot = editionDir + "\\VC\\Tools\\MSVC";
+                    if (!Dir::exists(toolsRoot))
+                    {
+                        return;
+                    }
+
+                    forEachSubDir(toolsRoot, [&](const String &toolsetDir)
+                    {
+                        const String include = toolsetDir + "\\include";
+                        if (Dir::exists(include))
+                        {
+                            pickNewer(include);
+                        }
+                    });
+                });
+            });
+        }
+
+        return best;
+#else
+        return String();
+#endif
+    }
+
+    //-------------------------------------------------------------------------
+
+    String ReflectionPreprocessor::findWindowsSDKIncludeRoot()
+    {
+#if defined(T3D_OS_WINDOWS)
+        // vcvarsall 起的环境里直接就有
+        const char *sdkDir = std::getenv("WindowsSdkDir");
+        const char *sdkVer = std::getenv("WindowsSDKVersion");
+        if (sdkDir != nullptr && sdkVer != nullptr)
+        {
+            String version = sdkVer;
+            while (!version.empty()
+                && (version.back() == '\\' || version.back() == '/'))
+            {
+                version.pop_back();
+            }
+
+            String root = String(sdkDir) + "Include\\" + version;
+            if (Dir::exists(root))
+            {
+                return root;
+            }
+        }
+
+        String kitsRoot;
+        if (const char *env = std::getenv("ProgramFiles(x86)"))
+        {
+            kitsRoot = String(env) + "\\Windows Kits\\10";
+        }
+
+        if (kitsRoot.empty() || !Dir::exists(kitsRoot))
+        {
+            return String();
+        }
+
+        // 挑版本号最大、且 um 和 ucrt 都齐的那一套
+        String best;
+        Dir dir;
+        bool working = dir.findFile(kitsRoot + "\\Include\\*");
+        while (working)
+        {
+            if (!dir.isDots() && dir.isDirectory())
+            {
+                String candidate = dir.getFilePath();
+                if (Dir::exists(candidate + "\\um")
+                    && Dir::exists(candidate + "\\ucrt")
+                    && candidate > best)
+                {
+                    best = candidate;
+                }
+            }
+            working = dir.findNextFile();
+        }
+        dir.close();
+
+        return best;
+#else
+        return String();
+#endif
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ReflectionPreprocessor::appendMSVCIncludes(ClangArgs &args)
+    {
+#if defined(T3D_OS_WINDOWS)
+        for (const auto &s : mArgs)
+        {
+            if (s == "-isystem")
+            {
+                RP_LOG_INFO("Reflection settings provide system include paths.");
+                return;
+            }
+        }
+
+        if (const char *env = std::getenv("INCLUDE"))
+        {
+            if (env[0] != '\0')
+            {
+                RP_LOG_INFO("Using system include paths from the INCLUDE "
+                    "environment variable.");
+                return;
+            }
+        }
+
+        const String vcInclude = findVCToolsInclude();
+        const String sdkRoot = findWindowsSDKIncludeRoot();
+
+        if (vcInclude.empty() || sdkRoot.empty())
+        {
+            // 这里不报错，交给 verifySystemIncludes 统一裁决
+            RP_LOG_WARNING("MSVC toolchain auto-detection incomplete "
+                "[VC=%s] [SDK=%s].",
+                vcInclude.empty() ? "<not found>" : vcInclude.c_str(),
+                sdkRoot.empty() ? "<not found>" : sdkRoot.c_str());
+            return;
+        }
+
+        RP_LOG_WARNING("No system include path in reflection settings, "
+            "falling back to auto-detected toolchain "
+            "[VC=%s] [SDK=%s]. It may differ from the toolset that compiles "
+            "the project; re-run the generate script to pin it down.",
+            vcInclude.c_str(), sdkRoot.c_str());
+
+        auto appendDir = [this](const String &dir)
+        {
+            if (!Dir::exists(dir))
+            {
+                return;
+            }
+            mArgs.push_back("-isystem");
+            mArgs.push_back(dir);
+        };
+
+        appendDir(vcInclude);
+
+        // ucrt 给 C 运行库，um 给 Win32 API（WinSock.h 在这儿），shared 给两者
+        // 共用的定义，winrt / cppwinrt 少数头会用到
+        static const char *kSDKSubDirs[] = {
+            "ucrt", "um", "shared", "winrt", "cppwinrt"
+        };
+        for (const auto *sub : kSDKSubDirs)
+        {
+            appendDir(sdkRoot + "\\" + sub);
+        }
+
+        syncClangArgs(args);
+#endif
+    }
+
+    //-------------------------------------------------------------------------
+
+    TResult ReflectionPreprocessor::verifySystemIncludes() const
+    {
+#if defined(T3D_OS_WINDOWS)
+        for (const auto &s : mArgs)
+        {
+            if (s == "-isystem")
+            {
+                return T3D_OK;
+            }
+        }
+
+        if (const char *env = std::getenv("INCLUDE"))
+        {
+            if (env[0] != '\0')
+            {
+                return T3D_OK;
+            }
+        }
+
+        RP_LOG_ERROR("No MSVC / Windows SDK include path available: "
+            "'SystemIncludePath' is missing from %s, the INCLUDE environment "
+            "variable is empty and toolchain auto-detection failed. Every "
+            "translation unit would fail with \"file not found\", so stop here. "
+            "Re-run the engine generate script to refresh %s, or build from a "
+            "Visual Studio developer prompt.",
+            kReflectionSettingsFile.c_str(), kReflectionSettingsFile.c_str());
+
+        return T3D_ERR_RP_NO_SYSTEM_INCLUDE;
+#else
+        return T3D_OK;
 #endif
     }
 
@@ -680,6 +984,14 @@ namespace  Tiny3D
                 {
                     pf.processed = true;
                 }
+                else if (T3D_RP_FATAL(parseRet))
+                {
+                    // 致命诊断基本都是头文件找不到，剩下的文件用的是同一套编译
+                    // 参数，继续跑只会刷出几百条一样的报错
+                    RP_LOG_ERROR("Fatal diagnostic on [%s], abort the whole run.",
+                        pf.filePath.c_str());
+                    return parseRet;
+                }
             }
         }
         else
@@ -702,6 +1014,8 @@ namespace  Tiny3D
             std::vector<std::future<ReflectionGenerator::ParsedUnit>> futures;
             futures.reserve(pendingFiles.size());
 
+            TResult fatalRet = T3D_OK;
+            String fatalFile;
             size_t idx = 0;
             while (idx < pendingFiles.size())
             {
@@ -734,6 +1048,11 @@ namespace  Tiny3D
                         {
                             pf.processed = true;
                         }
+                        else if (T3D_RP_FATAL(visitRet) && fatalRet == T3D_OK)
+                        {
+                            fatalRet = visitRet;
+                            fatalFile = pf.filePath;
+                        }
                     }
                     else
                     {
@@ -746,6 +1065,11 @@ namespace  Tiny3D
                 RP_LOG_INFO("[timing] batch [%u..%u] : %lld ms", (uint32_t)idx, (uint32_t)(batchEnd - 1), (long long)batchMs);
 
                 idx = batchEnd;
+
+                if (fatalRet != T3D_OK)
+                {
+                    break;
+                }
             }
 
             // 销毁 CXIndex 池
@@ -756,6 +1080,15 @@ namespace  Tiny3D
                     clang_disposeIndex(cxIdx);
                     cxIdx = nullptr;
                 }
+            }
+
+            if (fatalRet != T3D_OK)
+            {
+                // 致命诊断基本都是头文件找不到，剩下的文件用的是同一套编译参数，
+                // 继续跑只会刷出几百条一样的报错
+                RP_LOG_ERROR("Fatal diagnostic on [%s], abort the whole run.",
+                    fatalFile.c_str());
+                return fatalRet;
             }
         }
 
@@ -837,8 +1170,9 @@ namespace  Tiny3D
             return false;
         }
 
-        // .deps 与 .tpl 在同一轮循环里成对写出，只要不配对就说明缓存目录被
-        // 外部改动过。缺 .tpl 尤其致命：该文件被跳过时它贡献的模板实例会丢失
+        // .deps 与 .tpl 在同一轮循环里成对写出，有 .deps 却缺 .tpl 是致命的：
+        // 该文件被跳过时它贡献的模板实例会丢失。反过来多出的 .tpl 不要紧，
+        // 对应文件因为没有 .deps 必然会被重新处理，两者都会被重写一遍
         StringList tplTitles;
         countFiles(depsDir + sep + "*.tpl", tplTitles);
 
@@ -854,12 +1188,6 @@ namespace  Tiny3D
             }
         }
 
-        if (tplTitles.size() != depsTitles.size())
-        {
-            reason = "dependency cache is inconsistent";
-            return false;
-        }
-
         // 开了 -d 就应该有上一轮 dump 出来的 ast.json，缺了同样说明目录被动过
         if (dumpAST && !Dir::exists(generatedPath + sep + "ast.json"))
         {
@@ -868,6 +1196,96 @@ namespace  Tiny3D
         }
 
         return true;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ReflectionPreprocessor::collectExpectedSourceTitles(const String &path,
+        std::unordered_set<std::string> &titles) const
+    {
+        Dir dir;
+        bool working = dir.findFile(path + Dir::getNativeSeparator() + "*.*");
+
+        while (working)
+        {
+            if (dir.isDots())
+            {
+                // . or ..
+            }
+            else if (dir.isDirectory())
+            {
+                collectExpectedSourceTitles(dir.getFilePath(), titles);
+            }
+            else
+            {
+                String fileDir, fileTitle, fileExt;
+                Dir::parsePath(dir.getFilePath(), fileDir, fileTitle, fileExt);
+                if ((fileExt == "cpp" || fileExt == "cxx")
+                    && mReflectionHeaders.find(fileTitle) != mReflectionHeaders.end())
+                {
+                    titles.insert(fileTitle);
+                }
+            }
+
+            working = dir.findNextFile();
+        }
+
+        dir.close();
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ReflectionPreprocessor::pruneOrphanCacheFiles(const String &generatedPath,
+        const String &sourcePath) const
+    {
+        const String sep(1, Dir::getNativeSeparator());
+        const String depsDir = generatedPath + sep + ".deps";
+
+        if (!Dir::exists(depsDir))
+        {
+            return;
+        }
+
+        std::unordered_set<std::string> expected;
+        collectExpectedSourceTitles(sourcePath, expected);
+
+        if (expected.empty())
+        {
+            // 一个都没收集到不像是真相，宁可什么都不删
+            return;
+        }
+
+        StringList victims;
+        static const char *kPatterns[] = { "*.deps", "*.tpl" };
+        for (const auto *pattern : kPatterns)
+        {
+            Dir dir;
+            bool working = dir.findFile(depsDir + sep + pattern);
+
+            // 一边遍历一边删同一个目录不靠谱，先收集完再动手
+            while (working)
+            {
+                if (!dir.isDots() && !dir.isDirectory())
+                {
+                    String fileDir, title, ext;
+                    Dir::parsePath(dir.getFilePath(), fileDir, title, ext);
+                    if (expected.find(title) == expected.end())
+                    {
+                        victims.push_back(dir.getFilePath());
+                    }
+                }
+
+                working = dir.findNextFile();
+            }
+
+            dir.close();
+        }
+
+        for (const auto &victim : victims)
+        {
+            RP_LOG_INFO("Pruning orphan cache file [%s].", victim.c_str());
+            Dir::remove(victim);
+        }
     }
 
     //-------------------------------------------------------------------------

@@ -66,6 +66,10 @@ namespace Tiny3D
         
         /**< 致命级别 */
         T3D_ERR_RP_FATAL                        = T3D_ERR_REFLECTION_PREPROCESSOR + 0x200,
+        /**< clang 致命诊断，通常是头文件找不到，同一套参数下后续文件必然一样失败 */
+        T3D_ERR_RP_FATAL_DIAGNOSTIC             = T3D_ERR_RP_FATAL,
+        /**< 拿不到 MSVC / Windows SDK 的头文件搜索路径 */
+        T3D_ERR_RP_NO_SYSTEM_INCLUDE            = T3D_ERR_RP_FATAL + 1,
     };
 
     #define T3D_RP_WARNING(ret) (ret >= T3D_ERR_RP_WARNING && ret < T3D_ERR_RP_ERROR)
