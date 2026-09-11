@@ -55,7 +55,9 @@ namespace Tiny3D
 
         void outputConsole() const
         {
-            T3D_CONSOLE.print(mContent);
+            // mContent 已经格式化完了，不能再当格式串传进去：内容里带 '%' 的日志
+            // 会被二次解析，读到栈上的垃圾参数，直接把进程打崩
+            T3D_CONSOLE.print("%s", mContent);
         }
 
         uint32_t getContentSize() const    { return mContentSize; }
