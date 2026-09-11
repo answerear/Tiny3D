@@ -30,6 +30,9 @@
 #include "PostProcessControllerBehaviour.h"
 #include "CopyEffectBehaviour.h"
 #include "GrayscaleEffectBehaviour.h"
+#include "KeyboardCommandSource.h"
+#include "TouchCommandSource.h"
+#include "AutoCycleCommandSource.h"
 #include <random>
 
 
@@ -205,6 +208,9 @@ void PostProcessingApp::applicationWillTerminate()
         mCubeTextures[i] = nullptr;
     }
     mLogCamera = nullptr;
+    T3D_SAFE_DELETE(mKeyboardSource);
+    T3D_SAFE_DELETE(mTouchSource);
+    T3D_SAFE_DELETE(mAutoCycleSource);
 }
 
 void PostProcessingApp::onRender()
@@ -282,9 +288,31 @@ void PostProcessingApp::buildCamera(Transform3D *parent)
     auto tintEffect = go->addComponent<TintEffectBehaviour>();
     tintEffect->setEnabled(false);
 
-    go->addComponent<PostProcessControllerBehaviour>();
+    auto controller = go->addComponent<PostProcessControllerBehaviour>();
 
-    T3D_LOG_INFO(LOG_TAG_APP, "[PostProcess] keys: 0-7 preset, O swap order, L toggle camera log");
+#if defined(T3D_OS_ANDROID)
+    mAutoCycleSource = new AutoCycleCommandSource();
+    mTouchSource = new TouchCommandSource();
+    mTouchSource->setAutoCycle(mAutoCycleSource);
+    controller->addCommandSource(mTouchSource);
+    controller->addCommandSource(mAutoCycleSource);
+#else
+    mKeyboardSource = new KeyboardCommandSource();
+    controller->addCommandSource(mKeyboardSource);
+#endif
+
+    if (mKeyboardSource != nullptr)
+    {
+        T3D_LOG_INFO(LOG_TAG_APP, "%s", mKeyboardSource->usage());
+    }
+    if (mTouchSource != nullptr)
+    {
+        T3D_LOG_INFO(LOG_TAG_APP, "%s", mTouchSource->usage());
+    }
+    if (mAutoCycleSource != nullptr)
+    {
+        T3D_LOG_INFO(LOG_TAG_APP, "%s", mAutoCycleSource->usage());
+    }
 }
 
 PassPtr PostProcessingApp::buildShadowPass()

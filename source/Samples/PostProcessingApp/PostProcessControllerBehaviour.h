@@ -27,6 +27,7 @@
 
 
 #include "Component/T3DBehaviour.h"
+#include "PostProcessCommand.h"
 
 
 namespace Tiny3D
@@ -38,7 +39,7 @@ namespace Tiny3D
     class LogCameraBehaviour;
 
     /**
-     * \brief 热键切后处理预设：0–7 切预设，O 对调 order，L 开关时序日志
+     * \brief 后处理预设控制器：从命令源（键盘 / 触摸 / 自动轮播）切预设
      */
     TCLASS()
     class PostProcessControllerBehaviour : public Behaviour
@@ -50,6 +51,7 @@ namespace Tiny3D
         ~PostProcessControllerBehaviour() override = default;
 
         void applyPreset(int32_t preset);
+        void addCommandSource(IPresetCommandSource *src);
 
     protected:
         PostProcessControllerBehaviour() = default;
@@ -59,6 +61,7 @@ namespace Tiny3D
         void onUpdate() override;
 
     private:
+        void dispatch(const PresetCommand &cmd);
         void swapEffectOrder();
         void logPreset() const;
         static const char *presetName(int32_t preset);
@@ -70,6 +73,7 @@ namespace Tiny3D
         TintEffectBehaviour        *mTint {nullptr};
         LogCameraBehaviour         *mLog {nullptr};
         int32_t                     mPreset {0};
+        TArray<IPresetCommandSource*> mSources;
     };
 }
 

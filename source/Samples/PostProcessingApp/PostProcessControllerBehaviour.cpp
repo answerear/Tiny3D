@@ -29,7 +29,6 @@
 
 #include "CopyEffectBehaviour.h"
 #include "GrayscaleEffectBehaviour.h"
-#include "Input/T3DInput.h"
 
 
 #define LOG_TAG_APP     "APP"
@@ -57,55 +56,50 @@ namespace Tiny3D
         applyPreset(0);
     }
 
+    void PostProcessControllerBehaviour::addCommandSource(IPresetCommandSource *src)
+    {
+        if (src != nullptr)
+        {
+            mSources.push_back(src);
+        }
+    }
+
     void PostProcessControllerBehaviour::onUpdate()
     {
-        if (Input::getInstancePtr() == nullptr)
+        PresetCommand cmd;
+        for (IPresetCommandSource *src : mSources)
         {
-            return;
+            while (src != nullptr && src->poll(cmd))
+            {
+                dispatch(cmd);
+            }
         }
+    }
 
-        if (T3D_INPUT.getKeyDown(APP_SCANCODE_0))
+    void PostProcessControllerBehaviour::dispatch(const PresetCommand &cmd)
+    {
+        switch (cmd.type)
         {
-            applyPreset(0);
-        }
-        else if (T3D_INPUT.getKeyDown(APP_SCANCODE_1))
-        {
-            applyPreset(1);
-        }
-        else if (T3D_INPUT.getKeyDown(APP_SCANCODE_2))
-        {
-            applyPreset(2);
-        }
-        else if (T3D_INPUT.getKeyDown(APP_SCANCODE_3))
-        {
-            applyPreset(3);
-        }
-        else if (T3D_INPUT.getKeyDown(APP_SCANCODE_4))
-        {
-            applyPreset(4);
-        }
-        else if (T3D_INPUT.getKeyDown(APP_SCANCODE_5))
-        {
-            applyPreset(5);
-        }
-        else if (T3D_INPUT.getKeyDown(APP_SCANCODE_6))
-        {
-            applyPreset(6);
-        }
-        else if (T3D_INPUT.getKeyDown(APP_SCANCODE_7))
-        {
-            applyPreset(7);
-        }
-        else if (T3D_INPUT.getKeyDown(APP_SCANCODE_O))
-        {
+        case PresetCommandType::kSetPreset:
+            applyPreset(cmd.value);
+            break;
+        case PresetCommandType::kNext:
+            applyPreset((mPreset + 1) % 8);
+            break;
+        case PresetCommandType::kPrev:
+            applyPreset((mPreset + 7) % 8);
+            break;
+        case PresetCommandType::kSwapOrder:
             swapEffectOrder();
-        }
-        else if (T3D_INPUT.getKeyDown(APP_SCANCODE_L))
-        {
+            break;
+        case PresetCommandType::kToggleLog:
             if (mLog != nullptr)
             {
                 mLog->toggleFrameLog();
             }
+            break;
+        default:
+            break;
         }
     }
 

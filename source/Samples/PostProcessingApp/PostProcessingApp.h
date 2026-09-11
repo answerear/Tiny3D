@@ -32,6 +32,9 @@
 namespace Tiny3D
 {
     class LogCameraBehaviour;
+    class KeyboardCommandSource;
+    class TouchCommandSource;
+    class AutoCycleCommandSource;
 }
 
 
@@ -75,6 +78,10 @@ protected:
     Tiny3D::Texture2DPtr mCubeTextures[5] {};
 
     Tiny3D::LogCameraBehaviour *mLogCamera {nullptr};
+
+    Tiny3D::KeyboardCommandSource  *mKeyboardSource {nullptr};
+    Tiny3D::TouchCommandSource     *mTouchSource {nullptr};
+    Tiny3D::AutoCycleCommandSource *mAutoCycleSource {nullptr};
 };
 
 
