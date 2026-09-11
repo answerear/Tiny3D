@@ -58,7 +58,17 @@ namespace Tiny3D
         bool parseFlags(const String &flags, StringList &includePathes,
             StringList &macroDefinitions, StringList &otherFlags);
 
+        /**
+         * @brief 收集工具链自带的头文件搜索路径
+         * @remarks MSVC 不会把系统头路径写进 compile_commands.json，它靠 %INCLUDE%
+         *      传递。rpp 用的 libclang 也只认这个环境变量，而 Gradle 之类的构建进程
+         *      没有它。所以在 generate 阶段就把这份路径固化进 ReflectionSettings.json，
+         *      让配置自带完整信息，谁来启动 rpp 都一样。
+         */
+        void collectSystemIncludePathes(StringList &systemIncludePathes) const;
+
         bool writeReflectionSettings(const StringList &includePathes,
+            const StringList &systemIncludePathes,
             const StringList &macroDefinitions, const StringList &otherFlags);
 
         CCTOptions mOptions;

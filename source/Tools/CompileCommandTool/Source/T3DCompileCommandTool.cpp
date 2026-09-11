@@ -67,7 +67,11 @@ namespace Tiny3D
                 break;
             }
 
-            ret = writeReflectionSettings(includePathes, macroDefinitions, otherFlags);
+            StringList systemIncludePathes;
+            collectSystemIncludePathes(systemIncludePathes);
+
+            ret = writeReflectionSettings(includePathes, systemIncludePathes,
+                macroDefinitions, otherFlags);
             if (!ret)
             {
                 break;
@@ -271,7 +275,84 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void CompileCommandTool::collectSystemIncludePathes(
+        StringList &systemIncludePathes) const
+    {
+#if defined (_WIN32)
+        auto isDirectory = [](const String &path)
+        {
+            struct _stat info = {};
+            if (_stat(path.c_str(), &info) != 0)
+            {
+                return false;
+            }
+            return (info.st_mode & _S_IFDIR) != 0;
+        };
+
+        // EXTERNAL_INCLUDE 是新版 vcvarsall 拆出去的一份，一并收下
+        static const char *kEnvNames[] = { "INCLUDE", "EXTERNAL_INCLUDE" };
+        for (const auto *name : kEnvNames)
+        {
+            const char *value = std::getenv(name);
+            if (value == nullptr || value[0] == '\0')
+            {
+                continue;
+            }
+
+            String remain = value;
+            while (!remain.empty())
+            {
+                auto pos = remain.find(';');
+                String entry = (pos == String::npos)
+                    ? remain : remain.substr(0, pos);
+                remain = (pos == String::npos)
+                    ? String() : remain.substr(pos + 1);
+
+                auto first = entry.find_first_not_of(" \t\"");
+                if (first == String::npos)
+                {
+                    continue;
+                }
+                auto last = entry.find_last_not_of(" \t\"\\/");
+                entry = entry.substr(first, last - first + 1);
+
+                if (entry.empty() || !isDirectory(entry))
+                {
+                    continue;
+                }
+
+                // 两个环境变量会有重复项，去掉重复的，省得 clang 多走一遍
+                bool duplicated = false;
+                for (const auto &exist : systemIncludePathes)
+                {
+                    if (exist == entry)
+                    {
+                        duplicated = true;
+                        break;
+                    }
+                }
+
+                if (!duplicated)
+                {
+                    systemIncludePathes.push_back(entry);
+                }
+            }
+        }
+
+        if (systemIncludePathes.empty())
+        {
+            printf("WARNING: %%INCLUDE%% is empty, 'SystemIncludePath' will be "
+                "omitted. Run this tool from a Visual Studio developer prompt "
+                "or through the engine generate script, otherwise rpp cannot "
+                "resolve MSVC / Windows SDK headers.\n");
+        }
+#endif
+    }
+
+    //--------------------------------------------------------------------------
+
     bool CompileCommandTool::writeReflectionSettings(const StringList &includePathes,
+        const StringList &systemIncludePathes,
         const StringList &macroDefinitions, const StringList &otherFlags)
     {
         bool ret = true;
@@ -292,6 +373,19 @@ namespace Tiny3D
                 writer.String(str);
             }
             writer.EndArray();    
+        }
+
+        if (!systemIncludePathes.empty())
+        {
+            // 工具链自带的头文件路径。单独一个 key，一眼能看出哪些来自工具链，
+            // rpp 也可以用 -isystem 而不是 -I 传给 clang
+            writer.Key("SystemIncludePath");
+            writer.StartArray();
+            for (const auto &str : systemIncludePathes)
+            {
+                writer.String(str);
+            }
+            writer.EndArray();
         }
 
         {
