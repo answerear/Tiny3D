@@ -1357,6 +1357,7 @@ namespace Tiny3D
         d.depthWriteEnabled = desc.DepthWriteEnable;
         d.depthFunc = GL4Mapping::get(desc.DepthFunc);
         d.stencilEnabled = desc.StencilEnable;
+        d.stencilRef = static_cast<uint8_t>(desc.StencilRef);
         d.stencilReadMask = desc.StencilReadMask;
         d.stencilWriteMask = desc.StencilWriteMask;
         d.frontStencilFail = GL4Mapping::get(desc.FrontFace.StencilFailOp);
@@ -1624,8 +1625,8 @@ namespace Tiny3D
                     glEnable(GL_STENCIL_TEST);
                     glStencilMaskSeparate(GL_FRONT, d.stencilWriteMask);
                     glStencilMaskSeparate(GL_BACK, d.stencilWriteMask);
-                    glStencilFuncSeparate(GL_FRONT, d.frontStencilFunc, 1, d.stencilReadMask);
-                    glStencilFuncSeparate(GL_BACK, d.backStencilFunc, 1, d.stencilReadMask);
+                    glStencilFuncSeparate(GL_FRONT, d.frontStencilFunc, d.stencilRef, d.stencilReadMask);
+                    glStencilFuncSeparate(GL_BACK, d.backStencilFunc, d.stencilRef, d.stencilReadMask);
                     glStencilOpSeparate(GL_FRONT, d.frontStencilFail, d.frontDepthFail, d.frontStencilPass);
                     glStencilOpSeparate(GL_BACK, d.backStencilFail, d.backDepthFail, d.backStencilPass);
                 }

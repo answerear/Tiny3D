@@ -50,6 +50,7 @@ namespace Tiny3D
         bool        depthWriteEnabled {true};
         GLenum      depthFunc {GL_LESS};
         bool        stencilEnabled {false};
+        uint8_t     stencilRef {0};
         uint8_t     stencilReadMask {0xFF};
         uint8_t     stencilWriteMask {0xFF};
         GLenum      frontStencilFail {GL_KEEP};
