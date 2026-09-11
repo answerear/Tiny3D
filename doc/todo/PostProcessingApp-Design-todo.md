@@ -2,14 +2,15 @@
 
 > 用一个独立 Sample 验收已落地的相机回调与效果链（`Camera-PostProcess-Design-todo.md` B1–B5），并顺带演示「sample 自己写效果」该怎么挂。
 >
-> **Sample 已落地**（场景、热键预设、Copy / 灰度 / 反相 / 染色、GLSL / ESSL 嵌入变体）。人眼 + 热键验收仍以 **D3D11 Window** 为准。GL4 / GLES3 的 shader 变体已经能选到，但效果链被 blit 缺口挡住，见 `Camera-PostProcess-Design-todo.md` §12。
+> **Sample 已落地**（场景、预设、Copy / 灰度 / 反相 / 染色、GLSL / ESSL 嵌入变体）。人眼验收仍以 **D3D11 Window** 为准。GL4 / GLES3 的 blit 契约已对齐（见 `Camera-PostProcess-Design-todo.md` §12）。输入层已从键盘解耦：桌面仍是 `0-7` / `O` / `L`，Android 走触摸手势 + 自动轮播，见 `PostProcessingApp-Android-Design-todo.md`。
 >
 > 相关文档：
 >
-> - 后处理施工蓝图：`doc/todo/Camera-PostProcess-Design-todo.md`（B1–B5 已合；§9 测试要点由本文承接；§12 记 GL4 / GLES3 blit 契约）
+> - 后处理施工蓝图：`doc/todo/Camera-PostProcess-Design-todo.md`（B1–B5 已合；§9 测试要点由本文承接；§12 记 D3D11 / GL4 / GLES3 blit 已对齐）
+> - **Android 移植**：`doc/todo/PostProcessingApp-Android-Design-todo.md`（输入抽象、触摸手势、Gradle 脚手架、GLES3 真机核对）
 > - GPU 读回：`doc/todo/GPU-Readback-onRender-Design-todo.md`（像素断言走 `Application::onRender` / `onPostRender` 的 `map` / `unmap`，**不要**写进 `onRenderImage`）
 > - GL4 / GLES3 后端：`doc/todo/GL4-Renderer-Backend-todo.md` A.10.5、`doc/todo/GLES3-Renderer-Backend-todo.md` A.10.5
-> - 现有 Sample 骨架：`source/Samples/BehaviourApp`（场景）、`source/Samples/InputApp`（`T3D_INPUT.getKeyDown`）、`source/Samples/TextureApp`（读回冒烟）
+> - 现有 Sample 骨架：`source/Samples/BehaviourApp`（场景 / Android 工程模板）、`source/Samples/InputApp`（手势状态机）、`source/Samples/TextureApp`（读回冒烟）
 
 ---
 
@@ -23,7 +24,7 @@
 | **日志时序** | 相机上挂 `LogCameraBehaviour` | `pre → draw → post → onRenderImage → blit → Application::onRender` |
 | **可选像素断言** | `Application::onRender` 里 `map` 相机中间 RT | 拷贝预设与无效果预设的中心像素一致；灰度预设饱和度为 0 |
 
-第一期人眼验收只要求 **D3D11 Window**。灰度 / 反相 / 染色的嵌入变体已经按后端选好了（`PostProcessShaderSources.cpp`）：Windows 上 D3D11 走 HLSL、GL4 走 GLSL、Vulkan 走 SPIR-V；Android 上 GLES3 走 ESSL、Vulkan 走 SPIR-V。**不是「其它后端回退 blit 拷贝」**——GL4 / GLES3 会真的去编后处理 shader、走 `drawFullscreen`。挡住它们的是 RHI blit：`blit(Texture*, Texture*)` 空实现、`blit(Texture*, RenderTarget*)` 不把 `size==ZERO` 当成整张拷贝。MSAA 相机或 Copy 预设在这两个后端上会静默吃空 RT / 空拷贝，不是「看不出效果但不崩」那么温和。详见后处理文档 §12。
+第一期人眼验收只要求 **D3D11 Window**。灰度 / 反相 / 染色的嵌入变体已经按后端选好了（`PostProcessShaderSources.cpp`）：Windows 上 D3D11 走 HLSL、GL4 走 GLSL、Vulkan 走 SPIR-V；Android 上 GLES3 走 ESSL、Vulkan 走 SPIR-V。**不是「其它后端回退 blit 拷贝」**——GL4 / GLES3 会真的去编后处理 shader、走 `drawFullscreen`。GL4 / GLES3 的四个 blit 已收口，`size==ZERO` 与 MSAA resolve 都按契约实现。MSAA 相机和 Copy 预设不再被空 blit 卡住。详见后处理文档 §12；Android 真机核对见 `PostProcessingApp-Android-Design-todo.md` §9.3。
 
 **D3D11 上现在就能做的检查：**
 
@@ -31,7 +32,7 @@
 2. 热键 2 / 3 / 7：灰度 / 反相 / 染色一眼能看出来；热键 1（Copy）应与预设 0 观感一致。
 3. 不挂任何效果（或全部 `setEnabled(false)`）时，画面、RT 数量应与改造前一致。
 
-GL4 / GLES3 上只能先做第 1、3 条（无效果走带明确 size 的上屏 blit）。有 Copy 或 MSAA 时不要当验收，见后处理文档 §12。
+GL4 / GLES3 上第 1–3 条现在都可以做（blit 已收口）。Android 真机过一遍手势与效果链，见 `PostProcessingApp-Android-Design-todo.md` §9。
 
 ---
 
@@ -51,13 +52,13 @@ GL4 / GLES3 上只能先做第 1、3 条（无效果走带明确 size 的上屏 
 
 ### 1.2 非目标
 
-- **不加 `Behaviour::onRender`。** 控制逻辑用 `onUpdate`（热键）/ `onLateUpdate`（可选 HUD 文案）；读回用 `Application::onRender`。
+- **不加 `Behaviour::onRender`。** 控制逻辑用 `onUpdate`（命令源 poll）/ `onLateUpdate`（可选 HUD 文案）；读回用 `Application::onRender`。
 - **不实现 B6 订阅式 `RenderCallback`。**
 - **不做 HDR / bloom / tonemapping。** 中间 RT 仍是 `E_PF_B8G8R8A8`。
 - **不改编辑器 Scene 相机。** 本 Sample 是独立 exe，不挂编辑器。
 - **不把 Sample 脚本做成引擎组件。** `LogCameraBehaviour`、`InvertEffectBehaviour`、`TintEffectBehaviour`、`PostProcessControllerBehaviour` **只进 `PostProcessingApp` 工程**，文件落在 `source/Samples/PostProcessingApp/`，由该 target 编译与 `tiny3d_enable_reflection`。禁止放到 `source/Core/Include/Behaviour/`、`source/Core/Source/Behaviour/`，也不要加进 T3DCore / T3DCoreEditor 的 CMake。类名不要加 `T3D` 前缀（与 `RotateBehaviour` 同一套）。
-- **第一期不强制像素级 CI。** 读回断言标成 P2；P1 靠人眼 + 日志 + D3D11 debug layer。GL4 / GLES3 的 `map` / `unmap` 仍是 stub，P2 像素断言这两端做不了。
-- **第一期不把 GL4 / GLES3 当效果验收平台。** shader 变体已经在，缺的是 blit 契约；补齐后再用本 Sample 人眼过一遍。
+- **第一期不强制像素级 CI。** 读回断言标成 P2；P1 靠人眼 + 日志 + D3D11 debug layer。GLES3 `supportsReadback` 已为 true（仅 2D 彩色、不支持深度），本轮仍不建移动端像素断言。
+- **第一期人眼验收仍以 D3D11 Window 为准。** GL4 / GLES3 blit 已收口；Android 工程与触摸输入见 `PostProcessingApp-Android-Design-todo.md`。
 - **不在 `onRenderImage` 里 `map` / `unmap`。**
 
 ---
@@ -76,7 +77,7 @@ PostProcessingApp : SampleWindowApp
       GrayscaleEffectBehaviour    // 引擎，默认 disabled
       InvertEffectBehaviour       // sample，默认 disabled
       TintEffectBehaviour         // sample，默认 disabled
-      PostProcessControllerBehaviour  // 热键切预设
+      PostProcessControllerBehaviour  // 命令源切预设（桌面键盘 / 移动端触摸）
   onRender / onPostRender         // 仅 P2 读回；P1 可空实现
 ```
 
@@ -88,7 +89,7 @@ PostProcessingApp : SampleWindowApp
 
 ## 3. 预设与热键
 
-`PostProcessControllerBehaviour` 挂在**相机** GameObject 上，`onUpdate` 里读 `T3D_INPUT.getKeyDown`（与 InputApp 的 `CubeControllerBehaviour` 同一套）。
+`PostProcessControllerBehaviour` 挂在**相机** GameObject 上，`onUpdate` 只遍历 `IPresetCommandSource`。桌面由 `KeyboardCommandSource` 把 `T3D_INPUT.getKeyDown`（`0-7` / `O` / `L`）译成命令；Android 由 `TouchCommandSource` + `AutoCycleCommandSource` 驱动。预设语义不变。
 
 | 键 | 预设 | 启用的效果（order） | 期望画面 |
 |----|------|---------------------|----------|
@@ -198,6 +199,11 @@ source/Samples/PostProcessingApp/          // 全部编进 PostProcessingApp，�
   InvertEffectBehaviour.h / .cpp
   TintEffectBehaviour.h / .cpp
   PostProcessControllerBehaviour.h / .cpp
+  PostProcessCommand.h
+  KeyboardCommandSource.h / .cpp
+  TouchCommandSource.h / .cpp
+  AutoCycleCommandSource.h / .cpp
+  Android/                                  // 照抄 BehaviourApp/Android，见 Android 设计文档
 ```
 
 `source/Samples/CMakeLists.txt` 加一行 `add_subdirectory(PostProcessingApp)`。
@@ -280,7 +286,7 @@ S0 可单独合。S1 是最小可用验证。S3 才真正测 `getEffectOrder`。
 | 9 | D3D11 debug layer | 无「不能把 MSAA 当 SRV」 |
 | 10 | 连续跑一会儿再切预设 | 不崩；关 App 时 `ReportLiveDeviceObjects` 不随切预设次数涨 |
 
-明确不测：HDR / bloom、Vulkan 效果质量、B6、在效果里读回。GL4 / GLES3 的效果观感等 blit 补齐后再测（后处理文档 §12）；无效果回归（预设 0）这两端现在就能看，走的是带明确 size 的上屏 `blit(Tex→RT)`。
+明确不测：HDR / bloom、Vulkan 效果质量、B6、在效果里读回。GL4 / GLES3 效果链 blit 已收口；Android 手势与渲染验收见 `PostProcessingApp-Android-Design-todo.md` §9。
 
 ---
 
@@ -305,14 +311,29 @@ S0 可单独合。S1 是最小可用验证。S3 才真正测 `getEffectOrder`。
 
 | 文档 | 关系 |
 |------|------|
-| `Camera-PostProcess-Design-todo.md` | 本文是它 §9 / §7.3「后处理验证另开 sample」的落地计划；GL4 / GLES3 缺口见该文档 §12 |
+| `Camera-PostProcess-Design-todo.md` | 本文是它 §9 / §7.3「后处理验证另开 sample」的落地计划；D3D11 / GL4 / GLES3 blit 已对齐，见该文档 §12 |
+| `PostProcessingApp-Android-Design-todo.md` | 本文的移动端延伸：输入抽象、触摸手势、Android Gradle、GLES3 真机核对 |
 | `D3D11-Renderer-Backend-Validation-Sample-Plan.md` | BlitApp / TextureApp 继续测 blit / 读回；本 Sample 只测相机效果链 |
-| `GPU-Readback-onRender-Design-todo.md` | P2 读回复用 A1 钩子；不改 Agent 帧循环。GL4 / GLES3 读回仍是 stub |
-| `GL4-Renderer-Backend-todo.md` A.10.5 | GL4 后处理接口完成度与补齐顺序 |
-| `GLES3-Renderer-Backend-todo.md` A.10.5 | GLES3 同上，外加 ESSL 3.1 门槛 |
+| `GPU-Readback-onRender-Design-todo.md` | P2 读回复用 A1 钩子；不改 Agent 帧循环。GLES3 `supportsReadback` 已为 true（仅 2D 彩色） |
+| `GL4-Renderer-Backend-todo.md` A.10.5 | GL4 后处理接口完成度 |
+| `GLES3-Renderer-Backend-todo.md` A.10.5 | GLES3 blit 已收口，外加 ESSL 3.1 门槛 |
 
 ---
 
-## 12. 一句话
+## 12. 移动端与输入抽象
 
-**启动默认无效果做回归，热键挂上引擎灰度和 Sample 反相/染色，用 order 对调证明链是稳的；时序靠 `CameraBehaviour` 日志，读回留给 `Application::onRender`。**
+切预设的语义（`applyPreset` / `swapEffectOrder` / `logPreset`）不动。驱动它们的输入已经拆成 `IPresetCommandSource`：
+
+| 源 | 平台 | 作用 |
+|----|------|------|
+| `KeyboardCommandSource` | 桌面 | 原样搬 `0-7` / `O` / `L` |
+| `TouchCommandSource` | Android | 滑切预设、双击回 0、双指点对调 order、长按开关日志 |
+| `AutoCycleCommandSource` | Android | 每 3 秒 `kNext`；用户一碰屏幕就停 |
+
+命令源生命周期由 `PostProcessingApp` 持有，不进 `TCLASS()` / 序列化。Android Gradle 工程照抄 `BehaviourApp/Android/`。完整手势表、脚手架差异和 GLES3 真机核对见 **`doc/todo/PostProcessingApp-Android-Design-todo.md`**。
+
+---
+
+## 13. 一句话
+
+**启动默认无效果做回归，命令源挂上引擎灰度和 Sample 反相/染色，用 order 对调证明链是稳的；时序靠 `CameraBehaviour` 日志，读回留给 `Application::onRender`。桌面键盘语义不变，手机走触摸 + 自动轮播。**

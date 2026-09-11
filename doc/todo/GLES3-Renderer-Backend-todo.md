@@ -7,16 +7,234 @@
 > - **参考实现（GL4 Window）**：`source/Plugins/Renderer/OpenGL4/Window/Source/T3DGL4Context.cpp`
 > - **API 映射参考**：`doc/refs/D3D11-vs-OpenGLES3-API-Mapping.md`
 > - **目标目录**：`source/Plugins/Renderer/OpenGLES3/`
+>
+> **看实现状态请直接翻 §0「全接口实现状态速查表」**（2026-09 逐函数核对代码，带行号）；差距清单与修法见**附录 B**。第 1～20 章是当初的实施方案，状态列已同步为实际状态。
+>
+> **要动手实现请看 `doc/todo/GLES3-Backend-Alignment-Implementation-todo.md`**：本文档回答「差什么」，那份文档回答「怎么补」——按阶段给出每一项的代码骨架、GLES 版本门控、与 GL4 的「不能照抄」清单、验证方案与提交拆分。
 
 ---
 
 ## 实现状态图例
 
+> **2026-09 更新**：本文档第 1～20 章原本是**实施计划**，状态列用的是计划期标记（📋 待实现 / ⚡ 需适配）。这批标记从未随代码更新，导致「`createRenderWindow` 已经实现了但文档写 📋 待实现」这类误读。现已把第 1～20 章的状态列全部改为**对照 2026-09 代码的实际状态**，并在状态里直接给出实现位置。
+>
+> 各章的「GL4 实现要点 / GLES3 适配方案 / 关键差异 / GLES3 API」几列仍是当初的规划内容，技术判断基本被实现验证为正确，保留作参考；但**不要**把这几列当成已实现的描述。
+
 | 标记 | 含义 |
 |------|------|
-| 📋 待实现 | 需要完整实现 |
-| 🔇 按设计为空 | GLES3 后端按设计意图不需要实现（如 Vulkan 专用接口），或 GLES 3.0 不支持的 Shader 阶段 |
-| ⚡ 需适配 | 与 GL4 逻辑类似，但需要针对 GLES3 差异进行适配 |
+| ✅ 已完成 | 功能完整，行为与 D3D11 / GL4 基线一致 |
+| ⚠️ 部分完成 | 接口可调用，但有已知缺陷、或受 GLES 版本门控、或行为与基线有差异 |
+| ❌ 未实现 | 空实现且**静默返回成功**（`T3D_OK` / `nullptr`），上层无法感知 |
+| 🚧 契约式不支持 | 走 `T3D_RHI_UNSUPPORTED` 系列宏，返回明确错误码并打日志，上层可走降级路径 |
+| 🔇 按设计为空 | 按设计不需要实现（GLES 即时模式无对应概念） |
+| ⛔ 未 override | 沿用 `RHIContext` 默认实现（返回 `T3D_ERR_NOT_IMPLEMENT`） |
+
+---
+
+## 0. 全接口实现状态速查表（2026-09，96 个接口）
+
+> 口径：93 个 `RHIContext` 虚接口 + 3 个 readback 接口，与 `GL4-Renderer-Backend-todo.md` 一致。
+> 行号均为 2026-09 时点的 `source/Plugins/Renderer/OpenGLES3/` 代码位置。
+> 差距的成因分析、修法与参考实现见**附录 B**；本表只回答「现在是什么状态」。
+
+### 0.1 变换（2）
+
+| 接口 | 状态 | 实现位置 | 备注 |
+|------|------|---------|------|
+| `setViewProjectionTransform` | ✅ | `T3DGLES3Context.cpp:199` | 深度保持 [-1,1]，渲染到 FBO 时翻 Y |
+| `getDepthRemapMatrix` | ✅ | `T3DGLES3Context.cpp:229` | Z 从 [-1,1] 重映射到 [0,1] |
+
+### 0.2 渲染目标（6）
+
+| 接口 | 状态 | 实现位置 | 备注 |
+|------|------|---------|------|
+| `createRenderWindow` | ⚠️ | `T3DGLES3Context.cpp:242` | **实现完整**（含 RHI 线程 EGL 转移）；⚠ 只是因为 `GLES3RenderWindow::init`（`T3DGLES3RenderWindow.cpp:104`）非 Android 平台直接报错（`156`） |
+| `createRenderTexture` | ✅ | `T3DGLES3Context.cpp:273` | 颜色 / 深度 / MSAA + Resolve FBO 全套 |
+| `setRenderTarget` | ✅ | `T3DGLES3Context.cpp:454` | 含 MRT `glDrawBuffers` 与 depth-only FBO |
+| `resetRenderTarget` | ✅ | `T3DGLES3Context.cpp` | 已复位 `mRenderingToFBO` |
+| `resizeRenderTexture` | ✅ | `T3DGLES3Context.cpp` | `release` + `build` helper；当前 RT 命中时重绑 |
+| `resizeRenderTarget` | ✅ | `T3DGLES3Context.cpp` | 窗口转发 `resizeRenderWindow`，离屏遍历颜色 / 深度附件 |
+
+### 0.3 视口与裁剪（2）
+
+| 接口 | 状态 | 实现位置 | 备注 |
+|------|------|---------|------|
+| `setViewport` | ✅ | `T3DGLES3Context.cpp:592` | 带「无 RT 时用当前 GL viewport」回退路径 |
+| `setScissorRect` | ✅ | `T3DGLES3Context.cpp:674` | 已按 GL 左下原点翻 Y |
+
+### 0.4 清除（3）
+
+| 接口 | 状态 | 实现位置 | 备注 |
+|------|------|---------|------|
+| `clearColor` | ✅ | `T3DGLES3Context.cpp:730` | |
+| `clearDepth` | ✅ | `T3DGLES3Context.cpp:751` | 用 `glClearDepthf` |
+| `clearDepthStencil` | ✅ | `T3DGLES3Context.cpp:775` | |
+
+### 0.5 渲染状态（7）
+
+| 接口 | 状态 | 实现位置 | 备注 |
+|------|------|---------|------|
+| `createBlendState` | ✅ | `T3DGLES3Context.cpp` | 独立混合 + A2C；3.2 走 `glBlendFuncSeparatei`，低版本降级到 RT0 |
+| `createDepthStencilState` | ✅ | `T3DGLES3Context.cpp:843` | |
+| `createRasterizerState` | ✅ | `T3DGLES3Context.cpp:888` | 按 GLES 特性去掉 FillMode / DepthClamp |
+| `createSamplerState` | ✅ | `T3DGLES3Context.cpp` | 各向异性 / 边框色按扩展检测；无扩展回落到 CLAMP_TO_EDGE |
+| `setBlendState` | ✅ | `T3DGLES3Context.cpp` | 同 `createBlendState` |
+| `setDepthStencilState` | ✅ | `T3DGLES3Context.cpp` | 使用描述符 `StencilRef`（GL4 同步修复） |
+| `setRasterizerState` | ✅ | `T3DGLES3Context.cpp:1083` | 含 FBO 翻 Y 时交换 Front/Back |
+
+### 0.6 顶点输入（2）
+
+| 接口 | 状态 | 实现位置 | 备注 |
+|------|------|---------|------|
+| `createVertexDeclaration` | ✅ | `T3DGLES3Context.cpp:1145` | VAO |
+| `setVertexDeclaration` | ✅ | `T3DGLES3Context.cpp:1169` | |
+
+### 0.7 缓冲区与纹理（9）
+
+| 接口 | 状态 | 实现位置 | 备注 |
+|------|------|---------|------|
+| `createVertexBuffer` | ✅ | `T3DGLES3Context.cpp:1194` | |
+| `setVertexBuffers` | ✅ | `T3DGLES3Context.cpp:1226` | 含 `glVertexAttribDivisor` 实例化步进 |
+| `createIndexBuffer` | ✅ | `T3DGLES3Context.cpp:1292` | |
+| `setIndexBuffer` | ✅ | `T3DGLES3Context.cpp:1324` | 支持 16/32 位索引 |
+| `createConstantBuffer` | ✅ | `T3DGLES3Context.cpp:1349` | UBO |
+| `createPixelBuffer1D` | ✅ | `T3DGLES3Context.cpp:1381` | height=1 的 2D 纹理模拟；含 BGRA→RGBA 转换 |
+| `createPixelBuffer2D` | ⚠️ | `T3DGLES3Context.cpp:1437` | 只上传 mip 0 后 `glGenerateMipmap`，忽略 `desc.mipmaps` / `arraySize`（**GL4 同样**），见 B.6 |
+| `createPixelBuffer3D` | ✅ | `T3DGLES3Context.cpp:1493` | |
+| `createPixelBufferCubemap` | ✅ | `T3DGLES3Context.cpp:1530` | 逐面上传 + BGRA 转换 |
+
+### 0.8 顶点 / 像素着色器（10）
+
+| 接口 | 状态 | 实现位置 | 备注 |
+|------|------|---------|------|
+| `createVertexShader` | ✅ | `T3DGLES3Context.cpp:1598` | |
+| `setVertexShader` | ✅ | `T3DGLES3Context.cpp` | 收口到 `attachGraphicsShader`，含 nullptr |
+| `setVSConstantBuffers` | ✅ | `T3DGLES3Context.cpp:1681` | → `stageConstantBuffers:2822` |
+| `setVSPixelBuffers` | ✅ | `T3DGLES3Context.cpp:1686` | → `bindPixelBuffers:2854`，该 helper 有 MSAA / 解绑缺陷，见 B.3#6 |
+| `setVSSamplers` | ✅ | `T3DGLES3Context.cpp:1691` | → `bindSamplers:2922`，不解绑，见 B.3#7 |
+| `createPixelShader` | ✅ | `T3DGLES3Context.cpp:1700` | |
+| `setPixelShader` | ✅ | `T3DGLES3Context.cpp:1752` | 含 nullptr 解绑分支 |
+| `setPSConstantBuffers` | ✅ | `T3DGLES3Context.cpp:1792` | |
+| `setPSPixelBuffers` | ✅ | `T3DGLES3Context.cpp:1797` | 同 `setVSPixelBuffers` |
+| `setPSSamplers` | ✅ | `T3DGLES3Context.cpp:1802` | 同 `setVSSamplers` |
+
+### 0.9 Hull / Domain 着色器（10）
+
+| 接口 | 状态 | 实现位置 | 备注 |
+|------|------|---------|------|
+| `createHullShader` | ⚠️ | `T3DGLES3Context.cpp` | GLES 3.2 / `GL_EXT_tessellation_shader`；低版本首次警告 + `nullptr`。绘制侧 patch 图元仍待引擎扩枚举 |
+| `setHullShader` / `setHSConstantBuffers` / `setHSPixelBuffers` / `setHSSamplers` | ⚠️ | `T3DGLES3Context.cpp` | 3.2 转发 `attachGraphicsShader` / 绑定 helper；低版本 `T3D_ERR_NOT_IMPLEMENT` |
+| `createDomainShader` | ⚠️ | `T3DGLES3Context.cpp` | 同 Hull |
+| `setDomainShader` / `setDSConstantBuffers` / `setDSPixelBuffers` / `setDSSamplers` | ⚠️ | `T3DGLES3Context.cpp` | 同 Hull |
+
+> ES 3.2 core 已含 tessellation，可按 GS 同样的版本门控实现，见 B.2.3。
+
+### 0.10 几何 / 计算着色器（10）
+
+| 接口 | 状态 | 实现位置 | 备注 |
+|------|------|---------|------|
+| `createGeometryShader` | ⚠️ | `T3DGLES3Context.cpp:1839` | 需 GLES 3.2，低版本返回 nullptr + 警告 |
+| `setGeometryShader` | ⚠️ | `T3DGLES3Context.cpp:1897` | 需 GLES 3.2 |
+| `setGSConstantBuffers` / `setGSPixelBuffers` / `setGSSamplers` | ✅ | `T3DGLES3Context.cpp:1931`-`1944` | 与 VS/PS 共用绑定路径 |
+| `createComputeShader` | ✅ | `T3DGLES3Context.cpp` | GLES 3.1；glslang 已认 `kCompute` |
+| `setComputeShader` | ✅ | `T3DGLES3Context.cpp` | 独立 compute program，dispatch 后恢复图形 program |
+| `setCSConstantBuffers` / `setCSPixelBuffers` / `setCSSamplers` | ✅ | `T3DGLES3Context.cpp:2042`-`2055` | 复用图形绑定路径；SSBO / Image 绑定未实现 |
+
+### 0.11 Shader 编译与反射（3）
+
+| 接口 | 状态 | 实现位置 | 备注 |
+|------|------|---------|------|
+| `compileShader` | ✅ | `T3DGLES3ContextBase.cpp` | Vertex / Pixel / Geometry / Compute / Hull / Domain，按设备版本与 stage 最低要求取大 |
+| `reflectShaderAllBindings` | ✅ | `T3DGLES3ContextBase.cpp` | 含 SPIRV-Cross 合并名还原（`stripCombinedSamplerName`） |
+| `reflectSamplerBindings` | ✅ | `T3DGLES3ContextBase.cpp` | 与 GL4 同构，sampler 类型表按 GLES 裁剪 |
+
+### 0.12 结构化缓冲 / UAV / Compute 派发（9）
+
+| 接口 | 状态 | 实现位置 | 备注 |
+|------|------|---------|------|
+| `createStructuredBuffer` | ✅ | `T3DGLES3Context.cpp` | GLES 3.1 SSBO + 可选 atomic counter；3.0 走 `T3D_RHI_UNSUPPORTED` |
+| `setVSStructuredBuffers` / `setPSStructuredBuffers` / `setCSStructuredBuffers` | ✅ | `T3DGLES3Context.cpp` | VS 额外检查 `GL_MAX_VERTEX_SHADER_STORAGE_BLOCKS` |
+| `setCSUnorderedAccessBuffers` | ✅ | `T3DGLES3Context.cpp` | bind 版初值写入，无 DSA |
+| `dispatch` | ✅ | `T3DGLES3Context.cpp` | 独立 compute program + 恢复图形 program |
+| `dispatchIndirect` | ✅ | `T3DGLES3Context.cpp` | |
+| `uavBarrier` | ✅ | `T3DGLES3Context.cpp` | `glMemoryBarrier` 六位 |
+| `copyStructureCount` | ✅ | `T3DGLES3Context.cpp` | `glCopyBufferSubData` |
+
+> 全部走契约式不支持，能力位在 `fillCapabilities`（`T3DGLES3Context.cpp:101`）硬编码 false。GLES 3.1 原生支持这一整套，补齐方案见 B.5。
+
+### 0.13 图元与绘制（7）
+
+| 接口 | 状态 | 实现位置 | 备注 |
+|------|------|---------|------|
+| `setPrimitiveType` | ✅ | `T3DGLES3Context.cpp:2080` | 引擎枚举 5 项全覆盖 |
+| `render`（indexed） | ✅ | `T3DGLES3Context.cpp:2133` | 3.2 走 `glDrawElementsBaseVertex`，低版本回落 |
+| `render`（non-indexed） | ✅ | `T3DGLES3Context.cpp:2176` | |
+| `renderIndexedInstanced` | ⚠️ | `T3DGLES3Context.cpp:2201` | `startInstance != 0` 返回 `T3D_ERR_NOT_IMPLEMENT`（GLES 无 base instance，这是正确处理） |
+| `renderInstanced` | ⚠️ | `T3DGLES3Context.cpp:2259` | 同上 |
+| `renderIndexedIndirect` | ✅ | `T3DGLES3Context.cpp` | GLES 3.1；args 第 4 字段必须为 0 |
+| `renderIndirect` | ✅ | `T3DGLES3Context.cpp` | 同上 |
+
+### 0.14 状态重置（1）
+
+| 接口 | 状态 | 实现位置 | 备注 |
+|------|------|---------|------|
+| `reset` | ✅ | `T3DGLES3Context.cpp` | 复位 FBO 标志、全部 stage 变体、独立 compute program、scratch FBO |
+
+### 0.15 数据传输（6）
+
+| 接口 | 状态 | 实现位置 | 备注 |
+|------|------|---------|------|
+| `blit`（RT→RT） | ✅ | `T3DGLES3Context.cpp` | 三段式：`resolveBlitEndpoint` + `doBlit` |
+| `blit`（Tex→RT） | ✅ | `T3DGLES3Context.cpp` | MSAA 先等尺寸 resolve；`size==ZERO` 为整张；普通 2D 走 scratch FBO |
+| `blit`（RT→Tex） | ✅ | `T3DGLES3Context.cpp` | 同上 |
+| `blit`（Tex→Tex） | ✅ | `T3DGLES3Context.cpp` | 同上 |
+| `copyBuffer` | ✅ | `T3DGLES3Context.cpp` | 六道校验 + `GL_COPY_READ/WRITE_BUFFER` |
+| `writeBuffer` | ✅ | `T3DGLES3Context.cpp` | 纹理分支按描述符取宽高 / 格式；含 SSBO |
+
+### 0.16 GPU Readback（3）
+
+| 接口 | 状态 | 实现位置 | 备注 |
+|------|------|---------|------|
+| `map(offset, size)` | ✅ | `T3DGLES3Context.cpp` | staging + `glCopyBufferSubData` |
+| `map(region)` | ✅ | `T3DGLES3Context.cpp` | FBO + `glReadPixels` + PBO；深度 / Cubemap / 压缩明确报错 |
+| `unmap` | ✅ | `T3DGLES3Context.cpp` | `glMapBufferRange` + `syncRHIThread` |
+
+### 0.17 帧命令与原生上下文（6）
+
+| 接口 | 状态 | 实现位置 | 备注 |
+|------|------|---------|------|
+| `beginRender` / `endRender` | 🔇 | `T3DGLES3Context.h:155` / `156` | 内联 `return T3D_OK` |
+| `beginPass` / `endPass` | 🔇 | `T3DGLES3Context.h:158` / `159` | `endPass` 可考虑放 TBR `glInvalidateFramebuffer` |
+| `getNativeContext` | ✅ | `T3DGLES3Context.cpp:2669` | 返回 `EGLContext` |
+| `restoreNativeContext` | ✅ | `T3DGLES3Context.cpp:2676` | `eglMakeCurrent` 回主 surface |
+
+### 0.18 汇总
+
+| 状态 | 数量 | 占比 |
+|------|------|------|
+| ✅ 已完成 | 76 | 79% |
+| ⚠️ 部分完成 | 16 | 17% |
+| ❌ 未实现（静默成功） | 0 | 0% |
+| 🚧 契约式不支持 | 0 | 0% |
+| 🔇 按设计为空 | 4 | 4% |
+| ⛔ 未 override | 0 | 0% |
+| **合计** | **96** | |
+
+- **有效可用**（✅ + 🔇，行为符合预期或明确报错）：**80 / 96 ≈ 83%**
+- 剩余 16 个 ⚠️：`createRenderWindow`（非 Android 平台报错）、`createPixelBuffer2D`（mip / array 与 GL4 同缺）、GS 2 个与 Hull / Domain 10 个受 3.2 / tessellation 门控且引擎尚无 patch 图元、Instanced 2 个无 base instance（永久缺口，处理正确）。
+- 对比：D3D11 约 89 ✅ / 7 🔇，GL4 Window 96 个全覆盖。GLES3 已按 `GLES3-Backend-Alignment-Implementation-todo.md` 对齐到同族能力（3.1 compute / SSBO / indirect / readback，3.2 独立混合与 tess shader）。
+
+### 0.19 GLES3Context 专有接口（不计入 96）
+
+| 接口 | 状态 | 实现位置 |
+|------|------|---------|
+| `initEGLContext` | ✅ | `T3DGLES3ContextBase.cpp:39` |
+| `createEGLContext` | ✅ | `T3DGLES3ContextBase.cpp:109`（3.2 → 3.1 → 3.0 降级） |
+| `destroyEGLContext` | ✅ | `T3DGLES3ContextBase.cpp:155` |
+| `init` | ✅ | `T3DGLES3Context.cpp:80` |
+| `fillCapabilities` | ✅ | `T3DGLES3Context.cpp`（`confirmDeviceVersion` 后按 3.1 / 3.2 动态赋值） |
+| `swapBackBuffer` | ✅ | `T3DGLES3Context.cpp:144` |
+| `resizeRenderWindow` | ✅ | `T3DGLES3Context.cpp:176` |
 
 ---
 
@@ -26,7 +244,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:199`） |
 | **签名** | `TResult setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat)` |
 | **GL4 实现要点** | 设置 View/Proj 矩阵。GL4 使用 `glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE)` 将 NDC 深度从 [-1,1] 映射到 [0,1]，并通过 conversionMat 重映射 Z。渲染到 FBO 时翻转 Y 轴 |
 | **GLES3 适配方案** | GLES 3.x **不支持** `glClipControl`（仅 GL 4.5+ / `GL_EXT_clip_control` 扩展）。NDC 深度范围固定为 [-1,1]。需要：1) 移除 conversionMat 的 Z 重映射逻辑（保持 [-1,1]）；2) 在投影矩阵中直接处理深度范围；3) 渲染到 FBO 时的 Y 翻转逻辑保持不变 |
@@ -41,7 +259,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ⚠️ 部分完成（`T3DGLES3Context.cpp:242`）— **接口本身已完整实现**：`GLES3RenderWindow::create` + 记录 `mMainSurface` + RHI 线程下把 EGL context 转移到渲染线程（`250`-`265`）。⚠ 的唯一原因是 `GLES3RenderWindow::init`（`T3DGLES3RenderWindow.cpp:104`）只有 Android 分支，其它平台走到 `156` 直接报 "Unsupported platform" |
 | **签名** | `RHIRenderTargetPtr createRenderWindow(RenderWindow *renderWindow)` |
 | **GL4 实现要点** | 创建 GL4RenderWindow：WGL 创建 Core Profile 4.5 上下文 + MSAA 像素格式 + 多线程 Context 转移 |
 | **GLES3 实现方案** | 创建 GLES3RenderWindow：1) 从 `SysWMInfo` 获取 `ANativeWindow*`；2) `eglCreateWindowSurface(display, config, nativeWindow, nullptr)`；3) `eglMakeCurrent` 绑定 Context 到 Surface；4) 存储 `EGLSurface` + 宽高到 GLES3RenderWindow 成员 |
@@ -53,7 +271,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:273`）— 颜色 / 深度 / MSAA + Resolve FBO 全套；MSAA 走 `glTexStorage2DMultisample`（需 GLES 3.1+） |
 | **签名** | `RHIPixelBuffer2DPtr createRenderTexture(PixelBuffer2D *buffer)` |
 | **GL4 实现要点** | 根据像素格式创建颜色 RT 或深度/模板 RT，支持 MSAA（额外创建 GLResolveTex + GLResolveFBO） |
 | **GLES3 实现方案** | 1) `glGenTextures` + `glTexStorage2D` 创建不可变纹理；2) `glGenFramebuffers` + `glFramebufferTexture2D` 附加到 FBO；3) MSAA：使用 `glRenderbufferStorageMultisample` + `glFramebufferRenderbuffer`（GLES 3.0+）；4) Resolve 通过 `glBlitFramebuffer` |
@@ -64,7 +282,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:454`）— 含 MRT `glDrawBuffers` 与 depth-only FBO；`glInvalidateFramebuffer` 目前只在 `blit(Tex→RT)` 里调，未推广到此处 |
 | **签名** | `TResult setRenderTarget(RenderTarget *renderTarget)` |
 | **GL4 实现要点** | Window 类型绑定默认 FBO(0)；Texture 类型绑定颜色 FBO + MRT + depth-only FBO |
 | **GLES3 实现方案** | 逻辑与 GL4 基本一致：1) Window → `glBindFramebuffer(GL_FRAMEBUFFER, 0)`；2) Texture → 绑定 FBO + `glDrawBuffers` 配置 MRT（GLES 3.0 最少支持 4 个 Color Attachment）；3) 额外调用 `glInvalidateFramebuffer` 优化 TBR 架构 |
@@ -75,7 +293,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ⚠️ 部分完成（`T3DGLES3Context.cpp:571`）— FBO 已解绑，但不复位 `mRenderingToFBO`，见附录 B.3#3 |
 | **签名** | `TResult resetRenderTarget()` |
 | **GL4 实现要点** | `glBindFramebuffer(GL_FRAMEBUFFER, 0)` |
 | **GLES3 实现方案** | 与 GL4 完全一致：`glBindFramebuffer(GL_FRAMEBUFFER, 0)` |
@@ -89,11 +307,22 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:592`）— 带「无当前 RT 时取 GL viewport」回退路径。注意实现里只调 `glViewport`，`glScissor` 由 `setScissorRect` 单独负责 |
 | **签名** | `TResult setViewport(const Viewport &viewport)` |
 | **GL4 实现要点** | 根据 RenderTarget 类型获取宽高，按 viewport 的归一化比例计算实际视口大小 |
 | **GLES3 实现方案** | 与 GL4 逻辑一致：1) 从当前 RenderTarget 获取宽高；2) 计算实际像素区域；3) `glViewport(x, y, w, h)` + `glScissor(x, y, w, h)` |
 | **GLES3 API** | `glViewport`, `glScissor` |
+
+### 3.2 setScissorRect
+
+> 本接口在写作本计划时尚未进入 `RHIContext`，属后补条目。
+
+| 项目 | 内容 |
+|------|------|
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:674`） |
+| **签名** | `TResult setScissorRect(int32_t x, int32_t y, uint32_t width, uint32_t height)` |
+| **实现要点** | 从当前 RenderTarget（窗口 / 颜色纹理 / 深度纹理）取帧缓冲高度，按 GL 左下原点换算 `glY = fbHeight - (y + height)`；无当前 RT 时回退到 `glGetIntegerv(GL_VIEWPORT)` 的高度 |
+| **备注** | 裁剪开关本身由 `setRasterizerState` 的 `ScissorEnable` 控制 |
 
 ---
 
@@ -103,7 +332,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:730`） |
 | **签名** | `TResult clearColor(const ColorRGB &color)` |
 | **GL4 实现要点** | `glClearColor` + `glClear(GL_COLOR_BUFFER_BIT)` |
 | **GLES3 实现方案** | 与 GL4 完全一致：`glClearColor(r, g, b, 1.0f)` + `glClear(GL_COLOR_BUFFER_BIT)` |
@@ -114,7 +343,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:751`）— 已用 `glClearDepthf`；无当前 RT 时直接返回 |
 | **签名** | `TResult clearDepth(Real depth)` |
 | **GL4 实现要点** | `glClearDepth(depth)` + `glClear(GL_DEPTH_BUFFER_BIT)` |
 | **GLES3 实现方案** | GLES3 无 `glClearDepth`，使用 `glClearDepthf(depth)` 替代 |
@@ -125,7 +354,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:775`） |
 | **签名** | `TResult clearDepthStencil(Real depth, uint32_t stencil)` |
 | **GL4 实现要点** | 同时清除深度和模板 |
 | **GLES3 实现方案** | `glClearDepthf(depth)` + `glClearStencil(stencil)` + `glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)` |
@@ -139,7 +368,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ⚠️ 部分完成（`T3DGLES3Context.cpp:800`）— 只读 `RenderTargetStates[0]`，忽略 `IndependentBlendEnable` 与 `AlphaToCoverageEnable`（D3D11 / GL4 均支持），见附录 B.4.5 |
 | **签名** | `RHIBlendStatePtr createBlendState(BlendState *state)` |
 | **GL4 实现要点** | 将引擎 BlendDesc 映射为 `GL4BlendStateData`（srcRGB/dstRGB/srcAlpha/dstAlpha/opRGB/opAlpha/colorMask） |
 | **GLES3 实现方案** | 与 GL4 逻辑一致，创建 `GLES3BlendStateData` POD：1) 通过 `GLES3Mapping` 转换 BlendFactor → `GL_SRC_ALPHA` 等；2) 转换 BlendOp → `GL_FUNC_ADD` 等；3) 存储 colorMask |
@@ -150,7 +379,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:843`） |
 | **签名** | `RHIDepthStencilStatePtr createDepthStencilState(DepthStencilState *state)` |
 | **GL4 实现要点** | 映射 DepthStencilDesc 为 `GL4DepthStencilStateData`，支持前后面独立 Stencil |
 | **GLES3 实现方案** | 与 GL4 一致：映射 CompareFunc → `GL_LESS/GL_LEQUAL` 等；映射 StencilOp → `GL_KEEP/GL_REPLACE` 等 |
@@ -160,7 +389,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:888`）— 按计划去掉了 FillMode 与 DepthClamp；`MultisampleEnable` 已存入 POD 但 `setRasterizerState` 未使用（GLES 无 `GL_MULTISAMPLE` 开关，属正常） |
 | **签名** | `RHIRasterizerStatePtr createRasterizerState(RasterizerState *state)` |
 | **GL4 实现要点** | 映射 RasterizerDesc：FillMode/CullMode/FrontFace/Scissor/DepthClip/DepthBias/MSAA |
 | **GLES3 实现方案** | 移除 FillMode 映射（GLES 不支持 `glPolygonMode`，仅 Fill）；移除 `GL_DEPTH_CLAMP`（GLES 不支持）；其余 CullMode/FrontFace/Scissor/DepthBias 映射与 GL4 一致 |
@@ -170,7 +399,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ⚠️ 部分完成（`T3DGLES3Context.cpp:926`）— Wrap / Filter / LOD / Comparison 都做了；但计划里的**扩展运行时检测没做**：`GL_TEXTURE_MAX_ANISOTROPY_EXT` 被无条件调用（`963`），BorderColor 完全未处理 |
 | **签名** | `RHISamplerStatePtr createSamplerState(SamplerState *state)` |
 | **GL4 实现要点** | `glGenSamplers` + 设置 Wrap/Filter/Anisotropy/LOD/Comparison/BorderColor |
 | **GLES3 实现方案** | 1) `glGenSamplers` + `glSamplerParameteri`（GLES 3.0+）；2) BorderColor 需要 GLES 3.2 或 `GL_EXT_texture_border_clamp` 扩展，运行时检测；3) 各向异性需要 `GL_EXT_texture_filter_anisotropic` 扩展 |
@@ -181,7 +410,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ⚠️ 部分完成（`T3DGLES3Context.cpp:999`）— 只有全局 `glBlendFuncSeparate` + `glColorMask`；per-RT 独立混合（3.2 的 `glBlendFuncSeparatei` / `glColorMaski`）与 `GL_SAMPLE_ALPHA_TO_COVERAGE`（3.0 core）都缺，见附录 B.4.5 |
 | **签名** | `TResult setBlendState(BlendState *state)` |
 | **GL4 实现要点** | `glEnable/glDisable(GL_BLEND)` + `glBlendFuncSeparate` + `glBlendEquationSeparate` + `glColorMask` |
 | **GLES3 实现方案** | 与 GL4 完全一致 |
@@ -191,7 +420,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ⚠️ 部分完成（`T3DGLES3Context.cpp:1034`）— 深度与前后面 Stencil 全套已实现；但 `glStencilFuncSeparate` 的 ref 硬编码为 1（`1062`-`1063`），未取 `DepthStencilDesc::StencilRef`。**GL4 同样有此问题**（`T3DGL4Context.cpp:1627`），D3D11 / Vulkan / Metal 都用了真实 ref |
 | **签名** | `TResult setDepthStencilState(DepthStencilState *state)` |
 | **GL4 实现要点** | `glEnable/Disable(GL_DEPTH_TEST)` + `glDepthFunc` + `glDepthMask` + `glStencilFuncSeparate` + `glStencilOpSeparate` |
 | **GLES3 实现方案** | 与 GL4 完全一致 |
@@ -201,7 +430,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:1083`）— 含 FBO 翻 Y 时交换 Front/Back 的处理 |
 | **签名** | `TResult setRasterizerState(RasterizerState *state)` |
 | **GL4 实现要点** | `glPolygonMode` + `glCullFace` + `glFrontFace` + Scissor/DepthClamp/PolygonOffset + FBO Y 翻转时交换 Front/Back |
 | **GLES3 实现方案** | 1) 移除 `glPolygonMode`（GLES 不支持）；2) 移除 `glEnable(GL_DEPTH_CLAMP)`；3) 保留 CullFace/FrontFace/Scissor/PolygonOffset；4) FBO Y 翻转逻辑保持不变 |
@@ -216,7 +445,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:1145`） |
 | **签名** | `RHIVertexDeclarationPtr createVertexDeclaration(VertexDeclaration *decl)` |
 | **GL4 实现要点** | `glGenVertexArrays` 创建 VAO |
 | **GLES3 实现方案** | 与 GL4 完全一致：`glGenVertexArrays(1, &vao)`。GLES 3.0 **强制使用 VAO**（与 GL4 Core Profile 一致） |
@@ -226,7 +455,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:1169`） |
 | **签名** | `TResult setVertexDeclaration(VertexDeclaration *decl)` |
 | **GL4 实现要点** | `glBindVertexArray(VAO)` + 缓存到 `mPendingVertexDecl` |
 | **GLES3 实现方案** | 与 GL4 完全一致 |
@@ -240,7 +469,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:1194`） |
 | **签名** | `RHIVertexBufferPtr createVertexBuffer(VertexBuffer *buffer)` |
 | **GL4 实现要点** | `glGenBuffers` + `glBufferData(GL_ARRAY_BUFFER)` |
 | **GLES3 实现方案** | 与 GL4 完全一致 |
@@ -250,7 +479,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:1226`）— 延迟配置顶点属性；含 `glVertexAttribDivisor` 的按实例步进 |
 | **签名** | `TResult setVertexBuffers(uint32_t startSlot, const VertexBuffers &buffers, const VertexStrides &strides, const VertexOffsets &offsets)` |
 | **GL4 实现要点** | 若有 `mPendingVertexDecl`，延迟配置顶点属性（`glEnableVertexAttribArray` + `glVertexAttribPointer` / `glVertexAttribIPointer`） |
 | **GLES3 实现方案** | 与 GL4 逻辑一致，但需注意：1) GLES 3.0 不支持 `glVertexAttribLPointer`（double 类型）；2) 仅支持 `glVertexAttribPointer`（float）和 `glVertexAttribIPointer`（integer） |
@@ -261,7 +490,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:1292`） |
 | **签名** | `RHIIndexBufferPtr createIndexBuffer(IndexBuffer *buffer)` |
 | **GL4 实现要点** | `glGenBuffers` + `glBufferData(GL_ELEMENT_ARRAY_BUFFER)` |
 | **GLES3 实现方案** | 与 GL4 完全一致 |
@@ -271,7 +500,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:1324`）— 16 / 32 位索引都支持 |
 | **签名** | `TResult setIndexBuffer(IndexBuffer *buffer)` |
 | **GL4 实现要点** | `glBindBuffer(GL_ELEMENT_ARRAY_BUFFER)` + 映射索引类型 |
 | **GLES3 实现方案** | 与 GL4 一致。支持 `GL_UNSIGNED_SHORT` 和 `GL_UNSIGNED_INT`（GLES 3.0+ 支持 32 位索引） |
@@ -281,7 +510,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:1349`）— 未做 `GL_MAX_UNIFORM_BLOCK_SIZE` 运行时校验 |
 | **签名** | `RHIConstantBufferPtr createConstantBuffer(ConstantBuffer *buffer)` |
 | **GL4 实现要点** | `glGenBuffers` + `glBufferData(GL_UNIFORM_BUFFER)` |
 | **GLES3 实现方案** | 与 GL4 完全一致（UBO 是 GLES 3.0 核心功能） |
@@ -292,7 +521,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:1381`）— 按计划用 height=1 的 2D 纹理模拟；实际用的是 `glTexImage2D` 而不是计划里的 `glTexStorage2D`；额外做了 BGRA→RGBA 的 CPU 侧转换 |
 | **签名** | `RHIPixelBuffer1DPtr createPixelBuffer1D(PixelBuffer1D *buffer)` |
 | **GL4 实现要点** | `glGenTextures` + `glTexImage1D` |
 | **GLES3 实现方案** | GLES 3.x **不支持** 1D 纹理（无 `GL_TEXTURE_1D`、无 `glTexImage1D`）。实现为：使用高度为 1 的 2D 纹理模拟（`glTexStorage2D(GL_TEXTURE_2D, levels, format, width, 1)`） |
@@ -303,7 +532,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ⚠️ 部分完成（`T3DGLES3Context.cpp:1437`）— 用 `glTexImage2D` + `glGenerateMipmap`（非计划里的 `glTexStorage2D`）；只上传 mip 0，**忽略 `desc.mipmaps` 与 `desc.arraySize`**（GL4 同样如此，见附录 B.6）；压缩格式路径不存在（`PixelFormat` 枚举里也没有压缩格式，见附录 B.2.2） |
 | **签名** | `RHIPixelBuffer2DPtr createPixelBuffer2D(PixelBuffer2D *buffer)` |
 | **GL4 实现要点** | `glGenTextures` + `glTexImage2D` + `glGenerateMipmap` |
 | **GLES3 实现方案** | 推荐使用 `glTexStorage2D`（不可变分配，性能更好）+ `glTexSubImage2D` 上传数据 + `glGenerateMipmap` |
@@ -314,11 +543,22 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:1493`）— 用 `glTexImage3D`（非计划里的 `glTexStorage3D`） |
 | **签名** | `RHIPixelBuffer3DPtr createPixelBuffer3D(PixelBuffer3D *buffer)` |
 | **GL4 实现要点** | `glGenTextures` + `glTexImage3D` |
 | **GLES3 实现方案** | 与 GL4 逻辑一致，推荐使用 `glTexStorage3D` + `glTexSubImage3D`（GLES 3.0+ 支持 3D 纹理） |
 | **GLES3 API** | `glGenTextures`, `glTexStorage3D`, `glTexSubImage3D` |
+
+### 7.9 createPixelBufferCubemap
+
+> 本接口在写作本计划时尚未进入 `RHIContext`，属后补条目。
+
+| 项目 | 内容 |
+|------|------|
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:1530`） |
+| **签名** | `RHIPixelBufferCubemapPtr createPixelBufferCubemap(PixelBufferCubemap *buffer)` |
+| **实现要点** | `glGenTextures` + `GL_TEXTURE_CUBE_MAP`，逐面 `glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, ...)`，面偏移按 `Image::getBPP` 计算；含 BGRA→RGBA 转换；结尾 `glGenerateMipmap` + 三个方向 `GL_CLAMP_TO_EDGE` |
+| **备注** | `Skybox-Support-Design-todo.md` §2.2 说的「`setPixelBuffers` 的 cubemap 分支是死代码」已不成立，`bindPixelBuffers`（`T3DGLES3Context.cpp:2890`）会正确绑 `GL_TEXTURE_CUBE_MAP` |
 
 ---
 
@@ -328,7 +568,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:1598`） |
 | **签名** | `RHIShaderPtr createVertexShader(ShaderVariant *shader)` |
 | **GL4 实现要点** | `glCreateShader(GL_VERTEX_SHADER)` + `glShaderSource` + `glCompileShader`，含编译错误日志 |
 | **GLES3 实现方案** | 与 GL4 逻辑一致。着色器源码应为 ESSL 300 es / 310 es / 320 es（由 scc.exe 交叉编译生成）。需确保传入的着色器有 `precision highp float;` 声明 |
@@ -339,7 +579,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ⚠️ 部分完成（`T3DGLES3Context.cpp:1650`）— **计划里的 nullptr 检查没做**，传 nullptr 会崩；GL4 已经把这条收口到 `attachGraphicsShader`（`T3DGL4Context.cpp:4455`），见附录 B.3#2 |
 | **签名** | `TResult setVertexShader(ShaderVariant *shader)` |
 | **GL4 实现要点** | 删除旧 Program，创建新 Program 并 attach shader，标记 `mProgramDirty = true` |
 | **GLES3 实现方案** | 与 GL4 一致。额外增加 nullptr 检查（修复 GL4 的已知缺陷） |
@@ -349,7 +589,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:1681` → `stageConstantBuffers:2822`） |
 | **签名** | `TResult setVSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)` |
 | **GL4 实现要点** | 委托 `stageConstantBuffers()`，将 cbuffer 名→GL buffer handle 存入 `mPendingUBOs` |
 | **GLES3 实现方案** | 与 GL4 完全一致（UBO 绑定机制相同） |
@@ -359,7 +599,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:1686` → `bindPixelBuffers:2854`）— ⚠ 共用的 `bindPixelBuffers` 有两个缺陷：句柄为 0 时不解绑、MSAA 渲染纹理不切 `GLResolveTex`，见附录 B.3#6 |
 | **签名** | `TResult setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)` |
 | **GL4 实现要点** | 委托 `bindPixelBuffers()` → `glActiveTexture` + `glBindTexture` |
 | **GLES3 实现方案** | 与 GL4 完全一致 |
@@ -369,7 +609,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:1691` → `bindSamplers:2922`）— 含 HLSL `s#` 寄存器到 GL 纹理单元的 remap；⚠ 句柄为 0 时不解绑，见附录 B.3#7 |
 | **签名** | `TResult setVSSamplers(uint32_t startSlot, const Samplers &samplers)` |
 | **GL4 实现要点** | 委托 `bindSamplers()` → `glBindSampler` |
 | **GLES3 实现方案** | 与 GL4 完全一致 |
@@ -383,7 +623,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:1700`） |
 | **签名** | `RHIShaderPtr createPixelShader(ShaderVariant *shader)` |
 | **GL4 实现要点** | `glCreateShader(GL_FRAGMENT_SHADER)` + 编译 |
 | **GLES3 实现方案** | 与 GL4 一致。需确保 ESSL 源码有 `precision mediump float;`（或 highp）声明 |
@@ -394,7 +634,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:1752`）— 含 nullptr 解绑分支 |
 | **签名** | `TResult setPixelShader(ShaderVariant *shader)` |
 | **GL4 实现要点** | 支持 nullptr 解绑；attach shader 到 Program |
 | **GLES3 实现方案** | 与 GL4 一致 |
@@ -404,7 +644,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:1792` / `1797` / `1802`）— 与 VS 同路径，因此也带同样的 `bindPixelBuffers` / `bindSamplers` 缺陷 |
 | **签名** | 同 VS 对应接口 |
 | **GLES3 实现方案** | 与 VS 阶段完全一致（GL 中 UBO/Texture/Sampler 绑定不区分 shader stage） |
 
@@ -416,7 +656,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 🔇 按设计为空（GLES 3.0/3.1），⚡ 需适配（GLES 3.2） |
+| **状态** | ❌ 未实现（`T3DGLES3Context.cpp:1811`-`1819`）— `createHullShader` 返回 `nullptr`、四个 `set*` 静默 `return T3D_OK`，**都没有日志**，上层无法感知。GL4 已全部实现（`T3DGL4Context.cpp:2349`），且 ES 3.2 core 就含 tessellation，可按 GS 的版本门控方式补齐，见附录 B.2.3 |
 | **签名** | 各自标准签名 |
 | **GLES3 实现方案** | GLES 3.2 支持 `GL_TESS_CONTROL_SHADER`。当前阶段实现为空返回 `T3D_OK`（与 GL4 后端一致），后续可在检测到 GLES 3.2 时启用 |
 | **GLES3 API** | `glCreateShader(GL_TESS_CONTROL_SHADER)`（仅 GLES 3.2） |
@@ -429,7 +669,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 🔇 按设计为空（GLES 3.0/3.1），⚡ 需适配（GLES 3.2） |
+| **状态** | ❌ 未实现（`T3DGLES3Context.cpp:1825`-`1833`）— 同 Hull Shader，静默返回成功。GL4 已实现（`T3DGL4Context.cpp:2391`） |
 | **签名** | 各自标准签名 |
 | **GLES3 实现方案** | 同 Hull Shader，当前阶段实现为空返回 |
 | **GLES3 API** | `glCreateShader(GL_TESS_EVALUATION_SHADER)`（仅 GLES 3.2） |
@@ -442,7 +682,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ⚠️ 部分完成（`T3DGLES3Context.cpp:1839`）— 已按计划做 `mGLESMinor >= 2` 门控，低版本返回 nullptr + 警告；`compileShader` 侧也支持 Geometry 阶段 |
 | **签名** | `RHIShaderPtr createGeometryShader(ShaderVariant *shader)` |
 | **GL4 实现要点** | `glCreateShader(GL_GEOMETRY_SHADER)` + 编译 |
 | **GLES3 实现方案** | 仅 GLES 3.2（或 `GL_EXT_geometry_shader`）支持。运行时检查 `mGLESMinor >= 2`，不支持时返回 nullptr 并记录警告日志 |
@@ -452,7 +692,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | `setGeometryShader` ⚠️ 部分完成（`T3DGLES3Context.cpp:1897`，需 3.2）；三个资源绑定接口 ✅ 已完成（`1931`-`1944`，与 VS/PS 共用路径） |
 | **签名** | 各自标准签名 |
 | **GLES3 实现方案** | 与 GL4 逻辑一致（attach shader 到 Program）。需运行时检查 GS 支持 |
 
@@ -464,9 +704,9 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ⚠️ 部分完成（`T3DGLES3Context.cpp:1950`）— `glCreateShader(GL_COMPUTE_SHADER)` 与 3.1 门控都做了，但**上游 `compileShader` 不支持 `kCompute` 阶段**（`T3DGLES3ContextBase.cpp:191`-`201` 只分派 V/P/G），实际拿不到编译后的 ESSL 源码，链路是断的，见附录 B.2.1 |
 | **签名** | `RHIShaderPtr createComputeShader(ShaderVariant *shader)` |
-| **GL4 实现要点** | GL4 后端当前未实现（按设计为空） |
+| **GL4 实现要点** | ~~GL4 后端当前未实现（按设计为空）~~ → **已过时**：GL4 已完整实现（`T3DGL4Context.cpp:2511`），并配了独立 compute program 与 `ensureComputeProgramLinked`（`2955`） |
 | **GLES3 实现方案** | GLES 3.1+ 支持 `GL_COMPUTE_SHADER`。运行时检查 `mGLESMinor >= 1`，支持时通过 `glCreateShader(GL_COMPUTE_SHADER)` 创建并编译。GLES3 后端优先于 GL4 实现 CS |
 | **GLES3 API** | `glCreateShader(GL_COMPUTE_SHADER)`, `glShaderSource`, `glCompileShader`（GLES 3.1+） |
 
@@ -474,7 +714,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ⚠️ 部分完成（`T3DGLES3Context.cpp:2008`）— **没有按计划用独立 Program**：CS 被 attach 进图形 `mCurrentProgram`（`2025`-`2031`），GL/ES 规范都不允许 compute 与图形阶段混链，链接必然失败；另外 `shader == nullptr` 与 3.0 设备都静默 `return T3D_OK`。见附录 B.3#4 |
 | **签名** | `TResult setComputeShader(ShaderVariant *shader)` |
 | **GLES3 实现方案** | 计算着色器使用独立 Program（不与图形 Program 混合）。`glUseProgram(computeProgram)` → `glDispatchCompute` |
 | **GLES3 API** | `glUseProgram`, `glDispatchCompute`（GLES 3.1+） |
@@ -483,9 +723,26 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:2042`-`2055`）— 但只是复用了图形阶段的 UBO / 纹理 / 采样器绑定路径；**计划里的 SSBO 与 `glBindImageTexture` 并未实现**，对应的 `setCSStructuredBuffers` / `setCSUnorderedAccessBuffers` 是 🚧 契约式不支持（`2295` / `2296`） |
 | **GLES3 实现方案** | SSBO 绑定使用 `glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, ssbo)`；Image 绑定使用 `glBindImageTexture`（GLES 3.1+） |
 | **GLES3 API** | `glBindBufferBase(GL_SHADER_STORAGE_BUFFER)`, `glBindImageTexture` |
+
+### 13.4 结构化缓冲 / UAV / Dispatch（后补接口，共 9 个）
+
+> 这批接口在写作本计划时尚未进入 `RHIContext`，属后补条目。
+
+| 接口 | 状态 | 位置 |
+|------|------|------|
+| `createStructuredBuffer` | 🚧 | `T3DGLES3Context.cpp:2292` |
+| `setVSStructuredBuffers` / `setPSStructuredBuffers` / `setCSStructuredBuffers` | 🚧 | `2293`-`2295` |
+| `setCSUnorderedAccessBuffers` | 🚧 | `2296` |
+| `dispatch` / `dispatchIndirect` | 🚧 | `2297` / `2298` |
+| `uavBarrier` | 🚧 | `2299` |
+| `copyStructureCount` | 🚧 | `2300` |
+
+- 全部走 `T3D_RHI_UNSUPPORTED*` 宏，返回明确错误码并打日志（比静默返回成功好，上层可降级）。
+- 能力位在 `fillCapabilities`（`T3DGLES3Context.cpp:101`-`113`）硬编码为 false：`supportsCompute`、`supportsUnorderedAccess`、`supportsStructuredBuffer`、`supportsIndirectDraw`、`supportsIndirectDispatch`、`supportsAppendConsumeBuffer`。只有 compute 相关的 limit（work group count / size、shared memory、SSBO 数）在 3.1+ 时真查了 GL。
+- GLES 3.1 core 原生支持 SSBO / `glBindImageTexture` / `glDispatchCompute` / `glMemoryBarrier`，可按 `mGLESMinor >= 1` 放开；D3D11 与 GL4 都已全套实现（GL4 见 `T3DGL4Context.cpp:3151` 起）。补齐方案见附录 B.5。
 
 ---
 
@@ -495,7 +752,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ⚠️ 部分完成（`T3DGLES3Context.cpp:2059` → `T3DGLES3ContextBase.cpp:174` / `185`）— ESSL profile 与版本选择都按计划做了（`EEsProfile` + 300/310/320），但 stage 分派只有 Vertex / Pixel / Geometry，`kCompute` / `kHull` / `kDomain` 直接报 "Unsupported shader stage"，这是 CS 链路断掉的根因 |
 | **签名** | `TResult compileShader(ShaderVariant *shader)` |
 | **GL4 实现要点** | 委托 `glslangCompileAndReflect()`，使用 glslang 库解析 GLSL 400，提取 Uniform Block 和 Sampler 信息 |
 | **GLES3 实现方案** | 复用 glslang 反射流程，但需将着色器 profile 设为 `EEsProfile`，版本设为 300/310/320（对应 ESSL）。glslang 已支持 ESSL 着色器解析 |
@@ -505,7 +762,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`T3DGLES3ContextBase.cpp:275`）— 含 SPIRV-Cross 合并结构体名的还原处理 |
 | **签名** | `TResult reflectShaderAllBindings(ShaderVariant *shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams)` |
 | **GL4 实现要点** | 从 glslang 缓存提取 Uniform Block 成员和 Sampler 绑定信息 |
 | **GLES3 实现方案** | 与 GL4 逻辑一致。反射数据结构相同（GlslangBlockInfo/GlslangUniformInfo）。ESSL 的 `layout(std140)` uniform block 内存布局与桌面 GL 一致 |
@@ -514,7 +771,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ❌ 未实现（`T3DGLES3ContextBase.cpp:396`）— 空 `return T3D_OK`，反射数据都在但没填回 `samplerParams`。GL4（基类 `T3DGL4ContextBase.cpp:506`，Window 版 `T3DGL4Context.cpp:2835`）与 D3D11 均已实现，见附录 B.4.2 |
 | **签名** | `TResult reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams)` |
 | **GL4 实现要点** | 更新已有 samplerParams 的 binding 索引 |
 | **GLES3 实现方案** | 与 GL4 完全一致 |
@@ -527,7 +784,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:2080`）— 引擎 `PrimitiveType` 只有 5 项（PointList / LineList / LineStrip / TriangleList / TriangleStrip），全部有对应 GL 枚举，不存在计划里担心的 QUADS / 邻接图元问题 |
 | **签名** | `TResult setPrimitiveType(PrimitiveType primitive)` |
 | **GL4 实现要点** | 映射引擎枚举为 GL 枚举存储到 `mPrimitiveType` |
 | **GLES3 实现方案** | 映射规则：`TRIANGLES`→`GL_TRIANGLES`, `LINES`→`GL_LINES`, `POINTS`→`GL_POINTS` 等。移除 GLES 不支持的枚举：`GL_QUADS`, `GL_POLYGON`。邻接图元（`GL_TRIANGLES_ADJACENCY`）仅 GLES 3.2 支持，`GL_PATCHES` 仅 GLES 3.2 支持 |
@@ -538,7 +795,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:2133`）— 延迟 Link + UBO 绑定 + 采样器绑定齐全；`baseVertex != 0` 时按 3.2 走 `glDrawElementsBaseVertex`，低版本回落到 `glDrawElements` 并打警告 |
 | **签名** | `TResult render(uint32_t indexCount, uint32_t startIndex, uint32_t baseVertex)` |
 | **GL4 实现要点** | 延迟 Program Link + `glUseProgram` + `bindPendingUniformBlocks` + `setupSamplerBindings` → `glDrawElementsBaseVertex` |
 | **GLES3 实现方案** | 1) 延迟 Link 逻辑与 GL4 一致；2) GLES 3.0 不支持 `glDrawElementsBaseVertex`（需 GLES 3.2 或 `GL_EXT_draw_elements_base_vertex`）。Fallback：当 `baseVertex == 0` 时使用 `glDrawElements`；非零时检测扩展或调整顶点数据 |
@@ -549,11 +806,28 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:2176`） |
 | **签名** | `TResult render(uint32_t vertexCount, uint32_t startVertex)` |
 | **GL4 实现要点** | 延迟 Program Link → `glDrawArrays` |
 | **GLES3 实现方案** | 与 GL4 完全一致：`glDrawArrays(mPrimitiveType, startVertex, vertexCount)` |
 | **GLES3 API** | `glDrawArrays` |
+
+### 15.4 renderIndexedInstanced / renderInstanced
+
+> 本组接口在写作本计划时尚未进入 `RHIContext`，属后补条目。
+
+| 项目 | 内容 |
+|------|------|
+| **状态** | ⚠️ 部分完成（`T3DGLES3Context.cpp:2201` / `2259`） |
+| **实现要点** | `glDrawElementsInstanced` / `glDrawArraysInstanced`（GLES 3.0 core），实例步进由 `setVertexBuffers` 里的 `glVertexAttribDivisor` 配好 |
+| **限制** | `startInstance != 0` 时打错误日志并返回 `T3D_ERR_NOT_IMPLEMENT`。GLES 无 base instance（等价扩展 `GL_EXT_base_instance` 也非 core），**这是无法对齐 D3D11 的硬限制，不是缺陷**；GL4 走 `glDrawElementsInstancedBaseInstance` 可以支持 |
+
+### 15.5 renderIndexedIndirect / renderIndirect
+
+| 项目 | 内容 |
+|------|------|
+| **状态** | 🚧 契约式不支持（`T3DGLES3Context.cpp:2301` / `2302`）— `T3D_RHI_UNSUPPORTED(supportsIndirectDraw)` |
+| **备注** | GLES 3.1 core 有 `glDrawElementsIndirect` / `glDrawArraysIndirect`，可在 3.1 设备上放开，见附录 B.5 |
 
 ---
 
@@ -563,7 +837,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ⚠️ 部分完成（`T3DGLES3Context.cpp:2306`）— 解绑 Program / VAO / VBO / EBO / FBO、删 Program、清 `mPendingUBOs` 都做了；但不复位 `mRenderingToFBO`（与 `resetRenderTarget` 同一个问题），也不清 `mCurrentGeometryShader` / compute 相关状态 |
 | **签名** | `TResult reset()` |
 | **GL4 实现要点** | 解绑 Program/VAO/VBO/EBO/FBO，删除 Program，清空 `mPendingUBOs` |
 | **GLES3 实现方案** | 与 GL4 完全一致 |
@@ -577,9 +851,9 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ❌ 未实现（`T3DGLES3Context.cpp:2343`）— 空 `return T3D_OK`，静默 |
 | **签名** | `TResult blit(RenderTarget *src, RenderTarget *dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)` |
-| **GL4 实现要点** | ❌ GL4 未实现（返回 T3D_OK） |
+| **GL4 实现要点** | ~~❌ GL4 未实现（返回 T3D_OK）~~ → **已过时**：GL4 现在四个 blit 重载全部实现（`T3DGL4Context.cpp:3577` / `3607` / `3637` / `3667`），统一走 `resolveBlitEndpoint`（`4561` / `4603`）+ `doBlit`（`4656`），D3D11 也四个全实现 |
 | **GLES3 实现方案** | 使用 `glBlitFramebuffer`（GLES 3.0+）：1) 绑定 src FBO 到 `GL_READ_FRAMEBUFFER`；2) 绑定 dst FBO 到 `GL_DRAW_FRAMEBUFFER`；3) 调用 `glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter)` |
 | **GLES3 API** | `glBindFramebuffer(GL_READ_FRAMEBUFFER)`, `glBindFramebuffer(GL_DRAW_FRAMEBUFFER)`, `glBlitFramebuffer` |
 | **注意** | GLES3 `glBlitFramebuffer` 仅支持 `GL_NEAREST` 过滤（当涉及深度/模板时） |
@@ -588,7 +862,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ⚠️ 部分完成（`T3DGLES3Context.cpp:2350`）— 四个重载里唯一有实现的一支：`glBlitFramebuffer` + MSAA resolve + Y 翻转 + TBR `glInvalidateFramebuffer` 都有。缺口：不支持 `size == Vector3::ZERO`「整块拷贝」语义、源必须是带 FBO 的渲染纹理（普通纹理不建临时 FBO）、只处理颜色不处理深度 |
 | **签名** | `TResult blit(Texture *src, RenderTarget *dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset)` |
 | **GL4 实现要点** | 支持 MSAA Resolve + Y 翻转 |
 | **GLES3 实现方案** | 逻辑与 GL4 一致，通过临时 FBO + `glBlitFramebuffer` 实现。MSAA Resolve 路径使用 Renderbuffer |
@@ -598,9 +872,9 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ❌ 未实现（`T3DGLES3Context.cpp:2457`）— 空 `return T3D_OK`，静默 |
 | **签名** | `TResult blit(RenderTarget *src, Texture *dst, ...)` |
-| **GL4 实现要点** | ❌ GL4 未实现 |
+| **GL4 实现要点** | ~~❌ GL4 未实现~~ → **已过时**：GL4 已实现（`T3DGL4Context.cpp:3637`） |
 | **GLES3 实现方案** | 通过 `glBlitFramebuffer` 将 src FBO blit 到挂载了 dst texture 的临时 FBO |
 | **GLES3 API** | `glBlitFramebuffer` |
 
@@ -608,9 +882,9 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ❌ 未实现（`T3DGLES3Context.cpp:2464`）— 空 `return T3D_OK`。**影响面最大的一支**：后处理链路的 `resolveIfMultisampled` 走的就是这个重载，静默成功会让上层拿到未 resolve 的纹理 |
 | **签名** | `TResult blit(Texture *src, Texture *dst, ...)` |
-| **GL4 实现要点** | ❌ GL4 未实现 |
+| **GL4 实现要点** | ~~❌ GL4 未实现~~ → **已过时**：GL4 已实现（`T3DGL4Context.cpp:3667`） |
 | **GLES3 实现方案** | 创建两个临时 FBO 分别挂载 src/dst 纹理，通过 `glBlitFramebuffer` 传输。或使用 `GL_EXT_copy_image` 扩展的 `glCopyImageSubDataEXT`（如可用） |
 | **GLES3 API** | `glBlitFramebuffer`，或 `glCopyImageSubDataEXT`（扩展） |
 
@@ -618,9 +892,9 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ⚠️ 部分完成（`T3DGLES3Context.cpp:2471`）— `glCopyBufferSubData` 主路径可用，但**零参数校验**：`src == dst`、`size == 0`、越界、目标 immutable、资源类型不匹配全部不检查，类型不匹配时直接静默 `return T3D_OK`。GL4 的同名实现（`T3DGL4Context.cpp:3697`）有完整校验，可直接照搬 |
 | **签名** | `TResult copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset, size_t size, size_t dstOffset)` |
-| **GL4 实现要点** | ❌ GL4 未实现 |
+| **GL4 实现要点** | ~~❌ GL4 未实现~~ → **已过时**：GL4 已实现且校验完备 |
 | **GLES3 实现方案** | 使用 `glCopyBufferSubData`（GLES 3.0+ 核心功能）：`glBindBuffer(GL_COPY_READ_BUFFER, src)` + `glBindBuffer(GL_COPY_WRITE_BUFFER, dst)` + `glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, srcOffset, dstOffset, size)` |
 | **GLES3 API** | `glBindBuffer(GL_COPY_READ_BUFFER)`, `glBindBuffer(GL_COPY_WRITE_BUFFER)`, `glCopyBufferSubData` |
 
@@ -628,12 +902,23 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ⚠️ 部分完成（`T3DGLES3Context.cpp:2560`）— VBO / IBO / UBO 分支正确（按计划用 `glBufferSubData` / `glBufferData`）；**`PixelBuffer2D` 分支是明确 bug**：宽高传 0、格式硬编码 `GL_RGBA` + `GL_UNSIGNED_BYTE`（`2596`-`2600`），等于计划里想修的 GL4 老 bug 被抄了过来。GL4 现已修正为按 `desc` 取宽高格式（`T3DGL4Context.cpp:3931`，纹理分支在 `3962` 起），见附录 B.3#1 |
 | **签名** | `TResult writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer)` |
 | **GL4 实现要点** | 使用 DSA（`glNamedBufferData`/`glNamedBufferSubData`）更新 VBO/IBO/UBO；纹理用 `glTexSubImage2D` |
 | **GLES3 实现方案** | GLES 不支持 DSA（`glNamedBuffer*`）。替代方案：1) Buffer 类型：`glBindBuffer(target, handle)` + `glBufferSubData` 或 `glMapBufferRange` + `glUnmapBuffer`；2) 纹理类型：`glBindTexture` + `glTexSubImage2D`（修复 GL4 的 width/height=0 bug）；3) 注意绑定/解绑不能污染 VAO 的 EBO，需使用 `GL_COPY_WRITE_BUFFER` 作为临时绑定点 |
 | **GLES3 API** | `glBindBuffer`, `glBufferSubData` / `glMapBufferRange`, `glTexSubImage2D` |
 | **关键差异** | 无 DSA 支持，需显式 bind/unbind |
+
+### 17.7 map / unmap（GPU Readback）
+
+> 本组接口在写作本计划时尚未进入 `RHIContext`，属后补条目。
+
+| 项目 | 内容 |
+|------|------|
+| **状态** | 🚧 契约式不支持（`T3DGLES3Context.cpp:2539` / `2546` / `2553`）— `T3D_RHI_UNSUPPORTED_VALUE(supportsReadback)` / `T3D_RHI_UNSUPPORTED(supportsReadback)` |
+| **签名** | `ReadbackHandle map(RenderBuffer *src, size_t offset, size_t size)` / `ReadbackHandle map(RenderBuffer *src, const ReadbackRegion &region)` / `TResult unmap(ReadbackHandle handle, Buffer &dst)` |
+| **基线** | D3D11 用 staging 资源 + `Map/Unmap` 实现；GL4 用 PBO + `glMapBufferRange` + `glFenceSync` 异步实现（`T3DGL4Context.cpp:3770` / `3824` / `3924`，配套 `allocReadbackRequest:4771`、`finishReadback:4831`） |
+| **可行性** | `glMapBufferRange`、PBO（`GL_PIXEL_PACK_BUFFER`）、`glFenceSync` **都是 GLES 3.0 core**，纹理 readback 还需 `glReadPixels` 配合。技术上没有阻塞，只是没做，见附录 B.4.4 |
 
 ---
 
@@ -643,7 +928,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 🔇 按设计为空 |
+| **状态** | 🔇 按设计为空（`T3DGLES3Context.h:155`，内联 `return T3D_OK`）— 与 GL4 一致 |
 | **签名** | `TResult beginRender()` |
 | **GLES3 实现方案** | 与 GL4 一致，GLES 即时模式不需要此操作。内联返回 `T3D_OK` |
 
@@ -651,7 +936,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 🔇 按设计为空 |
+| **状态** | 🔇 按设计为空（`T3DGLES3Context.h:156`） |
 | **签名** | `TResult endRender()` |
 | **GLES3 实现方案** | 同 beginRender |
 
@@ -659,7 +944,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 🔇 按设计为空 |
+| **状态** | 🔇 按设计为空（`T3DGLES3Context.h:158`） |
 | **签名** | `TResult beginPass()` |
 | **GLES3 实现方案** | 同 beginRender |
 
@@ -667,7 +952,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 🔇 按设计为空 |
+| **状态** | 🔇 按设计为空（`T3DGLES3Context.h:159`）— 计划里提的 TBR `glInvalidateFramebuffer` 优化尚未在此落地（目前只在 `blit(Tex→RT)` 内部用过） |
 | **签名** | `TResult endPass()` |
 | **GLES3 实现方案** | 同 beginRender。但可考虑在此处调用 `glInvalidateFramebuffer` 优化 TBR |
 
@@ -679,7 +964,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:2669`）— 返回 `mEGLContext` |
 | **签名** | `void* getNativeContext() const` |
 | **GL4 实现要点** | 返回 `HGLRC`（Windows）/ `GLXContext`（Linux） |
 | **GLES3 实现方案** | 返回 `mEGLContext`（EGLContext 句柄） |
@@ -688,7 +973,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:2676`）— `eglMakeCurrent` 回主 surface |
 | **签名** | `void restoreNativeContext()` |
 | **GL4 实现要点** | `wglMakeCurrent` / `glXMakeCurrent` |
 | **GLES3 实现方案** | `eglMakeCurrent(mEGLDisplay, mMainSurface, mMainSurface, mEGLContext)` |
@@ -702,7 +987,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现（新增） |
+| **状态** | ✅ 已完成（`T3DGLES3ContextBase.cpp:39`，版本降级在 `createEGLContext:109`）— 按 3.2 → 3.1 → 3.0 依次尝试 `eglCreateContext` |
 | **签名** | `TResult initEGLContext()` |
 | **功能** | EGL 上下文初始化 + 版本降级策略 |
 | **实现方案** | 1) `eglGetDisplay(EGL_DEFAULT_DISPLAY)` + `eglInitialize`；2) `eglChooseConfig`（EGL_RENDERABLE_TYPE=EGL_OPENGL_ES3_BIT, RGBA8, D24S8）；3) 循环尝试 {3,2} → {3,1} → {3,0} 调用 `eglCreateContext`；4) 成功后 `glGetIntegerv(GL_MAJOR_VERSION/GL_MINOR_VERSION)` 确认实际版本；5) 查询扩展字符串 |
@@ -712,7 +997,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现（新增） |
+| **状态** | ✅ 已完成（`T3DGLES3ContextBase.cpp:155`） |
 | **签名** | `void destroyEGLContext()` |
 | **功能** | 销毁 EGL 上下文和 Display |
 | **实现方案** | `eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT)` → `eglDestroyContext` → `eglTerminate` |
@@ -722,7 +1007,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现（新增） |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:144`） |
 | **签名** | `TResult swapBackBuffer(GLES3RenderWindow *renderWindow)` |
 | **功能** | 交换前后缓冲区 |
 | **实现方案** | `eglSwapBuffers(mEGLDisplay, renderWindow->getEGLSurface())` |
@@ -732,11 +1017,20 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现（新增） |
+| **状态** | ✅ 已完成（`T3DGLES3Context.cpp:176`） |
 | **签名** | `TResult resizeRenderWindow(GLES3RenderWindow *rw, uint32_t w, uint32_t h)` |
 | **功能** | 窗口大小变更处理 |
 | **实现方案** | 更新 RenderWindow 的 mWidth/mHeight + `glViewport(0, 0, w, h)`。EGL surface 自动跟随 ANativeWindow 大小变化，无需重建 |
 | **GLES3 API** | `glViewport` |
+
+### 20.5 resizeRenderTexture / resizeRenderTarget（RHIContext 接口，未 override）
+
+| 项目 | 内容 |
+|------|------|
+| **状态** | ⛔ 未 override — `T3DGLES3Context.h` 里没有这两个声明，走 `RHIContext` 默认实现返回 `T3D_ERR_NOT_IMPLEMENT` |
+| **签名** | `TResult resizeRenderTexture(RenderTexture *rt, uint32_t width, uint32_t height)` / `TResult resizeRenderTarget(RenderTarget *rt, uint32_t width, uint32_t height)`（基类默认实现见 `T3DRHIContext.h:125` / `134`） |
+| **基线** | GL4 已实现（`T3DGL4Context.cpp:943` / `978`），做法是 `releaseRenderTextureResources`（`750`）+ `buildRenderTextureResources`（`767`）重建 |
+| **影响** | 窗口 / 分辨率变化时离屏 RT 无法跟着重建，后处理链路会一直用旧尺寸。补齐方案见附录 B.4.3 |
 
 ---
 
@@ -746,7 +1040,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`Runtime/Source/T3DGLES3Plugin.cpp`） |
 | **功能** | 继承 `Plugin`，在 `install()` 中创建 GLES3Renderer 并通过 `T3D_AGENT.addRHIRenderer()` 注册；`uninstall()` 中移除并销毁 |
 | **参考** | GL4Plugin 实现 |
 
@@ -754,7 +1048,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`Runtime/Source/T3DGLES3Renderer.cpp`） |
 | **功能** | 继承 `RHIRenderer + Singleton`。`init()` 创建 GLES3Context；`destroy()` 销毁 Context。`mName = RHIRenderer::OPENGLES3` |
 | **参考** | GL4Renderer 实现 |
 
@@ -762,7 +1056,7 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现 |
+| **状态** | ✅ 已完成（`Runtime/Source/T3DGLES3PluginDLL.cpp`） |
 | **功能** | `extern "C"` 导出 `dllStartPlugin()` / `dllStopPlugin()`，创建/销毁 GLES3Plugin 实例 |
 | **产物** | `libGLES3Renderer.so`（Android 共享库） |
 
@@ -774,27 +1068,23 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 待实现（重写） |
-| **当前内容** | 链接 OpenGL 库（错误，应链接 GLESv3+EGL） |
-| **目标方案** | 1) `set_project_name(GLES3Renderer)`；2) include_directories 包含 Base/Include + Runtime/Include；3) 使用 `set_project_files` 收集 Base 和 Runtime 子目录；4) `target_link_libraries` 链接 `GLESv3 EGL T3DCore T3DMath T3DLog T3DPlatform ${GLSLANG_LIBRARIES}`；5) 设置为 SHARED 库 |
+| **状态** | ✅ 已完成，但**目录结构与计划不同** |
+| **实际结构** | `OpenGLES3/CMakeLists.txt` 只剩一行 `add_subdirectory(Runtime)`；真正的构建脚本在 `OpenGLES3/Runtime/CMakeLists.txt` |
+| **实际内容** | `set_project_name(GLES3Renderer)`、`-DGLES3RENDERER_EXPORT`、`set_project_files` 分别收集 `../Base` 与 `Runtime` 的头/源、`add_library(SHARED)`、链接 `GLESv3 EGL android log T3DMath T3DLog T3DUtils T3DPlatform T3DSystem T3DCore rttr_core ${GLSLANG_LIBRARIES}` |
 
 ### 22.2 Renderer/CMakeLists.txt 修改
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
-| **当前内容** | Android 段设置 `TINY3D_BUILD_RENDERSYSTEM_GLES3 TRUE` 并 find_package |
-| **目标方案** | 移除 `find_package(OpenGLES3)` 依赖（Android NDK 直接提供头文件和库），`add_subdirectory(OpenGLES3)` |
+| **状态** | ✅ 已完成（`source/Plugins/Renderer/CMakeLists.txt:140`-`160`） |
+| **实际方案** | Android 分支直接 `add_subdirectory(OpenGLES3)` 不做 `find_package`；非 Android 分支仍保留 `find_package(OpenGLES3)`，找不到模拟器 SDK 就跳过构建（对应第 24 章的跨平台长期方案） |
 
 ---
 
 ## 汇总统计
 
-| 状态 | 数量 | 说明 |
-|------|------|------|
-| 📋 待实现 | 35 | 需要从零编写的接口 |
-| ⚡ 需适配 | 20 | 与 GL4 逻辑类似但需针对 GLES3 差异修改 |
-| 🔇 按设计为空 | 9 | beginRender/endRender/beginPass/endPass + HS(5) + DS(5)（部分） |
+> **已废弃**：这里原来的计划期统计（📋 35 / ⚡ 20 / 🔇 9）是「要写多少个接口」的工作量估算，不是实现状态。
+> 当前实现状态请看 **§0.18 汇总**（✅ 43 / ⚠️ 19 / ❌ 14 / 🚧 14 / 🔇 4 / ⛔ 2，共 96），差距清单看**附录 B**。
 
 ### 与 GL4 后端的关键差异
 
@@ -809,13 +1099,16 @@
 | DSA | `glNamedBuffer*` | 不支持 | 需显式 bind |
 | DrawElementsBaseVertex | 核心功能 | GLES 3.2 / 扩展 | 需 fallback |
 | ClearDepth | `glClearDepth`（double） | `glClearDepthf`（float） | API 差异 |
-| 计算着色器 | 未实现 | GLES 3.1+（新增实现） | GLES3 后端更完整 |
-| 压缩纹理 | BC1-BC7 | ETC2/EAC + ASTC | 格式映射差异 |
+| 计算着色器 | ~~未实现~~ → **已完整实现**（含独立 program、dispatch、SSBO/UAV） | 仅 `createComputeShader` / `setComputeShader` 有壳子，编译链路断、派发接口全部 🚧 | **结论反转**：现在是 GL4 更完整 |
+| 压缩纹理 | BC1-BC7 | ETC2/EAC + ASTC | **暂不适用**：RHI 的 `PixelFormat` 枚举里根本没有压缩格式，两边都走不到这条路径（压缩只存在于 `Image::FileFormat` 层） |
 | TBR 优化 | 不需要 | `glInvalidateFramebuffer` | 移动端性能关键 |
 | Sampler Border | 核心功能 | GLES 3.2 / 扩展 | 需运行时检测 |
 | glslang Profile | `ENoProfile` + 400 | `EEsProfile` + 300/310/320 | 编译参数差异 |
 
 ### 实现优先级
+
+> **历史内容**：下表是 2026-07 从零起步时的开发顺序，其中 P0 / P1 / P2 的绝大部分已经落地。
+> 现在要做的补齐顺序请看**附录 B.8 建议的执行顺序**。
 
 | 优先级 | 模块 | 接口数 | 原因 |
 |--------|------|--------|------|
@@ -835,9 +1128,17 @@
 
 > 本章节详细列出 GLES3Renderer 插件接入 Tiny3D 构建系统所需的全部 CMake 修改。
 >
-> **当前状态**：现有 `OpenGLES3/CMakeLists.txt` 是占位文件，错误链接了桌面端 OpenGL 库；源码文件均为空壳。
+> ~~**当前状态**：现有 `OpenGLES3/CMakeLists.txt` 是占位文件，错误链接了桌面端 OpenGL 库；源码文件均为空壳。~~
 >
-> **目标**：重写为可在 Android NDK 下正确编译、链接、加载的 GLES3 渲染插件。
+> **2026-09 实际状态：本章 23.1～23.9 已全部落地**，Android 侧构建链路是通的；各小节状态列已逐条改为实际状态。已验证：
+>
+> - `Base + Runtime` 两级目录结构（23.1）✅ — 见 §22.1
+> - `OpenGLES3/CMakeLists.txt` 转发 + `Runtime/CMakeLists.txt` 承载实际构建（23.2 / 23.3）✅
+> - `Renderer/CMakeLists.txt` 的 Android 分支免 `find_package`（23.4）✅ — `CMakeLists.txt:140`-`160`
+> - `source/CMake/Packages/FindOpenGLES3.cmake` 存在，供非 Android 平台查模拟器 SDK（23.5）✅
+> - `dependencies/glslang` 下已有 `include` + `prebuilt`（23.6）✅
+> - `assets/config/Android/Tiny3D.cfg` 已把 renderer 配成 `GLES3Renderer`（23.8）✅
+> - `GLES3RENDERER_EXPORT` 宏在 `Runtime/CMakeLists.txt` 中定义（23.9）✅
 
 ---
 
@@ -885,8 +1186,8 @@ source/Plugins/Renderer/OpenGLES3/
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 重写 |
-| **当前内容** | 错误使用 `find_package(OpenGL)` 并链接桌面 `${OPENGL_LIBRARIES}` |
+| **状态** | ✅ 已完成 — 现文件就是下面这 5 行 |
+| **当前内容** | ~~错误使用 `find_package(OpenGL)` 并链接桌面 `${OPENGL_LIBRARIES}`~~（已重写） |
 | **目标内容** | 仅作为子目录入口 |
 
 ```cmake
@@ -903,7 +1204,7 @@ add_subdirectory(Runtime)
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 新建 |
+| **状态** | ✅ 已完成（57 行，与下面的方案基本一致；实际另加了 `-DGLES3RENDERER_EXPORT` 与 `android` / `log` 系统库） |
 | **产物** | `libGLES3Renderer.so`（Android SHARED 库） |
 | **链接库** | `GLESv3` `EGL` `T3DCore` `T3DMath` `T3DLog` `T3DPlatform` `T3DSystem` `T3DUtils` `rttr_core` `${GLSLANG_LIBRARIES}` |
 
@@ -995,7 +1296,7 @@ install(TARGETS ${LIB_NAME}
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ✅ 已完成（现为 `CMakeLists.txt:140`-`160`） |
 | **修改范围** | 第 141-154 行（GLES3 段） |
 
 **当前代码**（第 141-154 行）：
@@ -1052,7 +1353,7 @@ endif (TINY3D_BUILD_RENDERSYSTEM_GLES3)
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ✅ 已完成（`FindOpenGLES3.cmake:26`-`35` 就是下面这段） |
 | **修改范围** | 增加 Android 平台短路逻辑 |
 
 在文件顶部（`IF (WIN32)` 之前）增加 Android 短路判断：
@@ -1078,8 +1379,8 @@ ENDIF (ANDROID)
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 需准备 |
-| **当前状态** | 仅有 `prebuilt/Windows/x64/` 目录 |
+| **状态** | ✅ 已完成 — `dependencies/glslang/prebuilt/Android/` 下 `arm64-v8a` 与 `x86_64` 均已就位 |
+| **当前状态** | ~~仅有 `prebuilt/Windows/x64/` 目录~~ |
 | **需要新增** | `prebuilt/Android/arm64-v8a/` 和 `prebuilt/Android/x86_64/` |
 
 **目标目录结构**：
@@ -1145,7 +1446,7 @@ endif ()
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ✅ 已完成（Android 构建产物可正常打进 APK；如后续新增 Sample 需照此配置） |
 | **影响文件** | 各 Sample 的 `Android/app/build.gradle` 或 CMake POST_BUILD 命令 |
 
 现有 Sample CMake 中 Android 段通过 `POST_BUILD` 将 .so 拷贝到 `Android/app/libs/${ANDROID_ABI}/`：
@@ -1197,7 +1498,7 @@ endif ()
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⚡ 需适配 |
+| **状态** | ✅ 已完成（`assets/config/Android/Tiny3D.cfg:56` 插件项与 `89` 的 renderer 项都是 `GLES3Renderer`） |
 | **修改内容** | 将 `NullRenderer` 替换为 `GLES3Renderer` |
 
 **当前配置**（插件列表和渲染器名称）：
@@ -1232,7 +1533,7 @@ endif ()
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 📋 需在 `T3DGLES3PrerequisitesBase.h` 中定义 |
+| **状态** | ✅ 已完成，但**落点与计划不同**：宏定义在 `Runtime/Include/T3DGLES3Prerequisites.h:15`-`19`（不是 `Base` 的 `T3DGLES3PrerequisitesBase.h`），`-DGLES3RENDERER_EXPORT` 由 `Runtime/CMakeLists.txt:8` 提供，使用处是 `T3DGLES3PluginDLL.cpp:15` / `21` |
 
 ```cpp
 #if defined(GLES3RENDERER_EXPORT)
@@ -1943,7 +2244,9 @@ RHIContext
 
 ## A.3 状态图例（替换上文的计划态图例）
 
-上文用的是计划态图例（📋 待实现 / ⚡ 需适配 / 🔇 按设计为空）。既然代码已落地，本附录改用与 GL4、D3D11 文档一致的状态态图例：
+> **2026-09 后续修订**：正文的图例与第 1～20 章状态列已统一改用下面这套状态态图例，正文不再有 📋 / ⚡ 计划态标记，本节保留作为口径定义。
+
+本附录使用与 GL4、D3D11 文档一致的状态态图例：
 
 | 标记 | 含义 |
 |------|------|
@@ -2146,6 +2449,9 @@ Hull/Domain 属于 GLES 3.2 才有的能力（`GL_TESS_CONTROL_SHADER` / `GL_TES
 
 ## A.7 全量口径汇总统计（93 个虚接口）
 
+> **已被取代**：本节是 93 接口旧口径，且分类基于「GL4 也没实现」的旧假设。
+> 最终口径请看正文 **§0.18** 与本文档 **B.7**（96 接口：✅ 43 / ⚠️ 19 / ❌ 14 / 🚧 14 / 🔇 4 / ⛔ 2）。下表仅作演进记录保留。
+
 | 状态 | 数量 | 说明 |
 |------|------|------|
 | ✅ 已完成 | 52 | 变换 / 深度 remap / 渲染纹理 / 渲染目标 / 视口 / 裁剪 / 清除 / 全部管线状态 / 顶点输入 / VBO·IBO·UBO / 1D·2D·3D·Cubemap 纹理 / VS·PS 全套 / GS 与 CS 的资源绑定 / 编译与全量反射 / 图元与基础绘制 / reset / `blit(Tex→RT)` / `copyBuffer` / 原生上下文 |
@@ -2194,17 +2500,17 @@ Hull/Domain 属于 GLES 3.2 才有的能力（`GL_TESS_CONTROL_SHADER` / `GL_TES
 | `writeBuffer` 纹理分支 | 尺寸传 0、格式硬编码 `GL_RGBA` | 从 `PixelBuffer2D` 描述符取 width/height 与像素格式，经 `GLES3Mapping` 转换。**与 GL4 一并修** |
 | `setVertexShader` | 缺 nullptr 检查 | 补 nullptr 解绑分支，与本文件中 `setPixelShader` / `setGeometryShader` / `setComputeShader` 对齐 |
 | `resetRenderTarget` | 不重置 `mRenderingToFBO` | 一行修复 |
-| Hull/Domain create 与 set 系列、三个 blit 重载、`reflectSamplerBindings` | 静默返回成功 | 至少补警告日志并返回 `T3D_ERR_NOT_IMPLEMENT`；或给 `RHICapabilities` 增加 `supportsTessellation` 后走 `T3D_RHI_UNSUPPORTED` 统一契约 |
+| Hull/Domain create 与 set 系列 | 静默返回成功 | Tessellation 走 `T3D_RHI_UNSUPPORTED` / 明确错误码。**四个 blit 与 `reflectSamplerBindings` 已收口，不再列在本行** |
 | `setComputeShader` | CS attach 到图形 program，链接必然失败 | 改为独立 compute program（补齐 dispatch 时一并处理） |
 
 ### P1 — 核心功能
 
 | 项 | 原因 | 实现要点 |
 |----|------|---------|
-| `blit(RT→RT)` / `blit(RT→Tex)` / `blit(Tex→Tex)` | 上文第 17 章已规划。**后处理只卡在 `Tex→Tex`**：`resolveIfMultisampled` 走这个重载，空实现会把未写入的临时 RT 交给效果链（见 A.10.5） | `glBlitFramebuffer`（临时 FBO 挂载目标纹理）；`ZERO` 当整张；MSAA 先 resolve。建议仿照 D3D11 统一收口。**先做 `Tex→Tex`，并给已有 `Tex→RT` 补 `ZERO` 语义** |
-| `blit(Tex→RT)` 的 `ZERO` 语义 | Copy 效果（`blitCopy`）默认 `size=ZERO` | 与 D3D11 对齐：`size==ZERO` 用源纹理宽高 |
+| ~~`blit(RT→RT)` / `blit(RT→Tex)` / `blit(Tex→Tex)`~~ | ✅ **已完成**（2026-09）：四个重载收口到 `resolveBlitEndpoint` + `doBlit`；`size==ZERO` 为整张；MSAA 先 resolve。真机核对见 `PostProcessingApp-Android-Design-todo.md` §5.4 | — |
+| ~~`blit(Tex→RT)` 的 `ZERO` 语义~~ | ✅ **已完成**：`doBlit` 按源宽高展开 `ZERO` | — |
 | 压缩纹理（ETC2 / EAC / ASTC） | 移动端纹理内存与带宽的前置条件 | `GLES3Mapping` 补格式映射 + `glCompressedTexImage2D` 上传路径 |
-| `reflectSamplerBindings` | GL4 与 D3D11 均已实现，GLES3 缺失会导致采样器 binding 元数据不全 | 可直接参考 `T3DGL4Context.cpp:2486` |
+| ~~`reflectSamplerBindings`~~ | ✅ **已完成**：走 glslang 反射缓存，不再是空 `T3D_OK` | — |
 | `resizeRenderTexture` / `resizeRenderTarget` | 渲染纹理动态分辨率 | 重建 GLTexture / GLFBO / MSAA RBO / Resolve 附件全套 |
 | TBR 优化推广到 `endPass` | 目前只有 `blit(Tex→RT)` 一处调了 `glInvalidateFramebuffer` | 上文第 18.4 节的计划：在 `endPass` 丢弃不再需要的附件 |
 | Android 真机验证 ESSL 变体选取 | `Shader-MultiBackend-Variant-Design-todo.md` 的端到端验证只覆盖 D3D11 / GL4 / VK，GLES3 侧无记录（见 A.10.4） | 在 Android 上跑 ResourceApp，确认 Bundle 中 `kESSL` 变体被正确选中并编译通过 |
@@ -2231,12 +2537,13 @@ Hull/Domain 属于 GLES 3.2 才有的能力（`GL_TESS_CONTROL_SHADER` / `GL_TES
 
 | 章节 | 当前有效性 |
 |------|-----------|
-| 第 1～19 章（逐接口实现方案） | ⚠️ **状态标记全部失效**，但「GLES3 适配方案」「关键差异」「GLES3 API」几列的技术判断基本都被实现验证为正确，仍有参考价值 |
-| 第 20 章（专有接口） | ✅ 四个接口全部落地 |
+| §0 全接口实现状态速查表 | ✅ **状态的唯一权威来源**（2026-09 逐函数核对代码，带行号） |
+| 第 1～19 章（逐接口实现方案） | ✅ 状态列已于 2026-09 全部改写为实际状态并补上实现位置（原计划期标记 📋 / ⚡ 已清除）；另补入 `setScissorRect`、`createPixelBufferCubemap`、结构化缓冲组、Instanced / Indirect、map / unmap 等后补接口小节。「GLES3 适配方案」「关键差异」「GLES3 API」几列仍是规划内容，作参考 |
+| 第 20 章（专有接口） | ✅ 四个专有接口全部落地，另补 20.5 记录未 override 的 RT resize |
 | 第 21 章（插件系统） | ✅ 全部落地 |
-| 第 22、23 章（CMake 集成） | ✅ 清单 8 项全部落地，可视为已完成记录 |
-| 第 24 章（跨平台方案） | 📋 **仍然完全未开始**，是本后端最大的一块待办，内容依然适用 |
-| 汇总统计与实现优先级表 | ❌ 已失效，以本附录 A.7 / A.8 为准 |
+| 第 22、23 章（CMake 集成） | ✅ 清单全部落地；状态列已逐条核对代码并改写，两处与计划不同已标注：构建脚本落在 `Runtime/CMakeLists.txt`、导出宏落在 `Runtime/Include/T3DGLES3Prerequisites.h` |
+| 第 24 章（跨平台方案） | 🚩 **仍然完全未开始**，是本后端最大的一块待办，内容依然适用 |
+| 汇总统计与实现优先级表 | ⛔ 计划期工作量估算，已作废并加了指向 §0.18 / B.8 的说明 |
 
 ---
 
@@ -2244,9 +2551,9 @@ Hull/Domain 属于 GLES 3.2 才有的能力（`GL_TESS_CONTROL_SHADER` / `GL_TES
 
 GLES3 后端的需求分散在多份设计文档中，本节记录它们与本文档的对应关系，以及哪些说法已经与代码脱节。
 
-### A.10.1 GPU Readback：接口已进 RHI，GLES3 仍是 stub
+### A.10.1 GPU Readback：GLES3 已真实现（仅 2D 彩色）
 
-`doc/todo/GPU-Readback-onRender-Design-todo.md` 第一期已落地。RHI 接口是三个纯虚 `map` / `map(region)` / `unmap`（不是草案里的四个 `beginRead*` / `endRead*`）。`T3DGLES3Context` 已 stub，`supportsReadback` 保持 false。第一期 GLES3 定位仍是 stub；真实现时 `Usage::kCopy` 映射到 `GL_STREAM_READ`（该文档 §3.1 已指定）。本附录 A.7 的 93 个接口口径需加上这 3 个 stub。
+`doc/todo/GPU-Readback-onRender-Design-todo.md` 第一期已落地。RHI 接口是三个纯虚 `map` / `map(region)` / `unmap`。`T3DGLES3Context` 现在是真实现：`supportsReadback = true`（ES 3.0 起 PBO 就有），`map` / `unmap` 走 PBO + `glReadPixels`。限制：**只支持 2D 彩色纹理，深度 / 模板明确不支持**。MSAA 源会先 resolve 再读；`ReadbackRegion.size` 为 0 按整图算。
 
 ### A.10.2 Compute / UAV / Indirect：对应 RHI-Compute 的第五期 E4
 
@@ -2276,35 +2583,27 @@ GLES3 后端的需求分散在多份设计文档中，本节记录它们与本�
 
 另外 `doc/todo/ShaderConductor-Replacement-todo.md` §2.3 要求 `convertToESSLVersion` 映射表原样保留，§6.2.2 指出 ESSL 100 需要 `flatten_buffer_block()`——当前 shader 均为 `#pragma target 4.0`，暂不触发，但 GLES 3.0 设备上若出现低版本 ESSL 产出需注意。
 
-### A.10.5 相机后处理：与 GL4 同一套 blit 缺口，外加 3.1 门槛
+### A.10.5 相机后处理：blit 已收口，剩真机核对
 
-`doc/todo/Camera-PostProcess-Design-todo.md` B1–B5 已合。效果链是后端无关的管线代码；**GLES3 差的是 blit 契约，不是缺全屏绘制或 ESSL 变体**。对照总表见该文档 §12。GL4 侧同构分析见 `GL4-Renderer-Backend-todo.md` A.10.5。
+`doc/todo/Camera-PostProcess-Design-todo.md` B1–B5 已合。效果链是后端无关的管线代码。**四个 blit 重载、`size == ZERO`、MSAA resolve / 采样、`reflectSamplerBindings` 已在 GLES3 收口**，与 D3D11 / GL4 对齐。对照总表见该文档 §12。实现分歧与真机核对见 `PostProcessingApp-Android-Design-todo.md` §5.4。
 
 效果链实际打到的 RHI：
 
 | 调用点 | 重载 | GLES3 Runtime |
 |--------|------|----------------|
-| `resolveIfMultisampled` | `blit(Texture*, Texture*)`，`size` 默认 `ZERO` | ❌ `T3DGLES3Context.cpp:2464` 空实现，`return T3D_OK`，连 TODO 注释都没有 |
-| `CameraEffectBehaviour::blitCopy` | `blit(Texture*, RenderTarget*)`，`size` 默认 `ZERO` | ⚠️ 有 `glBlitFramebuffer` + `glInvalidateFramebuffer`，但不把 `ZERO` 当整张 |
+| `resolveIfMultisampled` | `blit(Texture*, Texture*)`，`size` 默认 `ZERO` | ✅ `doBlit`；MSAA 先 resolve |
+| `CameraEffectBehaviour::blitCopy` | `blit(Texture*, RenderTarget*)`，`size` 默认 `ZERO` | ✅ `ZERO` 按整张源矩形展开 |
 | `drawFullscreen`（灰度 / 反相 / 染色） | `setRenderTarget` + VS/PS + `_MainTex` + `render(3,0)` | ✅ 绘制接口齐。ESSL 由 `PostProcessShaderSources` 在 Android 上选取（`POSTPROCESS_*_GLES`） |
-| 无效果 / 链结束后上屏 | `blit(Texture*, RenderTarget*)`，带明确 size | ✅ 无效果回归可以看 |
+| 无效果 / 链结束后上屏 | `blit(Texture*, RenderTarget*)`，带明确 size | ✅ |
 
-GLES3 相对 GL4 **多出来的约束**：
+GLES3 相对 GL4 **仍在的约束**（不是缺口，是平台差异）：
 
-- 嵌入 shader 是 `#version 310 es`。`createRenderTexture` 的 MSAA 路径用 `glTexStorage2DMultisample`（`T3DGLES3Context.cpp:310`），也是 GLES 3.1+。**3.0 设备编不过后处理 shader，也建不出 MSAA 中间 RT。** 失败路径现在会落到 `blitCopy`，而 Copy 自己也被 `ZERO` 语义卡住。
-- `reflectSamplerBindings` 仍是空 `T3D_OK`（`T3DGLES3ContextBase.cpp:396`）。`reflectShaderAllBindings` 已经能把 `SPIRV_Cross_Combined_MainTexsampler_MainTex` 还原成 `_MainTex`；`ShaderVariant::createRHI` 若只走前者，binding 会丢。补 `reflectSamplerBindings` 本来就是 A.8 P1，后处理把它从「元数据不全」抬成「效果链采样可能绑错」。
-- 没有 `glClipControl`。深度停在 [-1,1]。ESSL 全屏 VS 的 UV 与 GLSL 一样是 `y*0.5+0.5`，和 HLSL 的 `0.5-y*0.5` 相反。blit 补齐后要单独对是否上下颠倒。
-- 真机只有 Android。Desktop EGL / ANGLE（第 24 章）还没做，Windows 上没法用本后端跑 PostProcessingApp。
+- 嵌入 shader 是 `#version 310 es`。MSAA 路径用 `glTexStorage2DMultisample`，也是 GLES 3.1+。**整个 sample 的 GLES shader 都是 3.1 地板**，测试机确认 ES 3.1+ 即可。
+- 没有 `glClipControl`。深度停在 [-1,1]。ESSL 全屏 VS 的 UV 与 GLSL 一样是 `y*0.5+0.5`。真机对预设 0 / 1 的上下方向，不要改 shader。
+- 真机只有 Android。Desktop EGL / ANGLE（第 24 章）还没做。
+- `map` / `unmap` 已真实现（A.10.1），但只支持 2D 彩色，深度 / 模板不行。本轮 PostProcessingApp 仍不建像素断言。
 
-因此：
-
-- **非 MSAA + GLES 3.1+ + shader 效果**：接口清单上可以跑。blit 补齐前仍不要当验收平台。
-- **MSAA 相机或 Copy 效果**：与 GL4 一样静默失败——空 resolve 把未写入的临时 RT 交给后续效果。
-- `map` / `unmap` 仍是 stub（A.10.1）。P2 像素断言做不了。
-
-补齐顺序与 A.8 P1 一致：**先 `blit(Tex→Tex)` + 已有 `Tex→RT` 的 `ZERO` 语义**，再让 `bindPixelBuffers` 对 MSAA 源绑 `GLResolveTex`，并补 `reflectSamplerBindings`。`RT→RT` / `RT→Tex` 当前效果链用不到。不要再静默 `T3D_OK`。
-
-`doc/todo/PostProcessingApp-Design-todo.md` 已按本节回填。Android 真机过效果链要等 blit 落地，且设备至少 GLES 3.1。
+Android 工程与触摸切预设见 `PostProcessingApp-Android-Design-todo.md`。
 
 ### A.10.6 需要修正的上游文档
 
@@ -2312,3 +2611,247 @@ GLES3 相对 GL4 **多出来的约束**：
 |------|------|
 | `doc/Tiny3D-Architecture.md` §3.6 | RHI 后端表写的是 "OpenGL ES **2/3**"、平台仅标「Android / 可选」，未反映 GLES3Renderer 已是 Android 上注册的主渲染器（`assets/config/Android/Tiny3D.cfg:56`）；同表也完全没有 OpenGL 4 |
 | `doc/refs/D3D11-vs-OpenGLES3-API-Mapping.md` | 内容质量较好（§16 完整 compute 章节 + 附录 B 版本能力矩阵 + 附录 C 的 TBR/`glInvalidateFramebuffer` 说明），缺的是与 Tiny3D RHI 接口的一一对应，以及 EGL 生命周期与引擎 `RenderWindow` 的集成说明。实现 E4 与第 24 章跨平台方案时，这两块需要自行补齐。四个 blit 的 `ZERO`=整张契约也没有写进映射表 |
+
+---
+
+# 附录 B：对齐 D3D11 / GL4 的差距清单（2026-09）
+
+> 本附录只做一件事：**以 D3D11（功能基线）和 GL4（同族基线）为参照，列出 GLES3 还缺什么、照谁改、改在哪一行**。
+> 附录 A（2026-08）盘的是「GLES3 自身实现到什么程度」，本附录盘的是「与两个基线的差」，两者互补。凡与附录 A 冲突之处，以本附录为准。
+
+## B.1 复核前提：基线已经变了
+
+附录 A 写作时 GL4 与 GLES3 缺口高度同构，所以 A.6.5 / A.10.5 里多处用「与 GL4 同一写法」「GL4 同样缺失」来说明某个缺口不急。**这个前提在 2026-09 已经不成立**：`GL4-Renderer-Backend-todo.md` 附录 A 声明 GL4 Window 变体的 96 个接口（93 RHI + 3 readback）已全部落地。
+
+下列「免责说法」全部失效，对应缺口现在是 GLES3 独有：
+
+| 附录 A 的说法 | 现状 |
+|--------------|------|
+| `writeBuffer` 纹理分支「与 GL4 一并修」 | GL4 已修（`T3DGL4Context.cpp:3964`-`3979` 从描述符取 width/height/格式），GLES3 仍传 0 |
+| `blit(Tex→RT)` 的 `ZERO` 语义「与 GL4 同一写法」 | GL4 已在 `doBlit` 统一处理（`T3DGL4Context.cpp:4695`-`4707`） |
+| `resizeRenderTexture` / `resizeRenderTarget`「GL4 同样缺失」 | GL4 已 override（`T3DGL4Context.cpp:943` / `978`） |
+| `setVertexShader` 缺 nullptr 检查 | GL4 已收口到 `attachGraphicsShader`（`T3DGL4Context.cpp:4455`） |
+| 三个 blit 重载 + `reflectSamplerBindings` 静默返回 | GL4 四个 blit 全实现，`reflectSamplerBindings` 已 override（`T3DGL4Context.cpp:2835`） |
+| Geometry Shader「GL4 绑定被注释」 | GL4 已启用（`T3DGL4Context.cpp:2433` 起） |
+| `copyBuffer`「GL4 未实现」 | GL4 已实现且带完整参数校验（`T3DGL4Context.cpp:3697`） |
+
+**结论：GLES3 现在是三个后端里唯一大面积落后的一个，且大部分缺口在 GL4 有可直接照抄的实现。**
+
+## B.2 对附录 A 的五处修正
+
+复核代码时发现附录 A 有几处判断需要更正：
+
+### B.2.1 「CS 编译链路已通」是错的
+
+附录 A.6.2 把 `createComputeShader` 列为「GLES3 领先于 GL4 的地方」，并在 A.8 P2 写「CS 编译链路已通，是本后端相对 GL4 的先发优势」。
+
+**实际情况**：`GLES3ContextBase::glslangCompileAndReflect` 的 stage 分派只有三支（`T3DGLES3ContextBase.cpp:191`-`201`）：
+
+```cpp
+case SHADER_STAGE::kVertex:   glslangStage = EShLangVertex; break;
+case SHADER_STAGE::kPixel:    glslangStage = EShLangFragment; break;
+case SHADER_STAGE::kGeometry: glslangStage = EShLangGeometry; break;
+default: /* unsupported shader stage → T3D_ERR_GLES3_SHADER_REFLECTION */
+```
+
+`SHADER_STAGE::kCompute` 走 default 直接报错，所以 compute shader **在 `compileShader` 阶段就断了**，`createComputeShader` 里那段 `glCreateShader(GL_COMPUTE_SHADER)` 拿不到编译好的 ESSL 源码。GL4 的同名函数六个 stage 全覆盖（`T3DGL4Context.cpp:2617`-`2622`），并对 compute 单独用 GLSL 430 版本号（`2640`）。
+
+补 compute 前必须先补这个 switch，且 ESSL 版本号要按 `mGLESMinor` 给到 310/320（现有 `T3DGLES3ContextBase.cpp:213`-`215` 的逻辑本身是对的）。
+
+### B.2.2 压缩纹理不是 GLES3 后端的缺陷
+
+附录 A.6.5 把「压缩纹理格式映射缺失」列为 GLES3 已知功能缺陷，A.8 P1 要求在 `GLES3Mapping` 补 ETC2/ASTC 映射。
+
+**但 `PixelFormat` 枚举里根本没有压缩格式**（`source/Core/Include/Kernel/T3DConstant.h:38`-`60`，10 个颜色格式 + 4 个深度格式，全是非压缩的）。`Image::FileFormat` 有 `kPVRTC` / `kASTC` / `kETC1` / `kETC2`（`T3DImage.h:67`-`74`），但那是**文件格式**，没有对应的 `PixelFormat` 出口。
+
+所以这不是「GLES3Mapping 少写了几个 case」，而是一条跨层立项：`PixelFormat` 扩枚举 → `Image` 解码保留压缩块 → `PixelBuffer2DDesc` 传块尺寸 → 各后端走 `glCompressedTexImage2D` / `CreateTexture2D(BC*)`。**D3D11 和 GL4 也一样不支持**，三个后端齐平。建议从 GLES3 的 P1 里摘出去，单独立项。
+
+同理，`PixelFormat` 没有任何浮点/半浮点格式，HDR 后处理链在三个后端都受同一限制，不是 GLES3 特有问题。
+
+### B.2.3 Hull / Domain 不必永久判死
+
+附录 A.7 的横向对比表把 GLES3 的 Tessellation 标为「❌（GLES 3.2 才有 API）」，A.8 P0 的建议是「补警告日志并返回 `T3D_ERR_NOT_IMPLEMENT`」。
+
+**OpenGL ES 3.2 core 已包含 tessellation control / evaluation shader**（`GL_EXT_tessellation_shader` 提级进核心），与 geometry shader 同一批。既然 `createGeometryShader` 已经用 `mGLESMinor >= 2` 门控实现了（`T3DGLES3Context.cpp:1839`），Hull / Domain 完全可以照同一模式做，实现骨架直接抄 GL4 的 `createHullShader` / `createDomainShader`（`T3DGL4Context.cpp:2349` / `2391`），只需把 `GL_TESS_CONTROL_SHADER` / `GL_TESS_EVALUATION_SHADER` 换成 ES 版本常量，并在 glslang 里补 `EShLangTessControl` / `EShLangTessEvaluation`。
+
+定位建议：从「❌ 永久不支持」改为「⚠️ 需 3.2，与 GS 同级」。
+
+### B.2.4 Readback 不必永久 stub
+
+附录 A.10.1 把 GLES3 的 `map` / `unmap` 定位为「第一期 stub」。技术上：**`glMapBufferRange`、PBO、`glReadPixels`、`glFenceSync` 都是 GLES 3.0 core**，缓冲与纹理两条 readback 路径都能做，GL4 的 `allocReadbackRequest`（`T3DGL4Context.cpp:4771`）+ `map`（`3770`）+ `unmap`（`3924`）就是不依赖 DSA 之外特性的参考实现。移动端唯一要注意的是 `glReadPixels` 的格式限制（只保证 `GL_RGBA`/`GL_UNSIGNED_BYTE` 与 `GL_IMPLEMENTATION_COLOR_READ_FORMAT`）。
+
+所以 `supportsReadback` 保持 false 是「还没做」，不是「做不了」。
+
+### B.2.5 接口口径应为 96
+
+附录 A.7 用 93 个虚接口统计，A.10.1 已注明「需加上 3 个 readback stub」。本附录统一按 **96 = 93 RHI + 3 readback** 计，与 GL4 文档口径一致。
+
+## B.3 P0：与两个基线都不一致的缺陷
+
+这一组都是「基线已有正确写法、GLES3 写错或没写」，改动量小、风险低，且都能直接照抄。
+
+| # | 缺陷 | GLES3 现状 | 基线参考 | 修法 |
+|---|------|-----------|---------|------|
+| 1 | `writeBuffer` 纹理分支尺寸与格式全错 | `T3DGLES3Context.cpp:2596`-`2600`：`glTexSubImage2D(..., 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, ...)`，宽高传 0，格式硬编码 | `T3DGL4Context.cpp:3962`-`3988`；D3D11 §17.6 | 主线程从 `PixelBuffer2D::getDescriptor()` 取 width/height，经 `GLES3Mapping::get` / `getPixelType` 转格式后按值捕获进 lambda |
+| 2 | `setVertexShader` 缺 nullptr 检查 | `T3DGLES3Context.cpp:1650`：直接 `shader->getRHIShader()`，传 nullptr 崩 | `T3DGL4Context.cpp:4455` `attachGraphicsShader` | 抽一个 `attachGraphicsShader(shader, mCurrentXXVariant)` 把 VS/PS/GS（以后加 HS/DS）统一收口，nullptr 走解绑分支 |
+| 3 | `resetRenderTarget` 不复位 `mRenderingToFBO` | `T3DGLES3Context.cpp:571`-`588` 只 `glBindFramebuffer(0)` | `T3DGL4Context.cpp:728`-`731` | 加一行 `mRenderingToFBO = false;`。不改则 reset 后 `setViewProjectionTransform` 继续翻 Y、blit 继续按 FBO 朝向算 |
+| 4 | `setComputeShader` 把 CS attach 到图形 program | `T3DGLES3Context.cpp:2025`-`2031` 复用 `mCurrentProgram`；且 `shader == nullptr` 与 3.0 设备都静默 `return T3D_OK` | `T3DGL4Context.cpp:2535`（独立 `mCurrentComputeProgram`）+ `2955` `ensureComputeProgramLinked` | 独立 compute program + `mComputeProgramDirty`；GL/ES 规范都不允许 compute 与图形 stage 混链 |
+| 5 | `copyBuffer` 零参数校验 | `T3DGLES3Context.cpp:2471`-`2534`：不判 `src == dst`、不判 `size == 0`、不判越界、不判 `kImmutable`、类型不匹配时静默 `break` 返回 `T3D_OK` | `T3DGL4Context.cpp:3697`-`3756`；D3D11 §17.5（用真实 `ByteWidth` 校验） | 照抄 GL4 的六道校验；`size == 0` 语义是「从 srcOffset 到结尾」，当前实现会拷 0 字节 |
+| 6 | `bindPixelBuffers` 不解绑、不复位活动单元、不切 MSAA resolve 纹理 | `T3DGLES3Context.cpp:2905`-`2910`：`handle == 0` 直接 `continue`（旧纹理留在单元上），循环结束不 `glActiveTexture(GL_TEXTURE0)`；2D 分支永远绑 `GLTexture` | `T3DGL4Context.cpp:4278`-`4296`（MSAA 走 `GLResolveTex`）、`4321`-`4326`（绑 0 + 复位单元） | 三处一起改。MSAA 那条尤其重要：MSAA 渲染纹理的可采样对象是 `GLResolveTex`，现在采的是多重采样纹理 |
+| 7 | `bindSamplers` 不解绑 | `T3DGLES3Context.cpp:2986`-`2992`：`handle == 0` 跳过，不调 `glBindSampler(unit, 0)` | GL4 `unbindTextureUnits`（`T3DGL4Context.cpp:4639`）会清 sampler | 补解绑分支 |
+| 8 | 14 个接口静默返回成功 | Hull 5 个（`1811`-`1819`）、Domain 5 个（`1825`-`1833`）、`reflectSamplerBindings`（`T3DGLES3ContextBase.cpp:396`）、`blit(RT→RT)`（`2343`）、`blit(RT→Tex)`（`2457`）、`blit(Tex→Tex)`（`2464`） | D3D11 / GL4 都不静默：能做的做了，不能做的走 `T3D_RHI_UNSUPPORTED` 或明确错误码 | 短期至少 `T3D_LOG_WARNING` + `T3D_ERR_NOT_IMPLEMENT`；长期按 B.4 / B.5 真实现 |
+
+> 第 8 项是整个后端最危险的一类问题：上层拿到 `T3D_OK` 会认为数据已经拷过去了，后处理链、shadow、tessellation 材质都会静默出错，而不是走降级路径。
+
+## B.4 P1：功能缺口（基线有、GLES3 完全没有）
+
+### B.4.1 四个 blit 重载统一收口
+
+现状：只有 `blit(Tex→RT)` 有实现（`T3DGLES3Context.cpp:2350`-`2453`），且
+
+- 不把 `size == Vector3::ZERO` 当整张拷贝（`2387`-`2388` 直接用 `size.x/y`，全零就是 0×0）；
+- 源必须是带 FBO 的渲染纹理（`2358`），普通 2D 纹理直接报错；
+- 只处理颜色（`GL_COLOR_BUFFER_BIT`），深度 blit 无路径；
+- 目标是渲染纹理时只取 attachment 0，无 scratch FBO。
+
+对齐目标（D3D11 §17 已经是这个形态，GL4 照它做过一遍）：
+
+| 组件 | GL4 参考 | GLES3 适配要点 |
+|------|---------|--------------|
+| `resolveBlitEndpoint(Texture*)` | `T3DGL4Context.cpp:4561` | 同构，`TT_2D` / `TT_RENDER_TEXTURE` 之外明确报错 |
+| `resolveBlitEndpoint(RenderTarget*)` | `4603` | 同构（窗口 → FBO 0，否则递归到颜色/深度附件） |
+| `doBlit` | `4656`-`4767` | `glBlitFramebuffer` 在 GLES 3.0 就有；scratch FBO 用于「纹理没有自带 FBO」的情况；`ZERO` → 源宽高减 offset；深度走 `GL_DEPTH_BUFFER_BIT \| GL_STENCIL_BUFFER_BIT`；MSAA 源直接以 `src.fbo` 为读源一次 resolve 到目标（**不要**先写 `GLResolveTex` 再拷，会与 texture unit 上的绑定形成 feedback loop） |
+| `unbindTextureUnits` | `4639` | GLES3 无 `GL_TEXTURE_1D` / `GL_TEXTURE_2D_MULTISAMPLE`（3.0）需按版本裁剪 target 列表 |
+| TBR `glInvalidateFramebuffer` | GL4 无 | GLES3 现有的这一处优化（`2437`-`2439`）要保留，移到 `doBlit` 尾部 |
+
+优先级内部排序（与附录 A.8 一致，理由见 A.10.5）：**先 `Tex→Tex` 与 `Tex→RT` 的 `ZERO` 语义**，再 `RT→Tex` / `RT→RT`。
+
+### B.4.2 `reflectSamplerBindings`
+
+GLES3 转发到基类空实现（`T3DGLES3Context.cpp:2073` → `T3DGLES3ContextBase.cpp:396` `return T3D_OK`）。GL4 在 Window 变体里 override 了真实现（`T3DGL4Context.cpp:2835`-`2900`+）：从 `mReflectionCache` 取 glslang uniform 列表，按 `glDefineType` 筛 sampler，还原 SPIRV-Cross 合并名，填 `ShaderSamplerParams`。
+
+GLES3 的 `reflectShaderAllBindings` 已经有同样的名字还原逻辑，把 sampler 那一段抽出来复用即可。注意 GLES3 的 sampler 类型集合不同：没有 `GL_SAMPLER_1D`（1D 用 height=1 的 2D 模拟），需要额外处理 `GL_SAMPLER_2D_ARRAY` / `GL_SAMPLER_CUBE_SHADOW`。
+
+这一项还直接影响 `bindSamplers` 的 `remapUnit`（`T3DGLES3Context.cpp:2927`-`2958`）——它靠 `getSamplerBinding()` / `getTexBinding()` 反查纹理单元，元数据不全就会绑错单元。
+
+### B.4.3 `resizeRenderTexture` / `resizeRenderTarget`
+
+两个接口在 `RHIContext` 有默认实现（返回 `T3D_ERR_NOT_IMPLEMENT`），GLES3 未 override（`T3DGLES3Context.h` 全文无这两个声明）。D3D11 与 GL4 都实现了，引擎侧统一入口是 `RenderTexture::resize`。
+
+GL4 的做法值得照搬：把 `createRenderTexture` 里的资源构建逻辑抽成 `releaseRenderTextureResources` + `buildRenderTextureResources` 两个 helper（`T3DGL4Context.cpp:750` / `767`），`resizeRenderTexture` 就是「校验 → release → build」（`943`），`resizeRenderTarget` 遍历所有颜色附件与 depthStencil 逐个 `resize`（`978`）。
+
+GLES3 的 `createRenderTexture` 目前是一整个 200 行的 lambda（`T3DGLES3Context.cpp:273`-`450`），MSAA 纹理 + resolve FBO + depth RBO 全在里面，先做这一步重构再加 resize。
+
+### B.4.4 GPU Readback（`map` / `map(region)` / `unmap`）
+
+现状三个 stub（`T3DGLES3Context.cpp:2539` / `2546` / `2553`），`supportsReadback = false`。可做性见 B.2.4。
+
+实现要点（对照 GL4 `4771` / `3770` / `3924`）：
+
+- 入口校验：源必须声明 `kCPURead`，否则拒绝（GL4 在 `allocReadbackRequest` 里做）；
+- 线性缓冲：`glBindBuffer(GL_COPY_READ_BUFFER)` + `glMapBufferRange(GL_MAP_READ_BIT)`，或先 `glCopyBufferSubData` 到 staging（`Usage::kCopy` → `GL_STREAM_READ`，`GPU-Readback-onRender-Design-todo.md` §3.1 已指定）；
+- 纹理：绑 FBO + `glReadPixels` 到 PBO，格式受 `GL_IMPLEMENTATION_COLOR_READ_FORMAT` 限制；
+- 异步：`glFenceSync` + `glClientWaitSync`，GLES 3.0 core。
+
+### B.4.5 BlendState 的独立混合与 AlphaToCoverage（**附录 A 未记录的新发现**）
+
+`GLES3Context::createBlendState` 只读 `desc.RenderTargetStates[0]`（`T3DGLES3Context.cpp:805`），完全忽略 `desc.IndependentBlendEnable` 和 `desc.AlphaToCoverageEnable`；`setBlendState`（`999`-`1030`）相应地只用 `glBlendFuncSeparate` + `glColorMask` 全局版本。
+
+D3D11 原生支持两者；GL4 都做了（`T3DGL4Context.cpp:1297`-`1323` 存 8 个 RT 的状态，`1532`-`1586` 用 `glEnablei` / `glBlendFuncSeparateiARB` / `glColorMaski` / `GL_SAMPLE_ALPHA_TO_COVERAGE` 应用）。
+
+GLES3 侧的可行性：
+
+- `GL_SAMPLE_ALPHA_TO_COVERAGE` 是 **GLES 3.0 core**，可以无条件对齐；
+- per-RT 独立混合（`glBlendFuncSeparatei` / `glColorMaski`）是 **GLES 3.2 core**（`GL_OES_draw_buffers_indexed`），按 `mGLESMinor >= 2` 门控，低版本回落到 RT0 并打一次警告。
+
+`setRenderTarget` 已经支持多颜色附件 + `glDrawBuffers`（`T3DGLES3Context.cpp:504`-`520`），所以 MRT 路径上这个缺口是会被踩到的。
+
+### B.4.6 `fillCapabilities` 静态化
+
+GLES3 把六个高级能力位硬编码 false（`T3DGLES3Context.cpp:108`-`113`），注释写的理由是「后端未实现对应 RHI 接口」——作为当下的诚实取值没问题，但缺两件事：
+
+1. **能力位应按版本判定**，像 GL4 那样（`T3DGL4Context.cpp:115`，按 GL major/minor 给 compute / baseInstance / indirect），否则补完 B.5 还得回来重写；
+2. **版本号来源不可靠**：`mGLESMajor` / `mGLESMinor` 来自 `createEGLContext` 的降级尝试（3.2 → 3.1 → 3.0），拿到的是「EGL 愿意给的上下文版本」。应在 `initEGLContext` 成功后补 `glGetIntegerv(GL_MAJOR_VERSION / GL_MINOR_VERSION)` 二次确认，避免低估驱动能力而误禁 GS / CS（附录 A.8 P2 已提，此处重申，因为它是 B.5 的前置）。
+
+## B.5 P2：GLES 3.1 / 3.2 门控的能力补齐
+
+| 项 | 前置 | 参考实现 | 备注 |
+|----|------|---------|------|
+| Compute + SSBO + UAV + `dispatch` / `dispatchIndirect` / `uavBarrier` / `copyStructureCount` | 先修 B.2.1 的 glslang stage switch、B.3#4 的独立 compute program | `T3DGL4Context.cpp:3151`（SSBO 创建）/ `3225`（UAV + atomic counter）/ `3306`（dispatch 带 group count 校验）/ `3351` / `3390` / `3412` | GLES 3.1 core；`glMemoryBarrier` 语义与 GL4 一致。设备黑名单要求见 `RHI-Compute-UAV-Indirect-Draw-Design-todo.md` §12.5 |
+| 间接绘制 `renderIndirect` / `renderIndexedIndirect` | 同上 | `T3DGL4Context.cpp:3464` / `3497` + `validateIndirectArgs`（`4523`） | GLES 3.1 core（`glDrawArraysIndirect` / `glDrawElementsIndirect`） |
+| Hull / Domain（见 B.2.3） | glslang 补 TessControl / TessEvaluation | `T3DGL4Context.cpp:2349` / `2391` | GLES 3.2 core，按 `mGLESMinor >= 2` 门控 |
+| 扩展检测补全 | — | — | `detectExtensions` 只查 BGRA8888（`T3DGLES3Mapping.cpp:24`-`35`）。计划中的 `GL_EXT_texture_border_clamp`、`GL_EXT_texture_filter_anisotropic`、`GL_EXT_draw_elements_base_vertex`、`GL_EXT_copy_image` 全未检测；`createSamplerState` 已经在无条件调 `GL_TEXTURE_MAX_ANISOTROPY_EXT`（`T3DGLES3Context.cpp:963`），无扩展的设备上是一次静默 GL 错误 |
+
+## B.6 已确认「无法对齐」或「不必对齐」的差异
+
+这些不进待办，但要求上层承担或文档标注：
+
+| 差异 | 说明 |
+|------|------|
+| 非零 `startInstance` | GLES 各版本都没有 `*BaseInstance`。现在返回 `T3D_ERR_NOT_IMPLEMENT`（`T3DGLES3Context.cpp:2209` / `2266`）是正确处理，`supportsBaseInstance = false` 是正确取值 |
+| 深度范围 [-1,1] | 无 `glClipControl`。已由 `getDepthRemapMatrix`（`T3DGLES3Context.cpp:229`）+ FBO 翻 Y（`212`-`221`）处理 |
+| 1D 纹理 | 无 `GL_TEXTURE_1D`，用 height=1 的 2D 模拟（`1407`-`1420`）。副作用：`reflectSamplerBindings` 不会有 `GL_SAMPLER_1D`，`bindPixelBuffers` 的 1D 分支 target 是 `GL_TEXTURE_2D` |
+| 无 DSA | `writeBuffer` / `copyBuffer` 只能 bind/unbind。现有实现借 `GL_COPY_WRITE_BUFFER` 避免污染 VAO 的 EBO 绑定（`2611`-`2655`），这个思路是对的，保留 |
+| `desc.mipmaps` / `desc.arraySize` 被忽略 | `createPixelBuffer2D`（`1465`-`1476`）只上传 mip 0 再 `glGenerateMipmap`，纹理数组完全没走。**GL4 一模一样**（`T3DGL4Context.cpp:2003`-`2013`），是 GL 家族共有缺口，不是 GLES3 落后于 GL4；对齐 D3D11（`buildSubresourceData` 逐 slice / 逐 mip）需要两个后端一起改 |
+| 压缩格式 / 浮点格式 | 见 B.2.2，`PixelFormat` 枚举层面的缺口，三后端齐平 |
+| `DepthStencilDesc::StencilRef` 被忽略 | `setDepthStencilState` 里 `glStencilFuncSeparate` 的 ref 硬编码为 1（`T3DGLES3Context.cpp:1062`-`1063`）。**GL4 一模一样**（`T3DGL4Context.cpp:1627`-`1628`），而 D3D11（`OMSetDepthStencilState` 传 ref）、Vulkan（`T3DVKContext.cpp:2820`）、Metal（`T3DMetalContext.mm:542`）都用了描述符里的真实 ref。这是 GL 家族共有缺口：任何依赖 `StencilOp::kReplace` 写入非 1 值、或 ref 不等于 1 的模板比较都会不对。修法是把 `StencilRef` 存进 `GLES3DepthStencilStateData` 并传给 `glStencilFuncSeparate`，**建议与 GL4 一并修** |
+| `PrimitiveType` 映射 | 引擎枚举只有 5 项（`T3DConstant.h:82`-`89`），`GLES3Mapping` 全覆盖，无缺口 |
+| 平台只有 Android | `GLES3RenderWindow::init`（`T3DGLES3RenderWindow.cpp:104`）非 Android 分支直接报错（`156`）。跨平台方案见正文第 24 章，仍未开始 |
+
+## B.7 更新后的统计（96 接口口径）
+
+> **2026-09 二次修订**：正文新增的 **§0 全接口实现状态速查表**是逐函数核对代码后的结果，比本节初版更严。相对初版（50 ✅ / 12 ⚠️）又有 7 项从 ✅ 降为 ⚠️：`createSamplerState`（扩展未检测）、`setDepthStencilState`（StencilRef 硬编码）、`createPixelBuffer2D`（忽略 mip / arraySize）、`compileShader`（stage 不全）、`reset`（不复位 FBO 标志）、`copyBuffer`（无校验）、`blit(Tex→RT)`（无 `ZERO` 语义 / 源受限）。下表为最终口径，与 §0.18 一致。
+
+| 状态 | 数量 | 说明 |
+|------|------|------|
+| ✅ 已完成 | 43 | 变换 / 深度 remap / 渲染纹理 / 渲染目标 / 视口裁剪 / 清除 / 深度模板与光栅状态 / 顶点输入 / VBO·IBO·UBO / 1D·3D·Cubemap 纹理 / VS·PS 全套（除 `setVertexShader`）/ GS·CS 资源绑定 / 全量反射 / 图元与基础绘制 / 原生上下文 |
+| ⚠️ 部分完成 | 19 | `createRenderWindow`（仅 Android）、`resetRenderTarget`、`createBlendState`、`setBlendState`、`createSamplerState`、`setDepthStencilState`、`createPixelBuffer2D`、`setVertexShader`、GS 2 个（需 3.2）、CS 2 个（需 3.1 且编译链路断 + program 混用）、`compileShader`、Instanced 2 个（无 base instance）、`reset`、`blit(Tex→RT)`、`copyBuffer`、`writeBuffer` |
+| ❌ 未实现（静默成功） | 14 | Hull 5 + Domain 5 + `reflectSamplerBindings` + `blit(RT→RT)` + `blit(RT→Tex)` + `blit(Tex→Tex)` |
+| 🚧 契约式不支持 | 14 | StructuredBuffer 4 + UAV 2 + `dispatch` + `dispatchIndirect` + `copyStructureCount` + 间接绘制 2 + readback 3 |
+| 🔇 按设计为空 | 4 | `beginRender`、`endRender`、`beginPass`、`endPass` |
+| ⛔ 未 override | 2 | `resizeRenderTexture`、`resizeRenderTarget` |
+| **合计** | **96** | |
+
+- **有效可用**（✅ + 🚧 + 🔇）：**61 / 96 ≈ 64%**
+- **纯 ✅ 完成度**：**43 / 96 ≈ 45%**
+- 19 个 ⚠️ 里有 6 项属于「能用，只是与基线有行为差异或受设备版本门控」（`createRenderWindow`、`createPixelBuffer2D`、GS 2 个、Instanced 2 个），剩下 13 项是需要修的缺陷。
+
+### 三后端对比（96 接口口径）
+
+| 维度 | D3D11 | GL4 Window | GLES3 Runtime |
+|------|-------|-----------|--------------|
+| ✅ 已完成 | 89 | 92 | 43 |
+| ⚠️ 部分完成 | 0 | 0 | 19 |
+| ❌ 未实现（静默） | 0 | 0 | 14 |
+| 🚧 契约式不支持 | 0 | 4（GPU-driven 4 项） | 14 |
+| 🔇 按设计为空 | 7 | 4 | 4 |
+| ⛔ 未 override | 0 | 0 | 2 |
+| 四个 blit | ✅ 统一收口 | ✅ 统一收口 | ⚠️ 仅 `Tex→RT` 且无 `ZERO` 语义 |
+| `copyBuffer` | ✅ 带校验 | ✅ 带校验 | ⚠️ 无校验 |
+| Readback | ✅ | ✅ | 🚧 |
+| Compute / UAV / Indirect | ✅ | ✅ | 🚧（编译链路亦断） |
+| Tessellation | ✅ | ✅ | ❌（3.2 可做） |
+| Geometry Shader | ✅ | ✅ | ⚠️ 需 3.2 |
+| 独立 RT 混合 / A2C | ✅ / ✅ | ✅ / ✅ | ❌ / ❌ |
+| `reflectSamplerBindings` | ✅ | ✅ | ❌ |
+| RT resize | ✅ | ✅ | ⛔ |
+| 平台覆盖 | Windows | Windows / Linux | 仅 Android |
+
+> D3D11 的 89 / 7 是在其文档「78 接口、71 ✅ / 7 🔇」旧口径上，补入 compute（`T3DD3D11Context.cpp:2109` / `3490` / `3549` / `3578` / `3599` / `3648`）、instanced 与 indirect（`3786` / `3805` / `3823` / `3843`）、readback（`4477` / `4552` / `4743`）实际已落地的接口后推算的；D3D11 文档的汇总统计尚未更新到 96 口径，建议同步。
+> GL4 的 4 项 🚧 指其文档 A.4 记录的 GPU-driven 接口 stub；其余按 GL4 文档 A.7「96 接口 100% 完成」计。
+
+## B.8 建议的执行顺序
+
+> 本节只给顺序与理由。每一步的具体实现方案（代码骨架、版本门控、验证点、提交拆分）见 `doc/todo/GLES3-Backend-Alignment-Implementation-todo.md`，两份文档的阶段划分一一对应。
+
+| 阶段 | 内容 | 状态（2026-09-09） |
+|------|------|------|
+| 第 1 步 | B.3 全部 8 项（缺陷修复） | ✅ 已落地 |
+| 第 2 步 | B.4.1 四个 blit + B.4.2 `reflectSamplerBindings` | ✅ 已落地 |
+| 第 3 步 | B.4.5 混合状态 + B.4.3 RT resize | ✅ 已落地 |
+| 第 4 步 | B.4.6 能力位动态化 + B.2.1 glslang stage 补全 | ✅ 已落地 |
+| 第 5 步 | B.5 Compute / Indirect / Tessellation | ✅ Compute / SSBO / UAV / Indirect 已落地；Tessellation 完成 shader 侧，绘制侧待引擎 `PrimitiveType` 扩 patch |
+| 第 6 步 | B.4.4 Readback | ✅ 已落地（深度 / Cubemap / 压缩明确不支持） |
+| 并行 | 正文第 24 章 Desktop EGL 变体 | ⏸ 未做 |
+
+> 压缩纹理（B.2.2）与 mip / 纹理数组上传（B.6）建议从本后端待办摘出，作为跨后端的 RHI 层立项。

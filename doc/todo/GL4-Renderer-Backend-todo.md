@@ -202,7 +202,7 @@
 |------|------|
 | **状态** | ✅ 已完成 |
 | **签名** | `TResult setDepthStencilState(DepthStencilState *state)` |
-| **功能** | 设置深度模板状态。调用 `glEnable/glDisable(GL_DEPTH_TEST)` + `glDepthFunc` + `glDepthMask` + `glStencilFuncSeparate` + `glStencilOpSeparate` |
+| **功能** | 设置深度模板状态。调用 `glEnable/glDisable(GL_DEPTH_TEST)` + `glDepthFunc` + `glDepthMask` + `glStencilFuncSeparate` + `glStencilOpSeparate`。`StencilRef` 取自 `DepthStencilDesc`（2026-09 与 GLES3 同步修复，不再硬编码为 1） |
 | **参数** | `state` — 深度模板状态对象 |
 | **返回值** | `T3D_OK` |
 | **实现位置** | T3DGL4Context.cpp:1276 |

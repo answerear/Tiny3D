@@ -4,14 +4,14 @@
 >
 > 结论先行：**帧末的纯 CPU 逻辑用已有的 `onLateUpdate`；消费 GPU 读回结果用下一帧 `onUpdate`；发额外 GPU 命令用订阅式回调或 `Application::onRender`；图像后处理做成挂在相机 GameObject 上的组件，插进管线现有那一行 blit。** 不要在 `Behaviour` 上加遍历式 `onRender`。
 >
-> **第一期（B1–B5）已落地。** `CameraBehaviour` / `CameraEffectBehaviour` / 临时 RT 池 / MSAA resolve 已进 Core。`CopyEffectBehaviour` / `GrayscaleEffectBehaviour` 以及反相、染色目前在 `PostProcessingApp`（不是 Core 内置组件）。订阅式 `RenderCallback`（B6）仍后做。下文保留设计 Rational；接口以代码为准。GL4 / GLES3 对效果链的 RHI 缺口见 §12。
+> **第一期（B1–B5）已落地。** `CameraBehaviour` / `CameraEffectBehaviour` / 临时 RT 池 / MSAA resolve 已进 Core。`CopyEffectBehaviour` / `GrayscaleEffectBehaviour` 以及反相、染色目前在 `PostProcessingApp`（不是 Core 内置组件）。订阅式 `RenderCallback`（B6）仍后做。下文保留设计 Rational；接口以代码为准。D3D11 / GL4 / GLES3 的 blit 契约已对齐，见 §12；Metal 仍待做。
 >
 > 相关文档：
 >
 > - GPU 读回与应用级钩子：`doc/todo/GPU-Readback-onRender-Design-todo.md`（§2.5 拒绝 `Behaviour::onRender`；`Application::onRender` 是应用级最后一个录制窗口）
 > - Behaviour 生命周期：`doc/todo/Behaviour-Script-Component-Design-todo.md`
 > - 验证计划：`doc/todo/D3D11-Renderer-Backend-Validation-Sample-Plan.md`
-> - 后处理 Sample：`doc/todo/PostProcessingApp-Design-todo.md`（热键预设已落地；人眼验收仍以 D3D11 为准，GL4 / GLES3 被 blit 缺口挡住，见 §12）
+> - 后处理 Sample：`doc/todo/PostProcessingApp-Design-todo.md`（热键预设已落地；Android 输入层与工程见 `PostProcessingApp-Android-Design-todo.md`）
 > - GL4 / GLES3 后端：`doc/todo/GL4-Renderer-Backend-todo.md` A.10.5、`doc/todo/GLES3-Renderer-Backend-todo.md` A.10.5
 
 涉及的主要文件：
@@ -599,7 +599,7 @@ Application::onPostRender
 
 ## 12. 后端对后处理的支持（D3D11 / GL4 / GLES3）
 
-> 管线与效果组件是后端无关的；**blit 契约不是**。第一期人眼验收仍以 D3D11 Window 为准。本节记录效果链实际打到哪些 RHI，以及 GL4 / GLES3 差在哪。接口状态以 2026-09 代码为准。
+> 管线与效果组件是后端无关的；**blit 契约不是**。第一期人眼验收仍以 D3D11 Window 为准。本节记录效果链实际打到哪些 RHI。**D3D11 / GL4 / GLES3 三家 blit 已对齐**（四个重载收口到 `resolveBlitEndpoint` + `doBlit`，`size == ZERO` 表示整资源传输）。Metal 仍待做。接口状态以 2026-09 代码为准。
 
 ### 12.1 效果链实际调用的 RHI
 
@@ -619,49 +619,49 @@ D3D11 四个 `blit` 收口到 `resolveBlitEndpoint` + `doBlit`，**`size == Vect
 | 能力 | D3D11 Window | GL4 Window | GLES3 Runtime |
 |------|--------------|------------|---------------|
 | `createRenderTexture` / `setRenderTarget` / `setViewport` | ✅ | ✅ | ✅ |
-| VS/PS 编译、反射、`setPSPixelBuffers` / `setPSSamplers` | ✅ | ✅（含 `SPIRV_Cross_Combined` → `_MainTex`） | ✅ `reflectShaderAllBindings` 同样还原 `_MainTex`；`reflectSamplerBindings` 仍是空 `T3D_OK`（`T3DGLES3ContextBase.cpp:396`），createRHI 路径若只靠后者会丢 binding |
+| VS/PS 编译、反射、`setPSPixelBuffers` / `setPSSamplers` | ✅ | ✅（含 `SPIRV_Cross_Combined` → `_MainTex`） | ✅ `reflectShaderAllBindings` / `reflectSamplerBindings` 都走 glslang 反射缓存 |
 | `drawFullscreen` 所需的 VAO / VB / `render(vertexCount)` | ✅ | ✅ | ✅ |
 | 嵌入 shader | HLSL | GLSL（`POSTPROCESS_*_GL`，`#version 400`） | ESSL（`POSTPROCESS_*_GLES`，**`#version 310 es`**） |
 | 无效果时上屏 `blit(Tex→RT)`（带明确 size） | ✅ | ✅ | ✅（另有 `glInvalidateFramebuffer`） |
-| `blit(Tex→RT)`，`size == ZERO` 当整张拷贝 | ✅ | ❌ 算出 0×0 区域 | ❌ 与 GL4 同一写法 |
-| `blit(Texture*, Texture*)` | ✅ | ❌ 空实现，`return T3D_OK`（`T3DGL4Context.cpp:2934`） | ❌ 空实现，`return T3D_OK`（`T3DGLES3Context.cpp:2464`） |
-| `bindPixelBuffers` 绑 MSAA RT 的可采样对象 | SRV 走 resolve 后的资源 | 永远绑 `GLTexture` + `GL_TEXTURE_2D`，不切 `GLResolveTex` | 同 GL4 |
-| `map` / `unmap`（像素断言，不在效果链内） | ✅ | 🚧 `supportsReadback=false` | 🚧 同上 |
+| `blit(Tex→RT)`，`size == ZERO` 当整张拷贝 | ✅ | ✅ | ✅ |
+| `blit(Texture*, Texture*)` | ✅ | ✅ | ✅ |
+| `bindPixelBuffers` 绑 MSAA RT 的可采样对象 | SRV 走 resolve 后的资源 | 绑 `GLResolveTex` + `GL_TEXTURE_2D` | 同 GL4；无 resolve 贴图且 ES < 3.1 时绑 0 并报错 |
+| `map` / `unmap`（像素断言，不在效果链内） | ✅ | ✅ Window | ✅ 仅 2D 彩色，不支持深度 / 模板 |
 | Console / 离线变体 | null backend | `GL4ConsoleContext` 四个 blit 全空 | 无独立 Console；只在 Android 跑 |
 
-非 MSAA、且相机颜色 RT `shaderReadable=true`（`T3DCamera.cpp:413-415` 已如此）时，`resolveIfMultisampled` 会直接返回 `src`，**不踩** `blit(Tex→Tex)`。这条路径上，shader 效果只依赖绘制 / 采样，GL4 / GLES3 接口是齐的。Copy 效果和 MSAA 相机仍会踩到上表两处 blit 缺口。
+非 MSAA、且相机颜色 RT `shaderReadable=true`（`T3DCamera.cpp:413-415` 已如此）时，`resolveIfMultisampled` 会直接返回 `src`，**不踩** `blit(Tex→Tex)`。MSAA 相机和 Copy 预设现在走同一套已收口的 blit，不再被空实现卡住。Metal 仍是缺口。
 
-### 12.3 缺口怎样把效果链卡死
+### 12.3 已收口：原先怎样把效果链卡死（历史）
 
-**1. `blit(Texture*, Texture*)` 未实现 —— 主缺口。**
+下面三条曾经把 GL4 / GLES3 上的效果链卡死，**2026-09 都已补齐**。留在这里是为了对照旧日志 / 旧抓帧，不要再按「空实现」去改代码。
 
-`resolveIfMultisampled`（`T3DForwardRenderPipeline.cpp:1374`）在需要 resolve 时 `acquireTempRT` 后调用 `ctx->blit(src, resolved)`，然后**返回这张临时 RT**，不是失败回退到 `src`。GL4 / GLES3 空实现返回 `T3D_OK`，临时 RT 从未写入。后续灰度 / 反相再怎么画，采样的也不是相机画面。
+**1. `blit(Texture*, Texture*)` 曾是空实现。**
 
-窗口 MSAA > 1，或源 RT 没有 `kGPUShaderResource`，一开始就会进这条路径。
+`resolveIfMultisampled` 在需要 resolve 时 `acquireTempRT` 后调用 `ctx->blit(src, resolved)`，然后返回这张临时 RT。空实现返回 `T3D_OK` 会让后续效果采样一张没写过的贴图。现在四个重载都走 `doBlit`。
 
-**2. 已实现的 `blit(Texture*, RenderTarget*)` 不认 `ZERO`。**
+**2. `blit(Texture*, RenderTarget*)` 曾不认 `ZERO`。**
 
-`blitCopy`（`T3DCameraEffectBehaviour.cpp:62`）用默认参数，D3D11 会整张拷贝，GL 算出 `srcX1 = srcX0 + 0`。Copy 预设在 GL4 / GLES3 上静默得到空 / 脏 `dst`。最终上屏那次带了明确宽高，所以**无效果时的窗口 blit 可以正常**。
+`blitCopy` 三个位置参数走默认值。现在 `size == ZERO` 按整张源矩形算，Copy 预设可用。
 
-**3. MSAA 采样侧没接 `GLResolveTex`。**
+**3. MSAA 采样侧曾没接 `GLResolveTex`。**
 
-即便以后补了 Tex→Tex，`bindPixelBuffers` 对 2D 永远绑 `GLTexture`、target 写死 `GL_TEXTURE_2D`。MSAA 颜色附件是 `GL_TEXTURE_2D_MULTISAMPLE`，可采样对象是 `GLResolveTex`。resolve 没做时，效果 shader 里的 `sampler2D` 绑不上合法 2D 纹理。
+`bindPixelBuffers` 现在对 MSAA 2D 绑 resolve 贴图。GLES3 在没有 resolve 贴图且 ES < 3.1 时绑 0 并打错误日志，不是静默黑屏。
 
 ### 12.4 GLES3 多出来的约束
 
-- 嵌入片元 / 顶点是 `#version 310 es`，`glTexStorage2DMultisample` 也是 GLES 3.1+。**3.0 设备编不过后处理 shader，MSAA 中间 RT 也建不出来。** 失败时应回退 blit 拷贝，但 Copy 自己也被 `ZERO` 语义卡住。
-- 没有 `glClipControl`。GL4 用 `glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE)` + FBO 投影 Y 翻转；GLES3 深度停在 [-1,1]。全屏 VS 的 UV：HLSL 用 `0.5 - y*0.5`，GLSL / ESSL 用 `y*0.5 + 0.5`。blit 补齐后要单独对一下是否上下颠倒，这不是缺 API。
+- 嵌入片元 / 顶点是 `#version 310 es`，`glTexStorage2DMultisample` 也是 GLES 3.1+。**整个 sample 的 GLES shader 都是 3.1 地板**，测试机确认 ES 3.1+ 即可。MSAA RT 创建失败会走 `glCheckFramebufferStatus` → `T3D_ERR_GLES3_CREATE_FBO`，不是静默黑屏。
+- 没有 `glClipControl`。GL4 用 `glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE)` + FBO 投影 Y 翻转；GLES3 深度停在 [-1,1]。全屏 VS 的 UV：HLSL 用 `0.5 - y*0.5`，GLSL / ESSL 用 `y*0.5 + 0.5`。真机上对一下预设 0 与预设 1 的上下方向即可，**不要改全屏 VS**。
 - 真机目前只有 Android。Desktop EGL / ANGLE 变体还没做（`GLES3-Renderer-Backend-todo.md` 第 24 章）。
 
-### 12.5 补齐顺序（不在本文排期，记到后端 todo）
+### 12.5 补齐顺序
 
-1. **`blit(Texture*, Texture*)`**：`glBlitFramebuffer`；`ZERO` 当整张；MSAA 先 resolve 再拷。与 D3D11 一样建议四个重载统一收口，避免再抄一份。
-2. **已有 `blit(Texture*, RenderTarget*)` 补 `ZERO` 语义**，Copy 效果才能用。
-3. `bindPixelBuffers`：MSAA 源绑 `GLResolveTex` / `GL_TEXTURE_2D`。
-4. 空 blit 不要再静默 `T3D_OK`，至少 `T3D_ERR_NOT_IMPLEMENT` + 日志。
-5. GLES3：`reflectSamplerBindings` 按 GL4 补上；3.0 设备对 `#version 310 es` 要有明确失败路径。
+**D3D11 / GL4 / GLES3 三家已对齐。** 四个 blit 重载、`size == ZERO`、MSAA resolve / 采样、`reflectSamplerBindings` 都已收口。剩下的是：
 
-`blit(RT→RT)` / `blit(RT→Tex)` 可以后做，当前效果链用不到。落地条目见 `GL4-Renderer-Backend-todo.md` A.9 / A.10.5 与 `GLES3-Renderer-Backend-todo.md` A.8 / A.10.5。
+1. **Metal**：blit / 全屏绘制 / MSL 变体仍待做，见 `Metal-Renderer-Backend-todo.md`。
+2. **GLES3 真机核对**：Y 翻转（只在目标是窗口时翻源矩形）、`glInvalidateFramebuffer` 多 effect 串联、MSAA 两跳开销。处理原则见 `PostProcessingApp-Android-Design-todo.md` §5.4。
+3. GLES3 3.0 设备不是本 sample 的目标；shader 全是 `#version 310 es`。
+
+落地记录见 `GL4-Renderer-Backend-todo.md` A.10.5 与 `GLES3-Renderer-Backend-todo.md` A.8 / A.10.5。Android 工程与触摸输入见 `PostProcessingApp-Android-Design-todo.md`。
 
 ---
 

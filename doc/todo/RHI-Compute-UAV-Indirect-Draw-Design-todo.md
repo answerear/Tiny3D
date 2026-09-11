@@ -1451,6 +1451,8 @@ ctx->renderIndexedIndirect(drawArgsSB, 0);
 
 **降级契约**（写进 `RHICapabilities` 的类注释）：上层在使用任何 GPU-driven 路径前必须查能力位。能力位为 false 时，对应接口的实现是 §6.1.3 的规约 stub，返回 `T3D_ERR_NOT_IMPLEMENT` 并打警告日志 —— 二者由 `T3D_RHI_UNSUPPORTED` 的断言强制保持一致，不会出现「能力位说支持但接口是空壳」的矛盾状态。
 
+**GLES 间接绘制的 `baseInstance` 字段必须为 0**：GLES 3.1 的 `DrawArraysIndirectCommand` / `DrawElementsIndirectCommand` 第四个字段是 `reservedMustBeZero`，不是桌面 GL 的 `baseInstance`。该字段非 0 时行为未定义。这与 `supportsBaseInstance = false` 一致，上层往 args buffer 里写间接参数时必须把该字段留 0。
+
 **GLES3.0 的实例化限制要专门处理**：`startInstance != 0` 在 ES3.0 无法表达。注意这里**不能整个接口走 stub** —— `renderInstanced` 本身在 ES3.0 是支持的（`supportsInstancing = true`），只有非零 `startInstance` 不支持（`supportsBaseInstance = false`）。正确做法是在实现内部对参数分支：
 
 ```cpp

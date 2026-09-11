@@ -683,8 +683,8 @@ Vulkan 上同一套 API：`begin*` 录 Copy 进当前 command buffer；`endRende
 |------|--------|
 | D3D11 Window | 真实现，`supportsReadback = true` |
 | D3D11 Console | stub，`supportsReadback` 保持 false（blit/copyBuffer 本身就是空壳） |
-| GL4 Window / Console | stub |
-| GLES3 | stub |
+| GL4 Window / Console | Window 真实现；Console stub |
+| GLES3 | 真实现，`supportsReadback = true`（3.0 core：PBO + `glReadPixels`）。**仅 2D 彩色纹理**；**深度 / 模板不可回读**（`glReadPixels` 不接受 `GL_DEPTH_COMPONENT`）；格式受 `GL_IMPLEMENTATION_COLOR_READ_*` 约束；`GL_PACK_ALIGNMENT` 强制为 1 以对齐 TightRowPitch |
 | Vulkan Window / Console | stub |
 | Metal | stub |
 | Null | stub |
@@ -765,7 +765,7 @@ void BlitApp::onPostRender()
 | 本文 §0.3 / §6 / §9 / §14 | 已按代码回填 |
 | `D3D11-Renderer-Backend-Validation-Sample-Plan.md` §1.1 / §1.2 / §9.1 / §9.4 | 文首加状态说明；BlitApp 升级仍待做 |
 | `RHI-Compute-UAV-Indirect-Draw-Design-todo.md` §12.3 | 标明同步读回已承接 |
-| `GL4` / `GLES3` 后端 todo A.10.1 | stub 已进 RHI，不再写「接口尚未进入」 |
+| `GL4` / `GLES3` 后端 todo A.10.1 | Window / Runtime 已真实现；GLES3 记「仅 2D 彩色、不支持深度」 |
 
 ---
 
@@ -883,7 +883,7 @@ endFrame:          若本帧已被 syncRHIThread 等过，不再重复 wait
 | `D3D11-Renderer-Backend-Validation-Sample-Plan.md` | **本文是 §1.1 / §1.2 / §9.1 / §9.4 的立项落地。** 「BlitApp 重写 go() 用 postRender」在 A1 后作废；「无法自动断言」在 A4 后作废。验证计划文首已加状态；BlitApp 用例升级仍待做 |
 | `RHI-Compute-UAV-Indirect-Draw-Design-todo.md` §12.3 | 同步读回由本文承接；异步 query / UAV 计数回读仍待 §8 |
 | `D3D11-Renderer-Backend-Implementation-Plan.md` | 不新增 blit/copy 语义，只消费已落地的 Copy 路径 |
-| `Camera-PostProcess-Design-todo.md` | **§2.5 拒绝 `Behaviour::onRender` 的正面替代，相机后处理已由该文档承接并落地（B1–B5）。** 相机效果链插在管线 blit 上，不占用 `Application::onRender`；读回不要塞进 `onRenderImage`。GL4 / GLES3 的 `map` / `unmap` 仍是 stub，PostProcessingApp 的 P2 像素断言只在 D3D11 能做；那两端还被 blit 缺口挡住效果链本身（该文档 §12） |
+| `Camera-PostProcess-Design-todo.md` | **§2.5 拒绝 `Behaviour::onRender` 的正面替代，相机后处理已由该文档承接并落地（B1–B5）。** 相机效果链插在管线 blit 上，不占用 `Application::onRender`；读回不要塞进 `onRenderImage`。GL4 / GLES3 的 `map` / `unmap` 与四个 blit 已落地。GLES3 深度 / 模板回读仍不支持（`glReadPixels` 限制），格式还受 `GL_IMPLEMENTATION_COLOR_READ_*` 约束。 |
 | 各后端 todo | stub 清单见 §5 / §7.1 |
 
 ---
