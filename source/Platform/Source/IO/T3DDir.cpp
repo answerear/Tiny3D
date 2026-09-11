@@ -741,15 +741,28 @@ namespace Tiny3D
             }
             else
             {
-                if (fullpath[i] == '.' && fullpath[i-1] == '.')
+                if (i > 0 && fullpath[i] == '.' && fullpath[i-1] == '.')
                 {
                     // 要退到上一级目录，也就是删掉上一级目录
                     jumpCount++;
                     i-=2;
                 }
-                else if (fullpath[i] == '.' && fullpath[i-1] != '.')
+                else if (fullpath[i] == '.')
                 {
-                    // 当前目录，只需要删掉 . 即可
+                    // 只有单独的 "." 分量（./ 或 /./）才丢掉。
+                    // `.cxx` / `devenv.exe` 里的点是名字的一部分，不能吃掉。
+                    const bool prevIsSepOrStart = (i == 0)
+                        || fullpath[i - 1] == '\\' || fullpath[i - 1] == '/';
+                    const bool nextIsSepOrEnd = (i + 1 >= (int32_t)fullpath.length())
+                        || fullpath[i + 1] == '\\' || fullpath[i + 1] == '/';
+                    if (prevIsSepOrStart && nextIsSepOrEnd)
+                    {
+                        // 当前目录分量，丢掉
+                    }
+                    else if (jumpCount == 0)
+                    {
+                        s.insert(s.begin(), '.');
+                    }
                 }
                 else if (jumpCount == 0)
                 {
