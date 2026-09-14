@@ -35,6 +35,8 @@ Run the script **<setup_env.bat>** in directory **<$(Root)/source/Projects>**
 
 The debug script sets up the MSVC environment itself (see **<setup-msvc-env.bat>**), so it no longer has to be started from a developer prompt. **<start_vsenv.bat>** in the same directory still opens one if you want a shell with the toolchain on `PATH`.
 
+The first run pays for `vcvarsall.bat` and records the resulting environment into `.msvc-env-<toolchain>.cmd`; later runs replay it in about a tenth of a second. The recording is discarded automatically when it no longer matches the installed Visual Studio. To rebuild it by hand, delete the file or pass `-refresh` to **<setup-msvc-env.bat>**.
+
 **Remarks**
 If you run the samples code in visual studio and exception occur in startup, you should install "Graphics Tools".
 

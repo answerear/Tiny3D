@@ -126,4 +126,5 @@ source/Samples/TextureApp/Android/app/src/main/assets/icon/icon_05_96x96.png
 source/Samples/GeometryApp/Android/.idea/vcs.xml
 source/Editor/TinyEditor/Language/Language.h
 source/Editor/TinyLauncher/Language/Language.h
+source/Projects/.msvc-env-*.cmd
 /Temp
