@@ -212,8 +212,8 @@ namespace Tiny3D
         /// 唯一的 CMake 构建目录（{Project}/Temp/CppBuild），编辑器与 IDE 共用
         String getBuildDir() const;
 
-        /// 反射产物目录（{Project}/Temp/CppBuild/Generated），与 CMake 侧约定一致
-        String getGeneratedDir() const;
+        /// 反射产物目录（{Project}/Temp/CppBuild/Generated/<变体>），与 CMake 侧约定一致
+        String getGeneratedDir(Variant variant) const;
 
         /**
          * @brief 确保游戏工程顶层 C++ solution 已生成

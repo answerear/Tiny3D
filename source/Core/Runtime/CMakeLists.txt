@@ -109,13 +109,14 @@ if (TINY3D_OS_DESKTOP)
 endif (TINY3D_OS_DESKTOP)
 
 # Generated source for reflection.
-set_project_files(Generated ${TINY3D_GENERATED_BASE_DIR}/Core/Runtime/Generated/ .generated.cpp)
+#
+# 产物清单从上面已收集的源文件推出来，所以 Meta 的产物在非桌面平台会自动缺席
+# —— 那边根本没把 Source/Meta 收进 SOURCE_FILES。旧链路 glob 整个产物目录，才需要
+# 额外把它们过滤掉。
+tiny3d_declare_generated_sources(Generated ${TINY3D_GENERATED_BASE_DIR}/Core/Runtime/Generated/)
 
-# On non-desktop platforms, exclude generated files for desktop-only modules (Meta)
-# to avoid compiling empty compilation units. The generated files contain
-# #if defined(T3D_OS_DESKTOP) guards so they compile correctly either way,
-# but filtering them out saves unnecessary compilation.
-if (NOT TINY3D_OS_DESKTOP)
+# 旧链路（glob 产物目录）下才需要手工排除桌面专属模块的产物
+if (NOT TINY3D_OS_DESKTOP AND NOT TINY3D_REFLECT_CMAKE_NATIVE)
     file(GLOB _DESKTOP_ONLY_SOURCES "${TINY3D_CORE_SOURCE_DIR}/Source/Meta/*.cpp")
     foreach(_src ${_DESKTOP_ONLY_SOURCES})
         get_filename_component(_title ${_src} NAME_WE)
@@ -124,7 +125,7 @@ if (NOT TINY3D_OS_DESKTOP)
     unset(_DESKTOP_ONLY_SOURCES)
     unset(_title)
     unset(_src)
-endif (NOT TINY3D_OS_DESKTOP)
+endif ()
 
 # protobuf source files
 #set_project_files(protobuf ${TINY3D_CORE_SOURCE_DIR}/protobuf/ .pb.h)

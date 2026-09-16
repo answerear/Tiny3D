@@ -137,6 +137,19 @@ namespace Tiny3D
         void collectExpectedSourceTitles(const String &path,
                                          std::unordered_set<std::string> &titles) const;
 
+        /**
+         * @brief 给还没有产物的源文件补一份只有注释头的产物
+         * @param [in] generatedPath : Generated 目录
+         * @param [in] sourcePath : 源码根目录
+         * @remarks 构建系统要在 configure 期就把产物列表定下来，而它当时唯一能
+         *      枚举的就是源文件。没有反射内容的源文件不落盘，这份列表就会声明出
+         *      磁盘上不存在的文件，构建直接失败。所以口径反过来对齐：源码树里每
+         *      个 .cpp/.cxx 都有一份同名产物，没有内容的是个空翻译单元。
+         *      不覆盖已有产物 —— 增量模式下本轮没解析的文件，产物就是上一轮的。
+         */
+        void writeEmptyGeneratedSources(const String &generatedPath,
+                                        const String &sourcePath) const;
+
         /// 写入 .deps 依赖文件
         void writeDepsFile(const String &depsFile, const String &srcFile, const StringList &deps) const;
 

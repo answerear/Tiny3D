@@ -14,5 +14,10 @@
 /xcode-ios
 /codeblocks-linux
 /nmake
+# 反射链路迁移的验收产物：都是 cct / rpp 的输出副本，能由 Projects 下对应的
+# reflect-*.ps1 重新生成，不进版本控制。
+/nmake-verify
+/ReflectVerify
+/ReflectSnapshot
 /.vscode
 /.vs

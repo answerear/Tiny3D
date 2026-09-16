@@ -219,6 +219,10 @@ namespace  Tiny3D
             // 生成源码文件（rebuild 模式会先删除再重建 Generated 目录）
             ret = generateSource(path, opts.IsRebuild, opts.DumpAST);
 
+            // 补齐没有反射内容的那些源文件的产物，让「源文件列表」成为产物列表的
+            // 唯一来源。必须在 generateSource 之后，否则 rebuild 会把它们删掉。
+            writeEmptyGeneratedSources(path, opts.SourcePath);
+
             // 在 generateSource 之后写入 .deps 和 .tpl 文件（确保不会被 rebuild 的目录删除覆盖）
             for (const auto &pf : pendingFiles)
             {
@@ -1224,6 +1228,69 @@ namespace  Tiny3D
                     && mReflectionHeaders.find(fileTitle) != mReflectionHeaders.end())
                 {
                     titles.insert(fileTitle);
+                }
+            }
+
+            working = dir.findNextFile();
+        }
+
+        dir.close();
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ReflectionPreprocessor::writeEmptyGeneratedSources(const String &generatedPath,
+        const String &sourcePath) const
+    {
+        const String sep(1, Dir::getNativeSeparator());
+
+        Dir dir;
+        bool working = dir.findFile(sourcePath + sep + "*.*");
+
+        while (working)
+        {
+            if (dir.isDots())
+            {
+                // . or ..
+            }
+            else if (dir.isDirectory())
+            {
+                writeEmptyGeneratedSources(generatedPath, dir.getFilePath());
+            }
+            else
+            {
+                String fileDir, title, ext;
+                Dir::parsePath(dir.getFilePath(), fileDir, title, ext);
+
+                // 产物自己也是 .cpp，别给产物再生成一层产物
+                const bool isGenerated =
+                    title.size() > 10 && title.compare(title.size() - 10, 10, ".generated") == 0;
+
+                if ((ext == "cpp" || ext == "cxx") && !isGenerated)
+                {
+                    const String path = generatedPath + sep + title + ".generated.cpp";
+                    if (!Dir::exists(path))
+                    {
+                        FileDataStream fs;
+                        if (fs.open(path.c_str(), FileDataStream::E_MODE_TEXT
+                            | FileDataStream::E_MODE_TRUNCATE
+                            | FileDataStream::E_MODE_READ_WRITE))
+                        {
+                            fs << "// Copyright (C) 2024  Answer Wong" << std::endl;
+                            fs << "// Generated code exported from ReflectionPreprocessor." << std::endl;
+                            fs << "// DO NOT modify this manually! Edit the corresponding .h files instead!" << std::endl;
+                            fs << "//" << std::endl;
+                            fs << "// [" << title << "] has nothing to reflect, so this translation unit is" << std::endl;
+                            fs << "// empty on purpose. It exists because the build system derives the" << std::endl;
+                            fs << "// product list from the source file list at configure time, and every" << std::endl;
+                            fs << "// name on that list has to resolve to a file on disk." << std::endl;
+                            fs.close();
+                        }
+                        else
+                        {
+                            RP_LOG_ERROR("Open file [%s] failed !", path.c_str());
+                        }
+                    }
                 }
             }
 

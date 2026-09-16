@@ -145,11 +145,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    String CppBuildSystem::getGeneratedDir() const
+    String CppBuildSystem::getGeneratedDir(Variant variant) const
     {
         // 与 GamePluginCommon.cmake 里传给 tiny3d_enable_reflection 的
-        // GENERATED_DIR（${CMAKE_BINARY_DIR}/Generated）必须保持一致
-        return getBuildDir() + Dir::getNativeSeparator() + "Generated";
+        // GENERATED_DIR（${CMAKE_BINARY_DIR}/Generated/<变体>）必须保持一致
+        const String sep(1, Dir::getNativeSeparator());
+        const String sub = (variant == Variant::kEditor) ? "Editor" : "Runtime";
+        return getBuildDir() + sep + "Generated" + sep + sub;
     }
 
     //--------------------------------------------------------------------------
@@ -466,7 +468,10 @@ namespace Tiny3D
 
         String stamp = collectFileNames(mCppSourceDir, kSourceSuffixes);
         stamp += "--generated--\n";
-        stamp += collectFileNames(getGeneratedDir(), kGeneratedSuffixes);
+        stamp += collectFileNames(getGeneratedDir(Variant::kEditor),
+            kGeneratedSuffixes);
+        stamp += collectFileNames(getGeneratedDir(Variant::kRuntime),
+            kGeneratedSuffixes);
 
         return stamp;
     }

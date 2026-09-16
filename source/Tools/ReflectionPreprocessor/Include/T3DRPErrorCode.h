@@ -63,6 +63,8 @@ namespace Tiny3D
         T3D_ERR_RP_AST_NO_PARENT                = T3D_ERR_RP_ERROR + 8,
         /**< 没有默认构造函数 */
         T3D_ERR_RP_NO_DEFAULT_CONSTRUCTOR       = T3D_ERR_RP_ERROR + 9,
+        /**< 反射代码落盘失败 */
+        T3D_ERR_RP_GENERATE_SOURCE              = T3D_ERR_RP_ERROR + 10,
         
         /**< 致命级别 */
         T3D_ERR_RP_FATAL                        = T3D_ERR_REFLECTION_PREPROCESSOR + 0x200,

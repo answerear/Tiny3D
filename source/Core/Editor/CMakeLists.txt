@@ -120,7 +120,7 @@ if (TINY3D_OS_DESKTOP)
 endif (TINY3D_OS_DESKTOP)
 
 # Generated source for reflection.
-set_project_files(Generated ${TINY3D_GENERATED_BASE_DIR}/Core/Editor/Generated/ .generated.cpp)
+tiny3d_declare_generated_sources(Generated ${TINY3D_GENERATED_BASE_DIR}/Core/Editor/Generated/)
 
 # protobuf source files
 #set_project_files(protobuf ${TINY3D_CORE_SOURCE_DIR}/protobuf/ .pb.h)

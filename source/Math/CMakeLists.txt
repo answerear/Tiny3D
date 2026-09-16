@@ -49,7 +49,7 @@ set_project_files(Include ${CMAKE_CURRENT_SOURCE_DIR}/Include/ .inl)
 
 # Setup source files for this project.
 set_project_files(Source ${CMAKE_CURRENT_SOURCE_DIR}/Source/ .cpp)
-set_project_files(Generated ${TINY3D_GENERATED_BASE_DIR}/Math/Generated/ .generated.cpp)
+tiny3d_declare_generated_sources(Generated ${TINY3D_GENERATED_BASE_DIR}/Math/Generated/)
 
 
 # Setup all files for building this project.

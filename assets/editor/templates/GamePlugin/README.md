@@ -69,7 +69,7 @@ cmake --build Temp/CppBuild --target {ProjectName}Editor --config Debug
 
 `TINY3D_SDK_ROOT` 要指向 TinyEditor 可执行文件所在的目录，那里有编辑器构建时导出的
 `Tiny3DSDK.cmake`，记录了工具链信息，业务库必须用同样的配置编译才能被正确加载。
-同目录还要有 `rpp` 和 `ReflectionSettings.base.json`（引擎 generate 脚本会带上）。
+同目录还要有 `rpp`（引擎 generate 脚本会带上），TCLASS 反射靠它生成注册代码。
 `GAME_PROJECT_ROOT` 指向工程根，保证 DLL 落到 `{工程根}/Library/CppAssemblies/`。
 
 `--target` 换成 `{ProjectName}` 编 Runtime 变体，换成 `TinyPlayer` 编独立宿主。

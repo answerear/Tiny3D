@@ -40,6 +40,18 @@ else ()
     unset(_tiny3d_rpp_candidate)
 endif()
 
+# 新链路下每个模块的反射 target 由 tiny3d_add_reflection_target() 建立，那要求模块
+# target 已经存在，所以接线放在 source/CMakeLists.txt 末尾。这里只留一个把它们收拢
+# 起来的伞形 target，下面 cct / nmake 旧链路的那套就不需要了。
+if (TINY3D_REFLECT_CMAKE_NATIVE)
+    add_custom_target(${BIN_NAME}
+        COMMENT "Running incremental reflection generation...")
+    set_property(TARGET ${BIN_NAME} PROPERTY FOLDER "Reflect")
+    return()
+endif ()
+
+# 以下是 cct / nmake 旧链路：配置由 generate-*.bat 预先写进 nmake/<Module>/。
+
 # Helper macro to add reflection targets with existence check
 macro(add_reflect_target TARGET_NAME SETTINGS_SUBDIR SRC_SUBDIR ADDITIONAL_ARGS)
     if ((CMAKE_CROSSCOMPILING AND NOT TINY3D_HOST_RPP) OR (NOT RPP_EXE))

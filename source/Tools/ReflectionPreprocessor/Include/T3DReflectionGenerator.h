@@ -76,6 +76,9 @@ namespace Tiny3D
          */
         TResult generateSource(const String &generatedPath);
 
+        /// 模板实例聚合产物的文件名（不含 .generated.cpp 后缀）
+        static const String kTemplateAggregateTitle;
+
         /**
          * @brief 输出 AST 到 ast.json 文件
          */
@@ -320,6 +323,43 @@ namespace Tiny3D
         using ASTWhiteListValue = ASTWhiteList::value_type;
 
         using ASTTypeAliasMap = TUnorderedMap<String, ASTTypeAlias>;
+
+        /// 一份待聚合的模板实例产物，指向 mSourceFiles / mHeaderFiles 里的原数据
+        struct TemplateEntry
+        {
+            String              sourcePath; /// 模板定义所在头文件的完整路径
+            const ASTNodeMap    *nodes;     /// 该头文件贡献的反射结点
+            const StringList    *headers;   /// 该产物需要包含的头文件（相对包含路径）
+        };
+
+        using TemplateEntries = TArray<TemplateEntry>;
+
+        /**
+         * @brief 判断该条目是否模板实例（定义在本模块源码树之外）
+         * @remarks 判据与 insertSourceFiles() 一致，见实现处注释
+         */
+        bool isTemplateInstanceFile(const String &path) const;
+
+        /**
+         * @brief 求一批结点共享的平台守卫
+         * @param [out] fileGuard : 共享的守卫，无共享守卫时内容无意义
+         * @return 所有结点守卫一致且非空时返回 true，此时可用一层守卫包住整批
+         */
+        static bool computeFileGuard(const ASTNodeMap &nodes, String &fileGuard);
+
+        /**
+         * @brief 把一批结点的注册语句写进已经打开的 RTTR_REGISTRATION 块
+         * @param [in] hasOuterGuard : 外层已经有守卫，结点级守卫不必再写一遍
+         */
+        void writeRegistrations(FileDataStream &fs, const ASTNodeMap &nodes,
+            bool hasOuterGuard) const;
+
+        /**
+         * @brief 把所有模板实例产物聚合成一份 Templates.generated.cpp
+         * @remarks entries 为空时也要落盘，见实现处注释
+         */
+        TResult generateTemplateAggregate(const String &generatedPath,
+            const TemplateEntries &entries);
 
         bool isRTTIFriend(FileReflectionInfoPtr info, uint32_t start, uint32_t end) const;
 

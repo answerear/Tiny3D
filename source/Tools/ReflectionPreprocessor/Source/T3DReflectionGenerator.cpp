@@ -26,6 +26,7 @@
 
 #include <SDL_syswm.h>
 
+#include <algorithm>
 #include <cctype>
 #include <fstream>
 
@@ -3978,6 +3979,17 @@ namespace Tiny3D
                 return guard.substr(1);
             return guard;
         }
+
+        /// 头文件包含路径是按本机分隔符拼出来的，Windows 上会得到
+        /// "Component\T3DTransformNode.h"。`\T` 在 C++ 里是未定义的转义序列，
+        /// MSVC 容忍，clang 会告警，而 Android / Apple 的编译器根本认不出这个
+        /// 分隔符。正斜杠三家都认。
+        String toIncludeSeparator(const String &path)
+        {
+            String result = path;
+            std::replace(result.begin(), result.end(), '\\', '/');
+            return result;
+        }
     }
 
     bool ReflectionGenerator::readWholeFile(const String &path, String &content)
@@ -4030,10 +4042,123 @@ namespace Tiny3D
 
     //-------------------------------------------------------------------------
 
+    bool ReflectionGenerator::isTemplateInstanceFile(const String &path) const
+    {
+        if (mProjectPath.empty())
+        {
+            return false;
+        }
+
+        // 与 insertSourceFiles() 同一个判据：非模板结点只有匹配 mProjectPath 前缀
+        // 才会入表，所以落在本模块源码树之外的条目必定是模板实例
+        return !StringUtil::match(path, mProjectPath + "*", false);
+    }
+
+    //-------------------------------------------------------------------------
+
+    bool ReflectionGenerator::computeFileGuard(const ASTNodeMap &nodes, String &fileGuard)
+    {
+        fileGuard.clear();
+
+        bool allSameGuard = true;
+        bool hasAnyGuard = false;
+
+        for (const auto &value : nodes)
+        {
+            String guard = getNodePlatformGuard(value.second);
+
+            if (!guard.empty())
+                hasAnyGuard = true;
+
+            if (fileGuard.empty() && !guard.empty())
+            {
+                fileGuard = guard;
+            }
+            else if (!guard.empty() && fileGuard != guard)
+            {
+                allSameGuard = false;
+            }
+            else if (guard.empty() && !fileGuard.empty())
+            {
+                allSameGuard = false;
+            }
+        }
+
+        return allSameGuard && hasAnyGuard && !fileGuard.empty();
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ReflectionGenerator::writeRegistrations(FileDataStream &fs,
+        const ASTNodeMap &nodes, bool hasOuterGuard) const
+    {
+        for (const auto &value : nodes)
+        {
+            String nodeGuard = getNodePlatformGuard(value.second);
+            bool needNodeGuard = !hasOuterGuard && !nodeGuard.empty();
+
+            ASTNode *parent = value.second->getParent();
+            bool hasNS = false, first = false;
+            if (parent != nullptr && parent->getType() == ASTNode::Type::kNamespace)
+            {
+                hasNS = true;
+                first = true;
+                fs << std::endl;
+                if (needNodeGuard)
+                {
+                    fs << formatGuardDirective(nodeGuard) << std::endl;
+                }
+                fs << "\tusing namespace ";
+            }
+            String ns;
+            while (parent != nullptr && parent->getType() == ASTNode::Type::kNamespace)
+            {
+                if (!first)
+                {
+                    ns = parent->getName() + "::" + ns;
+                }
+                else
+                {
+                    ns = parent->getName();
+                    first = false;
+                }
+                parent = parent->getParent();
+            }
+            if (hasNS)
+            {
+                fs << ns << ";" << std::endl;
+            }
+            else if (needNodeGuard)
+            {
+                fs << std::endl << formatGuardDirective(nodeGuard) << std::endl;
+            }
+
+            value.second->generateSourceFile(fs);
+
+            if (needNodeGuard)
+            {
+                fs << "#endif // " << formatGuardComment(nodeGuard) << std::endl;
+            }
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
+    const String ReflectionGenerator::kTemplateAggregateTitle = "Templates";
+
+    //-------------------------------------------------------------------------
+
     TResult ReflectionGenerator::generateSource(const String &generatedPath)
     {
         FileDataStream fs;
-        
+
+        // 模板实例的定义落在本模块源码树之外（跨模块的 Math 模板、标准库容器），
+        // 产物名是那个头文件的 basename，跟本模块的任何源文件都对不上号。构建系统
+        // 在 configure 期只能枚举源文件，推不出这批名字，于是统一收进一个固定名字
+        // 的聚合产物。哪些模板会被实例化取决于解析结果，这也是唯一能让产物列表在
+        // configure 期完全确定的做法。
+        TemplateEntries templateEntries;
+
         for (const auto &val : mSourceFiles)
         {
             if (val.second.empty())
@@ -4042,11 +4167,8 @@ namespace Tiny3D
                 continue;
             }
 
-            RP_LOG_INFO("Begin generating reflection source file [%s] ...", val.first.c_str());
-            
             String dir, title, ext;
             Dir::parsePath(val.first, dir, title, ext);
-            String path = generatedPath + Dir::getNativeSeparator() + title + ".generated.cpp";
 
             // 构造需要的头文件
             auto itr = mHeaderFiles.find(title);
@@ -4055,6 +4177,16 @@ namespace Tiny3D
                 RP_LOG_WARNING("Their is not the header file title [%s] corresponeding the source file [%s] !", title.c_str(), val.first.c_str());
                 continue;
             }
+
+            if (isTemplateInstanceFile(val.first))
+            {
+                templateEntries.push_back(TemplateEntry { val.first, &val.second, &itr->second });
+                continue;
+            }
+
+            RP_LOG_INFO("Begin generating reflection source file [%s] ...", val.first.c_str());
+
+            String path = generatedPath + Dir::getNativeSeparator() + title + ".generated.cpp";
 
             // 先写到临时文件，写完再跟现有产物比一次内容，一样就不动正式产物的
             // 修改时间。生成过程是流式往 FileDataStream 里写的，没法先在内存里攒完。
@@ -4065,34 +4197,10 @@ namespace Tiny3D
                 RP_LOG_ERROR("Open file [%s] failed !", tempPath.c_str());
                 continue;
             }
-            
+
             // 检查该文件所有节点是否共享同一个平台守卫
             String fileGuard;
-            bool allSameGuard = true;
-            bool hasAnyGuard = false;
-
-            for (const auto &value : val.second)
-            {
-                String guard = getNodePlatformGuard(value.second);
-
-                if (!guard.empty())
-                    hasAnyGuard = true;
-
-                if (fileGuard.empty() && !guard.empty())
-                {
-                    fileGuard = guard;
-                }
-                else if (!guard.empty() && fileGuard != guard)
-                {
-                    allSameGuard = false;
-                }
-                else if (guard.empty() && !fileGuard.empty())
-                {
-                    allSameGuard = false;
-                }
-            }
-
-            bool useFileGuard = allSameGuard && hasAnyGuard && !fileGuard.empty();
+            bool useFileGuard = computeFileGuard(val.second, fileGuard);
 
             // 文件头注释
             fs << "// Copyright (C) 2024  Answer Wong" << std::endl;
@@ -4104,7 +4212,7 @@ namespace Tiny3D
             fs << "#include <rttr/registration>" << std::endl;
             for (const auto &header : itr->second)
             {
-                fs << "#include \"" << header << "\"" << std::endl;
+                fs << "#include \"" << toIncludeSeparator(header) << "\"" << std::endl;
             }
 
             // 文件级守卫：包裹整个 RTTR_REGISTRATION 块
@@ -4119,55 +4227,8 @@ namespace Tiny3D
             
             {
                 fs << "\tusing namespace rttr;" << std::endl;
-            
-                for (const auto &value : val.second)
-                {
-                    String nodeGuard = getNodePlatformGuard(value.second);
-                    bool needNodeGuard = !useFileGuard && !nodeGuard.empty();
 
-                    ASTNode *parent = value.second->getParent();
-                    bool hasNS = false, first = false;
-                    if (parent != nullptr && parent->getType() == ASTNode::Type::kNamespace)
-                    {
-                        hasNS = true;
-                        first = true;
-                        fs << std::endl;
-                        if (needNodeGuard)
-                        {
-                            fs << formatGuardDirective(nodeGuard) << std::endl;
-                        }
-                        fs << "\tusing namespace ";
-                    }
-                    String ns;
-                    while (parent != nullptr && parent->getType() == ASTNode::Type::kNamespace)
-                    {
-                        if (!first)
-                        {
-                            ns = parent->getName() + "::" + ns;
-                        }
-                        else
-                        {
-                            ns = parent->getName();
-                            first = false;
-                        }
-                        parent = parent->getParent();
-                    }
-                    if (hasNS)
-                    {
-                        fs << ns << ";" << std::endl;
-                    }
-                    else if (needNodeGuard)
-                    {
-                        fs << std::endl << formatGuardDirective(nodeGuard) << std::endl;
-                    }
-
-                    value.second->generateSourceFile(fs);
-
-                    if (needNodeGuard)
-                    {
-                        fs << "#endif // " << formatGuardComment(nodeGuard) << std::endl;
-                    }
-                }
+                writeRegistrations(fs, val.second, useFileGuard);
             }
             
             // 结束注册类信息
@@ -4190,7 +4251,103 @@ namespace Tiny3D
         {
             fs.close();
         }
-        
+
+        return generateTemplateAggregate(generatedPath, templateEntries);
+    }
+
+    //-------------------------------------------------------------------------
+
+    TResult ReflectionGenerator::generateTemplateAggregate(const String &generatedPath,
+        const TemplateEntries &entries)
+    {
+        const String path = generatedPath + Dir::getNativeSeparator()
+            + kTemplateAggregateTitle + ".generated.cpp";
+        const String tempPath = path + ".tmp";
+
+        RP_LOG_INFO("Begin generating reflection source file [%s] (%u template instance file(s)) ...",
+            path.c_str(), (uint32_t)entries.size());
+
+        FileDataStream fs;
+        if (!fs.open(tempPath.c_str(), FileDataStream::E_MODE_TEXT
+            | FileDataStream::E_MODE_TRUNCATE | FileDataStream::E_MODE_READ_WRITE))
+        {
+            RP_LOG_ERROR("Open file [%s] failed !", tempPath.c_str());
+            return T3D_ERR_RP_GENERATE_SOURCE;
+        }
+
+        fs << "// Copyright (C) 2024  Answer Wong" << std::endl;
+        fs << "// Generated code exported from ReflectionPreprocessor." << std::endl;
+        fs << "// DO NOT modify this manually! Edit the corresponding .h files instead!" << std::endl;
+        fs << "//" << std::endl;
+        fs << "// Aggregated registrations for template instances. These templates are" << std::endl;
+        fs << "// defined outside this module's source tree, so their product names cannot" << std::endl;
+        fs << "// be derived from the module's source files at configure time. Collecting" << std::endl;
+        fs << "// them under one fixed name is what makes the product list knowable." << std::endl;
+
+        // RTTR_REGISTRATION 展开出来的函数名是写死的，一个翻译单元只能放一个，所以
+        // 聚合必须真的把注册语句并进同一个块里，不能靠拼接文件或 #include 汇总。
+        // 而 #include 段又必须留在最顶层 —— 产物里有 <rttr/registration>，包进块
+        // 作用域或 namespace 必然编译失败。
+        StringList includes;
+        for (const auto &entry : entries)
+        {
+            for (const auto &header : *entry.headers)
+            {
+                String include = toIncludeSeparator(header);
+                if (std::find(includes.begin(), includes.end(), include) == includes.end())
+                {
+                    includes.push_back(include);
+                }
+            }
+        }
+
+        fs << std::endl;
+        fs << "#include <rttr/registration>" << std::endl;
+        for (const auto &include : includes)
+        {
+            fs << "#include \"" << include << "\"" << std::endl;
+        }
+
+        fs << std::endl << "RTTR_REGISTRATION" << std::endl;
+        fs << "{" << std::endl;
+        fs << "\tusing namespace rttr;" << std::endl;
+
+        for (const auto &entry : entries)
+        {
+            // 原本的文件级守卫降级成块级，包在这一段的 { } 外面
+            String fileGuard;
+            const bool useFileGuard = computeFileGuard(*entry.nodes, fileGuard);
+
+            fs << std::endl << "\t// ---- from " << toIncludeSeparator(entry.sourcePath) << std::endl;
+
+            if (useFileGuard)
+            {
+                fs << formatGuardDirective(fileGuard) << std::endl;
+            }
+
+            // 每段包一层 { }，把各自的 using namespace 关在自己的作用域里。注册语句
+            // 用的都是全限定名，严格说这层是冗余的，但零成本零风险。
+            fs << "\t{" << std::endl;
+
+            writeRegistrations(fs, *entry.nodes, useFileGuard);
+
+            fs << "\t}" << std::endl;
+
+            if (useFileGuard)
+            {
+                fs << "#endif // " << formatGuardComment(fileGuard) << std::endl;
+            }
+        }
+
+        fs << "}" << std::endl;
+        fs.close();
+
+        // 一个模板实例都没有时也要落盘：构建系统是无条件预声明这个文件的，
+        // 缺了它 System / Math 这类没有模板实例的模块会直接构建失败。
+        commitGeneratedFile(tempPath, path);
+
+        RP_LOG_INFO("End generating reflection source file [%s] ...", path.c_str());
+
         return T3D_OK;
     }
 

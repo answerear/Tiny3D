@@ -66,7 +66,7 @@ set_project_files(proto ${CMAKE_CURRENT_SOURCE_DIR}/proto/ .pb.h)
 set_project_files(proto ${CMAKE_CURRENT_SOURCE_DIR}/proto/ .pb.cc)
 
 # Generated source for reflection.
-set_project_files(Generated ${TINY3D_GENERATED_BASE_DIR}/Editor/TinyEditor/Generated/ .generated.cpp)
+tiny3d_declare_generated_sources(Generated ${TINY3D_GENERATED_BASE_DIR}/Editor/TinyEditor/Generated/)
 
 # common header files
 list (APPEND SOURCE_FILES ${T3D_COMMON_INCLUDE_DIR}/ImGuiImpl.h ${T3D_COMMON_INCLUDE_DIR}/ImGuiApp.h)

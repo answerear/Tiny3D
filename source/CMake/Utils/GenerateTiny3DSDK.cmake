@@ -10,6 +10,8 @@
 # 函数体里的 CMAKE_CURRENT_LIST_DIR 指向调用方的 listfile，所以在这里先记下本文件目录
 set(T3DSDK_TEMPLATE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
+include("${CMAKE_CURRENT_LIST_DIR}/Tiny3DDetectSystemIncludes.cmake")
+
 function(tiny3d_generate_sdk_config)
     #---------------------------------------------------------------------------
     # 工具链
@@ -103,17 +105,26 @@ function(tiny3d_generate_sdk_config)
         endif ()
     endif ()
 
+    # libclang 解析业务源码要用的工具链头文件。业务工程 configure 时未必在
+    # vcvarsall 起的环境里，%INCLUDE% 可能是空的，所以把引擎这次构建探测到的结果
+    # 固化过去。业务侧真拿到了自己的环境时会优先用那份，这里只是兜底。
+    tiny3d_detect_system_includes()
+    set(T3DSDK_SYSTEM_INCLUDE_DIRS "${TINY3D_SYSTEM_INCLUDE_DIRS}")
+    set(T3DSDK_REFLECT_TARGET_FLAGS "${TINY3D_REFLECT_TARGET_FLAGS}")
+
     # 反斜杠会被 CMake 当转义符，统一成正斜杠
     foreach (_var
         T3DSDK_CXX_COMPILER T3DSDK_INCLUDE_DIRS
         T3DSDK_LIB_DIR_DEBUG T3DSDK_LIB_DIR_RELEASE
         T3DSDK_BIN_DIR_DEBUG T3DSDK_BIN_DIR_RELEASE
-        T3DSDK_PLAYER_DIR)
+        T3DSDK_PLAYER_DIR T3DSDK_SYSTEM_INCLUDE_DIRS)
         string(REPLACE "\\" "/" ${_var} "${${_var}}")
     endforeach ()
 
     set(_template "${T3DSDK_TEMPLATE_DIR}/Tiny3DSDK.cmake.in")
     set(_helper "${T3DSDK_TEMPLATE_DIR}/Tiny3DReflectHelpers.cmake")
+    # helper 会 include 它，得跟着一起过去，否则业务工程那边解析不到
+    set(_detect "${T3DSDK_TEMPLATE_DIR}/Tiny3DDetectSystemIncludes.cmake")
     set(_reflect_base_src "${CMAKE_SOURCE_DIR}/nmake/Core/Runtime/ReflectionSettings.json")
 
     # 每个配置的 bin 目录都放一份。编辑器用 Dir::getAppPath() 找它，而 appPath
@@ -127,19 +138,27 @@ function(tiny3d_generate_sdk_config)
             else ()
                 set(T3DSDK_RPP "${_dir}/rpp")
             endif ()
-            set(T3DSDK_REFLECTION_BASE "${_dir}/ReflectionSettings.base.json")
+            if (TINY3D_REFLECT_CMAKE_NATIVE)
+                # 业务侧自己从 target 属性拼 ReflectionSettings.json，不再需要底板
+                set(T3DSDK_REFLECTION_BASE "")
+            else ()
+                set(T3DSDK_REFLECTION_BASE "${_dir}/ReflectionSettings.base.json")
+            endif ()
             string(REPLACE "\\" "/" T3DSDK_RPP "${T3DSDK_RPP}")
             string(REPLACE "\\" "/" T3DSDK_REFLECTION_BASE "${T3DSDK_REFLECTION_BASE}")
 
             configure_file("${_template}" "${_dir}/Tiny3DSDK.cmake" @ONLY)
             configure_file("${_helper}" "${_dir}/Tiny3DReflectHelpers.cmake" COPYONLY)
+            configure_file("${_detect}" "${_dir}/Tiny3DDetectSystemIncludes.cmake" COPYONLY)
 
-            if (EXISTS "${_reflect_base_src}")
-                configure_file("${_reflect_base_src}" "${T3DSDK_REFLECTION_BASE}" COPYONLY)
-            else ()
-                message(WARNING
-                    "nmake/Core/Runtime/ReflectionSettings.json not found. "
-                    "Game Plugin TCLASS reflection needs it; run the engine generate script first.")
+            if (NOT TINY3D_REFLECT_CMAKE_NATIVE)
+                if (EXISTS "${_reflect_base_src}")
+                    configure_file("${_reflect_base_src}" "${T3DSDK_REFLECTION_BASE}" COPYONLY)
+                else ()
+                    message(WARNING
+                        "nmake/Core/Runtime/ReflectionSettings.json not found. "
+                        "Game Plugin TCLASS reflection needs it; run the engine generate script first.")
+                endif ()
             endif ()
         endif ()
     endforeach ()

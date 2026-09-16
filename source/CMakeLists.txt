@@ -239,6 +239,23 @@ add_definitions(-DT3D_ERR_USER=0x00020000)
 
 include(FindPkgMacros)
 include(ProjectCMakeModule)
+
+#-------------------------------------------------------------------------------
+# 反射配置由 CMake 原生生成。ON 走新链路，OFF 退回 cct / nmake 旧链路。
+#
+#   ON  : ReflectionSettings.json 由 file(GENERATE) 从 target 属性写出，rpp 只在
+#         构建期跑，产物清单在 configure 期按源文件预声明。
+#   OFF : 配置来自 generate-*.bat 里 cct 写进 nmake/<Module>/ 的那份，产物靠
+#         glob 产物目录收集。
+#
+# 必须声明在 Tiny3DReflectHelpers 之前：那个文件为独立的 GamePlugin 工程准备了同名
+# 默认值，先 include 会让它建出一个普通变量，随后的 option() 再把它清掉（CMP0077）。
+#
+# 详见 doc/todo/Reflection-Settings-CMake-Native-Design-todo.md §8 阶段 2
+#-------------------------------------------------------------------------------
+option(TINY3D_REFLECT_CMAKE_NATIVE
+    "Generate ReflectionSettings.json from CMake instead of the cct / nmake pipeline" ON)
+
 include(Tiny3DReflectHelpers)
 
 # Common headers directory
@@ -315,6 +332,16 @@ endif()
 # Project Reflect (incremental reflection generation, can be disabled in CI)
 option(TINY3D_INCREMENTAL_RTTR "Enable incremental RTTR reflection generation during build" ON)
 
+if (TINY3D_REFLECT_CMAKE_NATIVE AND NOT TINY3D_INCREMENTAL_RTTR)
+    # 产物是预声明的，没人生成它们的话构建期一定找不到文件。与其编到一半报
+    # 「file not found」，不如在这里说清楚两个开关的关系。
+    message(FATAL_ERROR
+        "TINY3D_INCREMENTAL_RTTR=OFF 时反射产物没有生成者，而 "
+        "TINY3D_REFLECT_CMAKE_NATIVE=ON 会把它们预声明进各模块。\n"
+        "  要跳过反射生成请同时设置 -DTINY3D_REFLECT_CMAKE_NATIVE=OFF（走旧链路，"
+        "复用 generate-*.bat 预先产出的产物）。")
+endif ()
+
 if (TINY3D_INCREMENTAL_RTTR)
     add_subdirectory(Reflect)
 endif ()
@@ -371,11 +398,13 @@ add_dependencies(T3DUtils T3DLog T3DPlatform)
 
 
 if (NOT TINY3D_BUILD_RTTR_TOOL)
-    if (TINY3D_INCREMENTAL_RTTR)
+    # 新链路下每个模块只依赖自己那个 reflect target（见文件末尾的接线），不必再
+    # 挂伞形 target —— 那会让 T3DSystem 的编译排在 Core 的反射生成之后
+    if (TINY3D_INCREMENTAL_RTTR AND NOT TINY3D_REFLECT_CMAKE_NATIVE)
 	    add_dependencies(T3DSystem T3DReflect rttr_core T3DPlatform)
     else ()
         add_dependencies(T3DSystem rttr_core T3DPlatform)
-    endif (TINY3D_INCREMENTAL_RTTR)
+    endif ()
     add_dependencies(T3DMath T3DLog T3DPlatform)
     add_dependencies(T3DFramework T3DLog T3DPlatform)
     #add_dependencies(T3DCore ${PROTOBUF_LIBRARY} T3DMath T3DFramework T3DUtils T3DLog T3DSystem)
@@ -448,5 +477,68 @@ if (TINY3D_BUILD_TOOLS AND NOT TINY3D_BUILD_RTTR_TOOL AND TINY3D_BUILD_SHADERCON
     add_dependencies(sync_builtin_to_samples ShaderCrossCompiler)
 
     set_property(TARGET sync_builtin_to_samples PROPERTY FOLDER "CMakeTargets")
+endif ()
+
+#-------------------------------------------------------------------------------
+# 反射接线：为每个模块写出 ReflectionSettings.json，并挂一个构建期跑 rpp 的 target。
+#
+# 放在文件末尾而不是各模块的 CMakeLists 里，是因为 tiny3d_write_reflection_settings
+# 会读目录级的 COMPILE_DEFINITIONS 兜底（补 add_library 之后才 add_definitions 的那
+# 些）。在模块目录里调用会连带把 add_definitions 塞进去的编译选项一起收进来，而在
+# 这里调用取到的是 source/ 的目录属性，模块自己的宏则由 target 属性提供 —— 这正是
+# 阶段 1 逐字段比对通过的那个口径。
+#
+# 详见 doc/todo/Reflection-Settings-CMake-Native-Design-todo.md §6 / §8 阶段 2
+#-------------------------------------------------------------------------------
+if (TINY3D_REFLECT_CMAKE_NATIVE AND TINY3D_INCREMENTAL_RTTR AND NOT TINY3D_BUILD_RTTR_TOOL)
+    # 不打标签也自动反射的模板。散在 .bat / build.yml / Reflect/CMakeLists.txt 三处
+    # 的白名单收拢到这里，成为唯一来源。
+    set(_t3d_reflect_white_list
+        Tiny3D::TAabb Tiny3D::TCapsule Tiny3D::TDegree Tiny3D::TFrustum
+        Tiny3D::TMatrix2 Tiny3D::TMatrix3 Tiny3D::TMatrix4 Tiny3D::TObb
+        Tiny3D::TPlane Tiny3D::TQuaternion Tiny3D::TRadian Tiny3D::TRay
+        Tiny3D::TSize Tiny3D::TPoint Tiny3D::TRect Tiny3D::TSphere
+        Tiny3D::TTriangle Tiny3D::TVector2 Tiny3D::TVector3 Tiny3D::TVector4)
+
+    # <target> <相对 source 的 rpp 扫描根> <相对 TINY3D_GENERATED_BASE_DIR 的产物目录>
+    # 三元组与各模块 tiny3d_declare_generated_sources 的产物目录必须一一对应。
+    set(_t3d_reflect_modules
+        "T3DSystem|System|System"
+        "T3DMath|Math|Math"
+        "T3DCore|Core|Core/Runtime")
+
+    if (TINY3D_BUILD_EDITOR)
+        list(APPEND _t3d_reflect_modules
+            "T3DCoreEditor|Core|Core/Editor"
+            "TinyLauncher|Editor/TinyLauncher|Editor/TinyLauncher"
+            "TinyEditor|Editor/TinyEditor|Editor/TinyEditor")
+    endif ()
+
+    foreach (_entry IN LISTS _t3d_reflect_modules)
+        string(REPLACE "|" ";" _parts "${_entry}")
+        list(GET _parts 0 _tgt)
+        list(GET _parts 1 _src_rel)
+        list(GET _parts 2 _gen_rel)
+
+        if (TARGET ${_tgt})
+            # 白名单只有扫 Core 的两个模块需要：Math 的类模板定义在 source/Math，
+            # 从 Core 看过去是「外部模板」，不点名就不会被实例化。
+            set(_white "")
+            if (_src_rel STREQUAL "Core")
+                set(_white ${_t3d_reflect_white_list})
+            endif ()
+
+            tiny3d_add_reflection_target(${_tgt}
+                SETTINGS_DIR  "${CMAKE_BINARY_DIR}/Reflect/${_gen_rel}"
+                SOURCE_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/${_src_rel}"
+                GENERATED_DIR "${TINY3D_GENERATED_BASE_DIR}/${_gen_rel}/Generated"
+                WHITE_LIST    ${_white})
+        else ()
+            message(STATUS "Reflect: 跳过 ${_tgt}（target 未定义）")
+        endif ()
+    endforeach ()
+
+    unset(_t3d_reflect_modules)
+    unset(_t3d_reflect_white_list)
 endif ()
 

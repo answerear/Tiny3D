@@ -43,7 +43,9 @@ if (NOT EXISTS "${TINY3D_SDK_RPP}")
         "Rebuild the engine so rpp.exe (and libclang) are copied into the editor bin directory.")
 endif ()
 
-if (NOT EXISTS "${TINY3D_SDK_REFLECTION_BASE}")
+# 反射配置由 CMake 原生生成时，业务工程自己从 target 属性拼出完整的
+# ReflectionSettings.json，SDK 不再导出底板，TINY3D_SDK_REFLECTION_BASE 是空的。
+if (NOT TINY3D_REFLECT_CMAKE_NATIVE AND NOT EXISTS "${TINY3D_SDK_REFLECTION_BASE}")
     message(FATAL_ERROR
         "ReflectionSettings.base.json not found at '${TINY3D_SDK_REFLECTION_BASE}'. "
         "Run the engine generate script so nmake/Core/Runtime/ReflectionSettings.json exists, "
@@ -175,11 +177,15 @@ function(game_plugin_add VARIANT)
     # SDK 侧统一处理 include 路径、引擎库、ABI 相关的定义与运行时库
     tiny3d_sdk_setup_plugin(${_target} ${VARIANT})
 
-    # TCLASS 反射：生成物放在构建目录，避免写进 Assets/Source
+    # TCLASS 反射：生成物放在构建目录，避免写进 Assets/Source。
+    #
+    # 两个变体编的虽然是同一份源码，反射却必须各出一份：Editor 变体多定义
+    # T3D_EDITOR，引擎头里的条件编译因此不同，rpp 解析出来的类型也就不同。
+    # 引擎自己也是这么分的（T3DCore 走 Core/Runtime，T3DCoreEditor 走 Core/Editor）。
     tiny3d_enable_reflection(${_target}
         SOURCE_DIR "${_cpp_source_dir}"
-        GENERATED_DIR "${CMAKE_BINARY_DIR}/Generated"
-        SETTINGS_DIR "${CMAKE_BINARY_DIR}/Reflect"
+        GENERATED_DIR "${CMAKE_BINARY_DIR}/Generated/${VARIANT}"
+        SETTINGS_DIR "${CMAKE_BINARY_DIR}/Reflect/${VARIANT}"
         BASE_SETTINGS "${TINY3D_SDK_REFLECTION_BASE}"
         EXTRA_INCLUDES "${_cpp_source_dir}")
 

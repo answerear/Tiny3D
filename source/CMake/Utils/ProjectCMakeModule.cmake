@@ -44,6 +44,65 @@ macro(SET_PROJECT_FILES group dir ext)
 	list(APPEND SOURCE_FILES ${out_files})
 endmacro(SET_PROJECT_FILES)
 
+
+# 声明本工程的反射产物，追加进 SOURCE_FILES
+# group : Visual Studio 里的分组名
+# dir   : 产物目录，必须以分隔符结尾
+# Usage : TINY3D_DECLARE_GENERATED_SOURCES(Generated ${dir}/)
+#
+# 产物清单由「已收集的源文件」推导，而不是去 glob 产物目录：产物是 rpp 在构建期
+# 写出来的，configure 期磁盘上可能一个都没有。glob 的话首次 configure 会整批漏掉，
+# 必须再 configure 一次才编得上，反射缺失还要等到运行期才暴露。
+#
+# 前提是 rpp 对扫描到的每个源文件都产出同名产物（没有反射内容的写个空翻译单元），
+# 这样两边的清单出自同一个源头。模板实例的产物名推不出来 —— 模板定义在本模块源码
+# 树之外 —— rpp 把它们聚合进固定名字的 Templates.generated.cpp。
+#
+# 详见 doc/todo/Reflection-Settings-CMake-Native-Design-todo.md §5.2 / §5.4
+macro(TINY3D_DECLARE_GENERATED_SOURCES group dir)
+	if (NOT TINY3D_REFLECT_CMAKE_NATIVE)
+		# 旧链路：产物由 generate-*.bat 在 configure 之前就写好了，直接 glob
+		set_project_files(${group} ${dir} .generated.cpp)
+	else ()
+		set(_t3d_gen_files "")
+
+		foreach (_t3d_gen_src IN LISTS SOURCE_FILES)
+			get_filename_component(_t3d_gen_ext "${_t3d_gen_src}" EXT)
+			if (_t3d_gen_ext STREQUAL ".cpp" OR _t3d_gen_ext STREQUAL ".cxx")
+				get_filename_component(_t3d_gen_title "${_t3d_gen_src}" NAME_WE)
+				list(APPEND _t3d_gen_files "${dir}${_t3d_gen_title}.generated.cpp")
+			endif ()
+		endforeach ()
+
+		set(_t3d_gen_templates "${dir}Templates.generated.cpp")
+		list(APPEND _t3d_gen_files "${_t3d_gen_templates}")
+		list(REMOVE_DUPLICATES _t3d_gen_files)
+
+		# 这些文件构建期才存在，得先声明出来，否则 CMake 在 configure 期就报找不到
+		set_source_files_properties(${_t3d_gen_files} PROPERTIES GENERATED TRUE)
+
+		if (MSVC)
+			# 聚合产物一个翻译单元里装着几十个模板实例的注册，rttr 的 type_data 又
+			# 给每个类型摊开一大片 COMDAT，超过了 COFF 的 65279 段上限（C1128）。
+			# 聚合之前这些注册分散在各自的产物里，所以以前碰不到这条线。
+			set_source_files_properties("${_t3d_gen_templates}"
+				PROPERTIES COMPILE_OPTIONS "/bigobj")
+		endif ()
+		source_group(${group} FILES ${_t3d_gen_files})
+		list(APPEND SOURCE_FILES ${_t3d_gen_files})
+
+		list(LENGTH _t3d_gen_files _t3d_gen_count)
+		message(STATUS "${BIN_NAME} : ${_t3d_gen_count} reflection product(s) declared in ${dir}")
+
+		unset(_t3d_gen_files)
+		unset(_t3d_gen_templates)
+		unset(_t3d_gen_src)
+		unset(_t3d_gen_ext)
+		unset(_t3d_gen_title)
+		unset(_t3d_gen_count)
+	endif ()
+endmacro(TINY3D_DECLARE_GENERATED_SOURCES)
+
 # macOS Sample：把 cfg / 引擎 dylib / 插件 / SDL / 资源拷到可执行文件目录。
 function(tiny3d_setup_macos_sample target_name)
     set_target_properties(${target_name} PROPERTIES
