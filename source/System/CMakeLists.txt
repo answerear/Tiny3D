@@ -10,11 +10,6 @@ set_project_name(T3DSystem)
 message(STATUS "Generating project : ${BIN_NAME}")
 
 
-if (TINY3D_SYSTEM_RTTR)
-    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-endif (TINY3D_SYSTEM_RTTR)
-
-
 if (MSVC)
 	# Add definition only for Windows.
 	if (TINY3D_BUILD_SHARED_LIBS)

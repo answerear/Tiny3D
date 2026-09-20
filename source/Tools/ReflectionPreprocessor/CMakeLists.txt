@@ -35,8 +35,15 @@ endif (TINY3D_OS_WINDOWS)
 set(LLVM_INCLUDE_DIR "${LLVM_HOME}/include")
 set(LLVM_LIB_DIR "${LLVM_HOME}/${LLVM_LIB_SUFFIXES}")
 set(LLVM_BIN_DIR "${LLVM_HOME}/${LLVM_LIB_SUFFIXES}")
-set(TINY3D_CLANG_RESOURCE_SRC "${LLVM_BIN_DIR}/clang-resource")
 #set(LLVM_LIB_DEBUG_DIR "${LLVM_HOME}/${LLVM_LIB_DEBUG_SUFFIXES}")
+
+# clang 的内建头（resource dir）只是 __builtin_* 的薄封装，必须与 libclang 严格
+# 同版本，差一个版本就会在 intrinsic 头里报 undeclared identifier。这棵树与 host
+# 无关，一份带齐所有架构的 intrinsic，所以各平台共用；平台目录下另放一份可覆盖。
+set(TINY3D_CLANG_RESOURCE_SRC "${LLVM_BIN_DIR}/clang-resource")
+if (NOT EXISTS "${TINY3D_CLANG_RESOURCE_SRC}/include")
+    set(TINY3D_CLANG_RESOURCE_SRC "${LLVM_HOME}/prebuilt/clang-resource")
+endif ()
 
 # macOS 26 SDK 的 libc++ 依赖 Clang 16+ 的 __remove_cv 等 builtin。
 # 仓库里预编译的是 LLVM 15 libclang，解析标准库头会整片失败。
@@ -127,7 +134,18 @@ if (TINY3D_OS_WINDOWS)
 
     set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME rpp)
 
-    # Game Plugin 与 Sample 在编辑器 bin 目录调 rpp，libclang.dll 必须始终跟过去。
+    # 单独拷出来的 libclang.dll 周围没有 LLVM 安装树，推不出自己的 resource dir，
+    # 靠 rpp 去找同级的 clang-resource。交叉编译到 libc++ 平台时缺了它，libc++ 的
+    # <cstddef> 那句 #include_next <stddef.h> 会落空，整片解析失败。
+    if (NOT EXISTS "${TINY3D_CLANG_RESOURCE_SRC}/include/stddef.h")
+        message(FATAL_ERROR
+            "rpp: 找不到与 libclang 配套的 clang resource 头。\n"
+            "  期望位置 = ${TINY3D_CLANG_RESOURCE_SRC}/include\n"
+            "  这份头必须与 ${LLVM_BIN_DIR}/libclang.dll 同版本。")
+    endif ()
+
+    # Game Plugin 与 Sample 在编辑器 bin 目录调 rpp，libclang.dll 与 clang-resource
+    # 必须始终跟过去。
     add_custom_command(TARGET ${BIN_NAME}
         PRE_LINK
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
@@ -136,6 +154,12 @@ if (TINY3D_OS_WINDOWS)
         COMMAND ${CMAKE_COMMAND} -E copy ${LLVM_BIN_DIR}/libclang.dll ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
         COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
         COMMAND ${CMAKE_COMMAND} -E copy ${SDL2_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${TINY3D_CLANG_RESOURCE_SRC}"
+            "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/clang-resource"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${TINY3D_CLANG_RESOURCE_SRC}"
+            "${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/clang-resource"
         )
 
     # Setup install files and path for Windows.

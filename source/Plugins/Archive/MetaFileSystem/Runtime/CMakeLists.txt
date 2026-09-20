@@ -8,11 +8,6 @@
 set_project_name(MetaFSArchive)
 
 
-if (TINY3D_METAFSARCHIVE_RTTR)
-    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-endif (TINY3D_METAFSARCHIVE_RTTR)
-
-
 if (MSVC)
     if (TINY3D_BUILD_SHARED_LIBS)
         add_definitions(-DMETAFSARCHIVE_EXPORT -D_USRDLL)

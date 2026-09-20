@@ -5,8 +5,10 @@
 /vs2015-x64
 /vs2017-x64
 /vs2019-x64
+/vs2022-x64
 /build-rpp-host
 /build-host
+/build-android-arm64
 /xcode-osx
 /build-osx
 /rttr-osx
@@ -14,10 +16,15 @@
 /xcode-ios
 /codeblocks-linux
 /nmake
-# 反射链路迁移的验收产物：都是 cct / rpp 的输出副本，能由 Projects 下对应的
+# 反射链路迁移的验收产物：都是 cct / rpp 的输出副本，能由本机 Projects 下对应的
 # reflect-*.ps1 重新生成，不进版本控制。
 /nmake-verify
 /ReflectVerify
 /ReflectSnapshot
+# 迁移期手工验收脚本，不是最终构建入口。方案全部阶段做完后换机开发不依赖它们。
+# write-msvc-env-cache.ps1 由 setup-msvc-env.bat 调用，仍进版本控制。
+/Projects/reflect-*.ps1
+/Projects/compare-reflection-settings.ps1
+/Projects/verify-reflection-output.ps1
 /.vscode
 /.vs

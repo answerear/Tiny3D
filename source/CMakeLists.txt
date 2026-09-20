@@ -241,20 +241,20 @@ include(FindPkgMacros)
 include(ProjectCMakeModule)
 
 #-------------------------------------------------------------------------------
-# 反射配置由 CMake 原生生成。ON 走新链路，OFF 退回 cct / nmake 旧链路。
-#
-#   ON  : ReflectionSettings.json 由 file(GENERATE) 从 target 属性写出，rpp 只在
-#         构建期跑，产物清单在 configure 期按源文件预声明。
-#   OFF : 配置来自 generate-*.bat 里 cct 写进 nmake/<Module>/ 的那份，产物靠
-#         glob 产物目录收集。
+# 反射配置由 CMake 原生生成（file(GENERATE) + 构建期 rpp）。
+# TINY3D_REFLECT_CMAKE_NATIVE=OFF 已不再支持：cct / nmake 链路已删除。
 #
 # 必须声明在 Tiny3DReflectHelpers 之前：那个文件为独立的 GamePlugin 工程准备了同名
 # 默认值，先 include 会让它建出一个普通变量，随后的 option() 再把它清掉（CMP0077）。
-#
-# 详见 doc/todo/Reflection-Settings-CMake-Native-Design-todo.md §8 阶段 2
 #-------------------------------------------------------------------------------
 option(TINY3D_REFLECT_CMAKE_NATIVE
     "Generate ReflectionSettings.json from CMake instead of the cct / nmake pipeline" ON)
+
+if (NOT TINY3D_REFLECT_CMAKE_NATIVE)
+    message(FATAL_ERROR
+        "TINY3D_REFLECT_CMAKE_NATIVE=OFF is no longer supported: "
+        "CompileCommandTool and the nmake / compile_commands.json pipeline were removed.")
+endif ()
 
 include(Tiny3DReflectHelpers)
 
@@ -319,15 +319,13 @@ if (NOT TINY3D_BUILD_RTTR_TOOL)
 	set_property(TARGET rttr_core PROPERTY FOLDER "External/rttr")
 endif (NOT TINY3D_BUILD_RTTR_TOOL)
 
-# Pre-generated reflection source base directory.
-# Cross-compilation (Android etc.) reuses the host build's generated .cpp files.
-if (CMAKE_CROSSCOMPILING)
-    set(TINY3D_GENERATED_BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vs2019-x64" CACHE PATH
-        "Base directory containing pre-generated reflection .cpp files for cross-compilation")
-else()
-    set(TINY3D_GENERATED_BASE_DIR "${CMAKE_BINARY_DIR}" CACHE PATH
-        "Base directory containing generated reflection .cpp files (native build)")
-endif()
+# 反射产物的根目录。每个平台（含交叉编译）都在自己的构建目录里生成，Android 用的
+# 就是 NDK 头解析出来的产物。
+#
+# 刻意不进 cache：它完全由 CMAKE_BINARY_DIR 推导，没有让人覆盖的余地。而一旦进了
+# cache，早先配置过的构建目录会一直抱着失效的旧值不放（`set(... CACHE)` 不带 FORCE
+# 覆盖不掉已有条目），Android Studio 的 .cxx 就曾因此继续去 vs2019-x64 找产物。
+set(TINY3D_GENERATED_BASE_DIR "${CMAKE_BINARY_DIR}")
 
 # Project Reflect (incremental reflection generation, can be disabled in CI)
 option(TINY3D_INCREMENTAL_RTTR "Enable incremental RTTR reflection generation during build" ON)
@@ -337,9 +335,7 @@ if (TINY3D_REFLECT_CMAKE_NATIVE AND NOT TINY3D_INCREMENTAL_RTTR)
     # 「file not found」，不如在这里说清楚两个开关的关系。
     message(FATAL_ERROR
         "TINY3D_INCREMENTAL_RTTR=OFF 时反射产物没有生成者，而 "
-        "TINY3D_REFLECT_CMAKE_NATIVE=ON 会把它们预声明进各模块。\n"
-        "  要跳过反射生成请同时设置 -DTINY3D_REFLECT_CMAKE_NATIVE=OFF（走旧链路，"
-        "复用 generate-*.bat 预先产出的产物）。")
+        "TINY3D_REFLECT_CMAKE_NATIVE=ON 会把它们预声明进各模块。")
 endif ()
 
 if (TINY3D_INCREMENTAL_RTTR)

@@ -1,0 +1,73 @@
+// 交叉编译前在 host 上构建 rpp.exe。
+//
+// 各 Android 工程在 android {} 之后：
+//   ext.tiny3dSourceDir = file(".../source")
+//   apply from: "${tiny3dSourceDir}/Platform/Android/tiny3d-build-host-rpp.gradle"
+//
+// 增量：Gradle 拿 ReflectionPreprocessor 源码树当 inputs、rpp.exe 当 outputs。
+// 以前 onlyIf { !rppExe.exists() }，rpp 源码更新后 exe 还在就不会重建。
+
+if (!ext.has("tiny3dSourceDir") || ext.tiny3dSourceDir == null) {
+    throw new GradleException(
+        "Set ext.tiny3dSourceDir to the engine source/ directory before applying tiny3d-build-host-rpp.gradle")
+}
+
+def sourceDir = ext.tiny3dSourceDir as File
+def rppBuildDir = new File(sourceDir, "build-rpp-host")
+def rppSrcDir = new File(sourceDir, "Tools/ReflectionPreprocessor")
+
+def variants
+if (android.hasProperty("applicationVariants")) {
+    variants = android.applicationVariants
+} else if (android.hasProperty("libraryVariants")) {
+    variants = android.libraryVariants
+} else {
+    throw new GradleException("tiny3d-build-host-rpp.gradle: no applicationVariants / libraryVariants on android extension")
+}
+
+variants.all { variant ->
+    def buildTypeName = variant.buildType.name
+    def buildTypeCapitalized = buildTypeName.capitalize()
+    def rppExe = new File(sourceDir, "bin/Windows/${buildTypeCapitalized}/rpp.exe")
+    def taskName = "buildHostRpp${buildTypeCapitalized}"
+
+    if (tasks.findByName(taskName) == null) {
+        tasks.create(taskName) {
+            group = "build setup"
+            description = "Build host rpp.exe (${buildTypeCapitalized}) for cross-compilation reflection generation"
+
+            inputs.dir(rppSrcDir)
+            inputs.file(new File(sourceDir, "Tools/CMakeLists.txt"))
+            outputs.file(rppExe)
+            // clang-resource 由 rpp 的 PRE_LINK 摆到 exe 旁边，只在 rpp 重链时刷新。
+            // 不跟踪它的话，单独丢了这个目录 gradle 会认为任务已是最新，交叉编译要到
+            // 解析阶段才报头文件找不到。
+            outputs.dir(new File(rppExe.parentFile, "clang-resource"))
+
+            doLast {
+                exec {
+                    commandLine "cmake",
+                        "-G", "Visual Studio 17 2022", "-A", "x64",
+                        "-DTINY3D_BUILD_RTTR_TOOL=ON",
+                        "-S", sourceDir.absolutePath,
+                        "-B", rppBuildDir.absolutePath
+                }
+                exec {
+                    commandLine "cmake",
+                        "--build", rppBuildDir.absolutePath,
+                        "--config", buildTypeCapitalized,
+                        "--target", "ReflectionPreprocessor"
+                }
+            }
+        }
+    }
+
+    def nativeBuildTask = tasks.findByName("externalNativeBuild${buildTypeCapitalized}")
+    if (nativeBuildTask != null) {
+        nativeBuildTask.dependsOn taskName
+    } else {
+        tasks.matching { it.name == "externalNativeBuild${buildTypeCapitalized}" }.all {
+            it.dependsOn taskName
+        }
+    }
+}

@@ -30,6 +30,16 @@
 
 namespace Tiny3D
 {
+    namespace
+    {
+        // libc++ 的 inline ABI 命名空间。拼进 getHierarchyName 会让 std::vector
+        // 变成 std::__ndk1::vector，白名单和跨平台 RTTR 名字都对不上。
+        bool isLibcxxAbiInlineNamespace(const String &name)
+        {
+            return name == "__1" || name == "__ndk1" || name == "__n1";
+        }
+    }
+
     //--------------------------------------------------------------------------
     
     ASTNode::ASTNode(const String &name)
@@ -64,13 +74,29 @@ namespace Tiny3D
 
     String ASTNode::getHierarchyName() const
     {
-        String name = getName();
-        const ASTNode *node = getParent();
+        // 跳过 libc++ 的内联 ABI 命名空间（自身和祖先都要跳）。
+        // 只跳祖先的话，父结点是 __ndk1 时 getHierarchyName() 仍会得到
+        // "std::__ndk1"，白名单比对 std::vector 还是对不上。
+        const ASTNode *node = this;
+        while (node != nullptr
+            && (node->getType() == Type::kNull
+                || isLibcxxAbiInlineNamespace(node->getName())))
+        {
+            node = node->getParent();
+        }
+        if (node == nullptr)
+        {
+            return getName();
+        }
+
+        String name = node->getName();
+        node = node->getParent();
         while (node != nullptr)
         {
-            if (node->getType() != Type::kNull)
+            if (node->getType() != Type::kNull
+                && !isLibcxxAbiInlineNamespace(node->getName()))
             {
-                name = node->getName() + "::" + name;    
+                name = node->getName() + "::" + name;
             }
             node = node->getParent();
         }

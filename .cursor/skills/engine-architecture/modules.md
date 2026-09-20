@@ -71,7 +71,7 @@ Archive：文件系统、Bundle、Meta 等，走 `Archive` 插件接口，不要
 
 ## 工具（`source/Tools/`）
 
-名称以 `Tools/CMakeLists.txt` 为准。常见：`MeshConverter`、`BundleBuilder`、`BuiltinGenerator`、`ShaderCrossCompiler`、`ReflectionPreprocessor`、`CompileCommandTool`。
+名称以 `Tools/CMakeLists.txt` 为准。常见：`MeshConverter`、`BundleBuilder`、`BuiltinGenerator`、`ShaderCrossCompiler`、`ReflectionPreprocessor`。
 
 ## 读代码时的快捷入口
 

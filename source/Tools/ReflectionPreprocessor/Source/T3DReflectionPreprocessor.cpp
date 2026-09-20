@@ -776,9 +776,22 @@ namespace  Tiny3D
     void ReflectionPreprocessor::appendResourceDir(ClangArgs &args)
     {
         // libclang 靠自己所在的目录反推 LLVM 安装布局，才能找到编译器内建头
-        // (stdarg.h、stddef.h 等)。这里的 libclang 是单独拷到 rpp 旁边的，那套
-        // 推断必然落空，所以显式指定，也免得依赖 clang 内部的布局约定。
-        // Windows 上这些内建头由 MSVC 的 UCRT 提供，不随包，目录不存在即跳过。
+        // (stdarg.h、stddef.h、各架构 intrinsic)，而这里的 libclang 是单独拷到
+        // rpp 旁边的，那套推断必然落空，所以显式指定。
+        //
+        // 交叉编译也一律用随包这份，不借目标工具链的：内建头只是 __builtin_* 的
+        // 薄封装，必须与解析用的 libclang 同版本。借 NDK clang 14 那份的话，
+        // x86_64 目标下 immintrin.h 会展开成 libclang 15 已经删掉的
+        // __builtin_ia32_* 旧名字，整片 undeclared identifier。
+        // 配置里显式给了就听配置的，留个逃生口。
+        for (const auto &s : mArgs)
+        {
+            if (s == "-resource-dir" || StringUtil::startsWith(s, "-resource-dir", false))
+            {
+                RP_LOG_INFO("Reflection settings provide clang resource dir.");
+                return;
+            }
+        }
         const char sep = Dir::getNativeSeparator();
         const String appPath = Dir::getAppPath();
         String resourceDir = appPath + sep + "clang-resource";

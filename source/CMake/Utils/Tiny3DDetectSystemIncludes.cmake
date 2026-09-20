@@ -130,6 +130,71 @@ function(_tiny3d_detect_msvc_includes OUT_INCLUDES)
 endfunction()
 
 #-------------------------------------------------------------------------------
+# _tiny3d_android_arch_triple(<out>)
+#
+# NDK 把架构相关的头放在 sysroot/usr/include/<triple>/ 下。CMAKE_CXX_COMPILER_TARGET
+# 带 API 等级和 "none"（aarch64-none-linux-android26），目录名没有这两段。
+#-------------------------------------------------------------------------------
+function(_tiny3d_android_arch_triple OUT_VAR)
+    set(_triple "")
+    foreach (_candidate
+            "${CMAKE_LIBRARY_ARCHITECTURE}"
+            "${ANDROID_LLVM_TRIPLE}")
+        if (_candidate)
+            set(_triple "${_candidate}")
+            break()
+        endif ()
+    endforeach ()
+
+    if (NOT _triple)
+        if (ANDROID_ABI STREQUAL "arm64-v8a")
+            set(_triple "aarch64-linux-android")
+        elseif (ANDROID_ABI STREQUAL "armeabi-v7a")
+            set(_triple "arm-linux-androideabi")
+        elseif (ANDROID_ABI STREQUAL "x86")
+            set(_triple "i686-linux-android")
+        elseif (ANDROID_ABI STREQUAL "x86_64")
+            set(_triple "x86_64-linux-android")
+        endif ()
+    endif ()
+
+    set(${OUT_VAR} "${_triple}" PARENT_SCOPE)
+endfunction()
+
+#-------------------------------------------------------------------------------
+# _tiny3d_detect_android_includes(<out_includes>)
+#
+# host 上的 rpp 用的是 Windows 编出来的 libclang，不会自动带上 NDK 的默认搜索路径。
+# 只给 usr/include 的话 <vector> 都找不到。优先用 CMake 从 NDK clang 问来的隐式
+# 搜索路径，拿不到再按 NDK 布局手拼。
+#-------------------------------------------------------------------------------
+function(_tiny3d_detect_android_includes OUT_INCLUDES)
+    set(_includes "")
+
+    _tiny3d_android_arch_triple(_arch_triple)
+    _tiny3d_append_existing_dir(_includes
+        "${CMAKE_SYSROOT}/usr/include/c++/v1"
+        "${CMAKE_SYSROOT}/usr/include/${_arch_triple}"
+        "${CMAKE_SYSROOT}/usr/include")
+
+    # 隐式搜索路径里属于 sysroot 的补上。编译器内建头（stddef.h 等）不要从 NDK
+    # clang 的 resource dir 拿 —— host 上的 libclang 版本未必对得上，rpp 会自己
+    # 用 -resource-dir 指到随包的那份。
+    if (CMAKE_SYSROOT)
+        file(TO_CMAKE_PATH "${CMAKE_SYSROOT}" _sys)
+        foreach (_inc IN LISTS CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES)
+            file(TO_CMAKE_PATH "${_inc}" _inc)
+            string(FIND "${_inc}" "${_sys}" _pos)
+            if (_pos EQUAL 0)
+                _tiny3d_append_existing_dir(_includes "${_inc}")
+            endif ()
+        endforeach ()
+    endif ()
+
+    set(${OUT_INCLUDES} "${_includes}" PARENT_SCOPE)
+endfunction()
+
+#-------------------------------------------------------------------------------
 # tiny3d_detect_system_includes()
 #
 # 设置两个全局缓存变量：
@@ -148,9 +213,9 @@ function(tiny3d_detect_system_includes)
     set(_flags "")
 
     if (CMAKE_SYSTEM_NAME STREQUAL "Android")
-        # NDK 的 sysroot。交叉编译时必须显式给 --target，否则 libclang 会按
-        # host 三元组解析，条件编译整个走错分支。
-        _tiny3d_append_existing_dir(_includes "${CMAKE_SYSROOT}/usr/include")
+        # host 上的 libclang 默认三元组是 Windows。不显式给 --target，预定义宏会变成
+        # _WIN32 / _MSC_VER，条件编译按 Windows 求值，Android 反射产物就全错了。
+        _tiny3d_detect_android_includes(_includes)
         if (CMAKE_CXX_COMPILER_TARGET)
             list(APPEND _flags "--target=${CMAKE_CXX_COMPILER_TARGET}")
         endif ()
@@ -158,6 +223,12 @@ function(tiny3d_detect_system_includes)
             file(TO_CMAKE_PATH "${CMAKE_SYSROOT}" _sysroot)
             list(APPEND _flags "--sysroot=${_sysroot}")
         endif ()
+        list(APPEND _flags "-stdlib=libc++")
+
+        # 编译器内建头（stddef.h、各架构 intrinsic）不从这里给。解析用的是 host
+        # libclang，内建头必须跟它同版本，而不是跟 NDK clang 同版本 —— 借 NDK 那份
+        # 的话，x86_64 目标下 immintrin.h 会展开成当前 libclang 已经删掉的
+        # __builtin_ia32_* 旧名字。这份由 rpp 用自己旁边的 clang-resource 提供。
     elseif (APPLE)
         if (CMAKE_OSX_SYSROOT)
             file(TO_CMAKE_PATH "${CMAKE_OSX_SYSROOT}" _sysroot)
@@ -192,6 +263,20 @@ function(tiny3d_detect_system_includes)
             "tiny3d_detect_system_includes: 未能确定 MSVC / Windows SDK 头文件路径。\n"
             "  %INCLUDE% 为空，且从 ${CMAKE_CXX_COMPILER} 反推失败。\n"
             "  从开发者命令提示符运行，或先执行 source/Projects/setup-msvc-env.bat。")
+    endif ()
+
+    if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+        if (NOT CMAKE_CXX_COMPILER_TARGET)
+            message(FATAL_ERROR
+                "tiny3d_detect_system_includes: Android 交叉编译缺少 CMAKE_CXX_COMPILER_TARGET。\n"
+                "  host 上的 libclang 会按 Windows 三元组解析，条件编译整棵树都会走错。")
+        endif ()
+        if (NOT _includes)
+            message(FATAL_ERROR
+                "tiny3d_detect_system_includes: 未能确定 NDK 头文件路径。\n"
+                "  CMAKE_SYSROOT = ${CMAKE_SYSROOT}\n"
+                "  CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES 为空，按 NDK 布局手拼也没找到目录。")
+        endif ()
     endif ()
 
     list(LENGTH _includes _count)

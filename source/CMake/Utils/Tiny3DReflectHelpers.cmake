@@ -1,11 +1,9 @@
 #-------------------------------------------------------------------------------
 # Tiny3D 业务工程反射生成
 #
-# 复用引擎 nmake/Core/Runtime 产出的 ReflectionSettings.json（含 libclang 所需的
-# 系统头与宏），追加业务 include 后调用 rpp，把 *.generated.cpp 编进目标。
-#
-# rpp 会把 GeneratedPath 拼到 SOURCE_DIR 后面，因此 JSON 里必须写相对 SOURCE_DIR
-# 的路径，不能写绝对路径。
+# 新链路由 file(GENERATE) 从 target 属性写出 ReflectionSettings.json，构建期再调
+# rpp。rpp 会把 GeneratedPath 拼到 SOURCE_DIR 后面，因此 JSON 里必须写相对
+# SOURCE_DIR 的路径，不能写绝对路径。
 #-------------------------------------------------------------------------------
 
 # GamePlugin 这类业务工程不经过 source/CMakeLists.txt，那边的 option() 声明不到这里，
@@ -209,14 +207,6 @@ function(tiny3d_enable_reflection TARGET)
     if (DEFINED TINY3D_INCREMENTAL_RTTR AND NOT TINY3D_INCREMENTAL_RTTR)
         set(_run_rpp FALSE)
     endif ()
-    # generate-*.bat 的 nmake 阶段只为 System/Math/Core/Editor 导出 compile_commands.json，
-    # 此时 cct 还没写出 ReflectionSettings.json，Samples 不能在这里跑 rpp。
-    if (TINY3D_SYSTEM_RTTR OR TINY3D_MATH_RTTR OR TINY3D_CORE_RTTR
-            OR TINY3D_CORE_EDITOR_RTTR OR TINY3D_LAUNCHER_RTTR OR TINY3D_EDITOR_RTTR)
-        set(_run_rpp FALSE)
-        message(STATUS
-            "tiny3d_enable_reflection: skip rpp for '${TARGET}' (compile_commands export)")
-    endif ()
 
     _tiny3d_find_rpp(_rpp_cfg _rpp_bld)
 
@@ -360,8 +350,7 @@ function(tiny3d_enable_reflection TARGET)
 endfunction()
 
 #===============================================================================
-# 以下是「反射配置由 CMake 原生生成」的新链路。
-# 阶段 1 与上面的 cct / nmake 链路并存，只额外写出一份配置供比对，不接进构建。
+# 以下是「反射配置由 CMake 原生生成」的链路。
 # 详见 doc/todo/Reflection-Settings-CMake-Native-Design-todo.md §6
 #===============================================================================
 
@@ -469,8 +458,18 @@ function(tiny3d_write_reflection_settings TARGET)
         endif ()
     endif ()
 
+    # §7.3：_DEBUG / NDEBUG 不在 COMPILE_DEFINITIONS 里。MSVC 的 _DEBUG 来自运行库
+    # 开关（/MDd），NDEBUG 来自 CMAKE_CXX_FLAGS_<CONFIG> 的 /DNDEBUG。旧链路用
+    # -DCMAKE_BUILD_TYPE=Debug 跑 NMake，Release 构建读到的也是 Debug 那份。
+    # 按 $<CONFIG> 显式补上，各配置的 JSON 才会在这一点上分开。
+    if (MSVC)
+        set(_config_defs "$<$<CONFIG:Debug>:_DEBUG>;$<$<NOT:$<CONFIG:Debug>>:NDEBUG>")
+    else ()
+        set(_config_defs "$<$<NOT:$<CONFIG:Debug>>:NDEBUG>")
+    endif ()
+
     _tiny3d_json_array_genex(_def_items
-        "${_dir_defs};${_export_define};$<TARGET_PROPERTY:${TARGET},COMPILE_DEFINITIONS>")
+        "${_dir_defs};${_export_define};${_config_defs};$<TARGET_PROPERTY:${TARGET},COMPILE_DEFINITIONS>")
 
     # ---- SystemIncludePath / OtherFlags：configure 期即可确定 --------------
     _tiny3d_json_array_literal(_sys_items ${TINY3D_SYSTEM_INCLUDE_DIRS})
