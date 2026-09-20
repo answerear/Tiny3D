@@ -591,21 +591,121 @@ cmake --build . --config Debug
 
 **顺带确认的既有缺陷（与反射链路无关，未在本阶段修）：** `ResourceApp` 与 `SkyboxApp` 的 POST_BUILD 都会用 bundlebuilder 重打同一份 `assets/samples/bundle` 并拷到同一个运行目录。并行构建（MSBuild `-m`）下两者互相踩，报 `MSB3073`；串行构建正常。
 
-### 阶段 3：接入 Android，补齐其他平台
+**关于验收脚本与快照：** `source/Projects/reflect-*.ps1`、`compare-reflection-settings.ps1`、`verify-reflection-output.ps1` 以及它们写出的 `source/ReflectSnapshot/` 都不进版本控制（已在 `source/.gitignore` 里）。脚本是迁移期手工验收工具，不是最终构建入口；快照是 rpp 产物副本。阶段 3 对比 NDK 头解析前后的产物差异仍用这套脚本，前提是**在同一台机器上把方案执行完所有阶段**。全部阶段落地后，换机开发只依赖 CMake native 链路，不依赖这些脚本。`s1slash` 基线用改完的 rpp 复现不出来，重跑 `reflect-compare-baseline.ps1` 得先把 `source/Tools/ReflectionPreprocessor/` 回退到步骤 1 那个提交、重编 rpp、重新打快照；结论已经记在上面两张表里，一般不必重建。
 
-- 落地 §4.2 / §4.3 / §4.4；
-- Android 侧去掉 `TINY3D_GENERATED_BASE_DIR` 指向 `vs2019-x64` 的默认值，改为各自构建目录；
-- **验收**：在**没有跑过任何 Windows generate 脚本**的干净树上，Android Studio 能完整构建并运行 Sample；对比 NDK 头解析前后 `.generated.cpp` 的差异并逐条确认（§7.1）；顺带验证 §7.3。
-- gradle 的 `buildHostRpp` 任务保留（rpp.exe 仍需 host 编译），但 `onlyIf { !rppExe.exists() }` 应改为带时间戳判断，否则 rpp 更新后不会重建。
+### 阶段 3：接入 Android，补齐其他平台 —— 已完成
+
+- 落地 §4.2 / §4.3 / §4.4（探测脚本阶段 1 已写好四个平台分支；本阶段把 Android 真正接到构建上，并补齐 NDK 实际需要的 libc++ / 架构目录 / 编译器内建头）；
+- Android 侧去掉 `TINY3D_GENERATED_BASE_DIR` 指向 `vs2019-x64` 的默认值：一律用 `CMAKE_BINARY_DIR`；
+- gradle 的 `buildHostRpp` 抽到 `source/Platform/Android/tiny3d-build-host-rpp.gradle`，用 Gradle `inputs`/`outputs` 做增量，rpp 源码更新后会重建。
+
+**落地物：**
+
+| 文件 | 作用 |
+|---|---|
+| `source/CMakeLists.txt` | `TINY3D_GENERATED_BASE_DIR` 改为 `CMAKE_BINARY_DIR`，且刻意不进 cache（见 §8 阶段 3 补丁） |
+| `source/CMake/Utils/Tiny3DDetectSystemIncludes.cmake` | Android：libc++、`aarch64-linux-android` 等架构目录；缺 `--target` 或头路径直接 `FATAL_ERROR` |
+| `source/CMake/Utils/Tiny3DReflectHelpers.cmake` | §7.3：按 `$<CONFIG>` 补 `_DEBUG` / `NDEBUG`（它们不在 `COMPILE_DEFINITIONS` 里） |
+| `source/Tools/ReflectionPreprocessor/Source/T3DAbstractSyntaxTree.cpp` | 跳过 libc++ 内联 ABI 命名空间（`__ndk1` / `__1`），否则白名单对不上 `std::vector`，RTTR 名字也和 MSVC 对不上 |
+| `source/Platform/Android/tiny3d-build-host-rpp.gradle` | 共享的 host rpp 构建任务；18 个 `build.gradle` 改为 `apply from` |
+
+**怎么构建（命令行，不等价于 Android Studio 但覆盖反射链路）：**
+
+```bat
+cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE=%NDK%/build/cmake/android.toolchain.cmake ^
+  -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-26 -DANDROID_STL=c++_shared ^
+  -DCMAKE_BUILD_TYPE=Debug -DTINY3D_HOST_RPP=<host-rpp.exe> ^
+  -DTINY3D_BUILD_SAMPLES=FALSE -S source -B source/build-android-arm64
+cmake --build source/build-android-arm64 --target T3DCore T3DMath T3DSystem
+```
+
+Android Studio 打开 Sample 工程仍走 gradle：先 `buildHostRpp` 再 `externalNativeBuild`。本阶段用 NDK 24.0.8215888 + CMake 3.22.1 Ninja 在干净的 `build-android-arm64/` 里验证，**没有依赖 `vs2019-x64` 里的 `.generated.cpp`**。
+
+**验收结果（NDK 24 / arm64-v8a / Debug）：**
+
+configure 写出的 `ReflectionSettings.json`：`T3D_OS_ANDROID` + `T3D_OS_MOBILE`，`OtherFlags` 含 `--target=aarch64-none-linux-android26`、`--sysroot`、`-stdlib=libc++`。`GeneratedPath` 落在本次构建目录。（本阶段一度还含 NDK clang 的 `-resource-dir`，已被下面的补丁取代。）
+
+`T3DSystem` / `T3DMath` / `T3DCore` 一次 build 链接成功（`libT3DCore.so` 等）。Core 预声明 139 个产物（不含桌面专属 Meta 源文件），rpp 扫描整个 `source/Core` 仍会写出 Meta 的空占位产物，不编进 so。
+
+注册类型集合（相对 Windows VS2019 Debug 产物）：
+
+| 模块 | 结果 |
+|---|---|
+| System | 3 = 3，集合相同 |
+| Math | 集合相同 |
+| Core/Runtime | Android 190，Windows 220。差的 30 个全部是 `Tiny3D::Meta*` 与 `Tiny3D::SmartPtr<Tiny3D::Meta*>` |
+
+这 30 个正是 §7.1 要修的错配：`T3DMeta.h` 整段在 `#if defined(T3D_OS_DESKTOP)` 里，Windows 头解析会注册，NDK 头解析正确地不注册。引擎运行时类型（含 `std::list<UUID>` 等 STL 实例）两边一致。序列化兼容：Player / 设备端本来就不该依赖桌面 `.meta` 类型。
+
+**§7.3：** `file(GENERATE)` 已经按 `$<CONFIG>` 各出一份 JSON。本项目自己的 `COMPILE_DEFINITIONS` 在 Debug/Release 之间原本没有差异，`_DEBUG`/`NDEBUG` 来自运行库开关和 `CMAKE_CXX_FLAGS_<CONFIG>`。现已按配置显式写入。Windows 重新 generate 后实测：Debug 仅有 `_DEBUG`，Release 仅有 `NDEBUG`。
+
+**实施中发现并修掉的三处：**
+
+1. **只给 `usr/include` 找不到 `<stddef.h>`。** libc++ 的 `<cstddef>` 用 `#include_next <stddef.h>` 找编译器内建头。host 上的 rpp 旁边没有 `clang-resource`（Windows 原先靠 UCRT）。当时的解法是把 NDK clang 的 `-print-resource-dir` 写进 `OtherFlags`，并把 `resource/include` 追加到 `SystemIncludePath` —— **这个解法只在 arm64 上成立，见下面的补丁。**
+2. **libc++ 内联 ABI 命名空间。** 白名单比的是 `std::vector`，NDK AST 里是 `std::__ndk1::vector`，STL 容器整批漏注册，序列化会裂。`getHierarchyName()` 跳过 `__ndk1` / `__1` / `__n1`，生成的 RTTR 名字仍是 `std::list<...>`，与 MSVC 一致。
+3. **`buildHostRpp` 的 `onlyIf { !rppExe.exists() }`。** 改成 Gradle inputs/outputs：`Tools/ReflectionPreprocessor` 源码树变了就重建。
+
+GUI Sample 安装到设备仍需在 Android Studio 里人工过一遍（本阶段验证覆盖到引擎三个反射模块的 configure + rpp + 编译链接）。
+
+### 阶段 3 补丁：clang resource dir 归 rpp 自带，不借目标工具链
+
+**状态：已完成**
+
+阶段 3 只在命令行的 arm64-v8a 上验过。Android Studio 构建 x86_64 时（模拟器 ABI），rpp 解析整片失败：
+
+```
+emmintrin.h:2108: error: use of undeclared identifier '__builtin_ia32_paddsb128'
+smmintrin.h / tmmintrin.h: 同类错误若干（pmaxsw128 / pminub128 / pabsb128 / pminsb128 ...）
+Fatal diagnostic on T3DAnimationClip.cpp, abort the whole run
+```
+
+**根因是版本方向反了。** 借来的 `-resource-dir` 是 NDK 24 自带 clang **14.0.1** 的，而解析器是 `dependencies/llvm/prebuilt/Windows/x64/libclang.dll`，版本资源是 **LLVM 15.0.0**。LLVM 15 把这批饱和加减 / min-max / abs 的 SSE builtin 换成了 `__builtin_elementwise_*` 并删掉旧名字（在那个 DLL 里实测 `__builtin_ia32_paddsb128` 0 处、`__builtin_elementwise_add_sat` 1 处），而 NDK 14 的头还在调旧名字。**新解析器读旧头**。
+
+resource 头只是 `__builtin_*` 的薄封装，必须与解析用的 libclang 同版本，不是与目标工具链同版本 —— `Tiny3DDetectSystemIncludes.cmake` 里原本就有一句注释说了这件事，只是代码没照做。
+
+触发链是引擎自己的代码：`source/Math/Include/T3DSIMDConfig.h` 在 `__SSE2__` 下 `#include <immintrin.h>`，x86_64 目标必然定义 `__SSE2__`，于是 SSE 头整串被拉进来。arm64 走 `arm_neon.h` 分支，NEON builtin 在 14→15 之间没动过，所以躲过了。
+
+**做法：**
+
+| 文件 | 改动 |
+|---|---|
+| `dependencies/llvm/prebuilt/clang-resource/` | 原 `prebuilt/OSX/clang-resource/` 提升为共享目录。resource 头与 host 无关，一份带齐所有架构的 intrinsic，各平台共用；平台目录下另放一份可覆盖 |
+| `source/Tools/ReflectionPreprocessor/CMakeLists.txt` | `TINY3D_CLANG_RESOURCE_SRC` 加回退链；Windows 分支把 `clang-resource` 随 `libclang.dll` 一起拷到 rpp.exe 旁边；缺了直接 `FATAL_ERROR` |
+| `source/CMake/Utils/Tiny3DDetectSystemIncludes.cmake` | 删掉 Android 借 NDK resource dir 的两处（`-resource-dir` 与 `${resource}/include` 的 `-isystem`）及其 `FATAL_ERROR` |
+| `source/Platform/Android/tiny3d-build-host-rpp.gradle` | `outputs.dir(clang-resource)`：单独丢了这个目录也会重跑 `buildHostRpp` |
+| `source/CMakeLists.txt` | `TINY3D_GENERATED_BASE_DIR` 去掉 `CACHE`（见下） |
+
+`${resource}/include` 那条 `-isystem` **必须一起删**：`-resource-dir` 指的内建目录在 clang 里是 `-internal-isystem`，排在用户 `-isystem` 之后；留着它 NDK 14 的 `emmintrin.h` 会以更高优先级压过自带那份，修了也白修。
+
+**顺带修掉的 `TINY3D_GENERATED_BASE_DIR` 陈旧 cache。** 同一份日志里产物根仍是 `source/vs2019-x64`，而设置文件已经在 `.cxx` 下 —— `set(... CACHE PATH ...)` 不带 `FORCE` 覆盖不掉已有条目，在改动之前配置过的 `.cxx` 会一直抱着旧值。它完全由 `CMAKE_BINARY_DIR` 推导，没有让人覆盖的余地，所以直接降级成普通变量。全部引用都在 `source/` 子目录内，变量作用域够。
+
+**验收（`libclang.dll` 15.0.0 / NDK 24.0.8215888 / CMake 3.25）：**
+
+1. **自带那棵树的版本核对。** 逐文件比对 `llvmorg-15.0.0` 的 `clang/lib/Headers/`：193 个签入头全部逐字节一致（本地是 CRLF，去掉 CR 后 SHA256 相同）。对不上的 12 个是构建时生成的（`arm_*.h` / `riscv_vector.h` 由 tablegen 生成，`omp*.h` 由 `.h.var` 生成，`hlsl_*` 上游在 `Headers/hlsl/` 子目录而这棵树摊平了）。
+2. **MSVC 回归。** 同一份 `ReflectionSettings.json` 跑两遍 rpp，唯一变量是 rpp 旁边有没有 `clang-resource`。System / Math / Core-Runtime 共 368 个输出文件**逐字节一致**，两侧诊断也相同。符合搜索顺序：`%INCLUDE%` 走 `-isystem` 压在 `-internal-isystem` 前面，所以加 resource dir 只是在链尾补一层兜底。
+3. **Android。** `cmake --build <dir> --target T3DReflect`（只跑反射生成，不编 C++）两个 ABI 都通过：
+
+| 对比 | 产物数 | 结果 |
+|---|---|---|
+| arm64 旧（NDK 14 resource dir）vs 新（自带 LLVM 15） | 176 | 逐字节一致 |
+| arm64 新 vs x86_64 新 | 176 | 逐字节一致 |
+| x86_64 | 176 | 原先致命失败，现在通过 |
+
+arm64 一致这条同时补上了第 1 项的缺口：`arm_neon.h` 虽然对不了上游，但自带那份能被 libclang 15 正确解析，且产出与 NDK 那份完全相同。
+
+**换到已有构建目录时要注意：** `TINY3D_SYSTEM_INCLUDE_DIRS_CACHED` 是 cache guard，改动后旧构建目录不会重新探测。删掉构建目录，或 `-UTINY3D_SYSTEM_INCLUDE_DIRS_CACHED` 重新 configure。Android Studio 侧删 `Android/app/.cxx`。
 
 ### 阶段 4：清理
 
+**状态：已完成**
+
 - 删除 `source/Tools/CompileCommandTool/` 整个目录；
-- 删除六个 `TINY3D_*_RTTR` 开关及各 CMakeLists 里对应的 `CMAKE_EXPORT_COMPILE_COMMANDS` 分支；
-- `generate-vs2019-x64-debug.bat` / `generate-vs2022-x64-debug.bat` 删掉 `nmake` 段（六次 configure + 六次 cct）；
-- `.github/workflows/build.yml` 的「阶段二」整段删除；
-- `GenerateTiny3DSDK.cmake` 改为导出路径变量而非复制 JSON 底板；
-- 删掉 `ReflectionPreprocessor/Source/main.cpp` 顶部那段从未落地的流程注释（§1.2 注），并把第二段更新成新链路。
+- 删除各模块 `TINY3D_*_RTTR` 开关及对应的 `CMAKE_EXPORT_COMPILE_COMMANDS` 分支（System / Math / Core Runtime / Core Editor / TinyLauncher / TinyEditor，以及 Platform、MetaFSArchive 上同类分支）；
+- `generate-vs2019-x64-debug.bat` / `generate-vs2022-x64-debug.bat` 改为一次 configure 后打开 IDE，不再经过 nmake / cct；`generate-nmake.bat` 删除；全量构建入口改名为 `build-vs2019-x64-debug.bat`（原 `generate-vs2019-x64-native.bat`）；
+- `.github/workflows/build.yml` 去掉「阶段一单独编工具」和「阶段二 nmake / cct / rpp」。CI 现在是：预生成 Language.h → 一次 configure（默认 native，**不**传 `TINY3D_INCREMENTAL_RTTR=OFF`）→ 一次 build；
+- `GenerateTiny3DSDK.cmake` 阶段 2 已改为导出路径变量，本阶段未再改；
+- `ReflectionPreprocessor/Source/main.cpp` 顶部注释改为 CMake 原生链路（rpp 只读 `ReflectionSettings.json`）；
+- `TINY3D_REFLECT_CMAKE_NATIVE=OFF` 改为 configure 期 `FATAL_ERROR`：cct 已不存在，旧链路无法再跑。
 
 ---
 
@@ -619,7 +719,7 @@ cmake --build . --config Debug
 | 聚合产物撞上目标文件格式上限 | 低，仅 MSVC | 阶段 2 实测触发 `C1128`，给 `Templates.generated.cpp` 单独加 `/bigobj` |
 | 工程目录里的构建残留被当成源文件 | 低 | 阶段 2 实测触发（gradle 的 `.cxx/`），glob 时按目录名过掉 |
 | 业务工程自有类型的模板实例不注册 | 低，且为既有缺陷 | **不在本方案范围**，见 §11，建议另行立项 |
-| Android 反射产物变化引入回归 | 中 | 阶段 3 逐文件 diff，先在一个 Sample 上验证 |
+| Android 反射产物变化引入回归 | ~~中~~ → **已验收**（Core 差集仅桌面 Meta 类型） | 阶段 3 用 NDK 头实跑 rpp；STL 名字经 ABI 命名空间归一后与 Windows 一致 |
 | MSVC 系统头探测在非常规安装下失败 | 中 | 三级兜底：`$ENV{INCLUDE}` → 编译器路径反推 → rpp 现有自动探测；**任一级都拿不到时应直接 `FATAL_ERROR`，不再静默** |
 | 生成器表达式在 JSON 里的转义 | 中 | 阶段 1 就要把含空格 / 中文的路径纳入测试 |
 | 改动面覆盖所有模块 CMakeLists | 中 | 按阶段推进，每阶段留回退开关 |
@@ -634,10 +734,16 @@ cmake --build . --config Debug
 **新增**
 
 - `source/CMake/Utils/Tiny3DDetectSystemIncludes.cmake`
+- `source/Platform/Android/tiny3d-build-host-rpp.gradle`
+
+**移动**
+
+- `dependencies/llvm/prebuilt/OSX/clang-resource/` → `dependencies/llvm/prebuilt/clang-resource/`（各平台共用）
 
 **改动**
 
 - `source/CMake/Utils/Tiny3DReflectHelpers.cmake`（核心）
+- `source/Tools/ReflectionPreprocessor/CMakeLists.txt`（Windows 分发 `clang-resource`）
 - `source/CMake/Utils/GenerateTiny3DSDK.cmake`、`Tiny3DSDK.cmake.in`
 - `source/CMake/Utils/ProjectCMakeModule.cmake`（新增产物预声明宏）
 - `source/CMakeLists.txt`（`TINY3D_GENERATED_BASE_DIR`）
