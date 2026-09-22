@@ -1635,6 +1635,8 @@ A4 改 `VertexDeclaration::hash()` 会让**所有**现有顶点声明的哈希�
 
 §6.7 已给出结论（新增 `setXXStructuredBuffers`），但如果后续发现 HS/DS/GS 也普遍需要结构化缓冲，接口数量会从 3 个涨到 6 个。届时应重新评估「把 `PixelBuffers` 放宽为 `TArray<RenderBufferPtr>` 并把 `setXXPixelBuffers` 改名为 `setXXShaderResources`」这个更彻底的方案 —— 它更正确，只是当前时点改动面不划算。
 
+> **本节结论已被 §12.8 部分推翻。** 「不划算」的判断只考虑了「将来 HS/DS/GS 可能也要」这一条动机。§12.8 给出了第二条独立且当下就成立的动机：CS 的输入侧需要绑顶点 / 索引缓冲。同时经代码核查，D3D11 的资源视图与绑定实现**早已按基类指针写好**，放宽类型的实际成本是 1.5–2 人日而非当初估计的量级。改名的时机窗口也正在关闭（调用方还几乎为零）。**决策应以 §12.8 为准。**
+
 ### 12.3 UAV 计数回读到 CPU
 
 `copyStructureCount` 解决的是 GPU→GPU 搬运。若上层确实需要把计数读回 CPU（例如编辑器里显示「本帧剔除后剩余 N 个实例」），需要 `CopyStructureCount` → staging buffer → `Map(READ)`，这是一次 GPU 同步点。在当前的 RHI 线程模型下，这意味着主线程要等 RHI 线程执行完命令，**且要等 GPU 真正完成**。
@@ -1673,6 +1675,58 @@ GLES 3.1 的 compute 在低端 Android 设备上驱动质量参差不齐（部�
 
 ---
 
+### 12.8 SRV 输入侧的类型不对称：顶点缓冲能当 UAV 写，不能当 SRV 读
+
+UAV 侧的 `UnorderedAccessBuffers` 是 `TArray<RenderBufferPtr>`（`T3DTypedef.h:287-293`），取的是三类资源的共同基类，因此 VertexBuffer / IndexBuffer / PixelBufferXD / StructuredBuffer 都能绑上去写。SRV 侧没有对应的宽度：
+
+| 接口 | 参数类型 | 能吃下 VertexBuffer？ |
+|------|---------|---------------------|
+| `setCSUnorderedAccessBuffers` | `TArray<RenderBufferPtr>` | ✅ |
+| `set{VS,PS,CS}StructuredBuffers` | `TArray<StructuredBufferPtr>` | ❌ |
+| `setXXPixelBuffers` | `TArray<PixelBufferPtr>` | ❌ |
+
+**受影响的场景**：任何「compute 读现有网格的顶点数据」都卡在这里 —— Unity 式的 compute skinning、BlendShape 累加、GPU 侧生成 LOD / 网格简化、从顶点流构建加速结构。
+
+#### 12.8.1 这是纯粹的接口类型问题，资源侧早已就绪
+
+**不要**按「把顶点数据复制一份进 StructuredBuffer」去变通。查过 D3D11 后端，这条路上除了参数类型以外全部是通的：
+
+1. **视图已经建好**。`createVertexBuffer` 在 `kGPUShaderResource` 置位时就会加上 `D3D11_BIND_SHADER_RESOURCE` 与 raw view 的 MiscFlag，随后 `buildBufferViews` 建出 SRV 写进 `D3DSRView`（`T3DD3D11Context.cpp:1853-1859, 1891-1893`）。那段代码的注释原文是「顶点缓冲要同时充当 compute 的 I/O，只能走 Raw 视图」—— 当初就是按这个用途写的。`createIndexBuffer` 同理（`:2004-2006`）。
+2. **取视图的 helper 已覆盖**。`getD3DSRView(RenderBuffer *)` 的 switch 里 `kVertexBuffer` / `kIndexBuffer` 两个分支都在（`:5422-5425`）。
+3. **绑定实现已经是泛型的**。私有 helper `setStructuredBuffers` 对每个元素只调一次 `getD3DSRView(buffers[i].get())`（`:5510-5517`），拿的是基类指针。把参数类型放宽之后，**D3D11 的实现体一行都不用改**。
+
+换句话说，当前的 `TArray<StructuredBufferPtr>` 是一道**纯人为的类型闸门**，闸门后面的水路早就修好了。
+
+#### 12.8.2 改动清单
+
+| 层 | 改动 | 预估 |
+|----|------|------|
+| Core | `T3DTypedef.h` 加 `using ShaderResourceBuffers = TArray<RenderBufferPtr>;`（与 `UnorderedAccessBuffers` 对称）；`RHIContext` 的 `set{VS,PS,CS}StructuredBuffers` 换参数类型并更新文档注释 | 0.3d |
+| D3D11 | 只改签名，实现体零改动。补一条 SRV 取不到时的 warning，与 UAV 路径「是不是漏了 `kGPUUnorderedAccess`」的提示对称 | 0.2d |
+| GL4 / GLES3 | `bindStructuredBuffers` 现在是无条件 `static_cast<GL4StructuredBuffer*>`（`T3DGL4Context.cpp:4396-4399`），必须改成先判 `getResourceType()` 再按类型取 GL handle。GL 侧本身无障碍 —— 同一个 buffer object 同时绑 `GL_ARRAY_BUFFER` 与 `GL_SHADER_STORAGE_BUFFER` 是合法的 | 0.5d |
+| VK / Metal / 3 个 Console / Null | 全是 stub，只改签名。但接口是纯虚的，签名一改即全员编译失败，必须同一提交内改完（§6.1.4 的收口约束） | 0.3d |
+| 验证 | ComputeApp 加一个用例：顶点缓冲绑成 `ByteAddressBuffer` 被 CS 读，回读比对 | 0.5d |
+
+**合计 1.5–2 人日**（改名另计，见 12.8.3）。
+
+**顺带能修掉半个已知缺陷**：GL 的 UAV 路径目前遇到非结构化缓冲会静默绑 0、不报错（`T3DGL4Context.cpp:3259-3270`，另见 `ComputeApp-Sample-Design-todo.md` §2.2）。SRV 路径既然要按资源类型分发，UAV 路径可以复用同一套逻辑一并修好，顶点缓冲当 UAV 写在 GL 上就能工作。剩下纹理 UAV 那一半仍需 `glBindImageTexture`，属于另一件事。
+
+#### 12.8.3 附带决策：要不要顺势改名
+
+类型放宽后 `setXXStructuredBuffers` 这个名字就不准了 —— 它吃的已不只是结构化缓冲。这正是 §12.2 里那个更彻底的方案：改名为 `setXXShaderResources`。
+
+§12.2 当时判断「不划算」的依据是「HS/DS/GS 将来可能也要，届时接口从 3 个涨到 6 个」。现在多了 CS 输入侧这条独立动机，且**时机窗口正好**：这三个接口目前引擎内部几乎没有调用方（`ForwardRenderPipeline` 不用，ComputeApp 尚未开工），改名的边际成本约 0.3d。等 ComputeApp 的用例与可视轨写完、调用点散开之后再改会显著变贵。
+
+**建议与类型放宽在同一提交内完成**，不要拆成两次。
+
+#### 12.8.4 使用侧的硬约束
+
+顶点缓冲在 HLSL 里只能声明成 `ByteAddressBuffer`，按 stride / offset 手工 `Load` 解码，**不能**写成 `StructuredBuffer<Vertex>`。原因是 `D3D11_RESOURCE_MISC_BUFFER_STRUCTURED` 与 `D3D11_BIND_VERTEX_BUFFER` 互斥（`T3DD3D11Context.cpp:1855-1856` 的注释已记录），所以顶点缓冲的 SRV 只能是 raw view。这是 API 的硬约束而非实现取舍，必须写进使用方文档，否则使用者会先按 structured 写一遍再发现建不出视图。
+
+来源：`ComputeApp-Sample-Design-todo.md` 的可视轨选题评估（compute skinning 方案）触发，实际改动面经代码核查后大幅下修。
+
+---
+
 ## 13. 与既有文档的关系
 
 | 文档 | 关系 |
@@ -1684,3 +1738,4 @@ GLES 3.1 的 compute 在低端 Android 设备上驱动质量参差不齐（部�
 | `Reference3D-Software-Renderer-Design-todo.md` | §12.6 的降级策略需同步进该文档的后端骨架章节 |
 | `ShaderConductor-Replacement-todo.md` | §9.2 的四条跨编译验证点应纳入替换方案的验收标准 |
 | `Shader-MultiBackend-Variant-Design-todo.md` | §7.7 的 `ShaderResourceParam` 与线程组尺寸需要进入 shader 变体的序列化元数据 |
+| `ComputeApp-Sample-Design-todo.md` | **本文 §11 验证方案的执行载体**，也是本特性的第一个真实调用方。该 Sample 每跑通一个用例，§11.1 的验证矩阵、§8.2 的各后端能力实测修正、§9.2 的跨编译结论都要回填到本文。§12.8 即由该 Sample 的选题评估发现 |
