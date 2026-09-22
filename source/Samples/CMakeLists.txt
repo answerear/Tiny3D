@@ -32,6 +32,7 @@ add_subdirectory(TextureApp)
 add_subdirectory(SkeletalAnimationApp)
 add_subdirectory(ResourceApp)
 add_subdirectory(SkyboxApp)
+add_subdirectory(ComputeApp)
 
 if (TINY3D_OS_DESKTOP)
     add_subdirectory(TransformationApp)

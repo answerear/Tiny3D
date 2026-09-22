@@ -4579,3 +4579,11 @@ alignas(4) extern const unsigned char GRAYSCALE_PIXEL_SHADER_VK[] = {
     0x3a, 0x00, 0x00, 0x00, 0xfe, 0x00, 0x02, 0x00, 0x3b, 0x00, 0x00, 0x00, 0x38, 0x00, 0x01, 0x00
 };
 extern const size_t GRAYSCALE_PIXEL_SHADER_VK_SIZE = sizeof(GRAYSCALE_PIXEL_SHADER_VK);
+// ============================================================================
+// ComputeApp : embedded compute shaders. Contents are filled in by
+// embed-sample-shaders.ps1 from assets/samples/shaders/output/. Do not edit.
+// ============================================================================
+alignas(4) extern const unsigned char COMPUTE_LINEAR_WRITE_VK[] = {
+    0x00
+};
+extern const size_t COMPUTE_LINEAR_WRITE_VK_SIZE = sizeof(COMPUTE_LINEAR_WRITE_VK);

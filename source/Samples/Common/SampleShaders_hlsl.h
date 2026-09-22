@@ -1504,3 +1504,9 @@ const char *GRAYSCALE_PIXEL_SHADER =
     "    return stage_output;\n"
     "}\n";
     
+// ============================================================================
+// ComputeApp : embedded compute shaders. Contents are filled in by
+// embed-sample-shaders.ps1 from assets/samples/shaders/output/. Do not edit.
+// ============================================================================
+const char *COMPUTE_LINEAR_WRITE =
+    "// placeholder\n";

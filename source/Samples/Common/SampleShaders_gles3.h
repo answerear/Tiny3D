@@ -1112,3 +1112,9 @@ const char *GRAYSCALE_PIXEL_SHADER_GLES =
     "}\n"
     "\n";
 
+// ============================================================================
+// ComputeApp : embedded compute shaders. Contents are filled in by
+// embed-sample-shaders.ps1 from assets/samples/shaders/output/. Do not edit.
+// ============================================================================
+const char *COMPUTE_LINEAR_WRITE_GLES =
+    "// placeholder\n";
