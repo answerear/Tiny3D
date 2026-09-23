@@ -59,19 +59,19 @@ void main(uint3 id : SV_DispatchThreadID)
     static const char *gl = R"(
 #version 430
 layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
-layout(std430, binding = 0) buffer gOutput { uint data[]; };
+layout(std430, binding = 0) buffer gOutput { uint data[]; } gOutputBuf;
 void main()
 {
-    gOutput.data[gl_GlobalInvocationID.x] = gl_GlobalInvocationID.x * 2u;
+    gOutputBuf.data[gl_GlobalInvocationID.x] = gl_GlobalInvocationID.x * 2u;
 }
 )";
     static const char *gles = R"(
 #version 310 es
 layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
-layout(std430, binding = 0) buffer gOutput { uint data[]; };
+layout(std430, binding = 0) buffer gOutput { uint data[]; } gOutputBuf;
 void main()
 {
-    gOutput.data[gl_GlobalInvocationID.x] = gl_GlobalInvocationID.x * 2u;
+    gOutputBuf.data[gl_GlobalInvocationID.x] = gl_GlobalInvocationID.x * 2u;
 }
 )";
     return make(hlsl, gl, gles);
@@ -343,12 +343,12 @@ void main(uint3 id : SV_DispatchThreadID)
     static const char *gl = R"(
 #version 430
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
-layout(std430, binding = 0) buffer gArgs { uint data[]; };
+layout(std430, binding = 0) buffer gArgs { uint data[]; } gArgsBuf;
 void main()
 {
-    gArgs.data[0] = 4u;
-    gArgs.data[1] = 1u;
-    gArgs.data[2] = 1u;
+    gArgsBuf.data[0] = 4u;
+    gArgsBuf.data[1] = 1u;
+    gArgsBuf.data[2] = 1u;
 }
 )";
     return make(hlsl, gl, nullptr);
@@ -373,7 +373,7 @@ void main(uint3 id : SV_DispatchThreadID)
 #version 430
 layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
 layout(binding = 0, offset = 0) uniform atomic_uint gCounter;
-layout(std430, binding = 0) buffer gVisible { uint data[]; };
+layout(std430, binding = 0) buffer gVisible { uint data[]; } gVisibleBuf;
 void main()
 {
     uint i = gl_GlobalInvocationID.x;
@@ -381,7 +381,7 @@ void main()
     if ((i & 1u) == 0u)
     {
         uint idx = atomicCounterIncrement(gCounter);
-        gVisible.data[idx] = i;
+        gVisibleBuf.data[idx] = i;
     }
 }
 )";
@@ -425,11 +425,11 @@ void main(uint3 id : SV_DispatchThreadID)
 layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 struct Particle { vec3 position; float life; vec3 velocity; float size; };
 layout(std140, binding = 0) uniform ParticleParams { vec4 gTimeParams; vec4 gAttractor; };
-layout(std430, binding = 0) buffer gParticles { Particle data[]; };
+layout(std430, binding = 0) buffer gParticles { Particle data[]; } gParticleBuf;
 void main()
 {
     uint i = gl_GlobalInvocationID.x;
-    Particle p = gParticles.data[i];
+    Particle p = gParticleBuf.data[i];
     float dt = gTimeParams.x;
     vec3 dir = gAttractor.xyz - p.position;
     float len2 = dot(dir, dir) + 1e-4;
@@ -445,7 +445,7 @@ void main()
                           fract(float(i) * 0.0789) * 8.0 - 4.0);
         p.velocity = vec3(0.0);
     }
-    gParticles.data[i] = p;
+    gParticleBuf.data[i] = p;
 }
 )";
     static const char *gles = R"(
@@ -453,11 +453,11 @@ void main()
 layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 struct Particle { vec3 position; float life; vec3 velocity; float size; };
 layout(std140, binding = 0) uniform ParticleParams { vec4 gTimeParams; vec4 gAttractor; };
-layout(std430, binding = 0) buffer gParticles { Particle data[]; };
+layout(std430, binding = 0) buffer gParticles { Particle data[]; } gParticleBuf;
 void main()
 {
     uint i = gl_GlobalInvocationID.x;
-    Particle p = gParticles.data[i];
+    Particle p = gParticleBuf.data[i];
     float dt = gTimeParams.x;
     vec3 dir = gAttractor.xyz - p.position;
     float len2 = dot(dir, dir) + 1e-4;
@@ -473,7 +473,7 @@ void main()
                           fract(float(i) * 0.0789) * 8.0 - 4.0);
         p.velocity = vec3(0.0);
     }
-    gParticles.data[i] = p;
+    gParticleBuf.data[i] = p;
 }
 )";
     return make(hlsl, gl, gles);

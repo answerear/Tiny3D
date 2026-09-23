@@ -621,12 +621,14 @@ TResult ParticleSystem::record(float dt, float timeSeconds)
     ConstantBuffers drawCbs;
     drawCbs.push_back(mDrawCB);
     ctx->setVSConstantBuffers(0, drawCbs);
+
+    // 沿用引擎里 VS → PS 的绑定顺序（ForwardRenderPipeline、ImGui 都是这个顺序）。
+    ctx->setVertexShader(cpuDraw ? mDrawCpuVS.get() : mDrawVS.get());
     ctx->setPixelShader(mDrawPS.get());
 
     if (cpuDraw)
     {
         ctx->setVertexDeclaration(mCpuDecl.get());
-        ctx->setVertexShader(mDrawCpuVS.get());
         VertexBuffers vbs;
         vbs.push_back(mCpuVB);
         VertexStrides strides;
@@ -654,8 +656,6 @@ TResult ParticleSystem::record(float dt, float timeSeconds)
                 ctx->setVertexBuffers(0, vbs, strides, offsets);
             }
         }
-
-        ctx->setVertexShader(mDrawVS.get());
 
         StructuredBuffers vsSrvs;
         vsSrvs.push_back(mParticles);
