@@ -1,0 +1,13 @@
+#pragma compute CSMain
+#pragma target 5.0
+
+// K1：最小可行的 compute 用例 —— 单个 RWStructuredBuffer，线性写入。
+// 期望 out[i] == i * 2。scc 产物入口会被翻成 main，供 D3DCompile 使用。
+
+RWStructuredBuffer<uint> gOutput : register(u0);
+
+[numthreads(64, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    gOutput[id.x] = id.x * 2;
+}

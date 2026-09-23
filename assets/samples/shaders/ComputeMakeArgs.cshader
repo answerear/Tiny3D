@@ -1,0 +1,14 @@
+#pragma compute CSMain
+#pragma target 5.0
+
+// K7：写 DispatchIndirectArgs{4,1,1}，随后 dispatchIndirect 恰好跑 256 线程。
+
+RWStructuredBuffer<uint> gArgs : register(u0);
+
+[numthreads(1, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    gArgs[0] = 4;
+    gArgs[1] = 1;
+    gArgs[2] = 1;
+}

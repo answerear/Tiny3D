@@ -1,0 +1,19 @@
+#pragma compute CSMain
+#pragma target 5.0
+
+// K2：SRV + CB + UAV 三者共存。期望 out[i] == in[i] * gScale + gBias。
+
+cbuffer SaxpyParams : register(b0)
+{
+    float4 gScale;
+    float4 gBias;
+};
+
+StructuredBuffer<float4> gInput : register(t0);
+RWStructuredBuffer<float4> gOutput : register(u0);
+
+[numthreads(64, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    gOutput[id.x] = gInput[id.x] * gScale + gBias;
+}

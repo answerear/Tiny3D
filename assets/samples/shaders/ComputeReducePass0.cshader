@@ -1,0 +1,31 @@
+#pragma compute CSMain
+#pragma target 5.0
+
+// K4 第一级：256 线程组内归约，写出 256 个 partial。groupshared 仅 1KB。
+
+StructuredBuffer<uint> gInput : register(t0);
+RWStructuredBuffer<uint> gPartial : register(u0);
+
+groupshared uint gs[256];
+
+[numthreads(256, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID, uint3 gid : SV_GroupID, uint gi : SV_GroupIndex)
+{
+    gs[gi] = gInput[id.x];
+    GroupMemoryBarrierWithGroupSync();
+
+    [unroll]
+    for (uint stride = 128; stride > 0; stride >>= 1)
+    {
+        if (gi < stride)
+        {
+            gs[gi] += gs[gi + stride];
+        }
+        GroupMemoryBarrierWithGroupSync();
+    }
+
+    if (gi == 0)
+    {
+        gPartial[gid.x] = gs[0];
+    }
+}

@@ -1,0 +1,31 @@
+#pragma compute CSMain
+#pragma target 5.0
+
+// K4 第二级：把 256 个 partial 归约成 1 个。调用方必须先 uavBarrier。
+
+RWStructuredBuffer<uint> gPartial : register(u0);
+RWStructuredBuffer<uint> gResult : register(u1);
+
+groupshared uint gs[256];
+
+[numthreads(256, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID, uint gi : SV_GroupIndex)
+{
+    gs[gi] = gPartial[id.x];
+    GroupMemoryBarrierWithGroupSync();
+
+    [unroll]
+    for (uint stride = 128; stride > 0; stride >>= 1)
+    {
+        if (gi < stride)
+        {
+            gs[gi] += gs[gi + stride];
+        }
+        GroupMemoryBarrierWithGroupSync();
+    }
+
+    if (gi == 0)
+    {
+        gResult[0] = gs[0];
+    }
+}

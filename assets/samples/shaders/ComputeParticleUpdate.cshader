@@ -1,0 +1,41 @@
+#pragma compute CSMain
+#pragma target 5.0
+
+struct Particle
+{
+    float3 position;
+    float  life;
+    float3 velocity;
+    float  size;
+};
+
+cbuffer ParticleParams : register(b0)
+{
+    float4 gTimeParams;   // x=dt, y=time
+    float4 gAttractor;    // xyz=吸引子, w=强度
+};
+
+RWStructuredBuffer<Particle> gParticles : register(u0);
+
+[numthreads(256, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    Particle p = gParticles[id.x];
+    float dt = gTimeParams.x;
+    float3 dir = gAttractor.xyz - p.position;
+    float len2 = dot(dir, dir) + 1e-4f;
+    p.velocity += dir * (rsqrt(len2) * gAttractor.w * dt);
+    p.velocity *= 0.98f;
+    p.position += p.velocity * dt;
+    p.life -= dt;
+    if (p.life < 0.0f)
+    {
+        p.life = 4.0f + frac(gTimeParams.y + id.x * 0.017f) * 4.0f;
+        p.position = float3(
+            frac(id.x * 0.0123f) * 8.0f - 4.0f,
+            frac(id.x * 0.0456f) * 8.0f - 4.0f,
+            frac(id.x * 0.0789f) * 8.0f - 4.0f);
+        p.velocity = float3(0, 0, 0);
+    }
+    gParticles[id.x] = p;
+}

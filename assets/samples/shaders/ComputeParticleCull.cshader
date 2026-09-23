@@ -1,0 +1,34 @@
+#pragma compute CSMain
+#pragma target 5.0
+
+struct Particle
+{
+    float3 position;
+    float  life;
+    float3 velocity;
+    float  size;
+};
+
+cbuffer CullParams : register(b0)
+{
+    row_major float4x4 gViewProj;
+    float4 gClipScale;    // x = 视锥缩放，<1 人为缩小
+};
+
+StructuredBuffer<Particle> gParticles : register(t0);
+RWStructuredBuffer<uint> gVisible : register(u0);
+
+[numthreads(256, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    Particle p = gParticles[id.x];
+    float4 clip = mul(gViewProj, float4(p.position, 1.0f));
+    float w = clip.w;
+    float s = gClipScale.x * w;
+    bool visible = (abs(clip.x) <= s) && (abs(clip.y) <= s) && (clip.z >= 0.0f) && (clip.z <= w);
+    if (visible)
+    {
+        uint idx = gVisible.IncrementCounter();
+        gVisible[idx] = id.x;
+    }
+}

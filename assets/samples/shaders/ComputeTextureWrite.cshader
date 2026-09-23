@@ -1,0 +1,12 @@
+#pragma compute CSMain
+#pragma target 5.0
+
+// K5：RWTexture2D，仅 D3D11。期望 px(x,y) == (x, y, 128, 255)。
+
+RWTexture2D<float4> gOutput : register(u0);
+
+[numthreads(8, 8, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    gOutput[id.xy] = float4(id.x / 255.0f, id.y / 255.0f, 128.0f / 255.0f, 1.0f);
+}

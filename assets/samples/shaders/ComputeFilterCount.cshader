@@ -1,0 +1,22 @@
+#pragma compute CSMain
+#pragma target 5.0
+
+// K8：偶数下标写入 visible，用隐藏计数器走 copyStructureCount。
+// 期望 M == 512。不用 AppendStructuredBuffer（跨编译 binding 不是 1:1）。
+
+RWStructuredBuffer<uint> gVisible : register(u0);
+
+[numthreads(64, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= 1024)
+    {
+        return;
+    }
+
+    if ((id.x & 1u) == 0u)
+    {
+        uint idx = gVisible.IncrementCounter();
+        gVisible[idx] = id.x;
+    }
+}

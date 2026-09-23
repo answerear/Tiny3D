@@ -1,0 +1,17 @@
+#pragma compute CSMain
+#pragma target 5.0
+
+// K3：ByteAddress + Typed。
+// raw[i] == i ^ 0xA5A5A5A5。typed 以 R8G8B8A8 unorm 存 4 字节，
+// 引擎目前没有 R32G32B32A32 格式，所以不测 float4/1024。
+
+RWByteAddressBuffer gRaw : register(u0);
+RWBuffer<float4> gTyped : register(u1);
+
+[numthreads(64, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    uint i = id.x;
+    gRaw.Store(i * 4, i ^ 0xA5A5A5A5u);
+    gTyped[i] = float4((i & 255u) / 255.0f, 0.0f, 128.0f / 255.0f, 1.0f);
+}

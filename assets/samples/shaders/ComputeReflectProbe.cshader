@@ -1,0 +1,21 @@
+#pragma compute CSMain
+#pragma target 5.0
+
+// K6：只反射不派发。覆盖 Structured SRV / ByteAddress SRV / Structured UAV /
+// ByteAddress UAV / Texture UAV。numthreads 期望 (8,8,1)。
+
+StructuredBuffer<float4> gStructuredSRV : register(t0);
+ByteAddressBuffer gByteSRV : register(t1);
+RWStructuredBuffer<uint> gStructuredUAV : register(u0);
+RWByteAddressBuffer gByteUAV : register(u1);
+RWTexture2D<float4> gTextureUAV : register(u2);
+
+[numthreads(8, 8, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    // 防止 DCE 把绑定优化掉
+    uint v = gStructuredUAV[0] + gByteSRV.Load(0) + (uint)gStructuredSRV[0].x;
+    gStructuredUAV[0] = v;
+    gByteUAV.Store(0, v);
+    gTextureUAV[id.xy] = float4(0, 0, 0, 1);
+}
