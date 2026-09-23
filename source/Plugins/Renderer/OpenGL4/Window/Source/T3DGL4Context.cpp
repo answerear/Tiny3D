@@ -154,6 +154,16 @@ namespace Tiny3D
             GLint storageBuffers = 0;
             glGetIntegerv(GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS, &storageBuffers);
             mCapabilities.maxUnorderedAccessSlots = (uint32_t)storageBuffers;
+
+            glGetIntegerv(GL_MAX_COMPUTE_ATOMIC_COUNTERS, &mGLSLangLimits.computeAtomicCounters);
+            glGetIntegerv(GL_MAX_COMPUTE_ATOMIC_COUNTER_BUFFERS, &mGLSLangLimits.computeAtomicCounterBuffers);
+            glGetIntegerv(GL_MAX_COMBINED_SHADER_OUTPUT_RESOURCES, &mGLSLangLimits.combinedShaderOutputResources);
+        }
+
+        if (has42)
+        {
+            glGetIntegerv(GL_MAX_ATOMIC_COUNTER_BUFFER_BINDINGS, &mGLSLangLimits.atomicCounterBindings);
+            glGetIntegerv(GL_MAX_IMAGE_UNITS, &mGLSLangLimits.imageUnits);
         }
 
         while (glGetError() != GL_NO_ERROR) {}
@@ -2199,11 +2209,14 @@ namespace Tiny3D
             {
                 mCurrentVSVariant = variant;
 
-                if (mCurrentProgram != 0)
+                // 这里不能删掉重建 program：调用方允许先绑 PS 再绑 VS，
+                // 重建会把已经 attach 的 PS 丢掉，link 出一个只有 VS 的 program，
+                // 几何照常光栅化但 fragment 输出未定义，画面表现为全黑。
+                if (mCurrentProgram == 0)
                 {
-                    GL_SAFE_DELETE_PROGRAM(mCurrentProgram);
+                    mCurrentProgram = glCreateProgram();
                 }
-                mCurrentProgram = glCreateProgram();
+                detachShaderStage(mCurrentProgram, shaderHandle);
                 glAttachShader(mCurrentProgram, shaderHandle);
                 mProgramDirty = true;
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setVertexShader");
@@ -2315,6 +2328,7 @@ namespace Tiny3D
                 {
                     mCurrentProgram = glCreateProgram();
                 }
+                detachShaderStage(mCurrentProgram, shaderHandle);
                 glAttachShader(mCurrentProgram, shaderHandle);
                 mProgramDirty = true;
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setPixelShader");
@@ -2637,9 +2651,27 @@ namespace Tiny3D
             int sourceLen = static_cast<int>(bytesLength);
             glslangShader.setStringsWithLengths(&source, &sourceLen, 1);
 
-            const TBuiltInResource *resources = GetDefaultResources();
+            // 用实际 GL 上限覆盖 glslang 的规范最低值，否则合法 shader 会被误判。
+            // 查不到（能力位不支持）就留着默认值，别用 0 去卡。
+            TBuiltInResource resources = *GetDefaultResources();
+            auto raise = [](int &dst, int actual)
+            {
+                if (actual > dst) { dst = actual; }
+            };
+            raise(resources.maxAtomicCounterBindings, mGLSLangLimits.atomicCounterBindings);
+            raise(resources.maxComputeAtomicCounters, mGLSLangLimits.computeAtomicCounters);
+            raise(resources.maxComputeAtomicCounterBuffers, mGLSLangLimits.computeAtomicCounterBuffers);
+            raise(resources.maxCombinedShaderOutputResources, mGLSLangLimits.combinedShaderOutputResources);
+            raise(resources.maxImageUnits, mGLSLangLimits.imageUnits);
+            raise(resources.maxComputeWorkGroupCountX, (int)mCapabilities.maxDispatchGroupCount[0]);
+            raise(resources.maxComputeWorkGroupCountY, (int)mCapabilities.maxDispatchGroupCount[1]);
+            raise(resources.maxComputeWorkGroupCountZ, (int)mCapabilities.maxDispatchGroupCount[2]);
+            raise(resources.maxComputeWorkGroupSizeX, (int)mCapabilities.maxComputeGroupSize[0]);
+            raise(resources.maxComputeWorkGroupSizeY, (int)mCapabilities.maxComputeGroupSize[1]);
+            raise(resources.maxComputeWorkGroupSizeZ, (int)mCapabilities.maxComputeGroupSize[2]);
+
             const int glslVersion = (shader->getShaderStage() == SHADER_STAGE::kCompute) ? 430 : 400;
-            if (!glslangShader.parse(resources, glslVersion, false, EShMsgDefault))
+            if (!glslangShader.parse(&resources, glslVersion, false, EShMsgDefault))
             {
                 T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "glslang parse error:\n%s", glslangShader.getInfoLog());
                 ret = T3D_ERR_GL4_SHADER_REFLECTION;
@@ -2922,30 +2954,39 @@ namespace Tiny3D
 
     TResult GL4Context::ensureProgramLinked()
     {
-        if (mCurrentProgram == 0 || !mProgramDirty)
+        if (mCurrentProgram == 0)
             return T3D_OK;
 
-        glLinkProgram(mCurrentProgram);
-
-        GLint linked = 0;
-        glGetProgramiv(mCurrentProgram, GL_LINK_STATUS, &linked);
-        if (!linked)
+        if (mProgramDirty)
         {
-            GLint logLen = 0;
-            glGetProgramiv(mCurrentProgram, GL_INFO_LOG_LENGTH, &logLen);
-            if (logLen > 0)
+            glLinkProgram(mCurrentProgram);
+
+            GLint linked = 0;
+            glGetProgramiv(mCurrentProgram, GL_LINK_STATUS, &linked);
+            if (!linked)
             {
-                TArray<char> log(logLen + 1, 0);
-                glGetProgramInfoLog(mCurrentProgram, logLen, nullptr, log.data());
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Program link error: %s", log.data());
+                GLint logLen = 0;
+                glGetProgramiv(mCurrentProgram, GL_INFO_LOG_LENGTH, &logLen);
+                if (logLen > 0)
+                {
+                    TArray<char> log(logLen + 1, 0);
+                    glGetProgramInfoLog(mCurrentProgram, logLen, nullptr, log.data());
+                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Program link error: %s", log.data());
+                }
+                return T3D_ERR_GL4_LINK_PROGRAM;
             }
-            return T3D_ERR_GL4_LINK_PROGRAM;
+
+            mProgramDirty = false;
+            mUBOBoundProgram = 0;
+
+            glUseProgram(mCurrentProgram);
+            setupSamplerBindings(mCurrentProgram);
         }
 
+        // 即使 program 没变也要走一遍：中间若夹了 dispatch，compute program 会把
+        // 同一批 UNIFORM_BUFFER binding point 抢走，不重绑就会读到 compute 的 CB。
         glUseProgram(mCurrentProgram);
         bindPendingUniformBlocks(mCurrentProgram);
-        setupSamplerBindings(mCurrentProgram);
-        mProgramDirty = false;
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::ensureProgramLinked");
         return T3D_OK;
@@ -2981,11 +3022,16 @@ namespace Tiny3D
             }
 
             mComputeProgramDirty = false;
+            // 重新链接会重置 program 侧的 uniform block 绑定，缓存作废
+            mUBOBoundProgram = 0;
+
+            glUseProgram(mCurrentComputeProgram);
+            // sampler uniform 的值存在 program 对象里，链接后设一次即可
+            setupSamplerBindings(mCurrentComputeProgram);
         }
 
         glUseProgram(mCurrentComputeProgram);
         bindPendingUniformBlocks(mCurrentComputeProgram);
-        setupSamplerBindings(mCurrentComputeProgram);
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::ensureComputeProgramLinked");
         return T3D_OK;
@@ -3559,6 +3605,9 @@ namespace Tiny3D
 
                 GL_SAFE_DELETE_PROGRAM(mCurrentProgram);
                 mPendingUBOs.clear();
+                mPendingUBORevision = 0;
+                mUBOBoundProgram = 0;
+                mUBOBoundRevision = 0;
                 mProgramDirty = false;
                 mCurrentVAO = 0;
 
@@ -3803,7 +3852,11 @@ namespace Tiny3D
                 return request->CopyResult;
             }
 
-            glGenBuffers(1, &request->Staging);
+            // 必须是 glCreateBuffers 而不是 glGenBuffers：后者只预留名字，缓冲对象
+            // 要等第一次 glBindBuffer 才真正存在，而 DSA 的 glNamedBufferData 要求
+            // 对象已存在，拿 glGenBuffers 的名字去调会得到 GL_INVALID_OPERATION，
+            // 于是 staging 建不出来，整条回读链路静默失败。
+            glCreateBuffers(1, &request->Staging);
             glNamedBufferData(request->Staging, (GLsizeiptr)copySize, nullptr, GL_STREAM_READ);
             glCopyNamedBufferSubData(srcBuf, request->Staging, (GLintptr)offset, 0, (GLsizeiptr)copySize);
 
@@ -3901,7 +3954,8 @@ namespace Tiny3D
             request->TightSlicePitch = request->TightRowPitch * copyHeight;
             request->TotalBytes = request->TightSlicePitch;
 
-            glGenBuffers(1, &request->Staging);
+            // 同上：glNamedBufferData 要求缓冲对象已存在，只能用 glCreateBuffers
+            glCreateBuffers(1, &request->Staging);
             glNamedBufferData(request->Staging, (GLsizeiptr)request->TotalBytes, nullptr, GL_STREAM_READ);
             glBindBuffer(GL_PIXEL_PACK_BUFFER, request->Staging);
             glGetTextureSubImage(tex, (GLint)request->Region.mipLevel,
@@ -4081,11 +4135,18 @@ namespace Tiny3D
 
     void GL4Context::bindPendingUniformBlocks(GLuint program)
     {
+        // program 和 UBO 集合都没变就没什么可做的。每次 draw / dispatch 都重跑一遍
+        // glGetActiveUniformBlockName 既费时又会刷屏，而 binding point 上的绑定还在。
+        if (program == mUBOBoundProgram && mPendingUBORevision == mUBOBoundRevision)
+        {
+            return;
+        }
+
+        mUBOBoundProgram = program;
+        mUBOBoundRevision = mPendingUBORevision;
+
         GLint numBlocks = 0;
         glGetProgramiv(program, GL_ACTIVE_UNIFORM_BLOCKS, &numBlocks);
-
-        T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "bindPendingUniformBlocks: program=%u numBlocks=%d pendingUBOs=%d",
-            program, numBlocks, (int)mPendingUBOs.size());
 
         for (GLint i = 0; i < numBlocks; ++i)
         {
@@ -4106,8 +4167,6 @@ namespace Tiny3D
             if (it != mPendingUBOs.end())
             {
                 glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, it->second);
-                T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "  UBO bound: block='%s' -> '%s' bindingPoint=%u glBuffer=%u",
-                    blockName, cbufferName.c_str(), bindingPoint, it->second);
             }
             else
             {
@@ -4236,7 +4295,12 @@ namespace Tiny3D
             {
                 for (const auto &binding : uboBindings)
                 {
-                    mPendingUBOs[binding.first] = binding.second;
+                    auto itr = mPendingUBOs.find(binding.first);
+                    if (itr == mPendingUBOs.end() || itr->second != binding.second)
+                    {
+                        mPendingUBOs[binding.first] = binding.second;
+                        ++mPendingUBORevision;
+                    }
                 }
             } while (false);
 
@@ -4250,9 +4314,6 @@ namespace Tiny3D
 
     TResult GL4Context::bindPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
     {
-        T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "bindPixelBuffers: startSlot=%d bufferCount=%d",
-            startSlot, (int)buffers.size());
-
         // 提取 GL 句柄和目标到 POD 数组，避免在 lambda 中访问引擎对象
         struct TexBinding { GLuint handle; GLenum target; };
         TArray<TexBinding> bindings;
@@ -4262,7 +4323,6 @@ namespace Tiny3D
         {
             if (buffers[i] == nullptr)
             {
-                T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "  pixelBuffer[%d]: NULL (skipped)", i);
                 bindings.push_back({0, GL_TEXTURE_2D});
                 continue;
             }
@@ -4308,8 +4368,6 @@ namespace Tiny3D
                 break;
             }
 
-            T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "  pixelBuffer[%d]: texHandle=%u texTarget=0x%X -> GL_TEXTURE%d",
-                i, texHandle, texTarget, startSlot + i);
             bindings.push_back({texHandle, texTarget});
         }
 
@@ -4482,6 +4540,7 @@ namespace Tiny3D
                 {
                     mCurrentProgram = glCreateProgram();
                 }
+                detachShaderStage(mCurrentProgram, shaderHandle);
                 glAttachShader(mCurrentProgram, shaderHandle);
                 mProgramDirty = true;
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::attachGraphicsShader");
@@ -4491,6 +4550,42 @@ namespace Tiny3D
         };
 
         return ENQUEUE_UNIQUE_COMMAND(lambda, shaderHandle, shader, slot);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::detachShaderStage(GLuint program, GLuint shader)
+    {
+        // program 对象跨材质复用，同一个阶段挂上第二个 shader 会被 GL 以
+        // GL_INVALID_OPERATION 拒掉，链接时用的还是上一个，画面自然不对。
+        // 切材质（比如从场景着色器切到后处理着色器）每帧都会走到这里。
+        GLint stage = 0;
+        glGetShaderiv(shader, GL_SHADER_TYPE, &stage);
+
+        GLint count = 0;
+        glGetProgramiv(program, GL_ATTACHED_SHADERS, &count);
+        if (count <= 0)
+        {
+            return;
+        }
+
+        TArray<GLuint> attached(count, 0);
+        glGetAttachedShaders(program, count, nullptr, attached.data());
+
+        for (GLuint attachedShader : attached)
+        {
+            if (attachedShader == 0)
+            {
+                continue;
+            }
+
+            GLint attachedStage = 0;
+            glGetShaderiv(attachedShader, GL_SHADER_TYPE, &attachedStage);
+            if (attachedStage == stage)
+            {
+                glDetachShader(program, attachedShader);
+            }
+        }
     }
 
     //--------------------------------------------------------------------------

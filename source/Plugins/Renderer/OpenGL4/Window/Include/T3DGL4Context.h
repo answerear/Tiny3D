@@ -212,6 +212,9 @@ namespace Tiny3D
         void bindPendingUniformBlocks(GLuint program);
         void setupSamplerBindings(GLuint program);
 
+        /// 解开 program 上与 shader 同阶段的旧 shader，避免同一阶段挂两个对象
+        void detachShaderStage(GLuint program, GLuint shader);
+
         /// 解开所有常用纹理单元上的 texture / sampler，避免同一张纹理既被采样
         /// 又当 FBO 附件，以及上一 pass 留下的 comparison sampler 影响下一 pass。
         void unbindTextureUnits();
@@ -325,6 +328,22 @@ namespace Tiny3D
         TMap<ShaderVariant*, GlslangReflectionData> mReflectionCache;
         bool mGlslangInitialized {false};
 
+        /// glslang 校验 shader 用的实际 GL 上限。
+        /// GetDefaultResources() 给的是 GL 规范的最低保证值，比真实驱动紧得多 ——
+        /// 比如 maxAtomicCounterBindings 只有 1，于是 binding = 1 的 atomic_uint
+        /// 会被判成 "binding is too large"，而驱动本身支持 8 个。
+        /// 这些值在 fillCapabilities() 里趁 GL 上下文可用时查好，编译时只读不查
+        /// （compileShader 跑在主线程，那里不保证有 GL 上下文）。
+        struct GLSLangLimits
+        {
+            int atomicCounterBindings {0};
+            int computeAtomicCounters {0};
+            int computeAtomicCounterBuffers {0};
+            int combinedShaderOutputResources {0};
+            int imageUnits {0};
+        };
+        GLSLangLimits mGLSLangLimits;
+
     protected:
         /// 当前激活的 graphics GL Program
         GLuint  mCurrentProgram {0};
@@ -345,6 +364,14 @@ namespace Tiny3D
         VertexDeclaration *mPendingVertexDecl {nullptr};
         /// 延迟绑定 UBO：cbuffer 名 -> GL buffer handle（render() link 后统一绑定）
         TMap<String, GLuint> mPendingUBOs;
+        /// mPendingUBOs 的修订号，每次 stageConstantBuffers 递增
+        uint32_t mPendingUBORevision {0};
+        /// 上一次真正执行 UBO 绑定时的 program 与修订号。
+        /// glBindBufferBase(GL_UNIFORM_BUFFER) 是 context 状态而非 program 状态，
+        /// graphics 与 compute 两个 program 会抢同一批 binding point，
+        /// 所以换 program 或换 UBO 都必须重绑，只有两者都没变才能跳过。
+        GLuint   mUBOBoundProgram {0};
+        uint32_t mUBOBoundRevision {0};
         /// program 是否需要重新 link（setVertexShader/setPixelShader 后置 true，link 后置 false）
         bool    mProgramDirty {false};
         /// GLAD 是否已加载
