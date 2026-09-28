@@ -177,13 +177,46 @@ ShaderVariantPtr ParticleSystem::compileGraphics(const char *name, SHADER_STAGE 
     return variant;
 }
 
-TResult ParticleSystem::setup(Camera *camera)
+bool ParticleSystem::probeVertexStageStructuredBuffer()
+{
+    RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+    if (ctx == nullptr || !ctx->getCapabilities().supportsStructuredBuffer)
+    {
+        return false;
+    }
+
+    StructuredBufferDesc desc;
+    desc.kind = StructuredBufferKind::kStructured;
+    desc.elementSize = sizeof(uint32_t);
+    desc.elementCount = 1;
+
+    StructuredBufferPtr probe = T3D_RENDER_BUFFER_MGR.loadStructuredBuffer(
+        desc, MemoryType::kVRAM, Usage::kStatic, kCPUNone, kGPUShaderResource);
+    if (probe == nullptr)
+    {
+        return false;
+    }
+
+    StructuredBuffers buffers;
+    buffers.push_back(probe);
+    const TResult ret = ctx->setVSStructuredBuffers(0, buffers);
+
+    // 探测只是为了拿返回值，槽位不能留着占用，否则后面第一次把粒子缓冲当 UAV 绑
+    // 回去就撞 hazard（P8 那一类）。
+    unbindVSStructuredBuffers(ctx, 0, 1);
+
+    return T3D_SUCCEEDED(ret);
+}
+
+TResult ParticleSystem::setup(Camera *camera, bool vsStructuredBufferOk)
 {
     mCamera = camera;
     if (mCamera == nullptr)
     {
         return T3D_ERR_INVALID_POINTER;
     }
+
+    mVSStructuredBufferOk = vsStructuredBufferOk;
 
     mCpuParticles.resize(kParticleCount);
     for (uint32_t i = 0; i < kParticleCount; ++i)
@@ -221,7 +254,19 @@ TResult ParticleSystem::setup(Camera *camera)
 
     mUpdateKernel = ComputeKernel::create("ComputeParticleUpdate", particleUpdateSource(), 256);
     mCullKernel = ComputeKernel::create("ComputeParticleCull", particleCullSource(), 256);
-    mDrawVS = compileGraphics("ParticleDrawVS", SHADER_STAGE::kVertex, particleDrawVSSource());
+
+    if (mVSStructuredBufferOk)
+    {
+        mDrawVS = compileGraphics("ParticleDrawVS", SHADER_STAGE::kVertex, particleDrawVSSource());
+    }
+    else
+    {
+        // 明确降级，不静默画错：GPU 路径的 VS 一个顶点属性都不读，粒子状态全靠
+        // SSBO 索引，顶点阶段不能读结构化缓冲就整条路径不成立。
+        APP_LOG_DEBUG("[particles] vertex stage cannot read structured buffers on this device, "
+            "GPU vertex pulling disabled, visual track falls back to the CPU reference.");
+    }
+
     mDrawCpuVS = compileGraphics("ParticleDrawCpuVS", SHADER_STAGE::kVertex, particleDrawCpuVSSource());
     mDrawPS = compileGraphics("ParticleDrawPS", SHADER_STAGE::kPixel, particleDrawPSSource());
 
@@ -334,8 +379,9 @@ TResult ParticleSystem::setup(Camera *camera)
     BlendDesc blend;
     mBlendState = T3D_RENDER_STATE_MGR.loadBlendState(blend);
 
+    // 剔除后的间接绘制同样走 vertex pulling，VS 拿不到就整条路径不成立
     mCullReady = (mCullKernel != nullptr && mVisible != nullptr && mDrawArgs != nullptr
-        && mIndexBuffer != nullptr);
+        && mIndexBuffer != nullptr && mDrawVS != nullptr);
     mReady = (mParticles != nullptr && mDrawPS != nullptr
         && mUpdateCB != nullptr && mDrawCB != nullptr
         && mRasterizer != nullptr && mDepthState != nullptr && mBlendState != nullptr
@@ -594,7 +640,9 @@ TResult ParticleSystem::record(float dt, float timeSeconds)
     TResult ret = uploadCb(mDrawCB.get(), drawData, sizeof(drawData));
     if (T3D_FAILED(ret)) return ret;
 
-    const bool cpuDraw = mCpuMode || mUpdateKernel == nullptr;
+    // mDrawVS 为空说明顶点阶段读不了结构化缓冲，此时无论 mCpuMode 是什么都只能走
+    // CPU 路径，否则按 C 切回 GPU 就会绑一个空 VS。
+    const bool cpuDraw = mCpuMode || mUpdateKernel == nullptr || mDrawVS == nullptr;
     if (cpuDraw && (mDrawCpuVS == nullptr || mCpuVB == nullptr || mCpuDecl == nullptr))
     {
         APP_LOG_DEBUG("[particles] CPU draw path is not available !");
@@ -660,7 +708,17 @@ TResult ParticleSystem::record(float dt, float timeSeconds)
         StructuredBuffers vsSrvs;
         vsSrvs.push_back(mParticles);
         vsSrvs.push_back(mVisible);
-        ctx->setVSStructuredBuffers(0, vsSrvs);
+        ret = ctx->setVSStructuredBuffers(0, vsSrvs);
+        if (T3D_FAILED(ret))
+        {
+            // 绑定失败而绘制照常发出的话，VS 会从没绑定的 SSBO 里读到垃圾，表现是
+            // 粒子满屏乱飞或全部塌在原点 —— 与「compute 算错了」无法区分。宁可不画。
+            APP_LOG_DEBUG("[particles] setVSStructuredBuffers failed ! ERROR [%d], "
+                "skip GPU draw this frame.", ret);
+            ctx->endPass();
+            ctx->reset();
+            return ret;
+        }
 
         if (doCull)
         {

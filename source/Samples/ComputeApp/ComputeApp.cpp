@@ -23,6 +23,8 @@
  ******************************************************************************/
 
 #include "ComputeApp.h"
+#include "KeyboardCommandSource.h"
+#include "TouchCommandSource.h"
 
 #include <cmath>
 
@@ -47,13 +49,25 @@ TResult ComputeApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     buildScene();
     setupSelfTest();
 
-    const TResult particleRet = mParticles.setup(mCamera);
+    const TResult particleRet = mParticles.setup(mCamera, mVSStructuredBufferOk);
     if (T3D_FAILED(particleRet))
     {
         APP_LOG_DEBUG("[ComputeApp] visual track setup failed, window will still run self-test.");
     }
 
-    APP_LOG_DEBUG("[ComputeApp] keys: R retest, 1-8 single case, C CPU/GPU, V cull+indirect, P pause");
+    // 桌面装键盘、Android 装触摸，两端各一个。操作说明由命令源自己给，
+    // 这样移动端自然打的是手势说明而不是键位表。
+#if defined(T3D_OS_ANDROID) || defined(T3D_OS_IOS)
+    mSources.emplace_back(new TouchCommandSource());
+#else
+    mSources.emplace_back(new KeyboardCommandSource());
+#endif
+
+    for (const auto &src : mSources)
+    {
+        APP_LOG_DEBUG("%s", src->usage());
+    }
+
     return T3D_OK;
 }
 
@@ -62,61 +76,49 @@ void ComputeApp::applicationWillTerminate()
     // theApp 是全局对象，它的析构在 main() 返回之后才跑，那时引擎已经拆干净了。
     // 所有指向 GPU 资源的智能指针都必须在这里断掉，晚一步 release 就是访问违例。
     mParticles.teardown();
+    mSources.clear();
     mCases.clear();
     mStatus.clear();
     mCamera = nullptr;
     mCameraXform = nullptr;
 }
 
-void ComputeApp::pollKeys()
+void ComputeApp::pollCommands()
 {
-    if (Input::getInstancePtr() == nullptr)
+    ComputeCommand cmd;
+    for (const auto &src : mSources)
     {
-        return;
-    }
-
-    const uint64_t frame = Time::frameCount();
-    if (frame == mKeyFrame)
-    {
-        return;
-    }
-
-    auto pressed = [&](ScanCode code) -> bool
-    {
-        return T3D_INPUT.getKeyDown(code);
-    };
-
-    if (pressed(APP_SCANCODE_R))
-    {
-        requestSelfTest(-1);
-        mKeyFrame = frame;
-        return;
-    }
-
-    const ScanCode digitKeys[8] =
-    {
-        APP_SCANCODE_1, APP_SCANCODE_2, APP_SCANCODE_3, APP_SCANCODE_4,
-        APP_SCANCODE_5, APP_SCANCODE_6, APP_SCANCODE_7, APP_SCANCODE_8
-    };
-    for (int32_t i = 0; i < 8; ++i)
-    {
-        if (pressed(digitKeys[i]))
+        while (src != nullptr && src->poll(cmd))
         {
-            requestSelfTest(i);
-            mKeyFrame = frame;
-            return;
+            dispatchCommand(cmd);
         }
     }
+}
 
-    if (pressed(APP_SCANCODE_C))
+void ComputeApp::dispatchCommand(const ComputeCommand &cmd)
+{
+    switch (cmd.type)
     {
-        const bool cpu = !mParticles.isCpuMode();
-        mParticles.setCpuMode(cpu);
-        APP_LOG_DEBUG("[ComputeApp] particle mode -> %s", cpu ? "CPU" : "GPU");
-        mKeyFrame = frame;
-    }
-    else if (pressed(APP_SCANCODE_V))
-    {
+    case ComputeCommandType::kRetestAll:
+        requestSelfTest(-1);
+        break;
+
+    case ComputeCommandType::kRetestOne:
+        if (cmd.value >= 0 && size_t(cmd.value) < mCases.size())
+        {
+            requestSelfTest(cmd.value);
+        }
+        break;
+
+    case ComputeCommandType::kToggleCpu:
+        {
+            const bool cpu = !mParticles.isCpuMode();
+            mParticles.setCpuMode(cpu);
+            APP_LOG_DEBUG("[ComputeApp] particle mode -> %s", cpu ? "CPU" : "GPU");
+        }
+        break;
+
+    case ComputeCommandType::kToggleCull:
         if (!mParticles.isCullReady())
         {
             APP_LOG_DEBUG("[ComputeApp] GPU cull not available on this backend.");
@@ -127,14 +129,19 @@ void ComputeApp::pollKeys()
             mParticles.setCullEnabled(cull);
             APP_LOG_DEBUG("[ComputeApp] GPU cull+indirect -> %s", cull ? "ON" : "OFF");
         }
-        mKeyFrame = frame;
-    }
-    else if (pressed(APP_SCANCODE_P))
-    {
-        const bool paused = !mParticles.isPaused();
-        mParticles.setPaused(paused);
-        APP_LOG_DEBUG("[ComputeApp] particle integrate -> %s", paused ? "paused" : "running");
-        mKeyFrame = frame;
+        break;
+
+    case ComputeCommandType::kTogglePause:
+        {
+            const bool paused = !mParticles.isPaused();
+            mParticles.setPaused(paused);
+            APP_LOG_DEBUG("[ComputeApp] particle integrate -> %s", paused ? "paused" : "running");
+        }
+        break;
+
+    case ComputeCommandType::kNone:
+    default:
+        break;
     }
 }
 
@@ -166,7 +173,7 @@ void ComputeApp::orbitCamera()
 
 void ComputeApp::onRender()
 {
-    pollKeys();
+    pollCommands();
     orbitCamera();
 
     if (mSelfTestPending)
@@ -269,6 +276,17 @@ void ComputeApp::logCapabilities()
         caps.maxComputeGroupSize[0], caps.maxComputeGroupSize[1], caps.maxComputeGroupSize[2]);
     APP_LOG_DEBUG("[K0] maxComputeSharedMemory=%u bytes  maxUnorderedAccessSlots=%u",
         caps.maxComputeSharedMemory, caps.maxUnorderedAccessSlots);
+
+    // RHICapabilities 里没有顶点阶段结构化缓冲这一位，而它是本 Sample 在移动端上最
+    // 关键的一个能力（ES 3.1 的 GL_MAX_VERTEX_SHADER_STORAGE_BLOCKS 下限就是 0）。
+    // 用一次真实绑定探出来，比加一个能力位要便宜，也不用动 Core。
+    mVSStructuredBufferOk = ParticleSystem::probeVertexStageStructuredBuffer();
+    APP_LOG_DEBUG("[K0] vertexStageStructuredBuffer=%d", mVSStructuredBufferOk ? 1 : 0);
+    if (!mVSStructuredBufferOk)
+    {
+        APP_LOG_DEBUG("[K0] vertex stage cannot read structured buffers, "
+            "the visual track will use the CPU reference implementation.");
+    }
 
     if (!caps.supportsCompute)
     {

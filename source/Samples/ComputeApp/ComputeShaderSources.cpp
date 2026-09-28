@@ -31,6 +31,11 @@ namespace
     // 成员名 <Block>_<member>。D3D11 反射的 getOriginalName 按这个约定硬剥前缀，
     // 名字不合规时 substr 越界抛异常（T3DD3D11ContextBase.cpp:150-177）。
     // GL / GLES 侧的反射会容错处理前缀，故 GLSL 保持自然命名。
+    //
+    // ESSL 的 `#version` 必须是源码的第一个字符，连换行都不能有（桌面 GLSL 允许
+    // 前面有空白和注释，ES profile 不允许）。所以 gles 串一律写成 `R"(#version
+    // 310 es` 顶格起头，别顺手改成和 gl 串一样的换行缩进形式 —— 桌面上看不出来，
+    // 只有真机会报 `'#version' : must occur first in shader`。
     const unsigned char kDummyVK[] = { 0x03, 0x02, 0x23, 0x07 };
 
     ComputeShaderSource make(const char *hlsl, const char *gl, const char *gles)
@@ -65,8 +70,7 @@ void main()
     gOutputBuf.data[gl_GlobalInvocationID.x] = gl_GlobalInvocationID.x * 2u;
 }
 )";
-    static const char *gles = R"(
-#version 310 es
+    static const char *gles = R"(#version 310 es
 layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
 layout(std430, binding = 0) buffer gOutput { uint data[]; } gOutputBuf;
 void main()
@@ -105,8 +109,7 @@ void main()
     gOutputBuf.data[i] = gInputBuf.data[i] * gScale + gBias;
 }
 )";
-    static const char *gles = R"(
-#version 310 es
+    static const char *gles = R"(#version 310 es
 layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
 layout(std140, binding = 0) uniform SaxpyParams { vec4 gScale; vec4 gBias; };
 layout(std430, binding = 0) readonly buffer gInput { vec4 data[]; } gInputBuf;
@@ -145,8 +148,7 @@ void main()
     gTypedBuf.data[i] = vec4(float(i & 255u) / 255.0, 0.0, 128.0 / 255.0, 1.0);
 }
 )";
-    static const char *gles = R"(
-#version 310 es
+    static const char *gles = R"(#version 310 es
 layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
 layout(std430, binding = 0) buffer gRaw { uint data[]; } gRawBuf;
 layout(std430, binding = 1) buffer gTyped { vec4 data[]; } gTypedBuf;
@@ -201,8 +203,7 @@ void main()
     if (gi == 0u) gPartialBuf.data[gl_WorkGroupID.x] = gs[0];
 }
 )";
-    static const char *gles = R"(
-#version 310 es
+    static const char *gles = R"(#version 310 es
 layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 layout(std430, binding = 0) readonly buffer gInput { uint data[]; } gInputBuf;
 layout(std430, binding = 1) buffer gPartial { uint data[]; } gPartialBuf;
@@ -266,8 +267,7 @@ void main()
     if (gi == 0u) gResultBuf.data[0] = gs[0];
 }
 )";
-    static const char *gles = R"(
-#version 310 es
+    static const char *gles = R"(#version 310 es
 layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 layout(std430, binding = 0) buffer gPartial { uint data[]; } gPartialBuf;
 layout(std430, binding = 1) buffer gResult { uint data[]; } gResultBuf;
@@ -448,8 +448,7 @@ void main()
     gParticleBuf.data[i] = p;
 }
 )";
-    static const char *gles = R"(
-#version 310 es
+    static const char *gles = R"(#version 310 es
 layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 struct Particle { vec3 position; float life; vec3 velocity; float size; };
 layout(std140, binding = 0) uniform ParticleParams { vec4 gTimeParams; vec4 gAttractor; };
@@ -528,8 +527,7 @@ void main()
     }
 }
 )";
-    static const char *gles = R"(
-#version 310 es
+    static const char *gles = R"(#version 310 es
 layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 struct Particle { vec3 position; float life; vec3 velocity; float size; };
 layout(std140, binding = 0) uniform CullParams { mat4 gViewProj; vec4 gClipScale; };
@@ -607,8 +605,7 @@ void main()
     vColor = vec4(t, 0.6, 1.0 - t, 1.0);
 }
 )";
-    static const char *gles = R"(
-#version 310 es
+    static const char *gles = R"(#version 310 es
 struct Particle { vec3 position; float life; vec3 velocity; float size; };
 layout(std140, binding = 0) uniform DrawParams { mat4 gView; mat4 gProj; mat4 gViewProj; vec4 gMode; };
 layout(std430, binding = 0) readonly buffer gParticles { Particle data[]; } gParticleBuf;
@@ -686,8 +683,7 @@ void main()
     vColor = vec4(t, 0.6, 1.0 - t, 1.0);
 }
 )";
-    static const char *gles = R"(
-#version 310 es
+    static const char *gles = R"(#version 310 es
 layout(std140, binding = 0) uniform DrawParams { mat4 gView; mat4 gProj; mat4 gViewProj; vec4 gMode; };
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in float inLife;
@@ -728,8 +724,7 @@ void main()
     fragColor = vColor;
 }
 )";
-    static const char *gles = R"(
-#version 310 es
+    static const char *gles = R"(#version 310 es
 precision mediump float;
 in vec4 vColor;
 out vec4 fragColor;

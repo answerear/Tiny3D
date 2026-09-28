@@ -28,8 +28,10 @@
 
 #include "../Common/SampleApp.h"
 #include "ComputeCases.h"
+#include "ComputeCommand.h"
 #include "ParticleSystem.h"
 
+#include <memory>
 #include <vector>
 
 
@@ -73,8 +75,11 @@ protected:
     /// 把每个用例的结论汇总打一遍
     void reportSelfTest();
 
-    /// 热键：R 重跑自检，1-8 单跑，C CPU/GPU，V 剔除，P 暂停
-    void pollKeys();
+    /// 依次抽干每个命令源的队列，交给 dispatchCommand 执行
+    void pollCommands();
+
+    /// 把一条命令落到具体行为上，与命令来自键盘还是触摸无关
+    void dispatchCommand(const ComputeCommand &cmd);
 
     /// 相机绕原点慢转，让 K10 可见数随时间变化
     void orbitCamera();
@@ -96,14 +101,19 @@ protected:
     std::vector<ComputeCasePtr> mCases;
     std::vector<CaseStatus>     mStatus;
 
+    /// 桌面装键盘源、Android 装触摸源，两端各一个，没有第三种组合
+    std::vector<std::unique_ptr<IComputeCommandSource>> mSources;
+
     ParticleSystem              mParticles;
     Tiny3D::Camera             *mCamera {nullptr};
     Tiny3D::Transform3D        *mCameraXform {nullptr};
 
+    /// K0 探出来的「顶点阶段能否读结构化缓冲」，决定可视轨走 GPU 还是 CPU
+    bool        mVSStructuredBufferOk {true};
+
     /// 自检轨只在被请求的那一帧跑
     bool        mSelfTestPending {true};
     int32_t     mSelfTestOnly {-1};
-    uint64_t    mKeyFrame {~uint64_t(0)};
 };
 
 

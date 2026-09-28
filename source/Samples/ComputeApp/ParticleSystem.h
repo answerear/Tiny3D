@@ -52,7 +52,25 @@ public:
 
     static_assert(sizeof(Particle) == 32, "Particle must be 32 bytes (two float4s)");
 
-    TResult setup(Tiny3D::Camera *camera);
+    /**
+     * \brief 探测顶点阶段能否读结构化缓冲
+     * \remarks GL_MAX_VERTEX_SHADER_STORAGE_BLOCKS 在 ES 3.1 规范里的最小值就是 0 ——
+     *          顶点阶段的 SSBO 是可选能力，compute 阶段的不是，设备支持 compute 推不出
+     *          它支持 VS 读 SSBO。而可视轨的 GPU 路径整条建立在 vertex pulling 上，
+     *          不探测就只能在真机上表现为粒子乱飞或塌在原点，与「compute 算错了」
+     *          几乎无法区分。GLES3Context::setVSStructuredBuffers 的门槛检查在
+     *          入队之前同步执行，所以多线程 RHI 模式下返回值也是可信的。
+     * \return 可用返回 true；无法判定（无结构化缓冲能力等）时按可用处理，交给后续流程
+     */
+    static bool probeVertexStageStructuredBuffer();
+
+    /**
+     * \brief 建资源、编译内核与绘制 shader
+     * \param [in] camera : 提供 view / proj 的相机
+     * \param [in] vsStructuredBufferOk : probeVertexStageStructuredBuffer() 的结果，
+     *             为 false 时不编译 vertex pulling 的 VS，可视轨直接退化为 CPU 参考实现
+     */
+    TResult setup(Tiny3D::Camera *camera, bool vsStructuredBufferOk);
 
     /**
      * \brief 释放全部 GPU 资源引用
@@ -132,6 +150,7 @@ private:
 
     bool mReady {false};
     bool mCullReady {false};
+    bool mVSStructuredBufferOk {true};
     bool mCpuMode {false};
     bool mCullEnabled {false};
     bool mPaused {false};
