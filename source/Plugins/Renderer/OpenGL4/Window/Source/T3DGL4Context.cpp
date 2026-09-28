@@ -2181,6 +2181,23 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    // GL 对象的名字是在 RHI 线程执行创建命令时才写进 RHI 资源的。命令是按入队顺序
+    // 执行的，所以在 lambda 里取句柄一定拿得到；但在主线程入队之前取，就可能读到还
+    // 没被写过的 0——资源创建和使用落在同一批命令里时必然如此。句柄必须在 lambda
+    // 内部解析。
+    static GLuint getGLShaderHandle(ShaderVariant *variant)
+    {
+        if (variant == nullptr)
+        {
+            return 0;
+        }
+
+        GL4Shader *glShader = static_cast<GL4Shader*>(variant->getRHIShader());
+        return (glShader != nullptr) ? glShader->GLShaderHandle : 0;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult GL4Context::setVertexShader(ShaderVariant *shader)
     {
         if (shader == nullptr)
@@ -2198,16 +2215,15 @@ namespace Tiny3D
             return ENQUEUE_UNIQUE_COMMAND(lambda);
         }
 
-        GL4Shader *glShader = static_cast<GL4Shader*>(shader->getRHIShader());
-        GLuint shaderHandle = glShader->GLShaderHandle;
-
-        auto lambda = [this](GLuint shaderHandle, ShaderVariant *variant)
+        auto lambda = [this](ShaderVariant *variant)
         {
             TResult ret = T3D_OK;
 
             do
             {
                 mCurrentVSVariant = variant;
+
+                const GLuint shaderHandle = getGLShaderHandle(variant);
 
                 // 这里不能删掉重建 program：调用方允许先绑 PS 再绑 VS，
                 // 重建会把已经 attach 的 PS 丢掉，link 出一个只有 VS 的 program，
@@ -2225,7 +2241,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, shaderHandle, shader);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, shader);
     }
 
     //--------------------------------------------------------------------------
@@ -2313,16 +2329,15 @@ namespace Tiny3D
             return ENQUEUE_UNIQUE_COMMAND(lambda);
         }
 
-        GL4Shader *glShader = static_cast<GL4Shader*>(shader->getRHIShader());
-        GLuint shaderHandle = glShader->GLShaderHandle;
-
-        auto lambda = [this](GLuint shaderHandle, ShaderVariant *variant)
+        auto lambda = [this](ShaderVariant *variant)
         {
             TResult ret = T3D_OK;
 
             do
             {
                 mCurrentPSVariant = variant;
+
+                const GLuint shaderHandle = getGLShaderHandle(variant);
 
                 if (mCurrentProgram == 0)
                 {
@@ -2337,7 +2352,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, shaderHandle, shader);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, shader);
     }
 
     //--------------------------------------------------------------------------
@@ -2565,16 +2580,15 @@ namespace Tiny3D
             return ENQUEUE_UNIQUE_COMMAND(lambda);
         }
 
-        GL4Shader *glShader = static_cast<GL4Shader*>(shader->getRHIShader());
-        GLuint shaderHandle = glShader->GLShaderHandle;
-
-        auto lambda = [this](GLuint shaderHandle, ShaderVariant *variant)
+        auto lambda = [this](ShaderVariant *variant)
         {
             TResult ret = T3D_OK;
 
             do
             {
                 mCurrentCSVariant = variant;
+
+                const GLuint shaderHandle = getGLShaderHandle(variant);
 
                 if (mCurrentComputeProgram != 0)
                 {
@@ -2589,7 +2603,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, shaderHandle, shader);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, shader);
     }
 
     TResult GL4Context::setCSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
@@ -3283,56 +3297,38 @@ namespace Tiny3D
             return T3D_ERR_INVALID_PARAM;
         }
 
-        struct UAVBinding
-        {
-            GLuint ssbo {0};
-            GLuint counter {0};
-            uint32_t initialCount {kKeepUAVCounter};
-            bool hasCounter {false};
-        };
-
-        TArray<UAVBinding> bindings;
-        bindings.reserve(buffers.size());
-
-        for (uint32_t i = 0; i < buffers.size(); ++i)
-        {
-            UAVBinding b {};
-            if (!initialCounts.empty())
-            {
-                b.initialCount = initialCounts[i];
-            }
-
-            RenderBuffer *rb = buffers[i].get();
-            if (rb != nullptr && rb->getRHIResource() != nullptr
-                && rb->getRHIResource()->getResourceType() == RHIResource::ResourceType::kStructuredBuffer)
-            {
-                GL4StructuredBuffer *glSB = static_cast<GL4StructuredBuffer*>(rb->getRHIResource().get());
-                b.ssbo = glSB->GLBuffer;
-                b.counter = glSB->GLCounterBuffer;
-                b.hasCounter = glSB->HasCounter;
-            }
-
-            bindings.push_back(b);
-        }
-
-        auto lambda = [this](uint32_t startSlot, TArray<UAVBinding> bindings)
+        auto lambda = [this](uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts)
         {
             TResult ret = T3D_OK;
 
             do
             {
-                for (uint32_t i = 0; i < bindings.size(); ++i)
+                for (uint32_t i = 0; i < buffers.size(); ++i)
                 {
-                    const uint32_t slot = startSlot + i;
-                    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, bindings[i].ssbo);
+                    GLuint ssbo = 0;
+                    GLuint counter = 0;
+                    bool hasCounter = false;
 
-                    if (bindings[i].hasCounter && bindings[i].counter != 0)
+                    RenderBuffer *rb = buffers[i].get();
+                    if (rb != nullptr && rb->getRHIResource() != nullptr
+                        && rb->getRHIResource()->getResourceType() == RHIResource::ResourceType::kStructuredBuffer)
                     {
-                        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, slot, bindings[i].counter);
-                        if (bindings[i].initialCount != kKeepUAVCounter)
+                        GL4StructuredBuffer *glSB = static_cast<GL4StructuredBuffer*>(rb->getRHIResource().get());
+                        ssbo = glSB->GLBuffer;
+                        counter = glSB->GLCounterBuffer;
+                        hasCounter = glSB->HasCounter;
+                    }
+
+                    const uint32_t slot = startSlot + i;
+                    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
+
+                    if (hasCounter && counter != 0)
+                    {
+                        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, slot, counter);
+                        if (!initialCounts.empty() && initialCounts[i] != kKeepUAVCounter)
                         {
-                            uint32_t count = bindings[i].initialCount;
-                            glNamedBufferSubData(bindings[i].counter, 0, sizeof(uint32_t), &count);
+                            uint32_t count = initialCounts[i];
+                            glNamedBufferSubData(counter, 0, sizeof(uint32_t), &count);
                         }
                     }
                     else
@@ -3347,7 +3343,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, bindings);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, buffers, initialCounts);
     }
 
     TResult GL4Context::dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ)
@@ -3408,14 +3404,19 @@ namespace Tiny3D
             return ret;
         }
 
-        GLuint glBuf = getGLBufferHandle(argsBuffer);
-
-        auto lambda = [this](GLuint glBuf, GLintptr argsOffset) -> TResult
+        auto lambda = [this](const RenderBufferPtr &argsBuffer, GLintptr argsOffset) -> TResult
         {
             TResult ret = ensureComputeProgramLinked();
             if (T3D_FAILED(ret))
             {
                 return ret;
+            }
+
+            const GLuint glBuf = getGLBufferHandle(argsBuffer.get());
+            if (glBuf == 0)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "dispatchIndirect : underlying GL buffer is not ready !");
+                return T3D_ERR_INVALID_POINTER;
             }
 
             glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, glBuf);
@@ -3431,7 +3432,7 @@ namespace Tiny3D
             return T3D_OK;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, glBuf, (GLintptr)argsOffset);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(argsBuffer), (GLintptr)argsOffset);
     }
 
     TResult GL4Context::uavBarrier(const UnorderedAccessBuffers &buffers)
@@ -3489,23 +3490,24 @@ namespace Tiny3D
             return T3D_ERR_INVALID_PARAM;
         }
 
-        GLuint dstBuf = getGLBufferHandle(dstBuffer);
-        GL4StructuredBuffer *glSrc = static_cast<GL4StructuredBuffer*>(srcBuffer->getRHIResource().get());
-        GLuint srcCounter = (glSrc != nullptr) ? glSrc->GLCounterBuffer : 0;
-        if (dstBuf == 0 || srcCounter == 0)
+        auto lambda = [this](const RenderBufferPtr &dstBuffer, GLintptr dstOffset, const RenderBufferPtr &srcBuffer) -> TResult
         {
-            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "copyStructureCount : underlying GL objects are not ready !");
-            return T3D_ERR_INVALID_POINTER;
-        }
+            const GLuint dstBuf = getGLBufferHandle(dstBuffer.get());
+            GL4StructuredBuffer *glSrc = static_cast<GL4StructuredBuffer*>(srcBuffer->getRHIResource().get());
+            const GLuint srcCounter = (glSrc != nullptr) ? glSrc->GLCounterBuffer : 0;
 
-        auto lambda = [this](GLuint dstBuf, GLintptr dstOffset, GLuint srcCounter)
-        {
+            if (dstBuf == 0 || srcCounter == 0)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "copyStructureCount : underlying GL objects are not ready !");
+                return T3D_ERR_INVALID_POINTER;
+            }
+
             glCopyNamedBufferSubData(srcCounter, dstBuf, 0, dstOffset, sizeof(uint32_t));
             GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::copyStructureCount");
             return T3D_OK;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, dstBuf, (GLintptr)dstOffset, srcCounter);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(dstBuffer), (GLintptr)dstOffset, RenderBufferPtr(srcBuffer));
     }
 
     TResult GL4Context::renderIndexedIndirect(RenderBuffer *argsBuffer, size_t argsOffset)
@@ -3521,14 +3523,19 @@ namespace Tiny3D
             return ret;
         }
 
-        GLuint glBuf = getGLBufferHandle(argsBuffer);
-
-        auto lambda = [this](GLuint glBuf, GLintptr argsOffset) -> TResult
+        auto lambda = [this](const RenderBufferPtr &argsBuffer, GLintptr argsOffset) -> TResult
         {
             TResult ret = ensureProgramLinked();
             if (T3D_FAILED(ret))
             {
                 return ret;
+            }
+
+            const GLuint glBuf = getGLBufferHandle(argsBuffer.get());
+            if (glBuf == 0)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "renderIndexedIndirect : underlying GL buffer is not ready !");
+                return T3D_ERR_INVALID_POINTER;
             }
 
             glBindBuffer(GL_DRAW_INDIRECT_BUFFER, glBuf);
@@ -3538,7 +3545,7 @@ namespace Tiny3D
             return T3D_OK;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, glBuf, (GLintptr)argsOffset);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(argsBuffer), (GLintptr)argsOffset);
     }
 
     TResult GL4Context::renderIndirect(RenderBuffer *argsBuffer, size_t argsOffset)
@@ -3554,14 +3561,19 @@ namespace Tiny3D
             return ret;
         }
 
-        GLuint glBuf = getGLBufferHandle(argsBuffer);
-
-        auto lambda = [this](GLuint glBuf, GLintptr argsOffset) -> TResult
+        auto lambda = [this](const RenderBufferPtr &argsBuffer, GLintptr argsOffset) -> TResult
         {
             TResult ret = ensureProgramLinked();
             if (T3D_FAILED(ret))
             {
                 return ret;
+            }
+
+            const GLuint glBuf = getGLBufferHandle(argsBuffer.get());
+            if (glBuf == 0)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "renderIndirect : underlying GL buffer is not ready !");
+                return T3D_ERR_INVALID_POINTER;
             }
 
             glBindBuffer(GL_DRAW_INDIRECT_BUFFER, glBuf);
@@ -3571,7 +3583,7 @@ namespace Tiny3D
             return T3D_OK;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, glBuf, (GLintptr)argsOffset);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(argsBuffer), (GLintptr)argsOffset);
     }
 
     //--------------------------------------------------------------------------
@@ -3798,21 +3810,23 @@ namespace Tiny3D
             return T3D_ERR_OUT_OF_BOUND;
         }
 
-        GLuint srcBuf = getGLBufferHandle(src);
-        GLuint dstBuf = getGLBufferHandle(dst);
-        if (srcBuf == 0 || dstBuf == 0)
+        auto lambda = [this](const RenderBufferPtr &src, const RenderBufferPtr &dst, GLintptr srcOffset, GLintptr dstOffset, GLsizeiptr copySize) -> TResult
         {
-            return T3D_ERR_INVALID_POINTER;
-        }
+            const GLuint srcBuf = getGLBufferHandle(src.get());
+            const GLuint dstBuf = getGLBufferHandle(dst.get());
+            if (srcBuf == 0 || dstBuf == 0)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "copyBuffer : underlying GL buffers are not ready !");
+                return T3D_ERR_INVALID_POINTER;
+            }
 
-        auto lambda = [this](GLuint srcBuf, GLuint dstBuf, GLintptr srcOffset, GLintptr dstOffset, GLsizeiptr copySize)
-        {
             glCopyNamedBufferSubData(srcBuf, dstBuf, srcOffset, dstOffset, copySize);
             GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::copyBuffer");
             return T3D_OK;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, srcBuf, dstBuf, (GLintptr)srcOffset, (GLintptr)dstOffset, (GLsizeiptr)copySize);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, RenderBufferPtr(src), RenderBufferPtr(dst),
+            (GLintptr)srcOffset, (GLintptr)dstOffset, (GLsizeiptr)copySize);
     }
 
     //--------------------------------------------------------------------------
@@ -4276,29 +4290,27 @@ namespace Tiny3D
 
     TResult GL4Context::stageConstantBuffers(const ConstantBuffers &buffers)
     {
-        // 主线程提取 UBO 名称和 GL 句柄到 POD 数组，避免 lambda 中访问引擎对象
-        using UBOBinding = std::pair<String, GLuint>;
-        TArray<UBOBinding> uboBindings;
-        uboBindings.reserve(buffers.size());
-
-        for (uint32_t i = 0; i < buffers.size(); ++i)
-        {
-            GL4ConstantBuffer *glCB = static_cast<GL4ConstantBuffer*>(buffers[i]->getRHIResource().get());
-            uboBindings.push_back({buffers[i]->getName(), glCB->GLBuffer});
-        }
-
-        auto lambda = [this](TArray<UBOBinding> uboBindings)
+        auto lambda = [this](const ConstantBuffers &buffers)
         {
             TResult ret = T3D_OK;
 
             do
             {
-                for (const auto &binding : uboBindings)
+                for (uint32_t i = 0; i < buffers.size(); ++i)
                 {
-                    auto itr = mPendingUBOs.find(binding.first);
-                    if (itr == mPendingUBOs.end() || itr->second != binding.second)
+                    if (buffers[i] == nullptr || buffers[i]->getRHIResource() == nullptr)
                     {
-                        mPendingUBOs[binding.first] = binding.second;
+                        continue;
+                    }
+
+                    const String &name = buffers[i]->getName();
+                    const GLuint ubo = static_cast<GL4ConstantBuffer*>(
+                        buffers[i]->getRHIResource().get())->GLBuffer;
+
+                    auto itr = mPendingUBOs.find(name);
+                    if (itr == mPendingUBOs.end() || itr->second != ubo)
+                    {
+                        mPendingUBOs[name] = ubo;
                         ++mPendingUBORevision;
                     }
                 }
@@ -4307,80 +4319,67 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, uboBindings);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, buffers);
     }
 
     //--------------------------------------------------------------------------
 
     TResult GL4Context::bindPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
     {
-        // 提取 GL 句柄和目标到 POD 数组，避免在 lambda 中访问引擎对象
-        struct TexBinding { GLuint handle; GLenum target; };
-        TArray<TexBinding> bindings;
-        bindings.reserve(buffers.size());
-
-        for (uint32_t i = 0; i < buffers.size(); ++i)
-        {
-            if (buffers[i] == nullptr)
-            {
-                bindings.push_back({0, GL_TEXTURE_2D});
-                continue;
-            }
-
-            GLuint texHandle = 0;
-            GLenum texTarget = GL_TEXTURE_2D;
-
-            switch (buffers[i]->getRHIResource()->getResourceType())
-            {
-            case RHIResource::ResourceType::kPixelBuffer1D:
-                texHandle = static_cast<GL4PixelBuffer1D*>(buffers[i]->getRHIResource().get())->GLTexture;
-                texTarget = GL_TEXTURE_1D;
-                break;
-            case RHIResource::ResourceType::kPixelBuffer2D:
-                {
-                    GL4PixelBuffer2D *glPB = static_cast<GL4PixelBuffer2D*>(buffers[i]->getRHIResource().get());
-                    if (glPB->GLMSAACount > 1 && glPB->GLResolveTex != 0)
-                    {
-                        texHandle = glPB->GLResolveTex;
-                        texTarget = GL_TEXTURE_2D;
-                    }
-                    else if (glPB->GLMSAACount > 1)
-                    {
-                        texHandle = glPB->GLTexture;
-                        texTarget = GL_TEXTURE_2D_MULTISAMPLE;
-                    }
-                    else
-                    {
-                        texHandle = glPB->GLTexture;
-                        texTarget = GL_TEXTURE_2D;
-                    }
-                }
-                break;
-            case RHIResource::ResourceType::kPixelBuffer3D:
-                texHandle = static_cast<GL4PixelBuffer3D*>(buffers[i]->getRHIResource().get())->GLTexture;
-                texTarget = GL_TEXTURE_3D;
-                break;
-            case RHIResource::ResourceType::kPixelBufferCubemap:
-                texHandle = static_cast<GL4PixelBufferCubemap*>(buffers[i]->getRHIResource().get())->GLTexture;
-                texTarget = GL_TEXTURE_CUBE_MAP;
-                break;
-            default:
-                break;
-            }
-
-            bindings.push_back({texHandle, texTarget});
-        }
-
-        auto lambda = [this](uint32_t startSlot, TArray<TexBinding> bindings)
+        auto lambda = [this](uint32_t startSlot, const PixelBuffers &buffers)
         {
             TResult ret = T3D_OK;
 
             do
             {
-                for (uint32_t i = 0; i < bindings.size(); ++i)
+                for (uint32_t i = 0; i < buffers.size(); ++i)
                 {
+                    GLuint texHandle = 0;
+                    GLenum texTarget = GL_TEXTURE_2D;
+
+                    if (buffers[i] != nullptr && buffers[i]->getRHIResource() != nullptr)
+                    {
+                        switch (buffers[i]->getRHIResource()->getResourceType())
+                        {
+                        case RHIResource::ResourceType::kPixelBuffer1D:
+                            texHandle = static_cast<GL4PixelBuffer1D*>(buffers[i]->getRHIResource().get())->GLTexture;
+                            texTarget = GL_TEXTURE_1D;
+                            break;
+                        case RHIResource::ResourceType::kPixelBuffer2D:
+                            {
+                                GL4PixelBuffer2D *glPB = static_cast<GL4PixelBuffer2D*>(buffers[i]->getRHIResource().get());
+                                if (glPB->GLMSAACount > 1 && glPB->GLResolveTex != 0)
+                                {
+                                    texHandle = glPB->GLResolveTex;
+                                    texTarget = GL_TEXTURE_2D;
+                                }
+                                else if (glPB->GLMSAACount > 1)
+                                {
+                                    texHandle = glPB->GLTexture;
+                                    texTarget = GL_TEXTURE_2D_MULTISAMPLE;
+                                }
+                                else
+                                {
+                                    texHandle = glPB->GLTexture;
+                                    texTarget = GL_TEXTURE_2D;
+                                }
+                            }
+                            break;
+                        case RHIResource::ResourceType::kPixelBuffer3D:
+                            texHandle = static_cast<GL4PixelBuffer3D*>(buffers[i]->getRHIResource().get())->GLTexture;
+                            texTarget = GL_TEXTURE_3D;
+                            break;
+                        case RHIResource::ResourceType::kPixelBufferCubemap:
+                            texHandle = static_cast<GL4PixelBufferCubemap*>(buffers[i]->getRHIResource().get())->GLTexture;
+                            texTarget = GL_TEXTURE_CUBE_MAP;
+                            break;
+                        default:
+                            break;
+                        }
+                    }
+
                     glActiveTexture(GL_TEXTURE0 + startSlot + i);
-                    glBindTexture(bindings[i].target, bindings[i].handle);
+                    glBindTexture(texTarget, texHandle);
                 }
                 glActiveTexture(GL_TEXTURE0);
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::bindPixelBuffers");
@@ -4389,43 +4388,30 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, bindings);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, buffers);
     }
 
     //--------------------------------------------------------------------------
 
     TResult GL4Context::bindSamplers(uint32_t startSlot, const Samplers &samplers)
     {
-        // 提取 GL 句柄到 POD 数组
-        TArray<GLuint> samplerHandles;
-        samplerHandles.reserve(samplers.size());
-
-        for (uint32_t i = 0; i < samplers.size(); ++i)
-        {
-            if (samplers[i] != nullptr)
-            {
-                GL4SamplerState *glSampler = static_cast<GL4SamplerState*>(samplers[i]->getRHIState().get());
-                //T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "bindSamplers: slot=%u glSampler=%u", startSlot + i, glSampler->GLSampler);
-                samplerHandles.push_back(glSampler->GLSampler);
-            }
-            else
-            {
-                //T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "bindSamplers: slot=%u sampler=NULL", startSlot + i);
-                samplerHandles.push_back(0);
-            }
-        }
-
-        auto lambda = [this](uint32_t startSlot, TArray<GLuint> samplerHandles)
+        auto lambda = [this](uint32_t startSlot, const Samplers &samplers)
         {
             TResult ret = T3D_OK;
 
             do
             {
-                for (uint32_t i = 0; i < samplerHandles.size(); ++i)
+                for (uint32_t i = 0; i < samplers.size(); ++i)
                 {
+                    GLuint handle = 0;
+                    if (samplers[i] != nullptr && samplers[i]->getRHIState() != nullptr)
+                    {
+                        handle = static_cast<GL4SamplerState*>(samplers[i]->getRHIState().get())->GLSampler;
+                    }
+
                     // handle==0 也要绑：sampler object 是全局状态，不显式解绑就会
                     // 把上一 pass 的采样参数（比如 comparison 模式）留给下一 pass。
-                    glBindSampler(startSlot + i, samplerHandles[i]);
+                    glBindSampler(startSlot + i, handle);
                 }
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::bindSamplers");
             } while (false);
@@ -4433,7 +4419,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, samplerHandles);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, samplers);
     }
 
     //--------------------------------------------------------------------------
@@ -4445,30 +4431,22 @@ namespace Tiny3D
             T3D_RHI_UNSUPPORTED(supportsStructuredBuffer);
         }
 
-        TArray<GLuint> handles;
-        handles.reserve(buffers.size());
-
-        for (uint32_t i = 0; i < buffers.size(); ++i)
+        auto lambda = [this](uint32_t startSlot, const StructuredBuffers &buffers)
         {
-            GLuint handle = 0;
-            if (buffers[i] != nullptr && buffers[i]->getRHIResource() != nullptr)
+            for (uint32_t i = 0; i < buffers.size(); ++i)
             {
-                handle = static_cast<GL4StructuredBuffer*>(buffers[i]->getRHIResource().get())->GLBuffer;
-            }
-            handles.push_back(handle);
-        }
-
-        auto lambda = [this](uint32_t startSlot, TArray<GLuint> handles)
-        {
-            for (uint32_t i = 0; i < handles.size(); ++i)
-            {
-                glBindBufferBase(GL_SHADER_STORAGE_BUFFER, startSlot + i, handles[i]);
+                GLuint handle = 0;
+                if (buffers[i] != nullptr && buffers[i]->getRHIResource() != nullptr)
+                {
+                    handle = static_cast<GL4StructuredBuffer*>(buffers[i]->getRHIResource().get())->GLBuffer;
+                }
+                glBindBufferBase(GL_SHADER_STORAGE_BUFFER, startSlot + i, handle);
             }
             GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::bindStructuredBuffers");
             return T3D_OK;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, handles);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, buffers);
     }
 
     //--------------------------------------------------------------------------
@@ -4525,16 +4503,15 @@ namespace Tiny3D
             return ENQUEUE_UNIQUE_COMMAND(lambda);
         }
 
-        GL4Shader *glShader = static_cast<GL4Shader*>(shader->getRHIShader());
-        GLuint shaderHandle = glShader->GLShaderHandle;
-
-        auto lambda = [this](GLuint shaderHandle, ShaderVariant *variant, ShaderVariant **slot)
+        auto lambda = [this](ShaderVariant *variant, ShaderVariant **slot)
         {
             TResult ret = T3D_OK;
 
             do
             {
                 *slot = variant;
+
+                const GLuint shaderHandle = getGLShaderHandle(variant);
 
                 if (mCurrentProgram == 0)
                 {
@@ -4549,7 +4526,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, shaderHandle, shader, slot);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, shader, slot);
     }
 
     //--------------------------------------------------------------------------
