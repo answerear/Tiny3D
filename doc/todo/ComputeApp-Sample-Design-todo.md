@@ -47,7 +47,7 @@
 - **不做 RenderGraph / compute pass 调度。** 所有 GPU 命令在 `Application::onRender` 里线性录制。
 - **不改任何 Core / RHI / 后端代码。** 如果实施过程中发现后端有 bug，记账到 RHI-Compute 文档 §11，单独修，不混进本 Sample 的提交。唯一例外是 `embed-sample-shaders.ps1` 的 `$jobs` 扩展（§4.3）。
 - **不补 Vulkan / Metal 的 compute 实现。** 那是 RHI-Compute 文档五期的 E1 / E3。
-- **第一期不做 Android。** 移植参照 `PostProcessingApp-Android-Design-todo.md`，列为 S5。
+- **第一期不做 Android。** 列为 S5，施工蓝图见 `doc/todo/ComputeApp-Android-Design-todo.md`（方法论沿用 `PostProcessingApp-Android-Design-todo.md`）。
 - **不追求粒子系统的物理正确性或美观。** 可视轨的唯一职责是「让人一眼看出 GPU 在算」，不是做粒子引擎。
 - **不用 compute 蒙皮当可视轨。** 评估过拿 Unity 式的 compute skinning（独立蒙皮 pass 把结果写进 GPU 缓冲，各 pass 复用）替换粒子，结论是**暂缓、另行立项**。三条理由：覆盖面上它给不了 groupshared / 原子 / indirect / `copyStructureCount` / 纹理 UAV，K4 / K5 / K7 / K8 一个都省不掉，它能替换的只有 K9 / K10；算错时嫌疑人太多（矩阵行列主序、骨骼矩阵乘序、权重归一化、顶点 stride 解码），与「验证 Sample 必须隔离被测对象」相冲；`AnimationPlayerMgr::update()` 在 CPU tick 上做蒙皮，而 compute 只能在 `onRender` 里录制，Sample 只能并列一条路而非接进引擎。
 
@@ -442,9 +442,11 @@ assets/samples/shaders/ParticleDraw.{vshader,pshader}
 | **S2** | 可视轨 K9：粒子积分 + 手工 `renderInstanced` + CPU 对照模式 | 2d | S1b、O1 已确认 | 粒子在动；按 `C` 切 CPU 画面无差异 |
 | **S3** | K5 纹理 UAV + K6 反射，D3D11 only | 1d | S1b | D3D11 下两例 passed，GL 正确跳过 |
 | **S4** | K7 / K8 + K10 GPU 剔除间接绘制 | 2d | S2、S3 | `copyStructureCount` 回读值正确；按 `V` 边缘粒子消失 |
-| **S5** | Android 工程（GLES3 真机） | 1.5d | S2 | 真机跑通自检轨 + 可视轨，参照 `PostProcessingApp-Android-Design-todo.md` |
+| **S5** | Android 工程（GLES3 真机） | 3d | S2 | 真机自检轨 3 passed / 5 skipped + 可视轨 GPU/CPU 对照无差异；**施工蓝图见 `ComputeApp-Android-Design-todo.md`**（含一条上机前必修的静默画错路径） |
 
-**合计约 9.5 人日**，其中 S0–S2 是主线（5 人日），S3–S5 可按优先级插空。
+**合计约 11 人日**，其中 S0–S2 是主线（5 人日），S3–S5 可按优先级插空。
+
+**进度**：S0–S4 已全部落地（D3D11 下 `8 passed, 0 failed, 0 skipped`，debug layer 零 ERROR / 零 WARNING，退出时只剩 `Live ID3D11Device`）。S5 已完成其蓝图的 M1–M4 —— VS 侧 SSBO 探测与降级、键盘 / 触摸命令源解耦、Android Gradle 脚手架出 APK，**M5 真机联调待机**。另外发现 **GL4 后端的自检轨在 HEAD 上已经是坏的**（`0 passed, 5 failed, 3 skipped`，`git stash` 对拍确认非 Sample 改动引入），根因是后端在主线程入队前就读 GL 对象句柄、而句柄要到 RHI 线程执行创建命令时才写入，已按 §1.2 的纪律**单独修在 `T3DGL4Context.cpp` 里、不混进 Sample 的提交**，现为 `5 passed, 0 failed, 3 skipped`；详见 `ComputeApp-Android-Design-todo.md` §9.1.1。
 
 推荐顺序说明：**S1a 必须最先做且不可跳过**。绑定号对不上的话，S1b 之后的所有跨后端工作都要返工；而如果它在第一天就暴露，代价只是「S1 收缩成 D3D11 only」，后面的期不受影响。
 
@@ -518,6 +520,7 @@ P6 的定位方式值得记一笔：颜色 clear 能上屏说明命令流没问�
 | `GPU-Readback-onRender-Design-todo.md` | 本文全部自检用例依赖它的 `map` / `unmap` 与三个帧钩子。§6「Sample 如何升级」里点名的 BlitApp 尚未改造，本 Sample 是第二个真实使用者，用法要与 TextureApp 保持一致 |
 | `PostProcessingApp-Design-todo.md` | 提供了「热键切用例 + 跨后端嵌入 shader + sample 自带 Behaviour」的完整先例，本文的交互层与工程结构照抄 |
 | `Shader-MultiBackend-Variant-Design-todo.md` | compute 是它未覆盖的第五个阶段，§4.4 的绑定号结论应回填 |
+| `ComputeApp-Android-Design-todo.md` | **本文 §7 S5 期的施工蓝图。** 用例矩阵、可视轨设计、`backendMask` 语义全部沿用，只替换输入层（热键 → 触摸手势）并增加 Android 平台。它同时记下了 GLES3 侧对应于本文 §9.1 P1–P10 的那批实测风险，其中「VS 侧 SSBO 在 ES 3.1 上是可选能力、`ParticleSystem::record` 没检查 `setVSStructuredBuffers` 返回值」一条会静默画错，须在上机前修掉 |
 
 ---
 
