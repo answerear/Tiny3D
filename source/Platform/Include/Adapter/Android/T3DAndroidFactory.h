@@ -70,6 +70,8 @@ namespace Tiny3D
 
         virtual IZipAssetManager *createPlatformZipAssetManager() override;
 
+        virtual ISharedLibrary *createPlatformSharedLibrary() override;
+
         virtual EPlatform getPlatform() override;
 
     protected:

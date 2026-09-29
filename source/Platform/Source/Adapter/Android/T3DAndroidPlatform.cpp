@@ -23,6 +23,7 @@
  ******************************************************************************/
 
 #include "Adapter/Android/T3DAndroidPlatform.h"
+#include "Adapter/Unix/T3DUnixSharedLibrary.h"
 #include <pthread.h>
 #include <unistd.h>
 #include <dirent.h>
@@ -163,6 +164,20 @@ namespace Tiny3D
     bool AndroidPlatform::wakeupProcess(ulong_t pid)
     {
         return (kill((pid_t)pid, SIGCONT) == 0);
+    }
+
+    //--------------------------------------------------------------------------
+
+    String AndroidPlatform::getModulePath(const void *address) const
+    {
+        return UnixSharedLibrary::queryModulePath(address);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool AndroidPlatform::isAddressMapped(const void *address) const
+    {
+        return UnixSharedLibrary::queryAddressMapped(address);
     }
 
     //--------------------------------------------------------------------------

@@ -25,6 +25,7 @@
 #include "Adapter/Unix/T3DPosixProcess.h"
 #include "Adapter/Unix/T3DPosixLocale.h"
 #include "Adapter/Unix/T3DPosixSyncObject.h"
+#include "Adapter/Unix/T3DUnixSharedLibrary.h"
 #include "Adapter/OSX/T3DOSXDir.h"
 #include "Adapter/OSX/T3DOSXDeviceInfo.h"
 #include "Adapter/OSX/T3DOSXConsole.h"
@@ -140,6 +141,11 @@ namespace Tiny3D
 	{
 		return new OSXAssetManager();
 	}
+
+    ISharedLibrary *OSXFactory::createPlatformSharedLibrary()
+    {
+        return new UnixSharedLibrary();
+    }
 
     EPlatform OSXFactory::getPlatform()
     {

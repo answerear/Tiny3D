@@ -22,6 +22,7 @@
 #include "Adapter/Common/T3DTimerService.h"
 #include "Adapter/Desktop/T3DSDLDesktopWindow.h"
 #include "Adapter/Unix/T3DUnixTime.h"
+#include "Adapter/Unix/T3DUnixSharedLibrary.h"
 #include "Adapter/Linux/T3DLinuxDir.h"
 #include "Adapter/Linux/T3DLinuxConsole.h"
 #include "Adapter/Linux/T3DLinuxDeviceInfo.h"
@@ -76,6 +77,11 @@ namespace Tiny3D
     IZipAssetManager *LinuxFactory::createPlatformZipAssetManager()
     {
         return nullptr;
+    }
+
+    ISharedLibrary *LinuxFactory::createPlatformSharedLibrary()
+    {
+        return new UnixSharedLibrary();
     }
 
     EPlatform LinuxFactory::getPlatform()

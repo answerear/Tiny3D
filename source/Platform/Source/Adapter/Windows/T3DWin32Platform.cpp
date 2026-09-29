@@ -23,6 +23,7 @@
  ******************************************************************************/
 
 #include "Adapter/Windows/T3DWin32Platform.h"
+#include "Adapter/Windows/T3DWin32SharedLibrary.h"
 #include <windows.h>
 #include <tlhelp32.h>
 #include "T3DDir.h"
@@ -156,6 +157,20 @@ namespace Tiny3D
         // 遍历所有窗口，查找与目标进程ID关联的窗口
         ::EnumWindows(EnumWindowsProc, (LPARAM)pid);
         return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    String Win32Platform::getModulePath(const void *address) const
+    {
+        return Win32SharedLibrary::queryModulePath(address);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Win32Platform::isAddressMapped(const void *address) const
+    {
+        return Win32SharedLibrary::queryAddressMapped(address);
     }
 
     //--------------------------------------------------------------------------

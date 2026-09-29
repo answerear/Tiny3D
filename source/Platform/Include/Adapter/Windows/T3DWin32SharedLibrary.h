@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -22,51 +22,49 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_WIN32_PALTFORM_H__
-#define __T3D_WIN32_PALTFORM_H__
+#ifndef __T3D_WIN32_SHARED_LIBRARY_H__
+#define __T3D_WIN32_SHARED_LIBRARY_H__
 
 
-#include "Adapter/T3DPlatformInterface.h"
 #include "T3DNoncopyable.h"
-#include "Adapter/T3DPlatformInterface.h"
+#include "Adapter/T3DSharedLibraryInterface.h"
 #include "Memory/T3DMemory.h"
 
 
 namespace Tiny3D
 {
-    class Win32Platform : public IPlatform, public Noncopyable
+    class Win32SharedLibrary : public ISharedLibrary, public Noncopyable
     {
     public:
-        Win32Platform();
+        Win32SharedLibrary() = default;
+
+        ~Win32SharedLibrary() override;
+
+        TResult open(const String &path, uint32_t flags) override;
+
+        void close() override;
+
+        bool isOpen() const override;
+
+        void *getSymbol(const String &name) const override;
+
+        String getLastError() const override;
+
+        THandle getNativeHandle() const override;
+
+        /**
+         * @brief   GetModuleHandleEx(FROM_ADDRESS) + GetModuleFileNameW，返回 UTF-8
+         * @remarks 拿到的模块没有增加引用计数，不能对它 FreeLibrary
+         */
+        static String queryModulePath(const void *address);
+
+        static bool queryAddressMapped(const void *address);
 
     protected:
-        void memoryBarrier() override;
-
-        ulong_t getCurrentThreadID() override;
-
-        ulong_t getMainThreadID() override;
-
-        void sleepCurrentThread(uint32_t msec) override;
-
-        uint32_t getThreadHardwareConcurrency() override;
-
-        void traverseAllProcesses(const OnTraverseProcess &callback) override;
-
-        ulong_t getCurrentProcessID() override;
-
-        const String &getCurrentProcessName() override;
-
-        bool wakeupProcess(ulong_t pid) override;
-
-        String getModulePath(const void *address) const override;
-
-        bool isAddressMapped(const void *address) const override;
-        
-    protected:
-        ulong_t mMainThreadID {0};
-        String mCurrentProcessName {};
+        THandle         mModule {nullptr};
+        mutable String  mLastError {};
     };
 }
 
 
-#endif  /*__T3D_WIN32_PALTFORM_H__*/
+#endif  /*__T3D_WIN32_SHARED_LIBRARY_H__*/

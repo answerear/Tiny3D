@@ -76,6 +76,8 @@ namespace Tiny3D
         IFSMonitor *createFileSystemMonitor() override;
 
         IZipAssetManager *createPlatformZipAssetManager() override;
+
+        ISharedLibrary *createPlatformSharedLibrary() override;
         
         EPlatform getPlatform() override;
 

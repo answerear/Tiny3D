@@ -85,6 +85,14 @@ namespace Tiny3D
         T3D_ERR_FS_MONITOR_CREATED,
         /// File System 监控被中断
         T3D_ERR_FS_WATCHDOG_OPERATION_ARBORT,
+        /// 动态库打开失败
+        T3D_ERR_SHAREDLIB_OPEN,
+        /// 动态库未打开
+        T3D_ERR_SHAREDLIB_NOT_OPEN,
+        /// 动态库导出符号不存在
+        T3D_ERR_SHAREDLIB_SYMBOL,
+        /// 动态库加载标志非法组合
+        T3D_ERR_SHAREDLIB_FLAGS,
     };
 };
 

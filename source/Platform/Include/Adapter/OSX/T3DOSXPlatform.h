@@ -58,6 +58,10 @@ namespace Tiny3D
 
         bool wakeupProcess(ulong_t pid) override;
 
+        String getModulePath(const void *address) const override;
+
+        bool isAddressMapped(const void *address) const override;
+
     protected:
         ulong_t mMainThreadID;
         String  mProcessName;

@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -22,51 +22,35 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_WIN32_PALTFORM_H__
-#define __T3D_WIN32_PALTFORM_H__
+#ifndef __T3D_ENVIRONMENT_H__
+#define __T3D_ENVIRONMENT_H__
 
 
-#include "Adapter/T3DPlatformInterface.h"
-#include "T3DNoncopyable.h"
-#include "Adapter/T3DPlatformInterface.h"
-#include "Memory/T3DMemory.h"
+#include "T3DMacro.h"
+#include "T3DPlatformPrerequisites.h"
+#include "T3DType.h"
 
 
 namespace Tiny3D
 {
-    class Win32Platform : public IPlatform, public Noncopyable
+    /**
+     * @class   Environment
+     * @brief   进程环境变量读取，名字和值都是 UTF-8
+     * @remarks Windows 走 GetEnvironmentVariableW，避免 getenv 按 ANSI 代码页截断非 ASCII 路径；
+     *          POSIX 走 getenv，按 UTF-8 解释字节。不依赖 Platform 单例。
+     */
+    class T3D_PLATFORM_API Environment
     {
     public:
-        Win32Platform();
+        /**
+         * @brief   读取环境变量
+         * @return  不存在返回空串；需要区分「未设置」与「设成空」时用 has()
+         */
+        static String get(const String &name);
 
-    protected:
-        void memoryBarrier() override;
-
-        ulong_t getCurrentThreadID() override;
-
-        ulong_t getMainThreadID() override;
-
-        void sleepCurrentThread(uint32_t msec) override;
-
-        uint32_t getThreadHardwareConcurrency() override;
-
-        void traverseAllProcesses(const OnTraverseProcess &callback) override;
-
-        ulong_t getCurrentProcessID() override;
-
-        const String &getCurrentProcessName() override;
-
-        bool wakeupProcess(ulong_t pid) override;
-
-        String getModulePath(const void *address) const override;
-
-        bool isAddressMapped(const void *address) const override;
-        
-    protected:
-        ulong_t mMainThreadID {0};
-        String mCurrentProcessName {};
+        static bool has(const String &name);
     };
 }
 
 
-#endif  /*__T3D_WIN32_PALTFORM_H__*/
+#endif  /*__T3D_ENVIRONMENT_H__*/

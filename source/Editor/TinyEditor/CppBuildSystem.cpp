@@ -198,14 +198,8 @@ namespace Tiny3D
 
     String CppBuildSystem::platformLibFileName(const String &name)
     {
-        // 与 Dylib::onLoad 的拼接规则保持一致，否则影子副本加载不到
-#if defined (T3D_OS_WINDOWS)
-        return name + ".dll";
-#elif defined (T3D_OS_LINUX) || defined (T3D_OS_ANDROID)
-        return "lib" + name + ".so";
-#else
-        return "lib" + name + ".dylib";
-#endif
+        // 与 Dylib::onLoad 共用同一套拼接规则，否则影子副本加载不到
+        return SharedLibrary::makeFileName(name);
     }
 
     //--------------------------------------------------------------------------

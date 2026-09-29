@@ -82,6 +82,7 @@ set_project_files(Include\\\\Device ${CMAKE_CURRENT_SOURCE_DIR}/Include/Device/ 
 set_project_files(Include\\\\Console ${CMAKE_CURRENT_SOURCE_DIR}/Include/Console/ .h)
 set_project_files(Include\\\\Thread ${CMAKE_CURRENT_SOURCE_DIR}/Include/Thread/ .h)
 set_project_files(Include\\\\Process ${CMAKE_CURRENT_SOURCE_DIR}/Include/Process/ .h)
+set_project_files(Include\\\\SharedLibrary ${CMAKE_CURRENT_SOURCE_DIR}/Include/SharedLibrary/ .h)
 set_project_files(Include\\\\Locale ${CMAKE_CURRENT_SOURCE_DIR}/Include/Locale/ .h)
 set_project_files(Include\\\\Network ${CMAKE_CURRENT_SOURCE_DIR}/Include/Network/ .h)
 set_project_files(Include\\\\Memory ${CMAKE_CURRENT_SOURCE_DIR}/Include/Memory/ .h)
@@ -130,6 +131,7 @@ set_project_files(Source\\\\Device ${CMAKE_CURRENT_SOURCE_DIR}/Source/Device/ .c
 set_project_files(Source\\\\Console ${CMAKE_CURRENT_SOURCE_DIR}/Source/Console/ .cpp)
 set_project_files(Source\\\\Thread ${CMAKE_CURRENT_SOURCE_DIR}/Source/Thread/ .cpp)
 set_project_files(Source\\\\Process ${CMAKE_CURRENT_SOURCE_DIR}/Source/Process/ .cpp)
+set_project_files(Source\\\\SharedLibrary ${CMAKE_CURRENT_SOURCE_DIR}/Source/SharedLibrary/ .cpp)
 set_project_files(Source\\\\Locale ${CMAKE_CURRENT_SOURCE_DIR}/Source/Locale/ .cpp)
 set_project_files(Source\\\\Network ${CMAKE_CURRENT_SOURCE_DIR}/Source/Network/ .cpp)
 set_project_files(Source\\\\Memory ${CMAKE_CURRENT_SOURCE_DIR}/Source/Memory/ .cpp)
@@ -213,14 +215,18 @@ elseif (TINY3D_OS_MACOSX)
 		${LIB_NAME}
 		${SDL2_LIBRARY}
 		${SDL2_OSX_FRAMEWORKS}
+		${CMAKE_DL_LIBS}
 		)
 elseif (TINY3D_OS_LINUX)
 	# Linux
     add_definitions(-DSDL_VIDEO_DRIVER_X11=1)
+	# glibc 下 dladdr / Dl_info 需要 _GNU_SOURCE
+	target_compile_definitions(${LIB_NAME} PRIVATE _GNU_SOURCE)
 	target_link_libraries(
 		${LIB_NAME}
 		LINK_PRIVATE X11
 		LINK_PRIVATE ${SDL2_LIBRARY}
+		LINK_PRIVATE ${CMAKE_DL_LIBS}
 		)
 
 	add_custom_command(TARGET ${BIN_NAME}
@@ -244,6 +250,7 @@ elseif (TINY3D_OS_IOS)
         ${SDL2_LIBRARY}
         ${SDL2_OSX_FRAMEWORKS}
         ${FWK_SECURITY}
+        ${CMAKE_DL_LIBS}
 		)
 elseif (TINY3D_OS_ANDROID)
 	# Android
@@ -252,6 +259,7 @@ elseif (TINY3D_OS_ANDROID)
 		LINK_PRIVATE ${SDL2_BINARY}
 		log
 		android
+		${CMAKE_DL_LIBS}
 		)
 endif (TINY3D_OS_WINDOWS)
 

@@ -23,6 +23,7 @@
  ******************************************************************************/
 
 #include "Adapter/OSX/T3DOSXPlatform.h"
+#include "Adapter/Unix/T3DUnixSharedLibrary.h"
 #include "T3DDir.h"
 
 #include <cstring>
@@ -155,5 +156,15 @@ namespace Tiny3D
 
             return [app activateWithOptions:NSApplicationActivateAllWindows] == YES;
         }
+    }
+
+    String OSXPlatform::getModulePath(const void *address) const
+    {
+        return UnixSharedLibrary::queryModulePath(address);
+    }
+
+    bool OSXPlatform::isAddressMapped(const void *address) const
+    {
+        return UnixSharedLibrary::queryAddressMapped(address);
     }
 }

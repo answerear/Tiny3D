@@ -24,20 +24,8 @@
 
 
 #include "Object/T3DObjectTracer.h"
+#include "SharedLibrary/T3DSharedLibrary.h"
 #include <sstream>
-
-#if defined (T3D_OS_WINDOWS)
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef NOMINMAX
-        #define NOMINMAX
-    #endif
-    #include <windows.h>
-#elif defined (T3D_OS_LINUX) || defined (T3D_OS_OSX) \
-    || defined (T3D_OS_ANDROID) || defined (T3D_OS_IOS)
-    #include <dlfcn.h>
-#endif
 
 
 namespace Tiny3D
@@ -65,20 +53,7 @@ namespace Tiny3D
                 return false;
             }
 
-#if defined (T3D_OS_WINDOWS)
-            HMODULE module = nullptr;
-            return GetModuleHandleExA(
-                GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS
-                    | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                reinterpret_cast<LPCSTR>(vptr), &module) != FALSE;
-#elif defined (T3D_OS_LINUX) || defined (T3D_OS_OSX) \
-    || defined (T3D_OS_ANDROID) || defined (T3D_OS_IOS)
-            Dl_info info {};
-            return dladdr(const_cast<void*>(vptr), &info) != 0
-                && info.dli_fname != nullptr;
-#else
-            return true;
-#endif
+            return SharedLibrary::isAddressMapped(vptr);
         }
     }
 

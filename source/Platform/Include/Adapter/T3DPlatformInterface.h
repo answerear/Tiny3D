@@ -57,6 +57,16 @@ namespace Tiny3D
         virtual const String &getCurrentProcessName() = 0;
 
         virtual bool wakeupProcess(ulong_t pid) = 0;
+
+        /**
+         * @brief   反查 address 所属已加载模块的绝对路径，失败返回空串
+         */
+        virtual String getModulePath(const void *address) const = 0;
+
+        /**
+         * @brief   address 是否仍映射在某个已加载模块里
+         */
+        virtual bool isAddressMapped(const void *address) const = 0;
     };
 }
 

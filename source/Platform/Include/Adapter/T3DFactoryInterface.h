@@ -54,6 +54,7 @@ namespace Tiny3D
     class ILocale;
     class IFSMonitor;
     class IZipAssetManager;
+    class ISharedLibrary;
 
     enum EPlatform
     {
@@ -184,6 +185,12 @@ namespace Tiny3D
          * @return 返回平台相关的打包资源管理器对象，需要用户调用delete释放对象
          */
         virtual IZipAssetManager *createPlatformZipAssetManager() = 0;
+
+        /**
+         * 创建操作系统平台相关的动态库加载对象
+         * @return 返回平台相关的动态库加载对象，需要用户调用 delete 释放对象
+         */
+        virtual ISharedLibrary *createPlatformSharedLibrary() = 0;
 
         /**
          * @brief 获取当前平台类型.

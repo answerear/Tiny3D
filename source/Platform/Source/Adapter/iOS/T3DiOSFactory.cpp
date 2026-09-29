@@ -22,6 +22,7 @@
 #include "Adapter/Common/T3DTimerService.h"
 #include "Adapter/Mobile/T3DSDLMobileWindow.h"
 #include "Adapter/Unix/T3DUnixTime.h"
+#include "Adapter/Unix/T3DUnixSharedLibrary.h"
 #include "Adapter/iOS/T3DiOSDir.h"
 #include "Adapter/iOS/T3DiOSDeviceInfo.h"
 #include "Adapter/iOS/T3DiOSConsole.h"
@@ -77,6 +78,11 @@ namespace Tiny3D
 	{
 		return nullptr;
 	}
+
+    ISharedLibrary *iOSFactory::createPlatformSharedLibrary()
+    {
+        return new UnixSharedLibrary();
+    }
 	
     EPlatform iOSFactory::getPlatform()
     {

@@ -28,26 +28,6 @@
 #include "T3DErrorDef.h"
 
 
-#if defined (T3D_OS_WINDOWS)
-    #include <windows.h>
-
-    typedef HINSTANCE   DYLIB_HANDLE;
-
-    #define DYLIB_LOAD(name)            LoadLibrary(name)
-    #define DYLIB_GETSYM(handle, name)  GetProcAddress((HMODULE)handle, name)
-    #define DYLIB_UNLOAD(handle)        FreeLibrary((HMODULE)handle)
-    #define DYLIB_ERROR()               "Unknown Error"
-#elif defined (T3D_OS_LINUX) || defined (T3D_OS_OSX) || defined (T3D_OS_ANDROID) || defined (T3D_OS_IOS)
-    #include <dlfcn.h>
-
-    typedef void*       DYLIB_HANDLE;
-
-    #define DYLIB_LOAD(name)            dlopen(name, RTLD_NOW)
-    #define DYLIB_GETSYM(handle, name)  dlsym(handle, name)
-    #define DYLIB_UNLOAD(handle)        dlclose(handle)
-    #define DYLIB_ERROR()               dlerror()
-#endif
-
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
@@ -63,7 +43,6 @@ namespace Tiny3D
 
     Dylib::Dylib(const String &name, const String &searchPath)
         : Resource(name)
-        , mHandle(nullptr)
         , mSearchPath(searchPath)
     {
         mUUID = UUID::generate();
@@ -87,7 +66,7 @@ namespace Tiny3D
 
     void *Dylib::getSymbol(const String &name) const
     {
-        return DYLIB_GETSYM(mHandle, name.c_str());
+        return mLib.getSymbol(name);
     }
 
     //--------------------------------------------------------------------------
@@ -100,27 +79,22 @@ namespace Tiny3D
         {
             mState = State::kLoading;
             
-#if defined (T3D_OS_WINDOWS)
-            String name = mName + ".dll";
-#elif defined (T3D_OS_LINUX) || defined (T3D_OS_ANDROID)
-            String name = "lib" + mName + ".so";
-#elif defined (T3D_OS_OSX) || defined (T3D_OS_IOS)
-            String name = "lib" + mName + ".dylib";
-#endif
+            const String fileName = SharedLibrary::makeFileName(mName);
 
 #if defined (T3D_OS_ANDROID)
-            mHandle = DYLIB_LOAD(name.c_str());
+            // Android 的插件随 APK 部署在 JNI 库目录，只给文件名交给系统 loader 搜索
+            const String &path = fileName;
 #else
             const String &pluginsPath = mSearchPath.empty()
                 ? Agent::getInstance().getPluginsPath() : mSearchPath;
-            String path = pluginsPath + Dir::getNativeSeparator() + name;
-            mHandle = DYLIB_LOAD(path.c_str());
+            const String path = pluginsPath + Dir::getNativeSeparator() + fileName;
 #endif
 
-            if (mHandle == nullptr)
+            if (T3D_FAILED(mLib.open(path, kSharedLibraryPlugin)))
             {
                 ret = T3D_ERR_PLG_LOAD_FAILED;
-                T3D_LOG_ERROR(LOG_TAG_PLUGIN, "Load plugin failed ! Desc : %s", DYLIB_ERROR());
+                T3D_LOG_ERROR(LOG_TAG_PLUGIN, "Load plugin failed ! Desc : %s",
+                    mLib.getLastError().c_str());
                 mState = State::kUnloaded;
                 break;
             }
@@ -137,7 +111,7 @@ namespace Tiny3D
     {
         if (getState() == State::kLoaded)
         {
-            DYLIB_UNLOAD(mHandle);
+            mLib.close();
         }
 
         return Resource::onUnload();

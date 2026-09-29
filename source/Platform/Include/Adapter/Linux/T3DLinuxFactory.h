@@ -76,6 +76,8 @@ namespace Tiny3D
 
         virtual IZipAssetManager *createPlatformZipAssetManager() override;
 
+        virtual ISharedLibrary *createPlatformSharedLibrary() override;
+
         /**
          * @brief 获取当前平台类型.
          * @return 返回当前平台类型

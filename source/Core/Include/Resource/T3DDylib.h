@@ -33,7 +33,7 @@
 namespace Tiny3D
 {
     /**
-     * \brief 动态库资源，封装平台 dlopen/LoadLibrary 加载的插件模块
+     * \brief 动态库资源，通过 Platform 层 SharedLibrary 加载的插件模块
      */
     class T3D_ENGINE_API Dylib : public Resource
     {
@@ -97,13 +97,13 @@ namespace Tiny3D
 
         /**
          * \brief 卸载动态库
-         * \return 状态为 kLoaded 时调用平台卸载 API，再执行基类 onUnload
+         * \return 状态为 kLoaded 时关闭动态库，再执行基类 onUnload
          */
         TResult onUnload() override;
      
     protected:
-        /// 平台动态库句柄
-        THandle mHandle;
+        /// 平台动态库
+        SharedLibrary   mLib;
         /// 加载目录覆盖，为空表示使用 Agent::getPluginsPath()
         String  mSearchPath;
     };

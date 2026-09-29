@@ -87,6 +87,8 @@ namespace Tiny3D
         virtual IFSMonitor *createFileSystemMonitor() override;
 
 		virtual IZipAssetManager *createPlatformZipAssetManager() override;
+
+        virtual ISharedLibrary *createPlatformSharedLibrary() override;
 		
 		/**
 		 * @brief 获取当前平台类型.

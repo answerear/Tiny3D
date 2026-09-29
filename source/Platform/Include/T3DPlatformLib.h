@@ -58,6 +58,8 @@
 #include <Thread/T3DThreadConstant.h>
 #include <Thread/T3DThreadManager.h>
 #include <Process/T3DProcess.h>
+#include <SharedLibrary/T3DSharedLibrary.h>
+#include <SharedLibrary/T3DEnvironment.h>
 #include <Locale/T3DLocale.h>
 #include <Network/T3DSocket.h>
 #include <Memory/T3DMemory.h>

@@ -37,6 +37,7 @@
 #include "Adapter/Windows/T3DWin32Platform.h"
 #include "Adapter/Windows/T3DWin32FSMonitor.h"
 #include "Adapter/Windows/T3DWin32AssetManager.h"
+#include "Adapter/Windows/T3DWin32SharedLibrary.h"
 
 
 namespace Tiny3D
@@ -172,6 +173,13 @@ namespace Tiny3D
     IZipAssetManager *Win32Factory::createPlatformZipAssetManager()
     {
         return T3D_NEW Win32AssetManager();
+    }
+
+    //--------------------------------------------------------------------------
+
+    ISharedLibrary *Win32Factory::createPlatformSharedLibrary()
+    {
+        return T3D_NEW Win32SharedLibrary();
     }
 
     //--------------------------------------------------------------------------

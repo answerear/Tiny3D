@@ -33,6 +33,7 @@
 #include "Adapter/Unix/T3DPosixSyncObject.h"
 #include "Adapter/Unix/T3DPosixProcess.h"
 #include "Adapter/Unix/T3DPosixLocale.h"
+#include "Adapter/Unix/T3DUnixSharedLibrary.h"
 
 
 namespace Tiny3D
@@ -140,6 +141,11 @@ namespace Tiny3D
     IZipAssetManager *AndroidFactory::createPlatformZipAssetManager()
     {
         return T3D_NEW AndroidAssetManager();
+    }
+
+    ISharedLibrary *AndroidFactory::createPlatformSharedLibrary()
+    {
+        return T3D_NEW UnixSharedLibrary();
     }
 
     EPlatform AndroidFactory::getPlatform()

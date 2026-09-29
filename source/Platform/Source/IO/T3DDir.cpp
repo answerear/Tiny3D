@@ -663,12 +663,8 @@ namespace Tiny3D
 
     bool Dir::parsePath(const String& path, String& dir, String& name)
     {
-        String::size_type pos = path.find_last_of('/');
-
-        if (pos == String::npos)
-        {
-            pos = path.find_last_of('\\');
-        }
+        // 路径可能混用两种分隔符（如 "Core\../build/Generated\.deps\X.deps"），必须一起找
+        String::size_type pos = path.find_last_of("/\\");
 
         if (pos == String::npos)
         {
