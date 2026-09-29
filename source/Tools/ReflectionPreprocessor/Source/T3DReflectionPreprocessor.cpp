@@ -1122,10 +1122,31 @@ namespace  Tiny3D
     {
         if (rebuild)
         {
+            // PCH 在本轮开头刚生成/校验过且已被 -include-pch 引用，清目录时要留下，
+            // 否则下一次增量构建还得重新生成
+            const char sep = Dir::getNativeSeparator();
+            const String keepNames[] = { "prereq.pch", "prereq.pch.ok" };
+            StringList kept;
+            for (const auto &name : keepNames)
+            {
+                const String src = path + sep + name;
+                const String tmp = path + "." + name;
+                if (Dir::exists(src) && std::rename(src.c_str(), tmp.c_str()) == 0)
+                {
+                    kept.push_back(name);
+                }
+            }
+
             Dir::removeDir(path, true);
             Dir::makeDir(path);
             // 重建 .deps 子目录
-            Dir::makeDir(path + Dir::getNativeSeparator() + ".deps");
+            Dir::makeDir(path + sep + ".deps");
+
+            for (const auto &name : kept)
+            {
+                const String tmp = path + "." + name;
+                std::rename(tmp.c_str(), (path + sep + name).c_str());
+            }
         }
         
         // 输出 AST 到文件，仅在 -d 开关下启用
@@ -1684,14 +1705,36 @@ namespace  Tiny3D
 
         // PCH 文件放在 generatedPath 下。只有带 .ok 标记的才允许复用：
         // 以前缺 -isysroot 时仍会写出坏 PCH，复用会把 String 解析成 int。
+        // .ok 里逐行记录 PCH 的全部依赖，任一依赖比 PCH 新（或已不存在）就重建，
+        // 否则 libclang 拒绝过期 PCH，所有源文件都会 parse 失败。
         String pchPath = generatedPath + Dir::getNativeSeparator() + "prereq.pch";
         String okPath = pchPath + ".ok";
 
         if (!rebuild && Dir::exists(okPath) && Dir::exists(pchPath))
         {
-            long_t pchTime = Dir::getLastWriteTime(pchPath);
-            long_t hdrTime = Dir::getLastWriteTime(mPrerequisitesHeader);
-            if (pchTime > 0 && pchTime >= hdrTime)
+            const long_t pchTime = Dir::getLastWriteTime(pchPath);
+            bool upToDate = pchTime > 0;
+            size_t depCount = 0;
+
+            std::ifstream ifs(okPath);
+            std::string dep;
+            while (upToDate && std::getline(ifs, dep))
+            {
+                if (dep.empty())
+                {
+                    continue;
+                }
+
+                ++depCount;
+                if (!Dir::exists(dep) || Dir::getLastWriteTime(dep) > pchTime)
+                {
+                    RP_LOG_INFO("[PCH] Dependency changed, regenerating PCH: %s", dep.c_str());
+                    upToDate = false;
+                }
+            }
+
+            // 旧版 .ok 是空文件，没有依赖信息可校验，按过期处理
+            if (upToDate && depCount > 0)
             {
                 RP_LOG_INFO("[PCH] Reusing existing PCH: %s", pchPath.c_str());
                 return pchPath;
@@ -1700,11 +1743,13 @@ namespace  Tiny3D
         else if (rebuild)
         {
             RP_LOG_INFO("[PCH] Full rebuild, regenerating PCH.");
-            Dir::remove(pchPath);
-            Dir::remove(okPath);
         }
 
-        TResult ret = ReflectionGenerator::generatePCH(mPrerequisitesHeader, pchPath, args);
+        Dir::remove(pchPath);
+        Dir::remove(okPath);
+
+        StringList dependencies;
+        TResult ret = ReflectionGenerator::generatePCH(mPrerequisitesHeader, pchPath, args, dependencies);
         if (T3D_FAILED(ret))
         {
             Dir::remove(pchPath);
@@ -1713,11 +1758,10 @@ namespace  Tiny3D
             return String();
         }
 
-        FileDataStream marker;
-        if (marker.open(okPath.c_str(),
-            FileDataStream::E_MODE_WRITE_ONLY | FileDataStream::E_MODE_TRUNCATE))
+        std::ofstream ofs(okPath, std::ios::trunc);
+        for (const auto &path : dependencies)
         {
-            marker.close();
+            ofs << path << '\n';
         }
 
         return pchPath;

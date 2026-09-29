@@ -140,9 +140,11 @@ namespace Tiny3D
          * @param [in] headerPath : 要预编译的头文件路径
          * @param [in] pchOutputPath : 输出 .pch 文件路径
          * @param [in] args : clang 编译参数
+         * @param [out] dependencies : PCH 实际包含的全部文件（含 headerPath 本身）
          * @return 成功返回 T3D_OK
          */
-        static TResult generatePCH(const String &headerPath, const String &pchOutputPath, const ClangArgs &args);
+        static TResult generatePCH(const String &headerPath, const String &pchOutputPath,
+            const ClangArgs &args, StringList &dependencies);
 
     protected:
         String toString(const CXString &s) const

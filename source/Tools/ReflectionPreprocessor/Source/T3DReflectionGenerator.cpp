@@ -611,13 +611,16 @@ namespace Tiny3D
         const unsigned cxOptions = CXTranslationUnit_DetailedPreprocessingRecord
             | CXTranslationUnit_PrecompiledPreamble
             | CXTranslationUnit_IgnoreNonErrorsFromIncludedFiles;
-        unit.cxUnit = clang_parseTranslationUnit(externalIndex, srcPath.c_str(),
-            args.data(), args.size(), nullptr, 0,
-            cxOptions);
+        unit.cxUnit = nullptr;
+        const CXErrorCode cxErr = clang_parseTranslationUnit2(externalIndex, srcPath.c_str(),
+            args.data(), static_cast<int>(args.size()), nullptr, 0,
+            cxOptions, &unit.cxUnit);
 
         if (unit.cxUnit == nullptr)
         {
-            RP_LOG_ERROR("Parse source file [%s] failed !", srcPath.c_str());
+            // CXError_ASTReadError(4) 通常意味着 PCH 过期或与当前参数不匹配
+            RP_LOG_ERROR("Parse source file [%s] failed (CXErrorCode %d) !",
+                srcPath.c_str(), static_cast<int>(cxErr));
             unit.result = T3D_ERR_RP_PARSE_SOURCE;
         }
         else
@@ -630,8 +633,11 @@ namespace Tiny3D
 
     //-------------------------------------------------------------------------
 
-    TResult ReflectionGenerator::generatePCH(const String &headerPath, const String &pchOutputPath, const ClangArgs &args)
+    TResult ReflectionGenerator::generatePCH(const String &headerPath, const String &pchOutputPath,
+        const ClangArgs &args, StringList &dependencies)
     {
+        dependencies.clear();
+
         RP_LOG_INFO("[PCH] Generating precompiled header from: %s", headerPath.c_str());
 
         CXIndex cxIndex = clang_createIndex(0, 0);
@@ -688,6 +694,21 @@ namespace Tiny3D
             Dir::remove(pchOutputPath);
             return T3D_ERR_RP_COMPILE_ERROR;
         }
+
+        // libclang 会拒绝加载任一依赖比自己新的 PCH，且此时 parse 直接返回空 TU。
+        // 只看入口头的时间戳不够，把整张包含图记下来供复用时校验。
+        clang_getInclusions(cxUnit,
+            [](CXFile file, CXSourceLocation *, unsigned, CXClientData data)
+            {
+                CXString name = clang_getFileName(file);
+                const char *str = clang_getCString(name);
+                if (str != nullptr && str[0] != '\0')
+                {
+                    static_cast<StringList *>(data)->push_back(str);
+                }
+                clang_disposeString(name);
+            },
+            &dependencies);
 
         int saveResult = clang_saveTranslationUnit(cxUnit, pchOutputPath.c_str(),
             clang_defaultSaveOptions(cxUnit));
