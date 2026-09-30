@@ -2,7 +2,7 @@
 
 > **目标**：把 `LoadLibrary` / `dlopen`、`GetProcAddress` / `dlsym`、`GetModuleHandleEx` / `dladdr`、`dlerror` 这类平台系统调用收进 `T3DPlatform`，上层（`T3DHLSLCross`、`T3DCore::Dylib`、`T3DSystem::ObjectTracer`、编辑器）只走平台无关接口。
 >
-> **实现状态（2026-09-29）**：P1–P4 已落地；P5（`T3DHLSLCross` / `T3DDxcDriver`）等替换方案阶段 2，本文不再手写 `dlopen`。
+> **实现状态（2026-09-29）**：P1–P4 在 **Windows / macOS / Android** 上已落地；**Linux / iOS 仅部分落地**——工厂已给出 `createPlatformSharedLibrary()`（`UnixSharedLibrary`），但两端都没有 `IPlatform` 实现，`getModulePath` / `isAddressMapped` 无落点，且工厂本身缺 `createPlatform` 等纯虚实现、`T3DPlatform` 在这两端编不过，见 P1b。P5（`T3DHLSLCross` / `T3DDxcDriver`）等替换方案阶段 2，本文不再手写 `dlopen`。
 >
 > **直接驱动方**：
 > - `doc/todo/ShaderConductor-Replacement-todo.md` §6.1.2 的 `T3DDxcDriver`（本文完成后，那边不再手写 `#if` 平台分支）
@@ -183,6 +183,8 @@ virtual ISharedLibrary *createPlatformSharedLibrary() = 0;
 ```
 
 Windows / OSX / Linux / iOS / Android 五个 Factory 都要实现。Linux / iOS 工厂目前对 Thread / Process 等方法不完整，**本接口必须五端都给**——`T3DHLSLCross` 把 Linux 当一等目标，缺 Linux 实现等于白做。
+
+> **现状（2026-09-29）**：五端工厂都已实现 `createPlatformSharedLibrary()`。但 `IPlatform` 的两个新方法只在 `Win32Platform` / `OSXPlatform` / `AndroidPlatform` 有实现；Linux / iOS 没有 `*Platform` 类，`LinuxFactory` / `iOSFactory` 也缺 `createPlatform`、`createPlatformThread`、各同步对象、`createPlatformProcess`、`createPlatformLocale` 等纯虚实现，是抽象类。这是本文落地前就存在的缺口，但它直接导致 `SharedLibrary::getModulePath` / `getModuleDir` / `isAddressMapped` 在这两端不可用，补齐见 §8 P1b。
 
 ---
 
@@ -483,13 +485,16 @@ std::wstring toWide(const String &s)
 
 | # | 阶段 | 交付 | 验收 | 状态 |
 |---|------|------|------|------|
-| P1 | 接口 + Unix/Win 实现 | `ISharedLibrary`、`SharedLibrary`、`IPlatform` 两个新方法、五端 Factory | 临时验证程序（未入库）：`open` 系统库、`getSymbol`、`getModulePath(自身地址)` 非空且文件存在 | 已落地 |
+| P1 | 接口 + Unix/Win 实现 | `ISharedLibrary`、`SharedLibrary`、`IPlatform` 两个新方法、五端 Factory | 临时验证程序（未入库）：`open` 系统库、`getSymbol`、`getModulePath(自身地址)` 非空且文件存在 | **部分落地**：接口、`Win32` / `Unix` 适配器、五端 `createPlatformSharedLibrary()` 已完成；`IPlatform` 两个新方法仅 Windows / macOS / Android 有实现 |
+| P1b | Linux / iOS 平台层补齐 | `LinuxPlatform` / `iOSPlatform`：`getModulePath` / `isAddressMapped` 转调 `UnixSharedLibrary::queryModulePath` / `queryAddressMapped`（同 `OSXPlatform`）；两端工厂补齐 `createPlatform`、`createPlatformThread`、同步对象、`createPlatformProcess`、`createPlatformLocale` 等，复用 `Adapter/Unix/` 下现成的 `PosixThread` / `T3DPosixSyncObject.h` / `PosixProcess` / `PosixLocale` | `T3DPlatform` 在 Linux 上编得过；Linux 上 `getModuleDir(自身地址)` 非空；`T3D_LOCALE` 可用。iOS 同理，但不阻塞替换方案 | **未开始** |
 | P2 | 错误与 flags | `FormatMessage` / `dlerror`、flags 互斥校验、`kSharedLibraryIsolated` | Windows 失败信息不再是 `"Unknown Error"`；已验证互斥 flags 报错与失败原文 | 已落地 |
 | P3 | `Environment`（可选） | `Environment::get/has` | Windows 走 `GetEnvironmentVariableW` | 已落地 |
 | P4 | 迁 `Dylib` + `ObjectTracer` + 编辑器文件名 | 三处去掉平台宏 | `makeFileName` 共用；Android 部署策略 `#if` 按 §6.2 保留 | 已落地 |
 | P5 | `T3DHLSLCross` 按本文改 §6.1.2 | 见替换方案阶段 2 | `isAvailable()` 报错带平台原文 | **未开始**（库尚未入库） |
 
 P1–P3 可先于 ShaderConductor 替换落地。P5 依赖 P1。P4 可与替换方案并行，互不阻塞。
+
+P1b 的 Linux 部分是替换方案**阶段 9（Linux 验证）**的前置条件（见 `ShaderConductor-Replacement-todo.md` §9.1「`T3DPlatform` 的 Linux 缺口」），不阻塞阶段 2-8。iOS 部分与替换方案无关，可按需排期。
 
 **不要**在同一次提交里既下沉 Platform 又换掉 ShaderConductor。对拍出差异时先确认不是加载路径变了。
 
@@ -502,8 +507,9 @@ P1–P3 可先于 ShaderConductor 替换落地。P5 依赖 P1。P4 可与替换�
 - [x] `T3DObjectTracer.cpp` 零平台宏
 - [x] `CppBuildSystem::platformLibFileName` 与 `Dylib::onLoad` 都只调 `makeFileName`
 - [ ] `T3DHLSLCross` 的 `T3DDxcDriver.cpp` 不包含 `windows.h` / `dlfcn.h`（P5，库尚未入库）
-- [ ] Linux：`dlerror` / `FormatMessage` 原文能出现在 `isAvailable()` 与插件加载失败日志里（P5）
-- [x] `getModulePath` 返回绝对路径（Probe 覆盖；含空格、非 ASCII 安装目录待实机补测）
+- [ ] Linux：`dlerror` / `FormatMessage` 原文能出现在 `isAvailable()` 与插件加载失败日志里（P5，依赖 P1b）
+- [x] `getModulePath` 返回绝对路径（Windows / macOS / Android；Probe 覆盖；含空格、非 ASCII 安装目录待实机补测）
+- [ ] Linux / iOS：`T3DPlatform` 可编译，`getModulePath` 返回绝对路径（P1b）
 - [ ] 静态链接与动态链接两种形态下，`getModuleDir(本函数地址)` 都指向该镜像所在目录（P5 对拍时再验）
 
 ---
@@ -516,4 +522,4 @@ P1–P3 可先于 ShaderConductor 替换落地。P5 依赖 P1。P4 可与替换�
 - 那边的 Linux 清单里，`-ldl`、`_GNU_SOURCE`、`dlerror` 格式、`RTLD_LOCAL`、`dladdr`/`realpath` 的实现细节归本文；HLSLCross 只保留「候选路径策略」和「用 `kSharedLibraryIsolated`」
 - `T3DHLSLCross` 链接 `T3DPlatform` + `spirv-cross`，不再以「完全不链仓库内模块」为约束——原先要躲的是 **Core**，不是 Platform
 
-替换方案阶段 2（DXC 驱动）启动前，本文至少完成 P1。否则阶段 2 又会把平台分支写回 `T3DDxcDriver.cpp`，本文失去意义。
+替换方案阶段 2（DXC 驱动）启动前，本文至少完成 P1。否则阶段 2 又会把平台分支写回 `T3DDxcDriver.cpp`，本文失去意义。当前 P1 在 Windows / macOS 上已满足，阶段 2 可以开工；替换方案阶段 9 启动前还需完成 P1b 的 Linux 部分。

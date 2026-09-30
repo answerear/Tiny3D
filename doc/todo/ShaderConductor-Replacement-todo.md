@@ -11,7 +11,65 @@
 >
 > **对照参考**：ShaderConductor 自身的 `Source/Core/ShaderConductor.cpp`（MIT 协议，实现细节可直接对照）
 >
-> **平台层前提**：`dlopen` / `LoadLibrary`、按地址反查模块路径、`dlerror` 等系统调用不下沉到本库，见 [`Platform-SharedLibrary-Abstraction-todo.md`](Platform-SharedLibrary-Abstraction-todo.md)。本方案阶段 2 启动前，那份文档至少完成 P1。
+> **平台层前提**：`dlopen` / `LoadLibrary`、按地址反查模块路径、`dlerror` 等系统调用不下沉到本库，见 [`Platform-SharedLibrary-Abstraction-todo.md`](Platform-SharedLibrary-Abstraction-todo.md)。
+>
+> **平台层现状（2026-09-29 核对代码）**：`SharedLibrary` / `Environment` 已落地于 `source/Platform/{Include,Source}/SharedLibrary/`，经 `T3DPlatformLib.h` 导出；API 名、flags、`_GNU_SOURCE` / `CMAKE_DL_LIBS` 归属与本文 §6.1 / §8.3 的写法一致，阶段 2 的平台前提在 **Windows / macOS** 上已满足。**Linux 上尚未满足**：`T3DPlatform` 没有 `LinuxPlatform`，`LinuxFactory` 缺 `createPlatform` / `createPlatformLocale` / 线程与进程等十余个纯虚实现，`T3DPlatform` 本身在 Linux 上编不过；`SharedLibrary::getModulePath` 与 `T3D_LOCALE` 都经 `IPlatform` / `ILocale` 分派，在 Linux 上没有落点。见 §9.1「`T3DPlatform` 的 Linux 缺口」。
+
+---
+
+## 0. 执行记录（2026-09-29）
+
+### 0.1 完成情况
+
+| 阶段 | 状态 | 说明 |
+|------|------|------|
+| 依赖准备 | 完成 | `dependencies/dxc`（头文件 v1.9.2607；Windows dll 用 SC 同款 2dec1cd0；Linux `.so` v1.9.2607），`dependencies/spirv-cross` 源码锁在 SC 同款 `cb686a5d`，各自带 `VERSION.txt`；`FindDXC.cmake`；`.gitattributes` 增加 Linux `.so` 的 LFS 规则 |
+| `T3DHLSLCross` 库 | 完成 | `source/Tools/HLSLCross/`，Windows Debug 编译通过 |
+| `scc` 调用点改写 | 完成 | 含 D1 / D3 / D5 / D9 与启动探测 `isAvailable()` |
+| CMake 清理 | 完成 | 闸门 7 处、BuiltinGenerator 死链接（D6）、scc 三平台链接、注释 |
+| 对拍（Windows） | 通过 | 见 §0.4 |
+| 删除 `dependencies/shaderconductor` 与 `FindShaderConductor.cmake` | 完成 | macOS 的 `libdxcompiler.dylib` 先搬到 `dependencies/dxc/prebuilt/OSX/` 作过渡（同版本，仅 x86_64）；重新配置并重编 scc / BuiltinGenerator 通过，`bin` 里没有 `ShaderConductor.dll` 时 scc 照常工作。顺手修了 `FindRapidjson.cmake` 里误设 `SHADERCONDUCTOR_FOUND` 的复制粘贴错误 |
+| macOS arm64 / Linux 构建与验证 | **未做** | 本机为 Windows，无法构建验证；Linux 另受 `T3DPlatform` 缺口阻塞（§9.1） |
+
+### 0.2 对照 ShaderConductor 源码后的更正
+
+本文档早期版本有几处是凭推测写的。实现时取回了 `scc` 实际使用的 ShaderConductor 版本（`4f36caf`，子模块 DXC `2dec1cd0`、SPIRV-Cross `cb686a5d`）逐行对照，**以下条目以本节为准**，正文相应位置已同步修改或加注：
+
+| 条目 | 早期写法 | SC 4f36caf 实际行为（已照此实现） |
+|------|----------|-----------------------------------|
+| 矩阵打包 | `packMatricesInRowMajor=false` → `-Zpc` | **`-Zpr`**（`true` 才是 `-Zpc`；HLSL 矩阵在 SPIR-V 里是转置表示） |
+| 优化级别 0 | `-Od` | **`-O0`**（`-Od` 只在 `disableOptimizations` 时传，scc 从不设） |
+| 参数顺序 | 未规定 | `-Zpr`、[`-enable-16bit-types`]、[`-Zi`]、`-O<n>`、`-spirv`，本库之后再追加 `-I` |
+| 宏 | `-D name=value` | 走 `DxcDefine` 数组；scc 传的空值是 `""`，即 `NAME=` |
+| 资源绑定偏移 | 待定案 | **不传任何 `-fvk-*-shift`**。基线里 cbuffer / SRV / UAV 的 binding 都直接等于 register 号 |
+| DXC 接口 | `IDxcCompiler3` + `IDxcUtils` | **`IDxcLibrary` + `IDxcCompiler`（老接口）**。2dec1cd0 没有 `IDxcCompiler3`；老接口新版 DXC 仍保留，两个版本都能用 |
+| GLSL 合并采样器命名 | 改回 texture 名 | **`"SPIRV_Cross_Combined" + 纹理名 + 采样器名`**，GL 后端就是按这个名字找 uniform |
+| SPIRV-Cross 公共选项 | 只设 `version` / `es` / `vulkan_semantics` | 另有 `force_temporary=false`、`separate_shader_objects=true`、`flatten_multidimensional_arrays=false`、`enable_420pack_extension=(GLSL && version>=420)`、`vertex.fixup_clipspace=false`、`vertex.flip_vert_y=false`、`vertex.support_nonzero_base_instance=true`，并调用 `set_entry_point` |
+| HLSL 后端 | 不做合并 | SM ≤ 3.0 时也建 dummy sampler 并合并；调用 `remap_num_workgroups_builtin()`；GS / HS / DS 直接报错；CS 要求 SM ≥ 5.0 |
+| MSL 后端 | `msl_version = 2.1` | **`msl_version` 直接取 `#pragma target` 的整数值**（如 `40`），`swizzle_texture_samples=false`；并把 `separate_images` / `separate_samplers` 的 binding 各自从 0 重新编号。这个 `msl_version` 取值明显是 SC 的历史遗留，为了对拍先原样保留，Metal 后端接入时再定（§6.2.4） |
+| include | DXC 默认 handler + `-I` | 旧 DXC（2dec1cd0）通过老接口编译时，会先拿 `-I` 目录本身调一次 `LoadSource`，读不到就丢掉这个目录，之后只在源文件目录里找。因此本库自带 include handler：先读 DXC 给的路径，读不到再到 `includeDirs` 和源文件目录里找。新旧 DXC 下 `-i` 都已验证生效。**include 文件必须按 UTF-8 读**（`CreateBlobFromFile` 传 `DXC_CP_UTF8`）：不指定码页时 DXC 按系统 ANSI 码页（中文 Windows 是 936）解读，含中文注释、不带 BOM 的 `.cginc` 会转码失败，clang 报的却是 `file not found`。SC 的 handler 也是按 UTF-8 读的 |
+| UTF-8 → `wchar_t` | `T3D_LOCALE.UTF8ToUnicode()` | 本库自带转换。POSIX 版 Locale 依赖进程 locale，行为不确定 |
+| `DxcLibrary` 单例 | 函数内 `static` 对象 | 堆上创建、有意不释放。静态对象析构发生在 `Platform` 销毁之后，那时 `SharedLibrary` 析构已不安全 |
+
+### 0.3 实施中发现的新问题
+
+- **SPIRV-Cross 的 `assert` 会挂住 Debug 版 scc。** `cb686a5d` 的 `CompilerGLSL::flattened_access_chain_offset` 有 assert，`ComputeReflectProbe.cshader` 在 `-O0 -t hlsl` 下会触发。SC 的预编译库是 Release，assert 被编掉，产物正常；Debug 编进来就弹 CRT 断言框，批处理直接卡死。现在 `spirv-cross` 目标对所有配置 `PUBLIC` 定义 `NDEBUG`（§8.1），产物与旧版逐字节一致。
+- **Windows 上 `_HAS_EXCEPTIONS=0` 是全局定义。** `spirv-cross` 与 `T3DHLSLCross` 都靠 C++ 异常报错，两个目录里 `remove_definitions(-D_HAS_EXCEPTIONS=0)` 并加 `/EHsc`。
+- **升级 DXC 不是逐字节透明的。** 用 `T3D_DXCOMPILER_PATH` 指向 v1.9.2607 测过：接口（uniform block、合并采样器名、location）不变，但 `ForwardPass.pshader` 里 9 次采样的 PCF 循环被展开，GLSL 从 4641 字节涨到 11577 字节。Linux 用的是 v1.9.2607，所以 **Linux 与 Windows 的产物目前不一致**，要等 Windows 也升级 DXC 并重新对拍后才能对齐。
+- **PATH 上可能有别的 dxcompiler。** 本机 Vulkan SDK 的 `Bin` 目录在 PATH 上，dxcompiler 从 T3DHLSLCross 旁边删掉后，第三个候选（裸文件名）会找到 SDK 自带的新版。行为符合设计，但部署时 dxcompiler 必须和 T3DHLSLCross 放在一起，否则会在不知情的情况下换了编译器版本。
+- **既有失败（非本次引入）：** `ComputeParticleCull.cshader`、`ComputeParticleUpdate.cshader`、`ParticleDraw.vshader` 在 `-t hlsl` 下报 `Reading structs from ByteAddressBuffer not yet supported.`，是锁定版本 SPIRV-Cross 的限制，基线里一样失败。升级 SPIRV-Cross 可能解决，需另行对拍。
+- **macOS 目前只有 x86_64 的 dxcompiler。** 过渡用的 dylib 与 SC 时代同版本，只要 `generate-xcode-osx.sh` 还是 `ENGINE_ARCH=x86_64` 就能用；切到 arm64 / universal 时 `FindDXC.cmake` 的 lipo 检查会直接报错，届时换成 universal 二进制。
+- **构建脚本的既有竞争：** `/m` 并行构建时 `T3DCore` 与 `T3DCoreEditor` 的 POST_BUILD 同时往 `bin/Windows/Debug/Assets/samples` 拷资源，偶发 `Error copying directory`。与本次无关，用 `/m:1` 或重跑可绕过。
+
+### 0.4 对拍结果（Windows x64 Debug）
+
+基线：改动前的 scc + ShaderConductor。新版：scc + T3DHLSLCross，`bin` 目录里没有 `ShaderConductor.dll`。
+
+- **样本**：`assets/samples/shaders` 下 28 个原生 `.vshader` / `.pshader` / `.cshader` × 6 个目标（hlsl / glsl / essl / spirv / msl_macos / msl_ios）× `-O3` / `-O0`；另有 `assets/editor/builtin/shaders` 下 4 个 `.shader` × 6 个目标（`-O3`，固定 `-u`）。
+- **原生产物**：330 个全部逐字节一致。
+- **`.tshader`（24 个）**：去掉 `"RTTI_Type"` 行后逐行一致。`RTTI_Type` 的差异来自 T3DCore 的类型名规范化（旧版是 MSVC 原始类型名 `classstd::unordered_map<...>`，新版是 `std::unordered_map<...>`），原因是基线 scc 编译时用的 T3DCore 比当前的旧，与编译器替换无关。旧版连跑两次结果一致，排除了不确定性。
+- **退出码**：一致。两边都失败的只有 §0.3 列出的 3 个 HLSL 目标 × 2 个优化级别，报错文本相同。
+- **对拍中修掉的问题**：Debug 下 SPIRV-Cross 的 assert（§0.3），以及 include 读取的码页问题（§0.2）。后者导致 `Tiny3DStandard.shader` 在新版中编译失败，修复后 6 个目标都与基线一致。
 
 ---
 
@@ -54,7 +112,7 @@ HLSL --[DXC]--> SPIR-V --[SPIRV-Tools 合法化/优化]--> SPIR-V' --[SPIRV-Cros
 
 **非目标**
 
-- 不负责 `scc` 及其上游依赖（`T3DCoreEditor` / `rttr_core` / SDL2）的 Linux 移植——本方案只保证 `T3DHLSLCross` 这一层
+- 不负责 `scc` 及其上游依赖（`T3DCoreEditor` / `rttr_core`）的 Linux 移植——本方案只保证 `T3DHLSLCross` 这一层。**例外**：`T3DHLSLCross` 链接期依赖 `T3DPlatform`（间接带上 SDL2 / X11），`T3DPlatform` 在 Linux 上补齐到「能构造 `Platform`、`getModulePath` 与 `Locale` 可用」这一最小子集，是本方案 Linux 目标的前置条件，见 §9.1
 - 不解决 FreeImage / FBX SDK 的 x86_64 问题（见 §12.1）
 - 不支持 DXIL 目标（见 §6.5）
 - 不在本次改造中迁移到 Slang（见 §12.2）
@@ -98,7 +156,7 @@ ShaderConductor **只出现在主机侧离线工具**。运行时引擎不依赖
 
 | `Options` 字段 | 实际取值 | 对应 DXC 参数 |
 |----------------|----------|---------------|
-| `packMatricesInRowMajor` | 恒为 `false` | `-Zpc` |
+| `packMatricesInRowMajor` | 恒为 `false` | `-Zpr`（见 §0.2） |
 | `optimizationLevel` | `Args::optimizeLevel`，默认 `3` | `-O3` |
 | `enableDebugInfo` | 命令行 `OPT_ENABLE_DEBUG_INFO` | `-Zi` |
 | `enable16bitTypes` | 未设置，默认 `false` | 不传（若要启用是 `-enable-16bit-types`，约束见 §6.1.5） |
@@ -666,6 +724,10 @@ namespace
                        + ". Put it next to T3DHLSLCross, or set "
                          "T3D_DXCOMPILER_PATH to its full path. "
                        + mLib.getLastError();
+                if (dir.empty())
+                {
+                    mError += " (T3DHLSLCross module directory unavailable)";
+                }
             }
         }
 
@@ -680,10 +742,12 @@ namespace
 
 几个细节（实现已在 Platform 侧，这里只强调调用方仍要遵守的）：
 
-- 传 **`kSharedLibraryIsolated`（`kLazy | kLocal`）**，不要用插件默认的 `kNow`。`RTLD_LOCAL` 避免 dxcompiler 内部 LLVM 符号污染全局表——Linux 上项目另有一份 `dependencies/llvm`，撞车会变成难以定位的崩溃。
+- 传 **`kSharedLibraryIsolated`（`kSharedLibraryLazy | kSharedLibraryLocal`）**，不要用默认参数 `kSharedLibraryPlugin`（即 `kSharedLibraryNow`）。Windows 下 flags 被忽略，但仍要传，换到 POSIX 才生效。`RTLD_LOCAL` 避免 dxcompiler 内部 LLVM 符号污染全局表——Linux 上项目另有一份 `dependencies/llvm`，撞车会变成难以定位的崩溃。
 - **报错必须带上 `getLastError()`**。Linux 上最常见的失败不是「文件不存在」，而是 `GLIBC_2.xx not found` 或缺 `libstdc++`，只有平台原文能说清楚。
 - **「不需要 RPATH」只针对 dxcompiler。** 它是运行期 `open` 的，靠本库自己拼绝对路径。`libT3DHLSLCross` 本身是使用方的链接期依赖，动态链接器要在进程启动时解析，那一步必须有 RPATH，见 §8.4。
-- 前提是 `Platform::init()` 已完成。`scc` 作为 Console 应用启动时就会 init；`isAvailable()` 放在参数解析之后（§7.1），满足这个前提。
+- **前提是 `Platform` 单例已构造**（不是 `init()`）。实际代码里 `SharedLibrary` 的构造函数直接走 `T3D_PLATFORM_FACTORY.createPlatformSharedLibrary()`，而 `Singleton::getInstance()` 是无检查解引用——`Platform` 不存在时**直接空指针崩溃**，不会返回错误码。`scc` 的全局 `ShaderCrossApp theApp` 在 `Application` 构造函数里 `T3D_NEW Platform()`（`T3DApplication.cpp:37`），早于 `main`，`isAvailable()` 放在参数解析之后（§7.1）自然满足；§10.4 的独立 smoke 程序没有 `Application`，必须像 `MetaGenerator` / `ReflectionPreprocessor` 的 `main` 那样自己先 `new Platform()`。
+- **`getModuleDir` 会静默返回空串**：`Platform` 实例或 `IPlatform` 实现缺失、或地址反查失败时都是空串，不报错。上面代码因此退到裸文件名，在 Linux 上通常找不到（§6.1.2 开头所述），所以报错里要把「模块目录取不到」单独写出来，否则用户只看到一句 `dlopen` 失败，定位不到根因。当前 Linux 恰好就是这种情况，见 §9.1。
+- `Environment` 不依赖 `Platform` 单例，可以在任何时刻调用；`SharedLibrary::makeFileName` 是纯字符串拼接，同样不依赖。
 
 #### 6.1.2.1 Linux 移植检查清单
 
@@ -691,13 +755,13 @@ namespace
 
 | 项 | 说明 | 处理 |
 |----|------|------|
-| 动态库搜索路径 | Linux `dlopen` 不看 exe 目录 | 本库拼绝对路径再 `SharedLibrary::open`；`getModuleDir` / `dlopen` 实现见平台文档 |
+| 动态库搜索路径 | Linux `dlopen` 不看 exe 目录 | 本库拼绝对路径再 `SharedLibrary::open`。`dlopen` 已有 `UnixSharedLibrary` 实现；**`getModuleDir` 在 Linux 上尚无落点**（缺 `LinuxPlatform`，应转调已存在的 `UnixSharedLibrary::queryModulePath`，与 `OSXPlatform` 相同），见 §9.1 |
 | `-ldl` / `_GNU_SOURCE` / `dlerror` / `RTLD_LOCAL` / `dladdr` | 系统调用与编译选项 | **归 `T3DPlatform`**，见 [`Platform-SharedLibrary-Abstraction-todo.md`](Platform-SharedLibrary-Abstraction-todo.md) §4 / §7。本库 CMake 不再单独加 |
 | `-fPIC` | `spirv-cross` 静态库要链进 `.so` | `POSITION_INDEPENDENT_CODE ON`，见 §8.1 |
 | 符号可见性 | 默认全导出会泄漏 spirv-cross 符号 | `CXX_VISIBILITY_PRESET hidden` + `T3D_HLSLCROSS_API` |
 | 使用方 RPATH | `libT3DHLSLCross.so` 是链接期依赖 | 使用方 exe 设 `$ORIGIN`，见 §8.4 |
 | 线程库 | DXC 内部会起线程 | 若链接期仍缺符号再链 `Threads::Threads`；与 dlopen 无关 |
-| `wchar_t` 4 字节 | `LPCWSTR` 是 UTF-32 | `T3D_LOCALE.UTF8ToUnicode()`，见 §6.1.3 |
+| `wchar_t` 4 字节 | `LPCWSTR` 是 UTF-32 | `T3D_LOCALE.UTF8ToUnicode()`，见 §6.1.3。**Linux 工厂目前不提供 `createPlatformLocale`**，需随 §9.1 的缺口一起补 |
 | glibc 版本 | 官方预编译 `.so` 在较新 Ubuntu 上构建，老发行版会 `GLIBC_2.xx not found` | 记录最低发行版；或自建。失败信息来自 `SharedLibrary::getLastError()` |
 | libstdc++ ABI | 经典担心点，但**此处不成立**：跨库边界只有 C 导出 + 纯虚 vtable + `IDxcBlob`，没有 STL 穿过 | 无需 `_GLIBCXX_USE_CXX11_ABI` 对齐 |
 | 文件系统大小写敏感 | shader 的 `#include` 与 `-I` 路径大小写写错，只在 Linux 暴露 | 对拍用例里放一个混合大小写的 include |
@@ -713,16 +777,17 @@ namespace
 | `stage` + `shaderModelMajor/Minor` | `-T vs_6_0` / `ps_6_0` / `gs_6_0` / `hs_6_0` / `ds_6_0` / `cs_6_0` | 前缀由 stage 决定 |
 | `entryPoint` | `-E <entry>` | |
 | 非 DXIL 目标 | `-spirv` | 本方案恒传 |
-| `defines[i]` | `-D name=value`，value 空时 `-D name` | |
-| `includeDirs[i]` | `-I <dir>` | 修复 D5 |
-| `packMatricesInRowMajor` | `true` → `-Zpr`，`false` → `-Zpc` | |
+| `defines[i]` | `DxcDefine{name, value}` 数组（不是 `-D`） | 与 SC 一致，见 §0.2 |
+| `includeDirs[i]` | `-I <dir>` + 自带 include handler | 修复 D5；旧 DXC 不认 `-I`，见 §0.2 |
+| `packMatricesInRowMajor` | `false` → `-Zpr`，`true` → `-Zpc` | 早期版本写反了，见 §0.2 |
 | `enableDebugInfo` | `-Zi` | |
-| `optimizationLevel == 0` | `-Od` | **会同时关掉合法化** |
-| `optimizationLevel > 0` | `-O1` / `-O2` / `-O3` | |
+| `optimizationLevel` | `-O0` / `-O1` / `-O2` / `-O3` | 0 传 `-O0` 而非 `-Od`；>3 报错 |
 | `enable16bitTypes` | `-enable-16bit-types` | 需 `-T xs_6_2` 起、`-HV 2018` 起，详见 §6.1.5 |
 | `fileName` | 作为 argv[0] 传入 | DXC 用它做错误定位 |
 
 ##### 资源绑定偏移参数 —— 阶段 1 必须定案的空白项
+
+> **已定案（2026-09-29）**：SC 4f36caf 不传任何 `-fvk-*` 参数，本库照此实现，基线产物里 cbuffer / SRV / UAV 的 binding 都直接等于 register 号。下文保留当时的分析，`t#` 与 `u#` 撞 binding 的风险依然存在，要改就单独立项并重新对拍。
 
 上表**目前没有**任何 `-fvk-*` 绑定相关参数，这是一处**已知空白，不是已确认的结论**。
 
@@ -745,7 +810,7 @@ namespace
 
 下游文档对此有明确依赖：`doc/todo/ComputeApp-Sample-Design-todo.md` §4.4 把「HLSL register 与 GL binding 对齐」列为 S1 第一天必须验证的阻塞项，原话是"两边对不上是默认结局，对上才是运气"。
 
-DXC 的 `argv` 类型是 `LPCWSTR`。非 Windows 下 `WinAdapter.h:334-338` 把 `WCHAR` / `LPCWSTR` 直接 typedef 成原生 `wchar_t`，而 `wchar_t` 的宽度由平台 ABI 决定——Windows 2 字节（UTF-16），macOS / Linux 4 字节（UTF-32）。**不要在本文件手写转码**，走已经按平台实现过的 `Locale`：
+DXC 的 `argv` 类型是 `LPCWSTR`。非 Windows 下 `WinAdapter.h:334-338` 把 `WCHAR` / `LPCWSTR` 直接 typedef 成原生 `wchar_t`，而 `wchar_t` 的宽度由平台 ABI 决定——Windows 2 字节（UTF-16），macOS / Linux 4 字节（UTF-32）。**不要在本文件手写转码**，走已经按平台实现过的 `Locale`（`T3D_LOCALE` 同样要求 `Platform` 单例已构造；Linux 工厂尚未提供 `createPlatformLocale`，见 §9.1）：
 
 ```cpp
 namespace
@@ -774,6 +839,8 @@ namespace
 > `rebuild()` 必须在所有 `push()` 之后调用一次——`std::vector<std::wstring>` 扩容会让之前取的 `c_str()` 全部失效。这是个典型的悬垂指针坑。
 
 #### 6.1.4 编译调用
+
+> **实现与下面的代码不同**：2dec1cd0 没有 `IDxcCompiler3`，实际用的是 `IDxcLibrary::CreateBlobWithEncodingFromPinned` + `IDxcCompiler::Compile` + `IDxcOperationResult`（`GetStatus` / `GetErrorBuffer` / `GetResult`），include handler 是自带的，见 `T3DDxcDriver.cpp` 与 §0.2。"`GetStatus()` 判成败、错误缓冲只是诊断文本"这条原则不变。
 
 ```cpp
 bool DxcDriver::compileToSpirV(const HLSLCrossSource& source,
@@ -916,6 +983,8 @@ if (options.enable16bitTypes)
 ### 6.2 `T3DSpirvCrossDriver`
 
 #### 6.2.1 后端分派
+
+> **实现以 §0.2 为准**：本节到 §6.2.4 的示例代码是早期设计稿，选项集、合并采样器命名与 MSL 版本都和 SC 4f36caf 不符。实际实现逐项照搬 SC 的 `ConvertBinary()`，见 `T3DSpirvCrossDriver.cpp`。另外加了一条 SC 没有的检查：GLSL < 140、ESSL < 300 直接报错（§6.2.2 的低版本方言问题）。
 
 ```cpp
 // T3DSpirvCrossDriver.cpp
@@ -1424,6 +1493,8 @@ endif ()
 set_property(TARGET spirv-cross PROPERTY FOLDER "Dependencies")
 ```
 
+> **实现补充**：另加了 `remove_definitions(-D_HAS_EXCEPTIONS=0)`、非 MSVC 下 `CXX_VISIBILITY_PRESET hidden`，以及对所有配置 `PUBLIC` 定义 `NDEBUG`（原因见 §0.3）。子目录由 `source/Tools/CMakeLists.txt` 在 `HLSLCross` 之前 `add_subdirectory`，不放在 `source/CMakeLists.txt`，这样与 `TINY3D_OS_DESKTOP` / `TINY3D_BUILD_RTTR_TOOL` 的开关保持一致。
+
 ### 8.2 `source/CMake/Packages/FindDXC.cmake`（新增）
 
 照 `FindGlslang.cmake` 的形状写。
@@ -1833,9 +1904,29 @@ DXC 用 COM 风格接口，非 Windows 下由 `dxc/WinAdapter.h` 补齐 `IUnknow
 | `-ldl` / `_GNU_SOURCE` | **`T3DPlatform`**，本库 CMake 不再加 |
 | Linux arm64 无官方二进制 | §4.1 自建；`FindDXC.cmake` 按 `CMAKE_SYSTEM_PROCESSOR` 分目录 |
 | 文件系统大小写敏感 | 新依赖目录一律小写（D8）；对拍用例覆盖混合大小写 `#include` |
+| **`T3DPlatform` 自身 Linux 可用** | 见下方「`T3DPlatform` 的 Linux 缺口」 |
 | 完整清单 | §6.1.2.1 |
 
-需要区分的是**库**和**它的使用方**：`T3DHLSLCross` 承诺 Linux 可用；但 `scc` 这个可执行程序在 Linux 上还依赖 `T3DCoreEditor` / `rttr_core` / SDL2 等一串东西，那些的 Linux 移植不在本方案范围内。换句话说，本方案交付一个 Linux 上确定可用的 `T3DHLSLCross`，`scc` 整体能否在 Linux 跑起来取决于其他工程各自的移植进度。
+需要区分的是**库**和**它的使用方**：`T3DHLSLCross` 承诺 Linux 可用；但 `scc` 这个可执行程序在 Linux 上还依赖 `T3DCoreEditor` / `rttr_core` 等一串东西，那些的 Linux 移植不在本方案范围内。换句话说，本方案交付一个 Linux 上确定可用的 `T3DHLSLCross`，`scc` 整体能否在 Linux 跑起来取决于其他工程各自的移植进度。
+
+#### `T3DPlatform` 的 Linux 缺口
+
+平台调用下沉之后，`T3DHLSLCross` 的 Linux 可用性**不再只取决于本库**，而是连带取决于 `T3DPlatform`。按当前代码核对，`T3DPlatform` 在 Linux 上有三处缺口：
+
+| 缺口 | 现状 | 对本库的影响 |
+|------|------|--------------|
+| `LinuxFactory` 不完整 | 只实现了 Application / Window / Time / TimerService / Dir / DeviceInfo / Console / ZipAssetManager / SharedLibrary；`IFactory` 里 `createPlatform`、`createPlatformThread`、`CriticalSection` / `Mutex` / `RecursiveMutex` / `Semaphore` / `Event` / `WaitCondition`、`createPlatformProcess`、`createPlatformLocale` 等纯虚函数都没有 | `LinuxFactory` 是抽象类，`new LinuxFactory()` 编不过——**`T3DPlatform` 在 Linux 上整体无法编译**，本库也就无从链接 |
+| 没有 `LinuxPlatform` | `source/Platform` 下不存在 `LinuxPlatform`，`IPlatform::getModulePath` / `isAddressMapped` 在 Linux 上无实现 | `SharedLibrary::getModuleDir` 恒为空串，§6.1.2 的候选 2 失效，退到裸文件名，Linux 上几乎必然找不到 `libdxcompiler.so` |
+| 没有 `createPlatformLocale` | 同上 | §6.1.3 的 `T3D_LOCALE.UTF8ToUnicode()` 不可用 |
+
+补齐的工作量不大，大部分可复用现成的 POSIX 实现：
+
+- `LinuxPlatform::getModulePath` / `isAddressMapped` 直接转调 `UnixSharedLibrary::queryModulePath` / `queryAddressMapped`，与 `OSXPlatform`（`T3DOSXPlatform.mm:161-169`）写法相同。`_GNU_SOURCE` 与 `CMAKE_DL_LIBS` 已在 `source/Platform/CMakeLists.txt` 的 Linux 分支里配好
+- 其余纯虚函数全部有现成实现可用，不需要新写：`Adapter/Unix/` 下已有 `PosixThread`、`PosixCriticalSection` / `PosixMutex` / `PosixRecursiveMutex` / `PosixSemaphore` / `PosixEvent` / `PosixWaitCondition`（`T3DPosixSyncObject.h`）、`PosixProcess`、`PosixLocale`。OSX 工厂里后四者已在用
+
+这部分工作**归 `T3DPlatform`，不归本库**，也不应在 `T3DDxcDriver.cpp` 里绕开——绕开等于把 `dladdr` 写回本库，违背 §6.1.1。它是阶段 9（§11）的前置条件，已在 [`Platform-SharedLibrary-Abstraction-todo.md`](Platform-SharedLibrary-Abstraction-todo.md) §8 列为 **P1b**。
+
+另外要接受一个事实：`T3DPlatform` 在 Linux 分支链接 X11 与 SDL2（`source/Platform/CMakeLists.txt:225-230`），因此 `T3DHLSLCross` 在 Linux 上**间接依赖 SDL2 / X11**。这对开发机上的离线工具不构成问题，但无头 CI 机器需要装好这两个库的运行时。
 
 #### macOS
 
@@ -1929,7 +2020,7 @@ lipo -archs build-arm64/.../scc          # 应输出 "arm64"
 
 ### 10.4 Linux 验证
 
-Linux 是一等目标（§9.1），但 `scc` 整体还没移植，所以**验证对象是 `T3DHLSLCross` 库本身**，用一个不依赖 Core / SDL2 的独立测试程序驱动：
+Linux 是一等目标（§9.1），但 `scc` 整体还没移植，所以**验证对象是 `T3DHLSLCross` 库本身**，用一个不依赖 Core 的独立测试程序驱动。它只链 `T3DHLSLCross` + `T3DPlatform`（后者间接带 SDL2 / X11，见 §9.1），`main` 开头必须先 `new Platform()`，否则 `SharedLibrary` 构造即崩溃（§6.1.2）。前提是 §9.1「`T3DPlatform` 的 Linux 缺口」已补齐：
 
 ```bash
 cd source
@@ -1941,8 +2032,8 @@ cmake --build build-linux --target hlslcross_smoke   # 步骤 2 的独立 demo�
 要确认的点，对应 §6.1.2.1 清单：
 
 1. **`.so` 编得出来**：`spirv-cross` 若漏了 `POSITION_INDEPENDENT_CODE`，这一步就会报 `relocation R_X86_64_32 ... recompile with -fPIC`
-2. **dxcompiler 能加载**：`libdxcompiler.so` 放在 `libT3DHLSLCross.so` 旁边（不是测试程序旁边），确认 `moduleDir()` 锚点生效
-3. **报错信息有用**：故意把 `libdxcompiler.so` 挪走，确认提示里带 `dlerror()` 原文而不是一句空泛的 not found
+2. **dxcompiler 能加载**：`libdxcompiler.so` 放在 `libT3DHLSLCross.so` 旁边（不是测试程序旁边），确认 `SharedLibrary::getModuleDir` 锚点生效（返回非空且等于 `.so` 所在目录）
+3. **报错信息有用**：故意把 `libdxcompiler.so` 挪走，确认提示里带 `dlerror()` 原文而不是一句空泛的 not found；且**不应**出现 "module directory unavailable"，出现说明 `LinuxPlatform` 没接上
 4. **环境变量兜底**：`T3D_DXCOMPILER_PATH` 指向别处，确认优先级最高
 5. **符号确实藏住了**：`nm -D --defined-only libT3DHLSLCross.so | grep -c spirv_cross` 应为 0；同时 `nm -D` 能看到 `Tiny3D::HLSLCrossCompiler` 的导出符号。这条直接验证 §3.3 第 3 条
 6. **产物一致**：同一批 shader，Linux 产出的 SPIR-V 与 Windows 逐字节 diff。**这是最关键的一条**——SPIR-V 是确定性输出，不应有平台差异，有差异说明 `wchar_t` 转换或参数组装出了问题
@@ -1967,7 +2058,9 @@ arm64 Linux 若有设备，重复第 4 条即可。
 | 8 | macOS arm64 验证 | 无代码交付 | §10.3 通过 |
 | 9 | Linux 验证 | `dependencies/dxc/prebuilt/Linux/`、Linux 上可跑的 smoke 程序 | §10.4 通过，SPIR-V 与 Windows 逐字节一致 |
 
-阶段 2 依赖 [`Platform-SharedLibrary-Abstraction-todo.md`](Platform-SharedLibrary-Abstraction-todo.md) 的 **P1 已落地**。那份文档没完成就开阶段 2，等于把 `dlopen` 分支又写回 `T3DDxcDriver.cpp`，两份设计互相拆台。
+阶段 2 依赖 [`Platform-SharedLibrary-Abstraction-todo.md`](Platform-SharedLibrary-Abstraction-todo.md) 的 P1。**截至 2026-09-29，P1 在 Windows / macOS 上已落地，阶段 2 可以开工**；不要因为 Linux 未就绪就把 `dlopen` 分支写回 `T3DDxcDriver.cpp`，那会让两份设计互相拆台。
+
+阶段 9 额外依赖 §9.1「`T3DPlatform` 的 Linux 缺口」补齐（`LinuxPlatform` + `LinuxFactory` 其余纯虚实现）。这项工作归 `T3DPlatform`，可与阶段 2-8 并行，但必须在阶段 9 之前完成。
 
 阶段 5 是**不可跳过的关口**。阶段 1-4 可以并行推进，5 之后必须串行。
 
