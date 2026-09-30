@@ -1,6 +1,6 @@
 # 用 DXC + SPIRV-Cross 替换 ShaderConductor —— 设计与实现文档
 
-> **目标**：去掉已归档的 `ShaderConductor` 预编译库依赖，改为直接编排 DXC 与 SPIRV-Cross。新增的 `T3DHLSLCross` 库以 **Windows / macOS（含 arm64）/ Linux 三平台同等支持**为硬性要求。
+> **目标**：去掉已归档的 `ShaderConductor` 预编译库依赖，改为直接编排 DXC 与 SPIRV-Cross。新增的 `HLSLCross` 库以 **Windows / macOS（含 arm64）/ Linux 三平台同等支持**为硬性要求。
 >
 > **关键文件**
 > - 唯一调用点：`source/Tools/ShaderCrossCompiler/Source/T3DShaderCompiler.cpp` → `ShaderCompiler::compileShaderSnippet()`
@@ -24,7 +24,7 @@
 | 阶段 | 状态 | 说明 |
 |------|------|------|
 | 依赖准备 | 完成 | `dependencies/dxc`（头文件 v1.9.2607；Windows dll 用 SC 同款 2dec1cd0；Linux `.so` v1.9.2607），`dependencies/spirv-cross` 源码锁在 SC 同款 `cb686a5d`，各自带 `VERSION.txt`；`FindDXC.cmake`；`.gitattributes` 增加 Linux `.so` 的 LFS 规则 |
-| `T3DHLSLCross` 库 | 完成 | `source/Tools/HLSLCross/`，Windows Debug 编译通过 |
+| `HLSLCross` 库 | 完成 | `source/Tools/HLSLCross/`，Windows Debug 编译通过 |
 | `scc` 调用点改写 | 完成 | 含 D1 / D3 / D5 / D9 与启动探测 `isAvailable()` |
 | CMake 清理 | 完成 | 闸门 7 处、BuiltinGenerator 死链接（D6）、scc 三平台链接、注释 |
 | 对拍（Windows） | 通过 | 见 §0.4 |
@@ -54,16 +54,16 @@
 ### 0.3 实施中发现的新问题
 
 - **SPIRV-Cross 的 `assert` 会挂住 Debug 版 scc。** `cb686a5d` 的 `CompilerGLSL::flattened_access_chain_offset` 有 assert，`ComputeReflectProbe.cshader` 在 `-O0 -t hlsl` 下会触发。SC 的预编译库是 Release，assert 被编掉，产物正常；Debug 编进来就弹 CRT 断言框，批处理直接卡死。现在 `spirv-cross` 目标对所有配置 `PUBLIC` 定义 `NDEBUG`（§8.1），产物与旧版逐字节一致。
-- **Windows 上 `_HAS_EXCEPTIONS=0` 是全局定义。** `spirv-cross` 与 `T3DHLSLCross` 都靠 C++ 异常报错，两个目录里 `remove_definitions(-D_HAS_EXCEPTIONS=0)` 并加 `/EHsc`。
+- **Windows 上 `_HAS_EXCEPTIONS=0` 是全局定义。** `spirv-cross` 与 `HLSLCross` 都靠 C++ 异常报错，两个目录里 `remove_definitions(-D_HAS_EXCEPTIONS=0)` 并加 `/EHsc`。
 - **升级 DXC 不是逐字节透明的。** 用 `T3D_DXCOMPILER_PATH` 指向 v1.9.2607 测过：接口（uniform block、合并采样器名、location）不变，但 `ForwardPass.pshader` 里 9 次采样的 PCF 循环被展开，GLSL 从 4641 字节涨到 11577 字节。Linux 用的是 v1.9.2607，所以 **Linux 与 Windows 的产物目前不一致**，要等 Windows 也升级 DXC 并重新对拍后才能对齐。
-- **PATH 上可能有别的 dxcompiler。** 本机 Vulkan SDK 的 `Bin` 目录在 PATH 上，dxcompiler 从 T3DHLSLCross 旁边删掉后，第三个候选（裸文件名）会找到 SDK 自带的新版。行为符合设计，但部署时 dxcompiler 必须和 T3DHLSLCross 放在一起，否则会在不知情的情况下换了编译器版本。
+- **PATH 上可能有别的 dxcompiler。** 本机 Vulkan SDK 的 `Bin` 目录在 PATH 上，dxcompiler 从 HLSLCross 旁边删掉后，第三个候选（裸文件名）会找到 SDK 自带的新版。行为符合设计，但部署时 dxcompiler 必须和 HLSLCross 放在一起，否则会在不知情的情况下换了编译器版本。
 - **既有失败（非本次引入）：** `ComputeParticleCull.cshader`、`ComputeParticleUpdate.cshader`、`ParticleDraw.vshader` 在 `-t hlsl` 下报 `Reading structs from ByteAddressBuffer not yet supported.`，是锁定版本 SPIRV-Cross 的限制，基线里一样失败。升级 SPIRV-Cross 可能解决，需另行对拍。
 - **macOS 目前只有 x86_64 的 dxcompiler。** 过渡用的 dylib 与 SC 时代同版本，只要 `generate-xcode-osx.sh` 还是 `ENGINE_ARCH=x86_64` 就能用；切到 arm64 / universal 时 `FindDXC.cmake` 的 lipo 检查会直接报错，届时换成 universal 二进制。
 - **构建脚本的既有竞争：** `/m` 并行构建时 `T3DCore` 与 `T3DCoreEditor` 的 POST_BUILD 同时往 `bin/Windows/Debug/Assets/samples` 拷资源，偶发 `Error copying directory`。与本次无关，用 `/m:1` 或重跑可绕过。
 
 ### 0.4 对拍结果（Windows x64 Debug）
 
-基线：改动前的 scc + ShaderConductor。新版：scc + T3DHLSLCross，`bin` 目录里没有 `ShaderConductor.dll`。
+基线：改动前的 scc + ShaderConductor。新版：scc + HLSLCross，`bin` 目录里没有 `ShaderConductor.dll`。
 
 - **样本**：`assets/samples/shaders` 下 28 个原生 `.vshader` / `.pshader` / `.cshader` × 6 个目标（hlsl / glsl / essl / spirv / msl_macos / msl_ios）× `-O3` / `-O0`；另有 `assets/editor/builtin/shaders` 下 4 个 `.shader` × 6 个目标（`-O3`，固定 `-u`）。
 - **原生产物**：330 个全部逐字节一致。
@@ -104,15 +104,15 @@ HLSL --[DXC]--> SPIR-V --[SPIRV-Tools 合法化/优化]--> SPIR-V' --[SPIRV-Cros
 **目标**
 
 - 移除 `ShaderConductor` 全部依赖（头文件、预编译库、CMake 查找模块）
-- 新增 `T3DHLSLCross` **动态库**，承载 HLSL 跨平台编译能力（`.dll` / `.dylib` / `.so`）
-- **`T3DHLSLCross` 在 Windows / macOS / Linux 三平台均可编译、可运行、产物一致**，Linux 是一等目标而非顺带支持（见 §9.1、§6.1.2.1）
+- 新增 `HLSLCross` **动态库**，承载 HLSL 跨平台编译能力（`.dll` / `.dylib` / `.so`）
+- **`HLSLCross` 在 Windows / macOS / Linux 三平台均可编译、可运行、产物一致**，Linux 是一等目标而非顺带支持（见 §9.1、§6.1.2.1）
 - 保持 `scc` 现有命令行接口与输出格式**完全不变**——唯一例外是过去会**静默产出错误产物**的输入改为显式报错（`-t dxil` 见 §6.5，`-t msl` 与未知 target 见 D9 / §7.1）
 - 保持烘焙产物（`.tshader` 内容、SPIR-V 二进制布局）与现状**逐字节可比对**
 - 解除 `TINY3D_BUILD_SHADERCONDUCTOR_TOOLS` 架构闸门
 
 **非目标**
 
-- 不负责 `scc` 及其上游依赖（`T3DCoreEditor` / `rttr_core`）的 Linux 移植——本方案只保证 `T3DHLSLCross` 这一层。**例外**：`T3DHLSLCross` 链接期依赖 `T3DPlatform`（间接带上 SDL2 / X11），`T3DPlatform` 在 Linux 上补齐到「能构造 `Platform`、`getModulePath` 与 `Locale` 可用」这一最小子集，是本方案 Linux 目标的前置条件，见 §9.1
+- 不负责 `scc` 及其上游依赖（`T3DCoreEditor` / `rttr_core`）的 Linux 移植——本方案只保证 `HLSLCross` 这一层。**例外**：`HLSLCross` 链接期依赖 `T3DPlatform`（间接带上 SDL2 / X11），`T3DPlatform` 在 Linux 上补齐到「能构造 `Platform`、`getModulePath` 与 `Locale` 可用」这一最小子集，是本方案 Linux 目标的前置条件，见 §9.1
 - 不解决 FreeImage / FBX SDK 的 x86_64 问题（见 §12.1）
 - 不支持 DXIL 目标（见 §6.5）
 - 不在本次改造中迁移到 Slang（见 §12.2）
@@ -299,7 +299,7 @@ source/Tools/HLSLCross/
         T3DSpirvCrossDriver.cpp
         T3DHLSLSemanticFix.h        # HLSL 语义修复（原 fixSpirVCrossForHLSLSemantics）
         T3DHLSLSemanticFix.cpp
-    CMakeLists.txt                  # 产出动态库 T3DHLSLCross
+    CMakeLists.txt                  # 产出动态库 HLSLCross
 ```
 
 **关于是否值得独立成库。** `ScriptCompiler` 删除后只剩 `ShaderCrossCompiler` 一个消费者，直接把这些文件塞进 `ShaderCrossCompiler/Source/` 也能跑。仍建议独立成库，理由有三条：
@@ -326,7 +326,7 @@ source/Tools/HLSLCross/
 
 接口里用 `String` / `TArray`（即 `std::string` / `std::vector`），它们跨 DLL 边界传递在 Windows 上是有前提的：调用方与被调方必须**同一 MSVC 工具集、同一 CRT（`/MD`）、同一 Debug/Release 配置**。Debug 与 Release 混用会因 `_ITERATOR_DEBUG_LEVEL` 不同直接崩。
 
-项目已经在全局接受这个代价——`T3DMacro.h:41` 的 `#pragma warning(disable:4251)` 就是为此，`T3DUtils`、`T3DCore` 等模块的导出接口里到处是 `String`。所以 `T3DHLSLCross` 沿用同样风格是**一致性最优解**，不必为它单独发明一套纯 C ABI。但要写清楚：这个库不是给外部第三方分发的稳定 ABI，只在本仓库内、同一次构建里使用。
+项目已经在全局接受这个代价——`T3DMacro.h:41` 的 `#pragma warning(disable:4251)` 就是为此，`T3DUtils`、`T3DCore` 等模块的导出接口里到处是 `String`。所以 `HLSLCross` 沿用同样风格是**一致性最优解**，不必为它单独发明一套纯 C ABI。但要写清楚：这个库不是给外部第三方分发的稳定 ABI，只在本仓库内、同一次构建里使用。
 
 > 换句话说，不要因为它是 DLL 就去追求 ABI 稳定——那是 ShaderConductor 作为独立分发库的需求，不是这里的需求。跟仓库同步构建、同步升级，反而比僵化的 C ABI 更好维护。
 
@@ -336,16 +336,16 @@ source/Tools/HLSLCross/
 
 **3. spirv-cross 必须以 PIC 方式编译，并且符号要藏住。**
 
-`spirv-cross` 是静态库，被吸收进 `T3DHLSLCross` 动态库。这带来两个 Linux 上会立刻炸的问题：
+`spirv-cross` 是静态库，被吸收进 `HLSLCross` 动态库。这带来两个 Linux 上会立刻炸的问题：
 
 - **PIC**：静态库要链进 `.so`，必须开 `POSITION_INDEPENDENT_CODE`，否则报 `relocation R_X86_64_32 against '.rodata' can not be used when making a shared object`。见 §8.1。
-- **符号可见性**：项目的 `T3D_EXPORT_API` 在 macOS / Linux 分支上是**空的**（`T3DMacro.h:64-65`），等于默认导出全部符号。那样 spirv-cross 的符号会从 `libT3DHLSLCross.so` 泄漏到全局符号表。本库对此做例外处理——用 `visibility("default")` 显式标注导出项 + `CXX_VISIBILITY_PRESET hidden`，见 §8.3。这跟 §6.1.2 用 `RTLD_LOCAL` 隔离 dxcompiler 内 LLVM 符号是同一个考虑。
+- **符号可见性**：项目的 `T3D_EXPORT_API` 在 macOS / Linux 分支上是**空的**（`T3DMacro.h:64-65`），等于默认导出全部符号。那样 spirv-cross 的符号会从 `libHLSLCross.so` 泄漏到全局符号表。本库对此做例外处理——用 `visibility("default")` 显式标注导出项 + `CXX_VISIBILITY_PRESET hidden`，见 §8.3。这跟 §6.1.2 用 `RTLD_LOCAL` 隔离 dxcompiler 内 LLVM 符号是同一个考虑。
 
 **4. 部署多了一个文件，而且找库的锚点变了。**
 
-静态库时代只需要把 `dxcompiler` 放到可执行文件旁边；现在 `libT3DHLSLCross` 也要跟着走，且它是 `scc` 的**链接期依赖**，Linux 上使用方的可执行目标需要 `$ORIGIN` 形式的 RPATH 才找得到（macOS 用 `@rpath`，项目里 `Utils/CMakeLists.txt:125-131` 已有现成写法）。
+静态库时代只需要把 `dxcompiler` 放到可执行文件旁边；现在 `libHLSLCross` 也要跟着走，且它是 `scc` 的**链接期依赖**，Linux 上使用方的可执行目标需要 `$ORIGIN` 形式的 RPATH 才找得到（macOS 用 `@rpath`，项目里 `Utils/CMakeLists.txt:125-131` 已有现成写法）。
 
-同时，dxcompiler 的查找锚点应当从「可执行文件目录」改成「`T3DHLSLCross` 自身所在目录」——因为这两个文件是一起部署的，而宿主可执行文件未必在同一层。见 §6.1.2。
+同时，dxcompiler 的查找锚点应当从「可执行文件目录」改成「`HLSLCross` 自身所在目录」——因为这两个文件是一起部署的，而宿主可执行文件未必在同一层。见 §6.1.2。
 
 ### 3.4 为什么不需要单独引入 SPIRV-Tools
 
@@ -474,13 +474,13 @@ dependencies/spirv-cross/
 // 等于默认导出全部符号，会让内联进来的 spirv-cross 符号泄漏到全局符号表。
 // 本库配合 CXX_VISIBILITY_PRESET hidden（§8.3），显式标注导出项。
 #if defined (T3D_OS_WINDOWS)
-    #if defined (T3DHLSLCROSS_EXPORT)
+    #if defined (HLSLCROSS_EXPORT)
         #define T3D_HLSLCROSS_API   __declspec(dllexport)
     #else
         #define T3D_HLSLCROSS_API   __declspec(dllimport)
     #endif
 #else
-    #if defined (T3DHLSLCROSS_EXPORT)
+    #if defined (HLSLCROSS_EXPORT)
         #define T3D_HLSLCROSS_API   __attribute__((visibility("default")))
     #else
         #define T3D_HLSLCROSS_API
@@ -492,7 +492,7 @@ dependencies/spirv-cross/
 
 与项目其他模块的差别有两处，都是刻意的：
 
-| | 其他模块 | `T3DHLSLCross` | 原因 |
+| | 其他模块 | `HLSLCross` | 原因 |
 |---|---|---|---|
 | POSIX 导出宏 | 空 | `visibility("default")` | 藏住 spirv-cross 符号 |
 | `_EXPORT` 定义时机 | 仅 `if (MSVC)` 内 | 所有平台 | POSIX 上也要靠它区分导出/导入 |
@@ -505,7 +505,7 @@ dependencies/spirv-cross/
 
 // 只取 String / TArray 两个 typedef（T3DType.h:84,111），不要包 <Tiny3D.h>。
 // 那是引擎总头文件，会把 Core 的一大片类声明拖进来，与 §6.1.1
-// "T3DHLSLCross 不依赖 T3DCore" 的定位直接冲突，§8.3 也没有链接 T3DCore。
+// "HLSLCross 不依赖 T3DCore" 的定位直接冲突，§8.3 也没有链接 T3DCore。
 #include <T3DType.h>
 #include "T3DHLSLCrossPrerequisites.h"
 
@@ -627,13 +627,13 @@ namespace Tiny3D
 
 ### 5.2 设计要点说明
 
-**为什么用 `String` / `TArray` 而不是 `const char*`？** ShaderConductor 用裸指针是因为它要作为独立分发的 DLL，追求 ABI 稳定。`T3DHLSLCross` 虽然也是动态库，但只在本仓库内、同一次构建里使用，不对外分发，因此可以接受 STL 跨边界——这也是项目其他模块（`T3DUtils` / `T3DCore`）一贯的做法。代价与前提见 §3.3 第 1 条。收益是消掉 D3（手工数组管理）和调用方那一堆生命周期陷阱。
+**为什么用 `String` / `TArray` 而不是 `const char*`？** ShaderConductor 用裸指针是因为它要作为独立分发的 DLL，追求 ABI 稳定。`HLSLCross` 虽然也是动态库，但只在本仓库内、同一次构建里使用，不对外分发，因此可以接受 STL 跨边界——这也是项目其他模块（`T3DUtils` / `T3DCore`）一贯的做法。代价与前提见 §3.3 第 1 条。收益是消掉 D3（手工数组管理）和调用方那一堆生命周期陷阱。
 
 **只有 `HLSLCrossCompiler` 类带 `T3D_HLSLCROSS_API`。** 上面那些 `HLSLCrossSource` / `HLSLCrossOptions` / `HLSLCrossResult` 都是纯数据结构，调用方按值构造、按值接收，没有跨模块调用的成员函数，不需要导出。给 POD 结构体加 `dllexport` 反而会引出 C4251 一串噪音。
 
 **为什么保留 `shaderModelMajor/Minor` 而不是写死 6.0？** 虽然现状恒为 6.0，但显式暴露出来能让 §2.3 的陷阱在接口层面变得可见——读代码的人一眼能看出 `options.shaderModelMajor` 和 `target.version` 是两回事。
 
-**`isAvailable()` 的用途**：`scc` 启动时探测一次，dxcompiler 缺失时立刻给出明确报错（含 `dlerror()` 原文与实际搜索过的路径），而不是等到第一次编译才崩。注意报错文案不要再写死 "next to scc"——锚点是 `T3DHLSLCross` 自身目录，未必等于 `scc` 所在目录。
+**`isAvailable()` 的用途**：`scc` 启动时探测一次，dxcompiler 缺失时立刻给出明确报错（含 `dlerror()` 原文与实际搜索过的路径），而不是等到第一次编译才崩。注意报错文案不要再写死 "next to scc"——锚点是 `HLSLCross` 自身目录，未必等于 `scc` 所在目录。
 
 ---
 
@@ -655,7 +655,7 @@ namespace Tiny3D
 
 `dxcapi.h` / `WinAdapter.h` 仍只出现在本文件，这一点不变。
 
-**动态库加载不要在本文件里写 `#if`。** `Core` 里的 `T3DDylib` 仍然不复用——它是 `Resource` 子类，链上来等于拖进整个 `T3DCore`。平台系统调用下沉到 `T3DPlatform::SharedLibrary`，见 [`Platform-SharedLibrary-Abstraction-todo.md`](Platform-SharedLibrary-Abstraction-todo.md)。`T3DHLSLCross` 链接 `T3DPlatform` + `spirv-cross`，不链 `T3DCore`。
+**动态库加载不要在本文件里写 `#if`。** `Core` 里的 `T3DDylib` 仍然不复用——它是 `Resource` 子类，链上来等于拖进整个 `T3DCore`。平台系统调用下沉到 `T3DPlatform::SharedLibrary`，见 [`Platform-SharedLibrary-Abstraction-todo.md`](Platform-SharedLibrary-Abstraction-todo.md)。`HLSLCross` 链接 `T3DPlatform` + `spirv-cross`，不链 `T3DCore`。
 
 原先为了「driver 自包含、能被别的工程直接拿走」而选用编译器内建宏、手写 `LoadLibrary`/`dlopen` 的方案**作废**。本库是仓库内工具库，不是对外 SDK；重复实现一套跨平台加载，只会造成与 `Dylib` / `ObjectTracer` 第三份分叉。
 
@@ -667,7 +667,7 @@ namespace Tiny3D
 
 依赖使用方配 RPATH 会把移植负担转嫁出去。改成**三平台统一自己解析出绝对路径再 dlopen**——不需要任何构建系统配合，Linux 和 macOS 行为完全一致。
 
-**锚点用「`T3DHLSLCross` 自身所在目录」，不是「宿主可执行文件目录」。** 这是它做成动态库之后的必然选择：`libdxcompiler` 是跟 `libT3DHLSLCross` 一起部署的，而宿主可执行文件未必在同一层（编辑器插件目录、测试程序、将来的 `T3DEditor` 都可能不同层）。取自身模块路径走 `SharedLibrary::getModuleDir`，不要在本文件里调 `GetModuleHandleEx` / `dladdr`。
+**锚点用「`HLSLCross` 自身所在目录」，不是「宿主可执行文件目录」。** 这是它做成动态库之后的必然选择：`libdxcompiler` 是跟 `libHLSLCross` 一起部署的，而宿主可执行文件未必在同一层（编辑器插件目录、测试程序、将来的 `T3DEditor` 都可能不同层）。取自身模块路径走 `SharedLibrary::getModuleDir`，不要在本文件里调 `GetModuleHandleEx` / `dladdr`。
 
 候选路径怎么排是本库的策略，**不下沉**。系统调用本身见 [`Platform-SharedLibrary-Abstraction-todo.md`](Platform-SharedLibrary-Abstraction-todo.md) §6.1。
 
@@ -700,7 +700,7 @@ namespace
             {
                 candidates.push_back(Environment::get("T3D_DXCOMPILER_PATH"));
             }
-            // 2) T3DHLSLCross 自身同级目录（默认部署，三平台一致）
+            // 2) HLSLCross 自身同级目录（默认部署，三平台一致）
             const String dir = SharedLibrary::getModuleDir((void*)&moduleDirAnchor);
             if (!dir.empty())
             {
@@ -721,12 +721,12 @@ namespace
             if (mCreateInstance == nullptr)
             {
                 mError = String("Failed to load ") + fileName
-                       + ". Put it next to T3DHLSLCross, or set "
+                       + ". Put it next to HLSLCross, or set "
                          "T3D_DXCOMPILER_PATH to its full path. "
                        + mLib.getLastError();
                 if (dir.empty())
                 {
-                    mError += " (T3DHLSLCross module directory unavailable)";
+                    mError += " (HLSLCross module directory unavailable)";
                 }
             }
         }
@@ -744,14 +744,14 @@ namespace
 
 - 传 **`kSharedLibraryIsolated`（`kSharedLibraryLazy | kSharedLibraryLocal`）**，不要用默认参数 `kSharedLibraryPlugin`（即 `kSharedLibraryNow`）。Windows 下 flags 被忽略，但仍要传，换到 POSIX 才生效。`RTLD_LOCAL` 避免 dxcompiler 内部 LLVM 符号污染全局表——Linux 上项目另有一份 `dependencies/llvm`，撞车会变成难以定位的崩溃。
 - **报错必须带上 `getLastError()`**。Linux 上最常见的失败不是「文件不存在」，而是 `GLIBC_2.xx not found` 或缺 `libstdc++`，只有平台原文能说清楚。
-- **「不需要 RPATH」只针对 dxcompiler。** 它是运行期 `open` 的，靠本库自己拼绝对路径。`libT3DHLSLCross` 本身是使用方的链接期依赖，动态链接器要在进程启动时解析，那一步必须有 RPATH，见 §8.4。
+- **「不需要 RPATH」只针对 dxcompiler。** 它是运行期 `open` 的，靠本库自己拼绝对路径。`libHLSLCross` 本身是使用方的链接期依赖，动态链接器要在进程启动时解析，那一步必须有 RPATH，见 §8.4。
 - **前提是 `Platform` 单例已构造**（不是 `init()`）。实际代码里 `SharedLibrary` 的构造函数直接走 `T3D_PLATFORM_FACTORY.createPlatformSharedLibrary()`，而 `Singleton::getInstance()` 是无检查解引用——`Platform` 不存在时**直接空指针崩溃**，不会返回错误码。`scc` 的全局 `ShaderCrossApp theApp` 在 `Application` 构造函数里 `T3D_NEW Platform()`（`T3DApplication.cpp:37`），早于 `main`，`isAvailable()` 放在参数解析之后（§7.1）自然满足；§10.4 的独立 smoke 程序没有 `Application`，必须像 `MetaGenerator` / `ReflectionPreprocessor` 的 `main` 那样自己先 `new Platform()`。
 - **`getModuleDir` 会静默返回空串**：`Platform` 实例或 `IPlatform` 实现缺失、或地址反查失败时都是空串，不报错。上面代码因此退到裸文件名，在 Linux 上通常找不到（§6.1.2 开头所述），所以报错里要把「模块目录取不到」单独写出来，否则用户只看到一句 `dlopen` 失败，定位不到根因。当前 Linux 恰好就是这种情况，见 §9.1。
 - `Environment` 不依赖 `Platform` 单例，可以在任何时刻调用；`SharedLibrary::makeFileName` 是纯字符串拼接，同样不依赖。
 
 #### 6.1.2.1 Linux 移植检查清单
 
-`T3DHLSLCross` 把 Linux 当一等目标，实现和联调时逐项确认：
+`HLSLCross` 把 Linux 当一等目标，实现和联调时逐项确认：
 
 | 项 | 说明 | 处理 |
 |----|------|------|
@@ -759,7 +759,7 @@ namespace
 | `-ldl` / `_GNU_SOURCE` / `dlerror` / `RTLD_LOCAL` / `dladdr` | 系统调用与编译选项 | **归 `T3DPlatform`**，见 [`Platform-SharedLibrary-Abstraction-todo.md`](Platform-SharedLibrary-Abstraction-todo.md) §4 / §7。本库 CMake 不再单独加 |
 | `-fPIC` | `spirv-cross` 静态库要链进 `.so` | `POSITION_INDEPENDENT_CODE ON`，见 §8.1 |
 | 符号可见性 | 默认全导出会泄漏 spirv-cross 符号 | `CXX_VISIBILITY_PRESET hidden` + `T3D_HLSLCROSS_API` |
-| 使用方 RPATH | `libT3DHLSLCross.so` 是链接期依赖 | 使用方 exe 设 `$ORIGIN`，见 §8.4 |
+| 使用方 RPATH | `libHLSLCross.so` 是链接期依赖 | 使用方 exe 设 `$ORIGIN`，见 §8.4 |
 | 线程库 | DXC 内部会起线程 | 若链接期仍缺符号再链 `Threads::Threads`；与 dlopen 无关 |
 | `wchar_t` 4 字节 | `LPCWSTR` 是 UTF-32 | `T3D_LOCALE.UTF8ToUnicode()`，见 §6.1.3。**Linux 工厂目前不提供 `createPlatformLocale`**，需随 §9.1 的缺口一起补 |
 | glibc 版本 | 官方预编译 `.so` 在较新 Ubuntu 上构建，老发行版会 `GLIBC_2.xx not found` | 记录最低发行版；或自建。失败信息来自 `SharedLibrary::getLastError()` |
@@ -1123,7 +1123,7 @@ MSL 版本号、argument buffer 策略、`enable_decoration_binding` 等细节�
 
 > **但要让 Metal 那边知道：本方案解除了一条它记录在案的硬约束。** `Metal-Renderer-Backend-todo.md` §22.3 的原话是「Tiny3D 用的 ShaderConductor 封装**没有暴露任何 MSL 选项**（`ShaderConductor.hpp` 的 `TargetDesc` 只有 `language` 与 `version` 两个字段），因此只能在运行时侧偏移」——顶点 buffer 与 cbuffer 的 index 冲突被迫在运行时绕。
 >
-> 换成 `T3DHLSLCross` 之后这个前提不成立了：本库自己持有 `CompilerMSL` 实例，`msl_options` 的全部字段（`shift_vertex_binding`、`enable_decoration_binding`、`argument_buffers`、`msl_version` 等）都可以直接设，只是第一版**选择**不设以保证对拍干净。Metal 后端设计时应当重新权衡「编译期 shift」与「运行期 offset」，而不是继续沿用那条已经失效的约束。详见 §12.5。
+> 换成 `HLSLCross` 之后这个前提不成立了：本库自己持有 `CompilerMSL` 实例，`msl_options` 的全部字段（`shift_vertex_binding`、`enable_decoration_binding`、`argument_buffers`、`msl_version` 等）都可以直接设，只是第一版**选择**不设以保证对拍干净。Metal 后端设计时应当重新权衡「编译期 shift」与「运行期 offset」，而不是继续沿用那条已经失效的约束。详见 §12.5。
 
 ### 6.3 编排层
 
@@ -1475,7 +1475,7 @@ add_library(spirv-cross STATIC ${SPIRV_CROSS_SOURCES})
 
 target_include_directories(spirv-cross PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
-# 关键：这个静态库要被链进动态库 T3DHLSLCross，必须编成位置无关代码。
+# 关键：这个静态库要被链进动态库 HLSLCross，必须编成位置无关代码。
 # 缺了它，Linux 上会报
 #   relocation R_X86_64_32 against '.rodata' can not be used
 #   when making a shared object; recompile with -fPIC
@@ -1588,10 +1588,10 @@ mark_as_advanced(DXC_INCLUDE_DIR DXC_BINARY)
 
 ```cmake
 #-------------------------------------------------------------------------------
-# T3DHLSLCross：HLSL 跨平台编译动态库（DXC + SPIRV-Cross）
+# HLSLCross：HLSL 跨平台编译动态库（DXC + SPIRV-Cross）
 #-------------------------------------------------------------------------------
 
-set_project_name(T3DHLSLCross)
+set_project_name(HLSLCross)
 
 find_package(DXC REQUIRED)
 
@@ -1691,19 +1691,19 @@ set_property(TARGET ${LIB_NAME} PROPERTY FOLDER "Tools")
 - find_package(ShaderConductor)
 ```
 
-`include_directories` 里 `"${SHADERCONDUCTOR_INCLUDE_DIR}"` 删掉（`T3DHLSLCross` 通过 `target_include_directories(... PUBLIC ...)` 自动传递）。
+`include_directories` 里 `"${SHADERCONDUCTOR_INCLUDE_DIR}"` 删掉（`HLSLCross` 通过 `target_include_directories(... PUBLIC ...)` 自动传递）。
 
 `target_link_libraries` 有三个平台分支，但**不是简单的三处替换**：
 
 | 分支 | 现状 | 改法 |
 |------|------|------|
-| `TINY3D_OS_WINDOWS`（:94） | 有 `${SHADERCONDUCTOR_LIBRARY}` | 替换为 `T3DHLSLCross` |
-| `TINY3D_OS_MACOSX`（:136） | 有 `${SHADERCONDUCTOR_LIBRARY}` | 替换为 `T3DHLSLCross` |
-| `TINY3D_OS_LINUX`（:183-192） | **没有**链接 ShaderConductor | **新增** `T3DHLSLCross` |
+| `TINY3D_OS_WINDOWS`（:94） | 有 `${SHADERCONDUCTOR_LIBRARY}` | 替换为 `HLSLCross` |
+| `TINY3D_OS_MACOSX`（:136） | 有 `${SHADERCONDUCTOR_LIBRARY}` | 替换为 `HLSLCross` |
+| `TINY3D_OS_LINUX`（:183-192） | **没有**链接 ShaderConductor | **新增** `HLSLCross` |
 
 Linux 分支从来没链接过 ShaderConductor，`dependencies/shaderconductor/prebuilt/` 也只有 `OSX` 和 `Win32` 两个目录。也就是说 `scc` 在 Linux 上一直处于「一编译就 undefined reference to `ShaderConductor::Compiler::Compile`」的状态——只做替换不做新增的话，Linux 依然编不过。详见 §9.1。
 
-Windows 分支的 `DXCOMPILER_BINARY` 与 PRE_LINK 拷贝整段删掉。**`scc` 不再负责拷 dxcompiler**——那件事移到了 `T3DHLSLCross` 自己的 POST_BUILD（§8.3），因为 dxcompiler 现在是以「`T3DHLSLCross` 同级目录」为锚点查找的：
+Windows 分支的 `DXCOMPILER_BINARY` 与 PRE_LINK 拷贝整段删掉。**`scc` 不再负责拷 dxcompiler**——那件事移到了 `HLSLCross` 自己的 POST_BUILD（§8.3），因为 dxcompiler 现在是以「`HLSLCross` 同级目录」为锚点查找的：
 
 ```cmake
 - set(DXCOMPILER_BINARY "${CMAKE_CURRENT_SOURCE_DIR}/../../../dependencies/ShaderConductor/${SHADERCONDUCTOR_LIB_SUFFIXES}/dxcompiler.dll")
@@ -1717,12 +1717,12 @@ Windows 分支的 `DXCOMPILER_BINARY` 与 PRE_LINK 拷贝整段删掉。**`scc` 
 -     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DXCOMPILER_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
 -     )
 
-+ # T3DHLSLCross 变成动态库后，scc 需要在运行时找到它。
++ # HLSLCross 变成动态库后，scc 需要在运行时找到它。
 + # 拷到 exe 旁边，并让 exe 到自身目录去搜。
 + add_custom_command(TARGET ${BIN_NAME}
 +     POST_BUILD
 +     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-+         "$<TARGET_FILE:T3DHLSLCross>" "$<TARGET_FILE_DIR:${BIN_NAME}>"
++         "$<TARGET_FILE:HLSLCross>" "$<TARGET_FILE_DIR:${BIN_NAME}>"
 +     COMMAND ${CMAKE_COMMAND} -E copy_if_different
 +         "${T3D_DXC_BINARY}" "$<TARGET_FILE_DIR:${BIN_NAME}>"
 +     )
@@ -1742,7 +1742,7 @@ Windows 分支的 `DXCOMPILER_BINARY` 与 PRE_LINK 拷贝整段删掉。**`scc` 
 
 拷贝目标从写死的 `CMAKE_RUNTIME_OUTPUT_DIRECTORY_{DEBUG,RELEASE}` 改成 `$<TARGET_FILE_DIR:>` 生成器表达式，多配置生成器（Xcode / VS）下更可靠。
 
-> **这里有个前后不一致要说明。** §6.1.2 强调「不把 `$ORIGIN` 的配置负担推给使用方」，那句话现在只对 **dxcompiler** 成立——它是运行期 `dlopen` 的，靠绝对路径解析，确实不需要 RPATH。但 `T3DHLSLCross` 本身是 `scc` 的**链接期依赖**，动态链接器要在进程启动时就找到它，这一步绕不开 RPATH。这是改成动态库付出的代价之一（§3.3 第 4 条）。
+> **这里有个前后不一致要说明。** §6.1.2 强调「不把 `$ORIGIN` 的配置负担推给使用方」，那句话现在只对 **dxcompiler** 成立——它是运行期 `dlopen` 的，靠绝对路径解析，确实不需要 RPATH。但 `HLSLCross` 本身是 `scc` 的**链接期依赖**，动态链接器要在进程启动时就找到它，这一步绕不开 RPATH。这是改成动态库付出的代价之一（§3.3 第 4 条）。
 >
 > Windows 无此问题：同目录是 DLL 默认搜索路径之一。
 
@@ -1776,7 +1776,7 @@ Windows 分支的 `DXCOMPILER_BINARY` 与 PRE_LINK 拷贝整段删掉。**`scc` 
   endif (NOT TINY3D_BUILD_RTTR_TOOL)
 ```
 
-`HLSLCross` 必须排在 `ShaderCrossCompiler` **之前**：§8.4 的 POST_BUILD 用了 `$<TARGET_FILE:T3DHLSLCross>`，同时还要读 `T3DHLSLCross` 在 §8.3 里写进缓存的 `T3D_DXC_BINARY`，这两样都要求目标已经定义。
+`HLSLCross` 必须排在 `ShaderCrossCompiler` **之前**：§8.4 的 POST_BUILD 用了 `$<TARGET_FILE:HLSLCross>`，同时还要读 `HLSLCross` 在 §8.3 里写进缓存的 `T3D_DXC_BINARY`，这两样都要求目标已经定义。
 
 ### 8.7 `source/CMakeLists.txt`（改动）
 
@@ -1829,7 +1829,7 @@ endif ()
 
 ```mermaid
 flowchart TD
-    SCC["ShaderCrossCompiler<br/>(scc)"] -->|"链接期"| HC["T3DHLSLCross<br/><b>动态库</b>"]
+    SCC["ShaderCrossCompiler<br/>(scc)"] -->|"链接期"| HC["HLSLCross<br/><b>动态库</b>"]
     BG["BuiltinGenerator"] -.->|"链接被删除"| X["(无)"]
 
     HC -->|"链接期"| PLAT["T3DPlatform<br/>SharedLibrary"]
@@ -1845,16 +1845,16 @@ flowchart TD
 
 | 依赖 | 形态 | 定位方式 | 是否需要 RPATH |
 |------|------|----------|----------------|
-| `T3DHLSLCross` ← `scc` | 链接期 | 动态链接器启动时解析 | **需要**（`$ORIGIN` / `@executable_path`） |
-| `T3DPlatform` ← `T3DHLSLCross` | 链接期 | 与其他 Tools 一样跟 exe 同目录 + RPATH | 同上 |
-| `libdxcompiler` ← `T3DHLSLCross` | 运行期 `SharedLibrary::open` | 本库拼绝对路径 | 不需要 |
-| `spirv-cross` ← `T3DHLSLCross` | 静态吸收 | 无（已在库内） | 不适用 |
+| `HLSLCross` ← `scc` | 链接期 | 动态链接器启动时解析 | **需要**（`$ORIGIN` / `@executable_path`） |
+| `T3DPlatform` ← `HLSLCross` | 链接期 | 与其他 Tools 一样跟 exe 同目录 + RPATH | 同上 |
+| `libdxcompiler` ← `HLSLCross` | 运行期 `SharedLibrary::open` | 本库拼绝对路径 | 不需要 |
+| `spirv-cross` ← `HLSLCross` | 静态吸收 | 无（已在库内） | 不适用 |
 
-`spirv-cross` 被静态链进 `T3DHLSLCross` 且符号隐藏，对外完全不可见——这是做成动态库反而更干净的一点：使用方既看不到 spirv-cross 的头文件，也看不到它的符号。
+`spirv-cross` 被静态链进 `HLSLCross` 且符号隐藏，对外完全不可见——这是做成动态库反而更干净的一点：使用方既看不到 spirv-cross 的头文件，也看不到它的符号。
 
 ### 9.1 跨平台可行性
 
-`T3DHLSLCross` 的源码本身是平台无关的：不含任何 Windows / POSIX 系统调用，动态库加载走 `SharedLibrary`，路径分隔符走 `Dir`。真正决定能不能跨平台的是两个依赖：
+`HLSLCross` 的源码本身是平台无关的：不含任何 Windows / POSIX 系统调用，动态库加载走 `SharedLibrary`，路径分隔符走 `Dir`。真正决定能不能跨平台的是两个依赖：
 
 | 依赖 | 形态 | Windows | macOS arm64 | Linux x64 | Linux arm64 |
 |------|------|---------|-------------|-----------|-------------|
@@ -1884,9 +1884,9 @@ DXC 用 COM 风格接口，非 Windows 下由 `dxc/WinAdapter.h` 补齐 `IUnknow
 
 **3. 跨库边界上没有 STL。** `DxcCreateInstance` 是 C 导出，接口是纯虚 vtable，字符串走 `IDxcBlob`。因此预编译的 dxcompiler 用哪个 libstdc++ / libc++ 编的都不影响——这也是选运行期加载而非静态链接的附带好处。
 
-#### Linux 是 `T3DHLSLCross` 的一等目标
+#### Linux 是 `HLSLCross` 的一等目标
 
-**明确要求：`T3DHLSLCross` 这个库本身必须在 Linux 上编得过、跑得对，Linux 与 Windows / macOS 同等对待。**
+**明确要求：`HLSLCross` 这个库本身必须在 Linux 上编得过、跑得对，Linux 与 Windows / macOS 同等对待。**
 
 历史上 ShaderConductor 从未在 Linux 上跑通（`ShaderCrossCompiler/CMakeLists.txt:183-192` 的 Linux 分支不链接 `${SHADERCONDUCTOR_LIBRARY}`、`dependencies/shaderconductor/prebuilt/` 没有 Linux 目录、CMake 大小写不匹配即缺陷 D8），但那是**没做移植**的结果，不是技术障碍。本次不沿用这个状态。
 
@@ -1907,11 +1907,11 @@ DXC 用 COM 风格接口，非 Windows 下由 `dxc/WinAdapter.h` 补齐 `IUnknow
 | **`T3DPlatform` 自身 Linux 可用** | 见下方「`T3DPlatform` 的 Linux 缺口」 |
 | 完整清单 | §6.1.2.1 |
 
-需要区分的是**库**和**它的使用方**：`T3DHLSLCross` 承诺 Linux 可用；但 `scc` 这个可执行程序在 Linux 上还依赖 `T3DCoreEditor` / `rttr_core` 等一串东西，那些的 Linux 移植不在本方案范围内。换句话说，本方案交付一个 Linux 上确定可用的 `T3DHLSLCross`，`scc` 整体能否在 Linux 跑起来取决于其他工程各自的移植进度。
+需要区分的是**库**和**它的使用方**：`HLSLCross` 承诺 Linux 可用；但 `scc` 这个可执行程序在 Linux 上还依赖 `T3DCoreEditor` / `rttr_core` 等一串东西，那些的 Linux 移植不在本方案范围内。换句话说，本方案交付一个 Linux 上确定可用的 `HLSLCross`，`scc` 整体能否在 Linux 跑起来取决于其他工程各自的移植进度。
 
 #### `T3DPlatform` 的 Linux 缺口
 
-平台调用下沉之后，`T3DHLSLCross` 的 Linux 可用性**不再只取决于本库**，而是连带取决于 `T3DPlatform`。按当前代码核对，`T3DPlatform` 在 Linux 上有三处缺口：
+平台调用下沉之后，`HLSLCross` 的 Linux 可用性**不再只取决于本库**，而是连带取决于 `T3DPlatform`。按当前代码核对，`T3DPlatform` 在 Linux 上有三处缺口：
 
 | 缺口 | 现状 | 对本库的影响 |
 |------|------|--------------|
@@ -1926,7 +1926,7 @@ DXC 用 COM 风格接口，非 Windows 下由 `dxc/WinAdapter.h` 补齐 `IUnknow
 
 这部分工作**归 `T3DPlatform`，不归本库**，也不应在 `T3DDxcDriver.cpp` 里绕开——绕开等于把 `dladdr` 写回本库，违背 §6.1.1。它是阶段 9（§11）的前置条件，已在 [`Platform-SharedLibrary-Abstraction-todo.md`](Platform-SharedLibrary-Abstraction-todo.md) §8 列为 **P1b**。
 
-另外要接受一个事实：`T3DPlatform` 在 Linux 分支链接 X11 与 SDL2（`source/Platform/CMakeLists.txt:225-230`），因此 `T3DHLSLCross` 在 Linux 上**间接依赖 SDL2 / X11**。这对开发机上的离线工具不构成问题，但无头 CI 机器需要装好这两个库的运行时。
+另外要接受一个事实：`T3DPlatform` 在 Linux 分支链接 X11 与 SDL2（`source/Platform/CMakeLists.txt:225-230`），因此 `HLSLCross` 在 Linux 上**间接依赖 SDL2 / X11**。这对开发机上的离线工具不构成问题，但无头 CI 机器需要装好这两个库的运行时。
 
 #### macOS
 
@@ -2020,22 +2020,22 @@ lipo -archs build-arm64/.../scc          # 应输出 "arm64"
 
 ### 10.4 Linux 验证
 
-Linux 是一等目标（§9.1），但 `scc` 整体还没移植，所以**验证对象是 `T3DHLSLCross` 库本身**，用一个不依赖 Core 的独立测试程序驱动。它只链 `T3DHLSLCross` + `T3DPlatform`（后者间接带 SDL2 / X11，见 §9.1），`main` 开头必须先 `new Platform()`，否则 `SharedLibrary` 构造即崩溃（§6.1.2）。前提是 §9.1「`T3DPlatform` 的 Linux 缺口」已补齐：
+Linux 是一等目标（§9.1），但 `scc` 整体还没移植，所以**验证对象是 `HLSLCross` 库本身**，用一个不依赖 Core 的独立测试程序驱动。它只链 `HLSLCross` + `T3DPlatform`（后者间接带 SDL2 / X11，见 §9.1），`main` 开头必须先 `new Platform()`，否则 `SharedLibrary` 构造即崩溃（§6.1.2）。前提是 §9.1「`T3DPlatform` 的 Linux 缺口」已补齐：
 
 ```bash
 cd source
 cmake -B build-linux -G Ninja .
-cmake --build build-linux --target T3DHLSLCross
+cmake --build build-linux --target HLSLCross
 cmake --build build-linux --target hlslcross_smoke   # 步骤 2 的独立 demo，复用它
 ```
 
 要确认的点，对应 §6.1.2.1 清单：
 
 1. **`.so` 编得出来**：`spirv-cross` 若漏了 `POSITION_INDEPENDENT_CODE`，这一步就会报 `relocation R_X86_64_32 ... recompile with -fPIC`
-2. **dxcompiler 能加载**：`libdxcompiler.so` 放在 `libT3DHLSLCross.so` 旁边（不是测试程序旁边），确认 `SharedLibrary::getModuleDir` 锚点生效（返回非空且等于 `.so` 所在目录）
+2. **dxcompiler 能加载**：`libdxcompiler.so` 放在 `libHLSLCross.so` 旁边（不是测试程序旁边），确认 `SharedLibrary::getModuleDir` 锚点生效（返回非空且等于 `.so` 所在目录）
 3. **报错信息有用**：故意把 `libdxcompiler.so` 挪走，确认提示里带 `dlerror()` 原文而不是一句空泛的 not found；且**不应**出现 "module directory unavailable"，出现说明 `LinuxPlatform` 没接上
 4. **环境变量兜底**：`T3D_DXCOMPILER_PATH` 指向别处，确认优先级最高
-5. **符号确实藏住了**：`nm -D --defined-only libT3DHLSLCross.so | grep -c spirv_cross` 应为 0；同时 `nm -D` 能看到 `Tiny3D::HLSLCrossCompiler` 的导出符号。这条直接验证 §3.3 第 3 条
+5. **符号确实藏住了**：`nm -D --defined-only libHLSLCross.so | grep -c spirv_cross` 应为 0；同时 `nm -D` 能看到 `Tiny3D::HLSLCrossCompiler` 的导出符号。这条直接验证 §3.3 第 3 条
 6. **产物一致**：同一批 shader，Linux 产出的 SPIR-V 与 Windows 逐字节 diff。**这是最关键的一条**——SPIR-V 是确定性输出，不应有平台差异，有差异说明 `wchar_t` 转换或参数组装出了问题
 7. **大小写敏感**：放一个 `#include "Common.hlsli"` 但磁盘上是 `common.hlsli` 的用例，确认在 Linux 上如期报错（Windows/macOS 上会静默通过，这正是要防的回归）
 8. **符号隔离**：若测试程序同时链了 `dependencies/llvm`，确认 `RTLD_LOCAL` 下没有 LLVM 符号冲突
@@ -2051,7 +2051,7 @@ arm64 Linux 若有设备，重复第 4 条即可。
 | 1 | 依赖准备 **+ 参数考古** | `dependencies/dxc/`（含 universal dylib）、`dependencies/spirv-cross/` + 其 CMakeLists、`FindDXC.cmake`；**§6.1.3 绑定偏移参数表填写完毕** | `cmake` 配置通过，`spirv-cross` 静态库编出来且带 PIC；§6.1.3 中 `-fvk-*-shift` / `-fvk-use-dx-layout` 各项均已从 ShaderConductor 源码核实，无"待定" |
 | 2 | DXC 驱动 | `T3DDxcDriver.h/.cpp`（经 `SharedLibrary` 加载 dxcompiler，**不**手写 `dlopen`） | 独立小 demo：HLSL 出 SPIR-V，与命令行 `dxc -spirv` 结果一致；`T3DDxcDriver.cpp` 不含 `<windows.h>` / `<dlfcn.h>` |
 | 3 | SPIRV-Cross 驱动 | `T3DSpirvCrossDriver.h/.cpp` | 四路后端各出一份代码，人工检查可读性与正确性 |
-| 4 | 编排层 + 语义修复 | `T3DHLSLCrossPrerequisites.h`、`T3DHLSLCrossCompiler.h/.cpp`、`T3DHLSLSemanticFix.*`、`CMakeLists.txt` | `T3DHLSLCross` 动态库编出来；三平台各自能被一个 demo 链接并跑通 |
+| 4 | 编排层 + 语义修复 | `T3DHLSLCrossPrerequisites.h`、`T3DHLSLCrossCompiler.h/.cpp`、`T3DHLSLSemanticFix.*`、`CMakeLists.txt` | `HLSLCross` 动态库编出来；三平台各自能被一个 demo 链接并跑通 |
 | 5 | **对拍** | `scc` 加临时 `--backend` 开关，新旧并存 | §10.1 全矩阵通过，**含 §10.1.1 的 compute 四条（C1-C4）** |
 | 6 | 调用点改写 | `T3DShaderCompiler.cpp` / `.h` 改造，删临时开关 | §10.2 端到端通过 |
 | 7 | CMake 清理 | 删闸门、删 BuiltinGenerator 死链接、删 `dependencies/shaderconductor/` 与 `FindShaderConductor.cmake` | Windows 全量构建通过 |
