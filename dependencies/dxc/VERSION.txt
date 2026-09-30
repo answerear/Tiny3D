@@ -1,0 +1,23 @@
+DirectXShaderCompiler
+https://github.com/microsoft/DirectXShaderCompiler
+
+include/dxc/dxcapi.h, dxcerrors.h, WinAdapter.h
+    release v1.9.2607
+
+prebuilt/Windows/x64/dxcompiler.dll
+    commit 2dec1cd0，取自原 dependencies/shaderconductor/prebuilt/win32/x64。
+    与 ShaderConductor 时代的 scc 用的是同一个二进制，保证替换前后逐字节对拍。
+    升级时替换为 release 包 bin/x64/dxcompiler.dll，可先用环境变量
+    T3D_DXCOMPILER_PATH 指向新 dll 做对拍，确认差异可接受后再落盘。
+
+prebuilt/Linux/x64/libdxcompiler.so
+    release v1.9.2607（linux_dxc_2026_07_29.x86_64.tar.gz 的 lib/libdxcompiler.so），
+    已用 llvm-strip --strip-unneeded 去掉调试符号（315MB -> 24.6MB）。
+    注意：与 Windows 版本不同，Linux 产出的 SPIR-V 与 Windows 不保证逐字节一致。
+
+prebuilt/OSX/libdxcompiler.dylib
+    过渡用，取自原 dependencies/shaderconductor/prebuilt/OSX，与 ShaderConductor 时代同版本，
+    只有 x86_64 切片。改为 arm64 / universal 构建时需要换成 universal 二进制，
+    FindDXC.cmake 会用 lipo 检查切片是否覆盖 CMAKE_OSX_ARCHITECTURES。
+
+只用到 IDxcLibrary / IDxcCompiler 这组老接口，两个版本都提供。

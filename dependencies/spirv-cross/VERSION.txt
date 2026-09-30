@@ -1,0 +1,8 @@
+SPIRV-Cross
+https://github.com/KhronosGroup/SPIRV-Cross
+
+commit cb686a5dba9a7086a778fe21900383beed9ea5d3
+
+与 ShaderConductor 4f36caf 锁定的子模块版本一致，保证替换前后逐字节对拍。
+只收 GLSL / HLSL / MSL 三个后端所需的源文件，构建见 CMakeLists.txt。
+升级后必须重新跑 doc/todo/ShaderConductor-Replacement-todo.md §10.1 的对拍。
