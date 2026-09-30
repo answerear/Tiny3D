@@ -33,13 +33,13 @@
 // 等于默认导出全部符号，会让静态吸收进来的 spirv-cross 符号泄漏到全局符号表。
 // 本库配合 CXX_VISIBILITY_PRESET hidden，只导出显式标注的接口。
 #if defined (T3D_OS_WINDOWS)
-    #if defined (T3DHLSLCROSS_EXPORT)
+    #if defined (HLSLCROSS_EXPORT)
         #define T3D_HLSLCROSS_API   __declspec(dllexport)
     #else
         #define T3D_HLSLCROSS_API   __declspec(dllimport)
     #endif
 #else
-    #if defined (T3DHLSLCROSS_EXPORT)
+    #if defined (HLSLCROSS_EXPORT)
         #define T3D_HLSLCROSS_API   __attribute__((visibility("default")))
     #else
         #define T3D_HLSLCROSS_API

@@ -76,7 +76,7 @@ if (TINY3D_OS_WINDOWS)
 		T3DFramework
 		T3DCoreEditor
         rttr_core
-        T3DHLSLCross
+        HLSLCross
         #${PROTOBUF_LITE_LIBRARY_D}
         #${PROTOBUF_LIBRARY}
         )
@@ -108,7 +108,7 @@ elseif (TINY3D_OS_MACOSX)
         T3DCoreEditor
         rttr_core
         #${PROTOBUF_LIBRARY}
-        T3DHLSLCross
+        HLSLCross
         )
 
     set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME scc)
@@ -164,7 +164,7 @@ elseif (TINY3D_OS_LINUX)
         T3DMath
         T3DCoreEditor
         rttr_core
-        T3DHLSLCross
+        HLSLCross
         )
 
     set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME scc)
@@ -177,12 +177,12 @@ elseif (TINY3D_OS_LINUX)
         )
 endif (TINY3D_OS_WINDOWS)
 
-# T3DHLSLCross 是链接期依赖，要和 scc 放在一起；dxcompiler 以 T3DHLSLCross 所在目录为锚点
+# HLSLCross 是链接期依赖，要和 scc 放在一起；dxcompiler 以 HLSLCross 所在目录为锚点
 # 运行期加载，所以也要跟过来。Windows 上三者本就输出到同一目录，拷贝是空操作
 add_custom_command(TARGET ${BIN_NAME}
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "$<TARGET_FILE:T3DHLSLCross>" "$<TARGET_FILE_DIR:${BIN_NAME}>"
+        "$<TARGET_FILE:HLSLCross>" "$<TARGET_FILE_DIR:${BIN_NAME}>"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${T3D_DXC_BINARY}" "$<TARGET_FILE_DIR:${BIN_NAME}>"
     )

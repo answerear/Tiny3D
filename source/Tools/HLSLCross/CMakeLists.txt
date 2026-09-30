@@ -6,10 +6,10 @@
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
-# T3DHLSLCross：HLSL 跨平台编译动态库（DXC + SPIRV-Cross）
+# HLSLCross：HLSL 跨平台编译动态库（DXC + SPIRV-Cross）
 #-------------------------------------------------------------------------------
 
-set_project_name(T3DHLSLCross)
+set_project_name(HLSLCross)
 
 message(STATUS "Generating project : ${BIN_NAME}")
 

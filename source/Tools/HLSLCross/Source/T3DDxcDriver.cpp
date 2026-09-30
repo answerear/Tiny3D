@@ -165,7 +165,7 @@ namespace Tiny3D
                 {
                     candidates.push_back(Environment::get("T3D_DXCOMPILER_PATH"));
                 }
-                // 2) T3DHLSLCross 自身同级目录（默认部署，三平台一致）
+                // 2) HLSLCross 自身同级目录（默认部署，三平台一致）
                 const String dir = SharedLibrary::getModuleDir((const void *)&moduleDirAnchor);
                 if (!dir.empty())
                 {
@@ -194,7 +194,7 @@ namespace Tiny3D
                 if (mCreateInstance == nullptr)
                 {
                     mError = "Failed to load " + fileName
-                           + ". Put it next to T3DHLSLCross, or set T3D_DXCOMPILER_PATH to its full path.";
+                           + ". Put it next to HLSLCross, or set T3D_DXCOMPILER_PATH to its full path.";
                     if (mLib.isOpen())
                     {
                         mError += " DxcCreateInstance not found: " + mLib.getLastError();
@@ -205,7 +205,7 @@ namespace Tiny3D
                     }
                     if (dir.empty())
                     {
-                        mError += "\n  (T3DHLSLCross module directory unavailable)";
+                        mError += "\n  (HLSLCross module directory unavailable)";
                     }
                 }
             }

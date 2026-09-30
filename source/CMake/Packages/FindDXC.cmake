@@ -12,7 +12,7 @@
 # 输出变量：
 #   DXC_FOUND          - 是否找到
 #   DXC_INCLUDE_DIR    - 头文件目录（含 dxc/dxcapi.h）
-#   DXC_BINARY         - 运行期需要部署到 T3DHLSLCross 旁边的动态库
+#   DXC_BINARY         - 运行期需要部署到 HLSLCross 旁边的动态库
 #
 # 本项目在运行期用 LoadLibrary / dlopen 加载 dxcompiler，因此不导出 link library，
 # 也不需要 import lib。

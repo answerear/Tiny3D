@@ -46,7 +46,7 @@ if (TINY3D_OS_DESKTOP)
 		#add_subdirectory(MetaGenerator)
 		# spirv-cross 源码在仓库外层，需要显式给出 binary 目录
 		add_subdirectory("${TINY3D_DEP_DIR}/spirv-cross" "${CMAKE_BINARY_DIR}/dependencies/spirv-cross")
-		# HLSLCross 必须在 ShaderCrossCompiler 之前：后者要用 T3DHLSLCross 目标与 T3D_DXC_BINARY
+		# HLSLCross 必须在 ShaderCrossCompiler 之前：后者要用 HLSLCross 目标与 T3D_DXC_BINARY
 		add_subdirectory(HLSLCross)
 		add_subdirectory(ShaderCrossCompiler)
 		add_subdirectory(BuiltinGenerator)
