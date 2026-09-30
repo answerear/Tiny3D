@@ -22,43 +22,31 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_SCC_PREREQUISITES_H__
-#define __T3D_SCC_PREREQUISITES_H__
-
-
-#include <Tiny3D.h>
-#include <memory>
-#include <unordered_map>
-#include <T3DHLSLCrossCompiler.h>
+#include "T3DHLSLSemanticFix.h"
 
 
 namespace Tiny3D
 {
-    #define LOG_TAG     "ShaderCrossCompiler"
-    #define CURRENT_VERSION_STR "0.0.1"
+    void fixSpirVCrossForHLSLSemantics(String &content)
+    {
+        String::size_type p0 = 0;
+        while (1)
+        {
+            String::size_type startPos = content.find(" : TEXCOORD", p0);
+            if (startPos == String::npos)
+                break;
 
-    #define SCC_LOG_ERROR(fmt, ...)   \
-        T3D_LOG_ERROR(LOG_TAG, fmt, ##__VA_ARGS__);  \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
+            String::size_type endPos = content.find_first_of(';', startPos);
+            if (endPos == String::npos)
+                break;
 
-    #define SCC_LOG_WARNING(fmt, ...) \
-        T3D_LOG_WARNING(LOG_TAG, fmt, ##__VA_ARGS__);    \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
+            String::size_type p1 = content.rfind('_', startPos);
+            if (p1 == String::npos)
+                break;
 
-    #define SCC_LOG_INFO(fmt, ...)    \
-        T3D_LOG_INFO(LOG_TAG, fmt, ##__VA_ARGS__);   \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
-
-    #define SCC_LOG_DEBUG(fmt, ...)   \
-        T3D_LOG_DEBUG(LOG_TAG, fmt, ##__VA_ARGS__);  \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
-
-    #define ARCHIVE_TYPE_FS     "FileSystem"
+            String semantic = content.substr(p1 + 1, startPos - p1 - 1);
+            content.replace(startPos + 3, endPos - startPos - 3, semantic);
+            p0 = endPos + 1;
+        }
+    }
 }
-
-
-#endif  /*__T3D_SCC_PREREQUISITES_H__*/

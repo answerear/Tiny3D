@@ -22,43 +22,29 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_SCC_PREREQUISITES_H__
-#define __T3D_SCC_PREREQUISITES_H__
+#ifndef __T3D_HLSL_CROSS_PREREQUISITES_H__
+#define __T3D_HLSL_CROSS_PREREQUISITES_H__
 
 
-#include <Tiny3D.h>
-#include <memory>
-#include <unordered_map>
-#include <T3DHLSLCrossCompiler.h>
+#include <T3DPlatformLib.h>
 
 
-namespace Tiny3D
-{
-    #define LOG_TAG     "ShaderCrossCompiler"
-    #define CURRENT_VERSION_STR "0.0.1"
-
-    #define SCC_LOG_ERROR(fmt, ...)   \
-        T3D_LOG_ERROR(LOG_TAG, fmt, ##__VA_ARGS__);  \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
-
-    #define SCC_LOG_WARNING(fmt, ...) \
-        T3D_LOG_WARNING(LOG_TAG, fmt, ##__VA_ARGS__);    \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
-
-    #define SCC_LOG_INFO(fmt, ...)    \
-        T3D_LOG_INFO(LOG_TAG, fmt, ##__VA_ARGS__);   \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
-
-    #define SCC_LOG_DEBUG(fmt, ...)   \
-        T3D_LOG_DEBUG(LOG_TAG, fmt, ##__VA_ARGS__);  \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
-
-    #define ARCHIVE_TYPE_FS     "FileSystem"
-}
+// 不直接用 T3D_EXPORT_API / T3D_IMPORT_API：那两个宏在 macOS / Linux 分支上是空的，
+// 等于默认导出全部符号，会让静态吸收进来的 spirv-cross 符号泄漏到全局符号表。
+// 本库配合 CXX_VISIBILITY_PRESET hidden，只导出显式标注的接口。
+#if defined (T3D_OS_WINDOWS)
+    #if defined (T3DHLSLCROSS_EXPORT)
+        #define T3D_HLSLCROSS_API   __declspec(dllexport)
+    #else
+        #define T3D_HLSLCROSS_API   __declspec(dllimport)
+    #endif
+#else
+    #if defined (T3DHLSLCROSS_EXPORT)
+        #define T3D_HLSLCROSS_API   __attribute__((visibility("default")))
+    #else
+        #define T3D_HLSLCROSS_API
+    #endif
+#endif
 
 
-#endif  /*__T3D_SCC_PREREQUISITES_H__*/
+#endif  /*__T3D_HLSL_CROSS_PREREQUISITES_H__*/

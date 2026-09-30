@@ -248,8 +248,6 @@ namespace Tiny3D
         
         bool compileShaderSnippet(const ShaderSnippet &snippet, const CompilePostProcessor &postProcessor);
 
-        void fixSpirVCrossForHLSLSemantics(String& content);
-
         /**
          * \brief scc 目标语言字符串 → 引擎 SHADER_LANGUAGE 枚举
          * \param [in] target : 目标语言字符串（hlsl/glsl/essl/spirv/msl 等）

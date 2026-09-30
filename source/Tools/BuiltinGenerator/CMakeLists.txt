@@ -24,8 +24,6 @@ endif (MSVC)
 
 add_definitions(-DT3D_EDITOR)
 
-find_package(ShaderConductor)
-
 # Setup project include files path
 include_directories(
     "${TINY3D_PLATFORM_INC_DIR}"
@@ -67,7 +65,6 @@ if (TINY3D_OS_WINDOWS)
 		T3DFramework
 		T3DCoreEditor
         rttr_core
-        ${SHADERCONDUCTOR_LIBRARY}
         #${PROTOBUF_LITE_LIBRARY_D}
         #${PROTOBUF_LIBRARY}
         )
@@ -105,7 +102,6 @@ elseif (TINY3D_OS_MACOSX)
         T3DCoreEditor
         rttr_core
         #${PROTOBUF_LIBRARY}
-        ${SHADERCONDUCTOR_LIBRARY}
         )
 
     # Setup all properties for this Mac OS X project.

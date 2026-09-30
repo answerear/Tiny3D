@@ -22,43 +22,33 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_SCC_PREREQUISITES_H__
-#define __T3D_SCC_PREREQUISITES_H__
+#ifndef __T3D_DXC_DRIVER_H__
+#define __T3D_DXC_DRIVER_H__
 
 
-#include <Tiny3D.h>
-#include <memory>
-#include <unordered_map>
-#include <T3DHLSLCrossCompiler.h>
+#include "T3DHLSLCrossCompiler.h"
 
 
 namespace Tiny3D
 {
-    #define LOG_TAG     "ShaderCrossCompiler"
-    #define CURRENT_VERSION_STR "0.0.1"
+    /**
+     * @class   DxcDriver
+     * @brief   DXC 封装：HLSL → SPIR-V
+     * @remarks dxcompiler 在运行期经 SharedLibrary 加载，dxcapi.h 只在 .cpp 里可见。
+     *          走 IDxcLibrary / IDxcCompiler 这组老接口，新旧 DXC 都提供，
+     *          ShaderConductor 当年也是这组，便于对拍。
+     */
+    class DxcDriver
+    {
+    public:
+        static bool compileToSpirV(const HLSLCrossSource &source,
+                                   const HLSLCrossOptions &options,
+                                   TArray<uint8_t> &outSpirv,
+                                   String &outMessage);
 
-    #define SCC_LOG_ERROR(fmt, ...)   \
-        T3D_LOG_ERROR(LOG_TAG, fmt, ##__VA_ARGS__);  \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
-
-    #define SCC_LOG_WARNING(fmt, ...) \
-        T3D_LOG_WARNING(LOG_TAG, fmt, ##__VA_ARGS__);    \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
-
-    #define SCC_LOG_INFO(fmt, ...)    \
-        T3D_LOG_INFO(LOG_TAG, fmt, ##__VA_ARGS__);   \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
-
-    #define SCC_LOG_DEBUG(fmt, ...)   \
-        T3D_LOG_DEBUG(LOG_TAG, fmt, ##__VA_ARGS__);  \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
-
-    #define ARCHIVE_TYPE_FS     "FileSystem"
+        static bool isAvailable(String &outMessage);
+    };
 }
 
 
-#endif  /*__T3D_SCC_PREREQUISITES_H__*/
+#endif  /*__T3D_DXC_DRIVER_H__*/

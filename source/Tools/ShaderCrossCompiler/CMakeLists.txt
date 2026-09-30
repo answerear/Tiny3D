@@ -24,18 +24,6 @@ endif (MSVC)
 
 add_definitions(-DT3D_EDITOR)
 
-set(SHADERCONDUCTOR_HOME "${TINY3D_DEP_DIR}/ShaderConductor" CACHE PATH "ShaderConductor library path")
-
-if (TINY3D_OS_WINDOWS)
-    set(SHADERCONDUCTOR_LIB_SUFFIXES "prebuilt/win32/${MSVC_CXX_ARCHITECTURE_ID}")
-elseif (TINY3D_OS_MACOSX)
-    set(SHADERCONDUCTOR_LIB_SUFFIXES "prebuilt/OSX")
-elseif (TINY3D_OS_LINUX)
-    set(SHADERCONDUCTOR_LIB_SUFFIXES "prebuilt/Linux")
-endif (TINY3D_OS_WINDOWS)
-    
-find_package(ShaderConductor)
-
 # Setup project include files path
 include_directories(
     "${TINY3D_PLATFORM_INC_DIR}"
@@ -50,7 +38,6 @@ include_directories(
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${SDL2_INCLUDE_DIR}"
     "${RTTR_INCLUDE_DIR}"
-    "${SHADERCONDUCTOR_INCLUDE_DIR}"
     #"${PROTOBUF_INCLUDE_DIR}"
     #"${CMAKE_CURRENT_SOURCE_DIR}/../protobuf"
     )
@@ -70,8 +57,6 @@ set_project_files(Source\\\\Parser ${CMAKE_CURRENT_SOURCE_DIR}/Source/Parser/ .c
 
 if (TINY3D_OS_WINDOWS)
     # Setup executable project for Windows.
-    set(DXCOMPILER_BINARY "${CMAKE_CURRENT_SOURCE_DIR}/../../../dependencies/ShaderConductor/${SHADERCONDUCTOR_LIB_SUFFIXES}/dxcompiler.dll")
-
     # target_compile_options(${LIB_NAME} PRIVATE "/wd4251")
 
     add_compile_options("/wd4251")
@@ -91,22 +76,12 @@ if (TINY3D_OS_WINDOWS)
 		T3DFramework
 		T3DCoreEditor
         rttr_core
-        ${SHADERCONDUCTOR_LIBRARY}
+        T3DHLSLCross
         #${PROTOBUF_LITE_LIBRARY_D}
         #${PROTOBUF_LIBRARY}
         )
 
     set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME scc)
-
-    add_custom_command(TARGET ${BIN_NAME}
-        PRE_LINK
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SHADERCONDUCTOR_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SHADERCONDUCTOR_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DXCOMPILER_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DXCOMPILER_BINARY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}
-        )
 
     # Setup install files and path for Windows.
     install(TARGETS ${BIN_NAME}
@@ -133,7 +108,7 @@ elseif (TINY3D_OS_MACOSX)
         T3DCoreEditor
         rttr_core
         #${PROTOBUF_LIBRARY}
-        ${SHADERCONDUCTOR_LIBRARY}
+        T3DHLSLCross
         )
 
     set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME scc)
@@ -189,17 +164,40 @@ elseif (TINY3D_OS_LINUX)
         T3DMath
         T3DCoreEditor
         rttr_core
+        T3DHLSLCross
         )
 
     set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME scc)
 
-    # Setup install files and path for Windows.
+    # Setup install files and path for Linux.
     install(TARGETS ${BIN_NAME}
         RUNTIME DESTINATION bin/debug CONFIGURATIONS Debug
         LIBRARY DESTINATION bin/debug CONFIGURATIONS Debug
         ARCHIVE DESTINATION lib/debug CONFIGURATIONS Debug
         )
 endif (TINY3D_OS_WINDOWS)
+
+# T3DHLSLCross 是链接期依赖，要和 scc 放在一起；dxcompiler 以 T3DHLSLCross 所在目录为锚点
+# 运行期加载，所以也要跟过来。Windows 上三者本就输出到同一目录，拷贝是空操作
+add_custom_command(TARGET ${BIN_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "$<TARGET_FILE:T3DHLSLCross>" "$<TARGET_FILE_DIR:${BIN_NAME}>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${T3D_DXC_BINARY}" "$<TARGET_FILE_DIR:${BIN_NAME}>"
+    )
+
+if (TINY3D_OS_LINUX)
+    set_target_properties(${BIN_NAME} PROPERTIES
+        BUILD_RPATH   "$ORIGIN"
+        INSTALL_RPATH "$ORIGIN"
+        )
+elseif (TINY3D_OS_MACOSX)
+    set_target_properties(${BIN_NAME} PROPERTIES
+        BUILD_RPATH   "@executable_path"
+        INSTALL_RPATH "@executable_path"
+        )
+endif ()
 
 
 # Setup project folder

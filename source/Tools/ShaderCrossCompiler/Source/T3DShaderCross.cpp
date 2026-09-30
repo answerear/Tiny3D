@@ -67,6 +67,15 @@ namespace Tiny3D
                 break;
             }
 
+            // 放在参数解析之后：--help 之类不编译的调用不该因缺 dxcompiler 而失败
+            String reason;
+            if (!HLSLCrossCompiler::isAvailable(reason))
+            {
+                SCC_LOG_ERROR("Shader compiler backend unavailable: %s", reason.c_str());
+                ret = false;
+                break;
+            }
+
             // 编译生成对应平台的shader以及 render state 文件
             ret = compile(mInputFile, mOutputDir, args);
         } while (false);
@@ -984,7 +993,7 @@ namespace Tiny3D
         printf("Usage : ");
         printf("  scc input_file -t target[,target...] [options]");
         printf("    input_file : The source file.");
-        printf("    -t target_language : Target shading language(s), comma-separated for multiple (glsl, hlsl, essl, dxil, spirv, msl_macos, msl_ios). e.g. -t hlsl,glsl,spirv");
+        printf("    -t target_language : Target shading language(s), comma-separated for multiple (glsl, hlsl, essl, spirv, msl_macos, msl_ios). e.g. -t hlsl,glsl,spirv");
         printf("    Options : ");
         printf("      -v : Print version.");
         printf("      -h : Print help.");

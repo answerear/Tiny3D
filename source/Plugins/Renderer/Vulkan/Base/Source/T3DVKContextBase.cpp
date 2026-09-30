@@ -285,7 +285,7 @@ namespace Tiny3D
                             ? binding->type_description->type_name : binding->name;
 
                         // Strip "type." prefix from cbuffer name if present.
-                        // SPIR-V compiled by ShaderConductor (DXC -> SPIR-V) prepends
+                        // SPIR-V compiled by DXC (-spirv) prepends
                         // "type." to the cbuffer type name (e.g. "type.Tiny3DPerDraw").
                         // The engine material system uses the original name without
                         // this prefix (e.g. "Tiny3DPerDraw").

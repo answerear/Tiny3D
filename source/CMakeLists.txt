@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/../" CACHE PATH "Tiny3D install prefix")
 
-# macOS 预编译第三方库（FreeImage / ShaderConductor / FBX）目前只有 x86_64。
+# macOS 预编译第三方库（FreeImage / FBX）目前只有 x86_64。
 # 必须在 project() 之前设置，Xcode 生成器才会把 ARCHS 写成 Intel。
 # iOS toolchain 会自己设 CMAKE_OSX_ARCHITECTURES，这里不要覆盖。
 if (NOT IOS AND CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
@@ -143,14 +143,6 @@ elseif (UNIX AND NOT APPLE)
 
     set(CMAKE_CXX_FLAGS "-std=c++11 -g -Wno-undefined-var-template")
 endif (WIN32)
-
-# ShaderConductor OSX 预编译库只有 x86_64。若仍按 arm64 配置，则跳过依赖它的主机工具。
-set(TINY3D_BUILD_SHADERCONDUCTOR_TOOLS TRUE)
-if (TINY3D_OS_MACOSX AND CMAKE_OSX_ARCHITECTURES MATCHES "arm64")
-    set(TINY3D_BUILD_SHADERCONDUCTOR_TOOLS FALSE)
-    message(STATUS "Skipping ShaderCrossCompiler/BuiltinGenerator (ShaderConductor prebuilt is x86_64-only)")
-endif ()
-
 
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     add_definitions(-DT3D_OS_X64)
@@ -416,11 +408,11 @@ endif (NOT TINY3D_BUILD_RTTR_TOOL)
 
 if (TINY3D_BUILD_TOOLS)
     add_subdirectory(Tools)
-    if (NOT TINY3D_BUILD_RTTR_TOOL AND TINY3D_BUILD_SHADERCONDUCTOR_TOOLS)
+    if (NOT TINY3D_BUILD_RTTR_TOOL)
 	    add_dependencies(ShaderCrossCompiler T3DCore)
 	    add_dependencies(BuiltinGenerator T3DCore)
         #add_dependencies(T3DPostBuild MetaGenerator)
-	endif (NOT TINY3D_BUILD_RTTR_TOOL AND TINY3D_BUILD_SHADERCONDUCTOR_TOOLS)
+	endif (NOT TINY3D_BUILD_RTTR_TOOL)
 endif(TINY3D_BUILD_TOOLS)
 
 
@@ -462,7 +454,7 @@ endif ()
 # 编辑器与 Sample 是两条独立的资源链路，同一份内置资源要在两边各留一份且 UUID 一致。
 # 这个 target 手工触发（不接进任何构建流程），把 BuiltinGenerator 产出的天空盒资源
 # 同步到 assets/samples/meshes，并用 scc 烘焙出全语言变体的 .tshader。
-if (TINY3D_BUILD_TOOLS AND NOT TINY3D_BUILD_RTTR_TOOL AND TINY3D_BUILD_SHADERCONDUCTOR_TOOLS)
+if (TINY3D_BUILD_TOOLS AND NOT TINY3D_BUILD_RTTR_TOOL)
     add_custom_target(sync_builtin_to_samples
         COMMAND ${CMAKE_COMMAND}
             -DBUILTIN_DIR=${CMAKE_SOURCE_DIR}/../assets/editor/builtin

@@ -229,14 +229,14 @@ namespace Tiny3D
     const String ShaderCompiler::kHull = "hull";
     const String ShaderCompiler::kDomain = "domain";
 
-    const uint32_t ShaderCompiler::kVertexShader = (uint32_t)ShaderConductor::ShaderStage::VertexShader;
-    const uint32_t ShaderCompiler::kFragmentShader = (uint32_t)ShaderConductor::ShaderStage::PixelShader;
-    const uint32_t ShaderCompiler::kComputeShader = (uint32_t)ShaderConductor::ShaderStage::ComputeShader;
-    const uint32_t ShaderCompiler::kGeometryShader = (uint32_t)ShaderConductor::ShaderStage::GeometryShader;
-    const uint32_t ShaderCompiler::kHullShader = (uint32_t)ShaderConductor::ShaderStage::HullShader;
-    const uint32_t ShaderCompiler::kDomainShader = (uint32_t)ShaderConductor::ShaderStage::DomainShader;
+    const uint32_t ShaderCompiler::kVertexShader = (uint32_t)HLSLStage::kVertex;
+    const uint32_t ShaderCompiler::kFragmentShader = (uint32_t)HLSLStage::kPixel;
+    const uint32_t ShaderCompiler::kComputeShader = (uint32_t)HLSLStage::kCompute;
+    const uint32_t ShaderCompiler::kGeometryShader = (uint32_t)HLSLStage::kGeometry;
+    const uint32_t ShaderCompiler::kHullShader = (uint32_t)HLSLStage::kHull;
+    const uint32_t ShaderCompiler::kDomainShader = (uint32_t)HLSLStage::kDomain;
 
-    const uint32_t ShaderCompiler::kStageCount = (uint32_t)ShaderConductor::ShaderStage::NumShaderStages;
+    const uint32_t ShaderCompiler::kStageCount = kHLSLStageCount;
 
     //--------------------------------------------------------------------------
 
@@ -631,111 +631,106 @@ namespace Tiny3D
 
         do 
         {
-            using namespace ShaderConductor;
-
-            Compiler::SourceDesc sourceDesc{};
-            Compiler::TargetDesc targetDesc{};
-
-            auto getShaderStage = [](const String &stage, SHADER_STAGE &type) -> ShaderStage
+            auto getShaderStage = [](const String &stage, SHADER_STAGE &type) -> HLSLStage
             {
                 if (stage == kVertex)
                 {
                     type = SHADER_STAGE::kVertex;
-                    return ShaderStage::VertexShader;
+                    return HLSLStage::kVertex;
                 }
                 else if (stage == kFragment)
                 {
                     type = SHADER_STAGE::kPixel;
-                    return ShaderStage::PixelShader;
+                    return HLSLStage::kPixel;
                 }
                 else if (stage == kGeometry)
                 {
                     type = SHADER_STAGE::kGeometry;
-                    return ShaderStage::GeometryShader;
+                    return HLSLStage::kGeometry;
                 }
                 else if (stage == kHull)
                 {
                     type = SHADER_STAGE::kHull;
-                    return ShaderStage::HullShader;
+                    return HLSLStage::kHull;
                 }
                 else if (stage == kDomain)
                 {
                     type = SHADER_STAGE::kDomain;
-                    return ShaderStage::DomainShader;
+                    return HLSLStage::kDomain;
                 }
                 else if (stage == kCompute)
                 {
                     type = SHADER_STAGE::kCompute;
-                    return ShaderStage::ComputeShader;
+                    return HLSLStage::kCompute;
                 } 
                 else
                 {
                     type = SHADER_STAGE::kVertex;
-                    return ShaderStage::VertexShader;
+                    return HLSLStage::kVertex;
                 }
             };
 
-            // String path;
-
-            auto generateDefinesAndPath = [](const ShaderSnippet& snippet, ShaderConductor::MacroDefine* defines, ShaderKeyword &keyword)
+            // dxil / 裸 msl / 未知 target 过去都会静默编成 HLSL，现在直接报错
+            auto getShadingLanguage = [](const String& str, String &error) -> HLSLTarget
             {
-                // String name;
-                for (size_t i = 0; i < snippet.defines.size(); i++)
-                {
-                    const MacroDefine& define = snippet.defines[i];
-                    defines[i].name = define.name.c_str();
-                    defines[i].value = define.value.c_str();
-                    keyword.addKeyword(defines[i].name);
-                    // name = name + "_" + define.name;
-                }
-
-                // path = outPath + name;
+                if (str == "glsl")
+                    return HLSLTarget::kGlsl;
+                else if (str == "hlsl")
+                    return HLSLTarget::kHlsl;
+                else if (str == "essl")
+                    return HLSLTarget::kEssl;
+                else if (str == "spirv")
+                    return HLSLTarget::kSpirV;
+                else if (str == "msl_macos")
+                    return HLSLTarget::kMslMacOS;
+                else if (str == "msl_ios")
+                    return HLSLTarget::kMslIOS;
+                else if (str == "dxil")
+                    error = "Target 'dxil' is not supported. Use 'hlsl' instead.";
+                else if (str == "msl")
+                    error = "Target 'msl' is ambiguous. Use 'msl_macos' or 'msl_ios'.";
+                else
+                    error = "Unknown target '" + str + "'. Supported: hlsl / glsl / essl / spirv / msl_macos / msl_ios.";
+                return HLSLTarget::kHlsl;
             };
 
-            size_t totalDefines = snippet.defines.size() + mArgs.defines.size();
-            ShaderConductor::MacroDefine* defines = T3D_NEW ShaderConductor::MacroDefine[totalDefines];
+            HLSLCrossTarget tgt;
+            String targetError;
+            tgt.language = getShadingLanguage(mCurrentTarget, targetError);
+            if (!targetError.empty())
+            {
+                SCC_LOG_ERROR("%s", targetError.c_str());
+                ret = false;
+                break;
+            }
+
+            TArray<HLSLMacroDefine> defines;
+            defines.reserve(snippet.defines.size() + mArgs.defines.size());
             ShaderKeyword keyword;
-            generateDefinesAndPath(snippet, defines, keyword);
+            for (const MacroDefine &define : snippet.defines)
+            {
+                defines.push_back({ define.name, define.value });
+                keyword.addKeyword(define.name);
+            }
             keyword.generate();
 
-            // keyword 生成后，再追加命令行 -D 宏到 defines 数组（不影响 keyword 和文件名）
-            for (size_t i = 0; i < mArgs.defines.size(); i++)
+            // keyword 生成后，再追加命令行 -D 宏（不影响 keyword 和文件名）
+            for (const MacroDefine &define : mArgs.defines)
             {
-                size_t idx = snippet.defines.size() + i;
-                defines[idx].name = mArgs.defines[i].name.c_str();
-                defines[idx].value = mArgs.defines[i].value.c_str();
+                defines.push_back({ define.name, define.value });
             }
 
             SHADER_STAGE shaderType;
-            sourceDesc.source = snippet.source.c_str();
-            sourceDesc.stage = getShaderStage(snippet.stage, shaderType);
-            sourceDesc.entryPoint = snippet.entry.c_str();
-            sourceDesc.fileName = mInputPath.c_str();
-            sourceDesc.defines = defines;
-            sourceDesc.numDefines = totalDefines;
-            //sourceDesc.loadIncludeCallback = nullptr;
-
-            auto getShadingLanguage = [](const String& str) -> ShadingLanguage
+            HLSLCrossSource src;
+            src.source = snippet.source;
+            src.fileName = mInputPath;
+            src.entryPoint = snippet.entry;
+            src.stage = getShaderStage(snippet.stage, shaderType);
+            src.defines = std::move(defines);
+            if (!mArgs.include.empty())
             {
-                if (str == "glsl")
-                    return ShadingLanguage::Glsl;
-                else if (str == "hlsl")
-                    return ShadingLanguage::Hlsl;
-                else if (str == "essl")
-                    return ShadingLanguage::Essl;
-                else if (str == "dxil")
-                    return ShadingLanguage::Dxil;
-                else if (str == "spirv")
-                    return ShadingLanguage::SpirV;
-                else if (str == "msl_macos")
-                    return ShadingLanguage::Msl_macOS;
-                else if (str == "msl_ios")
-                    return ShadingLanguage::Msl_iOS;
-                else
-                    return ShadingLanguage::Hlsl;
-            };
-
-            targetDesc.language = getShadingLanguage(mCurrentTarget);
+                src.includeDirs.push_back(mArgs.include);
+            }
 
             // For GLSL/ESSL targets, convert HLSL shader model version to
             // the corresponding GLSL version string that SPIRV-Cross expects
@@ -772,86 +767,53 @@ namespace Tiny3D
                 return "310";
             };
 
-            String glslVersion;
-            if (targetDesc.language == ShadingLanguage::Essl)
+            if (tgt.language == HLSLTarget::kEssl)
             {
-                glslVersion = convertToESSLVersion(snippet.model);
-                targetDesc.version = glslVersion.c_str();
+                tgt.version = convertToESSLVersion(snippet.model);
             }
-            else if (targetDesc.language == ShadingLanguage::Glsl)
+            else if (tgt.language == HLSLTarget::kGlsl)
             {
-                glslVersion = convertToGLSLVersion(snippet.model);
-                targetDesc.version = glslVersion.c_str();
+                tgt.version = convertToGLSLVersion(snippet.model);
             }
             else
             {
-                targetDesc.version = snippet.model.c_str();
+                tgt.version = snippet.model;
             }
 
-            Compiler::Options opt;
+            HLSLCrossOptions opt;
             opt.packMatricesInRowMajor = false;
             opt.optimizationLevel = mArgs.optimizeLevel;
             opt.enableDebugInfo = mArgs.hasOptions(Args::OPT_ENABLE_DEBUG_INFO);
+            // shader model 保持默认 6.0，与 ShaderConductor 一致
 
-            const auto result = Compiler::Compile(sourceDesc, opt, targetDesc);
+            const HLSLCrossResult result = HLSLCrossCompiler::compile(src, opt, tgt);
 
-            if (result.errorWarningMsg != nullptr)
+            if (!result.message.empty())
             {
-                const char* msg = reinterpret_cast<const char*>(result.errorWarningMsg->Data());
-                SCC_LOG_ERROR("Error or warning from shader compiler: %s", String(msg, msg + result.errorWarningMsg->Size()).c_str());
-                DestroyBlob(result.errorWarningMsg);
-                DestroyBlob(result.target);
-                T3D_SAFE_DELETE_ARRAY(defines);
+                if (result.hasError)
+                {
+                    SCC_LOG_ERROR("Shader compile error: %s", result.message.c_str());
+                }
+                else
+                {
+                    SCC_LOG_WARNING("Shader compile warning: %s", result.message.c_str());
+                }
+            }
+
+            if (result.hasError)
+            {
                 ret = false;
                 break;
             }
 
-            if (result.target != nullptr)
+            // HLSL 目标的语义修复已在 HLSLCrossCompiler 内部完成
+            if (!result.target.empty() && postProcessor != nullptr)
             {
-                String content((const char*)result.target->Data(), result.target->Size());
-                if (targetDesc.language == ShadingLanguage::Hlsl)
-                {
-                    // ShaderConductor 有 bug，没有把 hlsl 的 Semantic 记录下来 写回去，
-                    // 所以这里做一次替换，以修复转出来的 hlsl 错误的 Semantic 修饰
-                    fixSpirVCrossForHLSLSemantics(content);
-                }
-                if (postProcessor != nullptr)
-                {
-                    postProcessor(content, std::move(keyword), shaderType);
-                }
+                postProcessor(result.toString(), std::move(keyword), shaderType);
             }
-
-            DestroyBlob(result.errorWarningMsg);
-            DestroyBlob(result.target);
-            T3D_SAFE_DELETE_ARRAY(defines);
         } while (false);
 
         return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void ShaderCompiler::fixSpirVCrossForHLSLSemantics(String& content)
-    {
-        String::size_type p0 = 0;
-        while (1)
-        {
-            String::size_type startPos = content.find(" : TEXCOORD", p0);
-            if (startPos == String::npos)
-                break;
-
-            String::size_type endPos = content.find_first_of(';', startPos);
-            if (endPos == String::npos)
-                break;
-
-            String::size_type p1 = content.rfind('_', startPos);
-            if (p1 == String::npos)
-                break;
-
-            String semantic = content.substr(p1 + 1, startPos - p1 - 1);
-            content.replace(startPos + 3, endPos - startPos - 3, semantic);
-            p0 = endPos + 1;
-        }
     }
 
     //--------------------------------------------------------------------------

@@ -14,7 +14,7 @@ NMAKE_DIR="${SOURCE_DIR}/nmake"
 CMAKE_C_COMPILER="$(xcrun -find cc)"
 CMAKE_CXX_COMPILER="$(xcrun -find c++)"
 
-# 引擎 / Sample / 插件跟仓库里的 OSX 预编译库走 Intel（FreeImage、ShaderConductor、FBX）。
+# 引擎 / Sample / 插件跟仓库里的 OSX 预编译库走 Intel（FreeImage、FBX）。
 # rpp 在 macOS 上链接当前 Xcode 的 libclang（LLVM 15 解析不了新 SDK 的 libc++）。
 ENGINE_ARCH="x86_64"
 TOOL_ARCH="${ENGINE_ARCH}"

@@ -22,43 +22,23 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_SCC_PREREQUISITES_H__
-#define __T3D_SCC_PREREQUISITES_H__
+#ifndef __T3D_HLSL_SEMANTIC_FIX_H__
+#define __T3D_HLSL_SEMANTIC_FIX_H__
 
 
-#include <Tiny3D.h>
-#include <memory>
-#include <unordered_map>
-#include <T3DHLSLCrossCompiler.h>
+#include "T3DHLSLCrossCompiler.h"
 
 
 namespace Tiny3D
 {
-    #define LOG_TAG     "ShaderCrossCompiler"
-    #define CURRENT_VERSION_STR "0.0.1"
-
-    #define SCC_LOG_ERROR(fmt, ...)   \
-        T3D_LOG_ERROR(LOG_TAG, fmt, ##__VA_ARGS__);  \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
-
-    #define SCC_LOG_WARNING(fmt, ...) \
-        T3D_LOG_WARNING(LOG_TAG, fmt, ##__VA_ARGS__);    \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
-
-    #define SCC_LOG_INFO(fmt, ...)    \
-        T3D_LOG_INFO(LOG_TAG, fmt, ##__VA_ARGS__);   \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
-
-    #define SCC_LOG_DEBUG(fmt, ...)   \
-        T3D_LOG_DEBUG(LOG_TAG, fmt, ##__VA_ARGS__);  \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
-
-    #define ARCHIVE_TYPE_FS     "FileSystem"
+    /**
+     * @brief   把 SPIRV-Cross 输出 HLSL 里统一挂上的 TEXCOORD<n> 语义还原成原语义
+     * @remarks DXC 把 stage IO 命名为 in.var.NORMAL，SPIRV-Cross 转成 in_var_NORMAL
+     *          并一律标 TEXCOORD<n>；这里从变量名尾部把语义抠回来。
+     *          算法原样搬自 ShaderCompiler::fixSpirVCrossForHLSLSemantics。
+     */
+    void fixSpirVCrossForHLSLSemantics(String &content);
 }
 
 
-#endif  /*__T3D_SCC_PREREQUISITES_H__*/
+#endif  /*__T3D_HLSL_SEMANTIC_FIX_H__*/

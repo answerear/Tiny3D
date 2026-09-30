@@ -22,43 +22,32 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __T3D_SCC_PREREQUISITES_H__
-#define __T3D_SCC_PREREQUISITES_H__
+#ifndef __T3D_SPIRV_CROSS_DRIVER_H__
+#define __T3D_SPIRV_CROSS_DRIVER_H__
 
 
-#include <Tiny3D.h>
-#include <memory>
-#include <unordered_map>
-#include <T3DHLSLCrossCompiler.h>
+#include "T3DHLSLCrossCompiler.h"
 
 
 namespace Tiny3D
 {
-    #define LOG_TAG     "ShaderCrossCompiler"
-    #define CURRENT_VERSION_STR "0.0.1"
-
-    #define SCC_LOG_ERROR(fmt, ...)   \
-        T3D_LOG_ERROR(LOG_TAG, fmt, ##__VA_ARGS__);  \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
-
-    #define SCC_LOG_WARNING(fmt, ...) \
-        T3D_LOG_WARNING(LOG_TAG, fmt, ##__VA_ARGS__);    \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
-
-    #define SCC_LOG_INFO(fmt, ...)    \
-        T3D_LOG_INFO(LOG_TAG, fmt, ##__VA_ARGS__);   \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
-
-    #define SCC_LOG_DEBUG(fmt, ...)   \
-        T3D_LOG_DEBUG(LOG_TAG, fmt, ##__VA_ARGS__);  \
-        printf(fmt, ##__VA_ARGS__); \
-        printf("\n");
-
-    #define ARCHIVE_TYPE_FS     "FileSystem"
+    /**
+     * @class   SpirvCrossDriver
+     * @brief   SPIRV-Cross 封装：SPIR-V → GLSL / ESSL / HLSL / MSL
+     * @remarks 选项与资源重映射逐项沿用 ShaderConductor 4f36caf 的 ConvertBinary()，
+     *          保证与旧产物逐字节一致。改任何一项都要重新对拍。
+     */
+    class SpirvCrossDriver
+    {
+    public:
+        static bool translate(const TArray<uint8_t> &spirv,
+                              HLSLStage stage,
+                              const String &entryPoint,
+                              const HLSLCrossTarget &target,
+                              String &outSource,
+                              String &outMessage);
+    };
 }
 
 
-#endif  /*__T3D_SCC_PREREQUISITES_H__*/
+#endif  /*__T3D_SPIRV_CROSS_DRIVER_H__*/
