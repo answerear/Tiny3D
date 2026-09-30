@@ -45,4 +45,4 @@ else ()
     target_compile_options(spirv-cross PRIVATE -fexceptions -Wno-deprecated-declarations)
 endif ()
 
-set_property(TARGET spirv-cross PROPERTY FOLDER "Dependencies")
+set_property(TARGET spirv-cross PROPERTY FOLDER "External/spirv-cross")
