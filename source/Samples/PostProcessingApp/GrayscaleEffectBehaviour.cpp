@@ -133,8 +133,6 @@ namespace Tiny3D
             T3D_LOG_ERROR(LOG_TAG_RENDER, "GrayscaleEffectBehaviour: failed to add pass");
             return nullptr;
         }
-        tech->addTag(ShaderLab::kBuiltinTagQueue, ShaderLab::kBuiltinQueueOverlayStr);
-
         const String uniqueSuffix = getUUID().toString();
         ShaderPtr shader = T3D_SHADER_MGR.createShader(String("Hidden-Grayscale-") + uniqueSuffix);
         if (shader == nullptr || !shader->addTechnique(tech))

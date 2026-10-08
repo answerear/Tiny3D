@@ -68,7 +68,8 @@ namespace Tiny3D
             kBuiltinQueueAlphaTest = 2450,
             /// 透明物体，通常在不透明物体之后渲染
             kBuiltinQueueTransparent = 3000,
-            /// UI 与覆盖层，通常最后渲染
+            /// 场景内覆盖效果（镜头光晕、描边等），在本相机场景内最后渲染，仍会经过相机后处理；
+            /// 屏幕空间 UI 需要在后处理之后绘制，不应使用此队列
             kBuiltinQueueOverlay = 4000,
         };
 
