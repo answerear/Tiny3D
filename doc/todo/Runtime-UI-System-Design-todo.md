@@ -7,12 +7,16 @@
 > 本文档为施工蓝图，代码片段均以「建议实现」形式给出并标注现有参考位置，不代表已落地。
 >
 > 本期（Phase 0–4）只做 **屏幕空间 UI + 图片 + 文本 + 按钮 + 容器布局**，不含主题资源化、富文本、世界空间 UI（见 §1.2）。
+>
+> **文档状态**：UI 本体部分已被 [`RmlUi-Integration-Design-todo.md`](RmlUi-Integration-Design-todo.md) 取代；UI 与引擎的接入方式（含绘制时机）以 [`UI-System-Interface-Design-todo.md`](UI-System-Interface-Design-todo.md) 为准。本文中与 UI 无关的两项管线改进（§3.3 队列派发阶段表、§3.4 队列内排序）仍然有效，可独立推进。
+>
+> **已修正的前提**：本文初稿依据 `kBuiltinQueueOverlay` 的旧注释「UI 与覆盖层」，把 Overlay(4000) 当作 UI 的队列槽位。该注释有误，已改为「场景内覆盖效果，仍经过相机后处理」。Overlay 是场景队列，UI 不使用它，屏幕空间 UI 在相机后处理之后绘制（§2.2）。下文涉及这一点的段落均已按此修正。
 
 ---
 
 ## 1. 背景与目标
 
-引擎目前完全没有运行时 UI：编辑器 UI 走 ImGui（`source/Editor/`），但那是编辑器专用、不进 Player、不可在场景里编辑。游戏侧要画一个按钮，今天没有任何可用设施 —— 没有文本渲染、没有 2D 图元组件、没有布局、没有 UI 事件路由。`kBuiltinQueueOverlay = 4000` 已定义但**至今没有任何消费者**。
+引擎目前完全没有运行时 UI：编辑器 UI 走 ImGui（`source/Editor/`），但那是编辑器专用、不进 Player、不可在场景里编辑。游戏侧要画一个按钮，今天没有任何可用设施 —— 没有文本渲染、没有 2D 图元组件、没有布局、没有 UI 事件路由，也没有「相机后处理之后」的绘制点。
 
 ### 1.1 本期目标
 
@@ -49,7 +53,7 @@
 | 输入 | `Input` 单例已存在（[`T3DInput.h:77-125`](../../source/Core/Include/Input/T3DInput.h)），`getMousePosition` / `getMouseButtonDown` / `getTouch`，触摸已转窗口像素 | 事件源直接可用 |
 | **IME 文本输入** | `Input::processEvent` **未处理** `APP_TEXTINPUT` / `APP_TEXTEDITING`（[`T3DInput.cpp:56-84`](../../source/Core/Source/Input/T3DInput.cpp)） | InputField 阶段需补，见 §10 第 13 项 |
 | 代码建 VB/IB + 合批 + scissor | [`ImGuiImplTiny3D.cpp:446-620, 787-813`](../../source/Editor/ImGuiImpl/ImGuiTiny3D/Source/ImGuiImplTiny3D.cpp) 是**完整可抄的成熟范例** | 2D 后端照抄 |
-| 渲染队列 | `kBuiltinQueueOverlay = 4000` 已定义（注释即「UI 与覆盖层」），但**无消费者** | **用它做 UI 的队列槽位**，但不走 `Renderable` 派发路径（§2.2）；派发改为阶段表归并（§3.3） |
+| 渲染队列 | `kBuiltinQueueOverlay = 4000` 是场景内覆盖效果队列（镜头光晕等），画在本相机场景最后、**仍经过后处理** | **UI 不使用渲染队列**，在后处理之后由 `UISystem::render` 绘制（§2.2） |
 | Queue 标签取值 | 设计上是**开放整数域**（支持 `Geometry+100` 式偏移）；但 `toTagValue` 当前只认五个内置名字字符串，偏移语法未实现，且无法识别的值**静默忽略**（[`T3DTechnique.cpp:224-249`](../../source/Core/Source/Material/T3DTechnique.cpp)） | 需补偏移解析器，见 §3.3.1 |
 | 队列派发现状 | 天空盒用 `>= kBuiltinQueueTransparent` 阈值 + `skyboxDrawn` 哨兵 + 循环后兜底分支插入（`T3DForwardRenderPipeline.cpp:590-596, 682-686`） | **前置重构**为阶段表，见 §3.3 |
 | 队列内排序 | **无任何排序**。`RenderGroup = TMap<Material*, Renderables>` 按堆地址迭代；透明队列也没有 back-to-front | **前置重构**为扁平数组 + 显式排序键 + 分段策略，见 §3.4 |
@@ -59,13 +63,15 @@
 | **单通道像素格式** | `PixelFormat` **只有** 16/24/32 位彩色 + 深度格式，**无 A8 / R8**（[`T3DConstant.h:38-60`](../../source/Core/Include/Kernel/T3DConstant.h)） | 字体图集只能用 32 位，见 §7.2 |
 | 事件基础设施 | Framework 层有 `EventManager` / `EventHandler`（句柄制、编辑器在用）；Core 层**无** Signal / Delegate 模板 | UI 回调用 `TFunction`，见 §8.5 |
 
-### 2.2 关键约束一：用 Overlay 队列号，但不走 `Renderable` 派发路径
+### 2.2 关键约束一：UI 画在后处理之后，不使用渲染队列
 
-`kBuiltinQueueOverlay = 4000` 的设计意图在代码里写得很明确 —— 注释就是「UI 与覆盖层，通常最后渲染」（[`T3DRenderConstant.h:71-72`](../../source/Core/Include/Render/T3DRenderConstant.h)）。这里要把两件事分开：
+**Overlay 队列不是 UI 槽位。** `kBuiltinQueueOverlay = 4000`（[`T3DRenderConstant.h`](../../source/Core/Include/Render/T3DRenderConstant.h)）语义对齐 Unity：场景内最后绘制的覆盖效果（镜头光晕、描边等）。所有队列都在 `renderForward` 的场景 pass 里画完，之后才跑相机效果链（`T3DForwardRenderPipeline.cpp:566-591`）。UI 若放进 4000，会被 bloom、色调映射、颜色分级再处理一遍，文字被压暗、晕开。Unity 的 UI 也不在这个队列：`UI/Default` 标的是 `Queue = Transparent`，Screen Space - Overlay 的 Canvas 由 UI 系统在相机渲染之后单独绘制。
 
-**队列号可用，且应该用。** `RenderQueue = TMap<uint32_t, RenderGroup>` 升序迭代，4000 保证最后绘制，正是 UI 要的语义。UI shader 应标 `Tags { "Queue" = "Overlay" }`。
+也不能反过来把 4000 及以上的队列挪到效果链之后：最终目标上没有场景深度（深度留在源 RT，blit 不拷贝）、颜色已是 tonemap 后的 LDR、MSAA 已 resolve，场景材质在那里绘制会全部出错。「场景内覆盖效果」与「屏幕空间 UI」是两件事。
 
-**不可用的是 `Renderable` + `RenderGroup` 这条收集派发路径**，三个卡点：
+**屏幕空间 UI 的绘制点**：每台相机效果链与 blit 之后，由管线调用 Core 的 `UISystem::render(..., UIRenderPhase::kOverlay)`；需要 UI 参与后处理时用 `kBeforePostProcess`（场景之后、效果链之前）。详见 [`UI-System-Interface-Design-todo.md`](UI-System-Interface-Design-todo.md) §3、§4。
+
+**另外，`Renderable` + `RenderGroup` 这条收集派发路径也不适合 UI**，三个卡点：
 
 [`T3DForwardRenderPipeline.h:107-111`](../../source/Core/Include/Render/T3DForwardRenderPipeline.h)：
 
@@ -81,7 +87,7 @@
 2. **只能整个索引缓冲一次画完**。最内层是 `ctx->render(ib->getIndexCount(), 0, 0)`（`:668`），起始索引与 baseVertex 写死 0，没有子范围绘制。合批要求「上百个矩形进一个大 buffer 再分段画」，这条路径表达不了；退化成每批一个独立 `IndexBuffer` + 每批一个 `Material`（纹理按 UUID 绑在 Material 上）后，又绕回第 1 条的指针排序问题。
 3. **这条路径完全没有 scissor**。裁剪遮罩、ScrollView 无处安放。
 
-**结论**：`kBuiltinQueueOverlay` 作为 UI 的**队列槽位**要用，但 UI 内容不经 `addRenderable` 收集，而是由注册在该槽位的额外阶段处理器绘制，UI 自己管合批、顺序与 scissor。派发机制见 §3.3 —— 阶段表与实际队列做有序归并，不用 `>=` 阈值，也不用哨兵标志位。
+**结论**：UI 既不进 4000 队列，也不经 `addRenderable` 收集。它在后处理之后的 `UISystem::render` 中直接对 RHI 提交，自己管合批、顺序与 scissor。§3.3 的阶段表因此只服务天空盒这类场景内的特殊阶段，与 UI 无关。
 
 > **顺带的独立发现（与 UI 无关）**：**透明队列 3000 同样没有按深度排序**，受制于同一个 `TMap<Material*, ...>` 结构。这是既有缺陷，不是 UI 引入的 —— 与卡点 1 同源，一并在 §3.4 解决。
 
@@ -185,8 +191,8 @@ flowchart TB
     end
     subgraph Pipeline["ForwardRenderPipeline"]
         B1["【集成点 1】cull(scene)<br/>收集 canvas → canvas->prepare()<br/>flushLayout + buildDrawList"]
-        B2["renderForward(camera) → drawCameraQueue<br/>按阶段表升序执行（含 Skybox 2500 槽位）"]
-        B3["【集成点 3】Overlay(4000) 槽位的阶段处理器<br/>UIRenderer 绘制绑定到该相机的 canvas"]
+        B2["renderForward(camera) → drawCameraQueue<br/>按阶段表升序执行（含 Skybox 2500 槽位）<br/>→ 相机效果链 → blit"]
+        B3["【集成点 3】UISystem::render(camera, finalTarget, kOverlay)<br/>UIRenderer 绘制绑定到该相机的 canvas"]
     end
     A1 --> A2 --> B1 --> B2 --> B3
 ```
@@ -195,7 +201,7 @@ flowchart TB
 
 - **集成点 1（`cull`）**：布局与绘制列表构建必须在所有游戏逻辑 `onUpdate` 之后，否则脚本改了 UI 状态要等下一帧才生效。`cull` 是 `update()` 之后的第一站，且管线已有「在 `cull` 里收集 camera / Skybox」的先例。
 - **集成点 2（`Agent::update` 末尾）**：事件分发要在 `Scene::update()` 之后（用户脚本可能刚创建 / 移动了 UI），且必须先 `flushLayout` 才能命中测试。放在 Agent 而非某个组件的 `onUpdate` 里，是因为多 Canvas 之间要按 `sortOrder` 倒序统一决定谁先吃事件 —— 这是跨 GameObject 的全局决策，不能靠 per-GameObject 的 DFS 顺序。
-- **集成点 3（`kBuiltinQueueOverlay` 槽位的阶段处理器）**：UI 绘制注册成 4000 槽位的处理器，由 §3.3 的阶段表按序调用 —— 不需要阈值判断，也不需要「场景里没有 Overlay 成员时补画」的兜底，因为阶段表是声明驱动的，槽位一定会执行。天然画进 `camera->getSrcRenderTarget()`，所以编辑器 GameView（渲染到 RenderTexture）与运行时窗口**同一套代码**都正确。若改成「所有相机之后单独一个全局 pass 直接画窗口」，编辑器 GameView 就看不到 UI。
+- **集成点 3（后处理之后的 `UISystem::render`）**：每台相机效果链与 blit 之后，管线调用 UI 接口绘制该相机上的 canvas（§2.2；接口与调用位置见 [`UI-System-Interface-Design-todo.md`](UI-System-Interface-Design-todo.md) §4）。UI 不进渲染队列，所以不经过 §3.3 的阶段表，也不受后处理影响。画进 `camera->getRenderTarget()`（相机最终目标），所以编辑器 GameView（渲染到 RenderTexture）与运行时窗口**同一套代码**都正确。若改成「所有相机之后单独一个全局 pass 直接画窗口」，编辑器 GameView 就看不到 UI。
 
 ### 3.3 前置重构：声明式队列阶段表
 
@@ -216,9 +222,9 @@ if (drawSkybox && !skyboxDrawn)
 }
 ```
 
-三个问题：`>=` 让插入点取决于「场景里恰好存在哪些队列」而非声明；需要 `skyboxDrawn` 哨兵防重复；空场景要靠循环后的兜底分支补画。UI 若照抄这个模式，会再复制一份同样的别扭代码。
+三个问题：`>=` 让插入点取决于「场景里恰好存在哪些队列」而非声明；需要 `skyboxDrawn` 哨兵防重复；空场景要靠循环后的兜底分支补画。将来再加别的场景内特殊阶段（Decal、描边等），会再复制一份同样的别扭代码。
 
-**根因**是迭代由「实际存在的 `mRenderQueue` map 条目」驱动，而天空盒 / UI 都**不是** `Renderable`，永远不会在 map 里有条目。
+**根因**是迭代由「实际存在的 `mRenderQueue` map 条目」驱动，而天空盒**不是** `Renderable`，永远不会在 map 里有条目。
 
 **关键前提：队列号是开放整数域。** 设计上允许 `Queue = "Geometry+100"` 这样的偏移取值（对齐 Unity），所以队列号**不是**五个内置值的封闭集合，任意整数都可能出现。这决定了派发不能简单地「遍历一张声明好的固定表」—— 必须同时照顾到「用户自定义的任意队列号」和「引擎声明的特殊槽位」。
 
@@ -269,7 +275,7 @@ const uint32_t kBuiltinQueueMax = 5000;
 | 来源 | 内容 | 键的性质 |
 |------|------|----------|
 | `mRenderQueue[camera]` | `TMap<uint32_t, RenderItems>`（§3.4.1 拍平后），实际存在渲染项的队列 | **任意整数**，由 shader 的 Queue 标签决定 |
-| `mQueueStages` | 引擎声明的**额外阶段**（天空盒 2500、UI 4000） | 固定已知值 |
+| `mQueueStages` | 引擎声明的**额外阶段**（当前只有天空盒 2500；UI 不在此列，见 §2.2） | 固定已知值 |
 
 注意与「封闭集合」方案的区别：`mQueueStages` **只登记特殊阶段**，不再为每个内置队列号登记一个 `drawRenderablesStage`。普通渲染项的绘制是归并过程中对渲染项来源的默认动作，因此天然支持任意队列号。
 
@@ -293,8 +299,7 @@ TMap<uint32_t, QueueStageHandler> mQueueStages;
 
 ```cpp
 // 建议实现：ForwardRenderPipeline 初始化
-mQueueStages[ShaderLab::kBuiltinQueueSkybox]  = drawSkyboxStage;
-mQueueStages[ShaderLab::kBuiltinQueueOverlay] = drawUIStage;
+mQueueStages[ShaderLab::kBuiltinQueueSkybox] = drawSkyboxStage;
 ```
 
 `drawCameraQueue` 变成一次标准归并walk，没有阈值、没有哨兵：
@@ -337,7 +342,7 @@ while (itQ != queues.end() || itS != mQueueStages.end())
 }
 ```
 
-**同号时的次序规则**：先渲染项、后额外阶段。理由是 UI 应当盖在同队列号的几何体之上；天空盒同理（用户显式标 2500 的物体已写好深度，天空盒 `ZTest LEqual` 不会覆盖它）。这条规则要写进注释，否则以后没人说得清。
+**同号时的次序规则**：先渲染项、后额外阶段。以天空盒为例：用户显式标 2500 的物体已写好深度，天空盒 `ZTest LEqual` 不会覆盖它。这条规则要写进注释，否则以后没人说得清。
 
 #### 3.3.3 收益与开放域带来的表达力
 
@@ -345,22 +350,16 @@ while (itQ != queues.end() || itS != mQueueStages.end())
 |----|------|
 | 插入点 | 由**声明**决定，而非「场景里恰好有哪些队列」 |
 | 哨兵标志位 | `skyboxDrawn` 及循环后兜底分支**全部删除** |
-| 空场景 / 无对应队列 | 额外阶段照常执行（归并会单独产出 stage 键），天空盒 / UI 自然画出 |
+| 空场景 / 无对应队列 | 额外阶段照常执行（归并会单独产出 stage 键），天空盒自然画出 |
 | 任意队列号 | 归并对渲染项侧的键不做任何假设，`Geometry+100` 直接可用 |
-| 扩展性 | 将来加 Decal / 后处理 / 描边阶段只需注册一行 |
-| 语义 | `kBuiltinQueueSkybox` / `kBuiltinQueueOverlay` 成为**真正被消费的槽位**，而不是被 `>=` 顺带蹭到的边界值 |
+| 扩展性 | 将来加 Decal / 描边等场景内阶段只需注册一行（相机后处理不在队列内，不走这里） |
+| 语义 | `kBuiltinQueueSkybox` 成为**真正被消费的槽位**，而不是被 `>=` 顺带蹭到的边界值 |
 
-开放整数域配合归并，还自然获得一个很实用的能力：**用队列号精确控制内容与 UI 的相对层次**。
-
-| 写法 | 效果 |
-|------|------|
-| `"Overlay-1"`（3999） | 3D 内容画在 UI **之下**（例如世界空间血条底衬） |
-| `"Overlay"`（4000） | 与 UI 同槽，按上述规则画在 UI **之下** |
-| `"Overlay+1"`（4001） | 3D 内容画在 UI **之上**（例如全屏闪白、过场遮罩） |
+开放整数域还让场景内容之间的层次可以精确控制，例如 `"Overlay-1"` / `"Overlay"` / `"Overlay+1"` 在场景内覆盖效果之间排先后。注意这些都是**场景队列**，全部在相机后处理之前画完；屏幕空间 UI 在后处理之后绘制，**始终位于所有场景队列之上**，不能靠队列号把 3D 内容放到 UI 上面。确需「盖在 UI 之上」的效果（全屏闪白、过场遮罩），应作为 UI 元素实现。
 
 行为等价性：天空盒原先插在「第一个 `>= 3000` 的队列之前」，新模型固定在 2500 槽位。由于 2500 > `kBuiltinQueueAlphaTest`(2450) 且 < `kBuiltinQueueTransparent`(3000)，「不透明之后、透明之前」的语义不变，插入位置从依赖场景内容变为确定值。
 
-> **前提**：上表的层次保证依赖「同队列内多材质顺序确定」，而这一点当前**不成立**（§2.2 卡点 1）。§3.4 是它成立的前提，两节需一并落地。
+> **前提**：同队列号内多个物体的层次可控，依赖「同队列内多材质顺序确定」，而这一点当前**不成立**（§2.2 卡点 1）。§3.4 是它成立的前提，两节需一并落地。
 
 ### 3.4 队列内排序：解决多材质顺序不确定
 
@@ -537,9 +536,9 @@ for (const RenderItem &item : items)
 |----|------|
 | §2.2 卡点 1 | **解除**。多材质顺序由排序键确定，与堆地址无关 |
 | 透明队列排序 | **修复**。既有缺陷一并解决，不是 UI 的附带产物 |
-| §3.3.3 的 `Overlay±1` 层次承诺 | **变得可靠**。在此之前同队列多材质顺序不确定，那张表的保证是空的 —— 本节是它成立的前提 |
+| §3.3.3 的场景内层次控制 | **变得可靠**。在此之前同队列多材质顺序不确定，`Overlay±N` 之类的层次安排没有保证 —— 本节是它成立的前提 |
 | 不透明合批开销 | 不变（每材质一次设置） |
-| UI 是否可以改走队列 | **仍然不行**。卡点 2（只能整 IB 画完）与卡点 3（无 scissor）未被本节触及，UI 继续走 §3.3.2 的独立阶段处理器 |
+| UI 是否可以改走队列 | **仍然不行**。卡点 2（只能整 IB 画完）与卡点 3（无 scissor）未被本节触及；更根本的是所有队列都在后处理之前，UI 在后处理之后由 `UISystem::render` 绘制（§2.2） |
 
 已知局限：
 
@@ -727,7 +726,7 @@ private:
 新增 ShaderLab 内置 `UI-Default`（走 `BuiltinShaders` / `BuiltinMaterials` 生成流程，UUID 靠 `BuiltinGuidUtil::readExistingMetaUUID` 保持稳定）：
 
 ```
-Tags { "Queue" = "Overlay" }
+// 不写 Queue 标签：UI 不进渲染队列，Overlay 是场景队列（§2.2）
 ZWrite Off  ZTest Always  Cull Off
 Blend SrcAlpha OneMinusSrcAlpha
 // VS: o.pos = mul(tiny3d_MatrixVP, float4(v.pos, 1)); 直传 color / uv
@@ -915,7 +914,7 @@ source/Samples/UIApp/                      （分阶段验收用例）
 | 8 | `source/Core/Source/Material/T3DTechnique.cpp` | `toTagValue` 从字符串等值比较升级为**偏移解析器**：支持 `Name` / `Name±N` / 纯整数，钳制到合法区间，解析失败输出 warning（现为静默忽略）（`:224-249`）（§3.3.1） | 0 |
 | 9 | `source/Tools/ShaderCrossCompiler/.../SLParserLex.l` | **待确认**：tag 值的词法是否已按字符串字面量处理（`+` / `-` / 数字不受影响）。若不是则需同步改文法 | 0 |
 | 10 | `source/Core/Include/Component/T3DRenderable.h`<br/>`source/Core/Source/Component/T3DRenderable.cpp` | 新增 `SortOrder`（`int32_t`，默认 0）+ `TPROPERTY` getter/setter，语义对齐 Unity `Renderer.sortingOrder`（§3.4.3） | 0 |
-| 11 | `source/Core/Include/Render/T3DForwardRenderPipeline.h`<br/>`.../T3DForwardRenderPipeline.cpp` | **前置重构 A（派发）**：引入 `QueueStageContext` + `QueueStageHandler` + `mQueueStages`（只登记特殊阶段）；`drawCameraQueue` 改为「实际队列 × 阶段表」有序归并，**删除** `>=` 阈值判断、`skyboxDrawn` 哨兵与循环后兜底分支（`:590-596`、`:682-686`）；天空盒改注册到 2500 槽位（§3.3.2）。<br/>**前置重构 B（排序）**：`RenderGroup` 整层删除，`RenderQueue` 改为 `TMap<uint32_t, TArray<RenderItem>>`；`addRenderable` 记录 `HierarchyIndex` 并生成 `SortKey`；新增 `QueueSortPolicy` + `mSortPolicies` 分段表 + `resolveSortPolicy`；绘制改为「排序后遍历 + 材质变化检测」（§3.4）。<br/>**UI 接入**：`cull` 收集 canvas 并调 `prepare()`；`drawUIStage` 注册到 4000 槽位；持有 `UIRenderer` 实例 | 0 |
+| 11 | `source/Core/Include/Render/T3DForwardRenderPipeline.h`<br/>`.../T3DForwardRenderPipeline.cpp` | **前置重构 A（派发）**：引入 `QueueStageContext` + `QueueStageHandler` + `mQueueStages`（只登记特殊阶段）；`drawCameraQueue` 改为「实际队列 × 阶段表」有序归并，**删除** `>=` 阈值判断、`skyboxDrawn` 哨兵与循环后兜底分支（`:590-596`、`:682-686`）；天空盒改注册到 2500 槽位（§3.3.2）。<br/>**前置重构 B（排序）**：`RenderGroup` 整层删除，`RenderQueue` 改为 `TMap<uint32_t, TArray<RenderItem>>`；`addRenderable` 记录 `HierarchyIndex` 并生成 `SortKey`；新增 `QueueSortPolicy` + `mSortPolicies` 分段表 + `resolveSortPolicy`；绘制改为「排序后遍历 + 材质变化检测」（§3.4）。<br/>**UI 接入**：`cull` 收集 canvas 并调 `prepare()`；UI 绘制不进阶段表，改为在后处理之后经 `UISystem::render` 进行（§2.2，接口改动见 [`UI-System-Interface-Design-todo.md`](UI-System-Interface-Design-todo.md) §7） | 0 |
 | 12 | `source/Core/Include/Kernel/T3DAgent.h`<br/>`source/Core/Source/Kernel/T3DAgent.cpp` | 创建 / 销毁 `UIEventSystem` 单例（仿 `mInput`，`T3DAgent.cpp:1236`）；`update()` 内 `scene->update()` 之后调 `processFrame(scene)`；导出 `T3D_UI_EVENT_SYS` 宏 | 3 |
 | 13 | `source/Tools/BuiltinGenerator/.../T3DBuiltinShaders.*`<br/>`.../T3DBuiltinMaterials.*` | 生成 `UI-Default` shader + material，UUID 复用 `BuiltinGuidUtil::readExistingMetaUUID` | 0 |
 | 14 | `source/Core/Include/Input/T3DInput.h`<br/>`source/Core/Source/Input/T3DInput.cpp` | 补 `APP_TEXTINPUT` / `APP_TEXTEDITING` 处理（当前 `processEvent` 无此分支），供 `UIInputField` | 5 |
@@ -929,7 +928,7 @@ source/Samples/UIApp/                      （分阶段验收用例）
 ## 11. 风险与已知坑
 
 1. **`RectTransform` 继承的 3D `position` 由布局接管**。用户在 Inspector 里手改 Position 会被下一次 `flushLayout` 覆盖 —— Unity 完全同样的行为，但需要在 Inspector 里标注（Phase 6 做只读或隐藏）。
-2. **不要把 UI 做成 `Renderable` 塞进队列**。三个卡点：多材质按 Material 堆地址排序（§3.4 已给出解法）、`ctx->render` 只能整个 IB 画完（无子范围）、该路径无 scissor（§2.2）。后两条**没有**解法，所以结论不变。但 `kBuiltinQueueOverlay` 本身要用 —— 它是 UI 的**队列槽位**，由 §3.3 阶段表的处理器消费。
+2. **不要把 UI 做成 `Renderable` 塞进队列**。三个卡点：多材质按 Material 堆地址排序（§3.4 已给出解法）、`ctx->render` 只能整个 IB 画完（无子范围）、该路径无 scissor（§2.2）。后两条**没有**解法，所以结论不变。也不要给 UI 用 `kBuiltinQueueOverlay`：它是场景队列，画在后处理之前，UI 会被后处理处理一遍（§2.2）。
 3. **`Transform3D::setDirty` 的早退语义**：`if (mIsDirty != isDirty)` 在已 dirty 时不再向下递归。UI 必须用独立的布局脏标志，挤进 `mIsDirty` 会漏更新。
 4. **scissor 状态泄漏**：Forward 路径从不设 scissor，UI pass 设了必须恢复，否则下一台相机 / 下一帧被裁。`ctx->reset()` 的覆盖范围需实测确认。
 5. **字体图集 4 倍显存**：`PixelFormat` 无单通道格式（已确认），v1 只能 32 位。加 `E_PF_R8` 要动四个后端的映射表。
@@ -959,7 +958,7 @@ source/Samples/UIApp/                      （分阶段验收用例）
 - `Queue = "Geometry+100"` / `"Transparent-1"` / `"2100"` 解析出的队列号正确，且绘制次序符合数值大小
 - 写错队列名（如 `"Transparant"`）时有 warning 而非静默落到 Geometry
 
-> 这一步**不含任何 UI 代码**，可以独立提交、独立验证。先把管线派发理顺，再往 4000 槽位挂东西，UI 的接入就只是「注册一个处理器」。
+> 这一步**不含任何 UI 代码**，可以独立提交、独立验证。它是纯粹的管线改进，UI 不依赖它（UI 在后处理之后绘制，§2.2）。
 
 ### Phase 0a-2：队列内排序重构（前置，与 UI 解耦）
 
@@ -968,9 +967,9 @@ source/Samples/UIApp/                      （分阶段验收用例）
 **验收**：
 
 - 不透明 Sample 画面与重构前逐像素一致；**透明 Sample 需重新采集基线**（风险 13）
-- 两个不同材质的 UI 风格 quad（都在 Overlay、都关深度测试）叠放，层次由 `SortOrder` 与层级序决定，**反复重启进程结果不变**
+- 两个不同材质的覆盖效果 quad（都在 Overlay、都关深度测试）叠放，层次由 `SortOrder` 与层级序决定，**反复重启进程结果不变**
 - 三个半透明面片沿视线前后摆放，从正反两侧观察混合结果都正确（重构前反向观察必错）
-- 同时标 `"Overlay-1"` / `"Overlay"` / `"Overlay+1"` 的三个物体与 UI 的相对层次符合 §3.3.3 表格
+- 同时标 `"Overlay-1"` / `"Overlay"` / `"Overlay+1"` 的三个物体按队列号先后绘制，且都被相机后处理影响（验证它们是场景队列）
 - `"Geometry+100"` 落到 `kMaterialFirst`、`"AlphaTest+100"` 落到 `kBackToFront`，与 §3.4.2 表格一致
 - 不透明队列的材质状态设置次数 == 材质种类数（验证合批未退化）
 
@@ -1025,7 +1024,7 @@ source/Samples/UIApp/                      （分阶段验收用例）
 | UI 节点形态 | Component 挂 GameObject，`RectTransform : Transform3D` | Hierarchy / Inspector / 序列化 / Prefab **全部白捡**；继承而非平级是被 30 余处 `static_cast<Transform3D *>` 逼出来的（§2.3），恰好也是 Unity 的选择 |
 | 矩形模型 | Unity 四参数锚点 + pivot | 一套参数统一表达固定 / 拉伸 / 边距三种意图；Godot 的 anchor + offset 本质同构 |
 | 布局引擎 | 自写两阶段 | 锚点求解 Yoga 做不了（它是 flexbox 模型），容器布局各约 100 行，且 `TinyImGui` 里已有 `ImHorizontalLayout` / `ImVerticalLayout` / `ImGridLayout` 的语义积累。引入 Yoga 反而多一层节点树同步 |
-| 渲染路径 | UI 注册为 Overlay(4000) 槽位的阶段处理器，自己批 / 自己排序 / 自己裁剪 | 队列号语义正确要用；但 `Renderable` 派发路径有三个卡点（材质按指针排序、只能整 IB 画完、无 scissor）（§2.2） |
+| 渲染路径 | UI 不进渲染队列，在相机后处理之后经 `UISystem::render` 绘制，自己批 / 自己排序 / 自己裁剪 | Overlay(4000) 是场景队列，画在后处理之前；`Renderable` 派发路径还有三个卡点（材质按指针排序、只能整 IB 画完、无 scissor）（§2.2） |
 | 队列派发 | 「实际队列 × 特殊阶段表」有序归并，取代 `>=` 阈值 + 哨兵标志位；天空盒独立 `kBuiltinQueueSkybox = 2500` 槽位 | 队列号是**开放整数域**（支持 `Geometry+100`），所以阶段表只登记特殊阶段、普通渲染项走归并的默认动作 —— 既不对用户队列号做任何假设，又能让特殊槽位在无渲染项时照样执行，顺带删掉 `skyboxDrawn` 哨兵与兜底分支（§3.3） |
 | 队列内排序 | 二级 map 拍平成「扁平数组 + 64 位排序键」，策略按队列**分段声明** | 顺序不能取决于 `Material` 堆地址（§2.2 卡点 1）。合批从「靠 map 分组」改为「靠排序键聚集 + 遍历时检测材质变化」，开销等价但顺序可控。不透明 / 透明 / 覆盖层要的顺序本质不同，所以策略是队列的属性；分段 + `upper_bound` 查找让 `Geometry+100` 自动继承 Geometry 的策略，且把 2500 这个不透明 / 透明分界从隐式比较变成表里一行声明（§3.4） |
 | 2D 后端 | 照抄 `ImGuiImplTiny3D` | 同一套 RHI 调用序列已在四后端验证过，是仓库里风险最低的一段参考代码 |
