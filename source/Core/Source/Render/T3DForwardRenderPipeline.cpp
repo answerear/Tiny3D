@@ -24,6 +24,8 @@
 
 
 #include "Render/T3DForwardRenderPipeline.h"
+#include "Kernel/T3DAgent.h"
+#include "UI/T3DUISystem.h"
 #include "Behaviour/T3DCameraBehaviour.h"
 #include "Behaviour/T3DCameraEffectBehaviour.h"
 #include "Material/T3DTechniqueInstance.h"
@@ -565,6 +567,11 @@ namespace Tiny3D
 
         invokeCameraBehaviours(ctx, camera, false);
 
+        if (UISystem *uiSystem = T3D_AGENT.getUISystem())
+        {
+            uiSystem->render(ctx, camera, rt, UIRenderPhase::kBeforePostProcess);
+        }
+
         RenderTexture *srcColor = (rt != nullptr) ? rt->getRenderTexture().get() : nullptr;
         RenderTexture *finalColor = (camera->getRenderTarget() != nullptr)
             ? camera->getRenderTarget()->getRenderTexture().get()
@@ -589,6 +596,11 @@ namespace Tiny3D
             Vector3 box(width, height, 0.0f);
 
             ctx->blit(result, camera->getRenderTarget(), offset, box, offset);
+        }
+
+        if (UISystem *uiSystem = T3D_AGENT.getUISystem())
+        {
+            uiSystem->render(ctx, camera, camera->getRenderTarget(), UIRenderPhase::kOverlay);
         }
 
         // 重置所有状态后再还池，避免临时 RT 还绑着

@@ -19,3 +19,8 @@ endif()
 if (TINY3D_OS_DESKTOP)
 	add_subdirectory(imgui)
 endif (TINY3D_OS_DESKTOP)
+
+if (TINY3D_BUILD_RMLUI)
+    add_subdirectory(freetype)
+    add_subdirectory(RmlUi)
+endif (TINY3D_BUILD_RMLUI)

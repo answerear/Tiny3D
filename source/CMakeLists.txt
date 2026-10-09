@@ -293,6 +293,12 @@ if (NOT TINY3D_BUILD_RTTR_TOOL)
 	set(RTTR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External/rttr/src" "${CMAKE_CURRENT_BINARY_DIR}/External/rttr/src")
 	message(STATUS "rttr include : ${RTTR_INCLUDE_DIR}")
 
+    if (TINY3D_OS_DESKTOP OR TINY3D_OS_ANDROID)
+        option(TINY3D_BUILD_RMLUI "Build the RmlUi runtime UI module" ON)
+    else ()
+        option(TINY3D_BUILD_RMLUI "Build the RmlUi runtime UI module" OFF)
+    endif ()
+
     # All Third Parties Sources
     add_subdirectory(External)
 
@@ -350,7 +356,7 @@ if (NOT TINY3D_BUILD_RTTR_TOOL)
     add_subdirectory(Math)
     # Project Core
     add_subdirectory(Core)
-    
+
     # Project plugins
     add_subdirectory(Plugins)
     

@@ -34,8 +34,35 @@ add_subdirectory(ResourceApp)
 add_subdirectory(SkyboxApp)
 add_subdirectory(ComputeApp)
 
+if (TINY3D_BUILD_RMLUI)
+    add_subdirectory(RmlUiApp)
+endif (TINY3D_BUILD_RMLUI)
+
 if (TINY3D_OS_DESKTOP)
     add_subdirectory(TransformationApp)
     add_subdirectory(IntersectionApp)
     add_subdirectory(PrefabApp)
 endif (TINY3D_OS_DESKTOP)
+
+if (TINY3D_OS_ANDROID AND TINY3D_BUILD_RMLUI)
+    # 共享的 Android Tiny3D.cfg 会加载 T3DRmlUi。各样例 APK 只打包自己拷贝的 .so，
+    # 这里给已有 Android 工程补上运行时 UI 库，避免其它样例启动时找不到插件。
+    set(_t3d_android_samples
+        HelloApp CameraApp GeometryApp SceneApp DirectionalLightApp PointLightApp
+        SpotLightApp LightApp ShadowApp BehaviourApp PostProcessingApp InputApp
+        TextureApp SkeletalAnimationApp ResourceApp SkyboxApp ComputeApp
+        PlatformApp FrameworkApp RmlUiApp)
+    foreach(_t3d_android_sample IN LISTS _t3d_android_samples)
+        if(TARGET ${_t3d_android_sample})
+            set(_t3d_android_libs "${CMAKE_CURRENT_SOURCE_DIR}/${_t3d_android_sample}/Android/app/libs/${ANDROID_ABI}")
+            add_custom_command(TARGET ${_t3d_android_sample} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E make_directory "${_t3d_android_libs}"
+                COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:T3DRmlUi> "${_t3d_android_libs}"
+                COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:rmlui_core> "${_t3d_android_libs}"
+                )
+        endif()
+    endforeach()
+    unset(_t3d_android_libs)
+    unset(_t3d_android_sample)
+    unset(_t3d_android_samples)
+endif ()

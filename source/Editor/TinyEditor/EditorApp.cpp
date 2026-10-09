@@ -882,7 +882,10 @@ namespace Tiny3D
             if (enable)
             {
                 const ImGuiIO &io = ImGui::GetIO();
-                if (io.WantTextInput)
+                UISystem *uiSystem = T3D_AGENT.getUISystem();
+                const bool uiWantsKeyboard = (uiSystem != nullptr && uiSystem->wantsKeyboard());
+                // UI 输入框占用键盘时，不再用 ImGui 的文本输入状态关掉引擎输入。
+                if (!uiWantsKeyboard && io.WantTextInput)
                 {
                     enable = false;
                 }

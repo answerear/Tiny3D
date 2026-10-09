@@ -294,6 +294,18 @@ namespace Tiny3D
         TResult addRHIRenderer(RHIRendererPtr renderer);
 
         /**
+         * \brief 注册运行时 UI 实现；传 nullptr 表示注销
+         * \param [in] system : UI 实现；已有其它实现时返回错误，不替换
+         * \return 成功返回 T3D_OK；重复注册返回 T3D_ERR_DUPLICATED_ITEM
+         * \remarks 插件 install 时调用。渲染器与窗口尚未就绪时只登记，由 init 在窗口创建后
+         *          调用 startup；引擎已经在跑时立即 startup。startup 失败则注销并继续运行。
+         */
+        TResult setUISystem(UISystemPtr system);
+
+        /// 当前 UI 实现；未加载 UI 时为 nullptr
+        UISystem *getUISystem() const { return mUISystem.get(); }
+
+        /**
          * \brief 按名称从 mRenderers 移除渲染器（不 destroy 对象）
          * \param [in] renderer : 渲染器
          * \return 成功返回 T3D_OK；未找到返回 T3D_ERR_NOT_FOUND
@@ -430,6 +442,12 @@ namespace Tiny3D
         TResult initRenderer();
 
         /**
+         * \brief 在渲染器与窗口就绪后启动已登记的 UISystem
+         * \remarks startup 失败时注销该实现，不中断引擎初始化。
+         */
+        void startupUISystem();
+
+        /**
          * \brief 场景管理器初始化（头文件声明；当前无对应 .cpp 实现）
          * \return 待确认
          */
@@ -511,6 +529,8 @@ namespace Tiny3D
         RenderPipelinePtr       mRenderPipeline {nullptr};          ///< 渲染管线
         RenderWindowPtr         mDefaultWindow {nullptr};           ///< 默认渲染窗口
         RHIRendererPtr          mActiveRHIRenderer {nullptr};       ///< 当前活动 RHI
+        UISystemPtr             mUISystem {nullptr};                ///< 当前运行时 UI 实现
+        bool                    mUISystemStarted {false};           ///< UISystem::startup 是否已成功
 
         AnimationPlayerMgrPtr   mAniPlayerMgr {nullptr};            ///< 动画播放器管理器
         ArchiveManagerPtr       mArchiveMgr {nullptr};              ///< 档案管理器

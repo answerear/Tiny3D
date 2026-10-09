@@ -24,6 +24,7 @@
 
 #include "T3DConfig.h"
 #include "Kernel/T3DAgent.h"
+#include "UI/T3DUISystem.h"
 #include "Kernel/T3DTime.h"
 #include "Input/T3DInput.h"
 #include "Kernel/T3DArchive.h"
@@ -109,6 +110,20 @@ namespace Tiny3D
         // 帧循环已经结束，残留的任务捕获的对象正在被拆掉，不能再让它们跑
         mFrameEndTasks.clear();
 
+        // UI 的字体图集和文档缓存要在 RHI 销毁之前释放。插件 unload 发生在本函数末尾，
+        // 那时渲染器已经拆掉，所以不能把 Rml::Shutdown 放到插件 shutdown 里。
+        if (mUISystem != nullptr)
+        {
+            T3D_LOG_INFO(LOG_TAG_ENGINE, "Shutting down UISystem [%s] before RHI destroy.",
+                mUISystem->getName().c_str());
+            if (mUISystemStarted)
+            {
+                mUISystem->shutdown();
+            }
+            mUISystem = nullptr;
+            mUISystemStarted = false;
+        }
+
         if (mAniPlayerMgr != nullptr)
         {
             mAniPlayerMgr->removeAllPlayers();
@@ -122,6 +137,7 @@ namespace Tiny3D
         // For D3D11/GL4, destroy() is a no-op so this is safe across backends.
         if (mActiveRHIRenderer != nullptr)
         {
+            T3D_LOG_INFO(LOG_TAG_ENGINE, "Destroying active RHI renderer.");
             mActiveRHIRenderer->destroy();
         }
 
@@ -444,6 +460,8 @@ namespace Tiny3D
                 addRenderWindow(window);
             }
 
+            startupUISystem();
+
             mIsRunning = true;
 
             Application *theApp = Application::getInstancePtr();
@@ -514,6 +532,8 @@ namespace Tiny3D
 
                 addRenderWindow(window);
             }
+
+            startupUISystem();
 
             mIsRunning = true;
 
@@ -890,6 +910,12 @@ namespace Tiny3D
 
             // 普通 Update + LateUpdate（Scene 内部编排）
             scene->update();
+        }
+
+        // 场景不存在时同样调用，UI 可以独立于场景存在
+        if (mUISystem != nullptr)
+        {
+            mUISystem->update();
         }
     }
 
@@ -1520,6 +1546,63 @@ namespace Tiny3D
     RHIContextPtr Agent::getActiveRHIContext() const 
     { 
         return mActiveRHIRenderer->getContext();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult Agent::setUISystem(UISystemPtr system)
+    {
+        if (system == nullptr)
+        {
+            mUISystem = nullptr;
+            mUISystemStarted = false;
+            return T3D_OK;
+        }
+
+        if (mUISystem != nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_ENGINE,
+                "UISystem [%s] is already registered, reject [%s].",
+                mUISystem->getName().c_str(), system->getName().c_str());
+            return T3D_ERR_DUPLICATED_ITEM;
+        }
+
+        mUISystem = system;
+        mUISystemStarted = false;
+
+        // init 早期只登记。窗口创建后的 startupUISystem，或引擎已经在跑时，才真正 startup。
+        if (mIsRunning)
+        {
+            startupUISystem();
+            if (mUISystem == nullptr)
+            {
+                return T3D_ERR_FAIL;
+            }
+        }
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Agent::startupUISystem()
+    {
+        if (mUISystem == nullptr || mUISystemStarted)
+        {
+            return;
+        }
+
+        const TResult ret = mUISystem->startup();
+        if (T3D_FAILED(ret))
+        {
+            T3D_LOG_ERROR(LOG_TAG_ENGINE,
+                "UISystem [%s] startup failed, unregistering.",
+                mUISystem->getName().c_str());
+            mUISystem = nullptr;
+            mUISystemStarted = false;
+            return;
+        }
+
+        mUISystemStarted = true;
     }
 
     //--------------------------------------------------------------------------

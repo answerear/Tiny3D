@@ -15,3 +15,7 @@ add_definitions(-DT3D_ERR_IMAGE_CODEC=T3D_ERR_PLUGINS+0x00002000)
 add_subdirectory(Renderer)
 add_subdirectory(Archive)
 add_subdirectory(ImageCodec)
+
+if (TINY3D_BUILD_RMLUI)
+    add_subdirectory(RmlUi)
+endif (TINY3D_BUILD_RMLUI)

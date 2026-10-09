@@ -131,6 +131,7 @@ namespace Tiny3D
     class Agent;
     class Time;
     class Input;
+    class UISystem;
     class GameObject;
     class SceneObject;
     class Plugin;

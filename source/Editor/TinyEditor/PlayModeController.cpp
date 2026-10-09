@@ -209,6 +209,11 @@ namespace Tiny3D
         // 才处理，那时插件早就卸了，虚调用直接踩到已卸载的代码段
         flushPendingDestroys();
 
+        if (UISystem *uiSystem = T3D_AGENT.getUISystem())
+        {
+            uiSystem->releaseAll();
+        }
+
         const String name = mLoadedShadowName;
 
         // 先清状态：即便卸载失败，也不该让上层以为插件还是可用的

@@ -186,6 +186,7 @@ namespace Tiny3D
 
     // RHI
     T3D_DECLARE_SMART_PTR(RHIRenderer);
+    T3D_DECLARE_SMART_PTR(UISystem);
     T3D_DECLARE_SMART_PTR(RHIContext);
     T3D_DECLARE_SMART_PTR(RHIResource);
     T3D_DECLARE_SMART_PTR(RHIBlendState);
