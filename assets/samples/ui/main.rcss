@@ -1,0 +1,75 @@
+body
+{
+	font-family: "Noto Sans SC";
+	font-size: 20dp;
+	color: #f2f4f8;
+	width: 100%;
+	height: 100%;
+}
+
+#panel
+{
+	display: block;
+	width: 420dp;
+	margin: 24dp;
+	padding: 16dp;
+	background-color: #1d2433;
+	border-width: 1dp;
+	border-color: #3d4c66;
+}
+
+h1
+{
+	display: block;
+	margin-bottom: 12dp;
+	font-size: 28dp;
+	color: #ffffff;
+}
+
+img.badge
+{
+	display: block;
+	width: 96dp;
+	height: 96dp;
+	margin-bottom: 12dp;
+}
+
+#scroller
+{
+	display: block;
+	width: 100%;
+	height: 140dp;
+	padding: 8dp;
+	overflow: scroll;
+	background-color: #121820;
+	border-width: 1dp;
+	border-color: #2c3848;
+}
+
+#scroller p
+{
+	display: block;
+	margin-bottom: 8dp;
+}
+
+scrollbarvertical
+{
+	width: 10dp;
+}
+
+scrollbarhorizontal
+{
+	height: 10dp;
+}
+
+scrollbarvertical slidertrack,
+scrollbarhorizontal slidertrack
+{
+	background-color: #121820;
+}
+
+scrollbarvertical sliderbar,
+scrollbarhorizontal sliderbar
+{
+	background-color: #3d4c66;
+}

@@ -1,0 +1,24 @@
+<rml>
+<head>
+	<title>RmlUi Phase 1</title>
+	<link type="text/rcss" href="main.rcss"/>
+</head>
+<body>
+	<div id="panel">
+		<h1>Hello 你好 Tiny3D</h1>
+		<img class="badge" src="badge.png"/>
+		<div id="scroller">
+			<p>滚动区域 01 / Scroll line 01</p>
+			<p>滚动区域 02 / Scroll line 02</p>
+			<p>滚动区域 03 / Scroll line 03</p>
+			<p>滚动区域 04 / Scroll line 04</p>
+			<p>滚动区域 05 / Scroll line 05</p>
+			<p>滚动区域 06 / Scroll line 06</p>
+			<p>滚动区域 07 / Scroll line 07</p>
+			<p>滚动区域 08 / Scroll line 08</p>
+			<p>滚动区域 09 / Scroll line 09</p>
+			<p>滚动区域 10 / Scroll line 10</p>
+		</div>
+	</div>
+</body>
+</rml>
