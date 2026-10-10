@@ -30,5 +30,11 @@
 			<div class="spill">旋转容器里溢出的子元素</div>
 		</div>
 	</div>
+	<div id="phase3">
+		<h1>Input</h1>
+		<button id="ping" type="button">点我 Click</button>
+		<p id="clicks">点击次数 0</p>
+		<input type="text" id="name" value=""/>
+	</div>
 </body>
 </rml>
