@@ -382,6 +382,7 @@ namespace Tiny3D
             settings.pluginSettings.plugins.emplace_back("D3D11RendererEditor");
             settings.pluginSettings.plugins.emplace_back("GL4RendererEditor");
             settings.pluginSettings.plugins.emplace_back("FreeImageCodecEditor");
+            settings.pluginSettings.plugins.emplace_back("T3DRmlUiEditor");
             //settings.renderSettings.renderer = RHIRenderer::OPENGL4;
             settings.renderSettings.renderer = RHIRenderer::DIRECT3D11;
             
