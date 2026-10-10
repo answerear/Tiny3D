@@ -22,31 +22,39 @@
  * SOFTWARE.
  ******************************************************************************/
 
+#include "T3DRmlSystemInterface.h"
 
-#ifndef __T3D_RMLUI_PREREQUISITES_H__
-#define __T3D_RMLUI_PREREQUISITES_H__
-
-
-#include <Tiny3D.h>
-
-
-#if defined(RMLUI_EXPORT)
-    #define T3D_RMLUI_API       T3D_EXPORT_API
-#else
-    #define T3D_RMLUI_API       T3D_IMPORT_API
-#endif
+#include "Kernel/T3DTime.h"
 
 
 namespace Tiny3D
 {
-    #define LOG_TAG_RMLUI           "RmlUi"
+    //--------------------------------------------------------------------------
 
-    class RmlUiSystem;
-    class RmlCanvas;
+    double RmlSystemInterface::GetElapsedTime()
+    {
+        return static_cast<double>(Time::unscaledTime()) * 0.001;
+    }
 
-    T3D_DECLARE_SMART_PTR(RmlUiSystem);
-    T3D_DECLARE_SMART_PTR(RmlCanvas);
+    //--------------------------------------------------------------------------
+
+    bool RmlSystemInterface::LogMessage(Rml::Log::Type type, const Rml::String &message)
+    {
+        switch (type)
+        {
+        case Rml::Log::LT_ERROR:
+        case Rml::Log::LT_ASSERT:
+            T3D_LOG_ERROR(LOG_TAG_RMLUI, "%s", message.c_str());
+            break;
+        case Rml::Log::LT_WARNING:
+            T3D_LOG_WARNING(LOG_TAG_RMLUI, "%s", message.c_str());
+            break;
+        default:
+            T3D_LOG_INFO(LOG_TAG_RMLUI, "%s", message.c_str());
+            break;
+        }
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
 }
-
-
-#endif  /*__T3D_RMLUI_PREREQUISITES_H__*/

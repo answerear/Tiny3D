@@ -22,31 +22,33 @@
  * SOFTWARE.
  ******************************************************************************/
 
-
-#ifndef __T3D_RMLUI_PREREQUISITES_H__
-#define __T3D_RMLUI_PREREQUISITES_H__
-
-
-#include <Tiny3D.h>
+#ifndef __T3D_RML_FILE_INTERFACE_H__
+#define __T3D_RML_FILE_INTERFACE_H__
 
 
-#if defined(RMLUI_EXPORT)
-    #define T3D_RMLUI_API       T3D_EXPORT_API
-#else
-    #define T3D_RMLUI_API       T3D_IMPORT_API
-#endif
+#include "T3DRmlUiPrerequisites.h"
+
+#include <RmlUi/Core/FileInterface.h>
 
 
 namespace Tiny3D
 {
-    #define LOG_TAG_RMLUI           "RmlUi"
-
-    class RmlUiSystem;
-    class RmlCanvas;
-
-    T3D_DECLARE_SMART_PTR(RmlUiSystem);
-    T3D_DECLARE_SMART_PTR(RmlCanvas);
+    /**
+     * \brief 用引擎 Archive 读取 RmlUi 的文档、样式、字体和图片
+     * \remarks Open 时把整个文件读进内存。DataStream 只在 Archive 回调里有效。
+     */
+    class RmlFileInterface : public Rml::FileInterface
+    {
+    public:
+        Rml::FileHandle Open(const Rml::String &path) override;
+        void Close(Rml::FileHandle file) override;
+        size_t Read(void *buffer, size_t size, Rml::FileHandle file) override;
+        bool Seek(Rml::FileHandle file, long offset, int origin) override;
+        size_t Tell(Rml::FileHandle file) override;
+        size_t Length(Rml::FileHandle file) override;
+        bool LoadFile(const Rml::String &path, Rml::String &out_data) override;
+    };
 }
 
 
-#endif  /*__T3D_RMLUI_PREREQUISITES_H__*/
+#endif  /*__T3D_RML_FILE_INTERFACE_H__*/

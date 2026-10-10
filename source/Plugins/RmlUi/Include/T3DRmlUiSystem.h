@@ -32,14 +32,19 @@
 
 namespace Tiny3D
 {
+    class RmlFileInterface;
+    class RmlSystemInterface;
+    class RmlRenderInterface;
+
     /**
      * \brief RmlUi 对 UISystem 的实现
-     * \remarks Phase 0 只完成 Initialise / Shutdown。update、render 与查询接口为空。
+     * \remarks Phase 1 只绘制 kOverlay。输入留到 Phase 3。
      */
     class T3D_RMLUI_API RmlUiSystem : public UISystem
     {
     public:
         static RmlUiSystemPtr create();
+        static RmlUiSystem *getInstance() { return sInstance; }
 
         const String &getName() const override;
 
@@ -51,11 +56,29 @@ namespace Tiny3D
         bool wantsKeyboard() const override;
         void releaseAll() override;
 
+        void registerCanvas(RmlCanvas *canvas);
+        void unregisterCanvas(RmlCanvas *canvas);
+
     private:
         RmlUiSystem() = default;
 
+        void ensureFont();
+        void syncCanvas(RmlCanvas *canvas);
+        void loadDocuments(RmlCanvas *canvas);
+        static bool targetPixelSize(RenderTarget *target, int32_t &width, int32_t &height);
+
+        static RmlUiSystem *sInstance;
+
         String  mName {"RmlUi"};
         bool    mInitialised {false};
+        bool    mFontLoaded {false};
+        bool    mFontWarned {false};
+
+        RmlFileInterface *mFile {nullptr};
+        RmlSystemInterface *mSystem {nullptr};
+        RmlRenderInterface *mRender {nullptr};
+
+        TArray<RmlCanvas *> mCanvases {};
     };
 }
 

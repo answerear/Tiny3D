@@ -31,6 +31,12 @@ include_directories(
 set_project_files(Include ${TINY3D_RMLUI_SOURCE_DIR}/Include/ .h)
 set_project_files(Source ${TINY3D_RMLUI_SOURCE_DIR}/Source/ .cpp)
 
+# 产物在构建期由 rpp 写出。rpp 目标要等根 CMakeLists 末尾才挂上：Plugins 在
+# Tools 之前，这里还没有 ReflectionPreprocessor，干净生成时 bin 里也没有 rpp。
+tiny3d_declare_generated_sources(Generated ${TINY3D_GENERATED_BASE_DIR}/Plugins/RmlUi/Generated/)
+# Templates.generated.cpp 是引擎模板实例，已在 T3DCore 注册。插件只编自己的源文件产物。
+list(FILTER SOURCE_FILES EXCLUDE REGEX "Templates\\.generated\\.cpp$")
+
 if (TINY3D_BUILD_SHARED_LIBS)
     add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
 else (TINY3D_BUILD_SHARED_LIBS)

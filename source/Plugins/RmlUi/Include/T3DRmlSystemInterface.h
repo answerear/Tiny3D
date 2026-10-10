@@ -22,31 +22,28 @@
  * SOFTWARE.
  ******************************************************************************/
 
-
-#ifndef __T3D_RMLUI_PREREQUISITES_H__
-#define __T3D_RMLUI_PREREQUISITES_H__
-
-
-#include <Tiny3D.h>
+#ifndef __T3D_RML_SYSTEM_INTERFACE_H__
+#define __T3D_RML_SYSTEM_INTERFACE_H__
 
 
-#if defined(RMLUI_EXPORT)
-    #define T3D_RMLUI_API       T3D_EXPORT_API
-#else
-    #define T3D_RMLUI_API       T3D_IMPORT_API
-#endif
+#include "T3DRmlUiPrerequisites.h"
+
+#include <RmlUi/Core/SystemInterface.h>
 
 
 namespace Tiny3D
 {
-    #define LOG_TAG_RMLUI           "RmlUi"
-
-    class RmlUiSystem;
-    class RmlCanvas;
-
-    T3D_DECLARE_SMART_PTR(RmlUiSystem);
-    T3D_DECLARE_SMART_PTR(RmlCanvas);
+    /**
+     * \brief RmlUi 的时间与日志
+     * \remarks 光标、剪贴板和软键盘留到 Phase 3。
+     */
+    class RmlSystemInterface : public Rml::SystemInterface
+    {
+    public:
+        double GetElapsedTime() override;
+        bool LogMessage(Rml::Log::Type type, const Rml::String &message) override;
+    };
 }
 
 
-#endif  /*__T3D_RMLUI_PREREQUISITES_H__*/
+#endif  /*__T3D_RML_SYSTEM_INTERFACE_H__*/

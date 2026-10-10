@@ -33,6 +33,10 @@ include_directories(
 set_project_files(Include ${TINY3D_RMLUI_SOURCE_DIR}/Include/ .h)
 set_project_files(Source ${TINY3D_RMLUI_SOURCE_DIR}/Source/ .cpp)
 
+# 与 Runtime 共用同一份产物。rpp 只跑一次，接线在根 CMakeLists 末尾。
+tiny3d_declare_generated_sources(Generated ${TINY3D_GENERATED_BASE_DIR}/Plugins/RmlUi/Generated/)
+list(FILTER SOURCE_FILES EXCLUDE REGEX "Templates\\.generated\\.cpp$")
+
 if (TINY3D_BUILD_SHARED_LIBS)
     add_library(${LIB_NAME} SHARED ${SOURCE_FILES})
 else (TINY3D_BUILD_SHARED_LIBS)
