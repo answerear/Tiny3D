@@ -132,7 +132,7 @@ namespace Tiny3D
             // 使用 shader cross compiler 工具生成临时编译生成的 shader 文件
 #if defined (T3D_OS_WINDOWS)
             String appPath = Dir::getAppPath() + Dir::getNativeSeparator() + "scc.exe";
-            String cmdLine =  filePath + " -t hlsl" + " -o " + outputPath;
+            String cmdLine = filePath + " -t hlsl,glsl,essl,spirv" + " -o " + outputPath;
             // 把旧的 shader guid 传给 scc，让它编译出相同 guid 的 shader，保持引用稳定
             if (shaderUUID != UUID::INVALID)
             {
