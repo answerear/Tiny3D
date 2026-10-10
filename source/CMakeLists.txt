@@ -317,6 +317,11 @@ if (NOT TINY3D_BUILD_RTTR_TOOL)
 	set_property(TARGET rttr_core PROPERTY FOLDER "External/rttr")
 endif (NOT TINY3D_BUILD_RTTR_TOOL)
 
+# 自有源文件按无 BOM UTF-8 保存。放在 External 之后，避免把该选项传给第三方。
+if (MSVC)
+    add_compile_options(/utf-8)
+endif ()
+
 # 反射产物的根目录。每个平台（含交叉编译）都在自己的构建目录里生成，Android 用的
 # 就是 NDK 头解析出来的产物。
 #

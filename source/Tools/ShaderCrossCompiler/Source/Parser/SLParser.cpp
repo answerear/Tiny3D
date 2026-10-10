@@ -1,4 +1,4 @@
-﻿#include "SLParser.h"
+#include "SLParser.h"
 
 void SetDefaultShaderState(SLShaderState& base)
 {
