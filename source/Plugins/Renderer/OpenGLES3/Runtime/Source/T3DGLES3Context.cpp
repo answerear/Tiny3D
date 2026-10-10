@@ -877,7 +877,11 @@ namespace Tiny3D
 
         if (fbHeight > 0)
         {
-            const GLint glY = fbHeight - (y + static_cast<int32_t>(height));
+            // 画到窗口时投影未翻转，左上原点要换成 GL 左下原点。
+            // 画到 FBO 时投影已经翻过 Y，逻辑矩形与帧缓冲行号一致，不能再翻。
+            const GLint glY = mRenderingToFBO
+                ? static_cast<GLint>(y)
+                : fbHeight - (y + static_cast<int32_t>(height));
             auto lambda = [this](GLint x, GLint y, GLsizei w, GLsizei h)
             {
                 glScissor(x, y, w, h);
@@ -900,7 +904,9 @@ namespace Tiny3D
                     "GLES3Context::setScissorRect: no render target and GL viewport height is zero");
                 return T3D_OK;
             }
-            const GLint glY = fbH - (y + static_cast<int32_t>(height));
+            const GLint glY = mRenderingToFBO
+                ? static_cast<GLint>(y)
+                : fbH - (y + static_cast<int32_t>(height));
             glScissor(static_cast<GLint>(x), glY,
                 static_cast<GLsizei>(width), static_cast<GLsizei>(height));
             GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::setScissorRect(fallback)");
