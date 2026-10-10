@@ -27,8 +27,6 @@
 
 
 #include "T3DRmlUiPrerequisites.h"
-#include "Component/T3DBehaviour.h"
-#include "UI/T3DUISystem.h"
 
 
 namespace Rml

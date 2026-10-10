@@ -23,11 +23,7 @@
  ******************************************************************************/
 
 #include "T3DRmlCanvas.h"
-
 #include "T3DRmlUiSystem.h"
-
-#include <RmlUi/Core/Context.h>
-#include <RmlUi/Core/Core.h>
 
 
 namespace Tiny3D

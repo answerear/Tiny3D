@@ -28,8 +28,6 @@
 
 #include "T3DRmlUiPrerequisites.h"
 
-#include <RmlUi/Core/RenderInterface.h>
-
 
 namespace Tiny3D
 {

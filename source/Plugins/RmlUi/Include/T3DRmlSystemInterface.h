@@ -28,20 +28,22 @@
 
 #include "T3DRmlUiPrerequisites.h"
 
-#include <RmlUi/Core/SystemInterface.h>
-
 
 namespace Tiny3D
 {
     /**
-     * \brief RmlUi 的时间与日志
-     * \remarks 光标、剪贴板和软键盘留到 Phase 3。
+     * \brief RmlUi 的时间、日志、光标、剪贴板和软键盘。
      */
     class RmlSystemInterface : public Rml::SystemInterface
     {
     public:
         double GetElapsedTime() override;
         bool LogMessage(Rml::Log::Type type, const Rml::String &message) override;
+        void SetMouseCursor(const Rml::String &cursorName) override;
+        void SetClipboardText(const Rml::String &text) override;
+        void GetClipboardText(Rml::String &text) override;
+        void ActivateKeyboard(Rml::Vector2f caretPosition, float lineHeight) override;
+        void DeactivateKeyboard() override;
     };
 }
 

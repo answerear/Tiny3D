@@ -26,8 +26,13 @@
 
 #include "T3DRmlCanvas.h"
 #include "T3DRmlFileInterface.h"
+#include "T3DRmlInputBridge.h"
 #include "T3DRmlRenderInterface.h"
 #include "T3DRmlSystemInterface.h"
+#include "T3DRmlTextInputHandler.h"
+
+#include "Input/T3DInput.h"
+#include "Application/T3DApplication.h"
 
 #include "Component/T3DCamera.h"
 #include "Device/T3DDeviceInfo.h"
@@ -117,20 +122,33 @@ namespace Tiny3D
         mFile = T3D_NEW RmlFileInterface();
         mSystem = T3D_NEW RmlSystemInterface();
         mRender = T3D_NEW RmlRenderInterface();
+        mInput = T3D_NEW RmlInputBridge();
+        mText = T3D_NEW RmlTextInputHandler();
         Rml::SetFileInterface(mFile);
         Rml::SetSystemInterface(mSystem);
         Rml::SetRenderInterface(mRender);
+        Rml::SetTextInputHandler(mText);
 
         if (!Rml::Initialise())
         {
             T3D_LOG_ERROR(LOG_TAG_RMLUI, "Rml::Initialise() failed.");
+            Rml::SetTextInputHandler(nullptr);
+            T3D_DELETE mText;
+            T3D_DELETE mInput;
             T3D_DELETE mRender;
             T3D_DELETE mSystem;
             T3D_DELETE mFile;
+            mText = nullptr;
+            mInput = nullptr;
             mRender = nullptr;
             mSystem = nullptr;
             mFile = nullptr;
             return T3D_ERR_FAIL;
+        }
+
+        if (Application::getInstancePtr() != nullptr)
+        {
+            T3D_APPLICATION.addEventListener(mInput);
         }
 
         mInitialised = true;
@@ -152,10 +170,19 @@ namespace Tiny3D
         // context 还在时渲染接口必须活着。RHI 在这之后才销毁。
         T3D_LOG_INFO(LOG_TAG_RMLUI, "Rml::Shutdown() before RHI destroy.");
         releaseAll();
+        Rml::SetTextInputHandler(nullptr);
+        if (mInput != nullptr && Application::getInstancePtr() != nullptr)
+        {
+            T3D_APPLICATION.removeEventListener(mInput);
+        }
         Rml::Shutdown();
+        T3D_DELETE mText;
+        T3D_DELETE mInput;
         T3D_DELETE mRender;
         T3D_DELETE mSystem;
         T3D_DELETE mFile;
+        mText = nullptr;
+        mInput = nullptr;
         mRender = nullptr;
         mSystem = nullptr;
         mFile = nullptr;
@@ -318,6 +345,19 @@ namespace Tiny3D
             return;
         }
 
+        if (mInput != nullptr)
+        {
+            const bool enabled = (Input::getInstancePtr() == nullptr) || T3D_INPUT.isEnabled();
+            if (!enabled)
+            {
+                mInput->clear();
+            }
+            else
+            {
+                mInput->dispatch(mCanvases, mText);
+            }
+        }
+
         ensureFont();
         for (RmlCanvas *canvas : mCanvases)
         {
@@ -400,6 +440,13 @@ namespace Tiny3D
 
     bool RmlUiSystem::isPointerOverUI() const
     {
+        for (RmlCanvas *canvas : mCanvases)
+        {
+            if (canvas != nullptr && canvas->getContext() != nullptr && canvas->getContext()->IsMouseInteracting())
+            {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -407,7 +454,7 @@ namespace Tiny3D
 
     bool RmlUiSystem::wantsKeyboard() const
     {
-        return false;
+        return mText != nullptr && mText->isActive();
     }
 
     //--------------------------------------------------------------------------

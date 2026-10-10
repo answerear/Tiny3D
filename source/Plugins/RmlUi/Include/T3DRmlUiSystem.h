@@ -35,10 +35,11 @@ namespace Tiny3D
     class RmlFileInterface;
     class RmlSystemInterface;
     class RmlRenderInterface;
+    class RmlInputBridge;
+    class RmlTextInputHandler;
 
     /**
      * \brief RmlUi 对 UISystem 的实现
-     * \remarks Phase 1 只绘制 kOverlay。输入留到 Phase 3。
      */
     class T3D_RMLUI_API RmlUiSystem : public UISystem
     {
@@ -77,6 +78,8 @@ namespace Tiny3D
         RmlFileInterface *mFile {nullptr};
         RmlSystemInterface *mSystem {nullptr};
         RmlRenderInterface *mRender {nullptr};
+        RmlInputBridge *mInput {nullptr};
+        RmlTextInputHandler *mText {nullptr};
 
         TArray<RmlCanvas *> mCanvases {};
     };

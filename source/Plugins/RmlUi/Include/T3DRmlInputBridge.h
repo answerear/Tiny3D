@@ -22,43 +22,37 @@
  * SOFTWARE.
  ******************************************************************************/
 
-
-#ifndef __T3D_RMLUI_PREREQUISITES_H__
-#define __T3D_RMLUI_PREREQUISITES_H__
-
-
-#include <Tiny3D.h>
-#include <RmlUi/Core/FileInterface.h>
-#include <RmlUi/Core/RenderInterface.h>
-#include <RmlUi/Core/Header.h>
-#include <RmlUi/Core/Traits.h>
-#include <RmlUi/Core/TextInputHandler.h>
-#include <RmlUi/Core/SystemInterface.h>
-#include <RmlUi/Core/Context.h>
-#include <RmlUi/Core/Core.h>
+#ifndef __T3D_RML_INPUT_BRIDGE_H__
+#define __T3D_RML_INPUT_BRIDGE_H__
 
 
-#include <cstdio>
-
-
-
-#if defined(RMLUI_EXPORT)
-    #define T3D_RMLUI_API       T3D_EXPORT_API
-#else
-    #define T3D_RMLUI_API       T3D_IMPORT_API
-#endif
+#include "T3DRmlUiPrerequisites.h"
 
 
 namespace Tiny3D
 {
-    #define LOG_TAG_RMLUI           "RmlUi"
-
-    class RmlUiSystem;
     class RmlCanvas;
+    class RmlTextInputHandler;
 
-    T3D_DECLARE_SMART_PTR(RmlUiSystem);
-    T3D_DECLARE_SMART_PTR(RmlCanvas);
+    /**
+     * \brief 把 AppEvent 入队，在 UISystem::update 里投递给 Rml::Context。
+     */
+    class RmlInputBridge : public IAppEventListener
+    {
+    public:
+        void onAppEvent(const AppEvent &event) override;
+        void clear();
+        void dispatch(const TArray<RmlCanvas *> &canvases, RmlTextInputHandler *textInput);
+
+    private:
+        struct StoredEvent
+        {
+            alignas(8) uint8_t bytes[sizeof(AppEvent)] {};
+        };
+
+        TArray<StoredEvent> mQueue {};
+    };
 }
 
 
-#endif  /*__T3D_RMLUI_PREREQUISITES_H__*/
+#endif  /*__T3D_RML_INPUT_BRIDGE_H__*/

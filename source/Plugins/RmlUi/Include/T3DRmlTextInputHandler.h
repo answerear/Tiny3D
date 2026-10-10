@@ -22,43 +22,42 @@
  * SOFTWARE.
  ******************************************************************************/
 
-
-#ifndef __T3D_RMLUI_PREREQUISITES_H__
-#define __T3D_RMLUI_PREREQUISITES_H__
-
-
-#include <Tiny3D.h>
-#include <RmlUi/Core/FileInterface.h>
-#include <RmlUi/Core/RenderInterface.h>
-#include <RmlUi/Core/Header.h>
-#include <RmlUi/Core/Traits.h>
-#include <RmlUi/Core/TextInputHandler.h>
-#include <RmlUi/Core/SystemInterface.h>
-#include <RmlUi/Core/Context.h>
-#include <RmlUi/Core/Core.h>
+#ifndef __T3D_RML_TEXT_INPUT_HANDLER_H__
+#define __T3D_RML_TEXT_INPUT_HANDLER_H__
 
 
-#include <cstdio>
+#include "T3DRmlUiPrerequisites.h"
 
-
-
-#if defined(RMLUI_EXPORT)
-    #define T3D_RMLUI_API       T3D_EXPORT_API
-#else
-    #define T3D_RMLUI_API       T3D_IMPORT_API
-#endif
 
 
 namespace Tiny3D
 {
-    #define LOG_TAG_RMLUI           "RmlUi"
+    /**
+     * \brief 把平台文本事件写回 RmlUi 输入框，并开关软键盘 / IME。
+     */
+    class RmlTextInputHandler : public Rml::TextInputHandler
+    {
+    public:
+        void OnActivate(Rml::TextInputContext *inputContext) override;
+        void OnDeactivate(Rml::TextInputContext *inputContext) override;
+        void OnDestroy(Rml::TextInputContext *inputContext) override;
 
-    class RmlUiSystem;
-    class RmlCanvas;
+        void handleEdit(const char *text, int32_t start, int32_t length);
 
-    T3D_DECLARE_SMART_PTR(RmlUiSystem);
-    T3D_DECLARE_SMART_PTR(RmlCanvas);
+        /// 正在组字时提交并返回 true。否则由调用方走 ProcessTextInput。
+        bool commitText(const char *text);
+
+        bool isActive() const { return mContext != nullptr; }
+
+    private:
+        void placeCandidateWindow();
+        void stopInput();
+
+        Rml::TextInputContext *mContext {nullptr};
+        int mStart {0};
+        int mEnd {0};
+    };
 }
 
 
-#endif  /*__T3D_RMLUI_PREREQUISITES_H__*/
+#endif  /*__T3D_RML_TEXT_INPUT_HANDLER_H__*/

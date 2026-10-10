@@ -27,9 +27,6 @@
 #include "Kernel/T3DArchive.h"
 #include "Resource/T3DAssetManager.h"
 
-#include <cstdio>
-
-
 namespace Tiny3D
 {
     struct RmlFile

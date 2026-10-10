@@ -22,9 +22,9 @@
  * SOFTWARE.
  ******************************************************************************/
 
+#include "T3DRmlUiPrerequisites.h"
 #include "T3DRmlSystemInterface.h"
-
-#include "Kernel/T3DTime.h"
+#include <RmlUi/Core/StringUtilities.h>
 
 
 namespace Tiny3D
@@ -54,6 +54,124 @@ namespace Tiny3D
             break;
         }
         return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    namespace
+    {
+        Window *activeWindow()
+        {
+            if (Agent::getInstancePtr() == nullptr)
+            {
+                return nullptr;
+            }
+
+            const RenderWindowPtr window = T3D_AGENT.getDefaultRenderWindow();
+            if (window == nullptr)
+            {
+                return nullptr;
+            }
+            return window->getOSWindow();
+        }
+
+        SystemCursor cursorFromName(const Rml::String &name)
+        {
+            if (name.empty() || name == "arrow")
+            {
+                return SystemCursor::Arrow;
+            }
+            if (name == "pointer")
+            {
+                return SystemCursor::Hand;
+            }
+            if (name == "text")
+            {
+                return SystemCursor::IBeam;
+            }
+            if (name == "move" || Rml::StringUtilities::StartsWith(name, "rmlui-scroll"))
+            {
+                return SystemCursor::SizeAll;
+            }
+            if (name == "resize")
+            {
+                return SystemCursor::SizeNWSE;
+            }
+            if (name == "cross")
+            {
+                return SystemCursor::Crosshair;
+            }
+            if (name == "unavailable")
+            {
+                return SystemCursor::No;
+            }
+            return SystemCursor::Arrow;
+        }
+    }
+
+    void RmlSystemInterface::SetMouseCursor(const Rml::String &cursorName)
+    {
+        Window *window = activeWindow();
+        if (window != nullptr)
+        {
+            window->setSystemCursor(cursorFromName(cursorName));
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RmlSystemInterface::SetClipboardText(const Rml::String &text)
+    {
+        Window *window = activeWindow();
+        if (window != nullptr)
+        {
+            window->setClipboardText(text.c_str());
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RmlSystemInterface::GetClipboardText(Rml::String &text)
+    {
+        Window *window = activeWindow();
+        text = (window != nullptr) ? window->getClipboardText() : "";
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RmlSystemInterface::ActivateKeyboard(Rml::Vector2f caretPosition, float lineHeight)
+    {
+        Window *window = activeWindow();
+        if (window == nullptr)
+        {
+            return;
+        }
+
+        Vector2 origin(caretPosition.x, caretPosition.y);
+        Vector2 extent(caretPosition.x + 1.0f, caretPosition.y + lineHeight);
+        if (Input::getInstancePtr() != nullptr)
+        {
+            origin = T3D_INPUT.unmapPointer(origin);
+            extent = T3D_INPUT.unmapPointer(extent);
+        }
+
+        window->setTextInputRect(
+            static_cast<int32_t>(origin.x()),
+            static_cast<int32_t>(origin.y()),
+            std::max(1, static_cast<int32_t>(extent.x() - origin.x())),
+            std::max(1, static_cast<int32_t>(extent.y() - origin.y())));
+        window->startTextInput();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RmlSystemInterface::DeactivateKeyboard()
+    {
+        Window *window = activeWindow();
+        if (window != nullptr)
+        {
+            window->stopTextInput();
+        }
     }
 
     //--------------------------------------------------------------------------
