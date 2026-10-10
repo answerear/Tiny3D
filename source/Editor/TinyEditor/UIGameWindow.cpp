@@ -157,6 +157,19 @@ namespace Tiny3D
         {
             drawNoCameraHint(size);
         }
+
+        if (Input::getInstancePtr() != nullptr)
+        {
+            const ImVec2 min = ImGui::GetItemRectMin();
+            const ImVec2 max = ImGui::GetItemRectMax();
+            auto clampCoord = [](float value) -> size_t
+            {
+                return value > 0.0f ? static_cast<size_t>(value) : 0;
+            };
+            const Rect view(clampCoord(min.x), clampCoord(min.y), clampCoord(max.x), clampCoord(max.y));
+            const Size target(static_cast<size_t>(rtWidth), static_cast<size_t>(rtHeight));
+            T3D_INPUT.setPointerMapping(view, target);
+        }
     }
 
     //--------------------------------------------------------------------------

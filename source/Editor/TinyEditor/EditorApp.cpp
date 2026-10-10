@@ -850,8 +850,34 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    namespace
+    {
+        void (*gImGuiPlatformIme)(ImGuiViewport *, ImGuiPlatformImeData *) = nullptr;
+
+        void gatePlatformIme(ImGuiViewport *viewport, ImGuiPlatformImeData *data)
+        {
+            UISystem *uiSystem = T3D_AGENT.getUISystem();
+            if (uiSystem != nullptr && uiSystem->wantsKeyboard())
+            {
+                return;
+            }
+            if (gImGuiPlatformIme != nullptr)
+            {
+                gImGuiPlatformIme(viewport, data);
+            }
+        }
+    }
+
     void EditorApp::engineUpdate()
     {
+        ImGuiIO &io = ImGui::GetIO();
+        if (gImGuiPlatformIme == nullptr && io.SetPlatformImeDataFn != nullptr
+            && io.SetPlatformImeDataFn != gatePlatformIme)
+        {
+            gImGuiPlatformIme = io.SetPlatformImeDataFn;
+            io.SetPlatformImeDataFn = gatePlatformIme;
+        }
+
         mNetworkMgr->poll();
         
         mImGuiImpl->update();
