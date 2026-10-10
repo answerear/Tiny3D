@@ -117,6 +117,12 @@ namespace Tiny3D
         Vector2 getMouseDelta() const;
         Vector2 getMouseScrollDelta() const;
 
+        /// 窗口坐标里 viewRect 对应 targetSize 大小的渲染目标。不设置时为恒等映射。
+        void setPointerMapping(const Rect &viewRect, const Size &targetSize);
+        Vector2 mapPointer(const Vector2 &windowPos) const;
+        /// 渲染目标坐标映射回窗口坐标。
+        Vector2 unmapPointer(const Vector2 &targetPos) const;
+
         uint32_t getTouchCount() const;
         Touch getTouch(uint32_t index) const;
 
@@ -154,6 +160,14 @@ namespace Tiny3D
         uint16_t    mModifiers {0};
         int32_t     mWindowWidth {0};
         int32_t     mWindowHeight {0};
+
+        bool        mPointerMapped {false};
+        float       mMapLeft {0.0f};
+        float       mMapTop {0.0f};
+        float       mMapWidth {1.0f};
+        float       mMapHeight {1.0f};
+        float       mMapTargetWidth {1.0f};
+        float       mMapTargetHeight {1.0f};
 
         ButtonState mScanKeys[APP_NUM_SCANCODES] {};
         TUnorderedMap<uint32_t, ButtonState> mKeyCodes {};

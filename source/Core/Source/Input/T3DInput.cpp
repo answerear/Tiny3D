@@ -298,7 +298,55 @@ namespace Tiny3D
 
     Vector2 Input::getMousePosition() const
     {
-        return mMousePosition;
+        return mapPointer(mMousePosition);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Input::setPointerMapping(const Rect &viewRect, const Size &targetSize)
+    {
+        if (viewRect.right <= viewRect.left || viewRect.bottom <= viewRect.top
+            || targetSize.width == 0 || targetSize.height == 0)
+        {
+            mPointerMapped = false;
+            return;
+        }
+
+        mMapLeft = static_cast<float>(viewRect.left);
+        mMapTop = static_cast<float>(viewRect.top);
+        mMapWidth = static_cast<float>(viewRect.right - viewRect.left);
+        mMapHeight = static_cast<float>(viewRect.bottom - viewRect.top);
+        mMapTargetWidth = static_cast<float>(targetSize.width);
+        mMapTargetHeight = static_cast<float>(targetSize.height);
+        mPointerMapped = true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    Vector2 Input::mapPointer(const Vector2 &windowPos) const
+    {
+        if (!mPointerMapped)
+        {
+            return windowPos;
+        }
+
+        const float u = (windowPos.x() - mMapLeft) / mMapWidth;
+        const float v = (windowPos.y() - mMapTop) / mMapHeight;
+        return Vector2(u * mMapTargetWidth, v * mMapTargetHeight);
+    }
+
+    //--------------------------------------------------------------------------
+
+    Vector2 Input::unmapPointer(const Vector2 &targetPos) const
+    {
+        if (!mPointerMapped)
+        {
+            return targetPos;
+        }
+
+        const float u = targetPos.x() / mMapTargetWidth;
+        const float v = targetPos.y() / mMapTargetHeight;
+        return Vector2(mMapLeft + u * mMapWidth, mMapTop + v * mMapHeight);
     }
 
     //--------------------------------------------------------------------------
