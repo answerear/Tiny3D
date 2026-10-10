@@ -20,5 +20,15 @@
 			<p>滚动区域 10 / Scroll line 10</p>
 		</div>
 	</div>
+	<div id="phase2">
+		<h1>Transform</h1>
+		<div id="spin">旋转 30° / rotate</div>
+		<div id="round">
+			<p>圆角裁剪 Round clip</p>
+		</div>
+		<div id="turned">
+			<div class="spill">旋转容器里溢出的子元素</div>
+		</div>
+	</div>
 </body>
 </rml>

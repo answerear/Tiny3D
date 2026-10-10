@@ -73,3 +73,72 @@ scrollbarhorizontal sliderbar
 {
 	background-color: #3d4c66;
 }
+
+#phase2
+{
+	display: block;
+	position: absolute;
+	top: 24dp;
+	left: 480dp;
+	width: 320dp;
+	padding: 16dp;
+	background-color: #1d2433;
+	border-width: 1dp;
+	border-color: #3d4c66;
+}
+
+#spin
+{
+	display: block;
+	width: 180dp;
+	height: 44dp;
+	margin: 8dp 16dp 28dp;
+	padding: 8dp;
+	background-color: #c45c26;
+	color: #ffffff;
+	transform: rotate(30deg) scale(1.15);
+}
+
+#round
+{
+	display: block;
+	width: 220dp;
+	height: 64dp;
+	margin: 12dp 16dp;
+	padding: 8dp;
+	border-radius: 32dp;
+	overflow: hidden;
+	background-color: #3d4c66;
+}
+
+#round p
+{
+	display: block;
+	width: 280dp;
+	margin: 8dp 0 0;
+	padding: 6dp;
+	background-color: #e8c07a;
+	color: #1d2433;
+}
+
+#turned
+{
+	display: block;
+	width: 170dp;
+	height: 64dp;
+	margin: 36dp 16dp 16dp;
+	overflow: hidden;
+	background-color: #2a6f6f;
+	transform: rotate(-18deg);
+}
+
+#turned .spill
+{
+	display: block;
+	width: 260dp;
+	height: 36dp;
+	margin-top: 14dp;
+	padding: 6dp;
+	background-color: #d2e6a0;
+	color: #1d2433;
+}
