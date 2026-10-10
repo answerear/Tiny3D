@@ -34,8 +34,8 @@
 namespace Tiny3D
 {
     /**
-     * \brief RmlUi 的最小渲染接口
-     * \remarks Phase 1 实现几何、纹理和 scissor。Transform 与 clip mask 留到 Phase 2。
+     * \brief RmlUi 渲染接口
+     * \remarks 几何、纹理、scissor、CSS transform，以及用模板缓冲做的 clip mask。
      */
     class RmlRenderInterface : public Rml::RenderInterface
     {
@@ -55,6 +55,11 @@ namespace Tiny3D
         void EnableScissorRegion(bool enable) override;
         void SetScissorRegion(Rml::Rectanglei region) override;
 
+        void SetTransform(const Rml::Matrix4f *transform) override;
+        void EnableClipMask(bool enable) override;
+        void RenderToClipMask(Rml::ClipMaskOperation operation, Rml::CompiledGeometryHandle geometry,
+            Rml::Vector2f translation) override;
+
         /**
          * \brief 为一台相机的一次 UI 绘制准备投影和状态
          * \param [in] ctx : 当前 RHI 上下文，进入前已经 setRenderTarget
@@ -62,15 +67,19 @@ namespace Tiny3D
          * \param [in] height : 视口高度（像素）
          * \param [in] originX : 视口左上角在目标上的像素 X
          * \param [in] originY : 视口左上角在目标上的像素 Y
+         * \param [in] stencilAvailable : 当前目标带模板缓冲。没有时 clip mask 降级为不裁剪
          * \return shader 尚未就绪时返回 false
          */
-        bool beginFrame(RHIContext *ctx, int32_t width, int32_t height, int32_t originX, int32_t originY);
+        bool beginFrame(RHIContext *ctx, int32_t width, int32_t height, int32_t originX, int32_t originY,
+            bool stencilAvailable);
 
-        /// 把 scissor 恢复成整屏并关掉裁剪
+        /// 把 scissor 恢复成整屏，并关掉模板测试
         void endFrame();
 
     private:
         bool ensureShaders();
+        void applyColorAndStencil();
+        DepthStencilState *stencilState(CompareFunction func, StencilOp passOp, uint32_t ref);
         Rml::TextureHandle uploadRGBA(const uint8_t *rgba, int32_t width, int32_t height);
         PixelBuffer2D *textureFromHandle(Rml::TextureHandle texture) const;
 
@@ -81,6 +90,11 @@ namespace Tiny3D
         int32_t mOriginY {0};
         bool mScissor {false};
         bool mShadersReady {false};
+        bool mStencilAvailable {false};
+        bool mStencilWarned {false};
+        bool mClipEnabled {false};
+        bool mClipWrite {false};
+        uint32_t mClipRef {0};
 
         MaterialPtr mColorMaterial {nullptr};
         MaterialPtr mTextureMaterial {nullptr};
@@ -89,7 +103,9 @@ namespace Tiny3D
         VertexDeclarationPtr mVertexDecl {nullptr};
 
         BlendStatePtr mBlendState {nullptr};
+        BlendStatePtr mNoColorBlendState {nullptr};
         DepthStencilStatePtr mDepthStencilState {nullptr};
+        TUnorderedMap<uint32_t, DepthStencilStatePtr> mStencilStates {};
         RasterizerStatePtr mRasterizerScissor {nullptr};
         RasterizerStatePtr mRasterizerNoScissor {nullptr};
         SamplerStatePtr mSampler {nullptr};

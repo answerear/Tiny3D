@@ -36,6 +36,9 @@
 #include "Render/T3DRenderTexture.h"
 #include "Render/T3DRenderWindow.h"
 #include "Render/T3DViewport.h"
+#include "Render/T3DPixelBuffer.h"
+#include "Kernel/T3DAgent.h"
+#include "RHI/T3DRHIRenderer.h"
 
 #include <RmlUi/Core/Context.h>
 #include <RmlUi/Core/Core.h>
@@ -50,6 +53,40 @@ namespace Tiny3D
     {
         const char *kFontPath = "assets/samples/ui/NotoSansSC-Regular.otf";
         const char *kFontFamily = "Noto Sans SC";
+
+        bool targetHasStencil(RenderTarget *target)
+        {
+            if (target == nullptr)
+            {
+                return false;
+            }
+
+            const RenderTexturePtr depth = target->getDepthStencil();
+            if (depth != nullptr && depth->getPixelBuffer() != nullptr)
+            {
+                const PixelFormat format = static_cast<PixelBuffer2D *>(depth->getPixelBuffer())->getDescriptor().format;
+                return format == PixelFormat::E_PF_D24_UNORM_S8_UINT
+                    || format == PixelFormat::E_PF_D32_FLOAT_S8X24_UINT;
+            }
+
+            // 窗口自带的深度不挂在 RenderTarget 上。D3D11 / GL4 / GLES3 窗口是 D24S8。
+            // Vulkan 窗口是 D32，没有模板。
+            if (target->getType() != RenderTarget::Type::E_RT_WINDOW)
+            {
+                return false;
+            }
+
+            const RHIRendererPtr renderer = T3D_AGENT.getActiveRHIRenderer();
+            if (renderer == nullptr)
+            {
+                return false;
+            }
+
+            const String &name = renderer->getName();
+            return name == RHIRenderer::DIRECT3D11
+                || name == RHIRenderer::OPENGL4
+                || name == RHIRenderer::OPENGLES3;
+        }
     }
 
     RmlUiSystem *RmlUiSystem::sInstance = nullptr;
@@ -299,8 +336,7 @@ namespace Tiny3D
 
     void RmlUiSystem::render(RHIContext *ctx, Camera *camera, RenderTarget *target, UIRenderPhase phase)
     {
-        // Phase 2 才画 kBeforePostProcess。
-        if (!mInitialised || phase != UIRenderPhase::kOverlay || ctx == nullptr || camera == nullptr || target == nullptr)
+        if (!mInitialised || ctx == nullptr || camera == nullptr || target == nullptr)
         {
             return;
         }
@@ -349,7 +385,7 @@ namespace Tiny3D
         ctx->setRenderTarget(target);
         ctx->setViewport(viewport);
         ctx->beginPass();
-        if (mRender->beginFrame(ctx, width, height, originX, originY))
+        if (mRender->beginFrame(ctx, width, height, originX, originY, targetHasStencil(target)))
         {
             for (RmlCanvas *canvas : canvases)
             {

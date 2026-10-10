@@ -41,7 +41,7 @@ namespace Tiny3D
 {
     /**
      * \brief 挂在相机物体上的 RmlUi 画布
-     * \remarks Phase 1 只在 kOverlay 绘制。文档在第一次 update 里加载。
+     * \remarks 文档在第一次 update 里加载。RenderMode 决定画在后处理之前还是之后。
      */
     TCLASS()
     class T3D_RMLUI_API RmlCanvas : public Behaviour
@@ -50,6 +50,14 @@ namespace Tiny3D
         TRTTI_FRIEND
 
     public:
+        /// 与 UIRenderPhase 对应，单独定义是为了能在 Inspector 里选
+        TENUM()
+        enum class RenderMode : uint32_t
+        {
+            kOverlay = 0,           ///< 后处理之后，不吃 bloom
+            kBeforePostProcess = 1, ///< 场景之后、后处理之前
+        };
+
         ~RmlCanvas() override = default;
 
         bool executeInEditMode() const override { return true; }
@@ -72,8 +80,18 @@ namespace Tiny3D
         TPROPERTY(RTTRFuncName="DpRatio", RTTRFuncType="setter")
         void setDpRatio(Real ratio) { mDpRatio = ratio; }
 
-        /// Phase 1 固定为叠在后处理之后
-        UIRenderPhase getRenderPhase() const { return UIRenderPhase::kOverlay; }
+        TPROPERTY(RTTRFuncName="RenderMode", RTTRFuncType="getter")
+        RenderMode getRenderMode() const { return mRenderMode; }
+
+        TPROPERTY(RTTRFuncName="RenderMode", RTTRFuncType="setter")
+        void setRenderMode(RenderMode mode) { mRenderMode = mode; }
+
+        UIRenderPhase getRenderPhase() const
+        {
+            return mRenderMode == RenderMode::kBeforePostProcess
+                ? UIRenderPhase::kBeforePostProcess
+                : UIRenderPhase::kOverlay;
+        }
 
         Rml::Context *getContext() const { return mContext; }
 
@@ -92,6 +110,7 @@ namespace Tiny3D
 
     private:
         TArray<String> mDocuments {};
+        RenderMode mRenderMode {RenderMode::kOverlay};
         int32_t mSortOrder {0};
         /// <= 0 时按平台 DPI 换算
         Real mDpRatio {0.0f};

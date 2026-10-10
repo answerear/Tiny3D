@@ -41,6 +41,8 @@
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DMaterialManager.h"
 
+#include <RmlUi/Core/Matrix4.h>
+
 #include <cstddef>
 #include <cstring>
 
@@ -62,6 +64,21 @@ namespace Tiny3D
         uint8_t premultiplyChannel(uint8_t channel, uint8_t alpha)
         {
             return static_cast<uint8_t>((static_cast<uint32_t>(channel) * alpha + 127u) / 255u);
+        }
+
+        /**
+         * \brief 把 RmlUi 列主序矩阵转成引擎的行主序 Matrix4
+         * \remarks 两边都是列向量，平移在最后一列。Rml 的 data() 按列存放，
+         *          这里转置后才能交给 row_major 的 mul(Transform, pos)。
+         */
+        Matrix4 fromRmlMatrix(const Rml::Matrix4f &source)
+        {
+            const float *value = source.data();
+            return Matrix4(
+                value[0], value[4], value[8], value[12],
+                value[1], value[5], value[9], value[13],
+                value[2], value[6], value[10], value[14],
+                value[3], value[7], value[11], value[15]);
         }
     }
 
@@ -138,9 +155,10 @@ namespace Tiny3D
             return;
         }
 
-        material->setMatrix("Transform", Matrix4::IDENTITY);
+        material->setMatrix("Transform", mTransform);
         material->setVector("Translation", Vector4(translation.x, translation.y, 0.0f, 0.0f));
         pass->bind(mCtx, material);
+        applyColorAndStencil();
 
         if (textured)
         {
@@ -421,6 +439,8 @@ namespace Tiny3D
             blendDesc.RenderTargetStates[0].BlendOpAlpha = BlendOperation::kAdd;
             blendDesc.RenderTargetStates[0].ColorMask = kWriteMaskAll;
             mBlendState = T3D_RENDER_STATE_MGR.loadBlendState(blendDesc);
+            blendDesc.RenderTargetStates[0].ColorMask = kWriteMaskNone;
+            mNoColorBlendState = T3D_RENDER_STATE_MGR.loadBlendState(blendDesc);
 
             DepthStencilDesc depthDesc;
             depthDesc.DepthTestEnable = false;
@@ -509,13 +529,19 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    bool RmlRenderInterface::beginFrame(RHIContext *ctx, int32_t width, int32_t height, int32_t originX, int32_t originY)
+    bool RmlRenderInterface::beginFrame(RHIContext *ctx, int32_t width, int32_t height, int32_t originX, int32_t originY,
+        bool stencilAvailable)
     {
         mCtx = ctx;
         mWidth = width;
         mHeight = height;
         mOriginX = originX;
         mOriginY = originY;
+        mStencilAvailable = stencilAvailable;
+        mClipEnabled = false;
+        mClipWrite = false;
+        mClipRef = 0;
+        mTransform = Matrix4::IDENTITY;
         if (ctx == nullptr || width <= 0 || height <= 0 || !ensureShaders())
         {
             return false;
@@ -557,10 +583,172 @@ namespace Tiny3D
             {
                 mCtx->setRasterizerState(mRasterizerNoScissor.get());
             }
+            if (mDepthStencilState != nullptr)
+            {
+                mCtx->setDepthStencilState(mDepthStencilState.get());
+            }
         }
 
         mScissor = false;
+        mClipEnabled = false;
+        mClipWrite = false;
+        mClipRef = 0;
+        mTransform = Matrix4::IDENTITY;
         mCtx = nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RmlRenderInterface::SetTransform(const Rml::Matrix4f *transform)
+    {
+        mTransform = transform != nullptr ? fromRmlMatrix(*transform) : Matrix4::IDENTITY;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RmlRenderInterface::applyColorAndStencil()
+    {
+        if (mCtx == nullptr)
+        {
+            return;
+        }
+
+        if (mClipWrite)
+        {
+            if (mNoColorBlendState != nullptr)
+            {
+                mCtx->setBlendState(mNoColorBlendState.get());
+            }
+            return;
+        }
+
+        if (mBlendState != nullptr)
+        {
+            mCtx->setBlendState(mBlendState.get());
+        }
+
+        DepthStencilState *state = mDepthStencilState.get();
+        if (mClipEnabled && mStencilAvailable)
+        {
+            state = stencilState(CompareFunction::kEqual, StencilOp::kKeep, mClipRef);
+        }
+        if (state != nullptr)
+        {
+            mCtx->setDepthStencilState(state);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    DepthStencilState *RmlRenderInterface::stencilState(CompareFunction func, StencilOp passOp, uint32_t ref)
+    {
+        const uint32_t key = (static_cast<uint32_t>(func) << 24)
+            | (static_cast<uint32_t>(passOp) << 16)
+            | (ref & 0xFFFFu);
+        const auto found = mStencilStates.find(key);
+        if (found != mStencilStates.end())
+        {
+            return found->second.get();
+        }
+
+        DepthStencilDesc desc;
+        desc.DepthTestEnable = false;
+        desc.DepthWriteEnable = false;
+        desc.StencilEnable = true;
+        desc.StencilRef = ref;
+        desc.StencilReadMask = 0xFF;
+        desc.StencilWriteMask = 0xFF;
+        desc.FrontFace.StencilFunc = func;
+        desc.FrontFace.StencilFailOp = StencilOp::kKeep;
+        desc.FrontFace.StencilDepthFailOp = StencilOp::kKeep;
+        desc.FrontFace.StencilPassOp = passOp;
+        desc.BackFace = desc.FrontFace;
+
+        DepthStencilStatePtr state = T3D_RENDER_STATE_MGR.loadDepthStencilState(desc);
+        DepthStencilState *raw = state.get();
+        mStencilStates.emplace(key, state);
+        return raw;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RmlRenderInterface::EnableClipMask(bool enable)
+    {
+        mClipEnabled = enable && mStencilAvailable;
+        if (enable && !mStencilAvailable && !mStencilWarned)
+        {
+            mStencilWarned = true;
+            T3D_LOG_WARNING(LOG_TAG_RMLUI,
+                "Clip mask needs a stencil buffer on the current target. Clipping is disabled.");
+        }
+
+        if (mCtx == nullptr || mClipWrite)
+        {
+            return;
+        }
+
+        DepthStencilState *state = mDepthStencilState.get();
+        if (mClipEnabled)
+        {
+            state = stencilState(CompareFunction::kEqual, StencilOp::kKeep, mClipRef);
+        }
+        if (state != nullptr)
+        {
+            mCtx->setDepthStencilState(state);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RmlRenderInterface::RenderToClipMask(Rml::ClipMaskOperation operation, Rml::CompiledGeometryHandle geometry,
+        Rml::Vector2f translation)
+    {
+        if (!mStencilAvailable)
+        {
+            EnableClipMask(true);
+            return;
+        }
+
+        uint32_t writeRef = 1;
+        StencilOp passOp = StencilOp::kReplace;
+        switch (operation)
+        {
+        case Rml::ClipMaskOperation::Set:
+            if (mCtx != nullptr)
+            {
+                mCtx->clearStencil(0);
+            }
+            writeRef = 1;
+            mClipRef = 1;
+            passOp = StencilOp::kReplace;
+            break;
+        case Rml::ClipMaskOperation::SetInverse:
+            if (mCtx != nullptr)
+            {
+                mCtx->clearStencil(1);
+            }
+            writeRef = 0;
+            mClipRef = 1;
+            passOp = StencilOp::kReplace;
+            break;
+        case Rml::ClipMaskOperation::Intersect:
+            writeRef = mClipRef + 1;
+            mClipRef = writeRef;
+            passOp = StencilOp::kInc;
+            break;
+        }
+
+        DepthStencilState *writeState = stencilState(CompareFunction::kAlwaysPass, passOp, writeRef);
+        if (mCtx != nullptr && writeState != nullptr)
+        {
+            mCtx->setDepthStencilState(writeState);
+        }
+
+        mClipWrite = true;
+        RenderGeometry(geometry, translation, 0);
+        mClipWrite = false;
+        mClipEnabled = true;
+        applyColorAndStencil();
     }
 
     //--------------------------------------------------------------------------
