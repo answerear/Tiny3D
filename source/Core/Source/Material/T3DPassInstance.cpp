@@ -28,6 +28,8 @@
 #include "Material/T3DShaderVariantSet.h"
 #include "Material/T3DPass.h"
 #include "Material/T3DTechniqueInstance.h"
+#include "RHI/T3DRHIContext.h"
+#include "T3DErrorDef.h"
 
 
 namespace Tiny3D
@@ -243,6 +245,85 @@ namespace Tiny3D
         } while (false);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    namespace
+    {
+        using SetCBuffer = TResult (RHIContext::*)(uint32_t, const ConstantBuffers &);
+        using SetSamplerState = TResult (RHIContext::*)(uint32_t, const Samplers &);
+        using SetPixelBuffer = TResult (RHIContext::*)(uint32_t, const PixelBuffers &);
+
+        TResult bindConstants(RHIContext *ctx, SetCBuffer setCBuffer, Material *material, ShaderVariantInstance *shader)
+        {
+            if (material == nullptr || shader == nullptr)
+            {
+                return T3D_ERR_INVALID_PARAM;
+            }
+
+            uint32_t startSlot = 0;
+            shader->updateConstantBuffers(startSlot);
+            if (!shader->getConstantBuffers().empty())
+            {
+                (ctx->*setCBuffer)(startSlot, shader->getConstantBuffers());
+            }
+            return T3D_OK;
+        }
+
+        TResult bindSamplers(RHIContext *ctx, SetSamplerState setSamplerState, SetPixelBuffer setPixelBuffer,
+            Material *material, ShaderVariantInstance *shader)
+        {
+            if (material == nullptr || shader == nullptr)
+            {
+                return T3D_ERR_INVALID_PARAM;
+            }
+
+            if (!shader->getSamplers().empty())
+            {
+                uint32_t startSlot = shader->getSamplerStartSlot();
+                (ctx->*setSamplerState)(startSlot, shader->getSamplers());
+                startSlot = shader->getPixelBufferStartSlot();
+                (ctx->*setPixelBuffer)(startSlot, shader->getPixelBuffers());
+            }
+            return T3D_OK;
+        }
+    }
+
+    TResult PassInstance::bind(RHIContext *ctx, Material *material)
+    {
+        if (ctx == nullptr || material == nullptr)
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        ShaderVariantInstance *vertexShader = getCurrentVertexShader();
+        ShaderVariantInstance *hullShader = getCurrentHullShader();
+        ShaderVariantInstance *domainShader = getCurrentDomainShader();
+        ShaderVariantInstance *geometryShader = getCurrentGeometryShader();
+        ShaderVariantInstance *pixelShader = getCurrentPixelShader();
+
+        bindConstants(ctx, &RHIContext::setVSConstantBuffers, material, vertexShader);
+        bindConstants(ctx, &RHIContext::setHSConstantBuffers, material, hullShader);
+        bindConstants(ctx, &RHIContext::setDSConstantBuffers, material, domainShader);
+        bindConstants(ctx, &RHIContext::setGSConstantBuffers, material, geometryShader);
+        bindConstants(ctx, &RHIContext::setPSConstantBuffers, material, pixelShader);
+
+        bindSamplers(ctx, &RHIContext::setVSSamplers, &RHIContext::setVSPixelBuffers, material, vertexShader);
+        bindSamplers(ctx, &RHIContext::setHSSamplers, &RHIContext::setHSPixelBuffers, material, hullShader);
+        bindSamplers(ctx, &RHIContext::setDSSamplers, &RHIContext::setDSPixelBuffers, material, domainShader);
+        bindSamplers(ctx, &RHIContext::setGSSamplers, &RHIContext::setGSPixelBuffers, material, geometryShader);
+        bindSamplers(ctx, &RHIContext::setPSSamplers, &RHIContext::setPSPixelBuffers, material, pixelShader);
+
+        if (vertexShader != nullptr)
+        {
+            ctx->setVertexShader(vertexShader->getShaderVariant());
+        }
+        ctx->setHullShader(hullShader != nullptr ? hullShader->getShaderVariant() : nullptr);
+        ctx->setDomainShader(domainShader != nullptr ? domainShader->getShaderVariant() : nullptr);
+        ctx->setGeometryShader(geometryShader != nullptr ? geometryShader->getShaderVariant() : nullptr);
+        ctx->setPixelShader(pixelShader != nullptr ? pixelShader->getShaderVariant() : nullptr);
+        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------

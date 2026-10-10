@@ -97,6 +97,14 @@ namespace Tiny3D
         ShaderVariantInstance *getCurrentPixelShader() const { return mCurrentPS; }
 
         /**
+         * \brief 把本 Pass 各 stage 的 shader、常量缓冲、采样器和纹理绑到上下文
+         * \param [in] ctx : 目标 RHI 上下文
+         * \param [in] material : 常量已经写好的材质
+         * \return 上下文或材质为空时返回 T3D_ERR_INVALID_PARAM，否则返回 T3D_OK
+         */
+        TResult bind(RHIContext *ctx, Material *material);
+
+        /**
          * \brief 向当前全部 stage 变体实例设置 bool 常量
          * \param [in] name : 常量名称
          * \param [in] value : 常量值

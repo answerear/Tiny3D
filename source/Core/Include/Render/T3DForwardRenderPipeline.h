@@ -208,32 +208,6 @@ namespace Tiny3D
          */
         TResult setupWorldMatrix(RHIContext *ctx, Renderable *renderable, Material *material, PassInstance *pass);
 
-        using SetCBuffer = TResult (RHIContext::*)(uint32_t, const ConstantBuffers &);
-
-        /**
-         * \brief 更新 shader 常量缓冲并绑定到指定 pipeline stage
-         * \param [in] ctx : RHI 上下文
-         * \param [in] setCBuffer : RHI 常量缓冲绑定函数指针
-         * \param [in] material : 目标材质
-         * \param [in] shader : shader 变体实例；为 nullptr 时返回 T3D_ERR_INVALID_PARAM
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult setupShaderConstants(RHIContext *ctx, SetCBuffer setCBuffer, Material *material, ShaderVariantInstance *shader);
-
-        using SetSamplerState = TResult (RHIContext::*)(uint32_t, const Samplers &);
-        using SetPixelBuffer = TResult (RHIContext::*)(uint32_t, const PixelBuffers &);
-
-        /**
-         * \brief 绑定 shader 变体实例中已解析的采样器与 PixelBuffer
-         * \param [in] ctx : RHI 上下文
-         * \param [in] setSamplerState : RHI 采样器绑定函数指针
-         * \param [in] setPixelBuffer : RHI 纹理绑定函数指针
-         * \param [in] material : 目标材质
-         * \param [in] shader : shader 变体实例；为 nullptr 时返回 T3D_ERR_INVALID_PARAM
-         * \return 调用成功返回 T3D_OK
-         */
-        TResult setupShaderTexSamplers(RHIContext *ctx, SetSamplerState setSamplerState, SetPixelBuffer setPixelBuffer, Material *material, ShaderVariantInstance *shader);
-
         /**
          * \brief 对指定相机渲染方向光阴影贴图（ShadowCaster Pass）
          * \param [in] ctx : RHI 上下文
