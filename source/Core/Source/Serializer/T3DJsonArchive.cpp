@@ -663,10 +663,50 @@ namespace Tiny3D
         //----------------------------------------------------------------------
 
         /**
+         * \brief 类型名去掉 MSVC 签名里的 class / struct 前缀后，是否以关联容器开头。
+         * \remarks 只看最外层。`std::vector<std::map<...>>` 去掉前缀后以 vector 开头，
+         *          不会被认成 map。
+         */
+        bool isAssociativeTypeName(const String &typeName)
+        {
+            String name = typeName;
+            if (name.compare(0, 5, "class") == 0)
+            {
+                name.erase(0, 5);
+            }
+            else if (name.compare(0, 6, "struct") == 0)
+            {
+                name.erase(0, 6);
+            }
+
+            static const char *kAssociative[] = {
+                "std::map<",
+                "std::multimap<",
+                "std::set<",
+                "std::multiset<",
+                "std::unordered_map<",
+                "std::unordered_multimap<",
+                "std::unordered_set<",
+                "std::unordered_multiset<",
+            };
+            for (const char *prefix : kAssociative)
+            {
+                const size_t length = std::char_traits<char>::length(prefix);
+                if (name.compare(0, length, prefix) == 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /**
          * \brief 判定数组载荷是顺序容器还是关联容器。
          * \remarks JSON 把两者都写成 `[...]`，流式下又无法前瞻首元素形状，只能靠
-         *          落盘的 RTTI 类型名判定。判不出按顺序容器处理；若声明类型实际是
-         *          关联容器，遍历层会因标签不匹配而告警，不会静默丢数据。
+         *          落盘的 RTTI 类型名判定。登记名能查到就用 rttr。查不到时再认
+         *          编译器原始签名（`classstd::map<...>`）：scc 写出的名字未必是
+         *          Templates.generated.cpp 里登记的那个，认不出就会把 map 当成
+         *          顺序容器丢掉。
          */
         ArchiveKind containerKind(const String &typeName)
         {
@@ -674,6 +714,10 @@ namespace Tiny3D
             {
                 const rttr::type t = rttr::type::get_by_name(typeName);
                 if (t.is_valid() && t.is_associative_container())
+                {
+                    return ArchiveKind::Map;
+                }
+                if (isAssociativeTypeName(typeName))
                 {
                     return ArchiveKind::Map;
                 }
