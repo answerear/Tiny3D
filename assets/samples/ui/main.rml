@@ -36,5 +36,17 @@
 		<p id="clicks">点击次数 0</p>
 		<input type="text" id="name" value=""/>
 	</div>
+	<div id="hud" data-model="hud">
+		<h1>HUD</h1>
+		<p>HP {{ hp }}</p>
+		<p>Score {{ score }}</p>
+		<button type="button" data-event-click="hit">Hit -10</button>
+		<button type="button" data-event-click="add_score">Score +25</button>
+		<button type="button" data-event-click="add_item">Add item</button>
+		<button type="button" data-event-click="remove_item">Remove item</button>
+		<div data-for="item : items">
+			<p>{{ item.name }} x {{ item.count }}</p>
+		</div>
+	</div>
 </body>
 </rml>

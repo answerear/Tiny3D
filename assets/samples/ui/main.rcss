@@ -188,3 +188,44 @@ scrollbarhorizontal sliderbar
 	border-color: #3d4c66;
 	color: #f2f4f8;
 }
+
+#hud
+{
+	display: block;
+	position: absolute;
+	top: 420dp;
+	left: 480dp;
+	width: 320dp;
+	padding: 16dp;
+	background-color: #243044;
+	border-width: 1dp;
+	border-color: #8eb4d4;
+}
+
+#hud button
+{
+	display: inline-block;
+	width: 140dp;
+	height: 32dp;
+	margin: 0 8dp 8dp 0;
+	background-color: #2f4f6f;
+	color: #ffffff;
+	border-width: 1dp;
+	border-color: #8eb4d4;
+}
+
+#hud button:hover
+{
+	background-color: #3d6a94;
+}
+
+#hud button:active
+{
+	background-color: #c47a3a;
+}
+
+#hud p
+{
+	display: block;
+	margin-bottom: 6dp;
+}
