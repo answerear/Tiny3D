@@ -55,7 +55,6 @@ private:
 
     Tiny3D::RmlCanvas *mCanvas {nullptr};
     Rml::EventListener *mClickListener {nullptr};
-    bool mClickAttached {false};
 };
 
 

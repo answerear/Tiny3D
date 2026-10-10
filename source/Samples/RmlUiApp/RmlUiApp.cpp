@@ -32,9 +32,7 @@
 #include <RmlUi/Core/ElementDocument.h>
 #include <RmlUi/Core/Event.h>
 #include <RmlUi/Core/EventListener.h>
-
-#include <cstdlib>
-#include <string>
+#include <RmlUi/Core/DataModelHandle.h>
 
 #define ARCHIVE_TYPE_FS         "FileSystem"
 #define ARCHIVE_TYPE_ANDROID    "AndroidAsset"
@@ -45,6 +43,106 @@ using namespace Tiny3D;
 
 namespace
 {
+    struct HudItem
+    {
+        Rml::String name;
+        int count {1};
+    };
+
+    struct HudState
+    {
+        int hp {86};
+        int score {120};
+        Rml::Vector<HudItem> items;
+    };
+
+    HudState gHud;
+
+    void dirty(Rml::DataModelHandle handle, const char *name)
+    {
+        handle.DirtyVariable(name);
+    }
+
+    bool bindHud(Rml::Context *context)
+    {
+        if (context == nullptr)
+        {
+            return false;
+        }
+
+        HudItem potion;
+        potion.name = "Potion";
+        potion.count = 2;
+        HudItem arrow;
+        arrow.name = "Arrow";
+        arrow.count = 15;
+        gHud.items.clear();
+        gHud.items.push_back(potion);
+        gHud.items.push_back(arrow);
+
+        Rml::DataModelConstructor constructor = context->CreateDataModel("hud");
+        if (!constructor)
+        {
+            T3D_LOG_ERROR("RmlUiApp", "CreateDataModel(\"hud\") failed.");
+            return false;
+        }
+
+        Rml::StructHandle<HudItem> item = constructor.RegisterStruct<HudItem>();
+        if (!item)
+        {
+            T3D_LOG_ERROR("RmlUiApp", "RegisterStruct<HudItem> failed.");
+            return false;
+        }
+        item.RegisterMember("name", &HudItem::name);
+        item.RegisterMember("count", &HudItem::count);
+        if (!constructor.RegisterArray<Rml::Vector<HudItem>>())
+        {
+            T3D_LOG_ERROR("RmlUiApp", "RegisterArray items failed.");
+            return false;
+        }
+
+        constructor.Bind("hp", &gHud.hp);
+        constructor.Bind("score", &gHud.score);
+        constructor.Bind("items", &gHud.items);
+        constructor.BindEventCallback("hit", [](Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &arguments)
+        {
+            (void)event;
+            (void)arguments;
+            gHud.hp = (gHud.hp > 10) ? (gHud.hp - 10) : 0;
+            dirty(handle, "hp");
+        });
+        constructor.BindEventCallback("add_score", [](Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &arguments)
+        {
+            (void)event;
+            (void)arguments;
+            gHud.score += 25;
+            dirty(handle, "score");
+        });
+        constructor.BindEventCallback("add_item", [](Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &arguments)
+        {
+            (void)event;
+            (void)arguments;
+            HudItem added;
+            added.name = "Item " + std::to_string(gHud.items.size() + 1);
+            added.count = 1;
+            gHud.items.push_back(added);
+            dirty(handle, "items");
+        });
+        constructor.BindEventCallback("remove_item", [](Rml::DataModelHandle handle, Rml::Event &event, const Rml::VariantList &arguments)
+        {
+            (void)event;
+            (void)arguments;
+            if (!gHud.items.empty())
+            {
+                gHud.items.pop_back();
+            }
+            dirty(handle, "items");
+        });
+
+        T3D_LOG_INFO("RmlUiApp", "HUD data model is ready before LoadDocument.");
+        return true;
+    }
+
     class ClickListener : public Rml::EventListener
     {
     public:
@@ -153,6 +251,12 @@ TResult RmlUiApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
         return T3D_ERR_FAIL;
     }
 
+    if (canvas->getContext() == nullptr || !bindHud(canvas->getContext()))
+    {
+        T3D_LOG_ERROR("RmlUiApp", "HUD data model must exist before LoadDocument.");
+        return T3D_ERR_FAIL;
+    }
+
     TArray<String> documents;
     documents.push_back("assets/samples/ui/main.rml");
     canvas->setDocuments(documents);
@@ -162,7 +266,7 @@ TResult RmlUiApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
 
 void RmlUiApp::attachClickListener()
 {
-    if (mClickAttached || mCanvas == nullptr || mCanvas->getContext() == nullptr || mClickListener == nullptr)
+    if (mCanvas == nullptr || mCanvas->getContext() == nullptr || mClickListener == nullptr)
     {
         return;
     }
@@ -180,13 +284,13 @@ void RmlUiApp::attachClickListener()
     }
 
     Rml::Element *button = document->GetElementById("ping");
-    if (button == nullptr)
+    if (button == nullptr || button->GetAttribute("t3d-click") != nullptr)
     {
         return;
     }
 
     button->AddEventListener("click", mClickListener);
-    mClickAttached = true;
+    button->SetAttribute("t3d-click", 1);
 }
 
 bool RmlUiApp::pollEvents()
