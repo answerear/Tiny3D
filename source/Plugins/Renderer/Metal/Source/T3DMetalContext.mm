@@ -921,6 +921,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult MetalContext::clearStencil(uint32_t stencil)
+    {
+        mImpl->clearStencil = stencil;
+        mImpl->pendingStencilClear = true;
+        endEncoder();
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     RHIBlendStatePtr MetalContext::createBlendState(BlendState *state)
     {
         MetalBlendStatePtr metalState = MetalBlendState::create();

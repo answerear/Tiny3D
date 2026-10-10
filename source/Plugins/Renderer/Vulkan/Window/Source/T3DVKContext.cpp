@@ -1597,6 +1597,45 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult VKContext::clearStencil(uint32_t stencil)
+    {
+        if (mCurrentRenderTarget == nullptr || mCurrentRenderTarget->getDepthStencil() == nullptr)
+            return T3D_OK;
+
+        RenderTexturePtr depthStencilRT = mCurrentRenderTarget->getDepthStencil();
+        PixelBuffer2D *buffer = static_cast<PixelBuffer2D *>(depthStencilRT->getPixelBuffer());
+        if (buffer == nullptr)
+            return T3D_OK;
+
+        const PixelFormat format = buffer->getDescriptor().format;
+        if (format != PixelFormat::E_PF_D24_UNORM_S8_UINT
+            && format != PixelFormat::E_PF_D32_FLOAT_S8X24_UINT)
+        {
+            return T3D_OK;
+        }
+
+        VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
+        VKPixelBuffer2D *vkDS = static_cast<VKPixelBuffer2D *>(buffer->getRHIResource().get());
+
+        insertImageBarrier(cmdBuf, vkDS->VkTex,
+            vkDS->VkCurrentLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            0, VK_ACCESS_TRANSFER_WRITE_BIT,
+            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK_IMAGE_ASPECT_STENCIL_BIT);
+        vkDS->VkCurrentLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+
+        VkClearDepthStencilValue clearValue = {1.0f, stencil};
+        VkImageSubresourceRange range {};
+        range.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
+        range.levelCount = 1;
+        range.layerCount = 1;
+        vkCmdClearDepthStencilImage(cmdBuf, vkDS->VkTex, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clearValue, 1, &range);
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     RHIBlendStatePtr VKContext::createBlendState(BlendState *state)
     {
         // Vulkan blend state is part of pipeline creation, store desc for later

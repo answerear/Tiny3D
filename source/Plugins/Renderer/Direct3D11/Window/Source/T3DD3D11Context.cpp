@@ -1441,6 +1441,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult D3D11Context::clearStencil(uint32_t stencil)
+    {
+        return clearDepthStencilView(D3D11_CLEAR_STENCIL, 1.0f, static_cast<uint8_t>(stencil));
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult D3D11Context::clearDepthStencilView(uint32_t clearFlags, Real depth, uint8_t stencil)
     {
         if (mCurrentRenderTarget == nullptr)

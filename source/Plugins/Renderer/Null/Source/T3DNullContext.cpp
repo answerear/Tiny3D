@@ -123,6 +123,13 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult NullContext::clearStencil(uint32_t stencil)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
     
     RHIBlendStatePtr NullContext::createBlendState(BlendState *state)
     {

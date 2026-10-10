@@ -189,6 +189,15 @@ namespace Tiny3D
         virtual TResult clearDepthStencil(Real depth, uint32_t stencil) = 0;
 
         /**
+         * \brief 只清模板缓冲，不动颜色和深度
+         * \param [in] stencil : 模板清屏值
+         * \return 调用成功返回 T3D_OK
+         * \remarks UI clip mask 在场景画完之后写模板。若走 clearDepthStencil，
+         *          会把后处理还要读的深度一起清掉。
+         */
+        virtual TResult clearStencil(uint32_t stencil) = 0;
+
+        /**
          * \brief 创建 RHI 颜色混合状态对象
          * \param [in] state : 引擎颜色混合状态对象
          * \return 调用成功返回新建的 RHI 对象

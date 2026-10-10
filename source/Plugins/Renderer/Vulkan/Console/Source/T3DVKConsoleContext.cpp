@@ -116,6 +116,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult VKConsoleContext::clearStencil(uint32_t stencil)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     RHIBlendStatePtr VKConsoleContext::createBlendState(BlendState *state)
     {
         return nullptr;

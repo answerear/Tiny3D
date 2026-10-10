@@ -57,6 +57,7 @@ namespace Tiny3D
         TResult clearDepth(Real depth) override;
 
         TResult clearDepthStencil(Real depth, uint32_t stencil) override;
+        TResult clearStencil(uint32_t stencil) override;
 
         RHIBlendStatePtr createBlendState(BlendState *state) override;
         RHIDepthStencilStatePtr createDepthStencilState(DepthStencilState *state) override;

@@ -1048,6 +1048,31 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult GLES3Context::clearStencil(uint32_t stencil)
+    {
+        if (mCurrentRenderTarget == nullptr)
+            return T3D_OK;
+
+        auto lambda = [this](uint32_t stencil)
+        {
+            TResult ret = T3D_OK;
+
+            do
+            {
+                ClearMaskGuard guard(GL_STENCIL_BUFFER_BIT);
+                glClearStencil((GLint)stencil);
+                glClear(GL_STENCIL_BUFFER_BIT);
+                GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::clearStencil");
+            } while (false);
+
+            return ret;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, stencil);
+    }
+
+    //--------------------------------------------------------------------------
+
     RHIBlendStatePtr GLES3Context::createBlendState(BlendState *state)
     {
         GLES3BlendStatePtr glState = GLES3BlendState::create();

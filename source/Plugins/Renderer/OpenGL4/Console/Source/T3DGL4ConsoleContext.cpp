@@ -156,6 +156,7 @@ namespace Tiny3D
     TResult GL4ConsoleContext::clearColor(const ColorRGB &color) { return T3D_OK; }
     TResult GL4ConsoleContext::clearDepth(Real depth) { return T3D_OK; }
     TResult GL4ConsoleContext::clearDepthStencil(Real depth, uint32_t stencil) { return T3D_OK; }
+    TResult GL4ConsoleContext::clearStencil(uint32_t stencil) { return T3D_OK; }
     RHIBlendStatePtr GL4ConsoleContext::createBlendState(BlendState *state) { return GL4ConsoleBlendState::create(); }
     RHIDepthStencilStatePtr GL4ConsoleContext::createDepthStencilState(DepthStencilState *state) { return GL4ConsoleDepthStencilState::create(); }
     RHIRasterizerStatePtr GL4ConsoleContext::createRasterizerState(RasterizerState *state) { return GL4ConsoleRasterizerState::create(); }

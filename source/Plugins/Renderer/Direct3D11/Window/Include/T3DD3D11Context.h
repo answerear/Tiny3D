@@ -131,6 +131,7 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         TResult clearDepthStencil(Real depth, uint32_t stencil) override;
+        TResult clearStencil(uint32_t stencil) override;
 
         /**
          * \brief 创建 RHI 颜色混合状态对象

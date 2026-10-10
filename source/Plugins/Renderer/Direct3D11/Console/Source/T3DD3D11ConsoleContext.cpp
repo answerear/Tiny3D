@@ -53,6 +53,7 @@ namespace Tiny3D
     TResult D3D11ConsoleContext::clearColor(const ColorRGB &color) { return T3D_OK; }
     TResult D3D11ConsoleContext::clearDepth(Real depth) { return T3D_OK; }
     TResult D3D11ConsoleContext::clearDepthStencil(Real depth, uint32_t stencil) { return T3D_OK; }
+    TResult D3D11ConsoleContext::clearStencil(uint32_t stencil) { return T3D_OK; }
     RHIBlendStatePtr D3D11ConsoleContext::createBlendState(BlendState *state) { T3D_CONSOLE_UNAVAILABLE(); return nullptr; }
     RHIDepthStencilStatePtr D3D11ConsoleContext::createDepthStencilState(DepthStencilState *state) { T3D_CONSOLE_UNAVAILABLE(); return nullptr; }
     RHIRasterizerStatePtr D3D11ConsoleContext::createRasterizerState(RasterizerState *state) { T3D_CONSOLE_UNAVAILABLE(); return nullptr; }
