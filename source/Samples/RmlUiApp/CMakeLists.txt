@@ -21,6 +21,7 @@ include_directories(
     "${TINY3D_UTILS_INC_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${CMAKE_SOURCE_DIR}/Plugins/RmlUi/Include"
+    "${CMAKE_SOURCE_DIR}/External/RmlUi/RmlUi-6.3/Include"
     "${SDL2_INCLUDE_DIR}"
     "${RTTR_INCLUDE_DIR}"
     )

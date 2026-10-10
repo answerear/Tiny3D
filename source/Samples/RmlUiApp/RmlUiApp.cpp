@@ -27,7 +27,14 @@
 #include "T3DRmlCanvas.h"
 #include "UI/T3DUISystem.h"
 
+#include <RmlUi/Core/Context.h>
+#include <RmlUi/Core/Element.h>
+#include <RmlUi/Core/ElementDocument.h>
+#include <RmlUi/Core/Event.h>
+#include <RmlUi/Core/EventListener.h>
+
 #include <cstdlib>
+#include <string>
 
 #define ARCHIVE_TYPE_FS         "FileSystem"
 #define ARCHIVE_TYPE_ANDROID    "AndroidAsset"
@@ -36,15 +43,49 @@
 using namespace Tiny3D;
 
 
+namespace
+{
+    class ClickListener : public Rml::EventListener
+    {
+    public:
+        void ProcessEvent(Rml::Event &event) override
+        {
+            ++mCount;
+            Rml::Element *target = event.GetTargetElement();
+            Rml::ElementDocument *document = (target != nullptr) ? target->GetOwnerDocument() : nullptr;
+            if (document != nullptr)
+            {
+                Rml::Element *label = document->GetElementById("clicks");
+                if (label != nullptr)
+                {
+                    // UTF-8「点击次数」，避免源文件按系统代码页编译时写坏中文。
+                    label->SetInnerRML(std::string("\xE7\x82\xB9\xE5\x87\xBB\xE6\xAC\xA1\xE6\x95\xB0 ") + std::to_string(mCount));
+                }
+            }
+
+            UISystem *uiSystem = T3D_AGENT.getUISystem();
+            const bool overUI = (uiSystem != nullptr && uiSystem->isPointerOverUI());
+            T3D_LOG_INFO("RmlUiApp", "button click %d, isPointerOverUI=%s", mCount, overUI ? "true" : "false");
+        }
+
+    private:
+        int mCount {0};
+    };
+}
+
+
 RmlUiApp theApp;
 
 
 RmlUiApp::RmlUiApp()
+    : mClickListener(new ClickListener())
 {
 }
 
 RmlUiApp::~RmlUiApp()
 {
+    delete mClickListener;
+    mClickListener = nullptr;
 }
 
 TResult RmlUiApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
@@ -115,11 +156,43 @@ TResult RmlUiApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     TArray<String> documents;
     documents.push_back("assets/samples/ui/main.rml");
     canvas->setDocuments(documents);
+    mCanvas = canvas.get();
     return T3D_OK;
+}
+
+void RmlUiApp::attachClickListener()
+{
+    if (mClickAttached || mCanvas == nullptr || mCanvas->getContext() == nullptr || mClickListener == nullptr)
+    {
+        return;
+    }
+
+    Rml::Context *context = mCanvas->getContext();
+    if (context->GetNumDocuments() <= 0)
+    {
+        return;
+    }
+
+    Rml::ElementDocument *document = context->GetDocument(0);
+    if (document == nullptr)
+    {
+        return;
+    }
+
+    Rml::Element *button = document->GetElementById("ping");
+    if (button == nullptr)
+    {
+        return;
+    }
+
+    button->AddEventListener("click", mClickListener);
+    mClickAttached = true;
 }
 
 bool RmlUiApp::pollEvents()
 {
+    attachClickListener();
+
     // Phase 0 验收要观察退出顺序。设置 T3D_RMLUI_SMOKE=1 时启动后立即退出。
     const char *smoke = std::getenv("T3D_RMLUI_SMOKE");
     if (smoke != nullptr && smoke[0] == '1')

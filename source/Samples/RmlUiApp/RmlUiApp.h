@@ -29,6 +29,16 @@
 #include "../Common/SampleApp.h"
 
 
+namespace Rml
+{
+    class EventListener;
+}
+
+namespace Tiny3D
+{
+    class RmlCanvas;
+}
+
 class RmlUiApp : public SampleWindowApp
 {
 public:
@@ -39,6 +49,13 @@ public:
 
 protected:
     TResult applicationDidFinishLaunching(int32_t argc, char *argv[]) override;
+
+private:
+    void attachClickListener();
+
+    Tiny3D::RmlCanvas *mCanvas {nullptr};
+    Rml::EventListener *mClickListener {nullptr};
+    bool mClickAttached {false};
 };
 
 
