@@ -24,9 +24,13 @@
 
 #include "RmlUiApp.h"
 
+#include "T3DRmlCanvas.h"
 #include "UI/T3DUISystem.h"
 
 #include <cstdlib>
+
+#define ARCHIVE_TYPE_FS         "FileSystem"
+#define ARCHIVE_TYPE_ANDROID    "AndroidAsset"
 
 
 using namespace Tiny3D;
@@ -56,6 +60,61 @@ TResult RmlUiApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     }
 
     T3D_LOG_INFO("RmlUiApp", "UISystem [%s] is ready.", uiSystem->getName().c_str());
+
+#if defined(T3D_OS_ANDROID)
+    ArchivePtr archive = T3D_ARCHIVE_MGR.getArchive(ARCHIVE_TYPE_ANDROID, "", Archive::AccessMode::kRead);
+#else
+    ArchivePtr archive = T3D_ARCHIVE_MGR.getArchive(ARCHIVE_TYPE_FS, Dir::getAppPath(), Archive::AccessMode::kRead);
+#endif
+    if (archive == nullptr)
+    {
+        T3D_LOG_ERROR("RmlUiApp", "Asset archive is not available.");
+        return T3D_ERR_FAIL;
+    }
+
+    T3D_ASSET_MGR.init(AssetManager::Mode::kRuntime);
+    T3D_ASSET_MGR.mount(archive, 0);
+
+    ScenePtr scene = T3D_SCENE_MGR.createScene("RmlUiScene");
+    scene->init();
+    T3D_SCENE_MGR.setCurrentScene(scene);
+
+    GameObjectPtr rootObject = GameObject::create("Root");
+    Transform3DPtr root = rootObject->addComponent<Transform3D>();
+    scene->getRootTransform()->addChild(root);
+
+    RenderWindowPtr window = T3D_AGENT.getDefaultRenderWindow();
+    RenderTargetPtr target = RenderTarget::create(window);
+
+    GameObjectPtr cameraObject = GameObject::create("MainCamera");
+    Transform3DPtr cameraTransform = cameraObject->addComponent<Transform3D>();
+    root->addChild(cameraTransform);
+
+    CameraPtr camera = cameraObject->addComponent<Camera>();
+    camera->setViewport(Viewport {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f});
+    camera->setClearFlags(Camera::ClearFlags::kSolidColor);
+    camera->setClearColor(ColorRGB(0.08f, 0.10f, 0.16f));
+    camera->setRenderTarget(target);
+    camera->setOrder(0);
+
+    const Real aspect = Real(window->getDescriptor().Width) / Real(window->getDescriptor().Height);
+    camera->setAspectRatio(aspect);
+    camera->setProjectionType(Camera::Projection::kPerspective);
+    camera->setFovY(Radian(Math::PI / 3.0f));
+    camera->setNearPlaneDistance(0.1f);
+    camera->setFarPlaneDistance(1000.0f);
+    camera->lookAt(Vector3(0.0f, 0.0f, 8.0f), Vector3::ZERO, Vector3::UP);
+
+    RmlCanvasPtr canvas = cameraObject->addComponent<RmlCanvas>();
+    if (canvas == nullptr)
+    {
+        T3D_LOG_ERROR("RmlUiApp", "Failed to add RmlCanvas.");
+        return T3D_ERR_FAIL;
+    }
+
+    TArray<String> documents;
+    documents.push_back("assets/samples/ui/main.rml");
+    canvas->setDocuments(documents);
     return T3D_OK;
 }
 

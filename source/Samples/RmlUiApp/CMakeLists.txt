@@ -20,18 +20,16 @@ include_directories(
     "${TINY3D_CORE_INC_DIR}"
     "${TINY3D_UTILS_INC_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${CMAKE_SOURCE_DIR}/Plugins/RmlUi/Include"
     "${SDL2_INCLUDE_DIR}"
     "${RTTR_INCLUDE_DIR}"
     )
 
 set_project_files(include ${CMAKE_CURRENT_SOURCE_DIR}/ .h)
 set_project_files(source ${CMAKE_CURRENT_SOURCE_DIR}/ .cpp)
+set_project_files(common ${CMAKE_CURRENT_SOURCE_DIR}/../Common/ .h)
+set_project_files(common ${CMAKE_CURRENT_SOURCE_DIR}/../Common/ .cpp)
 
-list(APPEND SOURCE_FILES
-    "${CMAKE_CURRENT_SOURCE_DIR}/../Common/SampleApp.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../Common/SampleApp.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../Common/main.cpp"
-    )
 
 set(_rmlui_app_libs
     T3DPlatform
@@ -41,6 +39,7 @@ set(_rmlui_app_libs
     T3DMath
     T3DFramework
     T3DCore
+    T3DRmlUi
     rttr_core
     )
 
