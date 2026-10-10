@@ -66,6 +66,13 @@ namespace Tiny3D
         void ensureFont();
         void syncCanvas(RmlCanvas *canvas);
         void loadDocuments(RmlCanvas *canvas);
+        void applyFileChanges();
+        void reloadStyleSheets();
+        void reloadDocuments();
+        void notePerformance();
+        void toggleDebugger();
+        void shutdownDebugger();
+        Rml::Context *debuggerHost() const;
         static bool targetPixelSize(RenderTarget *target, int32_t &width, int32_t &height);
 
         static RmlUiSystem *sInstance;
@@ -82,6 +89,12 @@ namespace Tiny3D
         RmlTextInputHandler *mText {nullptr};
 
         TArray<RmlCanvas *> mCanvases {};
+        bool mDebuggerReady {false};
+        bool mDpLogged {false};
+        bool mPerfReady {false};
+        double mUpdateMs {0};
+        double mRenderMs {0};
+        int64_t mPerfOriginMs {0};
     };
 }
 

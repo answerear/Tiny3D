@@ -38,6 +38,9 @@ namespace Tiny3D
     class RmlFileInterface : public Rml::FileInterface
     {
     public:
+        RmlFileInterface();
+        ~RmlFileInterface() override;
+
         Rml::FileHandle Open(const Rml::String &path) override;
         void Close(Rml::FileHandle file) override;
         size_t Read(void *buffer, size_t size, Rml::FileHandle file) override;
@@ -45,6 +48,24 @@ namespace Tiny3D
         size_t Tell(Rml::FileHandle file) override;
         size_t Length(Rml::FileHandle file) override;
         bool LoadFile(const Rml::String &path, Rml::String &out_data) override;
+
+        /**
+         * \brief 磁盘上已打开的 .rml / .rcss 是否比上次检查更新
+         * \remarks 只对 FileSystem 与 MetaFileSystem 生效。Bundle 里没有可观察的修改时间。
+         */
+        enum class Change
+        {
+            None,
+            Style,
+            Document,
+        };
+        Change pollChanges();
+
+    private:
+        void watch(const Rml::String &path);
+
+        struct WatchMap;
+        WatchMap *mWatch {nullptr};
     };
 }
 

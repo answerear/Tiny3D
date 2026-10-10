@@ -74,7 +74,14 @@ namespace Tiny3D
         /// 把 scissor 恢复成整屏，并关掉模板测试
         void endFrame();
 
+        /// 当前仍被 RmlUi 持有的已编译几何数量
+        int32_t geometryCount() const { return mGeometryCount; }
+        /// 自上次 resetFrameDraws 以来真正提交的绘制次数
+        int32_t frameDraws() const { return mFrameDraws; }
+        void resetFrameDraws() { mFrameDraws = 0; }
+
     private:
+        Rml::TextureHandle loadEngineTexture(Rml::Vector2i &texture_dimensions, const Rml::String &source);
         bool ensureShaders();
         void applyColorAndStencil();
         DepthStencilState *stencilState(CompareFunction func, StencilOp passOp, uint32_t ref);
@@ -109,7 +116,10 @@ namespace Tiny3D
         SamplerStatePtr mSampler {nullptr};
 
         TUnorderedMap<PixelBuffer2D *, PixelBuffer2DPtr> mTextures {};
+        TUnorderedMap<PixelBuffer2D *, TexturePtr> mAssetTextures {};
         Matrix4 mTransform {Matrix4::IDENTITY};
+        int32_t mGeometryCount {0};
+        int32_t mFrameDraws {0};
     };
 }
 

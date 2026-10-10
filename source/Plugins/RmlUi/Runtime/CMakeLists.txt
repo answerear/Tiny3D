@@ -53,7 +53,11 @@ target_link_libraries(${LIB_NAME}
         T3DMath
         T3DCore
         rttr_core
+        $<$<NOT:$<CONFIG:Release>>:rmlui_debugger>
     )
+
+# Release 当作 Shipping：不链接调试器。其余配置用 F8 开关。
+target_compile_definitions(${LIB_NAME} PRIVATE $<$<NOT:$<CONFIG:Release>>:T3D_RMLUI_DEBUGGER=1>)
 
 if (TINY3D_OS_ANDROID)
     target_link_libraries(${LIB_NAME} PRIVATE android log)

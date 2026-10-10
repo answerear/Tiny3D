@@ -408,6 +408,12 @@ namespace Tiny3D
                 break;
             }
             case APP_KEYDOWN:
+#if defined(T3D_RMLUI_DEBUGGER)
+                if (static_cast<int>(event->key.keysym.sym) == TKEY_F8)
+                {
+                    break;
+                }
+#endif
                 deliver([&](RmlCanvas *canvas, Rml::Context *context)
                 {
                     (void)canvas;
@@ -421,6 +427,12 @@ namespace Tiny3D
                 });
                 break;
             case APP_KEYUP:
+#if defined(T3D_RMLUI_DEBUGGER)
+                if (static_cast<int>(event->key.keysym.sym) == TKEY_F8)
+                {
+                    break;
+                }
+#endif
                 deliver([&](RmlCanvas *canvas, Rml::Context *context)
                 {
                     (void)canvas;

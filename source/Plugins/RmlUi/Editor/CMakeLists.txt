@@ -53,7 +53,10 @@ target_link_libraries(${LIB_NAME}
         T3DMath
         T3DCoreEditor
         rttr_core
+        $<$<NOT:$<CONFIG:Release>>:rmlui_debugger>
     )
+
+target_compile_definitions(${LIB_NAME} PRIVATE $<$<NOT:$<CONFIG:Release>>:T3D_RMLUI_DEBUGGER=1>)
 
 set_property(TARGET ${LIB_NAME} PROPERTY FOLDER "Plugins/RmlUi")
 

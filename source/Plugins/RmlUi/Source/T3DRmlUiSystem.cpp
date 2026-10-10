@@ -48,8 +48,12 @@
 #include <RmlUi/Core/Context.h>
 #include <RmlUi/Core/Core.h>
 #include <RmlUi/Core/ElementDocument.h>
+#if defined(T3D_RMLUI_DEBUGGER)
+#include <RmlUi/Debugger/Debugger.h>
+#endif
 
 #include <algorithm>
+#include <chrono>
 
 
 namespace Tiny3D
@@ -303,6 +307,14 @@ namespace Tiny3D
         {
             context->SetDensityIndependentPixelRatio(dpRatio);
         }
+
+        if (!mDpLogged)
+        {
+            mDpLogged = true;
+            const float dpi = DeviceInfo::getInstance().getScreenDPI();
+            T3D_LOG_INFO(LOG_TAG_RMLUI, "dp-ratio %.3f pixels %dx%d dpi %.1f",
+                static_cast<double>(dpRatio), width, height, static_cast<double>(dpi));
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -338,11 +350,201 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void RmlUiSystem::reloadStyleSheets()
+    {
+        for (RmlCanvas *canvas : mCanvases)
+        {
+            Rml::Context *context = (canvas != nullptr) ? canvas->getContext() : nullptr;
+            if (context == nullptr)
+            {
+                continue;
+            }
+
+            const int count = context->GetNumDocuments();
+            for (int i = 0; i < count; ++i)
+            {
+                Rml::ElementDocument *document = context->GetDocument(i);
+                if (document != nullptr)
+                {
+                    document->ReloadStyleSheet();
+                }
+            }
+        }
+        T3D_LOG_INFO(LOG_TAG_RMLUI, "Reloaded stylesheets.");
+    }
+
+    //--------------------------------------------------------------------------
+
+    Rml::Context *RmlUiSystem::debuggerHost() const
+    {
+        Rml::Context *host = nullptr;
+        int32_t best = 0;
+        bool found = false;
+        for (RmlCanvas *canvas : mCanvases)
+        {
+            if (canvas == nullptr || canvas->getContext() == nullptr || !canvas->isActiveAndEnabled())
+            {
+                continue;
+            }
+            if (!found || canvas->getSortOrder() >= best)
+            {
+                found = true;
+                best = canvas->getSortOrder();
+                host = canvas->getContext();
+            }
+        }
+        return host;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RmlUiSystem::shutdownDebugger()
+    {
+#if defined(T3D_RMLUI_DEBUGGER)
+        if (mDebuggerReady)
+        {
+            Rml::Debugger::Shutdown();
+            mDebuggerReady = false;
+        }
+#else
+        mDebuggerReady = false;
+#endif
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RmlUiSystem::toggleDebugger()
+    {
+#if defined(T3D_RMLUI_DEBUGGER)
+        Rml::Context *host = debuggerHost();
+        if (host == nullptr)
+        {
+            return;
+        }
+
+        if (!mDebuggerReady)
+        {
+            if (!Rml::Debugger::Initialise(host))
+            {
+                T3D_LOG_WARNING(LOG_TAG_RMLUI, "Debugger::Initialise failed.");
+                return;
+            }
+            mDebuggerReady = true;
+            Rml::Debugger::SetVisible(false);
+        }
+        else
+        {
+            Rml::Debugger::SetContext(host);
+        }
+
+        const bool show = !Rml::Debugger::IsVisible();
+        Rml::Debugger::SetVisible(show);
+        T3D_LOG_INFO(LOG_TAG_RMLUI, "debugger %s", show ? "shown" : "hidden");
+#endif
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RmlUiSystem::reloadDocuments()
+    {
+#if defined(T3D_RMLUI_DEBUGGER)
+        const bool restore = mDebuggerReady;
+        const bool visible = restore && Rml::Debugger::IsVisible();
+#else
+        const bool restore = false;
+        const bool visible = false;
+#endif
+        shutdownDebugger();
+
+        for (RmlCanvas *canvas : mCanvases)
+        {
+            if (canvas == nullptr || canvas->getContext() == nullptr)
+            {
+                continue;
+            }
+            canvas->getContext()->UnloadAllDocuments();
+            canvas->setDocumentsLoaded(false);
+            loadDocuments(canvas);
+        }
+
+#if defined(T3D_RMLUI_DEBUGGER)
+        if (restore)
+        {
+            Rml::Context *host = debuggerHost();
+            if (host != nullptr && Rml::Debugger::Initialise(host))
+            {
+                mDebuggerReady = true;
+                Rml::Debugger::SetVisible(visible);
+            }
+        }
+#else
+        (void)restore;
+        (void)visible;
+#endif
+        T3D_LOG_INFO(LOG_TAG_RMLUI, "Reloaded documents.");
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RmlUiSystem::applyFileChanges()
+    {
+        if (mFile == nullptr || !T3D_AGENT.isPlaying())
+        {
+            return;
+        }
+
+        const RmlFileInterface::Change change = mFile->pollChanges();
+        if (change == RmlFileInterface::Change::Style)
+        {
+            reloadStyleSheets();
+        }
+        else if (change == RmlFileInterface::Change::Document)
+        {
+            reloadDocuments();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void RmlUiSystem::notePerformance()
+    {
+        const auto now = std::chrono::steady_clock::now().time_since_epoch();
+        const int64_t ms = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
+        if (mPerfOriginMs == 0)
+        {
+            mPerfOriginMs = ms;
+        }
+
+        if (mPerfReady && mRender != nullptr && ms - mPerfOriginMs >= 1000)
+        {
+            T3D_LOG_INFO(LOG_TAG_RMLUI, "perf frame geometries=%d draws=%d update=%.3fms render=%.3fms",
+                mRender->geometryCount(), mRender->frameDraws(), mUpdateMs, mRenderMs);
+            mPerfOriginMs = ms;
+        }
+
+        if (mRender != nullptr)
+        {
+            mRender->resetFrameDraws();
+        }
+        mUpdateMs = 0;
+        mRenderMs = 0;
+        mPerfReady = true;
+    }
+
+    //--------------------------------------------------------------------------
+
     void RmlUiSystem::update()
     {
         if (!mInitialised)
         {
             return;
+        }
+
+        notePerformance();
+
+        if (Input::getInstancePtr() != nullptr && T3D_INPUT.isEnabled() && T3D_INPUT.getKeyDown(TKEY_F8))
+        {
+            toggleDebugger();
         }
 
         if (mInput != nullptr)
@@ -359,6 +561,7 @@ namespace Tiny3D
         }
 
         ensureFont();
+        applyFileChanges();
         for (RmlCanvas *canvas : mCanvases)
         {
             if (canvas == nullptr || !canvas->isActiveAndEnabled() || canvas->getContext() == nullptr)
@@ -368,7 +571,9 @@ namespace Tiny3D
 
             syncCanvas(canvas);
             loadDocuments(canvas);
+            const auto started = std::chrono::steady_clock::now();
             canvas->getContext()->Update();
+            mUpdateMs += std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - started).count();
         }
     }
 
@@ -425,6 +630,7 @@ namespace Tiny3D
         ctx->setRenderTarget(target);
         ctx->setViewport(viewport);
         ctx->beginPass();
+        const auto started = std::chrono::steady_clock::now();
         if (mRender->beginFrame(ctx, width, height, originX, originY, targetHasStencil(target)))
         {
             for (RmlCanvas *canvas : canvases)
@@ -433,6 +639,7 @@ namespace Tiny3D
             }
             mRender->endFrame();
         }
+        mRenderMs += std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - started).count();
         ctx->endPass();
     }
 
@@ -461,6 +668,7 @@ namespace Tiny3D
 
     void RmlUiSystem::releaseAll()
     {
+        shutdownDebugger();
         TArray<RmlCanvas *> canvases = mCanvases;
         mCanvases.clear();
         for (RmlCanvas *canvas : canvases)

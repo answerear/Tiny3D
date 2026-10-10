@@ -40,11 +40,13 @@
 #include "Resource/T3DImage.h"
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DMaterialManager.h"
+#include "Resource/T3DTexture.h"
 
 #include <RmlUi/Core/Matrix4.h>
 
 #include <cstddef>
 #include <cstring>
+#include <string>
 
 
 namespace Tiny3D
@@ -127,6 +129,7 @@ namespace Tiny3D
             return 0;
         }
 
+        ++mGeometryCount;
         return reinterpret_cast<Rml::CompiledGeometryHandle>(geometry);
     }
 
@@ -185,6 +188,7 @@ namespace Tiny3D
         offsets.push_back(0);
         mCtx->setVertexBuffers(0, vertexBuffers, strides, offsets);
         mCtx->setIndexBuffer(mesh->Indices.get());
+        ++mFrameDraws;
         mCtx->render(mesh->IndexCount, 0, 0);
     }
 
@@ -192,6 +196,14 @@ namespace Tiny3D
 
     void RmlRenderInterface::ReleaseGeometry(Rml::CompiledGeometryHandle geometry)
     {
+        if (geometry == 0)
+        {
+            return;
+        }
+        if (mGeometryCount > 0)
+        {
+            --mGeometryCount;
+        }
         T3D_DELETE reinterpret_cast<RmlCompiledMesh *>(geometry);
     }
 
@@ -230,9 +242,74 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    static bool endsWithIgnoreCase(const Rml::String &path, const char *suffix)
+    {
+        const size_t length = std::char_traits<char>::length(suffix);
+        if (path.size() < length)
+        {
+            return false;
+        }
+
+        const size_t offset = path.size() - length;
+        for (size_t i = 0; i < length; ++i)
+        {
+            unsigned char left = static_cast<unsigned char>(path[offset + i]);
+            unsigned char right = static_cast<unsigned char>(suffix[i]);
+            if (left >= 'A' && left <= 'Z')
+            {
+                left = static_cast<unsigned char>(left - 'A' + 'a');
+            }
+            if (right >= 'A' && right <= 'Z')
+            {
+                right = static_cast<unsigned char>(right - 'A' + 'a');
+            }
+            if (left != right)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    Rml::TextureHandle RmlRenderInterface::loadEngineTexture(Rml::Vector2i &texture_dimensions, const Rml::String &source)
+    {
+        TexturePtr texture = T3D_ASSET_MGR.loadTexture(source);
+        if (texture == nullptr || texture->getTextureType() != TEXTURE_TYPE::TT_2D)
+        {
+            T3D_LOG_WARNING(LOG_TAG_RMLUI, "LoadTexture failed to reuse engine texture %s", source.c_str());
+            return 0;
+        }
+
+        auto *tex2d = static_cast<Texture2D *>(texture.get());
+        auto *pixels = static_cast<PixelBuffer2D *>(tex2d->getPixelBuffer());
+        if (pixels == nullptr || tex2d->getWidth() == 0 || tex2d->getHeight() == 0)
+        {
+            T3D_LOG_WARNING(LOG_TAG_RMLUI, "LoadTexture engine texture has no GPU buffer %s", source.c_str());
+            return 0;
+        }
+
+        texture_dimensions = Rml::Vector2i(static_cast<int>(tex2d->getWidth()), static_cast<int>(tex2d->getHeight()));
+        if (mTextures.find(pixels) == mTextures.end())
+        {
+            mTextures.emplace(pixels, PixelBuffer2DPtr(pixels));
+            mAssetTextures.emplace(pixels, texture);
+        }
+        return reinterpret_cast<Rml::TextureHandle>(pixels);
+    }
+
+    //--------------------------------------------------------------------------
+
     Rml::TextureHandle RmlRenderInterface::LoadTexture(Rml::Vector2i &texture_dimensions, const Rml::String &source)
     {
         texture_dimensions = Rml::Vector2i(0, 0);
+
+        // 引擎纹理已经在 GPU 上，带压缩和 mip。不要再解码并预乘。
+        if (endsWithIgnoreCase(source, ".ttexture") || endsWithIgnoreCase(source, ".ttex"))
+        {
+            return loadEngineTexture(texture_dimensions, source);
+        }
 
         Archive *archive = T3D_ASSET_MGR.getArchive();
         if (archive == nullptr)
@@ -365,6 +442,7 @@ namespace Tiny3D
     {
         auto *pixels = reinterpret_cast<PixelBuffer2D *>(texture);
         mTextures.erase(pixels);
+        mAssetTextures.erase(pixels);
     }
 
     //--------------------------------------------------------------------------
