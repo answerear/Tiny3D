@@ -106,6 +106,8 @@ namespace Tiny3D
 
     void SDLMobileWindow::destroy()
     {
+        releaseSystemCursors();
+
         SDL_Surface *buffer = SDL_GetWindowSurface(mSDLWindow);
 
         if (SDL_MUSTLOCK(buffer))
@@ -301,6 +303,103 @@ namespace Tiny3D
         if (mSDLWindow != nullptr)
         {
             SDL_WarpMouseInWindow(mSDLWindow, x, y);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SDLMobileWindow::startTextInput()
+    {
+        SDL_StartTextInput();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SDLMobileWindow::stopTextInput()
+    {
+        SDL_StopTextInput();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SDLMobileWindow::setTextInputRect(int32_t x, int32_t y, int32_t width, int32_t height)
+    {
+        SDL_Rect rect;
+        rect.x = x;
+        rect.y = y;
+        rect.w = width;
+        rect.h = height;
+        SDL_SetTextInputRect(&rect);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SDLMobileWindow::setClipboardText(const char *text)
+    {
+        SDL_SetClipboardText(text != nullptr ? text : "");
+    }
+
+    //--------------------------------------------------------------------------
+
+    const char *SDLMobileWindow::getClipboardText()
+    {
+        char *raw = SDL_GetClipboardText();
+        if (raw == nullptr)
+        {
+            mClipboard.clear();
+            return mClipboard.c_str();
+        }
+        mClipboard = raw;
+        SDL_free(raw);
+        return mClipboard.c_str();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SDLMobileWindow::setSystemCursor(SystemCursor cursor)
+    {
+        const size_t index = static_cast<size_t>(cursor);
+        if (index >= static_cast<size_t>(SystemCursor::Count))
+        {
+            return;
+        }
+
+        if (mCursors[index] == nullptr)
+        {
+            SDL_SystemCursor shape = SDL_SYSTEM_CURSOR_ARROW;
+            switch (cursor)
+            {
+            case SystemCursor::IBeam: shape = SDL_SYSTEM_CURSOR_IBEAM; break;
+            case SystemCursor::Hand: shape = SDL_SYSTEM_CURSOR_HAND; break;
+            case SystemCursor::SizeAll: shape = SDL_SYSTEM_CURSOR_SIZEALL; break;
+            case SystemCursor::SizeNWSE: shape = SDL_SYSTEM_CURSOR_SIZENWSE; break;
+            case SystemCursor::Crosshair: shape = SDL_SYSTEM_CURSOR_CROSSHAIR; break;
+            case SystemCursor::No: shape = SDL_SYSTEM_CURSOR_NO; break;
+            case SystemCursor::Arrow:
+            case SystemCursor::Count:
+                shape = SDL_SYSTEM_CURSOR_ARROW;
+                break;
+            }
+            mCursors[index] = SDL_CreateSystemCursor(shape);
+        }
+
+        if (mCursors[index] != nullptr)
+        {
+            SDL_SetCursor(mCursors[index]);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void SDLMobileWindow::releaseSystemCursors()
+    {
+        for (SDL_Cursor *&cursor : mCursors)
+        {
+            if (cursor != nullptr)
+            {
+                SDL_FreeCursor(cursor);
+                cursor = nullptr;
+            }
         }
     }
 }

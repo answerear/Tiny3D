@@ -36,6 +36,21 @@
 namespace Tiny3D
 {
     /**
+     * \brief 系统鼠标光标。数值只在窗口实现内部使用。
+     */
+    enum class SystemCursor : uint8_t
+    {
+        Arrow = 0,
+        IBeam,
+        Hand,
+        SizeAll,
+        SizeNWSE,
+        Crosshair,
+        No,
+        Count
+    };
+
+    /**
      * @brief 平台窗口抽象类
      * @remarks 不同平台根据接口各自实现具体的操作
      */
@@ -134,6 +149,30 @@ namespace Tiny3D
          * @brief 将鼠标光标移动到窗口客户区坐标
          */
         virtual void warpMouse(int32_t x, int32_t y) = 0;
+
+        /**
+         * \brief 开始接收文本输入。Android 上同时弹出软键盘。
+         */
+        virtual void startTextInput() = 0;
+
+        /**
+         * \brief 结束文本输入。Android 上收起软键盘。
+         */
+        virtual void stopTextInput() = 0;
+
+        /**
+         * \brief 设置 IME 候选框跟随的矩形，窗口客户区像素。
+         */
+        virtual void setTextInputRect(int32_t x, int32_t y, int32_t width, int32_t height) = 0;
+
+        virtual void setClipboardText(const char *text) = 0;
+
+        /**
+         * \brief 读取剪贴板文本。指针在下一次调用前有效。
+         */
+        virtual const char *getClipboardText() = 0;
+
+        virtual void setSystemCursor(SystemCursor cursor) = 0;
     };
 }
 

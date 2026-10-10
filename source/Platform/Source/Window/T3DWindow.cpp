@@ -251,4 +251,65 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    void Window::startTextInput()
+    {
+        if (mWindow != nullptr)
+        {
+            mWindow->startTextInput();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Window::stopTextInput()
+    {
+        if (mWindow != nullptr)
+        {
+            mWindow->stopTextInput();
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Window::setTextInputRect(int32_t x, int32_t y, int32_t width, int32_t height)
+    {
+        if (mWindow != nullptr)
+        {
+            mWindow->setTextInputRect(x, y, width, height);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Window::setClipboardText(const char *text)
+    {
+        if (mWindow != nullptr)
+        {
+            mWindow->setClipboardText(text);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    const char *Window::getClipboardText()
+    {
+        if (mWindow != nullptr)
+        {
+            return mWindow->getClipboardText();
+        }
+        return "";
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Window::setSystemCursor(SystemCursor cursor)
+    {
+        if (mWindow != nullptr)
+        {
+            mWindow->setSystemCursor(cursor);
+        }
+    }
+
+    //--------------------------------------------------------------------------
 }

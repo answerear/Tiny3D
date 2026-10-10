@@ -32,6 +32,7 @@
 #include "Window/T3DSysWMInfo.h"
 #include "T3DNoncopyable.h"
 #include "Memory/T3DMemory.h"
+#include "Adapter/T3DWindowInterface.h"
 
 
 namespace Tiny3D
@@ -180,6 +181,22 @@ namespace Tiny3D
          * @brief 将鼠标光标移动到窗口客户区坐标
          */
         void warpMouse(int32_t x, int32_t y);
+
+        /// 开始文本输入。Android 上弹出软键盘。
+        void startTextInput();
+
+        /// 结束文本输入。Android 上收起软键盘。
+        void stopTextInput();
+
+        /// IME 候选框位置，窗口客户区像素。
+        void setTextInputRect(int32_t x, int32_t y, int32_t width, int32_t height);
+
+        void setClipboardText(const char *text);
+
+        /// 剪贴板文本。指针在下一次读取前有效。
+        const char *getClipboardText();
+
+        void setSystemCursor(SystemCursor cursor);
 
     protected:
         IWindow *mWindow;

@@ -85,6 +85,9 @@ namespace Tiny3D
 
         do 
         {
+            // 候选框要在创建窗口前打开，否则 Windows IME 不画候选窗。
+            SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
+
             if (SDL_Init(0) != 0)
             {
                 const char *error = SDL_GetError();

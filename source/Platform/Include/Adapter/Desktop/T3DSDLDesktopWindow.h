@@ -122,9 +122,20 @@ namespace Tiny3D
 
         void warpMouse(int32_t x, int32_t y) override;
 
+        void startTextInput() override;
+        void stopTextInput() override;
+        void setTextInputRect(int32_t x, int32_t y, int32_t width, int32_t height) override;
+        void setClipboardText(const char *text) override;
+        const char *getClipboardText() override;
+        void setSystemCursor(SystemCursor cursor) override;
+
     protected:
+        void releaseSystemCursors();
+
         SDL_Window  *mSDLWindow;        /**< SDL 窗口对象 */
         SDL_Surface *mSDLIconSurface;   /**< SDL 窗口图标对象 */
+        SDL_Cursor  *mCursors[static_cast<size_t>(SystemCursor::Count)] {};
+        std::string mClipboard;
 
         uint8_t     *mFramebuffer;      /**< 窗口显示缓冲区 */
         size_t      mFramebufferSize;   /**< 帧缓冲大小 */
