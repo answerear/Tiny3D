@@ -509,6 +509,11 @@ if (TINY3D_REFLECT_CMAKE_NATIVE AND TINY3D_INCREMENTAL_RTTR AND NOT TINY3D_BUILD
             "TinyEditor|Editor/TinyEditor|Editor/TinyEditor")
     endif ()
 
+    # Runtime / Editor 共用 Plugins/RmlUi/Generated。只给 Runtime 挂 rpp；
+    # Editor 在循环后依赖同一个 reflect target。两份 file(GENERATE) 不能写同一份 JSON。
+    list(APPEND _t3d_reflect_modules
+        "T3DRmlUi|Plugins/RmlUi|Plugins/RmlUi")
+
     foreach (_entry IN LISTS _t3d_reflect_modules)
         string(REPLACE "|" ";" _parts "${_entry}")
         list(GET _parts 0 _tgt)
@@ -532,6 +537,13 @@ if (TINY3D_REFLECT_CMAKE_NATIVE AND TINY3D_INCREMENTAL_RTTR AND NOT TINY3D_BUILD
             message(STATUS "Reflect: 跳过 ${_tgt}（target 未定义）")
         endif ()
     endforeach ()
+
+    if (TARGET T3DRmlUiEditor)
+        tiny3d_add_reflection_target(T3DRmlUiEditor
+            SETTINGS_DIR  "${CMAKE_BINARY_DIR}/Reflect/Plugins/RmlUiEditor"
+            SOURCE_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/Plugins/RmlUi"
+            GENERATED_DIR "${TINY3D_GENERATED_BASE_DIR}/Plugins/RmlUi/Generated")
+    endif ()
 
     unset(_t3d_reflect_modules)
     unset(_t3d_reflect_white_list)
