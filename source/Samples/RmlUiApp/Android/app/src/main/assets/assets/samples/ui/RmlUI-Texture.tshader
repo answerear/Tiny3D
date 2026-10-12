@@ -1,0 +1,1694 @@
+{
+  "Magic": "T3D",
+  "Version": "0.0.1",
+  "Object": {
+    "RTTI_Type": "Tiny3D::Shader",
+    "RTTI_Value": {
+      "Name": {
+        "RTTI_Type": "std::string",
+        "RTTI_Value": "RmlUI-Texture"
+      },
+      "UUID": {
+        "RTTI_Type": "Tiny3D::UUID",
+        "RTTI_Value": {
+          "RTTI_Type": "std::string",
+          "RTTI_Value": "3e38ab90ce8379501bd1177b5f346058"
+        }
+      },
+      "ConstantValues": {
+        "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderConstantValue>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderConstantValue>>> >",
+        "RTTI_Value": []
+      },
+      "Samplers": {
+        "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>>> >",
+        "RTTI_Value": [
+          {
+            "RTTI_Map_Key": {
+              "RTTI_Type": "std::string",
+              "RTTI_Value": "_MainTex"
+            },
+            "RTTI_Map_Value": {
+              "RTTI_Type": "Tiny3D::ShaderSamplerParam",
+              "RTTI_Value": {
+                "Name": {
+                  "RTTI_Type": "std::string",
+                  "RTTI_Value": "_MainTex"
+                },
+                "SamplerBinding": {
+                  "RTTI_Type": "unsignedint",
+                  "RTTI_Value": 0
+                },
+                "TexBinding": {
+                  "RTTI_Type": "unsignedint",
+                  "RTTI_Value": 0
+                },
+                "TextureState": {
+                  "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
+                  "RTTI_Value": "TT_2D"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Techniques": {
+        "RTTI_Type": "classstd::list<classTiny3D::SmartPtr<classTiny3D::Technique>,classstd::allocator<classTiny3D::SmartPtr<classTiny3D::Technique>> >",
+        "RTTI_Value": [
+          {
+            "RTTI_Type": "Tiny3D::Technique",
+            "RTTI_Value": {
+              "LOD": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
+              "Name": {
+                "RTTI_Type": "std::string",
+                "RTTI_Value": "0"
+              },
+              "Passes": {
+                "RTTI_Type": "classstd::list<classTiny3D::SmartPtr<classTiny3D::Pass>,classstd::allocator<classTiny3D::SmartPtr<classTiny3D::Pass>> >",
+                "RTTI_Value": [
+                  {
+                    "RTTI_Type": "Tiny3D::Pass",
+                    "RTTI_Value": {
+                      "CurrentKeyword": {
+                        "RTTI_Type": "Tiny3D::ShaderKeyword",
+                        "RTTI_Value": {
+                          "HashCode": {
+                            "RTTI_Type": "unsignedint",
+                            "RTTI_Value": 5381
+                          },
+                          "Keys": {
+                            "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                            "RTTI_Value": [
+                              {
+                                "RTTI_Type": "std::string",
+                                "RTTI_Value": ""
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "DomainShaders": {
+                        "RTTI_Type": "classstd::map<structTiny3D::ShaderKeyword,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>,structstd::less<structTiny3D::ShaderKeyword>,classstd::allocator<structstd::pair<structTiny3D::ShaderKeywordconst,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>>> >",
+                        "RTTI_Value": []
+                      },
+                      "GeometryShaders": {
+                        "RTTI_Type": "classstd::map<structTiny3D::ShaderKeyword,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>,structstd::less<structTiny3D::ShaderKeyword>,classstd::allocator<structstd::pair<structTiny3D::ShaderKeywordconst,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>>> >",
+                        "RTTI_Value": []
+                      },
+                      "HullShaders": {
+                        "RTTI_Type": "classstd::map<structTiny3D::ShaderKeyword,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>,structstd::less<structTiny3D::ShaderKeyword>,classstd::allocator<structstd::pair<structTiny3D::ShaderKeywordconst,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>>> >",
+                        "RTTI_Value": []
+                      },
+                      "Keywords": {
+                        "RTTI_Type": "classstd::list<structTiny3D::ShaderKeyword,classstd::allocator<structTiny3D::ShaderKeyword> >",
+                        "RTTI_Value": [
+                          {
+                            "RTTI_Type": "Tiny3D::ShaderKeyword",
+                            "RTTI_Value": {
+                              "HashCode": {
+                                "RTTI_Type": "unsignedint",
+                                "RTTI_Value": 5381
+                              },
+                              "Keys": {
+                                "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                "RTTI_Value": []
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "Name": {
+                        "RTTI_Type": "std::string",
+                        "RTTI_Value": "RmlUI"
+                      },
+                      "PixelShaders": {
+                        "RTTI_Type": "classstd::map<structTiny3D::ShaderKeyword,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>,structstd::less<structTiny3D::ShaderKeyword>,classstd::allocator<structstd::pair<structTiny3D::ShaderKeywordconst,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>>> >",
+                        "RTTI_Value": [
+                          {
+                            "RTTI_Map_Key": {
+                              "RTTI_Type": "Tiny3D::ShaderKeyword",
+                              "RTTI_Value": {
+                                "HashCode": {
+                                  "RTTI_Type": "unsignedint",
+                                  "RTTI_Value": 5381
+                                },
+                                "Keys": {
+                                  "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                  "RTTI_Value": []
+                                }
+                              }
+                            },
+                            "RTTI_Map_Value": {
+                              "RTTI_Type": "Tiny3D::ShaderVariantSet",
+                              "RTTI_Value": {
+                                "Variants": {
+                                  "RTTI_Type": "classstd::map<enumTiny3D::SHADER_LANGUAGE,classTiny3D::SmartPtr<classTiny3D::ShaderVariant>,structstd::less<enumTiny3D::SHADER_LANGUAGE>,classstd::allocator<structstd::pair<enumTiny3D::SHADER_LANGUAGEconst,classTiny3D::SmartPtr<classTiny3D::ShaderVariant>>> >",
+                                  "RTTI_Value": [
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "Tiny3D::SHADER_LANGUAGE",
+                                        "RTTI_Value": "kHLSL"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderVariant",
+                                        "RTTI_Value": {
+                                          "Code": {
+                                            "RTTI_Type": "Tiny3D::Buffer",
+                                            "RTTI_Value": {
+                                              "RTTI_Type": "std::string",
+                                              "RTTI_Value": "VGV4dHVyZTJEPGZsb2F0ND4gX01haW5UZXggOiByZWdpc3Rlcih0Mik7ClNhbXBsZXJTdGF0ZSBzYW1wbGVyX01haW5UZXggOiByZWdpc3RlcihzMyk7CgpzdGF0aWMgZmxvYXQ0IGluX3Zhcl9DT0xPUjA7CnN0YXRpYyBmbG9hdDIgaW5fdmFyX1RFWENPT1JEMDsKc3RhdGljIGZsb2F0NCBvdXRfdmFyX1NWX1RBUkdFVDsKCnN0cnVjdCBTUElSVl9Dcm9zc19JbnB1dAp7CiAgICBmbG9hdDQgaW5fdmFyX0NPTE9SMCA6IENPTE9SMDsKICAgIGZsb2F0MiBpbl92YXJfVEVYQ09PUkQwIDogVEVYQ09PUkQwOwp9OwoKc3RydWN0IFNQSVJWX0Nyb3NzX091dHB1dAp7CiAgICBmbG9hdDQgb3V0X3Zhcl9TVl9UQVJHRVQgOiBTVl9UYXJnZXQwOwp9OwoKdm9pZCBmcmFnX21haW4oKQp7CiAgICBvdXRfdmFyX1NWX1RBUkdFVCA9IF9NYWluVGV4LlNhbXBsZShzYW1wbGVyX01haW5UZXgsIGluX3Zhcl9URVhDT09SRDApICogaW5fdmFyX0NPTE9SMDsKfQoKU1BJUlZfQ3Jvc3NfT3V0cHV0IG1haW4oU1BJUlZfQ3Jvc3NfSW5wdXQgc3RhZ2VfaW5wdXQpCnsKICAgIGluX3Zhcl9DT0xPUjAgPSBzdGFnZV9pbnB1dC5pbl92YXJfQ09MT1IwOwogICAgaW5fdmFyX1RFWENPT1JEMCA9IHN0YWdlX2lucHV0LmluX3Zhcl9URVhDT09SRDA7CiAgICBmcmFnX21haW4oKTsKICAgIFNQSVJWX0Nyb3NzX091dHB1dCBzdGFnZV9vdXRwdXQ7CiAgICBzdGFnZV9vdXRwdXQub3V0X3Zhcl9TVl9UQVJHRVQgPSBvdXRfdmFyX1NWX1RBUkdFVDsKICAgIHJldHVybiBzdGFnZV9vdXRwdXQ7Cn0K"
+                                            }
+                                          },
+                                          "Language": {
+                                            "RTTI_Type": "Tiny3D::SHADER_LANGUAGE",
+                                            "RTTI_Value": "kHLSL"
+                                          },
+                                          "ShaderConstantParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>>> >",
+                                            "RTTI_Value": []
+                                          },
+                                          "ShaderKeyword": {
+                                            "RTTI_Type": "Tiny3D::ShaderKeyword",
+                                            "RTTI_Value": {
+                                              "HashCode": {
+                                                "RTTI_Type": "unsignedint",
+                                                "RTTI_Value": 5381
+                                              },
+                                              "Keys": {
+                                                "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                                "RTTI_Value": []
+                                              }
+                                            }
+                                          },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>>> >",
+                                            "RTTI_Value": []
+                                          },
+                                          "ShaderSamplerParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>>> >",
+                                            "RTTI_Value": [
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "_MainTex"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderSamplerParam",
+                                                  "RTTI_Value": {
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "_MainTex"
+                                                    },
+                                                    "SamplerBinding": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 3
+                                                    },
+                                                    "TexBinding": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 2
+                                                    },
+                                                    "TextureState": {
+                                                      "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
+                                                      "RTTI_Value": "TT_2D"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "Stage": {
+                                            "RTTI_Type": "Tiny3D::SHADER_STAGE",
+                                            "RTTI_Value": "kPixel"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "Tiny3D::SHADER_LANGUAGE",
+                                        "RTTI_Value": "kGLSL"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderVariant",
+                                        "RTTI_Value": {
+                                          "Code": {
+                                            "RTTI_Type": "Tiny3D::Buffer",
+                                            "RTTI_Value": {
+                                              "RTTI_Type": "std::string",
+                                              "RTTI_Value": "I3ZlcnNpb24gNDAwCiNleHRlbnNpb24gR0xfQVJCX3NlcGFyYXRlX3NoYWRlcl9vYmplY3RzIDogcmVxdWlyZQoKdW5pZm9ybSBzYW1wbGVyMkQgU1BJUlZfQ3Jvc3NfQ29tYmluZWRfTWFpblRleHNhbXBsZXJfTWFpblRleDsKCmxheW91dChsb2NhdGlvbiA9IDApIGluIHZlYzQgaW5fdmFyX0NPTE9SMDsKbGF5b3V0KGxvY2F0aW9uID0gMSkgaW4gdmVjMiBpbl92YXJfVEVYQ09PUkQwOwpsYXlvdXQobG9jYXRpb24gPSAwKSBvdXQgdmVjNCBvdXRfdmFyX1NWX1RBUkdFVDsKCnZvaWQgbWFpbigpCnsKICAgIG91dF92YXJfU1ZfVEFSR0VUID0gdGV4dHVyZShTUElSVl9Dcm9zc19Db21iaW5lZF9NYWluVGV4c2FtcGxlcl9NYWluVGV4LCBpbl92YXJfVEVYQ09PUkQwKSAqIGluX3Zhcl9DT0xPUjA7Cn0KCg=="
+                                            }
+                                          },
+                                          "Language": {
+                                            "RTTI_Type": "Tiny3D::SHADER_LANGUAGE",
+                                            "RTTI_Value": "kGLSL"
+                                          },
+                                          "ShaderConstantParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>>> >",
+                                            "RTTI_Value": []
+                                          },
+                                          "ShaderKeyword": {
+                                            "RTTI_Type": "Tiny3D::ShaderKeyword",
+                                            "RTTI_Value": {
+                                              "HashCode": {
+                                                "RTTI_Type": "unsignedint",
+                                                "RTTI_Value": 5381
+                                              },
+                                              "Keys": {
+                                                "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                                "RTTI_Value": []
+                                              }
+                                            }
+                                          },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>>> >",
+                                            "RTTI_Value": []
+                                          },
+                                          "ShaderSamplerParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>>> >",
+                                            "RTTI_Value": [
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "_MainTex"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderSamplerParam",
+                                                  "RTTI_Value": {
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "_MainTex"
+                                                    },
+                                                    "SamplerBinding": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 3
+                                                    },
+                                                    "TexBinding": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 2
+                                                    },
+                                                    "TextureState": {
+                                                      "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
+                                                      "RTTI_Value": "TT_2D"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "Stage": {
+                                            "RTTI_Type": "Tiny3D::SHADER_STAGE",
+                                            "RTTI_Value": "kPixel"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "Tiny3D::SHADER_LANGUAGE",
+                                        "RTTI_Value": "kESSL"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderVariant",
+                                        "RTTI_Value": {
+                                          "Code": {
+                                            "RTTI_Type": "Tiny3D::Buffer",
+                                            "RTTI_Value": {
+                                              "RTTI_Type": "std::string",
+                                              "RTTI_Value": "I3ZlcnNpb24gMzEwIGVzCnByZWNpc2lvbiBtZWRpdW1wIGZsb2F0OwpwcmVjaXNpb24gaGlnaHAgaW50OwoKdW5pZm9ybSBoaWdocCBzYW1wbGVyMkQgU1BJUlZfQ3Jvc3NfQ29tYmluZWRfTWFpblRleHNhbXBsZXJfTWFpblRleDsKCmxheW91dChsb2NhdGlvbiA9IDApIGluIGhpZ2hwIHZlYzQgaW5fdmFyX0NPTE9SMDsKbGF5b3V0KGxvY2F0aW9uID0gMSkgaW4gaGlnaHAgdmVjMiBpbl92YXJfVEVYQ09PUkQwOwpsYXlvdXQobG9jYXRpb24gPSAwKSBvdXQgaGlnaHAgdmVjNCBvdXRfdmFyX1NWX1RBUkdFVDsKCnZvaWQgbWFpbigpCnsKICAgIG91dF92YXJfU1ZfVEFSR0VUID0gdGV4dHVyZShTUElSVl9Dcm9zc19Db21iaW5lZF9NYWluVGV4c2FtcGxlcl9NYWluVGV4LCBpbl92YXJfVEVYQ09PUkQwKSAqIGluX3Zhcl9DT0xPUjA7Cn0KCg=="
+                                            }
+                                          },
+                                          "Language": {
+                                            "RTTI_Type": "Tiny3D::SHADER_LANGUAGE",
+                                            "RTTI_Value": "kESSL"
+                                          },
+                                          "ShaderConstantParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>>> >",
+                                            "RTTI_Value": []
+                                          },
+                                          "ShaderKeyword": {
+                                            "RTTI_Type": "Tiny3D::ShaderKeyword",
+                                            "RTTI_Value": {
+                                              "HashCode": {
+                                                "RTTI_Type": "unsignedint",
+                                                "RTTI_Value": 5381
+                                              },
+                                              "Keys": {
+                                                "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                                "RTTI_Value": []
+                                              }
+                                            }
+                                          },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>>> >",
+                                            "RTTI_Value": []
+                                          },
+                                          "ShaderSamplerParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>>> >",
+                                            "RTTI_Value": [
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "_MainTex"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderSamplerParam",
+                                                  "RTTI_Value": {
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "_MainTex"
+                                                    },
+                                                    "SamplerBinding": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 3
+                                                    },
+                                                    "TexBinding": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 2
+                                                    },
+                                                    "TextureState": {
+                                                      "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
+                                                      "RTTI_Value": "TT_2D"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "Stage": {
+                                            "RTTI_Type": "Tiny3D::SHADER_STAGE",
+                                            "RTTI_Value": "kPixel"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "Tiny3D::SHADER_LANGUAGE",
+                                        "RTTI_Value": "kSPIRV"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderVariant",
+                                        "RTTI_Value": {
+                                          "Code": {
+                                            "RTTI_Type": "Tiny3D::Buffer",
+                                            "RTTI_Value": {
+                                              "RTTI_Type": "std::string",
+                                              "RTTI_Value": "AwIjBwAAAQAAAA4AHQAAAAAAAAARAAIAAQAAAA4AAwAAAAAAAQAAAA8ACQAEAAAAAQAAAGZyYWcAAAAAAgAAAAMAAAAEAAAABQAAABAAAwABAAAABwAAAAMAAwAFAAAAWAIAAAUABgAGAAAAdHlwZS4yZC5pbWFnZQAAAAUABQAHAAAAX01haW5UZXgAAAAABQAGAAgAAAB0eXBlLnNhbXBsZXIAAAAABQAGAAkAAABzYW1wbGVyX01haW5UZXgABQAGAAMAAABpbi52YXIuQ09MT1IwAAAABQAHAAQAAABpbi52YXIuVEVYQ09PUkQwAAAAAAUABwAFAAAAb3V0LnZhci5TVl9UQVJHRVQAAAAFAAQAAQAAAGZyYWcAAAAABQAHAAoAAAB0eXBlLnNhbXBsZWQuaW1hZ2UAAEcABAACAAAACwAAAA8AAABHAAQAAwAAAB4AAAAAAAAARwAEAAQAAAAeAAAAAQAAAEcABAAFAAAAHgAAAAAAAABHAAQABwAAACIAAAAAAAAARwAEAAcAAAAhAAAAAgAAAEcABAAJAAAAIgAAAAAAAABHAAQACQAAACEAAAADAAAAFgADAAsAAAAgAAAAFwAEAAwAAAALAAAABAAAABkACQAGAAAACwAAAAEAAAACAAAAAAAAAAAAAAABAAAAAAAAACAABAANAAAAAAAAAAYAAAAaAAIACAAAACAABAAOAAAAAAAAAAgAAAAgAAQADwAAAAEAAAAMAAAAFwAEABAAAAALAAAAAgAAACAABAARAAAAAQAAABAAAAAgAAQAEgAAAAMAAAAMAAAAEwACABMAAAAhAAMAFAAAABMAAAAbAAMACgAAAAYAAAA7AAQADQAAAAcAAAAAAAAAOwAEAA4AAAAJAAAAAAAAADsABAAPAAAAAgAAAAEAAAA7AAQADwAAAAMAAAABAAAAOwAEABEAAAAEAAAAAQAAADsABAASAAAABQAAAAMAAAA2AAUAEwAAAAEAAAAAAAAAFAAAAPgAAgAVAAAAPQAEAAwAAAAWAAAAAwAAAD0ABAAQAAAAFwAAAAQAAAA9AAQABgAAABgAAAAHAAAAPQAEAAgAAAAZAAAACQAAAFYABQAKAAAAGgAAABgAAAAZAAAAVwAGAAwAAAAbAAAAGgAAABcAAAAAAAAAhQAFAAwAAAAcAAAAGwAAABYAAAA+AAMABQAAABwAAAD9AAEAOAABAA=="
+                                            }
+                                          },
+                                          "Language": {
+                                            "RTTI_Type": "Tiny3D::SHADER_LANGUAGE",
+                                            "RTTI_Value": "kSPIRV"
+                                          },
+                                          "ShaderConstantParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>>> >",
+                                            "RTTI_Value": []
+                                          },
+                                          "ShaderKeyword": {
+                                            "RTTI_Type": "Tiny3D::ShaderKeyword",
+                                            "RTTI_Value": {
+                                              "HashCode": {
+                                                "RTTI_Type": "unsignedint",
+                                                "RTTI_Value": 5381
+                                              },
+                                              "Keys": {
+                                                "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                                "RTTI_Value": []
+                                              }
+                                            }
+                                          },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>>> >",
+                                            "RTTI_Value": []
+                                          },
+                                          "ShaderSamplerParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>>> >",
+                                            "RTTI_Value": [
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "_MainTex"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderSamplerParam",
+                                                  "RTTI_Value": {
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "_MainTex"
+                                                    },
+                                                    "SamplerBinding": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 3
+                                                    },
+                                                    "TexBinding": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 2
+                                                    },
+                                                    "TextureState": {
+                                                      "RTTI_Type": "Tiny3D::TEXTURE_TYPE",
+                                                      "RTTI_Value": "TT_2D"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "Stage": {
+                                            "RTTI_Type": "Tiny3D::SHADER_STAGE",
+                                            "RTTI_Value": "kPixel"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "RenderState": {
+                        "RTTI_Type": "Tiny3D::RenderState",
+                        "RTTI_Value": {
+                          "BlendDesc": {
+                            "RTTI_Type": "Tiny3D::BlendDesc",
+                            "RTTI_Value": {
+                              "AlphaToCoverageEnable": {
+                                "RTTI_Type": "bool",
+                                "RTTI_Value": false
+                              },
+                              "IndependentBlendEnable": {
+                                "RTTI_Type": "bool",
+                                "RTTI_Value": false
+                              },
+                              "RenderTargetStates": {
+                                "RTTI_Type": "structTiny3D::BlendDesc::RTBlendDesc[8]",
+                                "RTTI_Value": [
+                                  {
+                                    "RTTI_Type": "Tiny3D::BlendDesc::RTBlendDesc",
+                                    "RTTI_Value": {
+                                      "BlendEnable": {
+                                        "RTTI_Type": "bool",
+                                        "RTTI_Value": false
+                                      },
+                                      "BlendOp": {
+                                        "RTTI_Type": "Tiny3D::BlendOperation",
+                                        "RTTI_Value": "kAdd"
+                                      },
+                                      "BlendOpAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendOperation",
+                                        "RTTI_Value": "kAdd"
+                                      },
+                                      "ColorMask": {
+                                        "RTTI_Type": "unsignedchar",
+                                        "RTTI_Value": 15
+                                      },
+                                      "DestBlend": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kZero"
+                                      },
+                                      "DstBlendAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kZero"
+                                      },
+                                      "SrcBlend": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kOne"
+                                      },
+                                      "SrcBlendAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kOne"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "RTTI_Type": "Tiny3D::BlendDesc::RTBlendDesc",
+                                    "RTTI_Value": {
+                                      "BlendEnable": {
+                                        "RTTI_Type": "bool",
+                                        "RTTI_Value": false
+                                      },
+                                      "BlendOp": {
+                                        "RTTI_Type": "Tiny3D::BlendOperation",
+                                        "RTTI_Value": "kAdd"
+                                      },
+                                      "BlendOpAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendOperation",
+                                        "RTTI_Value": "kAdd"
+                                      },
+                                      "ColorMask": {
+                                        "RTTI_Type": "unsignedchar",
+                                        "RTTI_Value": 15
+                                      },
+                                      "DestBlend": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kOneMinusSrcAlpha"
+                                      },
+                                      "DstBlendAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kZero"
+                                      },
+                                      "SrcBlend": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kSrcAlpha"
+                                      },
+                                      "SrcBlendAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kOne"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "RTTI_Type": "Tiny3D::BlendDesc::RTBlendDesc",
+                                    "RTTI_Value": {
+                                      "BlendEnable": {
+                                        "RTTI_Type": "bool",
+                                        "RTTI_Value": false
+                                      },
+                                      "BlendOp": {
+                                        "RTTI_Type": "Tiny3D::BlendOperation",
+                                        "RTTI_Value": "kAdd"
+                                      },
+                                      "BlendOpAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendOperation",
+                                        "RTTI_Value": "kAdd"
+                                      },
+                                      "ColorMask": {
+                                        "RTTI_Type": "unsignedchar",
+                                        "RTTI_Value": 15
+                                      },
+                                      "DestBlend": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kOneMinusSrcAlpha"
+                                      },
+                                      "DstBlendAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kZero"
+                                      },
+                                      "SrcBlend": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kSrcAlpha"
+                                      },
+                                      "SrcBlendAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kOne"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "RTTI_Type": "Tiny3D::BlendDesc::RTBlendDesc",
+                                    "RTTI_Value": {
+                                      "BlendEnable": {
+                                        "RTTI_Type": "bool",
+                                        "RTTI_Value": false
+                                      },
+                                      "BlendOp": {
+                                        "RTTI_Type": "Tiny3D::BlendOperation",
+                                        "RTTI_Value": "kAdd"
+                                      },
+                                      "BlendOpAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendOperation",
+                                        "RTTI_Value": "kAdd"
+                                      },
+                                      "ColorMask": {
+                                        "RTTI_Type": "unsignedchar",
+                                        "RTTI_Value": 15
+                                      },
+                                      "DestBlend": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kOneMinusSrcAlpha"
+                                      },
+                                      "DstBlendAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kZero"
+                                      },
+                                      "SrcBlend": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kSrcAlpha"
+                                      },
+                                      "SrcBlendAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kOne"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "RTTI_Type": "Tiny3D::BlendDesc::RTBlendDesc",
+                                    "RTTI_Value": {
+                                      "BlendEnable": {
+                                        "RTTI_Type": "bool",
+                                        "RTTI_Value": false
+                                      },
+                                      "BlendOp": {
+                                        "RTTI_Type": "Tiny3D::BlendOperation",
+                                        "RTTI_Value": "kAdd"
+                                      },
+                                      "BlendOpAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendOperation",
+                                        "RTTI_Value": "kAdd"
+                                      },
+                                      "ColorMask": {
+                                        "RTTI_Type": "unsignedchar",
+                                        "RTTI_Value": 15
+                                      },
+                                      "DestBlend": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kOneMinusSrcAlpha"
+                                      },
+                                      "DstBlendAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kZero"
+                                      },
+                                      "SrcBlend": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kSrcAlpha"
+                                      },
+                                      "SrcBlendAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kOne"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "RTTI_Type": "Tiny3D::BlendDesc::RTBlendDesc",
+                                    "RTTI_Value": {
+                                      "BlendEnable": {
+                                        "RTTI_Type": "bool",
+                                        "RTTI_Value": false
+                                      },
+                                      "BlendOp": {
+                                        "RTTI_Type": "Tiny3D::BlendOperation",
+                                        "RTTI_Value": "kAdd"
+                                      },
+                                      "BlendOpAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendOperation",
+                                        "RTTI_Value": "kAdd"
+                                      },
+                                      "ColorMask": {
+                                        "RTTI_Type": "unsignedchar",
+                                        "RTTI_Value": 15
+                                      },
+                                      "DestBlend": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kOneMinusSrcAlpha"
+                                      },
+                                      "DstBlendAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kZero"
+                                      },
+                                      "SrcBlend": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kSrcAlpha"
+                                      },
+                                      "SrcBlendAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kOne"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "RTTI_Type": "Tiny3D::BlendDesc::RTBlendDesc",
+                                    "RTTI_Value": {
+                                      "BlendEnable": {
+                                        "RTTI_Type": "bool",
+                                        "RTTI_Value": false
+                                      },
+                                      "BlendOp": {
+                                        "RTTI_Type": "Tiny3D::BlendOperation",
+                                        "RTTI_Value": "kAdd"
+                                      },
+                                      "BlendOpAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendOperation",
+                                        "RTTI_Value": "kAdd"
+                                      },
+                                      "ColorMask": {
+                                        "RTTI_Type": "unsignedchar",
+                                        "RTTI_Value": 15
+                                      },
+                                      "DestBlend": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kOneMinusSrcAlpha"
+                                      },
+                                      "DstBlendAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kZero"
+                                      },
+                                      "SrcBlend": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kSrcAlpha"
+                                      },
+                                      "SrcBlendAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kOne"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "RTTI_Type": "Tiny3D::BlendDesc::RTBlendDesc",
+                                    "RTTI_Value": {
+                                      "BlendEnable": {
+                                        "RTTI_Type": "bool",
+                                        "RTTI_Value": false
+                                      },
+                                      "BlendOp": {
+                                        "RTTI_Type": "Tiny3D::BlendOperation",
+                                        "RTTI_Value": "kAdd"
+                                      },
+                                      "BlendOpAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendOperation",
+                                        "RTTI_Value": "kAdd"
+                                      },
+                                      "ColorMask": {
+                                        "RTTI_Type": "unsignedchar",
+                                        "RTTI_Value": 15
+                                      },
+                                      "DestBlend": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kOneMinusSrcAlpha"
+                                      },
+                                      "DstBlendAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kZero"
+                                      },
+                                      "SrcBlend": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kSrcAlpha"
+                                      },
+                                      "SrcBlendAlpha": {
+                                        "RTTI_Type": "Tiny3D::BlendFactor",
+                                        "RTTI_Value": "kOne"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          "DepthStencilDesc": {
+                            "RTTI_Type": "Tiny3D::DepthStencilDesc",
+                            "RTTI_Value": {
+                              "BackFace": {
+                                "RTTI_Type": "Tiny3D::StencilOpDesc",
+                                "RTTI_Value": {
+                                  "StencilDepthFailOp": {
+                                    "RTTI_Type": "Tiny3D::StencilOp",
+                                    "RTTI_Value": "kKeep"
+                                  },
+                                  "StencilFailOp": {
+                                    "RTTI_Type": "Tiny3D::StencilOp",
+                                    "RTTI_Value": "kKeep"
+                                  },
+                                  "StencilFunc": {
+                                    "RTTI_Type": "Tiny3D::CompareFunction",
+                                    "RTTI_Value": "kAlwaysPass"
+                                  },
+                                  "StencilPassOp": {
+                                    "RTTI_Type": "Tiny3D::StencilOp",
+                                    "RTTI_Value": "kKeep"
+                                  }
+                                }
+                              },
+                              "DepthFunc": {
+                                "RTTI_Type": "Tiny3D::CompareFunction",
+                                "RTTI_Value": "kAlwaysPass"
+                              },
+                              "DepthTestEnable": {
+                                "RTTI_Type": "bool",
+                                "RTTI_Value": true
+                              },
+                              "DepthWriteEnable": {
+                                "RTTI_Type": "bool",
+                                "RTTI_Value": false
+                              },
+                              "FrontFace": {
+                                "RTTI_Type": "Tiny3D::StencilOpDesc",
+                                "RTTI_Value": {
+                                  "StencilDepthFailOp": {
+                                    "RTTI_Type": "Tiny3D::StencilOp",
+                                    "RTTI_Value": "kKeep"
+                                  },
+                                  "StencilFailOp": {
+                                    "RTTI_Type": "Tiny3D::StencilOp",
+                                    "RTTI_Value": "kKeep"
+                                  },
+                                  "StencilFunc": {
+                                    "RTTI_Type": "Tiny3D::CompareFunction",
+                                    "RTTI_Value": "kAlwaysPass"
+                                  },
+                                  "StencilPassOp": {
+                                    "RTTI_Type": "Tiny3D::StencilOp",
+                                    "RTTI_Value": "kKeep"
+                                  }
+                                }
+                              },
+                              "StencilEnable": {
+                                "RTTI_Type": "bool",
+                                "RTTI_Value": false
+                              },
+                              "StencilReadMask": {
+                                "RTTI_Type": "unsignedchar",
+                                "RTTI_Value": 255
+                              },
+                              "StencilRef": {
+                                "RTTI_Type": "unsignedint",
+                                "RTTI_Value": 0
+                              },
+                              "StencilWriteMask": {
+                                "RTTI_Type": "unsignedchar",
+                                "RTTI_Value": 255
+                              }
+                            }
+                          },
+                          "RasterizerDesc": {
+                            "RTTI_Type": "Tiny3D::RasterizerDesc",
+                            "RTTI_Value": {
+                              "AntialiasedLineEnable": {
+                                "RTTI_Type": "bool",
+                                "RTTI_Value": false
+                              },
+                              "Conservative": {
+                                "RTTI_Type": "bool",
+                                "RTTI_Value": false
+                              },
+                              "CullMode": {
+                                "RTTI_Type": "Tiny3D::CullingMode",
+                                "RTTI_Value": "kNone"
+                              },
+                              "DepthBias": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.0
+                              },
+                              "DepthBiasClamp": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.0
+                              },
+                              "DepthClipEnable": {
+                                "RTTI_Type": "bool",
+                                "RTTI_Value": true
+                              },
+                              "FillMode": {
+                                "RTTI_Type": "Tiny3D::PolygonMode",
+                                "RTTI_Value": "kSolid"
+                              },
+                              "MultisampleEnable": {
+                                "RTTI_Type": "bool",
+                                "RTTI_Value": false
+                              },
+                              "ScissorEnable": {
+                                "RTTI_Type": "bool",
+                                "RTTI_Value": false
+                              },
+                              "SlopeScaledDepthBias": {
+                                "RTTI_Type": "float",
+                                "RTTI_Value": 0.0
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "Tags": {
+                        "RTTI_Type": "classstd::map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>> >",
+                        "RTTI_Value": [
+                          {
+                            "RTTI_Map_Key": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "LightMode"
+                            },
+                            "RTTI_Map_Value": {
+                              "RTTI_Type": "std::string",
+                              "RTTI_Value": "ForwardBase"
+                            }
+                          }
+                        ]
+                      },
+                      "VertexShaders": {
+                        "RTTI_Type": "classstd::map<structTiny3D::ShaderKeyword,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>,structstd::less<structTiny3D::ShaderKeyword>,classstd::allocator<structstd::pair<structTiny3D::ShaderKeywordconst,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>>> >",
+                        "RTTI_Value": [
+                          {
+                            "RTTI_Map_Key": {
+                              "RTTI_Type": "Tiny3D::ShaderKeyword",
+                              "RTTI_Value": {
+                                "HashCode": {
+                                  "RTTI_Type": "unsignedint",
+                                  "RTTI_Value": 5381
+                                },
+                                "Keys": {
+                                  "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                  "RTTI_Value": []
+                                }
+                              }
+                            },
+                            "RTTI_Map_Value": {
+                              "RTTI_Type": "Tiny3D::ShaderVariantSet",
+                              "RTTI_Value": {
+                                "Variants": {
+                                  "RTTI_Type": "classstd::map<enumTiny3D::SHADER_LANGUAGE,classTiny3D::SmartPtr<classTiny3D::ShaderVariant>,structstd::less<enumTiny3D::SHADER_LANGUAGE>,classstd::allocator<structstd::pair<enumTiny3D::SHADER_LANGUAGEconst,classTiny3D::SmartPtr<classTiny3D::ShaderVariant>>> >",
+                                  "RTTI_Value": [
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "Tiny3D::SHADER_LANGUAGE",
+                                        "RTTI_Value": "kHLSL"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderVariant",
+                                        "RTTI_Value": {
+                                          "Code": {
+                                            "RTTI_Type": "Tiny3D::Buffer",
+                                            "RTTI_Value": {
+                                              "RTTI_Type": "std::string",
+                                              "RTTI_Value": "Y2J1ZmZlciB0eXBlX1RpbnkzRFBlckZyYW1lIDogcmVnaXN0ZXIoYjApCnsKICAgIHJvd19tYWpvciBmbG9hdDR4NCBUaW55M0RQZXJGcmFtZV90aW55M2RfTWF0cml4VlAgOiBwYWNrb2Zmc2V0KGMwKTsKfTsKCmNidWZmZXIgdHlwZV9SbWxVSVBlckRyYXcgOiByZWdpc3RlcihiMSkKewogICAgcm93X21ham9yIGZsb2F0NHg0IFJtbFVJUGVyRHJhd19UcmFuc2Zvcm0gOiBwYWNrb2Zmc2V0KGMwKTsKICAgIGZsb2F0NCBSbWxVSVBlckRyYXdfVHJhbnNsYXRpb24gOiBwYWNrb2Zmc2V0KGM0KTsKfTsKCgpzdGF0aWMgZmxvYXQ0IGdsX1Bvc2l0aW9uOwpzdGF0aWMgZmxvYXQyIGluX3Zhcl9QT1NJVElPTjsKc3RhdGljIGZsb2F0NCBpbl92YXJfQ09MT1IwOwpzdGF0aWMgZmxvYXQyIGluX3Zhcl9URVhDT09SRDA7CnN0YXRpYyBmbG9hdDQgb3V0X3Zhcl9DT0xPUjA7CnN0YXRpYyBmbG9hdDIgb3V0X3Zhcl9URVhDT09SRDA7CgpzdHJ1Y3QgU1BJUlZfQ3Jvc3NfSW5wdXQKewogICAgZmxvYXQyIGluX3Zhcl9QT1NJVElPTiA6IFBPU0lUSU9OOwogICAgZmxvYXQ0IGluX3Zhcl9DT0xPUjAgOiBDT0xPUjA7CiAgICBmbG9hdDIgaW5fdmFyX1RFWENPT1JEMCA6IFRFWENPT1JEMDsKfTsKCnN0cnVjdCBTUElSVl9Dcm9zc19PdXRwdXQKewogICAgZmxvYXQ0IG91dF92YXJfQ09MT1IwIDogQ09MT1IwOwogICAgZmxvYXQyIG91dF92YXJfVEVYQ09PUkQwIDogVEVYQ09PUkQwOwogICAgZmxvYXQ0IGdsX1Bvc2l0aW9uIDogU1ZfUG9zaXRpb247Cn07Cgp2b2lkIHZlcnRfbWFpbigpCnsKICAgIGdsX1Bvc2l0aW9uID0gbXVsKFRpbnkzRFBlckZyYW1lX3RpbnkzZF9NYXRyaXhWUCwgbXVsKFJtbFVJUGVyRHJhd19UcmFuc2Zvcm0sIGZsb2F0NChpbl92YXJfUE9TSVRJT04gKyBSbWxVSVBlckRyYXdfVHJhbnNsYXRpb24ueHksIDAuMGYsIDEuMGYpKSk7CiAgICBvdXRfdmFyX0NPTE9SMCA9IGluX3Zhcl9DT0xPUjA7CiAgICBvdXRfdmFyX1RFWENPT1JEMCA9IGluX3Zhcl9URVhDT09SRDA7Cn0KClNQSVJWX0Nyb3NzX091dHB1dCBtYWluKFNQSVJWX0Nyb3NzX0lucHV0IHN0YWdlX2lucHV0KQp7CiAgICBpbl92YXJfUE9TSVRJT04gPSBzdGFnZV9pbnB1dC5pbl92YXJfUE9TSVRJT047CiAgICBpbl92YXJfQ09MT1IwID0gc3RhZ2VfaW5wdXQuaW5fdmFyX0NPTE9SMDsKICAgIGluX3Zhcl9URVhDT09SRDAgPSBzdGFnZV9pbnB1dC5pbl92YXJfVEVYQ09PUkQwOwogICAgdmVydF9tYWluKCk7CiAgICBTUElSVl9Dcm9zc19PdXRwdXQgc3RhZ2Vfb3V0cHV0OwogICAgc3RhZ2Vfb3V0cHV0LmdsX1Bvc2l0aW9uID0gZ2xfUG9zaXRpb247CiAgICBzdGFnZV9vdXRwdXQub3V0X3Zhcl9DT0xPUjAgPSBvdXRfdmFyX0NPTE9SMDsKICAgIHN0YWdlX291dHB1dC5vdXRfdmFyX1RFWENPT1JEMCA9IG91dF92YXJfVEVYQ09PUkQwOwogICAgcmV0dXJuIHN0YWdlX291dHB1dDsKfQo="
+                                            }
+                                          },
+                                          "Language": {
+                                            "RTTI_Type": "Tiny3D::SHADER_LANGUAGE",
+                                            "RTTI_Value": "kHLSL"
+                                          },
+                                          "ShaderConstantParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>>> >",
+                                            "RTTI_Value": [
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "tiny3d_MatrixVP"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 0
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Tiny3DPerFrame"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 0
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_MATRIX4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "tiny3d_MatrixVP"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "Transform"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 1
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "RmlUIPerDraw"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 0
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_MATRIX4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Transform"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "Translation"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 1
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "RmlUIPerDraw"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 16
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_VECTOR4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Translation"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "ShaderKeyword": {
+                                            "RTTI_Type": "Tiny3D::ShaderKeyword",
+                                            "RTTI_Value": {
+                                              "HashCode": {
+                                                "RTTI_Type": "unsignedint",
+                                                "RTTI_Value": 5381
+                                              },
+                                              "Keys": {
+                                                "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                                "RTTI_Value": []
+                                              }
+                                            }
+                                          },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>>> >",
+                                            "RTTI_Value": []
+                                          },
+                                          "ShaderSamplerParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>>> >",
+                                            "RTTI_Value": []
+                                          },
+                                          "Stage": {
+                                            "RTTI_Type": "Tiny3D::SHADER_STAGE",
+                                            "RTTI_Value": "kVertex"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "Tiny3D::SHADER_LANGUAGE",
+                                        "RTTI_Value": "kGLSL"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderVariant",
+                                        "RTTI_Value": {
+                                          "Code": {
+                                            "RTTI_Type": "Tiny3D::Buffer",
+                                            "RTTI_Value": {
+                                              "RTTI_Type": "std::string",
+                                              "RTTI_Value": "I3ZlcnNpb24gNDAwCiNleHRlbnNpb24gR0xfQVJCX3NlcGFyYXRlX3NoYWRlcl9vYmplY3RzIDogcmVxdWlyZQoKb3V0IGdsX1BlclZlcnRleAp7CiAgICB2ZWM0IGdsX1Bvc2l0aW9uOwp9OwoKbGF5b3V0KHN0ZDE0MCkgdW5pZm9ybSB0eXBlX1RpbnkzRFBlckZyYW1lCnsKICAgIG1hdDQgdGlueTNkX01hdHJpeFZQOwp9IFRpbnkzRFBlckZyYW1lOwoKbGF5b3V0KHN0ZDE0MCkgdW5pZm9ybSB0eXBlX1JtbFVJUGVyRHJhdwp7CiAgICBtYXQ0IFRyYW5zZm9ybTsKICAgIHZlYzQgVHJhbnNsYXRpb247Cn0gUm1sVUlQZXJEcmF3OwoKbGF5b3V0KGxvY2F0aW9uID0gMCkgaW4gdmVjMiBpbl92YXJfUE9TSVRJT047CmxheW91dChsb2NhdGlvbiA9IDEpIGluIHZlYzQgaW5fdmFyX0NPTE9SMDsKbGF5b3V0KGxvY2F0aW9uID0gMikgaW4gdmVjMiBpbl92YXJfVEVYQ09PUkQwOwpsYXlvdXQobG9jYXRpb24gPSAwKSBvdXQgdmVjNCBvdXRfdmFyX0NPTE9SMDsKbGF5b3V0KGxvY2F0aW9uID0gMSkgb3V0IHZlYzIgb3V0X3Zhcl9URVhDT09SRDA7Cgp2b2lkIG1haW4oKQp7CiAgICBnbF9Qb3NpdGlvbiA9ICh2ZWM0KGluX3Zhcl9QT1NJVElPTiArIFJtbFVJUGVyRHJhdy5UcmFuc2xhdGlvbi54eSwgMC4wLCAxLjApICogUm1sVUlQZXJEcmF3LlRyYW5zZm9ybSkgKiBUaW55M0RQZXJGcmFtZS50aW55M2RfTWF0cml4VlA7CiAgICBvdXRfdmFyX0NPTE9SMCA9IGluX3Zhcl9DT0xPUjA7CiAgICBvdXRfdmFyX1RFWENPT1JEMCA9IGluX3Zhcl9URVhDT09SRDA7Cn0KCg=="
+                                            }
+                                          },
+                                          "Language": {
+                                            "RTTI_Type": "Tiny3D::SHADER_LANGUAGE",
+                                            "RTTI_Value": "kGLSL"
+                                          },
+                                          "ShaderConstantParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>>> >",
+                                            "RTTI_Value": [
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "tiny3d_MatrixVP"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 0
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Tiny3DPerFrame"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 0
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_MATRIX4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "tiny3d_MatrixVP"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "Transform"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 1
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "RmlUIPerDraw"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 0
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_MATRIX4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Transform"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "Translation"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 1
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "RmlUIPerDraw"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 16
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_VECTOR4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Translation"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "ShaderKeyword": {
+                                            "RTTI_Type": "Tiny3D::ShaderKeyword",
+                                            "RTTI_Value": {
+                                              "HashCode": {
+                                                "RTTI_Type": "unsignedint",
+                                                "RTTI_Value": 5381
+                                              },
+                                              "Keys": {
+                                                "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                                "RTTI_Value": []
+                                              }
+                                            }
+                                          },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>>> >",
+                                            "RTTI_Value": []
+                                          },
+                                          "ShaderSamplerParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>>> >",
+                                            "RTTI_Value": []
+                                          },
+                                          "Stage": {
+                                            "RTTI_Type": "Tiny3D::SHADER_STAGE",
+                                            "RTTI_Value": "kVertex"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "Tiny3D::SHADER_LANGUAGE",
+                                        "RTTI_Value": "kESSL"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderVariant",
+                                        "RTTI_Value": {
+                                          "Code": {
+                                            "RTTI_Type": "Tiny3D::Buffer",
+                                            "RTTI_Value": {
+                                              "RTTI_Type": "std::string",
+                                              "RTTI_Value": "I3ZlcnNpb24gMzEwIGVzCgpsYXlvdXQoYmluZGluZyA9IDAsIHN0ZDE0MCkgdW5pZm9ybSB0eXBlX1RpbnkzRFBlckZyYW1lCnsKICAgIG1hdDQgdGlueTNkX01hdHJpeFZQOwp9IFRpbnkzRFBlckZyYW1lOwoKbGF5b3V0KGJpbmRpbmcgPSAxLCBzdGQxNDApIHVuaWZvcm0gdHlwZV9SbWxVSVBlckRyYXcKewogICAgbWF0NCBUcmFuc2Zvcm07CiAgICB2ZWM0IFRyYW5zbGF0aW9uOwp9IFJtbFVJUGVyRHJhdzsKCmxheW91dChsb2NhdGlvbiA9IDApIGluIHZlYzIgaW5fdmFyX1BPU0lUSU9OOwpsYXlvdXQobG9jYXRpb24gPSAxKSBpbiB2ZWM0IGluX3Zhcl9DT0xPUjA7CmxheW91dChsb2NhdGlvbiA9IDIpIGluIHZlYzIgaW5fdmFyX1RFWENPT1JEMDsKbGF5b3V0KGxvY2F0aW9uID0gMCkgb3V0IHZlYzQgb3V0X3Zhcl9DT0xPUjA7CmxheW91dChsb2NhdGlvbiA9IDEpIG91dCB2ZWMyIG91dF92YXJfVEVYQ09PUkQwOwoKdm9pZCBtYWluKCkKewogICAgZ2xfUG9zaXRpb24gPSAodmVjNChpbl92YXJfUE9TSVRJT04gKyBSbWxVSVBlckRyYXcuVHJhbnNsYXRpb24ueHksIDAuMCwgMS4wKSAqIFJtbFVJUGVyRHJhdy5UcmFuc2Zvcm0pICogVGlueTNEUGVyRnJhbWUudGlueTNkX01hdHJpeFZQOwogICAgb3V0X3Zhcl9DT0xPUjAgPSBpbl92YXJfQ09MT1IwOwogICAgb3V0X3Zhcl9URVhDT09SRDAgPSBpbl92YXJfVEVYQ09PUkQwOwp9Cgo="
+                                            }
+                                          },
+                                          "Language": {
+                                            "RTTI_Type": "Tiny3D::SHADER_LANGUAGE",
+                                            "RTTI_Value": "kESSL"
+                                          },
+                                          "ShaderConstantParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>>> >",
+                                            "RTTI_Value": [
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "tiny3d_MatrixVP"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 0
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Tiny3DPerFrame"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 0
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_MATRIX4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "tiny3d_MatrixVP"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "Transform"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 1
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "RmlUIPerDraw"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 0
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_MATRIX4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Transform"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "Translation"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 1
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "RmlUIPerDraw"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 16
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_VECTOR4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Translation"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "ShaderKeyword": {
+                                            "RTTI_Type": "Tiny3D::ShaderKeyword",
+                                            "RTTI_Value": {
+                                              "HashCode": {
+                                                "RTTI_Type": "unsignedint",
+                                                "RTTI_Value": 5381
+                                              },
+                                              "Keys": {
+                                                "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                                "RTTI_Value": []
+                                              }
+                                            }
+                                          },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>>> >",
+                                            "RTTI_Value": []
+                                          },
+                                          "ShaderSamplerParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>>> >",
+                                            "RTTI_Value": []
+                                          },
+                                          "Stage": {
+                                            "RTTI_Type": "Tiny3D::SHADER_STAGE",
+                                            "RTTI_Value": "kVertex"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "RTTI_Map_Key": {
+                                        "RTTI_Type": "Tiny3D::SHADER_LANGUAGE",
+                                        "RTTI_Value": "kSPIRV"
+                                      },
+                                      "RTTI_Map_Value": {
+                                        "RTTI_Type": "Tiny3D::ShaderVariant",
+                                        "RTTI_Value": {
+                                          "Code": {
+                                            "RTTI_Type": "Tiny3D::Buffer",
+                                            "RTTI_Value": {
+                                              "RTTI_Type": "std::string",
+                                              "RTTI_Value": "AwIjBwAAAQAAAA4AMAAAAAAAAAARAAIAAQAAAA4AAwAAAAAAAQAAAA8ACwAAAAAAAQAAAHZlcnQAAAAAAgAAAAMAAAAEAAAABQAAAAYAAAAHAAAAAwADAAUAAABYAgAABQAHAAgAAAB0eXBlLlRpbnkzRFBlckZyYW1lAAYABwAIAAAAAAAAAHRpbnkzZF9NYXRyaXhWUAAFAAYACQAAAFRpbnkzRFBlckZyYW1lAAAFAAcACgAAAHR5cGUuUm1sVUlQZXJEcmF3AAAABgAGAAoAAAAAAAAAVHJhbnNmb3JtAAAABgAGAAoAAAABAAAAVHJhbnNsYXRpb24ABQAGAAsAAABSbWxVSVBlckRyYXcAAAAABQAGAAIAAABpbi52YXIuUE9TSVRJT04ABQAGAAMAAABpbi52YXIuQ09MT1IwAAAABQAHAAQAAABpbi52YXIuVEVYQ09PUkQwAAAAAAUABgAGAAAAb3V0LnZhci5DT0xPUjAAAAUABwAHAAAAb3V0LnZhci5URVhDT09SRDAAAAAFAAQAAQAAAHZlcnQAAAAARwAEAAUAAAALAAAAAAAAAEcABAACAAAAHgAAAAAAAABHAAQAAwAAAB4AAAABAAAARwAEAAQAAAAeAAAAAgAAAEcABAAGAAAAHgAAAAAAAABHAAQABwAAAB4AAAABAAAARwAEAAkAAAAiAAAAAAAAAEcABAAJAAAAIQAAAAAAAABHAAQACwAAACIAAAAAAAAARwAEAAsAAAAhAAAAAQAAAEgABQAIAAAAAAAAACMAAAAAAAAASAAFAAgAAAAAAAAABwAAABAAAABIAAQACAAAAAAAAAAFAAAARwADAAgAAAACAAAASAAFAAoAAAAAAAAAIwAAAAAAAABIAAUACgAAAAAAAAAHAAAAEAAAAEgABAAKAAAAAAAAAAUAAABIAAUACgAAAAEAAAAjAAAAQAAAAEcAAwAKAAAAAgAAABUABAAMAAAAIAAAAAEAAAArAAQADAAAAA0AAAAAAAAAKwAEAAwAAAAOAAAAAQAAABYAAwAPAAAAIAAAACsABAAPAAAAEAAAAAAAAAArAAQADwAAABEAAAAAAIA/FwAEABIAAAAPAAAABAAAABgABAATAAAAEgAAAAQAAAAeAAMACAAAABMAAAAgAAQAFAAAAAIAAAAIAAAAHgAEAAoAAAATAAAAEgAAACAABAAVAAAAAgAAAAoAAAAXAAQAFgAAAA8AAAACAAAAIAAEABcAAAABAAAAFgAAACAABAAYAAAAAQAAABIAAAAgAAQAGQAAAAMAAAASAAAAIAAEABoAAAADAAAAFgAAABMAAgAbAAAAIQADABwAAAAbAAAAIAAEAB0AAAACAAAAEgAAACAABAAeAAAAAgAAABMAAAA7AAQAFAAAAAkAAAACAAAAOwAEABUAAAALAAAAAgAAADsABAAXAAAAAgAAAAEAAAA7AAQAGAAAAAMAAAABAAAAOwAEABcAAAAEAAAAAQAAADsABAAZAAAABQAAAAMAAAA7AAQAGQAAAAYAAAADAAAAOwAEABoAAAAHAAAAAwAAADYABQAbAAAAAQAAAAAAAAAcAAAA+AACAB8AAAA9AAQAFgAAACAAAAACAAAAPQAEABIAAAAhAAAAAwAAAD0ABAAWAAAAIgAAAAQAAABBAAUAHQAAACMAAAALAAAADgAAAD0ABAASAAAAJAAAACMAAABPAAcAFgAAACUAAAAkAAAAJAAAAAAAAAABAAAAgQAFABYAAAAmAAAAIAAAACUAAABRAAUADwAAACcAAAAmAAAAAAAAAFEABQAPAAAAKAAAACYAAAABAAAAUAAHABIAAAApAAAAJwAAACgAAAAQAAAAEQAAAEEABQAeAAAAKgAAAAkAAAANAAAAPQAEABMAAAArAAAAKgAAAEEABQAeAAAALAAAAAsAAAANAAAAPQAEABMAAAAtAAAALAAAAJAABQASAAAALgAAACkAAAAtAAAAkAAFABIAAAAvAAAALgAAACsAAAA+AAMABQAAAC8AAAA+AAMABgAAACEAAAA+AAMABwAAACIAAAD9AAEAOAABAA=="
+                                            }
+                                          },
+                                          "Language": {
+                                            "RTTI_Type": "Tiny3D::SHADER_LANGUAGE",
+                                            "RTTI_Value": "kSPIRV"
+                                          },
+                                          "ShaderConstantParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>>> >",
+                                            "RTTI_Value": [
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "tiny3d_MatrixVP"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 0
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Tiny3DPerFrame"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 0
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_MATRIX4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "tiny3d_MatrixVP"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "Transform"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 1
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "RmlUIPerDraw"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 0
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_MATRIX4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Transform"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "Translation"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 1
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "RmlUIPerDraw"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 16
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_VECTOR4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Translation"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "ShaderKeyword": {
+                                            "RTTI_Type": "Tiny3D::ShaderKeyword",
+                                            "RTTI_Value": {
+                                              "HashCode": {
+                                                "RTTI_Type": "unsignedint",
+                                                "RTTI_Value": 5381
+                                              },
+                                              "Keys": {
+                                                "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                                "RTTI_Value": []
+                                              }
+                                            }
+                                          },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>>> >",
+                                            "RTTI_Value": []
+                                          },
+                                          "ShaderSamplerParams": {
+                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>>> >",
+                                            "RTTI_Value": []
+                                          },
+                                          "Stage": {
+                                            "RTTI_Type": "Tiny3D::SHADER_STAGE",
+                                            "RTTI_Value": "kVertex"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              },
+              "Tags": {
+                "RTTI_Type": "classstd::map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>> >",
+                "RTTI_Value": []
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

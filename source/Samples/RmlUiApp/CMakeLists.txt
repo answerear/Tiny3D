@@ -66,6 +66,10 @@ elseif (TINY3D_OS_ANDROID)
         COMMAND ${CMAKE_COMMAND} -E copy
             "${CMAKE_SOURCE_DIR}/../assets/config/Android/Tiny3D.cfg"
             "${ANDROID_ASSETS_DIR}/Tiny3D.cfg"
+        # 运行时路径是 assets/samples/ui/...，落在 APK assets 根下的同名目录。
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_SOURCE_DIR}/../assets/samples/ui"
+            "${ANDROID_ASSETS_DIR}/assets/samples/ui"
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:GLES3Renderer> ${T3D_ANDROID_LIB_PATH}
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:T3DRmlUi> ${T3D_ANDROID_LIB_PATH}
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:rmlui_core> ${T3D_ANDROID_LIB_PATH}

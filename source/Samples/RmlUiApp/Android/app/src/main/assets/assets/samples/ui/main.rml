@@ -1,0 +1,52 @@
+<rml>
+<head>
+	<title>RmlUi Phase 1</title>
+	<link type="text/rcss" href="main.rcss"/>
+</head>
+<body>
+	<div id="panel">
+		<h1>Hello 你好 Tiny3D</h1>
+		<img class="badge" src="badge.png"/>
+		<div id="scroller">
+			<p>滚动区域 01 / Scroll line 01</p>
+			<p>滚动区域 02 / Scroll line 02</p>
+			<p>滚动区域 03 / Scroll line 03</p>
+			<p>滚动区域 04 / Scroll line 04</p>
+			<p>滚动区域 05 / Scroll line 05</p>
+			<p>滚动区域 06 / Scroll line 06</p>
+			<p>滚动区域 07 / Scroll line 07</p>
+			<p>滚动区域 08 / Scroll line 08</p>
+			<p>滚动区域 09 / Scroll line 09</p>
+			<p>滚动区域 10 / Scroll line 10</p>
+		</div>
+	</div>
+	<div id="phase2">
+		<h1>Transform</h1>
+		<div id="spin">旋转 30° / rotate</div>
+		<div id="round">
+			<p>圆角裁剪 Round clip</p>
+		</div>
+		<div id="turned">
+			<div class="spill">旋转容器里溢出的子元素</div>
+		</div>
+	</div>
+	<div id="phase3">
+		<h1>Input</h1>
+		<button id="ping" type="button">点我 Click</button>
+		<p id="clicks">点击次数 0</p>
+		<input type="text" id="name" value=""/>
+	</div>
+	<div id="hud" data-model="hud">
+		<h1>HUD</h1>
+		<p>HP {{ hp }}</p>
+		<p>Score {{ score }}</p>
+		<button type="button" data-event-click="hit">Hit -10</button>
+		<button type="button" data-event-click="add_score">Score +25</button>
+		<button type="button" data-event-click="add_item">Add item</button>
+		<button type="button" data-event-click="remove_item">Remove item</button>
+		<div data-for="item : items">
+			<p>{{ item.name }} x {{ item.count }}</p>
+		</div>
+	</div>
+</body>
+</rml>
