@@ -80,6 +80,10 @@ namespace Tiny3D
             mD3DDeviceContext->Flush();
         }
 
+        // setRenderTarget 的备份可能还握着 RTV、缓冲、布局和采样器。
+        // 要在设备和 blit 资源之前放掉，否则退出时这些对象还活着。
+        releaseBackupState();
+
         D3D_SAFE_RELEASE(mBlitVB)
         D3D_SAFE_RELEASE(mBlitLayout)
         D3D_SAFE_RELEASE(mBlitVS)
@@ -1092,8 +1096,68 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void D3D11Context::releaseBackupState()
+    {
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.RenderTargetViews);
+        D3D_SAFE_RELEASE(mBackupState.DepthStencilView);
+
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.PSShaderResources);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.VSShaderResources);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.GSShaderResources);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.HSShaderResources);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.DSShaderResources);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.CSShaderResources);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.CSUnorderedAccessViews);
+
+        D3D_SAFE_RELEASE(mBackupState.VS);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.VSInstances);
+        D3D_SAFE_RELEASE(mBackupState.PS);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.PSInstances);
+        D3D_SAFE_RELEASE(mBackupState.GS);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.GSInstances);
+        D3D_SAFE_RELEASE(mBackupState.HS);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.HSInstances);
+        D3D_SAFE_RELEASE(mBackupState.DS);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.DSInstances);
+        D3D_SAFE_RELEASE(mBackupState.CS);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.CSInstances);
+        mBackupState.VSInstancesCount = 0;
+        mBackupState.PSInstancesCount = 0;
+        mBackupState.GSInstancesCount = 0;
+        mBackupState.HSInstancesCount = 0;
+        mBackupState.DSInstancesCount = 0;
+        mBackupState.CSInstancesCount = 0;
+
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.VSConstantBuffers);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.PSConstantBuffers);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.GSConstantBuffers);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.HSConstantBuffers);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.DSConstantBuffers);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.CSConstantBuffers);
+
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.VSSamplers);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.PSSamplers);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.GSSamplers);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.HSSamplers);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.DSSamplers);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.CSSamplers);
+
+        D3D_SAFE_RELEASE(mBackupState.InputLayout);
+        D3D_SAFE_RELEASE_ARRAY(mBackupState.VertexBuffers);
+        D3D_SAFE_RELEASE(mBackupState.IndexBuffer);
+        D3D_SAFE_RELEASE(mBackupState.RasterizerState);
+        D3D_SAFE_RELEASE(mBackupState.BlendState);
+        D3D_SAFE_RELEASE(mBackupState.DepthStencilState);
+    }
+
+    //--------------------------------------------------------------------------
+
     void D3D11Context::backupRenderState()
     {
+        // 上一份 Get* 的引用还在 mBackupState 里。先放掉再覆盖，
+        // 否则同一帧第二次 setRenderTarget 会把指针盖掉，引用按帧累积。
+        releaseBackupState();
+
         // 裁剪矩形和视口
         mD3DDeviceContext->RSGetScissorRects(&mBackupState.ScissorRectsCount, mBackupState.ScissorRects);
         mD3DDeviceContext->RSGetViewports(&mBackupState.ViewportsCount, mBackupState.Viewports);
@@ -1115,7 +1179,13 @@ namespace Tiny3D
             mD3DDeviceContext->CSGetUnorderedAccessViews(0, mCapabilities.maxUnorderedAccessSlots, mBackupState.CSUnorderedAccessViews);
         }
 
-        // 所有着色器
+        // 传入的 count 是数组容量。GetShader 返回时会改成实际拿到的个数。
+        mBackupState.VSInstancesCount = ARRAYSIZE(mBackupState.VSInstances);
+        mBackupState.PSInstancesCount = ARRAYSIZE(mBackupState.PSInstances);
+        mBackupState.GSInstancesCount = ARRAYSIZE(mBackupState.GSInstances);
+        mBackupState.HSInstancesCount = ARRAYSIZE(mBackupState.HSInstances);
+        mBackupState.DSInstancesCount = ARRAYSIZE(mBackupState.DSInstances);
+        mBackupState.CSInstancesCount = ARRAYSIZE(mBackupState.CSInstances);
         mD3DDeviceContext->VSGetShader(&mBackupState.VS, mBackupState.VSInstances, &mBackupState.VSInstancesCount);
         mD3DDeviceContext->PSGetShader(&mBackupState.PS, mBackupState.PSInstances, &mBackupState.PSInstancesCount);
         mD3DDeviceContext->GSGetShader(&mBackupState.GS, mBackupState.GSInstances, &mBackupState.GSInstancesCount);
@@ -5009,6 +5079,30 @@ namespace Tiny3D
         ID3D11RasterizerState *pCurRState = nullptr;
         mD3DDeviceContext->RSGetState(&pCurRState);
 
+        // blit 会改 slot 0 的顶点缓冲、输入布局、图元拓扑、PS 采样器、PS 着色器和 SRV。
+        // 这些 Get* 都会 AddRef，画完必须设回去再 Release。
+        ID3D11Buffer *pCurVB = nullptr;
+        UINT curVBStride = 0;
+        UINT curVBOffset = 0;
+        mD3DDeviceContext->IAGetVertexBuffers(0, 1, &pCurVB, &curVBStride, &curVBOffset);
+
+        ID3D11InputLayout *pCurLayout = nullptr;
+        mD3DDeviceContext->IAGetInputLayout(&pCurLayout);
+
+        D3D11_PRIMITIVE_TOPOLOGY curTopology = D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
+        mD3DDeviceContext->IAGetPrimitiveTopology(&curTopology);
+
+        ID3D11SamplerState *pCurSampler = nullptr;
+        mD3DDeviceContext->PSGetSamplers(0, 1, &pCurSampler);
+
+        ID3D11VertexShader *pCurVS = nullptr;
+        ID3D11PixelShader *pCurPS = nullptr;
+        mD3DDeviceContext->VSGetShader(&pCurVS, nullptr, nullptr);
+        mD3DDeviceContext->PSGetShader(&pCurPS, nullptr, nullptr);
+
+        ID3D11ShaderResourceView *pCurSRV = nullptr;
+        mD3DDeviceContext->PSGetShaderResources(0, 1, &pCurSRV);
+
         // set render target
         mD3DDeviceContext->OMSetRenderTargets(1, &pD3DRTView, pD3DDSView);
 
@@ -5055,12 +5149,14 @@ namespace Tiny3D
         // 绘制全屏四边形
         mD3DDeviceContext->Draw(4, 0);
 
-        // reset all
-        mD3DDeviceContext->PSSetSamplers(0, 0, nullptr);
-        ID3D11ShaderResourceView *pNullRSV = nullptr;
-        mD3DDeviceContext->PSSetShaderResources(0, 1, &pNullRSV);
-        mD3DDeviceContext->VSSetShader(nullptr, nullptr, 0);
-        mD3DDeviceContext->PSSetShader(nullptr, nullptr, 0);
+        // 还原进入前的管线。采样器数量必须是 1：传 0 是空操作，slot 0 会一直挂着 blit 采样器。
+        mD3DDeviceContext->PSSetSamplers(0, 1, &pCurSampler);
+        mD3DDeviceContext->PSSetShaderResources(0, 1, &pCurSRV);
+        mD3DDeviceContext->VSSetShader(pCurVS, nullptr, 0);
+        mD3DDeviceContext->PSSetShader(pCurPS, nullptr, 0);
+        mD3DDeviceContext->IASetVertexBuffers(0, 1, &pCurVB, &curVBStride, &curVBOffset);
+        mD3DDeviceContext->IASetInputLayout(pCurLayout);
+        mD3DDeviceContext->IASetPrimitiveTopology(curTopology);
         mD3DDeviceContext->OMSetRenderTargets(1, &pCurRTV, pCurDSV);
         mD3DDeviceContext->RSSetViewports(1, &originalVP);
         mD3DDeviceContext->OMSetBlendState(pCurBState, curBlendFactor, curSampleMask);
@@ -5072,6 +5168,12 @@ namespace Tiny3D
         D3D_SAFE_RELEASE(pCurBState);
         D3D_SAFE_RELEASE(pCurDSState);
         D3D_SAFE_RELEASE(pCurRState);
+        D3D_SAFE_RELEASE(pCurVB);
+        D3D_SAFE_RELEASE(pCurLayout);
+        D3D_SAFE_RELEASE(pCurSampler);
+        D3D_SAFE_RELEASE(pCurVS);
+        D3D_SAFE_RELEASE(pCurPS);
+        D3D_SAFE_RELEASE(pCurSRV);
         
         return T3D_OK;
     }

@@ -960,6 +960,13 @@ namespace Tiny3D
         void backupRenderState();
 
         /**
+         * \brief 释放 mBackupState 里由 Get* 持有的 COM 引用
+         * \remarks 只 Release，不把这些状态设回管线。同一帧第二次备份之前必须先调用，
+         *          否则新的 Get* 会盖掉旧指针，上一份 AddRef 就漏了。
+         */
+        void releaseBackupState();
+
+        /**
          * \brief 一次 GPU 读回请求的全部状态
          * \remarks 主线程在 map 里填校验结果并插进 mPendingReadbacks，
          *          RHI 线程在 Copy 命令里填 staging 与实际尺寸，
