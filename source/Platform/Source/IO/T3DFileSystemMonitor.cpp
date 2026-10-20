@@ -64,7 +64,7 @@ namespace Tiny3D
         
         if (mMonitor != nullptr)
         {
-            ret = mMonitor->startWatching(path, excludeExts, excludeExts, onChanged);
+            ret = mMonitor->startWatching(path, excludeExts, excludeFolders, onChanged);
             if (T3D_SUCCEEDED(ret))
             {
                 msMonitors.emplace(path, this);
