@@ -81,16 +81,64 @@ namespace Tiny3D
                 break;
             }
 
-            title = dir + Dir::getNativeSeparator() + title;
-            String metaPath = getRootPath() + Dir::getNativeSeparator() + name + ".meta";
-            if (!Dir::exists(metaPath))
+            if (ext == "meta" || ext == "tmp")
             {
-                MetaPtr meta = generateFileMeta(metaPath, getRootPath(), title, ext, res);
-                addPathLUT(name, meta);
+                break;
             }
+
+            if (!dir.empty())
+            {
+                title = dir + Dir::getNativeSeparator() + title;
+            }
+
+            String fullPath = toFullPath(name);
+            String metaPath = fullPath + ".meta";
+            MetaPtr meta;
+
+            if (Dir::exists(metaPath))
+            {
+                FileDataStream fs;
+                if (fs.open(metaPath.c_str(), FileDataStream::EOpenMode::E_MODE_READ_ONLY))
+                {
+                    meta = T3D_SERIALIZER_MGR.deserialize<Meta>(fs);
+                    fs.close();
+                }
+
+                if (meta == nullptr)
+                {
+                    ret = T3D_ERR_FAIL;
+                    MFS_LOG_ERROR("Failed to read meta file %s !", metaPath.c_str());
+                    break;
+                }
+            }
+            else
+            {
+                meta = generateFileMeta(metaPath, getRootPath(), title, ext, res);
+                if (meta == nullptr)
+                {
+                    ret = T3D_ERR_FAIL;
+                    break;
+                }
+            }
+
+            mPendingPaths.erase(toRelativePath(name));
+            addPathLUT(name, meta);
         } while (false);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult MetaFSMonitor::refresh(const String &path)
+    {
+        String fullPath = toFullPath(path);
+        if (fullPath == mRootPath || !Dir::exists(fullPath) || Dir::isDirectory(fullPath))
+        {
+            return T3D_OK;
+        }
+
+        return generateFileMeta(fullPath);
     }
 
     //--------------------------------------------------------------------------
@@ -128,22 +176,31 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    void MetaFSMonitor::generateFileMeta(const String &path)
+    TResult MetaFSMonitor::generateFileMeta(const String &path)
     {
+        TResult ret = T3D_OK;
+
         do
         {
-            String dir, title, ext;
-            if (!Dir::parsePath(path, dir, title, ext))
+            if (!Dir::exists(path) || Dir::isDirectory(path))
             {
                 break;
             }
 
-            if (ext == "meta")
+            String dir, title, ext;
+            if (!Dir::parsePath(path, dir, title, ext))
             {
-                // meta 文件直接跳过
+                ret = T3D_ERR_FAIL;
                 break;
             }
-            
+
+            if (ext == "meta" || ext == "tmp")
+            {
+                // meta 文件和临时文件直接跳过
+                break;
+            }
+
+            String relPath = toRelativePath(path);
             MetaPtr meta;
             String metaPath = path + ".meta";
             bool exists = Dir::exists(metaPath);
@@ -156,30 +213,38 @@ namespace Tiny3D
                     meta = T3D_SERIALIZER_MGR.deserialize<Meta>(fs);
                     fs.close();
                 }
-                else
+
+                if (meta == nullptr)
                 {
-                    // 无法打开文件
-                    MFS_LOG_ERROR("Failed to open file %s for reading !", metaPath.c_str());
+                    if (mPendingPaths.insert(relPath).second)
+                    {
+                        MFS_LOG_ERROR("Failed to read meta file %s !", metaPath.c_str());
+                    }
+                    ret = T3D_ERR_FAIL;
                     break;
                 }
             }
             else
             {
                 // 不存在，生成 meta
-                String filename = dir + Dir::getNativeSeparator() + title + "." + ext;
                 meta = generateFileMeta(metaPath, dir, title, ext);
                 if (meta == nullptr)
                 {
-                    MFS_LOG_ERROR("Failed to generate meta for file %s !", path.c_str());
+                    if (mPendingPaths.insert(relPath).second)
+                    {
+                        MFS_LOG_ERROR("Failed to generate meta for file %s !", path.c_str());
+                    }
+                    ret = T3D_ERR_FAIL;
                     break;
                 }
             }
 
-            T3D_ASSERT(meta != nullptr);
-
-            // 添加到缓存映射表中
+            // 成功：移出等待重试集合，添加到缓存映射表中
+            mPendingPaths.erase(relPath);
             addPathLUT(path, meta);
         } while (false);
+
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -244,7 +309,10 @@ namespace Tiny3D
                     || ext == Resource::EXT_SKELETON)
             {
                 ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kRead);
-                T3D_ASSERT(archive != nullptr);
+                if (archive == nullptr)
+                {
+                    break;
+                }
                 String filename = title + "." + ext;
 
                 Resource *res = static_cast<Resource *>(userData);
@@ -256,6 +324,10 @@ namespace Tiny3D
                     {
                         material = T3D_MATERIAL_MGR.loadMaterial(archive, filename);
                     }
+                    if (material == nullptr)
+                    {
+                        break;
+                    }
                     meta = MetaMaterial::create(material->getUUID());
                 }
                 else if (ext == Resource::EXT_TEXTURE)
@@ -264,6 +336,10 @@ namespace Tiny3D
                     if (res == nullptr)
                     {
                         texture = T3D_TEXTURE_MGR.loadTexture(archive, filename);
+                    }
+                    if (texture == nullptr)
+                    {
+                        break;
                     }
                     meta = MetaTexture::create(texture->getUUID());
                 }
@@ -274,6 +350,10 @@ namespace Tiny3D
                     {
                         shader = T3D_SHADER_MGR.loadShader(archive, filename);
                     }
+                    if (shader == nullptr)
+                    {
+                        break;
+                    }
                     meta = MetaShader::create(shader->getUUID());
                 }
                 else if (ext == Resource::EXT_MESH)
@@ -282,6 +362,10 @@ namespace Tiny3D
                     if (res == nullptr)
                     {
                         mesh = T3D_MESH_MGR.loadMesh(archive, filename);
+                    }
+                    if (mesh == nullptr)
+                    {
+                        break;
                     }
                     meta = MetaMesh::create(mesh->getUUID());
                 }
@@ -292,6 +376,10 @@ namespace Tiny3D
                     {
                         prefab = T3D_PREFAB_MGR.loadPrefab(archive, filename);
                     }
+                    if (prefab == nullptr)
+                    {
+                        break;
+                    }
                     meta = MetaPrefab::create(prefab->getUUID());
                 }
                 else if (ext == Resource::EXT_SCENE)
@@ -300,6 +388,10 @@ namespace Tiny3D
                     if (res == nullptr)
                     {
                         scene = T3D_SCENE_MGR.loadScene(archive, filename);
+                    }
+                    if (scene == nullptr)
+                    {
+                        break;
                     }
                     meta = MetaScene::create(scene->getUUID());
                 }
@@ -310,6 +402,10 @@ namespace Tiny3D
                     {
                         anim = T3D_ANIMATION_MGR.loadSkeletalAnimation(archive, filename);
                     }
+                    if (anim == nullptr)
+                    {
+                        break;
+                    }
                     meta = MetaAnimation::create(anim->getUUID());
                 }
                 else if (ext == Resource::EXT_SKELETON)
@@ -318,6 +414,10 @@ namespace Tiny3D
                     if (res == nullptr)
                     {
                         skel = T3D_SKELETON_MGR.loadSkeleton(archive, filename);
+                    }
+                    if (skel == nullptr)
+                    {
+                        break;
                     }
                     meta = MetaSkeleton::create(skel->getUUID());
                 }
@@ -343,6 +443,11 @@ namespace Tiny3D
                 meta = MetaFile::create(UUID::generate());
             }
 
+            if (meta == nullptr)
+            {
+                break;
+            }
+
             FileDataStream fs;
             if (fs.open(metaPath.c_str(), FileDataStream::EOpenMode::E_MODE_TRUNCATE|FileDataStream::EOpenMode::E_MODE_READ_WRITE|FileDataStream::EOpenMode::E_MODE_TEXT))
             {
@@ -353,6 +458,7 @@ namespace Tiny3D
             {
                 // 写失败
                 MFS_LOG_ERROR("Failed to open file %s for writing !", metaPath.c_str());
+                meta = nullptr;
                 break;
             }
         } while (false);
@@ -370,39 +476,162 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    String MetaFSMonitor::toRelativePath(const String &path) const
+    {
+        String result = path;
+
+        size_t rootLen = mRootPath.length();
+        while (rootLen > 0 && (mRootPath[rootLen - 1] == '/' || mRootPath[rootLen - 1] == '\\'))
+        {
+            --rootLen;
+        }
+
+        if (rootLen > 0 && path.length() > rootLen)
+        {
+            bool prefixMatch = true;
+            for (size_t i = 0; i < rootLen; ++i)
+            {
+                char c1 = path[i];
+                char c2 = mRootPath[i];
+                if (c1 == '/' || c1 == '\\')
+                    c1 = Dir::getNativeSeparator();
+                if (c2 == '/' || c2 == '\\')
+                    c2 = Dir::getNativeSeparator();
+                if (c1 != c2)
+                {
+                    prefixMatch = false;
+                    break;
+                }
+            }
+
+            if (prefixMatch)
+            {
+                char sep = path[rootLen];
+                if (sep == '/' || sep == '\\' || sep == Dir::getNativeSeparator())
+                {
+                    result = path.substr(rootLen + 1);
+                }
+            }
+        }
+
+        for (char &c : result)
+        {
+            if (c == '/' || c == '\\')
+            {
+                c = Dir::getNativeSeparator();
+            }
+        }
+
+        return result;
+    }
+
+    //--------------------------------------------------------------------------
+
+    String MetaFSMonitor::toFullPath(const String &path) const
+    {
+        size_t rootLen = mRootPath.length();
+        while (rootLen > 0 && (mRootPath[rootLen - 1] == '/' || mRootPath[rootLen - 1] == '\\'))
+        {
+            --rootLen;
+        }
+
+        String cleanRoot = mRootPath.substr(0, rootLen);
+
+        if (rootLen > 0 && path.length() >= rootLen)
+        {
+            bool prefixMatch = true;
+            for (size_t i = 0; i < rootLen; ++i)
+            {
+                char c1 = path[i];
+                char c2 = mRootPath[i];
+                if (c1 == '/' || c1 == '\\')
+                    c1 = Dir::getNativeSeparator();
+                if (c2 == '/' || c2 == '\\')
+                    c2 = Dir::getNativeSeparator();
+                if (c1 != c2)
+                {
+                    prefixMatch = false;
+                    break;
+                }
+            }
+
+            if (prefixMatch)
+            {
+                if (path.length() == rootLen)
+                {
+                    return cleanRoot;
+                }
+                char sep = path[rootLen];
+                if (sep == '/' || sep == '\\' || sep == Dir::getNativeSeparator())
+                {
+                    return cleanRoot + Dir::getNativeSeparator() + toRelativePath(path);
+                }
+            }
+        }
+
+        return cleanRoot + Dir::getNativeSeparator() + toRelativePath(path);
+    }
+
+    //--------------------------------------------------------------------------
+
     void MetaFSMonitor::addPathLUT(const String &path, const MetaPtr &meta)
     {
-        // auto pos = path.find_first_not_of(mRootPath);
-        auto pos = mRootPath.length() + 1;  // 这里还要跳过 '\' 路径分隔符
-        String pattern = mRootPath + "*";
-        if (StringUtil::match(path, pattern))
+        if (meta == nullptr)
         {
-            String relativePath = path.substr(pos);
-            T3D_ASSERT(!relativePath.empty());
-            mPathMappings.emplace(relativePath, meta);
-            mUUIDMappings.emplace(meta->getUUID(), relativePath);
+            return;
         }
-        else
+
+        String relativePath = toRelativePath(path);
+        T3D_ASSERT(!relativePath.empty());
+        const UUID &newUUID = meta->getUUID();
+
+        // 1. 该路径已有条目且 UUID 不同：先从 mUUIDMappings 删除旧 UUID
+        auto pathItr = mPathMappings.find(relativePath);
+        if (pathItr != mPathMappings.end() && pathItr->second != nullptr)
         {
-            mPathMappings.emplace(path, meta);
-            mUUIDMappings.emplace(meta->getUUID(), path);
+            const UUID &oldUUID = pathItr->second->getUUID();
+            if (oldUUID != newUUID)
+            {
+                auto uuidItr = mUUIDMappings.find(oldUUID);
+                if (uuidItr != mUUIDMappings.end() && uuidItr->second == relativePath)
+                {
+                    mUUIDMappings.erase(uuidItr);
+                }
+            }
         }
+
+        // 2. 新 UUID 已被另一路径占用：输出重复 UUID 警告（P8），保留先登记的那个
+        auto uuidItr = mUUIDMappings.find(newUUID);
+        if (uuidItr != mUUIDMappings.end() && uuidItr->second != relativePath)
+        {
+            MFS_LOG_WARNING("Duplicate UUID [%s] detected: [%s] conflicts with existing [%s], keeping existing mapping !",
+                newUUID.toString().c_str(), relativePath.c_str(), uuidItr->second.c_str());
+            mPathMappings[relativePath] = meta;
+            return;
+        }
+
+        // 3. 覆盖写入
+        mPathMappings[relativePath] = meta;
+        mUUIDMappings[newUUID] = relativePath;
     }
 
     //--------------------------------------------------------------------------
 
     void MetaFSMonitor::removePathLUT(const String &path)
     {
-        auto pos = path.find_first_not_of(mRootPath);
-        if (pos != String::npos)
+        String relativePath = toRelativePath(path);
+        auto itr = mPathMappings.find(relativePath);
+        if (itr != mPathMappings.end())
         {
-            String relativePath = path.substr(pos);
-            const auto &itr = mPathMappings.find(relativePath);
-            if (itr != mPathMappings.end())
+            if (itr->second != nullptr)
             {
-                mUUIDMappings.erase(itr->second->getUUID());
-                mPathMappings.erase(itr);
+                auto uuidItr = mUUIDMappings.find(itr->second->getUUID());
+                if (uuidItr != mUUIDMappings.end() && uuidItr->second == relativePath)
+                {
+                    mUUIDMappings.erase(uuidItr);
+                }
             }
+            mPathMappings.erase(itr);
         }
     }
 
@@ -416,6 +645,7 @@ namespace Tiny3D
         {
             FSMonitorExts excludeExts;
             excludeExts.emplace_back("meta");
+            excludeExts.emplace_back("tmp");
             FSMonitorExcludes excludeFolders;
             ret = mFSMonitor->startMonitor(mRootPath, excludeExts, excludeFolders,
                 [this](const String &path, FSMonitorAction action)
@@ -436,13 +666,9 @@ namespace Tiny3D
 
     void MetaFSMonitor::onFileAdded(const String &path)
     {
-        MetaPtr meta;
-        String dir, title, ext;
-        Dir::parsePath(path, dir, title, ext);
-        
         if (path == mRootPath)
         {
-            // int a = 0;
+            return;
         }
         else if (Dir::isDirectory(path))
         {
@@ -450,20 +676,8 @@ namespace Tiny3D
         }
         else
         {
-            // 文件
-            String metaPath = path + ".meta";
-            if (!Dir::exists(metaPath))
-            {
-                meta = generateFileMeta(metaPath, dir, title, ext);
-                if (meta != nullptr)
-                {
-                    addPathLUT(path, meta);
-                }
-                else
-                {
-                    MFS_LOG_ERROR("Failed to add new file %s corresponding meta file !", path.c_str());
-                }
-            }
+            // 文件：meta 已存在时读取并登记，不存在时生成并登记
+            generateFileMeta(path);
         }
     }
 
@@ -471,8 +685,20 @@ namespace Tiny3D
 
     void MetaFSMonitor::onFileRemoved(const String &path)
     {
-        removeFileMeta(path);
-        removePathLUT(path);
+        if (Dir::exists(path))
+        {
+            // 文件仍然存在：说明是被覆盖式替换而非删除，改为调用 refresh，不删除 meta
+            if (!Dir::isDirectory(path))
+            {
+                refresh(path);
+            }
+        }
+        else
+        {
+            removeFileMeta(path);
+            removePathLUT(path);
+            mPendingPaths.erase(toRelativePath(path));
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -495,7 +721,11 @@ namespace Tiny3D
             break;
         case FSMonitorAction::kModifed:
             {
-                
+                // 修改文件：刷新映射表或重试未完成的加载
+                if (!Dir::isDirectory(path))
+                {
+                    refresh(path);
+                }
             }
             break;
         case FSMonitorAction::kRenamedOld:
@@ -509,6 +739,8 @@ namespace Tiny3D
                 // 重命名，新文件名，创建新的 meta
                 onFileAdded(path);
             }
+            break;
+        default:
             break;
         }
     }

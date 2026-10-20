@@ -26,11 +26,12 @@
 
 namespace Tiny3D
 {
-    class MetaFSMonitor : public Object
+    class T3D_METAFSARCHIVE_API MetaFSMonitor : public Object
     {
     public:
         using PathMappings = TUnorderedMap<String, MetaPtr>;
         using UUIDMappings = TUnorderedMap<UUID, String, UUIDHash, UUIDEqual>;
+        using PendingPaths = TUnorderedSet<String>;
         
         static MetaFSMonitorPtr create(const String &rootPath);
 
@@ -46,7 +47,7 @@ namespace Tiny3D
 
         Meta *getMeta(const String &path) const
         {
-            const auto &it = mPathMappings.find(path);
+            const auto &it = mPathMappings.find(toRelativePath(path));
             return it != mPathMappings.end() ? it->second : nullptr;
         }
         
@@ -82,6 +83,12 @@ namespace Tiny3D
         }
 
         TResult generateMetaFile(const String &name, void *userData);
+
+        /**
+         * @brief 重新读取 path 对应的 .meta，更新映射表：
+         * 移除该路径的旧 UUID 映射，登记新 UUID；meta 不存在时按 kAdded 处理
+         */
+        TResult refresh(const String &path);
         
     protected:
         MetaFSMonitor(const String &rootPath);
@@ -90,7 +97,7 @@ namespace Tiny3D
 
         void generateFolderMeta(const String &path);
 
-        void generateFileMeta(const String &path);
+        TResult generateFileMeta(const String &path);
 
         MetaPtr generateFileMeta(const String &metaPath, const String &path, const String &title, const String &ext, void *userData = nullptr);
 
@@ -101,6 +108,10 @@ namespace Tiny3D
         void onFileAdded(const String &path);
 
         void onFileRemoved(const String &path);
+
+        String toRelativePath(const String &path) const;
+
+        String toFullPath(const String &path) const;
 
         void addPathLUT(const String &path, const MetaPtr &meta);
 
@@ -117,6 +128,8 @@ namespace Tiny3D
         PathMappings mPathMappings {};
         /// UUID => Path 映射
         UUIDMappings mUUIDMappings {};
+        /// 加载失败等待重试的相对路径集合
+        PendingPaths mPendingPaths {};
     };
 }
 

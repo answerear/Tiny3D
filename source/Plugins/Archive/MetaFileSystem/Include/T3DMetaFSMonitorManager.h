@@ -26,7 +26,7 @@
 
 namespace Tiny3D
 {
-    class MetaFSMonitorManager
+    class T3D_METAFSARCHIVE_API MetaFSMonitorManager
         : public Allocator
         , public Singleton<MetaFSMonitorManager>
     {
@@ -40,6 +40,11 @@ namespace Tiny3D
         TResult removeAllMonitors();
 
         bool getPathAndMonitor(const UUID &uuid, MetaFSMonitor *mainMonitor, String &path, MetaFSMonitor *&monitor);
+
+        /**
+         * @brief 按绝对路径找到所属 monitor 后调用其 refresh
+         */
+        TResult refresh(const String &absPath);
 
         MetaFSMonitor *getMonitor(const String &path) const
         {
@@ -55,5 +60,7 @@ namespace Tiny3D
     };
 
     #define T3D_MFS_MONITOR_MGR (MetaFSMonitorManager::getInstance())
+
+    T3D_EXTERN_SINGLETON(MetaFSMonitorManager)
 }
 

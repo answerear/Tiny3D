@@ -25,6 +25,8 @@
 
 namespace Tiny3D
 {
+    T3D_INSTANTIATE_SINGLETON(MetaFSMonitorManager);
+
     //--------------------------------------------------------------------------
 
     MetaFSMonitorManager::~MetaFSMonitorManager()
@@ -260,6 +262,68 @@ namespace Tiny3D
         }
 #endif
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult MetaFSMonitorManager::refresh(const String &absPath)
+    {
+        MetaFSMonitor *matchedMonitor = nullptr;
+        size_t bestLen = 0;
+
+        for (const auto &item : mPathMonitors)
+        {
+            const String &rootPath = item.first;
+            size_t rootLen = rootPath.length();
+            while (rootLen > 0 && (rootPath[rootLen - 1] == '/' || rootPath[rootLen - 1] == '\\'))
+            {
+                --rootLen;
+            }
+
+            if (rootLen == 0 || absPath.length() < rootLen)
+            {
+                continue;
+            }
+
+            bool prefixMatch = true;
+            for (size_t i = 0; i < rootLen; ++i)
+            {
+                char c1 = absPath[i];
+                char c2 = rootPath[i];
+                if (c1 == '/' || c1 == '\\')
+                    c1 = Dir::getNativeSeparator();
+                if (c2 == '/' || c2 == '\\')
+                    c2 = Dir::getNativeSeparator();
+                if (c1 != c2)
+                {
+                    prefixMatch = false;
+                    break;
+                }
+            }
+
+            if (prefixMatch)
+            {
+                if (absPath.length() == rootLen
+                    || absPath[rootLen] == '/'
+                    || absPath[rootLen] == '\\'
+                    || absPath[rootLen] == Dir::getNativeSeparator())
+                {
+                    if (rootLen > bestLen)
+                    {
+                        bestLen = rootLen;
+                        matchedMonitor = item.second;
+                    }
+                }
+            }
+        }
+
+        if (matchedMonitor == nullptr)
+        {
+            MFS_LOG_WARNING("No monitor found for path [%s] when refreshing !", absPath.c_str());
+            return T3D_ERR_NOT_FOUND;
+        }
+
+        return matchedMonitor->refresh(absPath);
     }
 
     //--------------------------------------------------------------------------
