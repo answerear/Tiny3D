@@ -171,19 +171,23 @@ namespace Tiny3D
                 break;
             }
 
-            if (mState == State::kConnected)
+            bool wasConnected = (mState == State::kConnected);
+            if (wasConnected)
             {
                 ::shutdown(mSocket, 2);
+            }
 
-                T3DCloseSocket(mSocket);
-                mSocket = INVALID_SOCKET;
-                mState = State::kDisconnected;
-        
-                if (0 == --msCount)
-                {
-                    cleanup();
-                }
+            T3DCloseSocket(mSocket);
+            mSocket = INVALID_SOCKET;
+            mState = State::kDisconnected;
 
+            if (0 == --msCount)
+            {
+                cleanup();
+            }
+
+            if (wasConnected)
+            {
                 callOnDisconnected(T3D_OK);
             }
         } while (false);
