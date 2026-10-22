@@ -88,6 +88,12 @@ namespace Tiny3D
          */
         TResult stop();
 
+        /**
+         * 获取实际绑定的本地监听端口（listen(0) 时由操作系统分配）
+         * @return 监听端口号，未在监听时返回 0
+         */
+        uint16_t getListenPort() const;
+
     protected:
         void doAccepted();
         
@@ -253,6 +259,8 @@ namespace Tiny3D
         bool isConnecting() const { return mSocket ? mSocket->isConnecting() : false; }
 
         bool isConnected() const { return mSocket ? mSocket->isConnected() : false; }
+
+        bool hasPendingSendData() const { return mSendBufferSize > mSendBufferBegin; }
 
     protected:
         void setupCallbacks();

@@ -144,6 +144,7 @@ namespace Tiny3D
         TResult ret = mSockListener->close();
         if (T3D_SUCCEEDED(ret))
         {
+            mIsListening = false;
             auto it = std::find_if(
                 msListeners.begin(),
                 msListeners.end(),
@@ -151,10 +152,30 @@ namespace Tiny3D
                 {
                     return listener == this;
                 });
-            msListeners.erase(it);
+            if (it != msListeners.end())
+            {
+                msListeners.erase(it);
+            }
             callOnStopped();
         }
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    uint16_t TCPListener::getListenPort() const
+    {
+        if (mSockListener == nullptr || !mIsListening)
+        {
+            return 0;
+        }
+        String addr;
+        uint16_t port = 0;
+        if (T3D_SUCCEEDED(mSockListener->getLocalName(addr, port)))
+        {
+            return port;
+        }
+        return 0;
     }
 
     //--------------------------------------------------------------------------
