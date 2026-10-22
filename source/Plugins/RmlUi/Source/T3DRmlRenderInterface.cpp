@@ -24,7 +24,6 @@
 
 #include "T3DRmlRenderInterface.h"
 
-#include "ImageCodec/T3DImageCodec.h"
 #include "Kernel/T3DArchive.h"
 #include "Material/T3DTechniqueInstance.h"
 #include "Render/T3DBlendState.h"
@@ -37,7 +36,6 @@
 #include "Material/T3DPassInstance.h"
 #include "Render/T3DVertexAttribute.h"
 #include "Resource/T3DAssetManager.h"
-#include "Resource/T3DImage.h"
 #include "Resource/T3DMaterial.h"
 #include "Resource/T3DMaterialManager.h"
 #include "Resource/T3DTexture.h"
@@ -62,11 +60,6 @@ namespace Tiny3D
             IndexBufferPtr Indices {nullptr};
             uint32_t IndexCount {0};
         };
-
-        uint8_t premultiplyChannel(uint8_t channel, uint8_t alpha)
-        {
-            return static_cast<uint8_t>((static_cast<uint32_t>(channel) * alpha + 127u) / 255u);
-        }
 
         /**
          * \brief 把 RmlUi 列主序矩阵转成引擎的行主序 Matrix4
@@ -158,8 +151,18 @@ namespace Tiny3D
             return;
         }
 
+        float32_t premulFlag = 1.0f;
+        if (textured)
+        {
+            auto it = mAssetTextures.find(pixels);
+            if (it != mAssetTextures.end() && it->second != nullptr && !it->second->isPremultipliedAlpha())
+            {
+                premulFlag = 0.0f;
+            }
+        }
+
         material->setMatrix("Transform", mTransform);
-        material->setVector("Translation", Vector4(translation.x, translation.y, 0.0f, 0.0f));
+        material->setVector("Translation", Vector4(translation.x, translation.y, 0.0f, premulFlag));
         pass->bind(mCtx, material);
         applyColorAndStencil();
 
@@ -290,6 +293,14 @@ namespace Tiny3D
             return 0;
         }
 
+        if (!tex2d->isPremultipliedAlpha())
+        {
+            T3D_LOG_WARNING(LOG_TAG_RMLUI,
+                "UI texture [%s] is not premultiplied (PremultipliedAlpha == false). "
+                "Falling back to shader premultiplication; re-import with 'imgconv -t ui' for optimal quality.",
+                source.c_str());
+        }
+
         texture_dimensions = Rml::Vector2i(static_cast<int>(tex2d->getWidth()), static_cast<int>(tex2d->getHeight()));
         if (mTextures.find(pixels) == mTextures.end())
         {
@@ -305,121 +316,16 @@ namespace Tiny3D
     {
         texture_dimensions = Rml::Vector2i(0, 0);
 
-        // 引擎纹理已经在 GPU 上，带压缩和 mip。不要再解码并预乘。
+        // 引擎纹理（.ttex / .ttexture）由 AssetManager 加载并已上传到 GPU（UI 纹理通常由 imgconv -t ui 预乘导出，未预乘纹理在着色器中兜底）。
         if (endsWithIgnoreCase(source, ".ttexture") || endsWithIgnoreCase(source, ".ttex"))
         {
             return loadEngineTexture(texture_dimensions, source);
         }
 
-        Archive *archive = T3D_ASSET_MGR.getArchive();
-        if (archive == nullptr)
-        {
-            return 0;
-        }
-
-        TArray<uint8_t> bytes;
-        struct Payload
-        {
-            TArray<uint8_t> *Bytes {nullptr};
-            bool Ok {false};
-        } payload;
-        payload.Bytes = &bytes;
-
-        TResult ret = archive->read(source, [](DataStream &stream, const String &, void *userData) -> TResult
-        {
-            auto *payload = static_cast<Payload *>(userData);
-            const long_t length = stream.size();
-            if (length <= 0)
-            {
-                return T3D_ERR_FAIL;
-            }
-            payload->Bytes->resize(static_cast<size_t>(length));
-            const size_t got = stream.read(payload->Bytes->data(), payload->Bytes->size());
-            payload->Ok = got == payload->Bytes->size();
-            return payload->Ok ? T3D_OK : T3D_ERR_FAIL;
-        }, &payload);
-
-        if (ret != T3D_OK || !payload.Ok)
-        {
-            T3D_LOG_WARNING(LOG_TAG_RMLUI, "LoadTexture failed to read %s", source.c_str());
-            return 0;
-        }
-
-        ImagePtr image = Image::create(source);
-        if (image == nullptr)
-        {
-            return 0;
-        }
-
-        ret = T3D_IMAGE_CODEC.decode(bytes.data(), bytes.size(), *image);
-        if (T3D_FAILED(ret) || image->getData() == nullptr || image->getWidth() == 0 || image->getHeight() == 0)
-        {
-            T3D_LOG_WARNING(LOG_TAG_RMLUI, "LoadTexture failed to decode %s", source.c_str());
-            return 0;
-        }
-
-        const uint32_t width = image->getWidth();
-        const uint32_t height = image->getHeight();
-        const PixelFormat format = image->getFormat();
-        uint32_t bpp = 0;
-        if (format == PixelFormat::E_PF_R8G8B8)
-        {
-            bpp = 3;
-        }
-        else if (format == PixelFormat::E_PF_R8G8B8A8
-            || format == PixelFormat::E_PF_B8G8R8A8
-            || format == PixelFormat::E_PF_R8G8B8X8)
-        {
-            bpp = 4;
-        }
-        else
-        {
-            T3D_LOG_WARNING(LOG_TAG_RMLUI, "LoadTexture unsupported format %u for %s",
-                static_cast<uint32_t>(format), source.c_str());
-            return 0;
-        }
-
-        uint32_t pitch = image->getPitch();
-        if (pitch == 0)
-        {
-            pitch = width * bpp;
-        }
-
-        TArray<uint8_t> rgba(static_cast<size_t>(width) * height * 4u);
-        const uint8_t *src = image->getData();
-        for (uint32_t y = 0; y < height; ++y)
-        {
-            const uint8_t *row = src + static_cast<size_t>(y) * pitch;
-            uint8_t *dst = rgba.data() + static_cast<size_t>(y) * width * 4u;
-            for (uint32_t x = 0; x < width; ++x)
-            {
-                const uint8_t *pixel = row + static_cast<size_t>(x) * bpp;
-                uint8_t r = pixel[0];
-                uint8_t g = pixel[1];
-                uint8_t b = pixel[2];
-                uint8_t a = 255;
-                if (format == PixelFormat::E_PF_B8G8R8A8)
-                {
-                    b = pixel[0];
-                    g = pixel[1];
-                    r = pixel[2];
-                    a = pixel[3];
-                }
-                else if (bpp == 4)
-                {
-                    a = pixel[3];
-                }
-
-                dst[0] = premultiplyChannel(r, a);
-                dst[1] = premultiplyChannel(g, a);
-                dst[2] = premultiplyChannel(b, a);
-                dst[3] = a;
-                dst += 4;
-            }
-        }
-
-        texture_dimensions = Rml::Vector2i(static_cast<int>(width), static_cast<int>(height));
-        return uploadRGBA(rgba.data(), static_cast<int32_t>(width), static_cast<int32_t>(height));
+        T3D_LOG_WARNING(LOG_TAG_RMLUI,
+            "LoadTexture only supports engine textures (.ttex / .ttexture), unsupported source: %s",
+            source.c_str());
+        return 0;
     }
 
     //--------------------------------------------------------------------------
