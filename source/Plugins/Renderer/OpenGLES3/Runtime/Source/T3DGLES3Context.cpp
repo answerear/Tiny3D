@@ -1820,16 +1820,52 @@ namespace Tiny3D
 
                 glGenTextures(1, &glBuffer->GLTexture);
                 glBindTexture(GL_TEXTURE_2D, glBuffer->GLTexture);
-                glTexImage2D(GL_TEXTURE_2D, 0,
-                    GLES3Mapping::getInternalFormat(desc.format),
-                    desc.width, desc.height, 0,
-                    GLES3Mapping::get(desc.format),
-                    GLES3Mapping::getPixelType(desc.format),
-                    uploadData);
 
-                glGenerateMipmap(GL_TEXTURE_2D);
+                const uint32_t mipLevels = std::max<uint32_t>(1, desc.mipmaps);
+                const uint32_t bpp = Image::getBPP(desc.format) / 8;
+                const size_t totalSize = buffer->getBuffer().DataSize;
+                size_t offset = 0;
 
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                if (uploadData != nullptr && bpp > 0)
+                {
+                    uint32_t uploadedLevels = 0;
+                    for (uint32_t level = 0; level < mipLevels; ++level)
+                    {
+                        const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                        const uint32_t mipH = std::max<uint32_t>(1, desc.height >> level);
+                        const size_t levelSize = static_cast<size_t>(mipW) * mipH * bpp;
+                        if (offset + levelSize > totalSize)
+                        {
+                            break;
+                        }
+                        glTexImage2D(GL_TEXTURE_2D, level,
+                            GLES3Mapping::getInternalFormat(desc.format),
+                            mipW, mipH, 0,
+                            GLES3Mapping::get(desc.format),
+                            GLES3Mapping::getPixelType(desc.format),
+                            uploadData + offset);
+                        offset += levelSize;
+                        ++uploadedLevels;
+                    }
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL,
+                        uploadedLevels > 0 ? static_cast<GLint>(uploadedLevels - 1) : 0);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                        uploadedLevels > 1 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+                }
+                else
+                {
+                    glTexImage2D(GL_TEXTURE_2D, 0,
+                        GLES3Mapping::getInternalFormat(desc.format),
+                        desc.width, desc.height, 0,
+                        GLES3Mapping::get(desc.format),
+                        GLES3Mapping::getPixelType(desc.format),
+                        uploadData);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                }
+
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glBindTexture(GL_TEXTURE_2D, 0);
 

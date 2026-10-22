@@ -1185,7 +1185,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    static void uploadTexture2D(id<MTLTexture> tex, const Buffer &buffer, PixelFormat format)
+    static void uploadTexture2D(id<MTLTexture> tex, const Buffer &buffer, PixelFormat format, uint32_t mipmaps)
     {
         if (tex == nil || buffer.Data == nullptr || buffer.DataSize == 0)
         {
@@ -1193,9 +1193,27 @@ namespace Tiny3D
         }
 
         const uint32_t bpp = MetalBytesPerPixel(format);
-        const NSUInteger bpr = (NSUInteger)tex.width * bpp;
-        MTLRegion region = MTLRegionMake2D(0, 0, tex.width, tex.height);
-        [tex replaceRegion:region mipmapLevel:0 withBytes:buffer.Data bytesPerRow:bpr];
+        if (bpp == 0)
+        {
+            return;
+        }
+
+        const uint32_t mipLevels = std::max<uint32_t>(1, mipmaps);
+        size_t offset = 0;
+        for (uint32_t level = 0; level < mipLevels && level < tex.mipmapLevelCount; ++level)
+        {
+            const NSUInteger mipW = std::max<NSUInteger>(1, tex.width >> level);
+            const NSUInteger mipH = std::max<NSUInteger>(1, tex.height >> level);
+            const NSUInteger bpr = mipW * bpp;
+            const size_t levelSize = static_cast<size_t>(bpr) * mipH;
+            if (offset + levelSize > buffer.DataSize)
+            {
+                break;
+            }
+            MTLRegion region = MTLRegionMake2D(0, 0, mipW, mipH);
+            [tex replaceRegion:region mipmapLevel:level withBytes:(buffer.Data + offset) bytesPerRow:bpr];
+            offset += levelSize;
+        }
     }
 
     RHIPixelBuffer1DPtr MetalContext::createPixelBuffer1D(PixelBuffer1D *buffer)
@@ -1247,7 +1265,7 @@ namespace Tiny3D
         }
         if (td.storageMode != MTLStorageModePrivate)
         {
-            uploadTexture2D(tex, buffer->getBuffer(), desc.format);
+            uploadTexture2D(tex, buffer->getBuffer(), desc.format, desc.mipmaps);
         }
         metalBuffer->setNativeObject((__bridge void *)tex);
         return metalBuffer;

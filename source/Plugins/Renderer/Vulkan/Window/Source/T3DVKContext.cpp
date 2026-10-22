@@ -1681,7 +1681,7 @@ namespace Tiny3D
         samplerInfo.compareEnable = desc.IsComparison ? VK_TRUE : VK_FALSE;
         samplerInfo.compareOp = VKMapping::get(desc.CompareFunc);
         samplerInfo.minLod = desc.MinLOD;
-        samplerInfo.maxLod = desc.MaxLOD;
+        samplerInfo.maxLod = (desc.MipFilter == FilterOptions::kNone) ? 0.0f : desc.MaxLOD;
         samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
         samplerInfo.unnormalizedCoordinates = VK_FALSE;
 
@@ -2005,21 +2005,62 @@ namespace Tiny3D
             do
             {
                 VkFormat format = VKMapping::get(desc.format);
+                const uint32_t mipLevels = std::max<uint32_t>(1, desc.mipmaps);
+                const uint32_t bpp = Image::getBPP(desc.format) / 8;
 
-                ret = createVkImage(desc.width, desc.height, format, VK_IMAGE_TILING_OPTIMAL,
-                    VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
-                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                    vkBuffer->VkTex, vkBuffer->VkTexMemory);
-                if (T3D_FAILED(ret))
+                VkImageCreateInfo imageInfo {};
+                imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+                imageInfo.imageType = VK_IMAGE_TYPE_2D;
+                imageInfo.extent = { desc.width, desc.height, 1 };
+                imageInfo.mipLevels = mipLevels;
+                imageInfo.arrayLayers = 1;
+                imageInfo.format = format;
+                imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+                imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+                imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+                imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+                if (vkCreateImage(mVkDevice, &imageInfo, nullptr, &vkBuffer->VkTex) != VK_SUCCESS)
                 {
                     T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to create 2D texture !");
+                    ret = T3D_ERR_VK_CREATE_IMAGE;
                     break;
                 }
 
-                vkBuffer->VkTexView = createVkImageView(vkBuffer->VkTex, format, VK_IMAGE_ASPECT_COLOR_BIT);
+                VkMemoryRequirements memRequirements;
+                vkGetImageMemoryRequirements(mVkDevice, vkBuffer->VkTex, &memRequirements);
+
+                VkMemoryAllocateInfo allocInfo {};
+                allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+                allocInfo.allocationSize = memRequirements.size;
+                allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+                if (vkAllocateMemory(mVkDevice, &allocInfo, nullptr, &vkBuffer->VkTexMemory) != VK_SUCCESS)
+                {
+                    vkDestroyImage(mVkDevice, vkBuffer->VkTex, nullptr);
+                    vkBuffer->VkTex = VK_NULL_HANDLE;
+                    T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Failed to allocate 2D texture memory !");
+                    ret = T3D_ERR_VK_ALLOCATE_MEMORY;
+                    break;
+                }
+
+                vkBindImageMemory(mVkDevice, vkBuffer->VkTex, vkBuffer->VkTexMemory, 0);
+
+                VkImageViewCreateInfo viewInfo {};
+                viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+                viewInfo.image = vkBuffer->VkTex;
+                viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+                viewInfo.format = format;
+                viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                viewInfo.subresourceRange.baseMipLevel = 0;
+                viewInfo.subresourceRange.levelCount = mipLevels;
+                viewInfo.subresourceRange.baseArrayLayer = 0;
+                viewInfo.subresourceRange.layerCount = 1;
+                vkCreateImageView(mVkDevice, &viewInfo, nullptr, &vkBuffer->VkTexView);
 
                 // Upload data if available
-                if (buffer->getBuffer().Data != nullptr)
+                if (buffer->getBuffer().Data != nullptr && bpp > 0)
                 {
                     VkDeviceSize imageSize = buffer->getBuffer().DataSize;
                     VkBuffer stagingBuffer;
@@ -2033,17 +2074,62 @@ namespace Tiny3D
                     memcpy(data, buffer->getBuffer().Data, (size_t)imageSize);
                     vkUnmapMemory(mVkDevice, stagingBufferMemory);
 
-                    transitionImageLayout(vkBuffer->VkTex, format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-
                     VkCommandBuffer cmdBuf = beginSingleTimeCommands();
-                    VkBufferImageCopy region {};
-                    region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-                    region.imageSubresource.layerCount = 1;
-                    region.imageExtent = { desc.width, desc.height, 1 };
-                    vkCmdCopyBufferToImage(cmdBuf, stagingBuffer, vkBuffer->VkTex, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+                    VkImageMemoryBarrier barrier {};
+                    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                    barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                    barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                    barrier.image = vkBuffer->VkTex;
+                    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                    barrier.subresourceRange.baseMipLevel = 0;
+                    barrier.subresourceRange.levelCount = mipLevels;
+                    barrier.subresourceRange.baseArrayLayer = 0;
+                    barrier.subresourceRange.layerCount = 1;
+                    barrier.srcAccessMask = 0;
+                    barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                    vkCmdPipelineBarrier(cmdBuf, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                        0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+                    TArray<VkBufferImageCopy> regions;
+                    VkDeviceSize offset = 0;
+                    for (uint32_t level = 0; level < mipLevels; ++level)
+                    {
+                        const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                        const uint32_t mipH = std::max<uint32_t>(1, desc.height >> level);
+                        const VkDeviceSize levelSize = static_cast<VkDeviceSize>(mipW) * mipH * bpp;
+                        if (offset + levelSize > imageSize)
+                        {
+                            break;
+                        }
+                        VkBufferImageCopy region {};
+                        region.bufferOffset = offset;
+                        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                        region.imageSubresource.mipLevel = level;
+                        region.imageSubresource.baseArrayLayer = 0;
+                        region.imageSubresource.layerCount = 1;
+                        region.imageExtent = { mipW, mipH, 1 };
+                        regions.push_back(region);
+                        offset += levelSize;
+                    }
+                    if (!regions.empty())
+                    {
+                        vkCmdCopyBufferToImage(cmdBuf, stagingBuffer, vkBuffer->VkTex,
+                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                            static_cast<uint32_t>(regions.size()), regions.data());
+                    }
+
+                    barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                    barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                    barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+                    vkCmdPipelineBarrier(cmdBuf, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                        0, 0, nullptr, 0, nullptr, 1, &barrier);
+
                     endSingleTimeCommands(cmdBuf);
 
-                    transitionImageLayout(vkBuffer->VkTex, format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
                     vkBuffer->VkCurrentLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
                     vkDestroyBuffer(mVkDevice, stagingBuffer, nullptr);
