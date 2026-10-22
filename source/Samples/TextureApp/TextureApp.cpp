@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * This file is part of Tiny3D (Tiny 3D Graphic Rendering Engine)
  * Copyright (C) 2015-2020  Answer Wong
  * For latest info, see https://github.com/answerear/Tiny3D
@@ -282,9 +282,10 @@ Texture2DPtr TextureApp::buildTexture()
     T3D_ASSET_MGR.init(AssetManager::Mode::kRuntime);
     T3D_ASSET_MGR.mount(archive, 0);
 
-    ImagePtr image = T3D_ASSET_MGR.loadImage("assets/samples/textures/blocks.png");
-    T3D_ASSERT(image != nullptr);
-    Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", image, 1, 1, 0, Tiny3D::UUID::INVALID, kCPURead);
+    TexturePtr loaded = T3D_ASSET_MGR.loadTexture("assets/samples/textures/blocks.ttex");
+    T3D_ASSERT(loaded != nullptr);
+    Texture2DPtr texture = smart_pointer_cast<Texture2D>(loaded);
+    T3D_ASSERT(texture != nullptr);
     return texture;
 }
 
