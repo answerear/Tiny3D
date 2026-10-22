@@ -1,0 +1,127 @@
+{
+  "Magic": "T3D",
+  "Version": "0.0.1",
+  "Object": {
+    "RTTI_Type": "Tiny3D::MetaTexture",
+    "RTTI_Value": {
+      "UUID": {
+        "RTTI_Type": "Tiny3D::UUID",
+        "RTTI_Value": {
+          "RTTI_Type": "std::string",
+          "RTTI_Value": "c4e1a0017b2d4f6a9c0e11d22a33b406"
+        }
+      },
+      "ImportSettings": {
+        "RTTI_Type": "Tiny3D::TextureImportSettings",
+        "RTTI_Value": {
+          "Compression": {
+            "RTTI_Type": "std::string",
+            "RTTI_Value": ""
+          },
+          "FlipY": {
+            "RTTI_Type": "bool",
+            "RTTI_Value": false
+          },
+          "GenerateMipmaps": {
+            "RTTI_Type": "bool",
+            "RTTI_Value": false
+          },
+          "MaxSize": {
+            "RTTI_Type": "unsignedint",
+            "RTTI_Value": 4096
+          },
+          "PremultipliedAlpha": {
+            "RTTI_Type": "bool",
+            "RTTI_Value": true
+          },
+          "Sampler": {
+            "RTTI_Type": "Tiny3D::SamplerDesc",
+            "RTTI_Value": {
+              "AddressU": {
+                "RTTI_Type": "Tiny3D::TextureAddressMode",
+                "RTTI_Value": "kClamp"
+              },
+              "AddressV": {
+                "RTTI_Type": "Tiny3D::TextureAddressMode",
+                "RTTI_Value": "kClamp"
+              },
+              "AddressW": {
+                "RTTI_Type": "Tiny3D::TextureAddressMode",
+                "RTTI_Value": "kClamp"
+              },
+              "BorderColor": {
+                "RTTI_Type": "Tiny3D::ColorRGBA",
+                "RTTI_Value": {
+                  "alpha": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0
+                  },
+                  "blue": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0
+                  },
+                  "green": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0
+                  },
+                  "red": {
+                    "RTTI_Type": "float",
+                    "RTTI_Value": 1.0
+                  }
+                }
+              },
+              "CompareFunc": {
+                "RTTI_Type": "Tiny3D::CompareFunction",
+                "RTTI_Value": "kAlwaysFail"
+              },
+              "IsComparison": {
+                "RTTI_Type": "bool",
+                "RTTI_Value": false
+              },
+              "MagFilter": {
+                "RTTI_Type": "Tiny3D::FilterOptions",
+                "RTTI_Value": "kLinear"
+              },
+              "MaxAnisotropy": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 1
+              },
+              "MaxLOD": {
+                "RTTI_Type": "float",
+                "RTTI_Value": 3.4028234663852887e38
+              },
+              "MinFilter": {
+                "RTTI_Type": "Tiny3D::FilterOptions",
+                "RTTI_Value": "kLinear"
+              },
+              "MinLOD": {
+                "RTTI_Type": "float",
+                "RTTI_Value": 0.0
+              },
+              "MipFilter": {
+                "RTTI_Type": "Tiny3D::FilterOptions",
+                "RTTI_Value": "kNone"
+              },
+              "MipLODBias": {
+                "RTTI_Type": "float",
+                "RTTI_Value": 0.0
+              }
+            }
+          },
+          "TextureType": {
+            "RTTI_Type": "Tiny3D::TextureImportType",
+            "RTTI_Value": "kUI"
+          },
+          "sRGB": {
+            "RTTI_Type": "bool",
+            "RTTI_Value": true
+          }
+        }
+      },
+      "SourceHash": {
+        "RTTI_Type": "std::string",
+        "RTTI_Value": "aebef841e44d1d24233fa4870235e371"
+      }
+    }
+  }
+}

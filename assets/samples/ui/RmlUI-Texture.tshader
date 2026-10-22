@@ -12,15 +12,15 @@
         "RTTI_Type": "Tiny3D::UUID",
         "RTTI_Value": {
           "RTTI_Type": "std::string",
-          "RTTI_Value": "3e38ab90ce8379501bd1177b5f346058"
+          "RTTI_Value": "3bc2d10a5e9f4b18a62d88f10e4c9a15"
         }
       },
       "ConstantValues": {
-        "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderConstantValue>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderConstantValue>>> >",
+        "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantValue>>",
         "RTTI_Value": []
       },
       "Samplers": {
-        "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>>> >",
+        "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
         "RTTI_Value": [
           {
             "RTTI_Map_Key": {
@@ -52,7 +52,7 @@
         ]
       },
       "Techniques": {
-        "RTTI_Type": "classstd::list<classTiny3D::SmartPtr<classTiny3D::Technique>,classstd::allocator<classTiny3D::SmartPtr<classTiny3D::Technique>> >",
+        "RTTI_Type": "std::list<Tiny3D::SmartPtr<Tiny3D::Technique>>",
         "RTTI_Value": [
           {
             "RTTI_Type": "Tiny3D::Technique",
@@ -66,7 +66,7 @@
                 "RTTI_Value": "0"
               },
               "Passes": {
-                "RTTI_Type": "classstd::list<classTiny3D::SmartPtr<classTiny3D::Pass>,classstd::allocator<classTiny3D::SmartPtr<classTiny3D::Pass>> >",
+                "RTTI_Type": "std::list<Tiny3D::SmartPtr<Tiny3D::Pass>>",
                 "RTTI_Value": [
                   {
                     "RTTI_Type": "Tiny3D::Pass",
@@ -79,7 +79,7 @@
                             "RTTI_Value": 5381
                           },
                           "Keys": {
-                            "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                            "RTTI_Type": "std::set<std::basic_string<char>>",
                             "RTTI_Value": [
                               {
                                 "RTTI_Type": "std::string",
@@ -90,19 +90,19 @@
                         }
                       },
                       "DomainShaders": {
-                        "RTTI_Type": "classstd::map<structTiny3D::ShaderKeyword,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>,structstd::less<structTiny3D::ShaderKeyword>,classstd::allocator<structstd::pair<structTiny3D::ShaderKeywordconst,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>>> >",
+                        "RTTI_Type": "std::map<Tiny3D::ShaderKeyword, Tiny3D::SmartPtr<Tiny3D::ShaderVariantSet>>",
                         "RTTI_Value": []
                       },
                       "GeometryShaders": {
-                        "RTTI_Type": "classstd::map<structTiny3D::ShaderKeyword,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>,structstd::less<structTiny3D::ShaderKeyword>,classstd::allocator<structstd::pair<structTiny3D::ShaderKeywordconst,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>>> >",
+                        "RTTI_Type": "std::map<Tiny3D::ShaderKeyword, Tiny3D::SmartPtr<Tiny3D::ShaderVariantSet>>",
                         "RTTI_Value": []
                       },
                       "HullShaders": {
-                        "RTTI_Type": "classstd::map<structTiny3D::ShaderKeyword,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>,structstd::less<structTiny3D::ShaderKeyword>,classstd::allocator<structstd::pair<structTiny3D::ShaderKeywordconst,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>>> >",
+                        "RTTI_Type": "std::map<Tiny3D::ShaderKeyword, Tiny3D::SmartPtr<Tiny3D::ShaderVariantSet>>",
                         "RTTI_Value": []
                       },
                       "Keywords": {
-                        "RTTI_Type": "classstd::list<structTiny3D::ShaderKeyword,classstd::allocator<structTiny3D::ShaderKeyword> >",
+                        "RTTI_Type": "std::list<Tiny3D::ShaderKeyword>",
                         "RTTI_Value": [
                           {
                             "RTTI_Type": "Tiny3D::ShaderKeyword",
@@ -112,7 +112,7 @@
                                 "RTTI_Value": 5381
                               },
                               "Keys": {
-                                "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                "RTTI_Type": "std::set<std::basic_string<char>>",
                                 "RTTI_Value": []
                               }
                             }
@@ -124,7 +124,7 @@
                         "RTTI_Value": "RmlUI"
                       },
                       "PixelShaders": {
-                        "RTTI_Type": "classstd::map<structTiny3D::ShaderKeyword,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>,structstd::less<structTiny3D::ShaderKeyword>,classstd::allocator<structstd::pair<structTiny3D::ShaderKeywordconst,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>>> >",
+                        "RTTI_Type": "std::map<Tiny3D::ShaderKeyword, Tiny3D::SmartPtr<Tiny3D::ShaderVariantSet>>",
                         "RTTI_Value": [
                           {
                             "RTTI_Map_Key": {
@@ -135,7 +135,7 @@
                                   "RTTI_Value": 5381
                                 },
                                 "Keys": {
-                                  "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                  "RTTI_Type": "std::set<std::basic_string<char>>",
                                   "RTTI_Value": []
                                 }
                               }
@@ -144,7 +144,7 @@
                               "RTTI_Type": "Tiny3D::ShaderVariantSet",
                               "RTTI_Value": {
                                 "Variants": {
-                                  "RTTI_Type": "classstd::map<enumTiny3D::SHADER_LANGUAGE,classTiny3D::SmartPtr<classTiny3D::ShaderVariant>,structstd::less<enumTiny3D::SHADER_LANGUAGE>,classstd::allocator<structstd::pair<enumTiny3D::SHADER_LANGUAGEconst,classTiny3D::SmartPtr<classTiny3D::ShaderVariant>>> >",
+                                  "RTTI_Type": "std::map<Tiny3D::SHADER_LANGUAGE, Tiny3D::SmartPtr<Tiny3D::ShaderVariant>>",
                                   "RTTI_Value": [
                                     {
                                       "RTTI_Map_Key": {
@@ -158,7 +158,7 @@
                                             "RTTI_Type": "Tiny3D::Buffer",
                                             "RTTI_Value": {
                                               "RTTI_Type": "std::string",
-                                              "RTTI_Value": "VGV4dHVyZTJEPGZsb2F0ND4gX01haW5UZXggOiByZWdpc3Rlcih0Mik7ClNhbXBsZXJTdGF0ZSBzYW1wbGVyX01haW5UZXggOiByZWdpc3RlcihzMyk7CgpzdGF0aWMgZmxvYXQ0IGluX3Zhcl9DT0xPUjA7CnN0YXRpYyBmbG9hdDIgaW5fdmFyX1RFWENPT1JEMDsKc3RhdGljIGZsb2F0NCBvdXRfdmFyX1NWX1RBUkdFVDsKCnN0cnVjdCBTUElSVl9Dcm9zc19JbnB1dAp7CiAgICBmbG9hdDQgaW5fdmFyX0NPTE9SMCA6IENPTE9SMDsKICAgIGZsb2F0MiBpbl92YXJfVEVYQ09PUkQwIDogVEVYQ09PUkQwOwp9OwoKc3RydWN0IFNQSVJWX0Nyb3NzX091dHB1dAp7CiAgICBmbG9hdDQgb3V0X3Zhcl9TVl9UQVJHRVQgOiBTVl9UYXJnZXQwOwp9OwoKdm9pZCBmcmFnX21haW4oKQp7CiAgICBvdXRfdmFyX1NWX1RBUkdFVCA9IF9NYWluVGV4LlNhbXBsZShzYW1wbGVyX01haW5UZXgsIGluX3Zhcl9URVhDT09SRDApICogaW5fdmFyX0NPTE9SMDsKfQoKU1BJUlZfQ3Jvc3NfT3V0cHV0IG1haW4oU1BJUlZfQ3Jvc3NfSW5wdXQgc3RhZ2VfaW5wdXQpCnsKICAgIGluX3Zhcl9DT0xPUjAgPSBzdGFnZV9pbnB1dC5pbl92YXJfQ09MT1IwOwogICAgaW5fdmFyX1RFWENPT1JEMCA9IHN0YWdlX2lucHV0LmluX3Zhcl9URVhDT09SRDA7CiAgICBmcmFnX21haW4oKTsKICAgIFNQSVJWX0Nyb3NzX091dHB1dCBzdGFnZV9vdXRwdXQ7CiAgICBzdGFnZV9vdXRwdXQub3V0X3Zhcl9TVl9UQVJHRVQgPSBvdXRfdmFyX1NWX1RBUkdFVDsKICAgIHJldHVybiBzdGFnZV9vdXRwdXQ7Cn0K"
+                                              "RTTI_Value": "Y2J1ZmZlciB0eXBlX1JtbFVJUGVyRHJhdyA6IHJlZ2lzdGVyKGIxKQp7CiAgICByb3dfbWFqb3IgZmxvYXQ0eDQgUm1sVUlQZXJEcmF3X1RyYW5zZm9ybSA6IHBhY2tvZmZzZXQoYzApOwogICAgZmxvYXQ0IFJtbFVJUGVyRHJhd19UcmFuc2xhdGlvbiA6IHBhY2tvZmZzZXQoYzQpOwp9OwoKVGV4dHVyZTJEPGZsb2F0ND4gX01haW5UZXggOiByZWdpc3Rlcih0Mik7ClNhbXBsZXJTdGF0ZSBzYW1wbGVyX01haW5UZXggOiByZWdpc3RlcihzMyk7CgpzdGF0aWMgZmxvYXQ0IGluX3Zhcl9DT0xPUjA7CnN0YXRpYyBmbG9hdDIgaW5fdmFyX1RFWENPT1JEMDsKc3RhdGljIGZsb2F0NCBvdXRfdmFyX1NWX1RBUkdFVDsKCnN0cnVjdCBTUElSVl9Dcm9zc19JbnB1dAp7CiAgICBmbG9hdDQgaW5fdmFyX0NPTE9SMCA6IENPTE9SMDsKICAgIGZsb2F0MiBpbl92YXJfVEVYQ09PUkQwIDogVEVYQ09PUkQwOwp9OwoKc3RydWN0IFNQSVJWX0Nyb3NzX091dHB1dAp7CiAgICBmbG9hdDQgb3V0X3Zhcl9TVl9UQVJHRVQgOiBTVl9UYXJnZXQwOwp9OwoKdm9pZCBmcmFnX21haW4oKQp7CiAgICBmbG9hdDQgXzM4ID0gX01haW5UZXguU2FtcGxlKHNhbXBsZXJfTWFpblRleCwgaW5fdmFyX1RFWENPT1JEMCk7CiAgICBmbG9hdDQgXzQ4OwogICAgaWYgKFJtbFVJUGVyRHJhd19UcmFuc2xhdGlvbi53IDwgMC41ZikKICAgIHsKICAgICAgICBmbG9hdDMgXzQ2ID0gXzM4Lnh5eiAqIF8zOC53OwogICAgICAgIF80OCA9IGZsb2F0NChfNDYueCwgXzQ2LnksIF80Ni56LCBfMzgudyk7CiAgICB9CiAgICBlbHNlCiAgICB7CiAgICAgICAgXzQ4ID0gXzM4OwogICAgfQogICAgb3V0X3Zhcl9TVl9UQVJHRVQgPSBfNDggKiBpbl92YXJfQ09MT1IwOwp9CgpTUElSVl9Dcm9zc19PdXRwdXQgbWFpbihTUElSVl9Dcm9zc19JbnB1dCBzdGFnZV9pbnB1dCkKewogICAgaW5fdmFyX0NPTE9SMCA9IHN0YWdlX2lucHV0LmluX3Zhcl9DT0xPUjA7CiAgICBpbl92YXJfVEVYQ09PUkQwID0gc3RhZ2VfaW5wdXQuaW5fdmFyX1RFWENPT1JEMDsKICAgIGZyYWdfbWFpbigpOwogICAgU1BJUlZfQ3Jvc3NfT3V0cHV0IHN0YWdlX291dHB1dDsKICAgIHN0YWdlX291dHB1dC5vdXRfdmFyX1NWX1RBUkdFVCA9IG91dF92YXJfU1ZfVEFSR0VUOwogICAgcmV0dXJuIHN0YWdlX291dHB1dDsKfQo="
                                             }
                                           },
                                           "Language": {
@@ -166,8 +166,79 @@
                                             "RTTI_Value": "kHLSL"
                                           },
                                           "ShaderConstantParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>>> >",
-                                            "RTTI_Value": []
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
+                                            "RTTI_Value": [
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "Transform"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 1
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "RmlUIPerDraw"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 0
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_MATRIX4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Transform"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "Translation"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 1
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "RmlUIPerDraw"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 16
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_VECTOR4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Translation"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            ]
                                           },
                                           "ShaderKeyword": {
                                             "RTTI_Type": "Tiny3D::ShaderKeyword",
@@ -177,17 +248,17 @@
                                                 "RTTI_Value": 5381
                                               },
                                               "Keys": {
-                                                "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                                "RTTI_Type": "std::set<std::basic_string<char>>",
                                                 "RTTI_Value": []
                                               }
                                             }
                                           },
                                           "ShaderResourceParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
                                             "RTTI_Value": []
                                           },
                                           "ShaderSamplerParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": [
                                               {
                                                 "RTTI_Map_Key": {
@@ -249,7 +320,7 @@
                                             "RTTI_Type": "Tiny3D::Buffer",
                                             "RTTI_Value": {
                                               "RTTI_Type": "std::string",
-                                              "RTTI_Value": "I3ZlcnNpb24gNDAwCiNleHRlbnNpb24gR0xfQVJCX3NlcGFyYXRlX3NoYWRlcl9vYmplY3RzIDogcmVxdWlyZQoKdW5pZm9ybSBzYW1wbGVyMkQgU1BJUlZfQ3Jvc3NfQ29tYmluZWRfTWFpblRleHNhbXBsZXJfTWFpblRleDsKCmxheW91dChsb2NhdGlvbiA9IDApIGluIHZlYzQgaW5fdmFyX0NPTE9SMDsKbGF5b3V0KGxvY2F0aW9uID0gMSkgaW4gdmVjMiBpbl92YXJfVEVYQ09PUkQwOwpsYXlvdXQobG9jYXRpb24gPSAwKSBvdXQgdmVjNCBvdXRfdmFyX1NWX1RBUkdFVDsKCnZvaWQgbWFpbigpCnsKICAgIG91dF92YXJfU1ZfVEFSR0VUID0gdGV4dHVyZShTUElSVl9Dcm9zc19Db21iaW5lZF9NYWluVGV4c2FtcGxlcl9NYWluVGV4LCBpbl92YXJfVEVYQ09PUkQwKSAqIGluX3Zhcl9DT0xPUjA7Cn0KCg=="
+                                              "RTTI_Value": "I3ZlcnNpb24gNDAwCiNleHRlbnNpb24gR0xfQVJCX3NlcGFyYXRlX3NoYWRlcl9vYmplY3RzIDogcmVxdWlyZQoKbGF5b3V0KHN0ZDE0MCkgdW5pZm9ybSB0eXBlX1JtbFVJUGVyRHJhdwp7CiAgICBtYXQ0IFRyYW5zZm9ybTsKICAgIHZlYzQgVHJhbnNsYXRpb247Cn0gUm1sVUlQZXJEcmF3OwoKdW5pZm9ybSBzYW1wbGVyMkQgU1BJUlZfQ3Jvc3NfQ29tYmluZWRfTWFpblRleHNhbXBsZXJfTWFpblRleDsKCmxheW91dChsb2NhdGlvbiA9IDApIGluIHZlYzQgaW5fdmFyX0NPTE9SMDsKbGF5b3V0KGxvY2F0aW9uID0gMSkgaW4gdmVjMiBpbl92YXJfVEVYQ09PUkQwOwpsYXlvdXQobG9jYXRpb24gPSAwKSBvdXQgdmVjNCBvdXRfdmFyX1NWX1RBUkdFVDsKCnZvaWQgbWFpbigpCnsKICAgIHZlYzQgXzM4ID0gdGV4dHVyZShTUElSVl9Dcm9zc19Db21iaW5lZF9NYWluVGV4c2FtcGxlcl9NYWluVGV4LCBpbl92YXJfVEVYQ09PUkQwKTsKICAgIHZlYzQgXzQ4OwogICAgaWYgKFJtbFVJUGVyRHJhdy5UcmFuc2xhdGlvbi53IDwgMC41KQogICAgewogICAgICAgIHZlYzMgXzQ2ID0gXzM4Lnh5eiAqIF8zOC53OwogICAgICAgIF80OCA9IHZlYzQoXzQ2LngsIF80Ni55LCBfNDYueiwgXzM4LncpOwogICAgfQogICAgZWxzZQogICAgewogICAgICAgIF80OCA9IF8zODsKICAgIH0KICAgIG91dF92YXJfU1ZfVEFSR0VUID0gXzQ4ICogaW5fdmFyX0NPTE9SMDsKfQoK"
                                             }
                                           },
                                           "Language": {
@@ -257,8 +328,79 @@
                                             "RTTI_Value": "kGLSL"
                                           },
                                           "ShaderConstantParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>>> >",
-                                            "RTTI_Value": []
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
+                                            "RTTI_Value": [
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "Transform"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 1
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "RmlUIPerDraw"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 0
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_MATRIX4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Transform"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "Translation"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 1
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "RmlUIPerDraw"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 16
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_VECTOR4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Translation"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            ]
                                           },
                                           "ShaderKeyword": {
                                             "RTTI_Type": "Tiny3D::ShaderKeyword",
@@ -268,17 +410,17 @@
                                                 "RTTI_Value": 5381
                                               },
                                               "Keys": {
-                                                "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                                "RTTI_Type": "std::set<std::basic_string<char>>",
                                                 "RTTI_Value": []
                                               }
                                             }
                                           },
                                           "ShaderResourceParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
                                             "RTTI_Value": []
                                           },
                                           "ShaderSamplerParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": [
                                               {
                                                 "RTTI_Map_Key": {
@@ -340,7 +482,7 @@
                                             "RTTI_Type": "Tiny3D::Buffer",
                                             "RTTI_Value": {
                                               "RTTI_Type": "std::string",
-                                              "RTTI_Value": "I3ZlcnNpb24gMzEwIGVzCnByZWNpc2lvbiBtZWRpdW1wIGZsb2F0OwpwcmVjaXNpb24gaGlnaHAgaW50OwoKdW5pZm9ybSBoaWdocCBzYW1wbGVyMkQgU1BJUlZfQ3Jvc3NfQ29tYmluZWRfTWFpblRleHNhbXBsZXJfTWFpblRleDsKCmxheW91dChsb2NhdGlvbiA9IDApIGluIGhpZ2hwIHZlYzQgaW5fdmFyX0NPTE9SMDsKbGF5b3V0KGxvY2F0aW9uID0gMSkgaW4gaGlnaHAgdmVjMiBpbl92YXJfVEVYQ09PUkQwOwpsYXlvdXQobG9jYXRpb24gPSAwKSBvdXQgaGlnaHAgdmVjNCBvdXRfdmFyX1NWX1RBUkdFVDsKCnZvaWQgbWFpbigpCnsKICAgIG91dF92YXJfU1ZfVEFSR0VUID0gdGV4dHVyZShTUElSVl9Dcm9zc19Db21iaW5lZF9NYWluVGV4c2FtcGxlcl9NYWluVGV4LCBpbl92YXJfVEVYQ09PUkQwKSAqIGluX3Zhcl9DT0xPUjA7Cn0KCg=="
+                                              "RTTI_Value": "I3ZlcnNpb24gMzEwIGVzCnByZWNpc2lvbiBtZWRpdW1wIGZsb2F0OwpwcmVjaXNpb24gaGlnaHAgaW50OwoKbGF5b3V0KGJpbmRpbmcgPSAxLCBzdGQxNDApIHVuaWZvcm0gdHlwZV9SbWxVSVBlckRyYXcKewogICAgaGlnaHAgbWF0NCBUcmFuc2Zvcm07CiAgICBoaWdocCB2ZWM0IFRyYW5zbGF0aW9uOwp9IFJtbFVJUGVyRHJhdzsKCnVuaWZvcm0gaGlnaHAgc2FtcGxlcjJEIFNQSVJWX0Nyb3NzX0NvbWJpbmVkX01haW5UZXhzYW1wbGVyX01haW5UZXg7CgpsYXlvdXQobG9jYXRpb24gPSAwKSBpbiBoaWdocCB2ZWM0IGluX3Zhcl9DT0xPUjA7CmxheW91dChsb2NhdGlvbiA9IDEpIGluIGhpZ2hwIHZlYzIgaW5fdmFyX1RFWENPT1JEMDsKbGF5b3V0KGxvY2F0aW9uID0gMCkgb3V0IGhpZ2hwIHZlYzQgb3V0X3Zhcl9TVl9UQVJHRVQ7Cgp2b2lkIG1haW4oKQp7CiAgICBoaWdocCB2ZWM0IF8zOCA9IHRleHR1cmUoU1BJUlZfQ3Jvc3NfQ29tYmluZWRfTWFpblRleHNhbXBsZXJfTWFpblRleCwgaW5fdmFyX1RFWENPT1JEMCk7CiAgICBoaWdocCB2ZWM0IF80ODsKICAgIGlmIChSbWxVSVBlckRyYXcuVHJhbnNsYXRpb24udyA8IDAuNSkKICAgIHsKICAgICAgICBoaWdocCB2ZWMzIF80NiA9IF8zOC54eXogKiBfMzgudzsKICAgICAgICBfNDggPSB2ZWM0KF80Ni54LCBfNDYueSwgXzQ2LnosIF8zOC53KTsKICAgIH0KICAgIGVsc2UKICAgIHsKICAgICAgICBfNDggPSBfMzg7CiAgICB9CiAgICBvdXRfdmFyX1NWX1RBUkdFVCA9IF80OCAqIGluX3Zhcl9DT0xPUjA7Cn0KCg=="
                                             }
                                           },
                                           "Language": {
@@ -348,8 +490,79 @@
                                             "RTTI_Value": "kESSL"
                                           },
                                           "ShaderConstantParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>>> >",
-                                            "RTTI_Value": []
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
+                                            "RTTI_Value": [
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "Transform"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 1
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "RmlUIPerDraw"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 0
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_MATRIX4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Transform"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "Translation"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 1
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "RmlUIPerDraw"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 16
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_VECTOR4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Translation"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            ]
                                           },
                                           "ShaderKeyword": {
                                             "RTTI_Type": "Tiny3D::ShaderKeyword",
@@ -359,17 +572,17 @@
                                                 "RTTI_Value": 5381
                                               },
                                               "Keys": {
-                                                "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                                "RTTI_Type": "std::set<std::basic_string<char>>",
                                                 "RTTI_Value": []
                                               }
                                             }
                                           },
                                           "ShaderResourceParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
                                             "RTTI_Value": []
                                           },
                                           "ShaderSamplerParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": [
                                               {
                                                 "RTTI_Map_Key": {
@@ -431,7 +644,7 @@
                                             "RTTI_Type": "Tiny3D::Buffer",
                                             "RTTI_Value": {
                                               "RTTI_Type": "std::string",
-                                              "RTTI_Value": "AwIjBwAAAQAAAA4AHQAAAAAAAAARAAIAAQAAAA4AAwAAAAAAAQAAAA8ACQAEAAAAAQAAAGZyYWcAAAAAAgAAAAMAAAAEAAAABQAAABAAAwABAAAABwAAAAMAAwAFAAAAWAIAAAUABgAGAAAAdHlwZS4yZC5pbWFnZQAAAAUABQAHAAAAX01haW5UZXgAAAAABQAGAAgAAAB0eXBlLnNhbXBsZXIAAAAABQAGAAkAAABzYW1wbGVyX01haW5UZXgABQAGAAMAAABpbi52YXIuQ09MT1IwAAAABQAHAAQAAABpbi52YXIuVEVYQ09PUkQwAAAAAAUABwAFAAAAb3V0LnZhci5TVl9UQVJHRVQAAAAFAAQAAQAAAGZyYWcAAAAABQAHAAoAAAB0eXBlLnNhbXBsZWQuaW1hZ2UAAEcABAACAAAACwAAAA8AAABHAAQAAwAAAB4AAAAAAAAARwAEAAQAAAAeAAAAAQAAAEcABAAFAAAAHgAAAAAAAABHAAQABwAAACIAAAAAAAAARwAEAAcAAAAhAAAAAgAAAEcABAAJAAAAIgAAAAAAAABHAAQACQAAACEAAAADAAAAFgADAAsAAAAgAAAAFwAEAAwAAAALAAAABAAAABkACQAGAAAACwAAAAEAAAACAAAAAAAAAAAAAAABAAAAAAAAACAABAANAAAAAAAAAAYAAAAaAAIACAAAACAABAAOAAAAAAAAAAgAAAAgAAQADwAAAAEAAAAMAAAAFwAEABAAAAALAAAAAgAAACAABAARAAAAAQAAABAAAAAgAAQAEgAAAAMAAAAMAAAAEwACABMAAAAhAAMAFAAAABMAAAAbAAMACgAAAAYAAAA7AAQADQAAAAcAAAAAAAAAOwAEAA4AAAAJAAAAAAAAADsABAAPAAAAAgAAAAEAAAA7AAQADwAAAAMAAAABAAAAOwAEABEAAAAEAAAAAQAAADsABAASAAAABQAAAAMAAAA2AAUAEwAAAAEAAAAAAAAAFAAAAPgAAgAVAAAAPQAEAAwAAAAWAAAAAwAAAD0ABAAQAAAAFwAAAAQAAAA9AAQABgAAABgAAAAHAAAAPQAEAAgAAAAZAAAACQAAAFYABQAKAAAAGgAAABgAAAAZAAAAVwAGAAwAAAAbAAAAGgAAABcAAAAAAAAAhQAFAAwAAAAcAAAAGwAAABYAAAA+AAMABQAAABwAAAD9AAEAOAABAA=="
+                                              "RTTI_Value": "AwIjBwAAAQAAAA4AMgAAAAAAAAARAAIAAQAAAA4AAwAAAAAAAQAAAA8ACQAEAAAAAQAAAGZyYWcAAAAAAgAAAAMAAAAEAAAABQAAABAAAwABAAAABwAAAAMAAwAFAAAAWAIAAAUABwAGAAAAdHlwZS5SbWxVSVBlckRyYXcAAAAGAAYABgAAAAAAAABUcmFuc2Zvcm0AAAAGAAYABgAAAAEAAABUcmFuc2xhdGlvbgAFAAYABwAAAFJtbFVJUGVyRHJhdwAAAAAFAAYACAAAAHR5cGUuMmQuaW1hZ2UAAAAFAAUACQAAAF9NYWluVGV4AAAAAAUABgAKAAAAdHlwZS5zYW1wbGVyAAAAAAUABgALAAAAc2FtcGxlcl9NYWluVGV4AAUABgADAAAAaW4udmFyLkNPTE9SMAAAAAUABwAEAAAAaW4udmFyLlRFWENPT1JEMAAAAAAFAAcABQAAAG91dC52YXIuU1ZfVEFSR0VUAAAABQAEAAEAAABmcmFnAAAAAAUABwAMAAAAdHlwZS5zYW1wbGVkLmltYWdlAABHAAQAAgAAAAsAAAAPAAAARwAEAAMAAAAeAAAAAAAAAEcABAAEAAAAHgAAAAEAAABHAAQABQAAAB4AAAAAAAAARwAEAAcAAAAiAAAAAAAAAEcABAAHAAAAIQAAAAEAAABHAAQACQAAACIAAAAAAAAARwAEAAkAAAAhAAAAAgAAAEcABAALAAAAIgAAAAAAAABHAAQACwAAACEAAAADAAAASAAFAAYAAAAAAAAAIwAAAAAAAABIAAUABgAAAAAAAAAHAAAAEAAAAEgABAAGAAAAAAAAAAUAAABIAAUABgAAAAEAAAAjAAAAQAAAAEcAAwAGAAAAAgAAABUABAANAAAAIAAAAAEAAAArAAQADQAAAA4AAAABAAAAKwAEAA0AAAAPAAAAAwAAABYAAwAQAAAAIAAAACsABAAQAAAAEQAAAAAAAD8XAAQAEgAAABAAAAAEAAAAGAAEABMAAAASAAAABAAAAB4ABAAGAAAAEwAAABIAAAAgAAQAFAAAAAIAAAAGAAAAGQAJAAgAAAAQAAAAAQAAAAIAAAAAAAAAAAAAAAEAAAAAAAAAIAAEABUAAAAAAAAACAAAABoAAgAKAAAAIAAEABYAAAAAAAAACgAAACAABAAXAAAAAQAAABIAAAAXAAQAGAAAABAAAAACAAAAIAAEABkAAAABAAAAGAAAACAABAAaAAAAAwAAABIAAAATAAIAGwAAACEAAwAcAAAAGwAAABsAAwAMAAAACAAAACAABAAdAAAAAgAAABAAAAAUAAIAHgAAABcABAAfAAAAEAAAAAMAAAA7AAQAFAAAAAcAAAACAAAAOwAEABUAAAAJAAAAAAAAADsABAAWAAAACwAAAAAAAAA7AAQAFwAAAAIAAAABAAAAOwAEABcAAAADAAAAAQAAADsABAAZAAAABAAAAAEAAAA7AAQAGgAAAAUAAAADAAAANgAFABsAAAABAAAAAAAAABwAAAD4AAIAIAAAAD0ABAASAAAAIQAAAAMAAAA9AAQAGAAAACIAAAAEAAAAPQAEAAgAAAAjAAAACQAAAD0ABAAKAAAAJAAAAAsAAABWAAUADAAAACUAAAAjAAAAJAAAAFcABgASAAAAJgAAACUAAAAiAAAAAAAAAEEABgAdAAAAJwAAAAcAAAAOAAAADwAAAD0ABAAQAAAAKAAAACcAAAC4AAUAHgAAACkAAAAoAAAAEQAAAPcAAwAqAAAAAAAAAPoABAApAAAAKwAAACoAAAD4AAIAKwAAAFEABQAQAAAALAAAACYAAAADAAAATwAIAB8AAAAtAAAAJgAAACYAAAAAAAAAAQAAAAIAAACOAAUAHwAAAC4AAAAtAAAALAAAAE8ACQASAAAALwAAACYAAAAuAAAABAAAAAUAAAAGAAAAAwAAAPkAAgAqAAAA+AACACoAAAD1AAcAEgAAADAAAAAmAAAAIAAAAC8AAAArAAAAhQAFABIAAAAxAAAAMAAAACEAAAA+AAMABQAAADEAAAD9AAEAOAABAA=="
                                             }
                                           },
                                           "Language": {
@@ -439,8 +652,79 @@
                                             "RTTI_Value": "kSPIRV"
                                           },
                                           "ShaderConstantParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>>> >",
-                                            "RTTI_Value": []
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
+                                            "RTTI_Value": [
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "Transform"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 1
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "RmlUIPerDraw"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 0
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_MATRIX4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Transform"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "RTTI_Map_Key": {
+                                                  "RTTI_Type": "std::string",
+                                                  "RTTI_Value": "Translation"
+                                                },
+                                                "RTTI_Map_Value": {
+                                                  "RTTI_Type": "Tiny3D::ShaderConstantParam",
+                                                  "RTTI_Value": {
+                                                    "BindingPoint": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 1
+                                                    },
+                                                    "CBufferName": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "RmlUIPerDraw"
+                                                    },
+                                                    "DataOffset": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 64
+                                                    },
+                                                    "DataSize": {
+                                                      "RTTI_Type": "unsignedint",
+                                                      "RTTI_Value": 16
+                                                    },
+                                                    "DataType": {
+                                                      "RTTI_Type": "Tiny3D::ShaderConstantParam::DATA_TYPE",
+                                                      "RTTI_Value": "DT_VECTOR4"
+                                                    },
+                                                    "Name": {
+                                                      "RTTI_Type": "std::string",
+                                                      "RTTI_Value": "Translation"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            ]
                                           },
                                           "ShaderKeyword": {
                                             "RTTI_Type": "Tiny3D::ShaderKeyword",
@@ -450,17 +734,17 @@
                                                 "RTTI_Value": 5381
                                               },
                                               "Keys": {
-                                                "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                                "RTTI_Type": "std::set<std::basic_string<char>>",
                                                 "RTTI_Value": []
                                               }
                                             }
                                           },
                                           "ShaderResourceParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
                                             "RTTI_Value": []
                                           },
                                           "ShaderSamplerParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": [
                                               {
                                                 "RTTI_Map_Key": {
@@ -957,7 +1241,7 @@
                         }
                       },
                       "Tags": {
-                        "RTTI_Type": "classstd::map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>> >",
+                        "RTTI_Type": "std::map<std::basic_string<char>, std::basic_string<char>>",
                         "RTTI_Value": [
                           {
                             "RTTI_Map_Key": {
@@ -972,7 +1256,7 @@
                         ]
                       },
                       "VertexShaders": {
-                        "RTTI_Type": "classstd::map<structTiny3D::ShaderKeyword,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>,structstd::less<structTiny3D::ShaderKeyword>,classstd::allocator<structstd::pair<structTiny3D::ShaderKeywordconst,classTiny3D::SmartPtr<classTiny3D::ShaderVariantSet>>> >",
+                        "RTTI_Type": "std::map<Tiny3D::ShaderKeyword, Tiny3D::SmartPtr<Tiny3D::ShaderVariantSet>>",
                         "RTTI_Value": [
                           {
                             "RTTI_Map_Key": {
@@ -983,7 +1267,7 @@
                                   "RTTI_Value": 5381
                                 },
                                 "Keys": {
-                                  "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                  "RTTI_Type": "std::set<std::basic_string<char>>",
                                   "RTTI_Value": []
                                 }
                               }
@@ -992,7 +1276,7 @@
                               "RTTI_Type": "Tiny3D::ShaderVariantSet",
                               "RTTI_Value": {
                                 "Variants": {
-                                  "RTTI_Type": "classstd::map<enumTiny3D::SHADER_LANGUAGE,classTiny3D::SmartPtr<classTiny3D::ShaderVariant>,structstd::less<enumTiny3D::SHADER_LANGUAGE>,classstd::allocator<structstd::pair<enumTiny3D::SHADER_LANGUAGEconst,classTiny3D::SmartPtr<classTiny3D::ShaderVariant>>> >",
+                                  "RTTI_Type": "std::map<Tiny3D::SHADER_LANGUAGE, Tiny3D::SmartPtr<Tiny3D::ShaderVariant>>",
                                   "RTTI_Value": [
                                     {
                                       "RTTI_Map_Key": {
@@ -1014,7 +1298,7 @@
                                             "RTTI_Value": "kHLSL"
                                           },
                                           "ShaderConstantParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
                                             "RTTI_Value": [
                                               {
                                                 "RTTI_Map_Key": {
@@ -1131,17 +1415,17 @@
                                                 "RTTI_Value": 5381
                                               },
                                               "Keys": {
-                                                "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                                "RTTI_Type": "std::set<std::basic_string<char>>",
                                                 "RTTI_Value": []
                                               }
                                             }
                                           },
                                           "ShaderResourceParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
                                             "RTTI_Value": []
                                           },
                                           "ShaderSamplerParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": []
                                           },
                                           "Stage": {
@@ -1183,7 +1467,7 @@
                                             "RTTI_Value": "kGLSL"
                                           },
                                           "ShaderConstantParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
                                             "RTTI_Value": [
                                               {
                                                 "RTTI_Map_Key": {
@@ -1300,17 +1584,17 @@
                                                 "RTTI_Value": 5381
                                               },
                                               "Keys": {
-                                                "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                                "RTTI_Type": "std::set<std::basic_string<char>>",
                                                 "RTTI_Value": []
                                               }
                                             }
                                           },
                                           "ShaderResourceParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
                                             "RTTI_Value": []
                                           },
                                           "ShaderSamplerParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": []
                                           },
                                           "Stage": {
@@ -1352,7 +1636,7 @@
                                             "RTTI_Value": "kESSL"
                                           },
                                           "ShaderConstantParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
                                             "RTTI_Value": [
                                               {
                                                 "RTTI_Map_Key": {
@@ -1469,17 +1753,17 @@
                                                 "RTTI_Value": 5381
                                               },
                                               "Keys": {
-                                                "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                                "RTTI_Type": "std::set<std::basic_string<char>>",
                                                 "RTTI_Value": []
                                               }
                                             }
                                           },
                                           "ShaderResourceParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
                                             "RTTI_Value": []
                                           },
                                           "ShaderSamplerParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": []
                                           },
                                           "Stage": {
@@ -1521,7 +1805,7 @@
                                             "RTTI_Value": "kSPIRV"
                                           },
                                           "ShaderConstantParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderConstantParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderConstantParam>>",
                                             "RTTI_Value": [
                                               {
                                                 "RTTI_Map_Key": {
@@ -1638,17 +1922,17 @@
                                                 "RTTI_Value": 5381
                                               },
                                               "Keys": {
-                                                "RTTI_Type": "classstd::set<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>> >",
+                                                "RTTI_Type": "std::set<std::basic_string<char>>",
                                                 "RTTI_Value": []
                                               }
                                             }
                                           },
                                           "ShaderResourceParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderResourceParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
                                             "RTTI_Value": []
                                           },
                                           "ShaderSamplerParams": {
-                                            "RTTI_Type": "classstd::unordered_map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>,structstd::hash<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,structstd::equal_to<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classTiny3D::SmartPtr<classTiny3D::ShaderSamplerParam>>> >",
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": []
                                           },
                                           "Stage": {
@@ -1682,7 +1966,7 @@
                 ]
               },
               "Tags": {
-                "RTTI_Type": "classstd::map<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>,structstd::less<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>,classstd::allocator<structstd::pair<classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>const,classstd::basic_string<char,structstd::char_traits<char>,classstd::allocator<char>>>> >",
+                "RTTI_Type": "std::map<std::basic_string<char>, std::basic_string<char>>",
                 "RTTI_Value": []
               }
             }

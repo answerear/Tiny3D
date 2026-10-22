@@ -164,6 +164,14 @@
           {
             "RTTI_Type": "Tiny3D::VertexAttribute",
             "RTTI_Value": {
+              "inputRate": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::InputRate",
+                "RTTI_Value": "kPerVertex"
+              },
+              "instanceStepRate": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
               "offset": {
                 "RTTI_Type": "unsignedint",
                 "RTTI_Value": 0
@@ -189,6 +197,14 @@
           {
             "RTTI_Type": "Tiny3D::VertexAttribute",
             "RTTI_Value": {
+              "inputRate": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::InputRate",
+                "RTTI_Value": "kPerVertex"
+              },
+              "instanceStepRate": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
               "offset": {
                 "RTTI_Type": "unsignedint",
                 "RTTI_Value": 12
@@ -214,6 +230,14 @@
           {
             "RTTI_Type": "Tiny3D::VertexAttribute",
             "RTTI_Value": {
+              "inputRate": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::InputRate",
+                "RTTI_Value": "kPerVertex"
+              },
+              "instanceStepRate": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
               "offset": {
                 "RTTI_Type": "unsignedint",
                 "RTTI_Value": 24
@@ -239,6 +263,14 @@
           {
             "RTTI_Type": "Tiny3D::VertexAttribute",
             "RTTI_Value": {
+              "inputRate": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::InputRate",
+                "RTTI_Value": "kPerVertex"
+              },
+              "instanceStepRate": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
               "offset": {
                 "RTTI_Type": "unsignedint",
                 "RTTI_Value": 32
@@ -264,6 +296,14 @@
           {
             "RTTI_Type": "Tiny3D::VertexAttribute",
             "RTTI_Value": {
+              "inputRate": {
+                "RTTI_Type": "Tiny3D::VertexAttribute::InputRate",
+                "RTTI_Value": "kPerVertex"
+              },
+              "instanceStepRate": {
+                "RTTI_Type": "unsignedint",
+                "RTTI_Value": 0
+              },
               "offset": {
                 "RTTI_Type": "unsignedint",
                 "RTTI_Value": 48

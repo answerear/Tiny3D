@@ -367,6 +367,10 @@
                                               }
                                             }
                                           },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
+                                            "RTTI_Value": []
+                                          },
                                           "ShaderSamplerParams": {
                                             "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": [
@@ -402,6 +406,18 @@
                                           "Stage": {
                                             "RTTI_Type": "Tiny3D::SHADER_STAGE",
                                             "RTTI_Value": "kPixel"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
                                           }
                                         }
                                       }
@@ -548,6 +564,10 @@
                                               }
                                             }
                                           },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
+                                            "RTTI_Value": []
+                                          },
                                           "ShaderSamplerParams": {
                                             "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": [
@@ -583,6 +603,18 @@
                                           "Stage": {
                                             "RTTI_Type": "Tiny3D::SHADER_STAGE",
                                             "RTTI_Value": "kPixel"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
                                           }
                                         }
                                       }
@@ -729,6 +761,10 @@
                                               }
                                             }
                                           },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
+                                            "RTTI_Value": []
+                                          },
                                           "ShaderSamplerParams": {
                                             "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": [
@@ -764,6 +800,18 @@
                                           "Stage": {
                                             "RTTI_Type": "Tiny3D::SHADER_STAGE",
                                             "RTTI_Value": "kPixel"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
                                           }
                                         }
                                       }
@@ -910,6 +958,10 @@
                                               }
                                             }
                                           },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
+                                            "RTTI_Value": []
+                                          },
                                           "ShaderSamplerParams": {
                                             "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": [
@@ -945,6 +997,18 @@
                                           "Stage": {
                                             "RTTI_Type": "Tiny3D::SHADER_STAGE",
                                             "RTTI_Value": "kPixel"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
                                           }
                                         }
                                       }
@@ -1605,6 +1669,10 @@
                                               }
                                             }
                                           },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
+                                            "RTTI_Value": []
+                                          },
                                           "ShaderSamplerParams": {
                                             "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": []
@@ -1612,6 +1680,18 @@
                                           "Stage": {
                                             "RTTI_Type": "Tiny3D::SHADER_STAGE",
                                             "RTTI_Value": "kVertex"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
                                           }
                                         }
                                       }
@@ -1758,6 +1838,10 @@
                                               }
                                             }
                                           },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
+                                            "RTTI_Value": []
+                                          },
                                           "ShaderSamplerParams": {
                                             "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": []
@@ -1765,6 +1849,18 @@
                                           "Stage": {
                                             "RTTI_Type": "Tiny3D::SHADER_STAGE",
                                             "RTTI_Value": "kVertex"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
                                           }
                                         }
                                       }
@@ -1911,6 +2007,10 @@
                                               }
                                             }
                                           },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
+                                            "RTTI_Value": []
+                                          },
                                           "ShaderSamplerParams": {
                                             "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": []
@@ -1918,6 +2018,18 @@
                                           "Stage": {
                                             "RTTI_Type": "Tiny3D::SHADER_STAGE",
                                             "RTTI_Value": "kVertex"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
                                           }
                                         }
                                       }
@@ -2064,6 +2176,10 @@
                                               }
                                             }
                                           },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
+                                            "RTTI_Value": []
+                                          },
                                           "ShaderSamplerParams": {
                                             "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": []
@@ -2071,6 +2187,18 @@
                                           "Stage": {
                                             "RTTI_Type": "Tiny3D::SHADER_STAGE",
                                             "RTTI_Value": "kVertex"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
                                           }
                                         }
                                       }

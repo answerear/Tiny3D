@@ -15,6 +15,10 @@
           "RTTI_Value": "6aece1fe52a9eed15bdecadf784b2a09"
         }
       },
+      "PremultipliedAlpha": {
+        "RTTI_Type": "bool",
+        "RTTI_Value": false
+      },
       "SamplerDesc": {
         "RTTI_Type": "Tiny3D::SamplerDesc",
         "RTTI_Value": {

@@ -6,7 +6,7 @@
 <body>
 	<div id="panel">
 		<h1>Hello 你好 Tiny3D</h1>
-		<img class="badge" src="badge.png"/>
+		<img class="badge" src="badge.ttex"/>
 		<div id="scroller">
 			<p>滚动区域 01 / Scroll line 01</p>
 			<p>滚动区域 02 / Scroll line 02</p>

@@ -62,7 +62,12 @@ Shader "Tiny3DBuiltin/RmlUI-Texture"
 
 			float4 frag(VertexOutput input) : SV_TARGET
 			{
-				return _MainTex.Sample(sampler_MainTex, input.uv) * input.color;
+				float4 texColor = _MainTex.Sample(sampler_MainTex, input.uv);
+				if (Translation.w < 0.5)
+				{
+					texColor.rgb *= texColor.a;
+				}
+				return texColor * input.color;
 			}
 
 			ENDCG
