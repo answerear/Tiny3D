@@ -21,6 +21,7 @@
 #include "IO/T3DFileDataStream.h"
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -195,6 +196,17 @@ namespace Tiny3D
             return false;
 
 		return (::remove(strFileName.c_str()) == 0);
+    }
+
+    bool UnixDir::rename(const String &srcPath, const String &dstPath, bool overwriteExisting/* = true */)
+    {
+        if (srcPath.empty() || dstPath.empty())
+            return false;
+
+        if (!overwriteExisting && exists(dstPath))
+            return false;
+
+        return (::rename(srcPath.c_str(), dstPath.c_str()) == 0);
     }
 
     bool UnixDir::exists(const String &strPath) const

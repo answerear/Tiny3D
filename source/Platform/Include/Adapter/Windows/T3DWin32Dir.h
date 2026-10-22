@@ -147,6 +147,15 @@ namespace Tiny3D
         virtual bool remove(const String &strFileName) override;
 
         /**
+         * @brief 重命名或移动文件（同目录原子替换）.
+         * @param [in] srcPath : 源文件路径
+         * @param [in] dstPath : 目标文件路径
+         * @param [in] overwriteExisting : 若目标文件已存在是否允许覆盖，默认 true
+         * @return 调用成功返回true，否则返回false.
+         */
+        virtual bool rename(const String &srcPath, const String &dstPath, bool overwriteExisting = true) override;
+
+        /**
          * @brief 判断路径对应的文件是否存在.
          * @param [in] strPath : 完整路径名
          * @return 文件存在返回true，否则返回false.
@@ -310,6 +319,15 @@ namespace Tiny3D
          * @return 调用成功返回true，否则返回false.
          */
         bool remove(const String &strFileName) override;
+
+        /**
+         * @brief 重命名或移动文件（同目录原子替换）.
+         * @param [in] srcPath : 源文件路径
+         * @param [in] dstPath : 目标文件路径
+         * @param [in] overwriteExisting : 若目标文件已存在是否允许覆盖，默认 true
+         * @return 调用成功返回true，否则返回false.
+         */
+        bool rename(const String &srcPath, const String &dstPath, bool overwriteExisting = true) override;
 
         /**
          * @brief 判断路径对应的文件是否存在.

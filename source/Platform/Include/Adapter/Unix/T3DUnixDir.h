@@ -56,6 +56,8 @@ namespace Tiny3D
         virtual bool removeDir(const String &strDir) override;
         
         virtual bool remove(const String &strFileName) override;
+
+        virtual bool rename(const String &srcPath, const String &dstPath, bool overwriteExisting = true) override;
         
         virtual bool exists(const String &strPath) const override;
 

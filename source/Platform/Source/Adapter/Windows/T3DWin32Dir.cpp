@@ -270,6 +270,22 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool Win32Dir::rename(const String &srcPath, const String &dstPath, bool overwriteExisting/* = true */)
+    {
+        if (srcPath.empty() || dstPath.empty())
+            return false;
+
+        if (!overwriteExisting && exists(dstPath))
+            return false;
+
+        WString wSrc = T3D_LOCALE.UTF8ToUnicode(srcPath);
+        WString wDst = T3D_LOCALE.UTF8ToUnicode(dstPath);
+        DWORD flags = overwriteExisting ? MOVEFILE_REPLACE_EXISTING : 0;
+        return (::MoveFileExW(wSrc.c_str(), wDst.c_str(), flags) != FALSE);
+    }
+
+    //--------------------------------------------------------------------------
+
     bool Win32Dir::exists(const String &strPath) const
     {
         return (::access(strPath.c_str(), 0) == 0);
@@ -693,6 +709,22 @@ namespace Tiny3D
 
         String name = T3D_LOCALE.UTF8ToANSI(strFileName);
         return (::remove(name.c_str()) == 0);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool Win32Dir::rename(const String &srcPath, const String &dstPath, bool overwriteExisting/* = true */)
+    {
+        if (srcPath.empty() || dstPath.empty())
+            return false;
+
+        if (!overwriteExisting && exists(dstPath))
+            return false;
+
+        WString wSrc = T3D_LOCALE.UTF8ToUnicode(srcPath);
+        WString wDst = T3D_LOCALE.UTF8ToUnicode(dstPath);
+        DWORD flags = overwriteExisting ? MOVEFILE_REPLACE_EXISTING : 0;
+        return (::MoveFileExW(wSrc.c_str(), wDst.c_str(), flags) != FALSE);
     }
 
     //--------------------------------------------------------------------------

@@ -483,6 +483,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool Dir::rename(const String &srcPath, const String &dstPath, bool overwriteExisting/* = true */)
+    {
+        if (nullptr == sDir)
+            sDir = T3D_PLATFORM_FACTORY.createPlatformDir();
+
+        if (sDir != nullptr)
+        {
+            return sDir->rename(srcPath, dstPath, overwriteExisting);
+        }
+
+        return false;
+    }
+
+    //--------------------------------------------------------------------------
+
     bool Dir::copyDir(const String &srcPath, const String &dstPath, bool overwriteExisting)
     {
         std::filesystem::copy_options opts = std::filesystem::copy_options::skip_existing | std::filesystem::copy_options::recursive;

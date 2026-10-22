@@ -180,6 +180,15 @@ namespace Tiny3D
         static bool copyDir(const String &srcPath, const String &dstPath, bool overwriteExisting);
 
         /**
+         * @brief 重命名或移动文件（同目录原子替换）
+         * @param [in] srcPath : 源文件路径
+         * @param [in] dstPath : 目标文件路径
+         * @param [in] overwriteExisting : 若目标文件已存在是否允许覆盖，默认 true
+         * @return 成功返回 true，失败返回 false
+         */
+        static bool rename(const String &srcPath, const String &dstPath, bool overwriteExisting = true);
+
+        /**
          * @brief 获取应用程序缓存数据存储路径，不同平台指定对应的路径，以对上层透明处理.
          * @return 返回应用程序缓存数据存储路径.
          */
