@@ -741,7 +741,14 @@ namespace Tiny3D
     {
         EDITOR_LOG_DEBUG("Application did enter background")
         T3D_AGENT.appDidEnterBackground();
-        PROJECT_MGR.applicationDidEnterBackground();
+        if (mProjectMgr != nullptr)
+        {
+            mProjectMgr->applicationDidEnterBackground();
+        }
+        if (mAppEventProxy != nullptr)
+        {
+            mAppEventProxy->sendEvent(kEvtAppEnterBackground, nullptr);
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -750,7 +757,14 @@ namespace Tiny3D
     {
         EDITOR_LOG_DEBUG("Application will enter foreground")
         T3D_AGENT.appWillEnterForeground();
-        PROJECT_MGR.applicationWillEnterForeground();
+        if (mProjectMgr != nullptr)
+        {
+            mProjectMgr->applicationWillEnterForeground();
+        }
+        if (mAppEventProxy != nullptr)
+        {
+            mAppEventProxy->sendEvent(kEvtAppEnterForeground, nullptr);
+        }
     }
 
     //--------------------------------------------------------------------------
