@@ -1,0 +1,101 @@
+syntax = "proto3";
+
+package Tiny3D.Tools;
+
+enum ImgconvMessageID
+{
+    IMGCONV_MSGID_NONE      = 0;
+    IMGCONV_MSGID_HELLO     = 11001;
+    IMGCONV_MSGID_IMPORT    = 11002;
+    IMGCONV_MSGID_SHUTDOWN  = 11003;
+    IMGCONV_MSGID_PROGRESS  = 11004;
+    IMGCONV_MSGID_LOG       = 11005;
+    IMGCONV_MSGID_RESULT    = 11006;
+    IMGCONV_MSGID_DONE      = 11007;
+}
+
+// imgconv -> 调用方：连接建立后主动发送握手
+message MsgHello
+{
+    string token   = 1;     // 原样回传命令行 --ipc-token 的值
+    string version = 2;     // 工具版本
+    uint64 pid     = 3;     // imgconv 进程 ID
+}
+
+// 调用方 -> imgconv：发起一次导入请求（对应 TCP 头 seq）
+message ReqImport
+{
+    // 与命令行参数同构的参数表（不含程序名 argv[0]，例如 ["-i", "foo.png", "-t", "ui", "-a"]）
+    repeated string args = 1;
+}
+
+// 调用方 -> imgconv：通知退出
+message ReqShutdown
+{
+}
+
+// imgconv -> 调用方：单张处理进度（对应 ReqImport 的 seq）
+message MsgProgress
+{
+    uint32 index = 1;       // 1-based 当前序号
+    uint32 total = 2;       // 本批总数
+    string stage = 3;       // decode / convert / mipmap / export
+    string path  = 4;       // 当前输入路径
+}
+
+// imgconv -> 调用方：日志或警告（对应 ReqImport 的 seq）
+message MsgLog
+{
+    string level   = 1;     // info / warn / error
+    string message = 2;
+}
+
+// imgconv -> 调用方：单张导入结果（对应 ReqImport 的 seq）
+message MsgResult
+{
+    string status        = 1;   // ok / skipped / failed
+    string input         = 2;
+    string output        = 3;
+    string meta          = 4;
+    string uuid          = 5;
+    uint32 width         = 6;
+    uint32 height        = 7;
+    uint32 mip_levels    = 8;
+    bool   premultiplied = 9;
+    string error         = 10;  // 仅 status == "failed" 时非空
+}
+
+// imgconv -> 调用方：本批 ReqImport 全部完成（对应 ReqImport 的 seq）
+message MsgDone
+{
+    int32  result    = 1;   // TResult：T3D_OK 或错误码
+    uint32 total     = 2;
+    uint32 succeeded = 3;
+    uint32 skipped   = 4;
+    uint32 failed    = 5;
+}
+
+// 调用方 -> imgconv 包体
+message ImgconvRequestBody
+{
+    int32 message_id = 1;
+    oneof data
+    {
+        ReqImport   import_req = 2;
+        ReqShutdown shutdown   = 3;
+    }
+}
+
+// imgconv -> 调用方 包体
+message ImgconvResponseBody
+{
+    int32 message_id = 1;
+    oneof data
+    {
+        MsgHello    hello    = 2;
+        MsgProgress progress = 3;
+        MsgLog      log      = 4;
+        MsgResult   result   = 5;
+        MsgDone     done     = 6;
+    }
+}
