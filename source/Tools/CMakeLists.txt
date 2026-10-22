@@ -42,6 +42,8 @@ if (TINY3D_OS_DESKTOP)
 	endif ()
 	unset(_tiny3d_build_rpp)
 	if (NOT TINY3D_BUILD_RTTR_TOOL)
+		add_subdirectory(Common/ImgconvIPC)
+		add_subdirectory(ImageConverter)
 		add_subdirectory(MeshConverter)
 		#add_subdirectory(MetaGenerator)
 		# spirv-cross 源码在仓库外层，需要显式给出 binary 目录

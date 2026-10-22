@@ -265,7 +265,7 @@ namespace Tiny3D
 
         TResult createMaterial(FbxSurfaceMaterial *lFbxMaterial, MaterialPtr &material);
 
-        TResult createTexture(const FbxProperty &lFbxProperty, TexturePtr &texture);
+        TResult createTexture(const FbxProperty &lFbxProperty, UUID &outTextureUUID);
 
         TResult createSubMesh(const String &name, SubMeshData *subMeshData, Material *material, SubMeshPtr &submesh);
 
@@ -370,6 +370,18 @@ namespace Tiny3D
 
         /// 已有 meta 里 uuid 的处理策略（来自命令行 -u）
         ConverterOptions::UUIDPolicy mUUIDPolicy {ConverterOptions::UUIDPolicy::kReuse};
+
+        /// 是否生成配对 meta 文件（来自命令行 -a）
+        bool mIsGeneratingMeta {false};
+
+        /// 是否禁用外部贴图 mipmap 生成（来自命令行 --tex-no-mips）
+        bool mTexNoMips {false};
+
+        /// 是否以文本(JSON)格式导出（来自命令行 -t）
+        bool mIsTxt {false};
+
+        /// 常驻复用的 imgconv IPC 客户端
+        class ImgconvClient *mImgconvClient {nullptr};
 
         Assets mResources {};
 

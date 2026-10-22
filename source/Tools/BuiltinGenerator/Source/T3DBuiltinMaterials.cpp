@@ -100,7 +100,23 @@ namespace Tiny3D
             initMaterialData(material);
             
             TexturePtr texture = T3D_TEXTURE_MGR.getResource(texName);
-            material->setTexture("_MainTex", texture->getUUID());
+            UUID texUUID = UUID::INVALID;
+            if (texture != nullptr)
+            {
+                texUUID = texture->getUUID();
+            }
+            else
+            {
+                String texPath = rootPath + Dir::getNativeSeparator() + "textures";
+                texUUID = BuiltinGuidUtil::readExistingMetaUUID(texPath, texName + ".meta");
+            }
+            if (texUUID == UUID::INVALID)
+            {
+                BGEN_LOG_ERROR("Missing texture (%s) for material (%s) !", texName.c_str(), title.c_str());
+                ret = T3D_ERR_RES_LOAD_FAILED;
+                break;
+            }
+            material->setTexture("_MainTex", texUUID);
             
             // 这里 hook ，用反射去修改引用的 shader uuid
             rttr::instance inst(*material);
@@ -174,13 +190,23 @@ namespace Tiny3D
             material->setVector("tiny3d_ProjectionParams", Vector4(1.0f, 1.0f, 0.0f, 0.0f));
 
             TexturePtr texture = T3D_TEXTURE_MGR.getResource(texName);
-            if (texture == nullptr)
+            UUID texUUID = UUID::INVALID;
+            if (texture != nullptr)
+            {
+                texUUID = texture->getUUID();
+            }
+            else
+            {
+                String texPath = rootPath + Dir::getNativeSeparator() + "textures";
+                texUUID = BuiltinGuidUtil::readExistingMetaUUID(texPath, texName + ".meta");
+            }
+            if (texUUID == UUID::INVALID)
             {
                 BGEN_LOG_ERROR("Missing skybox cubemap texture (%s) !", texName.c_str());
                 ret = T3D_ERR_RES_LOAD_FAILED;
                 break;
             }
-            material->setTexture("_Tex", texture->getUUID());
+            material->setTexture("_Tex", texUUID);
 
             // 这里 hook ，用反射去修改引用的 shader uuid
             rttr::instance inst(*material);

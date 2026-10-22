@@ -55,6 +55,9 @@ namespace Tiny3D
         
         TResult generateTexture(const String &path, const String &outputPath);
 
+        /// 递归收集 searchPath 下（不含 cubemaps 子目录）所有待转换图片路径
+        void collectSourceImages(const String &searchPath, StringArray &outImagePaths);
+
         /// 把纹理和它的 meta 文件一起写到 outputPath 下
         TResult saveTextureWithMeta(const String &outputPath, const String &filename, Texture *texture);
     };

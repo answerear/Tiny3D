@@ -50,7 +50,11 @@ namespace Tiny3D
                 size_t len = strlen(arg);
                 if (len > 1 && arg[0] == '-')
                 {
-                    if (arg[1] == '?')
+                    if (_stricmp(arg, "--tex-no-mips") == 0)
+                    {
+                        opts.texNoMips = true;
+                    }
+                    else if (arg[1] == '?')
                     {
                         bShowHelp = true;
                     }
@@ -233,6 +237,7 @@ namespace Tiny3D
         printf("          \"reuse\" - Reuse the uuid recorded in the existing meta files. This is the default value.\n");
         printf("                    The resource without any existing meta file is still generated with a new uuid.\n");
         printf("          \"new\" - Remove the existing meta files and regenerate them with new uuid.\n");
+        printf("      --tex-no-mips : Disable mipmap generation when converting referenced textures via imgconv.\n");
         printf("      -v : Verbose : print additional progress information\n");
         printf("\n");
     }

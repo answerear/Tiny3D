@@ -22,6 +22,9 @@
 #include "T3DConverterGuidUtil.h"
 #include "T3DFBXDataStream.h"
 #include "T3DMeshConverterError.h"
+#include "T3DImgconvClient.h"
+#include "T3DImgconvArgs.h"
+#include "ImageConverter.pb.h"
 
 #define T3D_FBX_LOADER_RH   // FBX 文件加载后使用右手系，然后人工转换为左手系
 
@@ -195,6 +198,9 @@ namespace Tiny3D
             mOutputDir = opts.dstDir;
             mBoundType = opts.boundType;
             mUUIDPolicy = opts.uuidPolicy;
+            mIsGeneratingMeta = opts.isGeneratingMeta;
+            mTexNoMips = opts.texNoMips;
+            mIsTxt = opts.isTxt;
             
             // 初始化 FBX 对象
             ret = initFbxObjects();
@@ -294,6 +300,14 @@ namespace Tiny3D
         
         // 释放 FBX 对象
         destroyFbxObjects();
+
+        // 关闭复用的 imgconv 子进程
+        if (mImgconvClient != nullptr)
+        {
+            mImgconvClient->shutdown();
+            delete mImgconvClient;
+            mImgconvClient = nullptr;
+        }
         
         return ret;
     }
@@ -3050,15 +3064,15 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
             FBXSDK_FOR_EACH_TEXTURE(lTextureIndex)
             {
                 FbxProperty lFbxProperty = lFbxMaterial->FindProperty(FbxLayerElement::sTextureChannelNames[lTextureIndex]);
-                TexturePtr texture;
-                ret = createTexture(lFbxProperty, texture);
-                if (T3D_FAILED(ret) || texture == nullptr)
+                UUID textureUUID;
+                ret = createTexture(lFbxProperty, textureUUID);
+                if (T3D_FAILED(ret) || textureUUID == UUID::INVALID)
                 {
                     continue;
                 }
 
                 const String texName = "_MainTex";
-                material->setTexture(texName, texture->getUUID());
+                material->setTexture(texName, textureUUID);
             }
 
             // mResources.emplace(materialName, material);
@@ -3069,7 +3083,7 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
 
     //--------------------------------------------------------------------------
 
-    TResult FBXImporterNew::createTexture(const FbxProperty &lFbxProperty, TexturePtr &texture)
+    TResult FBXImporterNew::createTexture(const FbxProperty &lFbxProperty, UUID &outTextureUUID)
     {
         TResult ret = T3D_OK;
 
@@ -3077,12 +3091,11 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
         {
             if (lFbxProperty.IsValid() )
             {
-                const auto _createTexture = [this](FbxTexture *lFbxTexture, int lFbxBlendMode, TexturePtr &texture)
+                const auto _createTexture = [this](FbxTexture *lFbxTexture, int lFbxBlendMode, UUID &outUUID)
                 {
                     TResult ret = T3D_OK;
                     
                     FbxFileTexture *lFbxFileTexture = FbxCast<FbxFileTexture>(lFbxTexture);
-                    FbxProceduralTexture *lFbxProceduralTexture = FbxCast<FbxProceduralTexture>(lFbxTexture);
 
                     do
                     {
@@ -3097,103 +3110,91 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
                         String dir, title, ext;
                         Dir::parsePath(path, dir, title, ext);
                         
-                        if (!Dir::exists(path))
+                        String srcTexPath;
+                        if (Dir::exists(path))
                         {
-                            path = mInputDir;
+                            srcTexPath = path;
                         }
                         else
                         {
-                            path = dir;
+                            srcTexPath = mInputDir + Dir::getNativeSeparator() + title + "." + ext;
                         }
 
-                        ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kRead);
-                        T3D_ASSERT(archive != nullptr);
-                        String filename = title + "." + ext;
-                        ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, filename);
-                        T3D_ASSERT(image != nullptr);
+                        String dstTexPath = mOutputDir + Dir::getNativeSeparator() + title + "." + Resource::EXT_TEXTURE;
+
+                        ImgconvArgs args;
+                        args.input(srcTexPath)
+                            .output(dstTexPath)
+                            .type(TextureImportType::kDefault);
+
+                        if (mIsGeneratingMeta)
+                        {
+                            args.meta(true);
+                        }
+
+                        if (mUUIDPolicy == ConverterOptions::UUIDPolicy::kNew)
+                        {
+                            args.newUuid();
+                        }
+
+                        if (mTexNoMips)
+                        {
+                            args.mips(false);
+                        }
+
+                        if (mIsTxt)
+                        {
+                            args.textMode(true);
+                        }
+
                         if (mIsOpenGLMetric)
                         {
                             // OpenGL 制式，纹理要翻转
-                            image->flip();
+                            args.flipY(true);
                         }
-                        const UUID textureUUID = lookupReusableUUID(title, Resource::EXT_TEXTURE);
-                        texture = T3D_TEXTURE_MGR.createTexture2D(title, image, 1, 1, 0, textureUUID);
-                        T3D_ASSERT(texture != nullptr);
 
-                        SamplerDesc samplerDesc;
-                        if (lFbxTexture->GetWrapModeU() == FbxTexture::eRepeat)
+                        if (lFbxTexture->GetWrapModeU() == FbxTexture::eClamp ||
+                            lFbxTexture->GetWrapModeV() == FbxTexture::eClamp)
                         {
-                            samplerDesc.AddressU = TextureAddressMode::kWrap;
+                            args.wrap(TextureAddressMode::kClamp);
                         }
-                        else if (lFbxTexture->GetWrapModeU() == FbxTexture::eClamp)
+                        else if (lFbxTexture->GetWrapModeU() == FbxTexture::eRepeat ||
+                                 lFbxTexture->GetWrapModeV() == FbxTexture::eRepeat)
                         {
-                            samplerDesc.AddressU = TextureAddressMode::kClamp;
+                            args.wrap(TextureAddressMode::kWrap);
                         }
-                        
-                        if (lFbxTexture->GetWrapModeV() == FbxTexture::eRepeat)
+
+                        if (mImgconvClient == nullptr)
                         {
-                            samplerDesc.AddressV = TextureAddressMode::kWrap;
+                            mImgconvClient = new ImgconvClient();
                         }
-                        else if (lFbxTexture->GetWrapModeV() == FbxTexture::eClamp)
+
+                        ImgconvBatchReport report;
+                        ret = mImgconvClient->importSync(args, report);
+                        if (T3D_FAILED(ret))
                         {
-                            samplerDesc.AddressV = TextureAddressMode::kClamp;
+                            MCONV_LOG_ERROR("Failed to convert texture via imgconv: %s", srcTexPath.c_str());
+                            break;
                         }
-                        
-                        texture->setSamplerDesc(samplerDesc);
+
+                        bool foundResult = false;
+                        for (const auto &res : report.results)
+                        {
+                            if (res.status() != "failed" && !res.uuid().empty())
+                            {
+                                outUUID.fromString(res.uuid());
+                                foundResult = true;
+                                break;
+                            }
+                        }
+
+                        if (!foundResult || outUUID == UUID::INVALID)
+                        {
+                            MCONV_LOG_ERROR("imgconv failed to produce valid UUID for texture: %s", srcTexPath.c_str());
+                            ret = T3D_ERR_FAIL;
+                            break;
+                        }
                     } while (false);
-                    
-                    
-                    // MCONV_LOG_INFO("            Name: \"%s\"", (const char *)lFbxTexture->GetName());
-                    // if (lFbxFileTexture)
-                    // {
-                    //     MCONV_LOG_INFO("            Type: File Texture");
-                    //     MCONV_LOG_INFO("            File Name: \"%s\"", (const char *)lFbxFileTexture->GetFileName());
-                    // }
-                    // else if (lFbxProceduralTexture)
-                    // {
-                    //     MCONV_LOG_INFO("            Type: Procedural Texture");
-                    // }
-                    // MCONV_LOG_INFO("            Scale U: %f", lFbxTexture->GetScaleU());
-                    // MCONV_LOG_INFO("            Scale V: %f", lFbxTexture->GetScaleV());
-                    // MCONV_LOG_INFO("            Translation U: %f", lFbxTexture->GetTranslationU());
-                    // MCONV_LOG_INFO("            Translation V: %f", lFbxTexture->GetTranslationV());
-                    // MCONV_LOG_INFO("            Swap UV: %d", lFbxTexture->GetSwapUV());
-                    // MCONV_LOG_INFO("            Rotation U: %f", lFbxTexture->GetRotationU());
-                    // MCONV_LOG_INFO("            Rotation V: %f", lFbxTexture->GetRotationV());
-                    // MCONV_LOG_INFO("            Rotation W: %f", lFbxTexture->GetRotationW());
-                    // const char* lAlphaSources[] = { "None", "RGB Intensity", "Black" };
-                    // MCONV_LOG_INFO("            Alpha Source: %s", lAlphaSources[lFbxTexture->GetAlphaSource()]);
-                    // MCONV_LOG_INFO("            Cropping Left: %d", lFbxTexture->GetCroppingLeft());
-                    // MCONV_LOG_INFO("            Cropping Top: %d", lFbxTexture->GetCroppingTop());
-                    // MCONV_LOG_INFO("            Cropping Right: %d", lFbxTexture->GetCroppingRight());
-                    // MCONV_LOG_INFO("            Cropping Bottom: %d", lFbxTexture->GetCroppingBottom());
-                    // const char* lMappingTypes[] = { "Null", "Planar", "Spherical", "Cylindrical", 
-                    //     "Box", "Face", "UV", "Environment" };
-                    // MCONV_LOG_INFO("            Mapping Type: %s", lMappingTypes[lFbxTexture->GetMappingType()]);
-                    // if (lFbxTexture->GetMappingType() == FbxTexture::ePlanar)
-                    // {
-                    //     const char* lPlanarMappingNormals[] = { "X", "Y", "Z" };
-                    //     MCONV_LOG_INFO("            Planar Mapping Normal: %s", lPlanarMappingNormals[lFbxTexture->GetPlanarMappingNormal()]);
-                    // }
-                    // const char* lBlendModes[]   = { "Translucent", "Additive", "Modulate", "Modulate2", "Over", "Normal", "Dissolve", "Darken", "ColorBurn", "LinearBurn",
-                    //                                 "DarkerColor", "Lighten", "Screen", "ColorDodge", "LinearDodge", "LighterColor", "SoftLight", "HardLight", "VividLight",
-                    //                                 "LinearLight", "PinLight", "HardMix", "Difference", "Exclusion", "Substract", "Divide", "Hue", "Saturation", "Color",
-                    //                                 "Luminosity", "Overlay"};   
-                    //
-                    // if (lFbxBlendMode >= 0)
-                    // {
-                    //     MCONV_LOG_INFO("            Blend Mode: %s", lBlendModes[lFbxBlendMode]);
-                    // }
-                    // MCONV_LOG_INFO("            Alpha: %f", lFbxTexture->GetDefaultAlpha());
-                    // if (lFbxFileTexture)
-                    // {
-                    //     const char* lMaterialUses[] = { "Model Material", "Default Material" };
-                    //     MCONV_LOG_INFO("            Material Use: %s", lMaterialUses[lFbxFileTexture->GetMaterialUse()]);
-                    // }
-                    // const char* pTextureUses[] = { "Standard", "Shadow Map", "Light Map", 
-                    //     "Spherical Reflexion Map", "Sphere Reflexion Map", "Bump Normal Map" };
-                    // MCONV_LOG_INFO("            Texture Use: %s", pTextureUses[lFbxTexture->GetTextureUse()]);
-                    // MCONV_LOG_INFO("");
 
                     return ret;
                 };
@@ -3211,21 +3212,14 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
                             FbxTexture* lFbxTexture = lFbxLayeredTexture->GetSrcObject<FbxTexture>(k);
                             if (lFbxTexture)
                             {
-                                //NOTE the blend mode is ALWAYS on the LayeredTexture and NOT the one on the texture.
-                                //Why is that?  because one texture can be shared on different layered textures and might
-                                //have different blend modes.
                                 FbxLayeredTexture::EBlendMode lBlendMode;
                                 lFbxLayeredTexture->GetTextureBlendMode(k, lBlendMode);
-                                FbxFileTexture *lFbxFileTexture = FbxCast<FbxFileTexture>(lFbxTexture);
                                 MCONV_LOG_INFO("Layered Textures [%d] - textures[%d] : %s", j, k, (const char *)lFbxProperty.GetName());
-                                ret = _createTexture(lFbxTexture, lBlendMode, texture);
+                                ret = _createTexture(lFbxTexture, lBlendMode, outTextureUUID);
                                 if (T3D_FAILED(ret))
                                 {
                                     break;
                                 }
-
-                                String name = texture->getName() + "." + Resource::EXT_TEXTURE;
-                                mResources.emplace(name, texture);
                             }
                         }
                     }
@@ -3235,17 +3229,12 @@ void FBXImporterNew::readVertex(FbxGeometryBase *lFbxGeometry, int32_t ctrlPoint
                         FbxTexture* lFbxTexture = lFbxProperty.GetSrcObject<FbxTexture>(j);
                         if (lFbxTexture)
                         {
-                            //display connected Material header only at the first time
-                            FbxFileTexture *lFbxFileTexture = FbxCast<FbxFileTexture>(lFbxTexture);
                             MCONV_LOG_INFO("Textures[%d] : %s", j, (const char *)lFbxProperty.GetName());
-                            ret = _createTexture(lFbxTexture, -1, texture);
+                            ret = _createTexture(lFbxTexture, -1, outTextureUUID);
                             if (T3D_FAILED(ret))
                             {
                                 break;
                             }
-
-                            String name = texture->getName() + "." + Resource::EXT_TEXTURE;
-                            mResources.emplace(name, texture);
                         }
                     }
 

@@ -35,8 +35,11 @@ include_directories(
     "${TINY3D_CORE_INC_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../Common/ImgconvIPC/Include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../Common/ImgconvIPC/proto"
     "${SDL2_INCLUDE_DIR}"
     "${RTTR_INCLUDE_DIR}"
+    "${PROTOBUF_INCLUDE_DIR}"
     )
 
 # Setup project header files
@@ -57,6 +60,7 @@ if (TINY3D_OS_WINDOWS)
 
     target_link_libraries(
         ${LIB_NAME}
+        ImgconvIPC
         T3DPlatform
         T3DSystem
 		T3DLog
@@ -65,8 +69,7 @@ if (TINY3D_OS_WINDOWS)
 		T3DFramework
 		T3DCoreEditor
         rttr_core
-        #${PROTOBUF_LITE_LIBRARY_D}
-        #${PROTOBUF_LIBRARY}
+        ${PROTOBUF_LIBRARY}
         )
 
     #set_target_properties(${BIN_NAME} PROPERTIES OUTPUT_NAME scc)
@@ -93,6 +96,7 @@ elseif (TINY3D_OS_MACOSX)
     # Setup all link libraries frameworks for Mac OS X
     target_link_libraries(
         ${LIB_NAME}
+        ImgconvIPC
         T3DPlatform
         T3DSystem
         T3DLog
@@ -101,7 +105,7 @@ elseif (TINY3D_OS_MACOSX)
         T3DFramework
         T3DCoreEditor
         rttr_core
-        #${PROTOBUF_LIBRARY}
+        ${PROTOBUF_LIBRARY}
         )
 
     # Setup all properties for this Mac OS X project.
@@ -148,6 +152,7 @@ elseif (TINY3D_OS_LINUX)
 
     target_link_libraries(
         ${LIB_NAME}
+        ImgconvIPC
         T3DPlatform
         T3DSystem
         T3DLog
@@ -155,6 +160,7 @@ elseif (TINY3D_OS_LINUX)
         T3DMath
         T3DCoreEditor
         rttr_core
+        ${PROTOBUF_LIBRARY}
         )
 
     # Setup install files and path for Windows.

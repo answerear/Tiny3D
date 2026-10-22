@@ -39,8 +39,11 @@ include_directories(
     "${TINY3D_CORE_INC_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/Include"
     "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../Common/ImgconvIPC/Include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../Common/ImgconvIPC/proto"
     "${SDL2_INCLUDE_DIR}"
     "${RTTR_INCLUDE_DIR}"
+    "${PROTOBUF_INCLUDE_DIR}"
 	"${FBXSDK_INCLUDE_DIR}"
     )
 
@@ -63,6 +66,7 @@ if (TINY3D_OS_WINDOWS)
 
 	target_link_libraries(
 		${LIB_NAME}
+		ImgconvIPC
 		T3DPlatform
 		T3DSystem
 		T3DLog
@@ -71,6 +75,7 @@ if (TINY3D_OS_WINDOWS)
 		T3DFramework
 		T3DCoreEditor
         rttr_core
+		${PROTOBUF_LIBRARY}
 		${FBXSDK_LIBRARY}
 		)
 
@@ -104,6 +109,7 @@ elseif (TINY3D_OS_MACOSX)
     # Setup all link libraries frameworks for Mac OS X
     target_link_libraries(
         ${LIB_NAME}
+        LINK_PRIVATE ImgconvIPC
         LINK_PRIVATE T3DPlatform
         LINK_PRIVATE T3DSystem
         LINK_PRIVATE T3DLog
@@ -112,6 +118,7 @@ elseif (TINY3D_OS_MACOSX)
         LINK_PRIVATE T3DFramework
         LINK_PRIVATE T3DCoreEditor
         LINK_PRIVATE rttr_core
+        LINK_PRIVATE ${PROTOBUF_LIBRARY}
         LINK_PRIVATE ${FBXSDK_LIBRARY}
         LINK_PRIVATE ${Iconv_LIBRARIES}
         LINK_PRIVATE ${ZLIB_LIBRARIES}
@@ -166,6 +173,7 @@ elseif (TINY3D_OS_LINUX)
 
     target_link_libraries(
         ${LIB_NAME}
+        ImgconvIPC
         T3DPlatform
         T3DSystem
         T3DLog
@@ -173,6 +181,7 @@ elseif (TINY3D_OS_LINUX)
         T3DMath
         T3DCoreEditor
         rttr_core
+        ${PROTOBUF_LIBRARY}
         ${Iconv_LIBRARIES}
         ${ZLIB_LIBRARIES}
         ${LIBXML2_LIBRARY}

@@ -70,6 +70,8 @@ namespace Tiny3D
         bool    hasVertexShared {false};
         /// 是否生成对应 meta 文件
         bool    isGeneratingMeta {false};
+        /// 是否禁用外部贴图 mipmap 生成 (--tex-no-mips)
+        bool    texNoMips {false};
         /// 是否输出详细信息
         bool    verbose {true};
     };

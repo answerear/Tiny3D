@@ -25,6 +25,8 @@
 
 #include "T3DBuiltinTextures.h"
 #include "T3DBuiltinGuidUtil.h"
+#include "T3DImgconvArgs.h"
+#include "T3DImgconvClient.h"
 
 #include <algorithm>
 #include <cmath>
@@ -478,10 +480,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult BuiltinTextures::generateTexture(const String &searchPath, const String &outputPath)
+    void BuiltinTextures::collectSourceImages(const String &searchPath, StringArray &outImagePaths)
     {
-        TResult ret;
-
         String searchFile = searchPath + Dir::getNativeSeparator() + "*.*";
         Dir dir;
         bool working = dir.findFile(searchFile);
@@ -502,62 +502,18 @@ namespace Tiny3D
 
                 if (dirName != CUBEMAP_DIR)
                 {
-                    generateTexture(subPath, outputPath);
+                    collectSourceImages(subPath, outImagePaths);
                 }
             }
             else
             {
-                // file
                 const String filePath = dir.getFilePath();
                 String path, title, ext;
                 Dir::parsePath(filePath, path, title, ext);
 
                 if (ext != "ttex" && ext != "meta")
                 {
-                    BGEN_LOG_INFO("Begin generating texture (%s) ...", filePath.c_str());
-
-                    ArchivePtr archive = T3D_ARCHIVE_MGR.loadArchive(path, ARCHIVE_TYPE_FS, Archive::AccessMode::kRead);
-                    T3D_ASSERT(archive != nullptr);
-                    String name = title + "." + ext;
-                    ImagePtr image = T3D_IMAGE_MGR.loadImage(archive, name);
-                    T3D_ASSERT(image != nullptr);
-                    name = title + "." + Resource::EXT_TEXTURE;
-
-                    // 复用已有资源的 guid，避免重生成导致引用失效：创建时即传入旧 guid
-                    UUID existingUUID = BuiltinGuidUtil::readExistingMetaUUID(outputPath, name + ".meta");
-                    TexturePtr texture = T3D_TEXTURE_MGR.createTexture2D(name, image, 1, 1, 0, existingUUID);
-                    T3D_ASSERT(texture != nullptr);
-
-                    archive = T3D_ARCHIVE_MGR.loadArchive(outputPath, ARCHIVE_TYPE_FS, Archive::AccessMode::kTruncate);
-                    T3D_ASSERT(archive != nullptr);
-                    SamplerDesc samplerDesc;
-                    texture->setSamplerDesc(samplerDesc);
-
-                    // Generate texture file
-                    ret = T3D_TEXTURE_MGR.saveTexture(archive, name, texture);
-                    if (T3D_FAILED(ret))
-                    {
-                        T3D_LOG_ERROR("Failed to generate texture (%s) !", outputPath.c_str());
-                    }
-                    else
-                    {
-                        BGEN_LOG_INFO("Completed generating texture (%s) !", filePath.c_str());
-                    }
-
-                    // Generate texture meta file
-                    MetaTexturePtr meta = MetaTexture::create(texture->getUUID());
-                    name = name + ".meta";
-                    ret = archive->write(name,
-                        [](DataStream &stream, const String &filename, void *userData)
-                        {
-                            MetaTexture *meta = static_cast<MetaTexture *>(userData);
-                            return T3D_SERIALIZER_MGR.serialize(stream, meta);
-                        },
-                        meta.get());
-                    if (T3D_FAILED(ret))
-                    {
-                        BGEN_LOG_ERROR("Failed to generate texture meta (%s) ! ERROR [%d]", outputPath.c_str(), ret);
-                    }
+                    outImagePaths.push_back(filePath);
                 }
             }
 
@@ -565,6 +521,58 @@ namespace Tiny3D
         }
 
         dir.close();
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult BuiltinTextures::generateTexture(const String &searchPath, const String &outputPath)
+    {
+        StringArray imagePaths;
+        collectSourceImages(searchPath, imagePaths);
+
+        if (imagePaths.empty())
+        {
+            return T3D_OK;
+        }
+
+        for (const auto &filePath : imagePaths)
+        {
+            BGEN_LOG_INFO("Begin generating texture (%s) via imgconv ...", filePath.c_str());
+        }
+
+        ImgconvArgs args;
+        args.inputs(imagePaths)
+            .outputDir(outputPath)
+            .type(TextureImportType::kDefault)
+            .meta(true)
+            .newUuid(false)
+            .textMode(T3D_SERIALIZER_MGR.getFileMode() == SerializerManager::FileMode::kText);
+
+        ImgconvClient client;
+        ImgconvBatchReport report;
+        TResult ret = client.importSync(args, report);
+        client.shutdown();
+
+        for (const auto &res : report.results)
+        {
+            if (res.status() == "failed")
+            {
+                BGEN_LOG_ERROR("Failed to generate texture (%s) -> (%s) : %s",
+                    res.input().c_str(), res.output().c_str(), res.error().c_str());
+            }
+            else
+            {
+                BGEN_LOG_INFO("Completed generating texture (%s) -> (%s) [status=%s, uuid=%s, mips=%u]",
+                    res.input().c_str(), res.output().c_str(),
+                    res.status().c_str(), res.uuid().c_str(), res.mip_levels());
+            }
+        }
+
+        if (T3D_FAILED(ret))
+        {
+            BGEN_LOG_ERROR("imgconv batch import failed for (%s) ! ERROR [0x%08X]", outputPath.c_str(), ret);
+            return ret;
+        }
 
         return T3D_OK;
     }
