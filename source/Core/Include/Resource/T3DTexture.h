@@ -111,6 +111,20 @@ namespace Tiny3D
          * \warning 阻塞等待 GPU，只用于验证 / 截帧，不要放进游戏热路径
          */
         TResult unmap(ReadbackHandle handle, Buffer &dst);
+
+        /**
+         * \brief 是否为预乘 alpha 纹理
+         * \return 预乘 alpha 返回 true，直通 alpha 返回 false
+         */
+        TPROPERTY(RTTRFuncName="PremultipliedAlpha", RTTRFuncType="getter")
+        bool isPremultipliedAlpha() const { return mPremultipliedAlpha; }
+
+        /**
+         * \brief 设置是否为预乘 alpha 纹理
+         * \param [in] value : 是否预乘 alpha
+         */
+        TPROPERTY(RTTRFuncName="PremultipliedAlpha", RTTRFuncType="setter")
+        void setPremultipliedAlpha(bool value) { mPremultipliedAlpha = value; }
         
     private:
         /// RTTR 默认构造入口
@@ -132,6 +146,8 @@ namespace Tiny3D
     protected:
         /// 纹理采样器状态
         SamplerStatePtr     mSamplerState {nullptr};
+        /// 是否为预乘 alpha 纹理
+        bool                mPremultipliedAlpha {false};
         /**
          * \brief CPU 访问许可（CPUAccessMode 组合），创建时指定
          * \remarks kCPURead 只表示「允许对这块 GPU 数据做读回」，读回走引擎内部的

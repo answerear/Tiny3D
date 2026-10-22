@@ -54,6 +54,7 @@ namespace Tiny3D
     {
         Resource::cloneProperties(src);
         const Texture *texture = static_cast<const Texture*>(src);
+        mPremultipliedAlpha = texture->mPremultipliedAlpha;
         mCPUAccessMode = texture->mCPUAccessMode;
     }
     
