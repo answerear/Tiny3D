@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * MIT License
  *
  * Copyright (c) 2024 Answer Wong
@@ -546,9 +546,10 @@ Texture2DPtr SkyboxApp::buildCubeTexture()
     T3D_ASSERT(archive != nullptr);
     T3D_ASSET_MGR.mount(archive, 1);
 
-    ImagePtr image = T3D_ASSET_MGR.loadImage("assets/samples/textures/blocks.png");
-    T3D_ASSERT(image != nullptr);
-    Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D("textureCube", image);
+    loaded = T3D_ASSET_MGR.loadTexture("assets/samples/textures/blocks.ttex");
+    T3D_ASSERT(loaded != nullptr);
+    Texture2DPtr texture = smart_pointer_cast<Texture2D>(loaded);
+    T3D_ASSERT(texture != nullptr);
     SamplerDesc samplerDesc;
     texture->setSamplerDesc(samplerDesc);
     return texture;
