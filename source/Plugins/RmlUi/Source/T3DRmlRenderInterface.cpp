@@ -51,8 +51,28 @@ namespace Tiny3D
 {
     namespace
     {
-        const char *kColorShader = "assets/samples/ui/RmlUI-Color.tshader";
-        const char *kTextureShader = "assets/samples/ui/RmlUI-Texture.tshader";
+        const char *kBuiltinColorShader = "RmlUI-Color.tshader";
+        const char *kBuiltinTextureShader = "RmlUI-Texture.tshader";
+        const char *kSampleColorShader = "assets/samples/ui/RmlUI-Color.tshader";
+        const char *kSampleTextureShader = "assets/samples/ui/RmlUI-Texture.tshader";
+
+        ShaderPtr loadUIShader(const char *builtinPath, const char *samplePath)
+        {
+            Archive *archive = T3D_ASSET_MGR.getArchive();
+            if (archive == nullptr)
+            {
+                return nullptr;
+            }
+            if (archive->exists(builtinPath))
+            {
+                return T3D_ASSET_MGR.loadShader(builtinPath);
+            }
+            if (archive->exists(samplePath))
+            {
+                return T3D_ASSET_MGR.loadShader(samplePath);
+            }
+            return nullptr;
+        }
 
         struct RmlCompiledMesh
         {
@@ -453,11 +473,12 @@ namespace Tiny3D
 
         if (mColorMaterial == nullptr || mTextureMaterial == nullptr)
         {
-            ShaderPtr colorShader = T3D_ASSET_MGR.loadShader(kColorShader);
-            ShaderPtr textureShader = T3D_ASSET_MGR.loadShader(kTextureShader);
+            ShaderPtr colorShader = loadUIShader(kBuiltinColorShader, kSampleColorShader);
+            ShaderPtr textureShader = loadUIShader(kBuiltinTextureShader, kSampleTextureShader);
             if (colorShader == nullptr || textureShader == nullptr)
             {
-                T3D_LOG_ERROR(LOG_TAG_RMLUI, "RmlUi shaders are not ready (%s, %s).", kColorShader, kTextureShader);
+                T3D_LOG_ERROR(LOG_TAG_RMLUI, "RmlUi shaders are not ready (%s, %s).",
+                    kBuiltinColorShader, kBuiltinTextureShader);
                 return false;
             }
 

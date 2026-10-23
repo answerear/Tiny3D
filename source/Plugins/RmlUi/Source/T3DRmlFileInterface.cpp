@@ -201,7 +201,7 @@ namespace Tiny3D
     {
         out.clear();
         Archive *archive = T3D_ASSET_MGR.getArchive();
-        if (archive == nullptr)
+        if (archive == nullptr || !archive->exists(path))
         {
             return false;
         }

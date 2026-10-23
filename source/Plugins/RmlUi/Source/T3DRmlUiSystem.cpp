@@ -42,8 +42,10 @@
 #include "Render/T3DRenderWindow.h"
 #include "Render/T3DViewport.h"
 #include "Render/T3DPixelBuffer.h"
+#include "Kernel/T3DArchive.h"
 #include "Kernel/T3DAgent.h"
 #include "RHI/T3DRHIRenderer.h"
+#include "Resource/T3DAssetManager.h"
 
 #include <RmlUi/Core/Context.h>
 #include <RmlUi/Core/Core.h>
@@ -60,7 +62,8 @@ namespace Tiny3D
 {
     namespace
     {
-        const char *kFontPath = "assets/samples/ui/NotoSansSC-Regular.otf";
+        const char *kBuiltinFontPath = "NotoSansSC-Regular.otf";
+        const char *kSampleFontPath = "assets/samples/ui/NotoSansSC-Regular.otf";
         const char *kFontFamily = "Noto Sans SC";
 
         bool targetHasStencil(RenderTarget *target)
@@ -207,13 +210,35 @@ namespace Tiny3D
             return;
         }
 
-        // 样例档案在 applicationDidFinishLaunching 才挂上，startup 时还读不到字体。
-        mFontLoaded = Rml::LoadFontFace(kFontPath, kFontFamily, Rml::Style::FontStyle::Normal,
-            Rml::Style::FontWeight::Normal, true);
+        // 样例档案在 applicationDidFinishLaunching 才挂上，编辑器档案在打开工程时才挂上，
+        // startup 时还读不到字体。先检查档案是否存在，避免每帧触发底层 Open 失败日志。
+        Archive *archive = T3D_ASSET_MGR.getArchive();
+        if (archive == nullptr)
+        {
+            return;
+        }
+
+        const char *fontPath = nullptr;
+        if (archive->exists(kBuiltinFontPath))
+        {
+            fontPath = kBuiltinFontPath;
+        }
+        else if (archive->exists(kSampleFontPath))
+        {
+            fontPath = kSampleFontPath;
+        }
+
+        if (fontPath != nullptr)
+        {
+            mFontLoaded = Rml::LoadFontFace(fontPath, kFontFamily, Rml::Style::FontStyle::Normal,
+                Rml::Style::FontWeight::Normal, true);
+        }
+
         if (!mFontLoaded && !mFontWarned)
         {
             mFontWarned = true;
-            T3D_LOG_WARNING(LOG_TAG_RMLUI, "LoadFontFace failed: %s", kFontPath);
+            T3D_LOG_WARNING(LOG_TAG_RMLUI, "LoadFontFace failed: %s",
+                fontPath != nullptr ? fontPath : kBuiltinFontPath);
         }
     }
 
@@ -537,6 +562,23 @@ namespace Tiny3D
     {
         if (!mInitialised)
         {
+            return;
+        }
+
+        if (mCanvases.empty())
+        {
+            if (mInput != nullptr)
+            {
+                mInput->clear();
+            }
+            if (mRender != nullptr)
+            {
+                mRender->resetFrameDraws();
+            }
+            mUpdateMs = 0;
+            mRenderMs = 0;
+            mPerfReady = false;
+            mPerfOriginMs = 0;
             return;
         }
 
