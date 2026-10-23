@@ -82,6 +82,7 @@ namespace Tiny3D
         if (isPlaying())
         {
             T3D_AGENT.exitPlayMode();
+            ImTheme::setTintActive(false);
         }
 
         // 后台构建还在跑就没必要再落地了，工程都要关了。detachProject() 会等线程收工
@@ -611,6 +612,7 @@ namespace Tiny3D
         }
 
         T3D_AGENT.enterPlayMode();
+        ImTheme::setTintActive(true);
 
         // 必须先置 Playing 再整树 Awake：编辑态加载/挂载时已按 isPlaying 推迟
         awakeRuntimeBehaviours();
@@ -641,6 +643,7 @@ namespace Tiny3D
         }
 
         T3D_AGENT.exitPlayMode();
+        ImTheme::setTintActive(false);
 
         // 还原到点 Play 之前的状态。脚本在 Play 期间怎么改场景都无所谓，
         // 这一步整个丢弃重来。

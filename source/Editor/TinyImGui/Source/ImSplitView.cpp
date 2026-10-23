@@ -127,8 +127,6 @@ namespace Tiny3D
 
     void ImSplitView::doLayout(const ImVec2 &size)
     {
-        ImGui::PushStyleColor(ImGuiCol_Separator, ImGui::GetStyleColorVec4(ImGuiCol_ChildBg));
-
         const Children &children = getChildren();
         T3D_ASSERT(children.size() == 2);
 
@@ -188,8 +186,6 @@ namespace Tiny3D
                 }
             }
         }
-        
-        ImGui::PopStyleColor();
     }
 
     //--------------------------------------------------------------------------

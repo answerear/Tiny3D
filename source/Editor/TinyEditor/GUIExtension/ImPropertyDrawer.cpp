@@ -251,15 +251,6 @@ namespace Tiny3D
             ImGui::SetCursorPosX(ImMax(columnX, labelEndX + spacing));
         }
 
-        /// Vector / 欧拉角分量前缀色（近似 Unity 的 X/Y/Z 色）
-        const ImVec4 kAxisColors[4] =
-        {
-            ImVec4(0.91f, 0.31f, 0.31f, 1.0f),
-            ImVec4(0.47f, 0.80f, 0.27f, 1.0f),
-            ImVec4(0.35f, 0.55f, 0.95f, 1.0f),
-            ImVec4(0.75f, 0.75f, 0.75f, 1.0f),
-        };
-
         const char * const kAxisNames[4] = { "X", "Y", "Z", "W" };
 
         /**
@@ -270,6 +261,7 @@ namespace Tiny3D
         bool dragFloatComponents(const String &id, float *components, int count,
             float speed, const char *format, bool *anyActive = nullptr)
         {
+            const ImVec4 * const axisColors = ImTheme::getPalette().axisColors;
             const float avail = ImGui::GetContentRegionAvail().x;
             const float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
             const float prefixGap = ImGui::GetStyle().ItemInnerSpacing.x;
@@ -294,7 +286,7 @@ namespace Tiny3D
                 }
 
                 ImGui::AlignTextToFramePadding();
-                ImGui::TextColored(kAxisColors[i], "%s", kAxisNames[i]);
+                ImGui::TextColored(axisColors[i], "%s", kAxisNames[i]);
                 ImGui::SameLine(0.0f, prefixGap);
 
                 ImGui::PushID(i);

@@ -37,11 +37,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    /// prefab 实例节点的文本颜色，与 inspector 上的 prefab 标识保持一致
-    static const ImVec4 kPrefabTextColor(0.35f, 0.55f, 1.0f, 1.0f);
-
-    //--------------------------------------------------------------------------
-
     TResult UIHierarchyToolBar::onCreate()
     {
         TResult ret = T3D_OK;
@@ -107,7 +102,13 @@ namespace Tiny3D
 
     void UIHierarchyToolBar::update(const ImVec2 &size)
     {
-        if (mVisible && onGUIBegin(size))
+        if (!mVisible)
+        {
+            return;
+        }
+
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImTheme::getPalette().toolbarBg);
+        if (onGUIBegin(size))
         {
             onGUI();
 
@@ -115,13 +116,20 @@ namespace Tiny3D
             
             onGUIEnd();
         }
+        ImGui::PopStyleColor();
     }
 
     //--------------------------------------------------------------------------
 
     void UIHierarchyToolBar::update()
     {
-        if (mVisible && onGUIBegin())
+        if (!mVisible)
+        {
+            return;
+        }
+
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImTheme::getPalette().toolbarBg);
+        if (onGUIBegin())
         {
             onGUI();
 
@@ -129,6 +137,7 @@ namespace Tiny3D
             
             onGUIEnd();
         }
+        ImGui::PopStyleColor();
     }
 
     //--------------------------------------------------------------------------
@@ -1721,7 +1730,7 @@ namespace Tiny3D
         // prefab 实例根及其下面的所有节点都算实例的一部分，都要标识出来
         if (go != nullptr && PrefabUtility::getPrefabRoot(go) != nullptr)
         {
-            uiNode->setTextColor(kPrefabTextColor);
+            uiNode->setTextColor(ImTheme::getPalette().prefabText);
         }
         else
         {

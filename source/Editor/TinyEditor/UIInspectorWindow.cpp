@@ -215,8 +215,10 @@ namespace Tiny3D
         PrefabInstancePtr prefabLink = gameObject->getComponent<PrefabInstance>();
         if (prefabLink != nullptr)
         {
+            const ImVec4 &prefabColor = ImTheme::getPalette().prefabText;
+
             ImGui::Spacing();
-            ImGui::TextColored(ImVec4(0.35f, 0.55f, 1.0f, 1.0f), "Prefab Instance");
+            ImGui::TextColored(prefabColor, "Prefab Instance");
             ImGui::TextDisabled("Source : %s",
                 prefabLink->getSourcePrefabUUID().toString().c_str());
 
@@ -237,7 +239,7 @@ namespace Tiny3D
                 {
                     for (const auto &mod : mods)
                     {
-                        ImGui::TextColored(ImVec4(0.35f, 0.55f, 1.0f, 1.0f), "%s",
+                        ImGui::TextColored(prefabColor, "%s",
                             mod.getPropertyPath().c_str());
                     }
                     ImGui::EndCombo();
@@ -316,12 +318,21 @@ namespace Tiny3D
         // 不同组件可能存在同名属性，用组件地址隔离 ImGui 控件 ID
         ImGui::PushID(component);
 
+        ImGui::Separator();
+
         drawComponentSwitch(component);
 
         ImGui::SameLine();
 
+        const ImSemanticPalette &palette = ImTheme::getPalette();
+        ImGui::PushStyleColor(ImGuiCol_Header, palette.sectionHeaderBg);
+        ImGui::PushStyleColor(ImGuiCol_HeaderHovered, palette.sectionHeaderHovered);
+        ImGui::PushStyleColor(ImGuiCol_HeaderActive, palette.sectionHeaderActive);
+
         const bool expanded = ImGui::CollapsingHeader(title.c_str(),
             ImGuiTreeNodeFlags_DefaultOpen);
+
+        ImGui::PopStyleColor(3);
 
         // 右键菜单必须紧跟在标题控件之后，才会挂到该标题上
         if (ImGui::BeginPopupContextItem(kComponentContextMenu))

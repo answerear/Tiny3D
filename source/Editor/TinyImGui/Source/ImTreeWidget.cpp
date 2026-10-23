@@ -24,6 +24,7 @@
 
 
 #include "ImTreeWidget.h"
+#include "ImTheme.h"
 #include "ImTextureManager.h"
 #include "ImErrors.h"
 #include "ImEventDefine.h"
@@ -362,7 +363,8 @@ namespace Tiny3D
             flags |= ImGuiTreeNodeFlags_Leaf;
         }
 
-        if (mTreeWidget != nullptr && mTreeWidget->getSelectedNode() == strID)
+        bool selected = (mTreeWidget != nullptr && mTreeWidget->getSelectedNode() == strID);
+        if (selected)
         {
             flags |= ImGuiTreeNodeFlags_Selected;
         }
@@ -380,7 +382,21 @@ namespace Tiny3D
             mIsUpdateExpanding = false;
         }
 
+        // 区分窗口聚焦/失焦时的选中节点高亮背景色（聚焦为 Unity 蓝，失焦为中性灰）
+        const bool unfocusedSelected = selected
+            && !ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+        if (unfocusedSelected)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Header, ImTheme::getPalette().selectionUnfocused);
+        }
+
         bool ret = ImGui::TreeNodeEx(strID.c_str(), flags);
+
+        if (unfocusedSelected)
+        {
+            ImGui::PopStyleColor();
+        }
+
         mIsExpanded = ret;
         if (!ret)
         {

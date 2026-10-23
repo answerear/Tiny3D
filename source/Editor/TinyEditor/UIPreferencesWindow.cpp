@@ -83,6 +83,11 @@ namespace Tiny3D
     void UIPreferencesWindow::onGUI()
     {
         ImGui::BeginChild("##PrefsCategories", ImVec2(180.0f, 0.0f), true);
+        const char *general = ESTR(TXT_GENERAL, "General");
+        if (ImGui::Selectable(general, mCategory == Category::kGeneral))
+        {
+            mCategory = Category::kGeneral;
+        }
         const char *externalTools = ESTR(TXT_EXTERNAL_TOOLS, "External Tools");
         if (ImGui::Selectable(externalTools, mCategory == Category::kExternalTools))
         {
@@ -93,11 +98,107 @@ namespace Tiny3D
         ImGui::SameLine();
 
         ImGui::BeginChild("##PrefsContent", ImVec2(0.0f, 0.0f), true);
-        if (mCategory == Category::kExternalTools)
+        if (mCategory == Category::kGeneral)
+        {
+            drawGeneral();
+        }
+        else if (mCategory == Category::kExternalTools)
         {
             drawExternalTools();
         }
         ImGui::EndChild();
+    }
+
+    //--------------------------------------------------------------------------
+
+    void UIPreferencesWindow::drawGeneral()
+    {
+        EditorApp *app = static_cast<EditorApp *>(Application::getInstancePtr());
+        if (app == nullptr)
+        {
+            return;
+        }
+
+        EditorSettings &settings = app->getEditorSettings();
+
+        struct ThemeOption
+        {
+            const char *label;
+            ImThemeId   id;
+        };
+
+        static const ThemeOption kThemeOptions[] =
+        {
+            { "Unity Dark (Professional)", ImThemeId::kUnityDark },
+            { "ImGui Classic Dark",        ImThemeId::kImGuiDark },
+        };
+
+        int currentIndex = 0;
+        for (int i = 0; i < IM_ARRAYSIZE(kThemeOptions); ++i)
+        {
+            if (static_cast<int32_t>(kThemeOptions[i].id) == settings.themeId)
+            {
+                currentIndex = i;
+                break;
+            }
+        }
+
+        ImGui::TextUnformatted("Editor Theme");
+        ImGui::Spacing();
+
+        ImGui::PushItemWidth(-120.0f);
+        if (ImGui::BeginCombo("##EditorTheme", kThemeOptions[currentIndex].label))
+        {
+            for (int i = 0; i < IM_ARRAYSIZE(kThemeOptions); ++i)
+            {
+                const bool selected = (i == currentIndex);
+                if (ImGui::Selectable(kThemeOptions[i].label, selected) && !selected)
+                {
+                    settings.themeId = static_cast<int32_t>(kThemeOptions[i].id);
+                    ImTheme::applyTheme(kThemeOptions[i].id);
+                    app->saveEditorSettings();
+                }
+                if (selected)
+                {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::PopItemWidth();
+
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+
+        ImGui::TextUnformatted("Playmode Tint");
+        ImGui::Spacing();
+
+        float tint[4] =
+        {
+            settings.playModeTint.red(),
+            settings.playModeTint.green(),
+            settings.playModeTint.blue(),
+            settings.playModeTint.alpha()
+        };
+
+        ImGui::PushItemWidth(-120.0f);
+        if (ImGui::ColorEdit4("##PlaymodeTint", tint))
+        {
+            settings.playModeTint = ColorRGBA(tint[0], tint[1], tint[2], tint[3]);
+            ImTheme::setGlobalTint(ImVec4(tint[0], tint[1], tint[2], tint[3]));
+            app->saveEditorSettings();
+        }
+        ImGui::PopItemWidth();
+
+        ImGui::SameLine();
+        if (ImGui::Button("Reset"))
+        {
+            const ImVec4 def = ImTheme::getDefaultGlobalTint();
+            settings.playModeTint = ColorRGBA(def.x, def.y, def.z, def.w);
+            ImTheme::setGlobalTint(def);
+            app->saveEditorSettings();
+        }
     }
 
     //--------------------------------------------------------------------------

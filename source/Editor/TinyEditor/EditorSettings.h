@@ -43,6 +43,14 @@ namespace Tiny3D
         /// 下拉框显示名，如 "Visual Studio 2022"
         TPROPERTY()
         String externalEditorName {};
+
+        /// 编辑器主题（0: Unity Dark, 2: ImGui Classic Dark）
+        TPROPERTY()
+        int32_t themeId {0};
+
+        /// Play 模式下的 UI 染色乘算因子
+        TPROPERTY()
+        ColorRGBA playModeTint {0.80f, 0.80f, 0.80f, 1.00f};
     };
 
     NS_END

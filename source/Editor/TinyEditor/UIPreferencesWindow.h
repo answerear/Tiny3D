@@ -44,7 +44,8 @@ namespace Tiny3D
     protected:
         enum class Category
         {
-            kExternalTools = 0
+            kGeneral = 0,
+            kExternalTools = 1
         };
 
         TResult onCreate() override;
@@ -55,12 +56,14 @@ namespace Tiny3D
 
         void refreshIDEList();
 
+        void drawGeneral();
+
         void drawExternalTools();
 
         void applyEditor(const String &name, const String &path);
 
     protected:
-        Category mCategory {Category::kExternalTools};
+        Category mCategory {Category::kGeneral};
         TArray<ExternalIDEInfo> mDetectedIDEs {};
         bool mNeedRefresh {true};
         bool mFocusOnShow {false};

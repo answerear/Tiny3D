@@ -141,7 +141,7 @@ namespace Tiny3D
                     
                 };
             buttons.emplace_back(btnCancel);
-            ImMessageBox::show(STR(TXT_HINT), STR(TXT_HINT_UNSAVE), ImDialog::ShowType::kEnqueueFront, std::move(buttons), ImVec4(1.0f, 0.788f, 0.055f, 1.0f));
+            ImMessageBox::show(STR(TXT_HINT), STR(TXT_HINT_UNSAVE), ImDialog::ShowType::kEnqueueFront, std::move(buttons), ImTheme::getPalette().logWarning);
         }
         else
         {
@@ -530,18 +530,15 @@ namespace Tiny3D
             //     ctx->SettingsLoaded = true;
             // }
             
-            // Setup Dear ImGui style
-            ImGui::StyleColorsDark();
-            //ImGui::StyleColorsLight();
+            // Setup Dear ImGui style (Unity Professional Dark Theme / configured theme)
+            ImTheme::setGlobalTint(ImVec4(
+                mEditorSettings.playModeTint.red(),
+                mEditorSettings.playModeTint.green(),
+                mEditorSettings.playModeTint.blue(),
+                mEditorSettings.playModeTint.alpha()));
+            ImTheme::applyTheme(static_cast<ImThemeId>(mEditorSettings.themeId));
 
-            // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
             ImGuiStyle& style = ImGui::GetStyle();
-            if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-            {
-                style.WindowRounding = 0.0f;
-                style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-            }
-
             style.WindowMenuButtonPosition = ImGuiDir_None;
 
 #if defined(USE_DX_IMGUI)

@@ -320,17 +320,8 @@ namespace Tiny3D
             //io.ConfigViewportsNoAutoMerge = true;
             //io.ConfigViewportsNoTaskBarIcon = true;
 
-            // Setup Dear ImGui style
-            ImGui::StyleColorsDark();
-            //ImGui::StyleColorsLight();
-
-            // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
-            ImGuiStyle& style = ImGui::GetStyle();
-            if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-            {
-                style.WindowRounding = 0.0f;
-                style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-            }
+            // Setup Dear ImGui style (Unity Professional Dark Theme)
+            ImTheme::applyTheme(ImThemeId::kUnityDark);
             
 #if defined (T3D_OS_WINDOWS)
             EditorInfoDX11 info;

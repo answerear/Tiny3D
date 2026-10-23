@@ -99,23 +99,26 @@ namespace Tiny3D
         ImVec2 inputSize = getSize(); // 输入框的宽度和高度
         ImVec2 iconSize = ImVec2(16, 16); // 图标大小
         float iconPadding = 4.0f; // 图标与输入框之间的间隔
-        float borderThickness = 2.0f; // 边框厚度
+        float borderThickness = 1.0f; // 1px 细边框（对齐 Unity Dark 搜索框）
+        float cornerRounding = 3.0f; // 微圆角
         float innerPadding = 4.0f; // 输入框内边距
 
         // 获取当前光标位置
         ImVec2 cursorPos = ImGui::GetCursorScreenPos();
         ImDrawList* drawList = ImGui::GetWindowDrawList();
 
-        // 外框颜色
-        ImU32 borderColor = ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_Border));
+        const ImSemanticPalette &palette = ImTheme::getPalette();
 
-        // 背景颜色
-        ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_FrameBg);
-        color.w = 1.0f;
-        ImU32 bgColor = ImGui::GetColorU32(color);
+        // 外框颜色与背景颜色
+        ImU32 borderColor = ImGui::GetColorU32(palette.searchBoxBorder);
+        ImU32 bgColor = ImGui::GetColorU32(palette.searchBoxBg);
 
         // 绘制输入框背景
-        drawList->AddRectFilled(cursorPos, ImVec2(cursorPos.x + inputSize.x, cursorPos.y + inputSize.y), bgColor);
+        drawList->AddRectFilled(
+            cursorPos,
+            ImVec2(cursorPos.x + inputSize.x, cursorPos.y + inputSize.y),
+            bgColor,
+            cornerRounding);
 
         // 绘制图标
         drawList->AddImage(mIconSearch, ImVec2(cursorPos.x + iconPadding, cursorPos.y + (inputSize.y - iconSize.y) * 0.5f), 
@@ -132,29 +135,34 @@ namespace Tiny3D
         // 设置输入框的宽度，留出边框和内边距
         ImGui::SetNextItemWidth(inputSize.x - (iconSize.x + iconPadding * 2 + innerPadding * 2)); // 设置输入框的宽度
 
-        // 设置输入框的高度，留出内边距
+        // 设置输入框的高度，留出内边距；内部 InputText 关闭自身边框与底色，由外层统一绘制
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(innerPadding, (inputSize.y - ImGui::GetFontSize()) * 0.5f));
-        // 真实输入框背景颜色
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, bgColor);
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
         // 真实输入框
         ImGuiInputFlags flags = mCallbackEdit ? ImGuiInputTextFlags_CallbackEdit : ImGuiInputTextFlags_EnterReturnsTrue;
         ImGui::InputText(getName().c_str(), mText, mMaxNumberOfChars+1, flags, inputTextCallback, this);
-        // 恢复颜色
+        // 恢复颜色与样式变量
         ImGui::PopStyleColor();
-        // 恢复内边距
-        ImGui::PopStyleVar();
+        ImGui::PopStyleVar(2);
         // 恢复字体
         ImGui::PopFont();
 
-        // 判断是否获得焦点、激活状态、mouse over 状态
-        bool isFocused = ImGui::IsItemActivated() || ImGui::IsItemHovered() || ImGui::IsItemFocused();
+        // 仅在获得键盘焦点或激活输入时切换亮蓝焦点边框（与 Unity 搜索框一致）
+        bool isFocused = ImGui::IsItemActivated() || ImGui::IsItemActive() || ImGui::IsItemFocused();
         if (isFocused)
         {
-            borderColor = ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_FrameBgActive));
+            borderColor = ImGui::GetColorU32(palette.searchBoxBorderFocused);
         }
 
-        // 绘制输入框的外框
-        drawList->AddRect(cursorPos, ImVec2(cursorPos.x + inputSize.x, cursorPos.y + inputSize.y), borderColor, 5.0f, ImDrawFlags_None, borderThickness);
+        // 绘制输入框的 1px 外框
+        drawList->AddRect(
+            cursorPos,
+            ImVec2(cursorPos.x + inputSize.x, cursorPos.y + inputSize.y),
+            borderColor,
+            cornerRounding,
+            ImDrawFlags_None,
+            borderThickness);
     }
 
     //--------------------------------------------------------------------------

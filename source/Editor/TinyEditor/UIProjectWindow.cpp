@@ -154,7 +154,13 @@ namespace Tiny3D
 
     void UIProjectToolBar::update()
     {
-        if (mVisible && onGUIBegin())
+        if (!mVisible)
+        {
+            return;
+        }
+
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImTheme::getPalette().toolbarBg);
+        if (onGUIBegin())
         {
             onGUI();
 
@@ -162,13 +168,20 @@ namespace Tiny3D
             
             onGUIEnd();
         }
+        ImGui::PopStyleColor();
     }
 
     //--------------------------------------------------------------------------
 
     void UIProjectToolBar::update(const ImVec2 &size)
     {
-        if (mVisible && onGUIBegin(size))
+        if (!mVisible)
+        {
+            return;
+        }
+
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImTheme::getPalette().toolbarBg);
+        if (onGUIBegin(size))
         {
             onGUI();
 
@@ -176,6 +189,7 @@ namespace Tiny3D
             
             onGUIEnd();
         }
+        ImGui::PopStyleColor();
     }
 
     //--------------------------------------------------------------------------
@@ -941,8 +955,7 @@ namespace Tiny3D
 
     bool UIAssetPathBar::onGUIBegin()
     {
-        ImGuiStyle &style = ImGui::GetStyle();
-        ImGui::PushStyleColor(ImGuiCol_ChildBg, style.Colors[ImGuiCol_MenuBarBg]);
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImTheme::getPalette().statusBarBg);
         // ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
         bool ret = ImChildView::onGUIBegin();
         if (!ret)
@@ -959,8 +972,7 @@ namespace Tiny3D
     {
         auto parentSize = ImGui::GetWindowSize();
         parentSize.y = size.y;
-        ImGuiStyle &style = ImGui::GetStyle();
-        ImGui::PushStyleColor(ImGuiCol_ChildBg, style.Colors[ImGuiCol_MenuBarBg]);
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImTheme::getPalette().statusBarBg);
         // ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
         // auto pos = ImGui::GetCursorScreenPos();
         // ImGui::SetNextWindowPos(pos);

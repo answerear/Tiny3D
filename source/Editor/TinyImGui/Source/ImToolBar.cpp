@@ -24,6 +24,7 @@
 
 
 #include "ImToolBar.h"
+#include "ImTheme.h"
 #include "ImButton.h"
 #include "ImErrors.h"
 #include "ImTextureManager.h"
@@ -198,7 +199,13 @@ namespace Tiny3D
 
     bool ImToolBar::onGUIBegin()
     {
-        return ImChildView::onGUIBegin();
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, ImTheme::getPalette().toolbarBg);
+        bool ret = ImChildView::onGUIBegin();
+        if (!ret)
+        {
+            ImGui::PopStyleColor();
+        }
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -213,6 +220,7 @@ namespace Tiny3D
     {
         // ImGui::End();
         ImChildView::onGUIEnd();
+        ImGui::PopStyleColor();
         ImGui::Separator();
     }
 

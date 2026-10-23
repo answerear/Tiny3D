@@ -26,6 +26,7 @@
 #pragma once
 
 #include <ImEventDefine.h>
+#include <ImTheme.h>
 #include <ImTextureManager.h>
 #include <ImWidget.h>
 #include <ImWindow.h>
