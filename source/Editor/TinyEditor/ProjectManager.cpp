@@ -123,6 +123,19 @@ namespace Tiny3D
                 break;
             }
 
+            // fonts
+            srcPath = builtinPath + Dir::getNativeSeparator() + "fonts";
+            if (Dir::exists(srcPath))
+            {
+                rval = Dir::copyDir(srcPath, dstPath, false);
+                if (!rval)
+                {
+                    EDITOR_LOG_ERROR("Copy builtin fonts from editor [%s] to temporary folder [%s] failed !", srcPath.c_str(), dstPath.c_str());
+                    ret = T3D_ERR_COPY_DIR;
+                    break;
+                }
+            }
+
             // Builtin 资源档案系统
             mBuiltinArchive = T3D_ARCHIVE_MGR.loadArchive(dstPath, ARCHIVE_TYPE_METAFS, Archive::AccessMode::kReadOnly);
             if (mBuiltinArchive == nullptr)

@@ -134,6 +134,9 @@ if (TINY3D_OS_WINDOWS)
         COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${CMAKE_CURRENT_SOURCE_DIR}/../../../assets/editor/templates"
             "$<TARGET_FILE_DIR:${BIN_NAME}>/Editor/templates"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../../assets/editor/builtin"
+            "$<TARGET_FILE_DIR:${BIN_NAME}>/Editor/builtin"
         )
         
     # Setup install files and path for Windows.
