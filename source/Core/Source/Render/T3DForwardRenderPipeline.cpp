@@ -175,7 +175,42 @@ namespace Tiny3D
 
     TResult ForwardRenderPipeline::removeRenderable(Renderable *renderable)
     {
-        // TODO:
+        if (renderable == nullptr)
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        for (auto itCam = mRenderQueue.begin(); itCam != mRenderQueue.end(); ++itCam)
+        {
+            RenderQueue &queueMap = itCam->second;
+            for (auto itQueue = queueMap.begin(); itQueue != queueMap.end(); )
+            {
+                RenderGroup &groupMap = itQueue->second;
+                for (auto itGroup = groupMap.begin(); itGroup != groupMap.end(); )
+                {
+                    Renderables &list = itGroup->second;
+                    list.remove(renderable);
+                    if (list.empty())
+                    {
+                        itGroup = groupMap.erase(itGroup);
+                    }
+                    else
+                    {
+                        ++itGroup;
+                    }
+                }
+
+                if (groupMap.empty())
+                {
+                    itQueue = queueMap.erase(itQueue);
+                }
+                else
+                {
+                    ++itQueue;
+                }
+            }
+        }
+
         return T3D_OK;
     }
 

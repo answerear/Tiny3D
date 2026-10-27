@@ -79,9 +79,9 @@ namespace Tiny3D
         TResult addRenderable(Camera *camera, Renderable *renderable) override;
 
         /**
-         * \brief 从渲染队列移除 Renderable（当前为 TODO 空实现）
-         * \param [in] renderable : 待移除对象
-         * \return 当前始终返回 T3D_OK
+         * \brief 从渲染队列 mRenderQueue 中移除指定 Renderable，并清理变空的材质/队列分组
+         * \param [in] renderable : 待移除对象；为 nullptr 时返回 T3D_ERR_INVALID_PARAM
+         * \return 调用成功返回 T3D_OK；renderable 为空返回 T3D_ERR_INVALID_PARAM
          */
         TResult removeRenderable(Renderable *renderable) override;
 
