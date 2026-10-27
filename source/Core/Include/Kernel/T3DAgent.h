@@ -147,8 +147,8 @@ namespace Tiny3D
 
         /**
          * \brief 将窗口按名称加入 mRenderWindows
-         * \param [in] window : 窗口对象（实现未判空）
-         * \return 成功返回 T3D_OK；无活动 RHI 返回 T3D_ERR_SYS_NOT_INIT
+         * \param [in] window : 窗口对象，不可为 nullptr
+         * \return 成功返回 T3D_OK；空指针返回 T3D_ERR_INVALID_POINTER；无活动 RHI 返回 T3D_ERR_SYS_NOT_INIT
          */
         TResult addRenderWindow(RenderWindowPtr window);
 
@@ -160,9 +160,9 @@ namespace Tiny3D
         TResult removeRenderWindow(const String &name);
 
         /**
-         * \brief 按名称查找渲染窗口
+         * \brief 按名称从 mRenderWindows 查找渲染窗口
          * \param [in] name : 窗口名称
-         * \return 当前实现查找逻辑已注释，恒返回 nullptr
+         * \return 找到则返回对应的 RenderWindowPtr；未找到或无活动 RHI 时返回 nullptr
          */
         RenderWindowPtr getRenderWindow(const String &name) const;
 
@@ -211,7 +211,6 @@ namespace Tiny3D
          * \brief 处理应用事件；当前仅响应默认窗口的 RESIZED
          * \param [in] event : 应用事件
          * \return 恒返回 true
-         * \note 处理 resize 时未检查 mDefaultWindow 是否为空
          */
         bool processEvents(const AppEvent &event);
 

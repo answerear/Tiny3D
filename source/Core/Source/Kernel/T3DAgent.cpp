@@ -617,6 +617,13 @@ namespace Tiny3D
 
         do 
         {
+            if (window == nullptr)
+            {
+                ret = T3D_ERR_INVALID_POINTER;
+                T3D_LOG_ERROR(LOG_TAG_ENGINE, "Invalid render window pointer !");
+                break;
+            }
+
             if (mActiveRHIRenderer == nullptr)
             {
                 ret = T3D_ERR_SYS_NOT_INIT;
@@ -657,18 +664,19 @@ namespace Tiny3D
 
     RenderWindowPtr Agent::getRenderWindow(const String &name) const
     {
-        RenderWindowPtr window = nullptr;
-        
         if (mActiveRHIRenderer == nullptr)
         {
             T3D_LOG_ERROR(LOG_TAG_ENGINE, "Do not set active renderer !");
-        }
-        else
-        {
-            // window = mActiveRHIRenderer->getContext()->getRenderTarget(name);
+            return nullptr;
         }
 
-        return window;
+        const auto itr = mRenderWindows.find(name);
+        if (itr != mRenderWindows.end())
+        {
+            return itr->second;
+        }
+
+        return nullptr;
     }
 
     //--------------------------------------------------------------------------
@@ -1020,7 +1028,10 @@ namespace Tiny3D
             {
             case APP_WINDOWEVENT_RESIZED:
                 {
-                    mDefaultWindow->resize(event.window.data1, event.window.data2);
+                    if (mDefaultWindow != nullptr)
+                    {
+                        mDefaultWindow->resize(event.window.data1, event.window.data2);
+                    }
                 }
                 break;
             }
