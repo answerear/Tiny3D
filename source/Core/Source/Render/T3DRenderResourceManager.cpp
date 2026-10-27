@@ -365,6 +365,14 @@ namespace  Tiny3D
     VertexBufferPtr RenderBufferManager::loadVertexBuffer(uint32_t vertexSize, uint32_t vertexCount,
         const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid)
     {
+        return loadVertexBuffer(vertexSize, vertexCount, buffer, memType, usage, accMode, kGPUNone, uuid);
+    }
+
+    //--------------------------------------------------------------------------
+
+    VertexBufferPtr RenderBufferManager::loadVertexBuffer(uint32_t vertexSize, uint32_t vertexCount,
+        const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, uint32_t gpuAccess, const UUID &uuid)
+    {
         UUID uid = uuid;
         if (uuid == UUID::INVALID)
         {
@@ -372,17 +380,25 @@ namespace  Tiny3D
         }
 
         return loadBuffer<VertexBuffer>(mVBufferCache, uid,
-            [](const Buffer &buffer, uint32_t vertexSize, uint32_t vertexCount, MemoryType memType, Usage usage, uint32_t accMode) -> RenderBufferPtr
+            [](const Buffer &buffer, uint32_t vertexSize, uint32_t vertexCount, MemoryType memType, Usage usage, uint32_t accMode, uint32_t gpuAccess) -> RenderBufferPtr
             {
-                return VertexBuffer::create(vertexSize, vertexCount, buffer, memType, usage, accMode);
+                return VertexBuffer::create(vertexSize, vertexCount, buffer, memType, usage, accMode, gpuAccess);
             },
-            buffer, vertexSize, vertexCount, memType, usage, accMode);
+            buffer, vertexSize, vertexCount, memType, usage, accMode, gpuAccess);
     }
 
     //--------------------------------------------------------------------------
 
     IndexBufferPtr RenderBufferManager::loadIndexBuffer(IndexType indexType, uint32_t indexCount,
         const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid)
+    {
+        return loadIndexBuffer(indexType, indexCount, buffer, memType, usage, accMode, kGPUNone, uuid);
+    }
+
+    //--------------------------------------------------------------------------
+
+    IndexBufferPtr RenderBufferManager::loadIndexBuffer(IndexType indexType, uint32_t indexCount,
+        const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, uint32_t gpuAccess, const UUID &uuid)
     {
         UUID uid = uuid;
         if (uuid == UUID::INVALID)
@@ -391,11 +407,11 @@ namespace  Tiny3D
         }
 
         return loadBuffer<IndexBuffer>(mIBufferCache, uid,
-            [](IndexType indexType, uint32_t indexCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
+            [](IndexType indexType, uint32_t indexCount, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, uint32_t gpuAccess)
             {
-                return IndexBuffer::create(indexType, indexCount, buffer, memType, usage, accMode);
+                return IndexBuffer::create(indexType, indexCount, buffer, memType, usage, accMode, gpuAccess);
             },
-            indexType, indexCount, buffer, memType, usage, accMode);
+            indexType, indexCount, buffer, memType, usage, accMode, gpuAccess);
     }
 
     //--------------------------------------------------------------------------

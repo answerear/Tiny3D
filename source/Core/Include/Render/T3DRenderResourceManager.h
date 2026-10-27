@@ -201,6 +201,21 @@ namespace Tiny3D
             const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid = UUID::INVALID);
 
         /**
+         * \brief 按 UUID 加载或复用带附加 GPU 访问权限的顶点缓冲
+         * \param [in] vertexSize : 单个顶点字节数
+         * \param [in] vertexCount : 顶点数量
+         * \param [in] buffer : 初始 CPU 数据
+         * \param [in] memType : 内存类型
+         * \param [in] usage : 缓冲用途
+         * \param [in] accMode : CPU 访问模式
+         * \param [in] gpuAccess : GPU 侧附加访问权限（GPUAccessFlags 组合）
+         * \param [in] uuid : 缓存键；为 UUID::INVALID 时自动生成
+         * \return 加载成功返回 VertexBuffer；postLoad 失败时返回 nullptr
+         */
+        VertexBufferPtr loadVertexBuffer(uint32_t vertexSize, uint32_t vertexCount,
+            const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, uint32_t gpuAccess, const UUID &uuid = UUID::INVALID);
+
+        /**
          * \brief 按 UUID 加载或复用索引缓冲
          * \param [in] indexType : 索引类型
          * \param [in] indexCount : 索引数量
@@ -213,6 +228,21 @@ namespace Tiny3D
          */
         IndexBufferPtr loadIndexBuffer(IndexType indexType, uint32_t indexCount,
             const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, const UUID &uuid = UUID::INVALID);
+
+        /**
+         * \brief 按 UUID 加载或复用带附加 GPU 访问权限的索引缓冲
+         * \param [in] indexType : 索引类型
+         * \param [in] indexCount : 索引数量
+         * \param [in] buffer : 初始 CPU 数据
+         * \param [in] memType : 内存类型
+         * \param [in] usage : 缓冲用途
+         * \param [in] accMode : CPU 访问模式
+         * \param [in] gpuAccess : GPU 侧附加访问权限（GPUAccessFlags 组合）
+         * \param [in] uuid : 缓存键；为 UUID::INVALID 时自动生成
+         * \return 加载成功返回 IndexBuffer；postLoad 失败时返回 nullptr
+         */
+        IndexBufferPtr loadIndexBuffer(IndexType indexType, uint32_t indexCount,
+            const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode, uint32_t gpuAccess, const UUID &uuid = UUID::INVALID);
 
         /**
          * \brief 按 UUID 加载或复用常量缓冲
