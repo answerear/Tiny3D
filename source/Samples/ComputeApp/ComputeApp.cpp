@@ -362,7 +362,7 @@ void ComputeApp::reportSelfTest()
     APP_LOG_DEBUG("---- %u passed, %u failed, %u skipped ----", passed, failed, skipped);
     if (failed == 0)
     {
-        APP_LOG_DEBUG("[ComputeApp] K1..K8 all passed");
+        APP_LOG_DEBUG("[ComputeApp] K1..K9 all passed");
     }
 }
 

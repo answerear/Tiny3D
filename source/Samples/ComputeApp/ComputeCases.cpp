@@ -789,6 +789,104 @@ namespace
         StructuredBufferPtr mArgs;
         ReadbackHandle      mHandle {};
     };
+
+
+    class CaseVertexBufferSRV : public ComputeCase
+    {
+    public:
+        static const uint32_t kElemCount = 256;
+
+        const char *getName() const override { return "K9 vertex buffer SRV"; }
+        uint32_t getRequiredCaps() const override
+        {
+            return kNeedCompute | kNeedUnorderedAccess | kNeedStructuredBuffer | kNeedReadback;
+        }
+        uint32_t getBackendMask() const override { return kBackendAll; }
+
+        TResult setup() override
+        {
+            mKernel = ComputeKernel::create("ComputeVertexBufferRead", vertexBufferReadSource(), 64);
+            if (mKernel == nullptr) return T3D_ERR_FAIL;
+
+            Buffer init = allocBytes(sizeof(uint32_t) * kElemCount);
+            uint32_t *v = reinterpret_cast<uint32_t *>(init.Data);
+            for (uint32_t i = 0; i < kElemCount; ++i)
+            {
+                v[i] = i * 3u + 7u;
+            }
+
+            mInputVB = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(
+                sizeof(uint32_t) * 4, kElemCount / 4, init,
+                MemoryType::kVRAM, Usage::kStatic, kCPUNone, kGPUShaderResource);
+            init.Data = nullptr;
+            init.DataSize = 0;
+
+            mOutput = loadSB(StructuredBufferKind::kStructured, sizeof(uint32_t), kElemCount,
+                kGPUUnorderedAccess | kGPUShaderResource, kCPURead);
+
+            return (mInputVB && mOutput) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+            TResult ret = ctx->setComputeShader(mKernel->getVariant());
+            if (T3D_FAILED(ret)) return ret;
+
+            ShaderResourceBuffers srvs;
+            srvs.push_back(mInputVB);
+            ret = ctx->setCSStructuredBuffers(0, srvs);
+            if (T3D_FAILED(ret)) return ret;
+
+            UnorderedAccessBuffers uavs;
+            uavs.push_back(mOutput);
+            ret = ctx->setCSUnorderedAccessBuffers(uavSlot(1, 0), uavs);
+            if (T3D_FAILED(ret)) return ret;
+
+            ret = mKernel->dispatchThreads(kElemCount);
+            if (T3D_FAILED(ret)) return ret;
+
+            ctx->uavBarrier(uavs);
+            ShaderResourceBuffers emptySrvs(1, nullptr);
+            ctx->setCSStructuredBuffers(0, emptySrvs);
+            ctx->setComputeShader(nullptr);
+            return mapWhole(mOutput.get(), mHandle);
+        }
+
+        TResult verify() override
+        {
+            Buffer data;
+            TResult ret = unmapCheckSize(mOutput.get(), mHandle, data, sizeof(uint32_t) * kElemCount);
+            if (T3D_FAILED(ret)) return ret;
+
+            const uint32_t *out = reinterpret_cast<const uint32_t *>(data.Data);
+            uint32_t mismatches = 0;
+            uint32_t first = 0, got = 0, expectFirst = 0;
+            for (uint32_t i = 0; i < kElemCount; ++i)
+            {
+                const uint32_t expect = (i * 3u + 7u) ^ 0x5A5A5A5Au;
+                if (out[i] != expect)
+                {
+                    if (mismatches == 0) { first = i; got = out[i]; expectFirst = expect; }
+                    ++mismatches;
+                }
+            }
+            data.release();
+            if (mismatches != 0)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : %u mismatches, first [%u] got 0x%08X expected 0x%08X",
+                    getName(), mismatches, first, got, expectFirst);
+                return T3D_ERR_FAIL;
+            }
+            return T3D_OK;
+        }
+
+    private:
+        ComputeKernelPtr    mKernel;
+        VertexBufferPtr     mInputVB;
+        StructuredBufferPtr mOutput;
+        ReadbackHandle      mHandle {};
+    };
 }
 
 
@@ -803,6 +901,7 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseReflect());
     cases.emplace_back(new CaseDispatchIndirect());
     cases.emplace_back(new CaseCopyCount());
+    cases.emplace_back(new CaseVertexBufferSRV());
 }
 
 uint32_t currentBackendBit()

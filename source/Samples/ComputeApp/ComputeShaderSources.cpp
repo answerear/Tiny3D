@@ -388,6 +388,42 @@ void main()
     return make(hlsl, gl, nullptr);
 }
 
+ComputeShaderSource vertexBufferReadSource()
+{
+    static const char *hlsl = R"(
+ByteAddressBuffer gInputVB : register(t0);
+RWStructuredBuffer<uint> gOutput : register(u0);
+[numthreads(64, 1, 1)]
+void main(uint3 id : SV_DispatchThreadID)
+{
+    uint v = gInputVB.Load(id.x * 4);
+    gOutput[id.x] = v ^ 0x5A5A5A5Au;
+}
+)";
+    static const char *gl = R"(
+#version 430
+layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+layout(std430, binding = 0) readonly buffer gInputVB { uint data[]; } gInputVBBuf;
+layout(std430, binding = 1) buffer gOutput { uint data[]; } gOutputBuf;
+void main()
+{
+    uint i = gl_GlobalInvocationID.x;
+    gOutputBuf.data[i] = gInputVBBuf.data[i] ^ 0x5A5A5A5Au;
+}
+)";
+    static const char *gles = R"(#version 310 es
+layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+layout(std430, binding = 0) readonly buffer gInputVB { uint data[]; } gInputVBBuf;
+layout(std430, binding = 1) buffer gOutput { uint data[]; } gOutputBuf;
+void main()
+{
+    uint i = gl_GlobalInvocationID.x;
+    gOutputBuf.data[i] = gInputVBBuf.data[i] ^ 0x5A5A5A5Au;
+}
+)";
+    return make(hlsl, gl, gles);
+}
+
 ComputeShaderSource particleUpdateSource()
 {
     static const char *hlsl = R"(

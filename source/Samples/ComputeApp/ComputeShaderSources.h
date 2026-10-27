@@ -38,6 +38,7 @@ ComputeShaderSource textureWriteSource();
 ComputeShaderSource reflectProbeSource();
 ComputeShaderSource makeArgsSource();
 ComputeShaderSource filterCountSource();
+ComputeShaderSource vertexBufferReadSource();
 ComputeShaderSource particleUpdateSource();
 ComputeShaderSource particleCullSource();
 ComputeShaderSource particleDrawVSSource();

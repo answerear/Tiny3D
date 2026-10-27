@@ -43,10 +43,11 @@ bool KeyboardCommandSource::poll(ComputeCommand &cmd)
         return false;
     }
 
-    static const ScanCode kDigitKeys[8] =
+    static const ScanCode kDigitKeys[9] =
     {
         APP_SCANCODE_1, APP_SCANCODE_2, APP_SCANCODE_3, APP_SCANCODE_4,
-        APP_SCANCODE_5, APP_SCANCODE_6, APP_SCANCODE_7, APP_SCANCODE_8
+        APP_SCANCODE_5, APP_SCANCODE_6, APP_SCANCODE_7, APP_SCANCODE_8,
+        APP_SCANCODE_9
     };
 
     if (T3D_INPUT.getKeyDown(APP_SCANCODE_R))
@@ -67,7 +68,7 @@ bool KeyboardCommandSource::poll(ComputeCommand &cmd)
     }
     else
     {
-        for (int32_t i = 0; i < 8; ++i)
+        for (int32_t i = 0; i < 9; ++i)
         {
             if (T3D_INPUT.getKeyDown(kDigitKeys[i]))
             {
@@ -89,5 +90,5 @@ bool KeyboardCommandSource::poll(ComputeCommand &cmd)
 
 const char *KeyboardCommandSource::usage() const
 {
-    return "[ComputeApp] keys: R retest, 1-8 single case, C CPU/GPU, V cull+indirect, P pause";
+    return "[ComputeApp] keys: R retest, 1-9 single case, C CPU/GPU, V cull+indirect, P pause";
 }
