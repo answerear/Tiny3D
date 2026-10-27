@@ -320,7 +320,9 @@ flowchart TD
    ```
 3. 检查 `source/Core/Source/Component/T3DSkinnedGeometry.cpp` 与 `Samples/SkeletalAnimationApp` 等调用点，将 `T3D_MESH_MGR.loadSkinnedMesh(T3D_ASSET_MGR.getArchive(), ...)` 简化为 `T3D_ASSET_MGR.loadSkinnedMesh(...)`。
 
-### 11.4 验收标准
+### 11.4 验收标准（已完成）
 
-- `T3DCore` 与 `T3DCoreEditor` 编译通过；
-- `SkeletalAnimationApp` 与 `ResourceApp` 通过 `T3D_ASSET_MGR.loadSkinnedMesh` / `loadSkeleton` / `loadAnimation` 正常加载并播放骨骼动画。
+- ✅ `T3DCore` 与 `T3DCoreEditor` 编译通过；
+- ✅ `MeshManager` 补齐 `loadSkinnedMesh(Archive *, const String &)` 与 `loadSkinnedMesh(Archive *, const UUID &)`；
+- ✅ `AssetManager` 补齐 `loadSkinnedMesh`、`loadSkeleton`、`loadAnimation`（文件名与 UUID 双重载）与 `loadDylib`；
+- ✅ `ResourceApp` 通过 `T3D_ASSET_MGR.loadSkinnedMesh` / `loadSkeleton` / `loadAnimation` 正常加载并播放骨骼动画。
