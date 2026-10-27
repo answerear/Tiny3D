@@ -179,6 +179,16 @@ namespace  Tiny3D
             std::vector<PendingFile> pendingFiles;
             collectSourceFiles(opts.SourcePath, path, opts.IsRebuild, pendingFiles);
 
+            // 增量模式下若没有任何带反射宏的源文件需要重新解析，不能继续调用 generateSource：
+            // 否则 mGenerator 中 mClassTemplates 为空，会导致 Templates.generated.cpp 被覆盖为空注册块！
+            if (!opts.IsRebuild && pendingFiles.empty())
+            {
+                RP_LOG_INFO("All files are up-to-date, nothing to do.");
+                writeEmptyGeneratedSources(path, opts.SourcePath);
+                RP_LOG_INFO("Completed reflection [%s] ! ERROR [%d]", opts.SourcePath.c_str(), ret);
+                break;
+            }
+
             // 解析 AST
             ret = generateAST(args, pendingFiles, opts.NumThreads);
             if (T3D_FAILED(ret))
@@ -1194,6 +1204,12 @@ namespace  Tiny3D
         if (generatedTitles.empty())
         {
             reason = "no generated source file found";
+            return false;
+        }
+
+        if (!Dir::exists(generatedPath + sep + "Templates.generated.cpp"))
+        {
+            reason = "missing Templates.generated.cpp";
             return false;
         }
 
