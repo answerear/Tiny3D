@@ -211,6 +211,56 @@ namespace Tiny3D
          */
         ScenePtr loadScene(const UUID &uuid);
 
+        /**
+         * \brief 按文件名加载蒙皮网格 SkinnedMesh
+         * \param [in] filename : 资源文件名
+         * \return 成功返回 SkinnedMesh 智能指针；加载失败或非蒙皮网格时返回 nullptr
+         */
+        SkinnedMeshPtr loadSkinnedMesh(const String &filename);
+
+        /**
+         * \brief 按 UUID 加载蒙皮网格 SkinnedMesh
+         * \param [in] uuid : 资源 UUID
+         * \return 成功返回 SkinnedMesh 智能指针；加载失败或非蒙皮网格时返回 nullptr
+         */
+        SkinnedMeshPtr loadSkinnedMesh(const UUID &uuid);
+
+        /**
+         * \brief 按文件名加载骨架 Skeleton
+         * \param [in] filename : 资源文件名
+         * \return 成功返回 Skeleton 智能指针；加载失败时返回 nullptr
+         */
+        SkeletonPtr loadSkeleton(const String &filename);
+
+        /**
+         * \brief 按 UUID 加载骨架 Skeleton
+         * \param [in] uuid : 资源 UUID
+         * \return 成功返回 Skeleton 智能指针；加载失败时返回 nullptr
+         */
+        SkeletonPtr loadSkeleton(const UUID &uuid);
+
+        /**
+         * \brief 按文件名加载骨骼动画 SkeletalAnimation
+         * \param [in] filename : 资源文件名
+         * \return 成功返回 SkeletalAnimation 智能指针；加载失败时返回 nullptr
+         */
+        SkeletalAnimationPtr loadAnimation(const String &filename);
+
+        /**
+         * \brief 按 UUID 加载骨骼动画 SkeletalAnimation
+         * \param [in] uuid : 资源 UUID
+         * \return 成功返回 SkeletalAnimation 智能指针；加载失败时返回 nullptr
+         */
+        SkeletalAnimationPtr loadAnimation(const UUID &uuid);
+
+        /**
+         * \brief 按名称与可选搜索路径加载动态库 Dylib
+         * \param [in] name : 动态库逻辑名称
+         * \param [in] searchPath : 可选的加载目录；为空时使用 Agent::getPluginsPath()
+         * \return 成功返回 Dylib 智能指针；加载失败时返回 nullptr
+         */
+        DylibPtr loadDylib(const String &name, const String &searchPath = "");
+
     protected:
         /// 默认构造
         AssetManager() = default;

@@ -81,6 +81,22 @@ namespace Tiny3D
         MeshPtr loadMesh(Archive *archive, const UUID &uuid);
 
         /**
+         * \brief 按文件名从档案加载 SkinnedMesh
+         * \param [in] archive : 来源档案
+         * \param [in] filename : 蒙皮网格文件名
+         * \return 成功且资源类型为 kSkinnedMesh 时返回 SkinnedMesh 智能指针；否则返回 nullptr
+         */
+        SkinnedMeshPtr loadSkinnedMesh(Archive *archive, const String &filename);
+
+        /**
+         * \brief 按 UUID 从档案加载 SkinnedMesh
+         * \param [in] archive : 来源档案
+         * \param [in] uuid : 资源 UUID
+         * \return 成功且资源类型为 kSkinnedMesh 时返回 SkinnedMesh 智能指针；否则返回 nullptr
+         */
+        SkinnedMeshPtr loadSkinnedMesh(Archive *archive, const UUID &uuid);
+
+        /**
          * \brief 将 Mesh 保存到指定文件名
          * \param [in] archive : 目标档案
          * \param [in] filename : 保存文件名

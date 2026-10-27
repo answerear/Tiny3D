@@ -32,6 +32,9 @@
 #include "Resource/T3DPrefabManager.h"
 #include "Resource/T3DSceneManager.h"
 #include "Resource/T3DImageManager.h"
+#include "Resource/T3DSkeletonManager.h"
+#include "Resource/T3DAnimationManager.h"
+#include "Resource/T3DDylibManager.h"
 #include "Resource/T3DScene.h"
 
 
@@ -252,6 +255,67 @@ namespace Tiny3D
         ensureArchive();
         Archive *archive = mArchive.get();
         return T3D_SCENE_MGR.loadScene(archive, uuid);
+    }
+
+    //--------------------------------------------------------------------------
+
+    SkinnedMeshPtr AssetManager::loadSkinnedMesh(const String &filename)
+    {
+        ensureArchive();
+        Archive *archive = mArchive.get();
+        return T3D_MESH_MGR.loadSkinnedMesh(archive, filename);
+    }
+
+    //--------------------------------------------------------------------------
+
+    SkinnedMeshPtr AssetManager::loadSkinnedMesh(const UUID &uuid)
+    {
+        ensureArchive();
+        Archive *archive = mArchive.get();
+        return T3D_MESH_MGR.loadSkinnedMesh(archive, uuid);
+    }
+
+    //--------------------------------------------------------------------------
+
+    SkeletonPtr AssetManager::loadSkeleton(const String &filename)
+    {
+        ensureArchive();
+        Archive *archive = mArchive.get();
+        return T3D_SKELETON_MGR.loadSkeleton(archive, filename);
+    }
+
+    //--------------------------------------------------------------------------
+
+    SkeletonPtr AssetManager::loadSkeleton(const UUID &uuid)
+    {
+        ensureArchive();
+        Archive *archive = mArchive.get();
+        return T3D_SKELETON_MGR.loadSkeleton(archive, uuid);
+    }
+
+    //--------------------------------------------------------------------------
+
+    SkeletalAnimationPtr AssetManager::loadAnimation(const String &filename)
+    {
+        ensureArchive();
+        Archive *archive = mArchive.get();
+        return T3D_ANIMATION_MGR.loadSkeletalAnimation(archive, filename);
+    }
+
+    //--------------------------------------------------------------------------
+
+    SkeletalAnimationPtr AssetManager::loadAnimation(const UUID &uuid)
+    {
+        ensureArchive();
+        Archive *archive = mArchive.get();
+        return T3D_ANIMATION_MGR.loadSkeletalAnimation(archive, uuid);
+    }
+
+    //--------------------------------------------------------------------------
+
+    DylibPtr AssetManager::loadDylib(const String &name, const String &searchPath)
+    {
+        return T3D_DYLIB_MGR.loadDylib(name, searchPath);
     }
 
     //--------------------------------------------------------------------------

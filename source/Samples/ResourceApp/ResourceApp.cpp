@@ -193,8 +193,13 @@ void ResourceApp::loadMesh(Transform3D *parent)
     // 这里应用层无需再感知 archive，直接按名字一步加载即可。
     // shader 在运行时按当前 renderer 的着色语言从 ShaderVariantSet 选对应变体。
     const String meshName = "tortoise.tmesh";
-    mMesh = T3D_ASSET_MGR.loadMesh(meshName);
+    mMesh = T3D_ASSET_MGR.loadSkinnedMesh(meshName);
     T3D_ASSERT(mMesh != nullptr);
+
+    SkeletonPtr skeleton = T3D_ASSET_MGR.loadSkeleton("tortoise.tskel");
+    T3D_ASSERT(skeleton != nullptr && skeleton == mMesh->getSkeleton());
+    SkeletalAnimationPtr animation = T3D_ASSET_MGR.loadAnimation("tortoise.tani");
+    T3D_ASSERT(animation != nullptr && animation == mMesh->getSkeletalAnimation());
     
     Geometry *geometry = nullptr;
     GameObjectPtr goBody = GameObject::createWithMesh(mMesh->getMeshNodeName(), mMesh, geometry, node);

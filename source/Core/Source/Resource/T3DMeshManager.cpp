@@ -73,6 +73,30 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    SkinnedMeshPtr MeshManager::loadSkinnedMesh(Archive *archive, const String &filename)
+    {
+        ResourcePtr res = load(archive, filename);
+        if (res != nullptr && res->getType() == Resource::Type::kSkinnedMesh)
+        {
+            return smart_pointer_cast<SkinnedMesh>(res);
+        }
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    SkinnedMeshPtr MeshManager::loadSkinnedMesh(Archive *archive, const UUID &uuid)
+    {
+        ResourcePtr res = load(archive, uuid);
+        if (res != nullptr && res->getType() == Resource::Type::kSkinnedMesh)
+        {
+            return smart_pointer_cast<SkinnedMesh>(res);
+        }
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult MeshManager::saveMesh(Archive *archive, const String &filename, Mesh *mesh)
     {
         return save(archive, filename, mesh);
