@@ -119,7 +119,8 @@ namespace Tiny3D
          * 用原生 I/O 读取 bundle 根目录下指定相对名字的文件，并执行回调。
          * @note 该方法是 manifest 之外的内部引导路径（也用于读取 manifest 本身）。
          */
-        TResult readRaw(const String &relativeName, const ArchiveReadCallback &callback, void *userData);
+        TResult readRaw(const String &relativeName, const ArchiveReadCallback &callback, void *userData,
+            const String &logicalName = "");
 
     protected:
         /// 清单（相对路径 -> UUID）

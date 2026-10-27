@@ -64,6 +64,14 @@ namespace Tiny3D
         bool getUUIDByPath(const String &path, UUID &uuid) const;
 
         /**
+         * @brief 根据 UUID 反查对应的归一化相对路径。
+         * @param [in] uuid : 资源 UUID
+         * @param [out] path : 命中时返回对应相对路径
+         * @return 命中返回 true，未命中返回 false
+         */
+        bool getPathByUUID(const UUID &uuid, String &path) const;
+
+        /**
          * @brief 判断相对路径是否存在于清单中。
          */
         bool exists(const String &path) const;
@@ -113,6 +121,8 @@ namespace Tiny3D
         TUnorderedMap<String, bool> mAmbiguousNames {};
         /// 逻辑 UUID(字符串) -> 目标 UUID 的重定向表（如 ShaderLab -> 编译后 .tshader）
         TUnorderedMap<String, UUID> mAliasByUUID {};
+        /// UUID(字符串) -> 归一化相对路径（用于按 UUID 读取时反查逻辑文件名）
+        TUnorderedMap<String, String> mUUIDToPath {};
     };
 }
 

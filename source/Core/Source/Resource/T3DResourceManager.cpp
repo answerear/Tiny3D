@@ -183,7 +183,7 @@ namespace Tiny3D
             key = resource->getName();
         }
 
-        const auto itr = mResourcesLookup.find(resource->getFilename());
+        const auto itr = mResourcesLookup.find(key);
         if (itr == mResourcesLookup.end())
         {
             // 沒緩存，則緩存
@@ -273,6 +273,16 @@ namespace Tiny3D
             res = loadResource(archive, filename);
             if (res == nullptr)
             {
+                break;
+            }
+
+            // 若该 UUID 已通过按 UUID 加载或其它路径别名存在于缓存中，直接复用已有实例并补齐文件名映射
+            Resource *cached = lookup(res->getUUID());
+            if (cached != nullptr)
+            {
+                mResourcesLookup.emplace(filename, cached);
+                res->onUnload();
+                res = cached;
                 break;
             }
             

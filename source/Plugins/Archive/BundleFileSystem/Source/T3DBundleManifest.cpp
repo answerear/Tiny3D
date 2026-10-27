@@ -84,6 +84,7 @@ namespace Tiny3D
         mNameToUUID.clear();
         mAmbiguousNames.clear();
         mAliasByUUID.clear();
+        mUUIDToPath.clear();
     }
 
     //--------------------------------------------------------------------------
@@ -109,6 +110,12 @@ namespace Tiny3D
         }
 
         mPathToUUID[key] = uuid;
+
+        String uuidKey = uuid.toString();
+        if (!uuidKey.empty())
+        {
+            mUUIDToPath[uuidKey] = key;
+        }
 
         // 维护文件名回退索引：相同文件名出现多次时标记为有歧义，不参与回退
         String name = basename(key);
@@ -230,6 +237,19 @@ namespace Tiny3D
     {
         UUID uuid;
         return getUUIDByPath(path, uuid);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool BundleManifest::getPathByUUID(const UUID &uuid, String &path) const
+    {
+        auto it = mUUIDToPath.find(uuid.toString());
+        if (it != mUUIDToPath.end())
+        {
+            path = it->second;
+            return true;
+        }
+        return false;
     }
 
     //--------------------------------------------------------------------------

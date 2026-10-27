@@ -120,7 +120,8 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult BundleFSArchive::readRaw(const String &relativeName,
-        const ArchiveReadCallback &callback, void *userData)
+        const ArchiveReadCallback &callback, void *userData,
+        const String &logicalName)
     {
         if (callback == nullptr)
         {
@@ -147,7 +148,8 @@ namespace Tiny3D
             return T3D_ERR_FILE_NOT_EXIST;
         }
 
-        TResult ret = callback(*stream, relativeName, userData);
+        const String &cbName = logicalName.empty() ? relativeName : logicalName;
+        TResult ret = callback(*stream, cbName, userData);
 
         T3D_SAFE_DELETE(stream);
         return ret;
@@ -172,7 +174,9 @@ namespace Tiny3D
             return T3D_ERR_FILE_NOT_EXIST;
         }
 
-        return readRaw(uuid.toString(), callback, userData);
+        String logicalName = name;
+        mManifest.getPathByUUID(uuid, logicalName);
+        return readRaw(uuid.toString(), callback, userData, logicalName);
     }
 
     //--------------------------------------------------------------------------
@@ -198,7 +202,12 @@ namespace Tiny3D
         {
             target = redirect;
         }
-        return readRaw(target.toString(), callback, userData);
+        String logicalName;
+        if (!mManifest.getPathByUUID(target, logicalName))
+        {
+            mManifest.getPathByUUID(uuid, logicalName);
+        }
+        return readRaw(target.toString(), callback, userData, logicalName);
     }
 
     //--------------------------------------------------------------------------
