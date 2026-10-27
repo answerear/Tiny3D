@@ -285,8 +285,10 @@ namespace Tiny3D
     using ConstantBuffers = TArray<ConstantBufferPtr>;
     using Samplers = TArray<SamplerStatePtr>;
 
-    /// 只读结构化缓冲绑定数组（SRV 路径）
-    using StructuredBuffers = TArray<StructuredBufferPtr>;
+    /// 只读着色器缓冲资源绑定数组（SRV 路径）；元素可为 StructuredBuffer 或带 kGPUShaderResource 的 VertexBuffer / IndexBuffer
+    using ShaderResourceBuffers = TArray<RenderBufferPtr>;
+    /// 兼容别名：过渡期保留 StructuredBuffers
+    using StructuredBuffers = ShaderResourceBuffers;
     /// UAV 绑定数组；元素可以是 PixelBufferXD、StructuredBuffer 或带 UAV 的顶点缓冲，
     /// 因此元素类型取三者唯一的共同基类 RenderBuffer
     using UnorderedAccessBuffers = TArray<RenderBufferPtr>;

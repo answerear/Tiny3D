@@ -2866,7 +2866,7 @@ namespace Tiny3D
         return glBuffer;
     }
 
-    TResult GLES3Context::setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers)
+    TResult GLES3Context::setVSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers)
     {
         if (!mCapabilities.supportsStructuredBuffer)
         {
@@ -2883,12 +2883,12 @@ namespace Tiny3D
         return bindStructuredBuffers(startSlot, buffers);
     }
 
-    TResult GLES3Context::setPSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers)
+    TResult GLES3Context::setPSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers)
     {
         return bindStructuredBuffers(startSlot, buffers);
     }
 
-    TResult GLES3Context::setCSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers)
+    TResult GLES3Context::setCSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers)
     {
         return bindStructuredBuffers(startSlot, buffers);
     }
@@ -2920,11 +2920,11 @@ namespace Tiny3D
                     bool hasCounter = false;
 
                     RenderBuffer *rb = buffers[i].get();
+                    ssbo = getGLBufferHandle(rb);
                     if (rb != nullptr && rb->getRHIResource() != nullptr
                         && rb->getRHIResource()->getResourceType() == RHIResource::ResourceType::kStructuredBuffer)
                     {
                         GLES3StructuredBuffer *glSB = static_cast<GLES3StructuredBuffer*>(rb->getRHIResource().get());
-                        ssbo = glSB->GLBuffer;
                         counter = glSB->GLCounterBuffer;
                         hasCounter = glSB->HasCounter;
                     }
@@ -4172,22 +4172,18 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GLES3Context::bindStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers)
+    TResult GLES3Context::bindStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers)
     {
         if (!mCapabilities.supportsStructuredBuffer)
         {
             T3D_RHI_UNSUPPORTED(supportsStructuredBuffer);
         }
 
-        auto lambda = [this](uint32_t startSlot, const StructuredBuffers &buffers)
+        auto lambda = [this](uint32_t startSlot, const ShaderResourceBuffers &buffers)
         {
             for (uint32_t i = 0; i < buffers.size(); ++i)
             {
-                GLuint handle = 0;
-                if (buffers[i] != nullptr && buffers[i]->getRHIResource() != nullptr)
-                {
-                    handle = static_cast<GLES3StructuredBuffer*>(buffers[i]->getRHIResource().get())->GLBuffer;
-                }
+                const GLuint handle = getGLBufferHandle(buffers[i].get());
                 glBindBufferBase(GL_SHADER_STORAGE_BUFFER, startSlot + i, handle);
             }
             GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::bindStructuredBuffers");

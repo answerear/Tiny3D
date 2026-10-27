@@ -300,12 +300,12 @@ namespace Tiny3D
         TResult setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
 
         /**
-         * \brief 设置 vs 的结构化缓冲（只读 SRV 路径）
+         * \brief 设置 vs 的结构化缓冲或原始缓冲（只读 SRV 路径）
          * \param [in] startSlot : 起始 t 寄存器槽位
-         * \param [in] buffers : 结构化缓冲对象数组
+         * \param [in] buffers : 着色器缓冲资源数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+        TResult setVSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
 
         /**
          * \brief 设置 vs 纹理采样器
@@ -346,12 +346,12 @@ namespace Tiny3D
         TResult setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
 
         /**
-         * \brief 设置 ps 的结构化缓冲（只读 SRV 路径）
+         * \brief 设置 ps 的结构化缓冲或原始缓冲（只读 SRV 路径）
          * \param [in] startSlot : 起始 t 寄存器槽位
-         * \param [in] buffers : 结构化缓冲对象数组
+         * \param [in] buffers : 着色器缓冲资源数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setPSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+        TResult setPSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
 
         /**
          * \brief 设置 ps 纹理采样器
@@ -514,12 +514,12 @@ namespace Tiny3D
         TResult setCSSamplers(uint32_t startSlot, const Samplers &samplers) override;
 
         /**
-         * \brief 设置 cs 的结构化缓冲（只读 SRV 路径）
+         * \brief 设置 cs 的结构化缓冲或原始缓冲（只读 SRV 路径）
          * \param [in] startSlot : 起始 t 寄存器槽位
-         * \param [in] buffers : 结构化缓冲对象数组
+         * \param [in] buffers : 着色器缓冲资源数组
          * \return 调用成功返回 T3D_OK
          */
-        TResult setCSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+        TResult setCSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
 
         /**
          * \brief 设置 cs 的可读写资源（UAV）
@@ -945,7 +945,7 @@ namespace Tiny3D
         
         TResult setPixelBuffers(SetShaderResources setShaderResources, uint32_t startSlot, const PixelBuffers &buffers);
 
-        TResult setStructuredBuffers(SetShaderResources setShaderResources, uint32_t startSlot, const StructuredBuffers &buffers);
+        TResult setStructuredBuffers(SetShaderResources setShaderResources, uint32_t startSlot, const ShaderResourceBuffers &buffers);
 
         using SetConstantBuffers = void (ID3D11DeviceContext::*)(UINT, UINT, ID3D11Buffer * const *);
         

@@ -3097,7 +3097,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers)
+    TResult D3D11Context::setVSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers)
     {
         return setStructuredBuffers(&ID3D11DeviceContext::VSSetShaderResources, startSlot, buffers);
     }
@@ -3192,7 +3192,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setPSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers)
+    TResult D3D11Context::setPSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers)
     {
         return setStructuredBuffers(&ID3D11DeviceContext::PSSetShaderResources, startSlot, buffers);
     }
@@ -3557,7 +3557,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setCSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers)
+    TResult D3D11Context::setCSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers)
     {
         return setStructuredBuffers(&ID3D11DeviceContext::CSSetShaderResources, startSlot, buffers);
     }
@@ -5612,15 +5612,27 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setStructuredBuffers(SetShaderResources setShaderResources, uint32_t startSlot, const StructuredBuffers &buffers)
+    TResult D3D11Context::setStructuredBuffers(SetShaderResources setShaderResources, uint32_t startSlot, const ShaderResourceBuffers &buffers)
     {
-        auto lambda = [this](SetShaderResources setShaderResources, uint32_t startSlot, const StructuredBuffers &buffers)
+        auto lambda = [this](SetShaderResources setShaderResources, uint32_t startSlot, const ShaderResourceBuffers &buffers)
         {
             TArray<ID3D11ShaderResourceView*> d3dSRViews(buffers.size(), nullptr);
 
             for (uint32_t i = 0; i < buffers.size(); ++i)
             {
-                d3dSRViews[i] = getD3DSRView(buffers[i].get());
+                RenderBuffer *buffer = buffers[i].get();
+                if (buffer == nullptr)
+                {
+                    continue;
+                }
+
+                d3dSRViews[i] = getD3DSRView(buffer);
+                if (d3dSRViews[i] == nullptr)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "setStructuredBuffers : buffer at "
+                        "slot [%u] has no shader resource view, is kGPUShaderResource missing ?",
+                        startSlot + i);
+                }
             }
 
             (mD3DDeviceContext->*setShaderResources)(startSlot, (UINT)d3dSRViews.size(), d3dSRViews.data());

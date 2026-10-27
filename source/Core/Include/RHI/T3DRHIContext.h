@@ -375,14 +375,16 @@ namespace Tiny3D
         virtual TResult setVSSamplers(uint32_t startSlot, const Samplers &samplers) = 0;
 
         /**
-         * \brief 设置 vs 的只读结构化缓冲（SRV）
+         * \brief 设置 vs 的只读结构化缓冲或原始缓冲（SRV）
          * \param [in] startSlot : 插槽，对应 shader 中 t# 寄存器索引
-         * \param [in] buffers : 结构化缓冲数组；元素为 nullptr 表示解绑该槽
+         * \param [in] buffers : 着色器缓冲资源数组；元素可为 StructuredBuffer 或带
+         *                       kGPUShaderResource 的 VertexBuffer / IndexBuffer（shader 侧须声明为
+         *                       ByteAddressBuffer）；元素为 nullptr 表示解绑该槽
          * \return 调用成功返回 T3D_OK
          * \note 结构化缓冲与像素缓冲共享同一组 t# 寄存器，插槽范围不要与
          *       setVSPixelBuffers 重叠，否则后绑定的一方会覆盖前者
          */
-        virtual TResult setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) = 0;
+        virtual TResult setVSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) = 0;
 
         /**
          * \brief 创建 RHI 像素着色器对象
@@ -423,13 +425,15 @@ namespace Tiny3D
         virtual TResult setPSSamplers(uint32_t startSlot, const Samplers &samplers) = 0;
 
         /**
-         * \brief 设置 ps 的只读结构化缓冲（SRV）
+         * \brief 设置 ps 的只读结构化缓冲或原始缓冲（SRV）
          * \param [in] startSlot : 插槽，对应 shader 中 t# 寄存器索引
-         * \param [in] buffers : 结构化缓冲数组；元素为 nullptr 表示解绑该槽
+         * \param [in] buffers : 着色器缓冲资源数组；元素可为 StructuredBuffer 或带
+         *                       kGPUShaderResource 的 VertexBuffer / IndexBuffer（shader 侧须声明为
+         *                       ByteAddressBuffer）；元素为 nullptr 表示解绑该槽
          * \return 调用成功返回 T3D_OK
          * \note 插槽范围不要与 setPSPixelBuffers 重叠
          */
-        virtual TResult setPSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) = 0;
+        virtual TResult setPSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) = 0;
         
         /**
          * \brief 创建 RHI 曲面细分着色器
@@ -584,13 +588,15 @@ namespace Tiny3D
         virtual TResult setCSSamplers(uint32_t startSlot, const Samplers &samplers) = 0;
 
         /**
-         * \brief 设置 cs 的只读结构化缓冲（SRV）
+         * \brief 设置 cs 的只读结构化缓冲或原始缓冲（SRV）
          * \param [in] startSlot : 插槽，对应 shader 中 t# 寄存器索引
-         * \param [in] buffers : 结构化缓冲数组；元素为 nullptr 表示解绑该槽
+         * \param [in] buffers : 着色器缓冲资源数组；元素可为 StructuredBuffer 或带
+         *                       kGPUShaderResource 的 VertexBuffer / IndexBuffer（shader 侧须声明为
+         *                       ByteAddressBuffer）；元素为 nullptr 表示解绑该槽
          * \return 调用成功返回 T3D_OK
          * \note 插槽范围不要与 setCSPixelBuffers 重叠
          */
-        virtual TResult setCSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) = 0;
+        virtual TResult setCSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) = 0;
 
         /**
          * \brief 设置 cs 的无序访问视图（UAV）

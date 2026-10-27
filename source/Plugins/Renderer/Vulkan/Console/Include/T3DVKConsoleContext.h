@@ -99,9 +99,9 @@ namespace Tiny3D
         TResult setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
         TResult setCSSamplers(uint32_t startSlot, const Samplers &samplers) override;
         RHIStructuredBufferPtr createStructuredBuffer(StructuredBuffer *buffer) override;
-        TResult setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
-        TResult setPSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
-        TResult setCSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+        TResult setVSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
+        TResult setPSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
+        TResult setCSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
         TResult setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts = UAVInitialCounts()) override;
         TResult dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) override;
         TResult dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) override;

@@ -1523,9 +1523,9 @@ namespace Tiny3D
     TResult MetalContext::setCSSamplers(uint32_t, const Samplers &) { T3D_RHI_UNSUPPORTED(supportsCompute); }
 
     RHIStructuredBufferPtr MetalContext::createStructuredBuffer(StructuredBuffer *) { T3D_RHI_UNSUPPORTED_PTR(supportsStructuredBuffer); }
-    TResult MetalContext::setVSStructuredBuffers(uint32_t, const StructuredBuffers &) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
-    TResult MetalContext::setPSStructuredBuffers(uint32_t, const StructuredBuffers &) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
-    TResult MetalContext::setCSStructuredBuffers(uint32_t, const StructuredBuffers &) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
+    TResult MetalContext::setVSStructuredBuffers(uint32_t, const ShaderResourceBuffers &) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
+    TResult MetalContext::setPSStructuredBuffers(uint32_t, const ShaderResourceBuffers &) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
+    TResult MetalContext::setCSStructuredBuffers(uint32_t, const ShaderResourceBuffers &) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
     TResult MetalContext::setCSUnorderedAccessBuffers(uint32_t, const UnorderedAccessBuffers &, const UAVInitialCounts &) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
     TResult MetalContext::dispatch(uint32_t, uint32_t, uint32_t) { T3D_RHI_UNSUPPORTED(supportsCompute); }
     TResult MetalContext::dispatchIndirect(RenderBuffer *, size_t) { T3D_RHI_UNSUPPORTED(supportsIndirectDispatch); }

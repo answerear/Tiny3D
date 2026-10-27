@@ -470,13 +470,13 @@ namespace Tiny3D
         RHIStructuredBufferPtr createStructuredBuffer(StructuredBuffer *buffer) override;
 
         /// 空后端不实现结构化缓冲绑定
-        TResult setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+        TResult setVSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
 
         /// 空后端不实现结构化缓冲绑定
-        TResult setPSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+        TResult setPSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
 
         /// 空后端不实现结构化缓冲绑定
-        TResult setCSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers) override;
+        TResult setCSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
 
         /// 空后端不实现 UAV 绑定
         TResult setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts = UAVInitialCounts()) override;

@@ -516,21 +516,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setVSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers)
+    TResult NullContext::setVSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers)
     {
         T3D_RHI_UNSUPPORTED(supportsStructuredBuffer);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setPSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers)
+    TResult NullContext::setPSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers)
     {
         T3D_RHI_UNSUPPORTED(supportsStructuredBuffer);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setCSStructuredBuffers(uint32_t startSlot, const StructuredBuffers &buffers)
+    TResult NullContext::setCSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers)
     {
         T3D_RHI_UNSUPPORTED(supportsStructuredBuffer);
     }
