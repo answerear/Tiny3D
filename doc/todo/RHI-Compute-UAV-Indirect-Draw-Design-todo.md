@@ -1725,6 +1725,25 @@ UAV 侧的 `UnorderedAccessBuffers` 是 `TArray<RenderBufferPtr>`（`T3DTypedef.
 
 来源：`ComputeApp-Sample-Design-todo.md` 的可视轨选题评估（compute skinning 方案）触发，实际改动面经代码核查后大幅下修。
 
+#### 12.8.5 T0-1 分步实施计划（逐文件落地清单）— ✅ 已完成
+
+1. **Step 1：Core / RHI 签名扩展** ✅
+   - `source/Core/Include/T3DTypedef.h`：在 `UnorderedAccessBuffers` 旁新增 `using ShaderResourceBuffers = TArray<RenderBufferPtr>;`（保留 `using StructuredBuffers = ShaderResourceBuffers;` 别名以平滑过渡现有调用点）。
+   - `source/Core/Include/RHI/T3DRHIContext.h`：将 `setVSStructuredBuffers`、`setPSStructuredBuffers`、`setCSStructuredBuffers` 的参数类型改为 `const ShaderResourceBuffers &buffers`，更新 Doxygen 注释说明元素可为 `StructuredBuffer` 或带 `kGPUShaderResource` 的 `VertexBuffer` / `IndexBuffer`。
+   - `source/Core/Include/Render/T3DRenderResourceManager.h` 与 `Source/Render/T3DRenderResourceManager.cpp`：为 `loadVertexBuffer` / `loadIndexBuffer` 补充带 `uint32_t gpuAccess` 参数的重载。
+2. **Step 2：D3D11 后端签名同步与告警增强** ✅
+   - `source/Plugins/Renderer/Direct3D11/Window/Include/T3DD3D11Context.h` 与 `Source/T3DD3D11Context.cpp`：更新三个方法及私有 `setStructuredBuffers` 的参数类型为 `const ShaderResourceBuffers &`。
+   - 在 `setStructuredBuffers` lambda 内，当 `buffers[i] != nullptr` 但 `getD3DSRView(buffers[i].get()) == nullptr` 时，打印 `T3D_LOG_ERROR` 提示检查创建时的 `kGPUShaderResource` 标志。
+3. **Step 3：GL4 / GLES3 后端按资源类型分发 GL 句柄** ✅
+   - `source/Plugins/Renderer/OpenGL4/Window/Source/T3DGL4Context.cpp` 与 `OpenGLES3/Runtime/Source/T3DGLES3Context.cpp`：
+   - 修改 `bindStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers)`：不再无条件 `static_cast<GL4StructuredBuffer*>`，改调已有的 `getGLBufferHandle(buffers[i].get())`，使 `GL4VertexBuffer` / `GL4IndexBuffer` / `GL4StructuredBuffer` 都能通过 `glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, glBuf)` 绑定。
+   - 同步在 `setCSUnorderedAccessBuffers` 中复用 `getGLBufferHandle`，顺带修掉「顶点缓冲当 UAV 写时在 GL 上静默绑 0」的半边问题。
+4. **Step 4：其余 6 个后端纯虚签名同步（编译门槛）** ✅
+   - `VKContext`、`MetalContext`、`D3D11ConsoleContext`、`GL4ConsoleContext`、`VKConsoleContext`、`NullContext`：同步将 `set{VS,PS,CS}StructuredBuffers` 签名改为 `const ShaderResourceBuffers &`。
+5. **Step 5：验证标准** ✅
+   - 全解决方案编译零错误；
+   - 在 `ComputeApp` 新增自检子项（`K9 vertex buffer SRV`）：创建一个带 `kGPUShaderResource` 的 `VertexBuffer`，绑定到 `setCSStructuredBuffers(0, {vb})` 作为 `ByteAddressBuffer` 读取并写回输出缓冲，`map/unmap` 回读验证数值完全一致（K1..K9 全部通过）。
+
 ---
 
 ## 13. 与既有文档的关系

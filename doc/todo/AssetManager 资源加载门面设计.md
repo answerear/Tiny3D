@@ -269,3 +269,58 @@ flowchart TD
 - Engine 初始化：`source/Core/Source/Kernel/T3DAgent.cpp`
 - editor 多 archive：`source/Editor/TinyEditor/ProjectManager.h` / `.cpp`
 - 示例用法：`source/Samples/ResourceApp/ResourceApp.cpp`
+
+---
+
+## 十一、T0-2 补充实现计划：补全剩余 4 类资源门面接口
+
+### 11.1 现状缺口
+
+`AssetManager`（`source/Core/Include/Resource/T3DAssetManager.h`）目前已落地 `Mesh`、`Texture`、`Material`、`Shader`、`Image`、`Prefab`、`Scene` 共 7 类资源的加载接口，但遗漏了以下 4 类由独立 `ResourceManager` 管理的引擎资源：
+
+1. **`SkinnedMesh`**：由 `MeshManager::loadSkinnedMesh(Archive *, ...)` 管理（`source/Core/Include/Resource/T3DMeshManager.h:76-94`）；
+2. **`Skeleton`**：由 `SkeletonManager::loadSkeleton(Archive *, ...)` 管理（`source/Core/Include/Resource/T3DSkeletonManager.h`）；
+3. **`SkeletalAnimation`**：由 `AnimationManager::loadAnimation(Archive *, ...)` 管理（`source/Core/Include/Resource/T3DAnimationManager.h`）；
+4. **`Dylib`**：由 `DylibManager::loadDylib(Archive *, ...)` 管理（`source/Core/Include/Resource/T3DDylibManager.h`）。
+
+这导致上层在使用骨骼蒙皮网格或动画时（如 `SkinnedGeometry::onLoadResource` 或业务代码），无法统一通过 `T3D_ASSET_MGR` 一步加载，仍需手动取 `T3D_ASSET_MGR.getArchive()` 再调 `T3D_SKELETON_MGR`。
+
+### 11.2 新增接口草案（建议实现）
+
+在 `source/Core/Include/Resource/T3DAssetManager.h` 的 `public` 区追加：
+
+```cpp
+        /// 按文件名加载蒙皮网格 SkinnedMesh
+        SkinnedMeshPtr loadSkinnedMesh(const String &filename);
+        /// 按 UUID 加载蒙皮网格 SkinnedMesh
+        SkinnedMeshPtr loadSkinnedMesh(const UUID &uuid);
+
+        /// 按文件名加载骨架 Skeleton
+        SkeletonPtr loadSkeleton(const String &filename);
+        /// 按 UUID 加载骨架 Skeleton
+        SkeletonPtr loadSkeleton(const UUID &uuid);
+
+        /// 按文件名加载骨骼动画 SkeletalAnimation
+        SkeletalAnimationPtr loadAnimation(const String &filename);
+        /// 按 UUID 加载骨骼动画 SkeletalAnimation
+        SkeletalAnimationPtr loadAnimation(const UUID &uuid);
+
+        /// 按名称与可选搜索路径加载动态库 Dylib
+        DylibPtr loadDylib(const String &name, const String &searchPath = "");
+```
+
+### 11.3 实现要点（`source/Core/Source/Resource/T3DAssetManager.cpp`）
+
+1. `#include` 补齐 `Resource/T3DSkeletonManager.h`、`Resource/T3DAnimationManager.h`、`Resource/T3DDylibManager.h`。
+2. 每个 `loadXxx` 方法内部与既有 `loadMesh` 严格同构：
+   ```cpp
+   ensureArchive();
+   Archive *archive = mArchive.get();
+   return T3D_SKELETON_MGR.loadSkeleton(archive, filename); // 或 uuid
+   ```
+3. 检查 `source/Core/Source/Component/T3DSkinnedGeometry.cpp` 与 `Samples/SkeletalAnimationApp` 等调用点，将 `T3D_MESH_MGR.loadSkinnedMesh(T3D_ASSET_MGR.getArchive(), ...)` 简化为 `T3D_ASSET_MGR.loadSkinnedMesh(...)`。
+
+### 11.4 验收标准
+
+- `T3DCore` 与 `T3DCoreEditor` 编译通过；
+- `SkeletalAnimationApp` 与 `ResourceApp` 通过 `T3D_ASSET_MGR.loadSkinnedMesh` / `loadSkeleton` / `loadAnimation` 正常加载并播放骨骼动画。

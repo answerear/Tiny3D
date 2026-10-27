@@ -1268,3 +1268,57 @@
 | **P2 - 资源创建** | `createPixelBuffer1D` / `createPixelBuffer3D` | 1D/3D 纹理资源创建缺失 |
 | **P2 - 资源绑定** | `setVSPixelBuffers` / `setVSSamplers` | 顶点着色器纹理采样（如 vertex texture fetch）需要 |
 | **P3 - 窗口管理** | `resizeRenderTexture` / `resizeRenderTarget` | 渲染纹理大小变化时需要 |
+
+---
+---
+
+# 附录 A：T2-2 实现计划 —— Vulkan Compute / UAV / Indirect / MRT 补齐（对应 RHI-Compute 五期 E1）
+
+> **目标**：消除 `VKContext`（`source/Plugins/Renderer/Vulkan/Window/Source/T3DVKContext.cpp`）中剩余的 `T3D_RHI_UNSUPPORTED` 桩与 MRT 空函数，使 Vulkan 后端能力与 D3D11 / GL4 完整对齐，跑通 `ComputeApp` 的 K1–K10 全部用例及 `TextureApp` GPU 读回。
+
+## A.1 当前缺口定位（代码行号）
+
+1. **Compute / UAV / Indirect 11 个接口仍为 stub**：
+   - `createStructuredBuffer`、`set{VS,PS,CS}StructuredBuffers`、`setCSUnorderedAccessBuffers`、`dispatch`、`dispatchIndirect`、`uavBarrier`、`copyStructureCount`、`renderIndexedIndirect`、`renderIndirect`。
+   - `createComputeShader`（`T3DVKContext.cpp:2337`）仅返回空 `VKComputeShader`，未创建 `VkShaderModule` 与 `VkPipeline`；`setComputeShader` / `setCS*`（`:2345-2348`）为空操作。
+2. **GPU 读回 `map` / `unmap` 仍为 stub**：
+   - `T3DVKContext.cpp:3474-3491` 直接走 `T3D_RHI_UNSUPPORTED(supportsReadback)`。
+3. **MRT 多渲染目标未完整接线**：
+   - `getOrCreateRenderPass` 与 `getOrCreateFramebuffer` 目前只按单颜色附件构建。
+
+## A.2 分步实现方案
+
+### Step 1：`VKStructuredBuffer` 与缓冲 UAV 创建（1.0 d）
+- 在 `T3DVKRenderBuffer.h/.cpp` 新增 `VKStructuredBuffer : public RHIStructuredBuffer`，持有：
+  - `VkBuffer VkBuf {VK_NULL_HANDLE}`、`VkDeviceMemory VkBufMemory {VK_NULL_HANDLE}`；
+  - 若 `hasCounter || isAppendConsume`，额外创建 4 字节 `VkCounterBuf` + `VkCounterMemory`（`VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT`）。
+- `VKContext::createStructuredBuffer`：
+  - Usage 组合：`VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT`，若 `gpuAccess & kGPUIndirectArgs` 追加 `VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT`。
+  - 现有 `VKVertexBuffer` / `VKIndexBuffer` 在带 `kGPUShaderResource | kGPUUnorderedAccess` 时同步追加 `VK_BUFFER_USAGE_STORAGE_BUFFER_BIT`。
+  - 现有 `VKPixelBuffer2D` 在带 `kGPUUnorderedAccess` 时 Image usage 追加 `VK_IMAGE_USAGE_STORAGE_BIT`。
+
+### Step 2：Compute Shader 编译、反射与 `VkComputePipeline` 缓存（1.0 d）
+- `VKContext::createComputeShader`：调用 `vkCreateShaderModule`，并用 `spirv_reflect` 提取 CS 阶段的 descriptor bindings（`UNIFORM_BUFFER` / `STORAGE_BUFFER` / `STORAGE_IMAGE` / `SAMPLED_IMAGE` / `SAMPLER`）及 `local_size_x/y/z`（写入 `shader->setThreadGroupSize`）。
+- 在 `VKContext` 新增 `getOrCreateComputePipeline(VKComputeShader *cs)`：
+  - 根据 CS 的 binding 列表构建 `VkDescriptorSetLayout` 与 `VkPipelineLayout`；
+  - 调用 `vkCreateComputePipelines` 并按 `VkShaderModule` 缓存 `VkPipeline`。
+
+### Step 3：Compute 资源绑定、`dispatch` 与 `uavBarrier`（1.0 d）
+- 维护 CS 独立状态槽：`mCurrentCSConstantBuffers`、`mCurrentCSStructuredBuffers`、`mCurrentCSUAVBuffers`、`mCurrentCSImageViews`、`mCurrentCSSamplers`。
+- `setCSUnorderedAccessBuffers`：记录绑定资源；若 `initialCounts[i] != kKeepUAVCounter` 且目标有 `VkCounterBuf`，在当前 command buffer 录制 `vkCmdFillBuffer(cmdBuf, counterBuf, 0, 4, initialCounts[i])` + transfer barrier。
+- `dispatch(x, y, z)` / `dispatchIndirect(argsBuf, offset)`：
+  - 若当前处于图形 RenderPass 内（`mRenderPassActive`），先 `endPass()`；
+  - `vkCmdBindPipeline(cmdBuf, VK_PIPELINE_BIND_POINT_COMPUTE, computePipeline)`；
+  - 分配并更新 CS DescriptorSet，`vkCmdBindDescriptorSets(..., VK_PIPELINE_BIND_POINT_COMPUTE, ...)`；
+  - 调用 `vkCmdDispatch` 或 `vkCmdDispatchIndirect`。
+- `uavBarrier(buffers)`：
+  - 插入 `VkMemoryBarrier`（`srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT`，`dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT | VK_ACCESS_INDIRECT_COMMAND_READ_BIT`，stage 从 `COMPUTE_SHADER_BIT` 到 `VERTEX_SHADER_BIT | FRAGMENT_SHADER_BIT | COMPUTE_SHADER_BIT | DRAW_INDIRECT_BIT`）；
+  - 对其中的纹理资源同步做 `VK_IMAGE_LAYOUT_GENERAL` → `VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL` 转换。
+
+### Step 4：`copyStructureCount` 与 Indirect Draw（0.5 d）
+- `copyStructureCount(dst, dstOffset, src)`：录制 `vkCmdCopyBuffer(cmdBuf, src->VkCounterBuf, dstBuf, 1, &region)` 并插入 `TRANSFER_WRITE` → `INDIRECT_COMMAND_READ` 屏障。
+- `renderIndexedIndirect` / `renderIndirect`：调用 `prepareDrawCall(cmdBuf)` 后执行 `vkCmdDrawIndexedIndirect` / `vkCmdDrawIndirect`。
+
+### Step 5：填充 `mCapabilities` 与 `ComputeApp` 验收
+- 在 `VKContext::init()` 中查询 `VkPhysicalDeviceLimits`，将 `supportsCompute`、`supportsUnorderedAccess`、`supportsStructuredBuffer`、`supportsIndirectDraw`、`supportsIndirectDispatch`、`supportsAppendConsumeBuffer` 置为 `true`。
+- 切换 `ComputeApp` 到 Vulkan 后端，验证 K1–K4、K7–K10 全部 passed，且 Vulkan Validation Layer 零 Error。

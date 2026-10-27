@@ -522,4 +522,47 @@ P1b 的 Linux 部分是替换方案**阶段 9（Linux 验证）**的前置条件
 - 那边的 Linux 清单里，`-ldl`、`_GNU_SOURCE`、`dlerror` 格式、`RTLD_LOCAL`、`dladdr`/`realpath` 的实现细节归本文；HLSLCross 只保留「候选路径策略」和「用 `kSharedLibraryIsolated`」
 - `HLSLCross` 链接 `T3DPlatform` + `spirv-cross`，不再以「完全不链仓库内模块」为约束——原先要躲的是 **Core**，不是 Platform
 
-替换方案阶段 2（DXC 驱动）启动前，本文至少完成 P1。否则阶段 2 又会把平台分支写回 `T3DDxcDriver.cpp`，本文失去意义。当前 P1 在 Windows / macOS 上已满足，阶段 2 可以开工；替换方案阶段 9 启动前还需完成 P1b 的 Linux 部分。
+replace方案阶段 2（DXC 驱动）启动前，本文至少完成 P1。否则阶段 2 又会把平台分支写回 `T3DDxcDriver.cpp`，本文失去意义。当前 P1 在 Windows / macOS 上已满足，阶段 2 可以开工；替换方案阶段 9 启动前还需完成 P1b 的 Linux 部分。
+
+---
+
+## 11. T3-1（P1b）详细实现计划：补齐 LinuxPlatform 与 LinuxFactory
+
+### 11.1 现状与代码依据
+
+核查 `source/Platform/Include/Adapter/Linux/T3DLinuxFactory.h` 与 `source/Platform/Source/Adapter/Linux/T3DLinuxFactory.cpp`：
+
+1. **`LinuxFactory` 是抽象类，无法实例化**：`IFactory`（`source/Platform/Include/Adapter/T3DFactoryInterface.h`）声明了 17 个纯虚方法，而 `LinuxFactory` 仅实现了 9 个（Application / Window / Time / TimerService / Dir / DeviceInfo / Console / ZipAssetManager / SharedLibrary），**缺失以下 8 个纯虚 override**：
+   - `createPlatform()`
+   - `createPlatformThread()`
+   - `createPlatformCriticalSection()`
+   - `createPlatformMutex()`
+   - `createPlatformRecursiveMutex()`
+   - `createPlatformSemaphore()`
+   - `createPlatformEvent()` / `createPlatformWaitCondition()`
+   - `createPlatformProcess()`
+   - `createPlatformFSMonitor()`
+   - `createPlatformLocale()`
+2. **现成实现已在 `Adapter/Unix/` 与 `Adapter/Linux/` 中就绪**：
+   - 线程與同步原语：`Adapter/Common/T3DSTDThread.h` 或 `Adapter/Unix/T3DPosixThread.h`、`Adapter/Unix/T3DPosixSyncObject.h`；
+   - 进程与区域编码：`Adapter/Unix/T3DPosixProcess.h`、`Adapter/Unix/T3DPosixLocale.h`（macOS 的 `T3DOSXFactory.mm` 已在使用）；
+   - 文件监控：`Adapter/Linux/T3DLinuxFSMonitor.h`（若已存在）或空桩。
+3. **缺少 `T3DLinuxPlatform.h/.cpp`**：
+   - 参照 `source/Platform/Include/Adapter/OSX/T3DOSXPlatform.h` 与 `T3DAndroidPlatform.h`，`LinuxPlatform : public IPlatform` 只需实现 `init()`、`getCurrentProcessID()`（`getpid()`）、`getModulePath(address)` 与 `isAddressMapped(address)`（直接转调 `UnixSharedLibrary::queryModulePath` 与 `UnixSharedLibrary::queryAddressMapped`）。
+
+### 11.2 分步改动清单
+
+1. **新建 `LinuxPlatform`**：
+   - `source/Platform/Include/Adapter/Linux/T3DLinuxPlatform.h`
+   - `source/Platform/Source/Adapter/Linux/T3DLinuxPlatform.cpp`
+   - `getModulePath` 与 `isAddressMapped` 直接复用 `UnixSharedLibrary::queryModulePath(address)` / `queryAddressMapped(address)`。
+2. **补齐 `LinuxFactory` 全部纯虚方法**：
+   - 在 `T3DLinuxFactory.h` 与 `T3DLinuxFactory.cpp` 中补齐 `createPlatform()`（返回 `new LinuxPlatform()`）、线程、同步原语、进程（`new PosixProcess()`）、Locale（`new PosixLocale()`）、FSMonitor。
+3. **核对 `source/Platform/CMakeLists.txt` Linux 分支**：
+   - 确认 `Adapter/Unix/*.cpp` 与 `Adapter/Linux/*.cpp` 均被 `set_project_files` 收集；
+   - 确认定义了 `_GNU_SOURCE` 并链接 `${CMAKE_DL_LIBS}` 与 `pthread`。
+
+### 11.3 验收标准
+
+- 在 Linux x64 环境下执行 `cmake -B build-linux && cmake --build build-linux --target T3DPlatform HLSLCross` 零错误通过；
+- 运行独立探测程序确认 `SharedLibrary::getModuleDir` 返回非空绝对路径、`T3D_LOCALE.UTF8ToUnicode` 转换宽字符正确。

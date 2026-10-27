@@ -1342,3 +1342,61 @@ GL4 后端的需求分散在多份设计文档中，本节记录它们与本文�
 | `doc/Tiny3D-Architecture.md` §3.6 | RHI 后端表里只有 "OpenGL 3" 和 "OpenGL ES 2/3"，**完全没有 OpenGL 4 / GL4Renderer**，而 GL4 是 Windows 上的默认渲染器（`assets/config/Windows/Tiny3D.cfg`） |
 | `doc/GL4-Renderer-Backend-Architecture.md` | 架构描述（三变体、Dummy Context、Core Profile 4.5、glslang、延迟 link）仍然准确，但未涵盖 compute / UAV / indirect / instancing / cubemap / scissor 等新增 RHI 能力，也未写后处理依赖的四个 blit 契约 |
 | `doc/refs/D3D11-vs-OpenGL4-API-Mapping.md` | 缺 SSBO / `glBindImageTexture` 专节，`DispatchIndirect` 未列入 §12 映射表，也没有 4.0 与 4.3 的版本分级。实现 E2 时建议参考 `doc/refs/D3D11-vs-OpenGLES3-API-Mapping.md` 的 §16（完整 compute 章节）与附录 B（版本能力矩阵），那份写得更系统 |
+
+---
+---
+
+# 附录 B：T2-1 实现计划 —— GL4 / GLES3 纹理 UAV（`RWTexture2D` / `glBindImageTexture`）
+
+> **目标**：补齐 `GL4Context` 与 `GLES3Context` 中 `setCSUnorderedAccessBuffers` 对纹理资源（`PixelBuffer2D` 等）的 Image Load/Store 绑定支持，消除当前的「静默绑 0」缺陷，使 `ComputeApp` 的 **K5（纹理 UAV 写入）** 在 OpenGL 4.3+ 与 OpenGL ES 3.1+ 上通过验证。
+
+## B.1 现状与缺陷根因
+
+在 `source/Plugins/Renderer/OpenGL4/Window/Source/T3DGL4Context.cpp:3374-3405`（及 `T3DGLES3Context.cpp` 同名函数）中：
+
+```cpp
+RenderBuffer *rb = buffers[i].get();
+if (rb != nullptr && rb->getRHIResource() != nullptr
+    && rb->getRHIResource()->getResourceType() == RHIResource::ResourceType::kStructuredBuffer)
+{
+    // 只处理了 kStructuredBuffer！
+}
+const uint32_t slot = startSlot + i;
+glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
+```
+
+当传入 `PixelBuffer2D`（`kPixelBuffer2D`）时：
+1. `if` 不命中，`ssbo` 为 `0`，只执行了 `glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, 0)`；
+2. 完全没有调用 `glBindImageTexture`，且返回 `T3D_OK`；
+3. Compute Shader 中的 `layout(rgba8, binding = 0) uniform writeonly image2D` 写往未绑定的 image unit，读回全 0。
+
+## B.2 分步改动方案
+
+### Step 1：在 `GL4PixelBuffer` / `GLES3PixelBuffer` 记录 Image Internal Format
+- 文件：`source/Plugins/Renderer/OpenGL4/Window/Include/T3DGL4RenderBuffer.h`、`OpenGLES3/Runtime/Include/T3DGLES3RenderBuffer.h`
+- `GL4PixelBuffer2D`（以及 1D/3D）已有 `GLuint GLTexture {0};`，新增 `GLenum GLInternalFormat {GL_RGBA8};`。
+- 在 `createPixelBuffer2D` 与 `createRenderTexture` 中，将 `GL4Mapping::getPixelFormat` 算出的 `internalFormat`（如 `GL_RGBA8`、`GL_R32F`、`GL_RGBA16F`、`GL_RGBA32F`）存入 `glTex->GLInternalFormat`。
+  - **注意 GLES 3.1 限制**：`glTexImage2D` 若用非 sized internalFormat（如 `GL_RGBA`），`glBindImageTexture` 会报 `GL_INVALID_VALUE`！当 `buffer->getGPUAccess() & kGPUUnorderedAccess` 时，必须改用 `glTexStorage2D(GL_TEXTURE_2D, mipLevels, internalFormat, width, height)` + `glTexSubImage2D` 创建不可变存储纹理（GL4 同样推荐在带 UAV 时走 `glTexStorage2D`，兼容性最好）。
+
+### Step 2：扩展 `setCSUnorderedAccessBuffers` 支持纹理与顶点缓冲
+- 文件：`T3DGL4Context.cpp`、`T3DGLES3Context.cpp`
+- 在遍历 `buffers[i]` 时按 `RHIResource::ResourceType` 分派：
+  - **`kStructuredBuffer` / `kVertexBuffer` / `kIndexBuffer`**（缓冲类 UAV）：
+    - 用 `getGLBufferHandle(rb)` 取出 `GLuint`（配合 T0-1），调用 `glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, glBuf)`；
+    - 同时解绑同槽位的 image unit：`glBindImageTexture(slot, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R8)`。
+  - **`kPixelBuffer1D` / `kPixelBuffer2D` / `kPixelBuffer3D`**（纹理类 UAV）：
+    - 校验 `(rb->getGPUAccess() & kGPUUnorderedAccess) != 0`，否则打 `T3D_LOG_ERROR`；
+    - 取出 `GLTexture` 与 `GLInternalFormat`（MSAA 渲染纹理不支持 UAV，直接报错）；
+    - 调用 `glBindImageTexture(slot, glTex, 0 /*mip 0*/, GL_FALSE, 0, GL_READ_WRITE, internalFormat)`；
+    - 记录到 `mBoundCSImages[slot]` 以便 `uavBarrier` 解绑。
+  - **`nullptr`（显式解绑该槽）**：
+    - 同时解绑 `GL_SHADER_STORAGE_BUFFER` 与 `glBindImageTexture(slot, 0, ...)`。
+
+### Step 3：`uavBarrier` 补充 `GL_SHADER_IMAGE_ACCESS_BARRIER_BIT` 与解绑
+- 确认 `uavBarrier` 中的 `glMemoryBarrier` 掩码包含 `GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT | GL_PIXEL_BUFFER_BARRIER_BIT`（`GL_PIXEL_BUFFER_BARRIER_BIT` 保证后续 `map/unmap` 通过 PBO 读回纹理时能看到 CS 写入的数据！）；
+- 将 `buffers` 列表中纹理占用的 image unit 解绑（`glBindImageTexture(slot, 0, ...)`），对齐 D3D11 的解绑语义。
+
+### Step 4：开启 `ComputeApp` K5 的 GL4 / GLES3 验证
+- 文件：`source/Samples/ComputeApp/ComputeCases.cpp`
+- 将 K5（`ComputeTextureWrite`）的 `backendMask` 从 `kBackendD3D11` 放宽为 `kBackendD3D11 | kBackendGL4 | kBackendGLES3`。
+- 验证启动 `ComputeApp`（GL4 后端）时 K5 读回 $256 \times 256$ 纹理像素与期望值 `(x, y, 128, 255)` 逐像素一致。

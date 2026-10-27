@@ -351,3 +351,23 @@ DXC 产出的是 Vulkan 语义 SPIR-V（深度 [0,1]、y 向下）。`R3DContext
 - SPIR-V 解释器是本方案 60% 以上工作量与全部技术不确定性所在；Phase 2/3 先标量打通出图，再 SIMD 宽化
 - Android/iOS 上 `SDL_GetWindowSurface` 可能不可用，必须有 SDL_Renderer 回退，否则「全平台」只剩桌面
 - 移动端 playable 依赖降分辨率，不把桌面 720p 帧率指标直接套到手机
+
+---
+
+## 9. 与最新 RHI 96 接口契约的同步补充（2026-10，对应 T3-3）
+
+自本文初版编写（按 73 个纯虚函数统计）以来，`T3DRHIContext.h` 已扩展至 **88 个纯虚接口 + 5 个默认虚接口 + 3 个 Readback 纯虚接口（合计 96 个）**。在执行 **Phase 0（骨架）** 与 **Phase 1（资源与基础光栅化）** 时必须按最新契约对齐：
+
+1. **能力位与规约 Stub（`RHICapabilities` + `T3D_RHI_UNSUPPORTED`）**：
+   - `R3DContext::init()` 中设置：
+     - `mCapabilities.supportsInstancing = true;`
+     - `mCapabilities.supportsBaseInstance = true;`
+     - `mCapabilities.supportsReadback = true;`（软渲染帧缓冲本来就在 CPU 内存，`map`/`unmap` 可以零成本直接 `memcpy` 实现！）
+     - 其余 Compute / UAV / Indirect 能力位保持默认 `false`。
+   - 对首轮不做的 Compute / UAV / Indirect 接口（`createStructuredBuffer`、`setCSUnorderedAccessBuffers`、`dispatch`、`dispatchIndirect`、`uavBarrier`、`copyStructureCount`、`renderIndirect`、`renderIndexedIndirect`），统一使用 `T3D_RHI_UNSUPPORTED(...)` / `T3D_RHI_UNSUPPORTED_PTR(...)` 宏，严禁空函数返回 `T3D_OK`。
+2. **硬件实例化（`renderInstanced` / `renderIndexedInstanced`）低成本真实现**：
+   - 按 `RHI-Compute-UAV-Indirect-Draw-Design-todo.md §12.6` 约定，软渲染器**必须真实现实例化绘制**：外层循环 `inst = 0 .. instanceCount - 1`，在 `R3DVertexFetcher` 中对 `InputRate::kPerInstance` 属性按 `startInstance + inst / stepRate` 取值，并把 `gl_InstanceIndex` 传入 `R3DShaderVM`。
+3. **补齐新增的图形与读回接口**：
+   - `clearStencil(uint32_t stencil)`：只清空 `R3DFramebuffer` 的 stencil 通道，不动 depth（供 `RmlUi` 裁剪掩码使用）；
+   - `resizeRenderTexture` / `resizeRenderTarget`：直接重新 `resize` 对应的 `R3DFramebuffer` 内存数组；
+   - `map` / `unmap`：直接从 `R3DBuffer` 或 `R3DFramebuffer` 切出紧凑字节块返回，天然支持全套自动化像素回归测试（如 `TextureApp` / `PostProcessingApp`）。

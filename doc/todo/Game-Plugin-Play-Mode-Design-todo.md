@@ -580,3 +580,55 @@ struct GameSettings
 6. Editor 与 Runtime 两个变体的产物名不同（`{Name}Editor` / `{Name}`）且**不可混用**。加载错变体不会立刻报错，而是在虚调用 `Scene` 时崩溃。`CppBuildSystem` 与 `BuildPipeline` 必须各自锁定自己的输出目录，不做任何回退查找。
 7. `source/Core/Editor/CMakeLists.txt` 引用的 `Include/Editor/`、`Source/Editor/` 目录当前并不存在；若后续这两个目录被填充，需重新评估 Editor / Runtime 的 ABI 差异是否扩大。
 8. Standalone 导出依赖 `bundlebuilder` 的既有行为（`.meta` 扫描、ShaderLab ALIAS、`--keep-languages` 裁剪）。它自身要以 NullRenderer 起一个引擎实例并加载 Editor 版 Archive 插件，因此导出机器上必须具备完整的编辑器运行环境。
+
+---
+
+## 14. T4-1 补充实现计划：Play Mode 下的 Pause 与单帧 Step
+
+### 14.1 现状分析（半成品定位）
+
+1. **UI 按钮与菜单已存在但被置灰**：
+   - `source/Editor/TinyEditor/UIGameWindow.cpp:234-243`：`ID_GAME_WINDOW_TOOL_BTN_PAUSE`（`d_PauseButton On@2x.png`）与 `ID_GAME_WINDOW_TOOL_BTN_NEXT`（`d_StepButton On@2x.png`）均已创建，但绑定了 `queryDisableDefault` 与空回调 `clickedDefault`。
+   - `source/Editor/TinyEditor/UIMainWindow.cpp:410`：`ID_MENU_ITEM_PAUSE`（快捷键 `Ctrl+Shift+P`）同样绑定 `queryDisableDefault`。
+2. **引擎帧循环现状（`source/Core/Source/Kernel/T3DAgent.cpp`）**：
+   - `Agent` 目前只有 `mIsPlaying` 布尔标志，没有 `mIsPaused` 或单步推进机制；
+   - 在 `Agent::update()` 与 `Agent::endFrame()` 中，只要场景存在就会执行 `Scene::fixedUpdate()` / `Scene::update()`（内部看 `T3D_AGENT.isPlaying()` 决定是否执行普通 `Behaviour`）以及 `AnimationPlayerMgr::update()`。
+
+### 14.2 设计语义（对齐 Unity）
+
+- **Pause（暂停态）**：
+  - 可以在 Play 态下切换，也可以在 Edit 态下预先按下（即「Play 立即暂停在第一帧」）；
+  - 当 `isPlaying() && isPaused()` 且**非单步脉冲帧**时：
+    - **停止** gameplay 逻辑推进：普通 `Behaviour` 的 `onFixedUpdate` / `onUpdate` / `onLateUpdate` 不执行，`AnimationPlayerMgr` 不推进时间，`Time` 的游戏时间累积暂停；
+    - **保持**编辑器自身运行：`executeInEditMode() == true` 的组件（如编辑器相机控制、Gizmo、RmlUi 预览）、`EditorRunningData` 回调、`ForwardRenderPipeline::cull/render` 照常每帧执行，使用户可以在暂停时转动 Scene 相机、在 Inspector 查看和修改当前帧的对象属性。
+- **Step（单帧步进）**：
+  - 仅在 `isPlaying()` 下可用；
+  - 若当前未暂停，点 Step 先自动进入 `Paused`；
+  - 若当前已暂停，点 Step 置位一次性脉冲 `mStepOneFrame = true`：允许**下一帧**正常执行一次 `fixedUpdate`（1 步）+ `update` + `lateUpdate` + 动画推进，在该帧 `endFrame()` 末尾自动将 `mStepOneFrame` 复位为 `false`，继续停留在暂停态。
+
+### 14.3 分步改动清单
+
+1. **Step 1：扩展 `Agent` 播放/暂停控制接口**
+   - 文件：`source/Core/Include/Kernel/T3DAgent.h`、`source/Core/Source/Kernel/T3DAgent.cpp`
+   - 新增成员：`bool mIsPaused {false};`、`bool mStepOneFrame {false};`
+   - 新增方法：
+     - `bool isPaused() const { return mIsPaused; }`
+     - `void setPaused(bool paused) { mIsPaused = paused; if (!paused) mStepOneFrame = false; }`
+     - `void stepOneFrame()`：若 `mIsPlaying` 为 true，则置 `mIsPaused = true; mStepOneFrame = true;`
+     - `bool shouldTickGameplay() const { return mIsPlaying && (!mIsPaused || mStepOneFrame); }`
+   - 将 `GameObject.cpp` 中判定 `Behaviour` 是否执行的 `T3D_AGENT.isPlaying()` 替换为 `T3D_AGENT.shouldTickGameplay()`；在 `Agent::endFrame()` 驱动动画处，仅当 `shouldTickGameplay()` 为 true 时推进 `mAniPlayerMgr->update()`，并在 `endFrame()` 末尾清零 `mStepOneFrame = false;`。
+2. **Step 2：扩展 `PlayModeController`**
+   - 文件：`source/Editor/TinyEditor/PlayModeController.h/.cpp`
+   - 新增 `bool isPaused() const`、`void togglePause()`、`bool canStep() const`、`void step()`；
+   - 在 `doStop()` 退出 Play 时重置 `T3D_AGENT.setPaused(false)`（或按需保留 Edit 态预暂停）。
+3. **Step 3：接线 `UIGameWindow` 与 `UIMainWindow`**
+   - `UIGameWindow.cpp:234-243`：
+     - Pause 按钮：`queryEnable` 为 `return true;`，`queryActive` 为 `return PLAY_MODE_CTRL.isPaused();`，点击调 `PLAY_MODE_CTRL.togglePause()`；
+     - Step 按钮：`queryEnable` 为 `return PLAY_MODE_CTRL.isPlaying() && PLAY_MODE_CTRL.isPaused();`，点击调 `PLAY_MODE_CTRL.step()`。
+   - `UIMainWindow.cpp:410`：`ID_MENU_ITEM_PAUSE` 同步绑定 `PLAY_MODE_CTRL.togglePause()`。
+
+### 14.4 验收标准
+
+- 进入 Play 后点击 Pause，场景内旋转物体/骨骼动画立即静止，但 Scene 视口与 Inspector 仍可流畅交互；
+- 暂停态下每点一次 Step，物体与动画精确推进一帧后再次静止；
+- 点击 Stop 正常退出 Play 并还原场景快照。

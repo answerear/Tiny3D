@@ -1811,3 +1811,21 @@ endif (TINY3D_BUILD_EDITOR)
 | Phase 3 编辑器 | P3-1, P1-1, P1-10, P2-1, P2-5 | 未开始 | |
 | Phase 4 Console / iOS | P3-2, P3-3, P2-2, P2-3, P2-6–P2-9, P2-11 | 未开始 | |
 | Phase 5 性能 | P2-4, P3-4, P3-5 | 未开始 | |
+
+---
+
+## 32. 与最新 RHI 扩展（T0-1 / Compute / Readback / Stencil）的同步说明（2026-10 补充）
+
+在本文初版编写之后，`RHIContext` 新增了以下纯虚接口，实施 T3-2（Metal 后端补齐）时须一并纳入对应阶段：
+
+1. **`clearStencil(uint32_t stencil)`**（`T3DRHIContext.h:198`）：
+   - RmlUi 运行时 UI 用于在不清空深度缓冲的前提下仅清模板缓冲；
+   - Metal 实现：置 `pendingStencilClear = true; clearStencil = stencil; endEncoder();`，在 `ensureEncoder()` 中将 `stencilAttachment.loadAction` 设为 `MTLLoadActionClear`（而 `depthAttachment.loadAction` 设为 `MTLLoadActionLoad`）。**纳入 Phase 1**。
+2. **T0-1 `set{VS,PS,CS}StructuredBuffers` 参数放宽为 `ShaderResourceBuffers`**：
+   - 在 Phase 1 的 P0-7（Pending 绑定表）中，结构化缓冲与只读缓冲统一通过 `setVertexBuffer` / `setFragmentBuffer` 绑定到各自反射出的 `[[buffer(N)]]` 槽位（注意断言 `N < kMetalVertexBufferIndexBase (23)`）。
+3. **Compute / UAV / Indirect 全套接口（对应 RHI-Compute 五期 E3）**：
+   - 当前在 `T3DMetalContext.mm` 中已改为 `T3D_RHI_UNSUPPORTED` 规约 stub；
+   - 待 Phase 0–Phase 2 跑通图形与阴影管线后，在独立阶段实现 `MTLComputePipelineState`、`MTLComputeCommandEncoder`、`dispatchThreadgroups:`、`dispatchThreadgroupsWithIndirectBuffer:` 与 `drawIndexedPrimitives:indirectBuffer:`。
+4. **GPU 读回 `map` / `unmap`**：
+   - 缓冲读回：对 `StorageModeShared` 缓冲在 `onRender` 中用 `MTLBlitCommandEncoder` 拷贝到 staging `id<MTLBuffer>`，`unmap` 中等待当前 command buffer 完成后 `memcpy`；
+   - 纹理读回：`copyFromTexture:toBuffer:` 拷入紧凑 staging buffer 后在 `unmap` 中读取。
