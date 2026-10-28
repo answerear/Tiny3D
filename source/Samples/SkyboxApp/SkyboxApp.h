@@ -54,9 +54,18 @@ protected:
     /// 地面平面，用于接收立方体投影（与 ShadowApp 同款）
     void buildPlane(Tiny3D::Transform3D *parent);
 
+    /// 沿视线方向放置 3 个不同颜色的半透明竖直平面（故意按从近到远创建，验证透明队列从后往前排序）
+    void buildTransparentPlanes(Tiny3D::Transform3D *parent);
+
     Tiny3D::ShaderPtr buildShader();
     Tiny3D::PassPtr buildShadowPass();
     Tiny3D::PassPtr buildForwardPass();
+
+    Tiny3D::ShaderPtr buildTransparentShader();
+    Tiny3D::PassPtr buildTransparentForwardPass();
+    Tiny3D::Texture2DPtr buildSolidColorTexture(const String &name, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+    Tiny3D::MaterialPtr buildTransparentMaterial(const String &name, Tiny3D::Shader *shader, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+    Tiny3D::MeshPtr buildVerticalQuadMesh(const String &name, const Tiny3D::UUID &materialUUID);
 
     Tiny3D::Texture2DPtr buildCubeTexture();
     Tiny3D::MaterialPtr buildCubeMaterial(Tiny3D::Shader *shader);
@@ -75,6 +84,9 @@ protected:
     Tiny3D::MeshPtr         mPlaneMesh {nullptr};
     Tiny3D::MaterialPtr     mCubeMaterial {nullptr};
     Tiny3D::MaterialPtr     mPlaneMaterial {nullptr};
+
+    Tiny3D::MeshPtr         mTransparentMeshes[3] {nullptr, nullptr, nullptr};
+    Tiny3D::MaterialPtr     mTransparentMaterials[3] {nullptr, nullptr, nullptr};
 
     Tiny3D::ID              mOrbitTimerID {Tiny3D::T3D_INVALID_TIMER_ID};
 

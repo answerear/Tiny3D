@@ -38,14 +38,22 @@ static const char *SUB_MESH_NAME = "#0";
 SkyboxApp theApp;
 
 #if defined(T3D_OS_WINDOWS)
+extern const char *SAMPLE_VERTEX_SHADER;
+extern const char *SAMPLE_PIXEL_SHADER;
 extern const char *SHADOW_VERTEX_SHADER;
 extern const char *FORWARD_VERTEX_SHADER;
 extern const char *FORWARD_PIXEL_SHADER;
+extern const char *SAMPLE_VERTEX_SHADER_GL;
+extern const char *SAMPLE_PIXEL_SHADER_GL;
 extern const char *SHADOW_VERTEX_SHADER_GL;
 extern const char *FORWARD_VERTEX_SHADER_GL;
 extern const char *FORWARD_PIXEL_SHADER_GL;
 #endif
 #if defined(T3D_OS_WINDOWS) || defined(T3D_OS_ANDROID)
+extern const unsigned char SAMPLE_VERTEX_SHADER_VK[];
+extern const size_t SAMPLE_VERTEX_SHADER_VK_SIZE;
+extern const unsigned char SAMPLE_PIXEL_SHADER_VK[];
+extern const size_t SAMPLE_PIXEL_SHADER_VK_SIZE;
 extern const unsigned char SHADOW_VERTEX_SHADER_VK[];
 extern const size_t SHADOW_VERTEX_SHADER_VK_SIZE;
 extern const unsigned char FORWARD_VERTEX_SHADER_VK[];
@@ -54,6 +62,8 @@ extern const unsigned char FORWARD_PIXEL_SHADER_VK[];
 extern const size_t FORWARD_PIXEL_SHADER_VK_SIZE;
 #endif
 #if defined(T3D_OS_ANDROID)
+extern const char *SAMPLE_VERTEX_SHADER_GLES;
+extern const char *SAMPLE_PIXEL_SHADER_GLES;
 extern const char *SHADOW_VERTEX_SHADER_GLES;
 extern const char *FORWARD_VERTEX_SHADER_GLES;
 extern const char *FORWARD_PIXEL_SHADER_GLES;
@@ -137,6 +147,10 @@ TResult SkyboxApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     buildCube(root);
     buildPlane(root);
 
+    // 3 个半透明竖直平面（Queue = Transparent, ZWrite Off, SrcAlpha/OneMinusSrcAlpha）：
+    // 故意按从近到远顺序创建，验证透明队列从后往前排序及相机环绕 180° 后自动翻转
+    buildTransparentPlanes(root);
+
     APP_LOG_DEBUG("Scene hierarchy:");
     scene->printSceneHierarchy(true);
 
@@ -149,6 +163,12 @@ void SkyboxApp::applicationWillTerminate()
     {
         T3D_TIMER_MGR.stopTimer(mOrbitTimerID);
         mOrbitTimerID = T3D_INVALID_TIMER_ID;
+    }
+
+    for (size_t i = 0; i < 3; ++i)
+    {
+        mTransparentMeshes[i] = nullptr;
+        mTransparentMaterials[i] = nullptr;
     }
 
     mCubeMesh = nullptr;
@@ -265,6 +285,315 @@ void SkyboxApp::buildPlane(Transform3D *parent)
 
     AabbBoundPtr bound = go->addComponent<AabbBound>();
     buildAabb(mPlaneMesh, submesh, bound);
+}
+
+void SkyboxApp::buildTransparentPlanes(Transform3D *parent)
+{
+    ShaderPtr transparentShader = buildTransparentShader();
+
+    struct PanelDesc
+    {
+        const char *goName;
+        const char *matName;
+        const char *meshName;
+        uint8_t     r;
+        uint8_t     g;
+        uint8_t     b;
+        uint8_t     a;
+        Vector3     position;
+    };
+
+    // 初始相机在 (0, 8, -30) 朝 +Z 看向原点：
+    // 故意按「从近到远」（z = -12 -> -8 -> -4）顺序创建并挂不同材质实例，
+    // 验证渲染管线能按到相机的距离从远到近（Back-to-Front）正确排序，并在相机转到背面时自动翻转顺序。
+    const PanelDesc panels[3] =
+    {
+        { "TransparentPlane_Red_Near",   "Transparent-Red",   "Quad_Red",   255,  60,  60, 128, Vector3(0.0f, 3.0f, -12.0f) },
+        { "TransparentPlane_Green_Mid",  "Transparent-Green", "Quad_Green",  60, 255,  60, 128, Vector3(0.0f, 3.0f,  -8.0f) },
+        { "TransparentPlane_Blue_Far",   "Transparent-Blue",  "Quad_Blue",   60, 120, 255, 128, Vector3(0.0f, 3.0f,  -4.0f) },
+    };
+
+    for (size_t i = 0; i < 3; ++i)
+    {
+        const PanelDesc &desc = panels[i];
+        mTransparentMaterials[i] = buildTransparentMaterial(desc.matName, transparentShader, desc.r, desc.g, desc.b, desc.a);
+        mTransparentMeshes[i] = buildVerticalQuadMesh(desc.meshName, mTransparentMaterials[i]->getUUID());
+
+        GameObjectPtr go = GameObject::create(desc.goName);
+        Transform3DPtr xform = go->addComponent<Transform3D>();
+        parent->addChild(xform);
+        xform->setPosition(desc.position);
+
+        SubMesh *submesh = mTransparentMeshes[i]->getSubMesh(SUB_MESH_NAME);
+        GeometryPtr geometry = go->addComponent<Geometry>();
+        geometry->setMeshObject(mTransparentMeshes[i], submesh);
+
+        AabbBoundPtr bound = go->addComponent<AabbBound>();
+        buildAabb(mTransparentMeshes[i], submesh, bound);
+    }
+}
+
+PassPtr SkyboxApp::buildTransparentForwardPass()
+{
+    ShaderKeyword vkeyword;
+    vkeyword.addKeyword("");
+    vkeyword.generate();
+    ShaderKeyword pkeyword(vkeyword);
+
+    RHIRendererPtr renderer = T3D_AGENT.getActiveRHIRenderer();
+    const String rendererName = renderer->getName();
+    const SHADER_LANGUAGE shadingLang = renderer->getShadingLanguage();
+    const char *vsCode = nullptr;
+    size_t vsSize = 0;
+
+#if defined(T3D_OS_WINDOWS)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        vsCode = reinterpret_cast<const char*>(SAMPLE_VERTEX_SHADER_VK);
+        vsSize = SAMPLE_VERTEX_SHADER_VK_SIZE;
+    }
+    else if (rendererName == RHIRenderer::OPENGL4)
+    {
+        vsCode = SAMPLE_VERTEX_SHADER_GL;
+        vsSize = strlen(SAMPLE_VERTEX_SHADER_GL);
+    }
+    else
+    {
+        vsCode = SAMPLE_VERTEX_SHADER;
+        vsSize = strlen(SAMPLE_VERTEX_SHADER);
+    }
+#elif defined(T3D_OS_ANDROID)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        vsCode = reinterpret_cast<const char*>(SAMPLE_VERTEX_SHADER_VK);
+        vsSize = SAMPLE_VERTEX_SHADER_VK_SIZE;
+    }
+    else
+    {
+        vsCode = SAMPLE_VERTEX_SHADER_GLES;
+        vsSize = strlen(SAMPLE_VERTEX_SHADER_GLES);
+    }
+#elif defined(T3D_OS_LINUX)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        vsCode = reinterpret_cast<const char*>(SAMPLE_VERTEX_SHADER_VK);
+        vsSize = SAMPLE_VERTEX_SHADER_VK_SIZE;
+    }
+    else
+    {
+        vsCode = SAMPLE_VERTEX_SHADER_GL;
+        vsSize = strlen(SAMPLE_VERTEX_SHADER_GL);
+    }
+#endif
+
+    ShaderVariantPtr vshader = ShaderVariant::create(std::move(vkeyword), vsCode, vsSize);
+    vshader->setShaderStage(SHADER_STAGE::kVertex);
+    vshader->setLanguage(shadingLang);
+
+    const char *psCode = nullptr;
+    size_t psSize = 0;
+
+#if defined(T3D_OS_WINDOWS)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        psCode = reinterpret_cast<const char*>(SAMPLE_PIXEL_SHADER_VK);
+        psSize = SAMPLE_PIXEL_SHADER_VK_SIZE;
+    }
+    else if (rendererName == RHIRenderer::OPENGL4)
+    {
+        psCode = SAMPLE_PIXEL_SHADER_GL;
+        psSize = strlen(SAMPLE_PIXEL_SHADER_GL);
+    }
+    else
+    {
+        psCode = SAMPLE_PIXEL_SHADER;
+        psSize = strlen(SAMPLE_PIXEL_SHADER);
+    }
+#elif defined(T3D_OS_ANDROID)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        psCode = reinterpret_cast<const char*>(SAMPLE_PIXEL_SHADER_VK);
+        psSize = SAMPLE_PIXEL_SHADER_VK_SIZE;
+    }
+    else
+    {
+        psCode = SAMPLE_PIXEL_SHADER_GLES;
+        psSize = strlen(SAMPLE_PIXEL_SHADER_GLES);
+    }
+#elif defined(T3D_OS_LINUX)
+    if (rendererName == RHIRenderer::VULKAN)
+    {
+        psCode = reinterpret_cast<const char*>(SAMPLE_PIXEL_SHADER_VK);
+        psSize = SAMPLE_PIXEL_SHADER_VK_SIZE;
+    }
+    else
+    {
+        psCode = SAMPLE_PIXEL_SHADER_GL;
+        psSize = strlen(SAMPLE_PIXEL_SHADER_GL);
+    }
+#endif
+
+    ShaderVariantPtr pshader = ShaderVariant::create(std::move(pkeyword), psCode, psSize);
+    pshader->setShaderStage(SHADER_STAGE::kPixel);
+    pshader->setLanguage(shadingLang);
+
+    PassPtr pass = Pass::create("TransparentForwardBase");
+    TResult ret = pass->addShaderVariant(vshader->getShaderKeyword(), vshader);
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
+    ret = pass->addShaderVariant(pshader->getShaderKeyword(), pshader);
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
+    pass->addTag(ShaderLab::kBuiltinTagLightMode, ShaderLab::kBuiltinLightModeForwardBaseStr);
+
+    RenderStatePtr renderState = RenderState::create();
+
+    // 开启 Alpha Blend: SrcAlpha / OneMinusSrcAlpha
+    BlendDesc blendDesc;
+    blendDesc.RenderTargetStates[0].BlendEnable = true;
+    blendDesc.RenderTargetStates[0].SrcBlend = BlendFactor::kSrcAlpha;
+    blendDesc.RenderTargetStates[0].DestBlend = BlendFactor::kOneMinusSrcAlpha;
+    blendDesc.RenderTargetStates[0].BlendOp = BlendOperation::kAdd;
+    blendDesc.RenderTargetStates[0].SrcBlendAlpha = BlendFactor::kOne;
+    blendDesc.RenderTargetStates[0].DstBlendAlpha = BlendFactor::kOneMinusSrcAlpha;
+    blendDesc.RenderTargetStates[0].BlendOpAlpha = BlendOperation::kAdd;
+    renderState->setBlendDesc(blendDesc);
+
+    // 半透明物体开启深度测试但关闭深度写入（ZWrite Off）
+    DepthStencilDesc depthStencilDesc;
+    depthStencilDesc.DepthTestEnable = true;
+    depthStencilDesc.DepthWriteEnable = false;
+    depthStencilDesc.DepthFunc = CompareFunction::kLessEqual;
+    renderState->setDepthStencilDesc(depthStencilDesc);
+
+    // 双面渲染（Cull Off），以便相机环绕 360° 时正背面都能看到半透明平面
+    RasterizerDesc rasterizeDesc;
+    rasterizeDesc.CullMode = CullingMode::kNone;
+    renderState->setRasterizerDesc(rasterizeDesc);
+
+    pass->setRenderState(renderState);
+
+    return pass;
+}
+
+ShaderPtr SkyboxApp::buildTransparentShader()
+{
+    PassPtr forwardPass = buildTransparentForwardPass();
+
+    TechniquePtr tech = Technique::create("Transparent-Technique");
+    bool rval = tech->addPass(forwardPass);
+    T3D_ASSERT(rval);
+    tech->addTag(ShaderLab::kBuiltinTagQueue, ShaderLab::kBuiltinQueueTransparentStr);
+
+    ShaderPtr shader = T3D_SHADER_MGR.createShader("Transparent-Shader");
+    rval = shader->addTechnique(tech);
+    T3D_ASSERT(rval);
+
+    return shader;
+}
+
+Texture2DPtr SkyboxApp::buildSolidColorTexture(const String &name, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+{
+    const uint32_t width = 4;
+    const uint32_t height = 4;
+    const uint32_t pitch = Image::calcPitch(width, 32);
+    const uint32_t dataSize = pitch * height;
+    uint8_t *pixels = T3D_POD_NEW_ARRAY(uint8_t, dataSize);
+
+    for (uint32_t y = 0; y < height; ++y)
+    {
+        uint8_t *line = pixels + pitch * y;
+        uint32_t idx = 0;
+        for (uint32_t x = 0; x < width; ++x)
+        {
+            // E_PF_B8G8R8A8: B, G, R, A
+            line[idx++] = b;
+            line[idx++] = g;
+            line[idx++] = r;
+            line[idx++] = a;
+        }
+    }
+
+    Buffer texData;
+    texData.Data = pixels;
+    texData.DataSize = dataSize;
+
+    Texture2DPtr texture = T3D_TEXTURE_MGR.createTexture2D(name, width, height, PixelFormat::E_PF_B8G8R8A8, texData);
+    SamplerDesc samplerDesc;
+    texture->setSamplerDesc(samplerDesc);
+    return texture;
+}
+
+MaterialPtr SkyboxApp::buildTransparentMaterial(const String &name, Shader *shader, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+{
+    Texture2DPtr texture = buildSolidColorTexture(name + "_Tex", r, g, b, a);
+
+    MaterialPtr material = T3D_MATERIAL_MGR.createMaterial(name, shader);
+    StringArray enableKeywords;
+    enableKeywords.push_back("");
+    StringArray disableKeywords;
+    material->switchKeywords(enableKeywords, disableKeywords);
+    material->setTexture("texCube", texture->getUUID());
+    return material;
+}
+
+MeshPtr SkyboxApp::buildVerticalQuadMesh(const String &name, const Tiny3D::UUID &materialUUID)
+{
+    struct UnlitQuadVertex
+    {
+        Vector3 position {};
+        Vector2 uv {};
+    };
+
+    VertexAttribute attrPos(0, 0, VertexAttribute::Type::E_VAT_FLOAT3, VertexAttribute::Semantic::E_VAS_POSITION, 0);
+    VertexAttribute attrUV(0, sizeof(Vector3), VertexAttribute::Type::E_VAT_FLOAT2, VertexAttribute::Semantic::E_VAS_TEXCOORD, 0);
+    VertexAttributes attributes(2);
+    attributes[0] = attrPos;
+    attributes[1] = attrUV;
+
+    const uint32_t kVertexCount = 4;
+    const uint32_t kIndexCount = 6;
+    UnlitQuadVertex *vertices = T3D_POD_NEW_ARRAY(UnlitQuadVertex, kVertexCount);
+    uint16_t *indices = T3D_POD_NEW_ARRAY(uint16_t, kIndexCount);
+
+    const Real halfSize = Real(2.5f);
+
+    vertices[0].position = Vector3(-halfSize,  halfSize, 0.0f);
+    vertices[0].uv = Vector2(0.0f, 0.0f);
+
+    vertices[1].position = Vector3( halfSize,  halfSize, 0.0f);
+    vertices[1].uv = Vector2(1.0f, 0.0f);
+
+    vertices[2].position = Vector3(-halfSize, -halfSize, 0.0f);
+    vertices[2].uv = Vector2(0.0f, 1.0f);
+
+    vertices[3].position = Vector3( halfSize, -halfSize, 0.0f);
+    vertices[3].uv = Vector2(1.0f, 1.0f);
+
+    indices[0] = 0;
+    indices[1] = 1;
+    indices[2] = 2;
+    indices[3] = 2;
+    indices[4] = 1;
+    indices[5] = 3;
+
+    Buffer vertexBuffer;
+    vertexBuffer.Data = reinterpret_cast<uint8_t *>(vertices);
+    vertexBuffer.DataSize = sizeof(UnlitQuadVertex) * kVertexCount;
+    Vertices vertexBuffers(1);
+    vertexBuffers[0] = vertexBuffer;
+
+    VertexStrides strides(1, sizeof(UnlitQuadVertex));
+    VertexOffsets offsets(1, 0);
+
+    Buffer indexBuffer;
+    indexBuffer.Data = reinterpret_cast<uint8_t *>(indices);
+    indexBuffer.DataSize = sizeof(uint16_t) * kIndexCount;
+
+    String submeshName = SUB_MESH_NAME;
+    SubMeshPtr submesh = SubMesh::create(submeshName, materialUUID, PrimitiveType::kTriangleList, std::move(indexBuffer), true);
+    SubMeshes subMeshes;
+    subMeshes.emplace(submeshName, submesh);
+
+    return T3D_MESH_MGR.createMesh(name, std::move(attributes), std::move(vertexBuffers), std::move(strides), std::move(offsets), std::move(subMeshes));
 }
 
 PassPtr SkyboxApp::buildShadowPass()
