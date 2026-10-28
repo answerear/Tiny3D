@@ -209,6 +209,33 @@ namespace Tiny3D
         TResult setupWorldMatrix(RHIContext *ctx, Renderable *renderable, Material *material, PassInstance *pass);
 
         /**
+         * \brief 绑定单个 Renderable 的世界矩阵、图元拓扑与顶点/索引缓冲并提交绘制
+         * \param [in] ctx : RHI 上下文
+         * \param [in] renderable : 可渲染对象
+         * \param [in] material : 目标材质
+         * \param [in] pass : Pass 实例
+         */
+        void submitRenderable(RHIContext *ctx, Renderable *renderable, Material *material, PassInstance *pass);
+
+        /**
+         * \brief 计算 Renderable 用于透明排序的世界空间中心点
+         * \param [in] renderable : 可渲染对象
+         * \return 优先返回关联 Bound 的世界空间中心点；无 Bound 时回退为 Transform3D 世界平移
+         */
+        Vector3 computeRenderableWorldCenter(Renderable *renderable) const;
+
+        /**
+         * \brief 透明队列排序项（按到相机的距离平方从远到近排序；距离相等时按入队流水号保序）
+         */
+        struct TransparentSortItem
+        {
+            Renderable *renderable {nullptr};
+            Material   *material   {nullptr};
+            Real        distanceSq {REAL_ZERO};
+            uint32_t    order      {0};
+        };
+
+        /**
          * \brief 对指定相机渲染方向光阴影贴图（ShadowCaster Pass）
          * \param [in] ctx : RHI 上下文
          * \param [in] camera : 使用该相机队列中的 Renderable 作为阴影投射体
@@ -297,6 +324,8 @@ namespace Tiny3D
 
         /// 按相机 → 队列 → 材质分组的渲染队列
         CameraRenderQueue mRenderQueue {};
+        /// 复用的透明队列排序缓冲区（仅 clear 不释放 capacity，避免每帧堆分配）
+        TArray<TransparentSortItem> mTransparentItems {};
         /// cull 阶段收集的活跃相机列表
         Cameras mCameras {};
         /// cull 阶段收集的场景光源表（UUID → Light*）

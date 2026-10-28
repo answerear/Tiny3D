@@ -38,6 +38,11 @@
 #include "Component/T3DRenderable.h"
 #include "Component/T3DSkybox.h"
 #include "Component/T3DTransform3D.h"
+#include "Bound/T3DBound.h"
+#include "Bound/T3DSphereBound.h"
+#include "Bound/T3DAabbBound.h"
+#include "Bound/T3DObbBound.h"
+#include "Bound/T3DCapsuleBound.h"
 #include "Kernel/T3DGameObject.h"
 #include "Render/T3DRenderTarget.h"
 #include "Render/T3DRenderTexture.h"
@@ -116,6 +121,8 @@ namespace Tiny3D
         mSkyboxVertexDeclShader = nullptr;
         mPostProcessVertexDecl = nullptr;
         mPostProcessVertexDeclShader = nullptr;
+        mTransparentItems.clear();
+        mTransparentItems.shrink_to_fit();
         clearTempRTPool();
     }
 
@@ -487,33 +494,7 @@ namespace Tiny3D
 
                     for (const auto &renderable : renderables)
                     {
-                        // 设置渲染对象的世界变换
-                        setupWorldMatrix(ctx, renderable, material, pass);
-
-                        // 设置渲染图元类型
-                        ctx->setPrimitiveType(renderable->getPrimitiveType());
-
-                        // 设置 vertex declaration
-                        ctx->setVertexDeclaration(renderable->getVertexDeclaration());
-
-                        // 设置 vertex buffer
-                        ctx->setVertexBuffers(0, renderable->getVertexBuffers(), renderable->getVertexStrides(), renderable->getVertexOffsets());
-
-                        IndexBuffer *ib = renderable->getIndexBuffer();
-                        if (ib != nullptr)
-                        {
-                            // 需要索引缓冲区，设置 index buffer
-                            ctx->setIndexBuffer(ib);
-                            // render
-                            ctx->render(ib->getIndexCount(), 0, 0);
-                        }
-                        else
-                        {
-                            VertexBuffer *vb = renderable->getVertexBuffers().front();
-
-                            // 没有索引缓冲区，直接 render
-                            ctx->render(vb->getVertexCount(), 0);
-                        }
+                        submitRenderable(ctx, renderable, material, pass);
                     }
                 }
             }
@@ -655,100 +636,181 @@ namespace Tiny3D
         bool drawSkybox, Material *skyboxMaterial, RasterizerOverride rasterizerOverride)
     {
         bool skyboxDrawn = false;
+        const Vector3 camPos(cameraWorldPos.x(), cameraWorldPos.y(), cameraWorldPos.z());
 
         const auto itr = mRenderQueue.find(camera);
 
         if (itr != mRenderQueue.end())
         {
-            for (auto itemQueue : itr->second)
+            for (const auto &itemQueue : itr->second)
             {
+                const uint32_t queue = itemQueue.first;
+                const RenderGroup &group = itemQueue.second;
+
                 if (drawSkybox && !skyboxDrawn
-                    && itemQueue.first >= ShaderLab::kBuiltinQueueTransparent)
+                    && queue >= ShaderLab::kBuiltinQueueTransparent)
                 {
                     // 不透明物体已经写好深度，此时画天空盒能把被挡住的像素剔掉
                     renderSkybox(ctx, camera, skyboxMaterial);
                     skyboxDrawn = true;
                 }
 
-                const RenderGroup &group = itemQueue.second;
-
-                for (auto itemGroup : group)
+                if (queue < ShaderLab::kBuiltinQueueTransparent)
                 {
-                    Material *material = itemGroup.first;
-                    const Renderables &renderables = itemGroup.second;
-
-                    TechniqueInstancePtr tech = material->getCurrentTechnique();
-                    if (tech == nullptr)
+                    // 不透明队列（Background / Geometry / AlphaTest）：保持按材质聚合绘制快路
+                    for (const auto &itemGroup : group)
                     {
-                        continue;
-                    }
+                        Material *material = itemGroup.first;
+                        const Renderables &renderables = itemGroup.second;
 
-                    // 设置 shadow map 纹理
-                    material->setTexture("shadowMap", mShadowMapRT->getDepthStencil()->getUUID());
-
-                    // 设置 material 对应的矩阵
-                    setupForwardPassMatrices(ctx, material);
-
-                    // 设置光照
-                    setupLights(ctx, material);
-
-                    // 设置相机世界位置
-                    material->setVector("tiny3d_CameraWorldPos", cameraWorldPos);
-
-                    const auto itrPass = tech->getPassInstances().find(ShaderLab::kBuiltinLightModeForwardBase);
-                    if (itrPass == tech->getPassInstances().end())
-                    {
-                        continue;
-                    }
-
-                    PassInstance *pass = itrPass->second;
-                    if (pass == nullptr)
-                    {
-                        continue;
-                    }
-
-                    RenderState *renderState = pass->getPass()->getRenderState();
-                    if (renderState == nullptr)
-                    {
-                        // pass 没有设置 render state，使用 technique 的 render state
-                        renderState = tech->getTechnique()->getRenderState();
-                    }
-
-                    // 设置对应的渲染状态
-                    setupRenderState(ctx, renderState, rasterizerOverride);
-
-                    // 设置着色器
-                    setupShaders(ctx, material, pass);
-
-                    for (const auto &renderable : renderables)
-                    {
-                        // 设置渲染对象的世界变换
-                        setupWorldMatrix(ctx, renderable, material, pass);
-
-                        // 设置渲染图元类型
-                        ctx->setPrimitiveType(renderable->getPrimitiveType());
-
-                        // 设置 vertex declaration
-                        ctx->setVertexDeclaration(renderable->getVertexDeclaration());
-
-                        // 设置 vertex buffer
-                        ctx->setVertexBuffers(0, renderable->getVertexBuffers(), renderable->getVertexStrides(), renderable->getVertexOffsets());
-
-                        IndexBuffer *ib = renderable->getIndexBuffer();
-                        if (ib != nullptr)
+                        TechniqueInstancePtr tech = material->getCurrentTechnique();
+                        if (tech == nullptr)
                         {
-                            // 需要索引缓冲区，设置 index buffer
-                            ctx->setIndexBuffer(ib);
-                            // render
-                            ctx->render(ib->getIndexCount(), 0, 0);
+                            continue;
                         }
-                        else
-                        {
-                            VertexBuffer *vb = renderable->getVertexBuffers().front();
 
-                            // 没有索引缓冲区，直接 render
-                            ctx->render(vb->getVertexCount(), 0);
+                        // 设置 shadow map 纹理
+                        material->setTexture("shadowMap", mShadowMapRT->getDepthStencil()->getUUID());
+
+                        // 设置 material 对应的矩阵
+                        setupForwardPassMatrices(ctx, material);
+
+                        // 设置光照
+                        setupLights(ctx, material);
+
+                        // 设置相机世界位置
+                        material->setVector("tiny3d_CameraWorldPos", cameraWorldPos);
+
+                        const auto itrPass = tech->getPassInstances().find(ShaderLab::kBuiltinLightModeForwardBase);
+                        if (itrPass == tech->getPassInstances().end())
+                        {
+                            continue;
                         }
+
+                        PassInstance *pass = itrPass->second;
+                        if (pass == nullptr)
+                        {
+                            continue;
+                        }
+
+                        RenderState *renderState = pass->getPass()->getRenderState();
+                        if (renderState == nullptr)
+                        {
+                            // pass 没有设置 render state，使用 technique 的 render state
+                            renderState = tech->getTechnique()->getRenderState();
+                        }
+
+                        // 设置对应的渲染状态
+                        setupRenderState(ctx, renderState, rasterizerOverride);
+
+                        // 设置着色器
+                        setupShaders(ctx, material, pass);
+
+                        for (const auto &renderable : renderables)
+                        {
+                            submitRenderable(ctx, renderable, material, pass);
+                        }
+                    }
+                }
+                else
+                {
+                    // 透明队列（Transparent / Overlay 等）：复用 mTransparentItems 连续缓冲区，
+                    // 按到相机的距离平方从远到近排序；距离相等时按入队流水号 order 决胜保序，零额外堆分配
+                    mTransparentItems.clear();
+                    uint32_t enqueueOrder = 0;
+
+                    for (const auto &itemGroup : group)
+                    {
+                        Material *material = itemGroup.first;
+                        const Renderables &renderables = itemGroup.second;
+                        if (material == nullptr)
+                        {
+                            continue;
+                        }
+
+                        TechniqueInstancePtr tech = material->getCurrentTechnique();
+                        if (tech == nullptr)
+                        {
+                            continue;
+                        }
+
+                        const auto itrPass = tech->getPassInstances().find(ShaderLab::kBuiltinLightModeForwardBase);
+                        if (itrPass == tech->getPassInstances().end() || itrPass->second == nullptr)
+                        {
+                            continue;
+                        }
+
+                        for (Renderable *renderable : renderables)
+                        {
+                            if (renderable == nullptr)
+                            {
+                                continue;
+                            }
+
+                            const Vector3 worldCenter = computeRenderableWorldCenter(renderable);
+                            TransparentSortItem sortItem;
+                            sortItem.renderable = renderable;
+                            sortItem.material = material;
+                            sortItem.distanceSq = (worldCenter - camPos).length2();
+                            sortItem.order = enqueueOrder++;
+                            mTransparentItems.push_back(sortItem);
+                        }
+                    }
+
+                    std::sort(mTransparentItems.begin(), mTransparentItems.end(),
+                        [](const TransparentSortItem &a, const TransparentSortItem &b)
+                        {
+                            if (a.distanceSq != b.distanceSq)
+                            {
+                                return a.distanceSq > b.distanceSq;
+                            }
+                            return a.order < b.order;
+                        });
+
+                    Material *lastMaterial = nullptr;
+                    PassInstance *lastPass = nullptr;
+
+                    for (const TransparentSortItem &item : mTransparentItems)
+                    {
+                        Material *material = item.material;
+                        Renderable *renderable = item.renderable;
+
+                        if (material != lastMaterial)
+                        {
+                            TechniqueInstancePtr tech = material->getCurrentTechnique();
+                            const auto itrPass = tech->getPassInstances().find(ShaderLab::kBuiltinLightModeForwardBase);
+                            PassInstance *pass = itrPass->second;
+
+                            // 设置 shadow map 纹理
+                            material->setTexture("shadowMap", mShadowMapRT->getDepthStencil()->getUUID());
+
+                            // 设置 material 对应的矩阵
+                            setupForwardPassMatrices(ctx, material);
+
+                            // 设置光照
+                            setupLights(ctx, material);
+
+                            // 设置相机世界位置
+                            material->setVector("tiny3d_CameraWorldPos", cameraWorldPos);
+
+                            RenderState *renderState = pass->getPass()->getRenderState();
+                            if (renderState == nullptr)
+                            {
+                                // pass 没有设置 render state，使用 technique 的 render state
+                                renderState = tech->getTechnique()->getRenderState();
+                            }
+
+                            // 设置对应的渲染状态
+                            setupRenderState(ctx, renderState, rasterizerOverride);
+
+                            // 设置着色器
+                            setupShaders(ctx, material, pass);
+
+                            lastMaterial = material;
+                            lastPass = pass;
+                        }
+
+                        submitRenderable(ctx, renderable, material, lastPass);
                     }
                 }
             }
@@ -1132,6 +1194,110 @@ namespace Tiny3D
             }
         }
         return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ForwardRenderPipeline::submitRenderable(RHIContext *ctx, Renderable *renderable, Material *material, PassInstance *pass)
+    {
+        // 设置渲染对象的世界变换
+        setupWorldMatrix(ctx, renderable, material, pass);
+
+        // 设置渲染图元类型
+        ctx->setPrimitiveType(renderable->getPrimitiveType());
+
+        // 设置 vertex declaration
+        ctx->setVertexDeclaration(renderable->getVertexDeclaration());
+
+        // 设置 vertex buffer
+        ctx->setVertexBuffers(0, renderable->getVertexBuffers(), renderable->getVertexStrides(), renderable->getVertexOffsets());
+
+        IndexBuffer *ib = renderable->getIndexBuffer();
+        if (ib != nullptr)
+        {
+            // 需要索引缓冲区，设置 index buffer
+            ctx->setIndexBuffer(ib);
+            // render
+            ctx->render(ib->getIndexCount(), 0, 0);
+        }
+        else
+        {
+            VertexBuffer *vb = renderable->getVertexBuffers().front();
+
+            // 没有索引缓冲区，直接 render
+            ctx->render(vb->getVertexCount(), 0);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    Vector3 ForwardRenderPipeline::computeRenderableWorldCenter(Renderable *renderable) const
+    {
+        if (renderable == nullptr)
+        {
+            return Vector3::ZERO;
+        }
+
+        GameObject *go = renderable->getGameObject();
+        Transform3D *xform = (go != nullptr) ? static_cast<Transform3D *>(go->getTransformNode()) : nullptr;
+
+        Bound *bound = renderable->getRenderBound();
+        if (bound == nullptr && go != nullptr)
+        {
+            bound = go->getComponent<Bound>();
+        }
+
+        if (bound != nullptr)
+        {
+            switch (bound->getType())
+            {
+            case Bound::Type::SPHERE:
+                {
+                    SphereBound *sphereBound = static_cast<SphereBound *>(bound);
+                    if (xform != nullptr)
+                    {
+                        return xform->getLocalToWorldTransform().getAffineMatrix() * sphereBound->getOriginalSphere().getCenter();
+                    }
+                    return sphereBound->getSphere().getCenter();
+                }
+            case Bound::Type::AABB:
+                {
+                    AabbBound *aabbBound = static_cast<AabbBound *>(bound);
+                    if (xform != nullptr)
+                    {
+                        return xform->getLocalToWorldTransform().getAffineMatrix() * aabbBound->getOriginalAabb().getCenter();
+                    }
+                    return aabbBound->getAabb().getCenter();
+                }
+            case Bound::Type::OBB:
+                {
+                    ObbBound *obbBound = static_cast<ObbBound *>(bound);
+                    if (xform != nullptr)
+                    {
+                        return xform->getLocalToWorldTransform().getAffineMatrix() * obbBound->getOriginalObb().getCenter();
+                    }
+                    return obbBound->getObb().getCenter();
+                }
+            case Bound::Type::CAPSULE:
+                {
+                    CapsuleBound *capsuleBound = static_cast<CapsuleBound *>(bound);
+                    if (xform != nullptr)
+                    {
+                        return xform->getLocalToWorldTransform().getAffineMatrix() * capsuleBound->getOriginalCapsule().getCenter();
+                    }
+                    return capsuleBound->getCapsule().getCenter();
+                }
+            default:
+                break;
+            }
+        }
+
+        if (xform != nullptr)
+        {
+            return xform->getLocalToWorldTransform().getTranslation();
+        }
+
+        return Vector3::ZERO;
     }
 
     //--------------------------------------------------------------------------
