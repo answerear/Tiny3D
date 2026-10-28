@@ -261,7 +261,7 @@ namespace Tiny3D
 
         mPlaybackID = mAnimationPlayer->playClip(clipName, false, isLoop, mIsGPUSkinning);
 
-        return true;
+        return (mPlaybackID != AnimationPlayer::INVALID_ID);
     }
 
     //--------------------------------------------------------------------------
@@ -269,9 +269,25 @@ namespace Tiny3D
     bool SkinnedGeometry::stop()
     {
         T3D_ASSERT(mAnimationPlayer != nullptr);
-        mAnimationPlayer->stopPlayback(mPlaybackID);
+        TResult ret = mAnimationPlayer->stopPlayback(mPlaybackID);
         mPlaybackID = AnimationPlayer::INVALID_ID;
-        return true;
+        return T3D_SUCCEEDED(ret);
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool SkinnedGeometry::pause()
+    {
+        T3D_ASSERT(mAnimationPlayer != nullptr);
+        return T3D_SUCCEEDED(mAnimationPlayer->pausePlayback(mPlaybackID));
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool SkinnedGeometry::resume()
+    {
+        T3D_ASSERT(mAnimationPlayer != nullptr);
+        return T3D_SUCCEEDED(mAnimationPlayer->resumePlayback(mPlaybackID));
     }
     
     //--------------------------------------------------------------------------

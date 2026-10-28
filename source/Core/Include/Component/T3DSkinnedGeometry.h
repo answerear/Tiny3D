@@ -90,15 +90,33 @@ namespace Tiny3D
          * \brief 播放指定动画剪辑
          * \param [in] clipName : 剪辑名称
          * \param [in] isLoop : 是否循环
-         * \return 当前实现恒返回 true
+         * \return 播放成功返回 true，失败返回 false
          */
         bool play(const String &clipName, bool isLoop);
         
         /**
          * \brief 停止当前播放
-         * \return 恒返回 true
+         * \return 成功返回 true
          */
         bool stop();
+
+        /**
+         * \brief 暂停当前播放
+         * \return 成功返回 true
+         */
+        bool pause();
+
+        /**
+         * \brief 恢复当前播放
+         * \return 成功返回 true
+         */
+        bool resume();
+
+        /// 返回内部动画播放器实例
+        AnimationPlayerPtr getAnimationPlayer() const { return mAnimationPlayer; }
+
+        /// 返回当前播放会话 ID
+        ID getPlaybackID() const { return mPlaybackID; }
         
     protected:
         /// 默认构造并创建 AnimationPlayer
