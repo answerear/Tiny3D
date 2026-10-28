@@ -39,6 +39,7 @@ const char *kForeArmName = "ForeArm";
 const char *kPalmName = "Palm";
 const char *kAnimationArm = "Arm";
 const char *kArmRotateLeft = "RotateLeft";
+const char *kArmRotateRight = "RotateRight";
 
 const char *DEFINE_GPU_SKIN = "T3D_GPU_SKIN";
 
@@ -339,6 +340,12 @@ TResult SkeletalAnimationApp::applicationDidFinishLaunching(int32_t argc, char *
 
 void SkeletalAnimationApp::applicationWillTerminate() 
 {
+    if (mPauseResumeTimerID != T3D_INVALID_ID)
+    {
+        T3D_TIMER_MGR.stopTimer(mPauseResumeTimerID);
+        mPauseResumeTimerID = T3D_INVALID_ID;
+    }
+    mArmGeometry = nullptr;
     mCubeMesh = nullptr;
     mPlaneMesh = nullptr;
     mCubeMaterial = nullptr;
@@ -613,11 +620,98 @@ void SkeletalAnimationApp::buildArm(Transform3D *parent, const Vector3 &pos, con
     geometry->populateAllChildren();
     geometry->setDefaultClipName(kArmRotateLeft);
 #if defined (USE_GPU_SKIN)
-    geometry->setGPUSkinning(true);
+    const bool useGPUSkin = true;
 #else
-    geometry->setGPUSkinning(false);
+    const bool useGPUSkin = false;
 #endif
-    geometry->play(kArmRotateLeft, true);
+    geometry->setGPUSkinning(useGPUSkin);
+
+    // 验证 1：传入不存在的 clipName 应返回 INVALID_ID
+    AnimationPlayerPtr player = geometry->getAnimationPlayer();
+    T3D_ASSERT(player != nullptr);
+    ID invalidID = player->playClip("NonExistentClip", false, true, useGPUSkin);
+    T3D_ASSERT(invalidID == AnimationPlayer::INVALID_ID);
+    T3D_LOG_INFO(LOG_TAG_APP, "[T0-4 Verify] playClip('NonExistentClip') returned ID=%u (expected INVALID_ID=%u)",
+        invalidID, AnimationPlayer::INVALID_ID);
+
+    // 验证 2：按名称播放第二个片段 kArmRotateRight 与第一个片段 kArmRotateLeft，返回递增正整数 ID
+    ID firstID = player->playClip(kArmRotateRight, false, true, useGPUSkin);
+    T3D_ASSERT(firstID != AnimationPlayer::INVALID_ID);
+    bool playOK = geometry->play(kArmRotateLeft, true);
+    ID secondID = geometry->getPlaybackID();
+    T3D_ASSERT(playOK && secondID > firstID);
+    T3D_LOG_INFO(LOG_TAG_APP, "[T0-4 Verify] playClip('%s') ID=%u, play('%s') ID=%u",
+        kArmRotateRight, firstID, kArmRotateLeft, secondID);
+
+    // 验证 3：定时验证 pausePlayback -> 定格保持 -> resumePlayback 平滑继续
+    mArmGeometry = geometry;
+    mTimerTickCount = 0;
+    mPauseResumeTimerID = T3D_TIMER_MGR.startTimer(1000, true, [this](ID timerID, int32_t dt)
+    {
+        if (mArmGeometry == nullptr)
+        {
+            return;
+        }
+        AnimationPlayerPtr animPlayer = mArmGeometry->getAnimationPlayer();
+        ID playbackID = mArmGeometry->getPlaybackID();
+        const BoneGameObjectsMap &bones = mArmGeometry->getAllBones();
+        auto palmIt = bones.find(kPalmName);
+        Transform3D *palmXform = (palmIt != bones.end())
+            ? static_cast<Transform3D *>(palmIt->second->getTransformNode())
+            : nullptr;
+
+        mTimerTickCount++;
+        if (mTimerTickCount == 2)
+        {
+            // 播放 2 秒后暂停
+            TResult res = animPlayer->pausePlayback(playbackID);
+            T3D_ASSERT(T3D_SUCCEEDED(res) && animPlayer->isPaused());
+            if (palmXform != nullptr)
+            {
+                mPausedPalmOrientation = palmXform->getOrientation();
+                T3D_LOG_INFO(LOG_TAG_APP, "[T0-4 Verify] Paused at 2s (ID=%u), Palm orientation=(%.4f, %.4f, %.4f, %.4f)",
+                    playbackID,
+                    mPausedPalmOrientation.x(), mPausedPalmOrientation.y(),
+                    mPausedPalmOrientation.z(), mPausedPalmOrientation.w());
+            }
+        }
+        else if (mTimerTickCount == 3)
+        {
+            // 暂停期间（第 3 秒）验证骨骼姿态定格未变
+            if (palmXform != nullptr)
+            {
+                const Quaternion &curOri = palmXform->getOrientation();
+                T3D_ASSERT(curOri == mPausedPalmOrientation);
+                T3D_LOG_INFO(LOG_TAG_APP, "[T0-4 Verify] Hold check at 3s while paused, Palm orientation=(%.4f, %.4f, %.4f, %.4f)",
+                    curOri.x(), curOri.y(), curOri.z(), curOri.w());
+            }
+        }
+        else if (mTimerTickCount == 4)
+        {
+            // 暂停 2 秒后（第 4 秒）恢复播放，验证从定格帧继续
+            if (palmXform != nullptr)
+            {
+                const Quaternion &curOri = palmXform->getOrientation();
+                T3D_ASSERT(curOri == mPausedPalmOrientation);
+            }
+            TResult res = animPlayer->resumePlayback(playbackID);
+            T3D_ASSERT(T3D_SUCCEEDED(res) && !animPlayer->isPaused());
+            T3D_LOG_INFO(LOG_TAG_APP, "[T0-4 Verify] Resumed at 4s (ID=%u), continuing smoothly from paused frame.", playbackID);
+        }
+        else if (mTimerTickCount == 5)
+        {
+            // 恢复 1 秒后（第 5 秒，实际动画累计时长约 3s），验证姿态已继续推进且停止测试定时器
+            if (palmXform != nullptr)
+            {
+                const Quaternion &curOri = palmXform->getOrientation();
+                T3D_ASSERT(curOri != mPausedPalmOrientation);
+                T3D_LOG_INFO(LOG_TAG_APP, "[T0-4 Verify] 1s after resume (wall 5s, anim ~3s), Palm orientation=(%.4f, %.4f, %.4f, %.4f)",
+                    curOri.x(), curOri.y(), curOri.z(), curOri.w());
+            }
+            T3D_TIMER_MGR.stopTimer(timerID);
+            mPauseResumeTimerID = T3D_INVALID_ID;
+        }
+    });
     
     // aabb bound component
     AabbBoundPtr bound = go->addComponent<AabbBound>();
@@ -1130,23 +1224,31 @@ SkeletonPtr SkeletalAnimationApp::buildArmSkeleton(Transform3D *parent)
 SkeletalAnimationPtr SkeletalAnimationApp::buildArmSkeletalAnimation()
 {
     // animation clips
-    AnimationTracks tracks;
+    AnimationTracks tracksLeft;
 
     const uint32_t duration = 8;
     
     // Upper Arm, 15°
-    buildAnimationTracks(kUpperArmName, Radian(Math::PI / 12.0f), duration, tracks);
+    buildAnimationTracks(kUpperArmName, Radian(Math::PI / 12.0f), duration, tracksLeft);
     
     // Fore Arm, 30°
-    buildAnimationTracks(kForeArmName, Radian(Math::PI / 6.0f), duration, tracks);
+    buildAnimationTracks(kForeArmName, Radian(Math::PI / 6.0f), duration, tracksLeft);
 
     // Palm, 45°
-    buildAnimationTracks(kPalmName, Radian(Math::HALF_PI / 2.0f), duration, tracks);
+    buildAnimationTracks(kPalmName, Radian(Math::HALF_PI / 2.0f), duration, tracksLeft);
     
-    // duration
-    AnimationClipPtr clip = AnimationClip::create(kArmRotateLeft, duration * 1000, std::move(tracks));
+    AnimationClipPtr clipLeft = AnimationClip::create(kArmRotateLeft, duration * 1000, std::move(tracksLeft));
+
+    // 第二个动画片段：反向弯曲，用于验证按名称查找多 Clip
+    AnimationTracks tracksRight;
+    buildAnimationTracks(kUpperArmName, -Radian(Math::PI / 12.0f), duration, tracksRight);
+    buildAnimationTracks(kForeArmName, -Radian(Math::PI / 6.0f), duration, tracksRight);
+    buildAnimationTracks(kPalmName, -Radian(Math::HALF_PI / 2.0f), duration, tracksRight);
+    AnimationClipPtr clipRight = AnimationClip::create(kArmRotateRight, duration * 1000, std::move(tracksRight));
+
     AnimationClips clips;
-    clips.emplace(kArmRotateLeft, clip);
+    clips.emplace(kArmRotateLeft, clipLeft);
+    clips.emplace(kArmRotateRight, clipRight);
     return T3D_ANIMATION_MGR.createSkeletalAnimation(kAnimationArm, clips);
 }
 

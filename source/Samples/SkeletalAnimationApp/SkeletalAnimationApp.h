@@ -69,6 +69,11 @@ protected:
     
     Tiny3D::MaterialPtr mCubeMaterial {nullptr};
     Tiny3D::MaterialPtr mPlaneMaterial {nullptr};
+
+    Tiny3D::SkinnedGeometryPtr mArmGeometry {nullptr};
+    Tiny3D::ID mPauseResumeTimerID {T3D_INVALID_ID};
+    uint32_t mTimerTickCount {0};
+    Tiny3D::Quaternion mPausedPalmOrientation {};
 };
 
 
