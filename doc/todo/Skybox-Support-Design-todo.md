@@ -529,7 +529,7 @@ add_custom_command(TARGET ${BIN_NAME} POST_BUILD
 | **`.tshader` 需重新烘焙** | 新 shader 必须用 `scc ... -t hlsl,glsl,essl,spirv` 出全语言变体，否则切后端时 `Pass::compile()` 会报 "bundle may not be baked for the active renderer" | 生成脚本统一带全语言参数 |
 | **`arraySize` 反序列化丢失** | `.ttex` 不写 `ArraySize`，反序列化后是 1 | `Cubemap::onLoad()` 强制改回 6 |
 | **editor / samples 双份资源漂移** | 天空盒资源在两处各存一份（§7.3），改了一边忘了另一边会导致 Sample 与编辑器表现不一致，且 UUID 一旦不同就彻底断链 | 加 `sync_builtin_to_samples` 的 CMake target 做 `copy_if_different`；改 shader 后必须两边同步 |
-| **透明物体无深度排序** | 现有管线的透明队列内没有 back-to-front 排序，天空盒插在透明之前不会加剧这个问题，但相关缺陷仍在 | 本期不处理，记录为已知问题 |
+| ~~**透明物体无深度排序**~~ | ~~现有管线的透明队列内没有 back-to-front 排序，天空盒插在透明之前不会加剧这个问题，但相关缺陷仍在~~ | ✅ **T1-1 已完成**：已在 `ForwardRenderPipeline::drawCameraQueue` 中对 `queue >= kBuiltinQueueTransparent` 的透明队列实现 Back-to-Front 距离排序，并在 `SkyboxApp` 中添加 3 个半透明平面验证通过 |
 
 ---
 

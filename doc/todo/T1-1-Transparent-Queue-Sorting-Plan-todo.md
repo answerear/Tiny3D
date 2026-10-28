@@ -1,11 +1,14 @@
 # T1-1 实现计划：前向渲染管线透明队列从后往前排序（Back-to-Front）
 
 > **所属批次**：T1（引擎渲染管线与动画半成品补齐）  
+> **状态**：✅ **已完成**（`T3DForwardRenderPipeline` + `SkyboxApp` 验收通过）  
 > **预估工作量**：1.5 人日  
 > **关联文档**：`doc/todo/Skybox-Support-Design-todo.md` §10（已登记为已知问题）  
 > **涉及文件**：
 > - `source/Core/Include/Render/T3DForwardRenderPipeline.h`
 > - `source/Core/Source/Render/T3DForwardRenderPipeline.cpp`
+> - `source/Samples/SkyboxApp/SkyboxApp.h`
+> - `source/Samples/SkyboxApp/SkyboxApp.cpp`
 
 ---
 
@@ -42,13 +45,14 @@ struct TransparentSortItem
     Renderable *renderable {nullptr};
     Material   *material   {nullptr};
     Real        distanceSq {REAL_ZERO};
+    uint32_t    order      {0};
 };
 ```
 
 计算方法：
-1. 优先取 `renderable->getRenderBound()` 的世界空间中心点（若无 Bound，则取 `renderable->getGameObject()->getTransformNode()->getLocalToWorldTransform().getTranslation()`）；
-2. 计算 `(worldCenter - cameraWorldPos.xyz()).lengthSquare()`；
-3. 使用 `std::stable_sort` 按 `a.distanceSq > b.distanceSq`（从远到近）排序；距离相等时保留入队顺序以防帧间闪烁。
+1. 优先取 `renderable->getRenderBound()`（或所属 `GameObject` 上的 `Bound` 组件）的世界空间中心点（若无 Bound，则取 `renderable->getGameObject()->getTransformNode()->getLocalToWorldTransform().getTranslation()`）；
+2. 计算 `(worldCenter - cameraWorldPos.xyz()).length2()`，并记录自增入队流水号 `order`；
+3. 复用成员变量 `mTransparentItems` 连续内存缓冲区（每帧仅 `clear()` 保留 `capacity`，零额外堆分配），使用 `std::sort` 按 `a.distanceSq > b.distanceSq`（从远到近）排序；当距离相等时以 `a.order < b.order` 决胜，保留入队顺序以防帧间闪烁且避免 `std::stable_sort` 的临时归并缓冲分配。
 
 ### 2.3 相邻同材质状态复用优化
 
