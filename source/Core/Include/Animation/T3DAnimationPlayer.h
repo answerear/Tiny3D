@@ -51,12 +51,12 @@ namespace Tiny3D
         
         /**
          * \brief 启动单片段播放并注册到 AnimationPlayerMgr
-         * \param [in] clipName : 动画片段名称（当前实现未按名称查找片段）
+         * \param [in] clipName : 动画片段名称，在 SkeletalAnimation 中按名查找（若为 "default" 且未命中则回退首个片段）
          * \param [in] isBlending : 是否混合过渡（当前实现未使用）
          * \param [in] isLoop : 片段播完后是否循环
          * \param [in] isGPUSkinning : 是否切换材质 shader 关键字以启用 GPU 蒙皮
-         * \return 当前实现始终返回 INVALID_ID；参数校验失败时内部记录错误码
-         * \note geometry 为 nullptr 或 clipName 为空时提前失败
+         * \return 成功返回递增生成的播放实例 ID；参数校验失败或未找到片段时返回 INVALID_ID
+         * \note geometry 为 nullptr、clipName 为空或未找到对应 AnimationClip 时返回 INVALID_ID
          */
         ID playClip(const String &clipName, bool isBlending, bool isLoop = false, bool isGPUSkinning = false);
 
@@ -81,27 +81,27 @@ namespace Tiny3D
 
         /**
          * \brief 停止播放并从 AnimationPlayerMgr 移除
-         * \param [in] playbackID : 播放实例 ID（当前实现未校验）
-         * \return 调用成功返回 T3D_OK
+         * \param [in] playbackID : 播放实例 ID（传入 INVALID_ID 表示无条件停止当前播放）
+         * \return 调用成功返回 T3D_OK；playbackID 不匹配返回 T3D_ERR_INVALID_PARAM
          */
         TResult stopPlayback(ID playbackID);
 
         /**
-         * \brief 暂停播放（当前实现为空操作）
-         * \param [in] playbackID : 播放实例 ID（当前实现未使用）
-         * \return 始终返回 T3D_OK
+         * \brief 暂停当前播放，冻结已累积的动画时间与骨骼姿态
+         * \param [in] playbackID : 播放实例 ID（传入 INVALID_ID 表示暂停当前播放）
+         * \return 成功返回 T3D_OK；未在播放或 playbackID 不匹配返回 T3D_ERR_INVALID_PARAM
          */
         TResult pausePlayback(ID playbackID);
 
         /**
-         * \brief 恢复播放（当前实现为空操作）
-         * \param [in] playbackID : 播放实例 ID（当前实现未使用）
-         * \return 始终返回 T3D_OK
+         * \brief 从暂停帧平滑恢复播放
+         * \param [in] playbackID : 播放实例 ID（传入 INVALID_ID 表示恢复当前播放）
+         * \return 成功返回 T3D_OK；未在播放或 playbackID 不匹配返回 T3D_ERR_INVALID_PARAM
          */
         TResult resumePlayback(ID playbackID);
 
         /**
-         * \brief 驱动骨骼插值更新；仅在 isPlaying() 为 true 时执行
+         * \brief 驱动骨骼插值更新；仅在 isPlaying() 为 true 且未暂停时执行
          */
         void updateAnimation();
 
@@ -112,6 +112,15 @@ namespace Tiny3D
 
         /// 是否处于播放状态
         bool isPlaying() const { return mIsPlaying; }
+
+        /// 是否处于暂停状态
+        bool isPaused() const { return mIsPaused; }
+
+        /// 获取当前播放实例 ID
+        ID getCurrentPlaybackID() const { return mCurrentPlaybackID; }
+
+        /// 获取当前播放片段名称
+        const String &getCurrentClipName() const { return mCurrentClipName; }
         
     protected:        
         /**
@@ -120,7 +129,7 @@ namespace Tiny3D
          */
         AnimationPlayer(SkinnedGeometry *geometry);
 
-        /// 递增生成播放实例 ID（当前 playClip 未调用）
+        /// 递增生成播放实例 ID
         ID generateID() const { return ++msGeneratedID; }
 
         /**
@@ -163,8 +172,7 @@ namespace Tiny3D
         Real getInterplationTime(Keyframe *kf0, Keyframe *kf1, uint32_t time) const;
 
         /**
-         * \brief 按骨骼层次顺序插值并写回 Transform3D；播完非循环片段时自动停止
-         * \note 当前取 SkeletalAnimation 中 clips 映射的首个片段，不按 clipName 选择
+         * \brief 按骨骼层次顺序对当前选中 AnimationClip 插值并写回 Transform3D；播完非循环片段时自动停止
          */
         void updateBones();
 
@@ -186,8 +194,19 @@ namespace Tiny3D
         /// 绑定的蒙皮几何体
         SkinnedGeometry *mSkinnedGeometry {nullptr};
 
-        /// 当前播放实例 ID（当前 playClip 未赋值）
+        /// 当前播放实例 ID
         ID mCurrentPlaybackID {INVALID_ID};
+
+        /// 当前正在播放的动画片段名称
+        String mCurrentClipName {};
+        /// 当前绑定的 AnimationClip 缓存指针
+        AnimationClip *mCurrentClip {nullptr};
+        /// 是否处于暂停状态
+        bool mIsPaused {false};
+        /// 已累积播放时长（毫秒），替代单纯的 DateTime 差值以支持暂停/恢复与 Time::deltaTime
+        uint32_t mElapsedMS {0};
+        /// 上一帧更新时的墙钟时间戳（毫秒）
+        int64_t mLastUpdateTimestamp {0};
 
         /// 本次播放起始时间戳（毫秒）
         int64_t mStartTimestamp {0};
