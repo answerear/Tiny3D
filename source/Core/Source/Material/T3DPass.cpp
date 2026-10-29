@@ -53,7 +53,16 @@ namespace Tiny3D
         PassPtr pass = create(getName());
         pass->mShaderName = mShaderName;
         pass->mTags = mTags;
+        pass->mLightMode = mLightMode;
         pass->mRenderState = mRenderState;
+        pass->mCurrentKeyword = mCurrentKeyword;
+        pass->mKeywords = mKeywords;
+        pass->mVertexShaders = mVertexShaders;
+        pass->mPixelShaders = mPixelShaders;
+        pass->mGeometryShaders = mGeometryShaders;
+        pass->mHullShaders = mHullShaders;
+        pass->mDomainShaders = mDomainShaders;
+        pass->mIsKeywordDirty = mIsKeywordDirty;
         return pass;
     }
     

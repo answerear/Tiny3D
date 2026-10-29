@@ -115,8 +115,17 @@ namespace Tiny3D
          */
         bool getTechnique(const String &name, TechniquePtr &tech) const;
 
-        /// 获取当前硬件支持的 Technique（compile 后首个成功或 addTechnique 首个）
+        /// 获取当前硬件支持的 Technique（按 mMaxLOD 筛选后的默认 Technique）
         TechniquePtr getSupportTechnique() const { return mSupportTechnique; }
+
+        /**
+         * \brief 设置本 Shader 允许的最大 Technique LOD 上限并刷新默认支持 Technique
+         * \param [in] maxLOD : 最大 LOD 值（UINT32_MAX 表示不限制）
+         */
+        void setMaxLOD(uint32_t maxLOD);
+
+        /// 获取本 Shader 允许的最大 Technique LOD 上限
+        uint32_t getMaxLOD() const { return mMaxLOD; }
 
         /// RTTR：获取采样器参数表
         TPROPERTY(RTTRFuncName="Samplers", RTTRFuncType="getter")
@@ -170,6 +179,13 @@ namespace Tiny3D
          * \brief 加载后为各 Technique 设置所属 Shader 指针
          */
         void onPostLoad() override;
+
+        /**
+         * \brief 按指定最大 LOD 上限从 mTechniques 中挑选最匹配的 Technique
+         * \param [in] maxLOD : 最大允许 LOD 值
+         * \return 选中的 Technique（mTechniques 为空时返回 nullptr）
+         */
+        TechniquePtr selectTechniqueByLOD(uint32_t maxLOD) const;
         
     protected:
         /// shader 常量初始值
@@ -180,6 +196,8 @@ namespace Tiny3D
         Techniques              mTechniques {};
         /// 当前选中的支持 Technique
         TechniquePtr            mSupportTechnique {nullptr};
+        /// 本 Shader 允许的最大 LOD 上限（UINT32_MAX 表示不限制）
+        uint32_t                mMaxLOD {UINT32_MAX};
     };
 }
 

@@ -51,10 +51,14 @@ namespace Tiny3D
     {
         TechniquePtr tech = create(getName());
         tech->mLOD = mLOD;
+        tech->mRenderQueue = mRenderQueue;
         tech->mTags = mTags;
+        tech->mRenderState = mRenderState;
         for (auto pass : mPasses)
         {
-            tech->mPasses.emplace_back(pass->clone());
+            PassPtr clonedPass = pass->clone();
+            clonedPass->setTechnique(tech.get());
+            tech->mPasses.emplace_back(clonedPass);
         }
         return tech;
     }

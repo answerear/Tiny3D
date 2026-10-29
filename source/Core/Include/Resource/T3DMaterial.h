@@ -219,6 +219,8 @@
 
 namespace Tiny3D
 {
+    using TechniqueInstances = TList<TechniqueInstancePtr>;
+
     /**
      * \brief 材质资源，绑定 Shader 并持有常量/采样器参数值及当前 TechniqueInstance
      */
@@ -392,8 +394,18 @@ namespace Tiny3D
         /// 获取已加载的 Shader 对象
         ShaderPtr getShader() const { return mShader; }
 
-        /// 获取当前激活的 TechniqueInstance
-        TechniqueInstancePtr getCurrentTechnique() const { return mCurTechnique; }
+        /// 获取当前激活的 TechniqueInstance（当 Shader 或全局 maxShaderLOD 变更时自动按 LOD 刷新）
+        TechniqueInstancePtr getCurrentTechnique() const;
+
+        /**
+         * \brief 按指定最大 LOD 上限筛选并切换当前激活的 TechniqueInstance
+         * \param [in] maxLOD : 允许的最大 LOD 值（若传 0 则视为不限制兜底）
+         * \return 选中的 TechniqueInstance（无可用 Technique 时返回 nullptr）
+         */
+        TechniqueInstancePtr selectTechniqueByLOD(uint32_t maxLOD);
+
+        /// 获取本材质持有的全部 TechniqueInstance 列表
+        const TechniqueInstances &getTechniqueInstances() const { return mTechInstances; }
         
     private:
         /// RTTR 默认构造入口
@@ -521,7 +533,14 @@ namespace Tiny3D
                 (itr->second->*setShaderConstantValue)(value);
             }
 
-            if (mCurTechnique != nullptr)
+            for (const auto &techInst : mTechInstances)
+            {
+                if (techInst != nullptr)
+                {
+                    (techInst.get()->*setTechniqueConstantValue)(name, value);
+                }
+            }
+            if (mTechInstances.empty() && mCurTechnique != nullptr)
             {
                 (mCurTechnique->*setTechniqueConstantValue)(name, value);
             }
@@ -556,6 +575,11 @@ namespace Tiny3D
          * \remarks UUID 为 INVALID 的运行时纹理（如 shadowMap）会跳过加载
          */
         void setShaderSamplerValue(Archive *archive, ShaderSamplerValue *samplerValue);
+
+        /**
+         * \brief 计算当前生效的最大 LOD 上限：min(Shader::getMaxLOD(), RenderSettings::maxShaderLOD)
+         */
+        uint32_t computeEffectiveMaxLOD() const;
         
     protected:
         /// shader 纹理采样器的数据
@@ -566,8 +590,12 @@ namespace Tiny3D
         UUID                    mShaderUUID {UUID::INVALID};
         /// 材质对应的着色器对象
         ShaderPtr               mShader {nullptr};
+        /// 材质对应全部 Technique 的实例列表
+        TechniqueInstances      mTechInstances {};
         /// 当前可用的技术对象
-        TechniqueInstancePtr    mCurTechnique {nullptr};
+        mutable TechniqueInstancePtr mCurTechnique {nullptr};
+        /// 上一次自动同步时的生效最大 LOD 值
+        mutable uint32_t        mLastEffectiveMaxLOD {UINT32_MAX};
     };
 }
 

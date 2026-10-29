@@ -25,7 +25,9 @@
 
 #include "Resource/T3DMaterial.h"
 
+#include <algorithm>
 #include "T3DErrorDef.h"
+#include "Kernel/T3DAgent.h"
 #include "Material/T3DPass.h"
 #include "Material/T3DShaderVariantSet.h"
 #include "Resource/T3DShader.h"
@@ -119,10 +121,124 @@ namespace Tiny3D
         // shader
         mShader = material->getShader();
 
-        if (material->getCurrentTechnique() != nullptr)
+        mTechInstances.clear();
+        mCurTechnique = nullptr;
+
+        for (const auto &techInst : material->mTechInstances)
         {
-            mCurTechnique = material->getCurrentTechnique()->clone(this);
+            if (techInst != nullptr)
+            {
+                TechniqueInstancePtr cloned = techInst->clone(this);
+                mTechInstances.push_back(cloned);
+                if (techInst == material->mCurTechnique)
+                {
+                    mCurTechnique = cloned;
+                }
+            }
         }
+
+        if (mCurTechnique == nullptr && material->mCurTechnique != nullptr)
+        {
+            mCurTechnique = material->mCurTechnique->clone(this);
+        }
+
+        mLastEffectiveMaxLOD = material->mLastEffectiveMaxLOD;
+    }
+
+    //--------------------------------------------------------------------------
+
+    uint32_t Material::computeEffectiveMaxLOD() const
+    {
+        uint32_t maxLOD = mShader != nullptr ? mShader->getMaxLOD() : UINT32_MAX;
+        if (Agent::getInstancePtr() != nullptr)
+        {
+            const uint32_t globalMaxLOD = T3D_AGENT.getSettings().renderSettings.maxShaderLOD;
+            maxLOD = std::min(maxLOD, globalMaxLOD);
+        }
+        return maxLOD;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TechniqueInstancePtr Material::getCurrentTechnique() const
+    {
+        const uint32_t effectiveMaxLOD = computeEffectiveMaxLOD();
+        if (effectiveMaxLOD != mLastEffectiveMaxLOD)
+        {
+            mLastEffectiveMaxLOD = effectiveMaxLOD;
+            const_cast<Material *>(this)->selectTechniqueByLOD(effectiveMaxLOD);
+        }
+        return mCurTechnique;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TechniqueInstancePtr Material::selectTechniqueByLOD(uint32_t maxLOD)
+    {
+        if (mTechInstances.empty())
+        {
+            return mCurTechnique;
+        }
+
+        const uint32_t effectiveMaxLOD = std::min(maxLOD, computeEffectiveMaxLOD());
+
+        TechniqueInstancePtr bestPositive = nullptr;
+        uint32_t bestPositiveLOD = 0;
+
+        TechniqueInstancePtr firstUnrestricted = nullptr;
+
+        TechniqueInstancePtr minLODInst = nullptr;
+        uint32_t minLOD = UINT32_MAX;
+
+        for (const auto &inst : mTechInstances)
+        {
+            if (inst == nullptr || inst->getTechnique() == nullptr)
+            {
+                continue;
+            }
+
+            const uint32_t lod = inst->getTechnique()->getLOD();
+            if (lod == 0)
+            {
+                if (firstUnrestricted == nullptr)
+                {
+                    firstUnrestricted = inst;
+                }
+            }
+            else
+            {
+                if (lod <= effectiveMaxLOD && lod > bestPositiveLOD)
+                {
+                    bestPositiveLOD = lod;
+                    bestPositive = inst;
+                }
+
+                if (lod < minLOD)
+                {
+                    minLOD = lod;
+                    minLODInst = inst;
+                }
+            }
+        }
+
+        if (bestPositive != nullptr)
+        {
+            mCurTechnique = bestPositive;
+        }
+        else if (firstUnrestricted != nullptr)
+        {
+            mCurTechnique = firstUnrestricted;
+        }
+        else if (minLODInst != nullptr)
+        {
+            mCurTechnique = minLODInst;
+        }
+        else
+        {
+            mCurTechnique = mTechInstances.front();
+        }
+
+        return mCurTechnique;
     }
 
     //--------------------------------------------------------------------------
@@ -133,14 +249,29 @@ namespace Tiny3D
 
         do
         {
-            if (mCurTechnique == nullptr)
+            if (mCurTechnique == nullptr && mTechInstances.empty())
             {
                 ret = T3D_ERR_INVALID_POINTER;
                 T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Switch keyword failed ! Because current technique is null !");
                 break;
             }
 
-            ret = mCurTechnique->switchKeywords(enableKeys, disableKeys);
+            for (const auto &techInst : mTechInstances)
+            {
+                if (techInst != nullptr)
+                {
+                    TResult r = techInst->switchKeywords(enableKeys, disableKeys);
+                    if (T3D_FAILED(r))
+                    {
+                        ret = r;
+                    }
+                }
+            }
+
+            if (mTechInstances.empty() && mCurTechnique != nullptr)
+            {
+                ret = mCurTechnique->switchKeywords(enableKeys, disableKeys);
+            }
         } while (false);
         
         return ret;
@@ -163,7 +294,15 @@ namespace Tiny3D
             itr->second->setTextureUUID(uuid);
         }
 
-        if (mCurTechnique != nullptr)
+        for (const auto &techInst : mTechInstances)
+        {
+            if (techInst != nullptr)
+            {
+                techInst->setTexture(name, uuid);
+            }
+        }
+
+        if (mTechInstances.empty() && mCurTechnique != nullptr)
         {
             mCurTechnique->setTexture(name, uuid);
         }
@@ -193,88 +332,65 @@ namespace Tiny3D
 
     void Material::setShaderConstantValue(ShaderConstantValue *constValue)
     {
-        T3D_ASSERT(mCurTechnique != nullptr);
-        
-        switch (constValue->getDataType())
+        auto applyToTechnique = [constValue](TechniqueInstance *techInst)
         {
-        case ShaderConstantParam::DATA_TYPE::DT_FLOAT:
+            if (techInst == nullptr)
             {
-                /// 浮点数
-                mCurTechnique->setFloat(constValue->getName(), constValue->getFloat());
+                return;
             }
-            break;
-        case ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY:
+
+            switch (constValue->getDataType())
             {
-                /// 浮点数组
-                mCurTechnique->setFloatArray(constValue->getName(), constValue->getFloatArray());
+            case ShaderConstantParam::DATA_TYPE::DT_FLOAT:
+                techInst->setFloat(constValue->getName(), constValue->getFloat());
+                break;
+            case ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY:
+                techInst->setFloatArray(constValue->getName(), constValue->getFloatArray());
+                break;
+            case ShaderConstantParam::DATA_TYPE::DT_BOOL:
+                techInst->setBool(constValue->getName(), constValue->getBool());
+                break;
+            case ShaderConstantParam::DATA_TYPE::DT_BOOL_ARRAY:
+                techInst->setBoolArray(constValue->getName(), constValue->getBoolArray());
+                break;
+            case ShaderConstantParam::DATA_TYPE::DT_INTEGER:
+                techInst->setInteger(constValue->getName(), constValue->getInteger());
+                break;
+            case ShaderConstantParam::DATA_TYPE::DT_INTEGER_ARRAY:
+                techInst->setIntArray(constValue->getName(), constValue->getIntArray());
+                break;
+            case ShaderConstantParam::DATA_TYPE::DT_COLOR:
+                techInst->setColor(constValue->getName(), constValue->getColor());
+                break;
+            case ShaderConstantParam::DATA_TYPE::DT_COLOR_ARRAY:
+                techInst->setColorArray(constValue->getName(), constValue->getColorArray());
+                break;
+            case ShaderConstantParam::DATA_TYPE::DT_VECTOR4:
+                techInst->setVector(constValue->getName(), constValue->getVector());
+                break;
+            case ShaderConstantParam::DATA_TYPE::DT_VECTOR4_ARRAY:
+                techInst->setVectorArray(constValue->getName(), constValue->getVectorArray());
+                break;
+            case ShaderConstantParam::DATA_TYPE::DT_MATRIX4:
+                techInst->setMatrix(constValue->getName(), constValue->getMatrix());
+                break;
+            case ShaderConstantParam::DATA_TYPE::DT_MATRIX4_ARRAY:
+                techInst->setMatrixArray(constValue->getName(), constValue->getMatrixArray());
+                break;
+            case ShaderConstantParam::DATA_TYPE::DT_STRUCT:
+                techInst->setData(constValue->getName(), constValue->getData(), constValue->getDataSize());
+                break;
             }
-            break;
-        case ShaderConstantParam::DATA_TYPE::DT_BOOL:
-            {
-                /// 布尔值
-                mCurTechnique->setBool(constValue->getName(), constValue->getBool());
-            }
-            break;
-        case ShaderConstantParam::DATA_TYPE::DT_BOOL_ARRAY:
-            {
-                /// 布尔数组
-                mCurTechnique->setBoolArray(constValue->getName(), constValue->getBoolArray());
-            }
-            break;
-        case ShaderConstantParam::DATA_TYPE::DT_INTEGER:
-            {
-                /// 整型
-                mCurTechnique->setInteger(constValue->getName(), constValue->getInteger());
-            }
-            break;
-        case ShaderConstantParam::DATA_TYPE::DT_INTEGER_ARRAY:
-            {
-                /// 整型数组
-                mCurTechnique->setIntArray(constValue->getName(), constValue->getIntArray());
-            }
-            break;
-        case ShaderConstantParam::DATA_TYPE::DT_COLOR:
-            {
-                /// 颜色
-                mCurTechnique->setColor(constValue->getName(), constValue->getColor());
-            }
-            break;
-        case ShaderConstantParam::DATA_TYPE::DT_COLOR_ARRAY:
-            {
-                /// 颜色数组
-                mCurTechnique->setColorArray(constValue->getName(), constValue->getColorArray());
-            }
-            break;
-        case ShaderConstantParam::DATA_TYPE::DT_VECTOR4:
-            {
-                /// 4D 向量
-                mCurTechnique->setVector(constValue->getName(), constValue->getVector());
-            }
-            break;
-        case ShaderConstantParam::DATA_TYPE::DT_VECTOR4_ARRAY:
-            {
-                /// 4D 向量数组
-                mCurTechnique->setVectorArray(constValue->getName(), constValue->getVectorArray());
-            }
-            break;
-        case ShaderConstantParam::DATA_TYPE::DT_MATRIX4:
-            {
-                /// 4D 方阵
-                mCurTechnique->setMatrix(constValue->getName(), constValue->getMatrix());
-            }
-            break;
-        case ShaderConstantParam::DATA_TYPE::DT_MATRIX4_ARRAY:
-            {
-                /// 4D 方阵数组
-                mCurTechnique->setMatrixArray(constValue->getName(), constValue->getMatrixArray());
-            }
-            break;
-        case ShaderConstantParam::DATA_TYPE::DT_STRUCT:
-            {
-                /// 结构体
-                mCurTechnique->setData(constValue->getName(), constValue->getData(), constValue->getDataSize());
-            }
-            break;
+        };
+
+        for (const auto &techInst : mTechInstances)
+        {
+            applyToTechnique(techInst.get());
+        }
+
+        if (mTechInstances.empty() && mCurTechnique != nullptr)
+        {
+            applyToTechnique(mCurTechnique.get());
         }
     }
 
@@ -296,8 +412,18 @@ namespace Tiny3D
             T3D_ASSERT(texture);
         }
 
-        T3D_ASSERT(mCurTechnique != nullptr);
-        mCurTechnique->setTexture(samplerValue->getName(), texUUID);
+        for (const auto &techInst : mTechInstances)
+        {
+            if (techInst != nullptr)
+            {
+                techInst->setTexture(samplerValue->getName(), texUUID);
+            }
+        }
+
+        if (mTechInstances.empty() && mCurTechnique != nullptr)
+        {
+            mCurTechnique->setTexture(samplerValue->getName(), texUUID);
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -380,7 +506,22 @@ namespace Tiny3D
                 }
             }
 
-            mCurTechnique = TechniqueInstance::create(this, mShader->getSupportTechnique());
+            mTechInstances.clear();
+            for (const auto &tech : mShader->getTechniques())
+            {
+                if (tech != nullptr)
+                {
+                    mTechInstances.push_back(TechniqueInstance::create(this, tech));
+                }
+            }
+
+            mLastEffectiveMaxLOD = computeEffectiveMaxLOD();
+            selectTechniqueByLOD(mLastEffectiveMaxLOD);
+            if (mCurTechnique == nullptr && mShader->getSupportTechnique() != nullptr)
+            {
+                mCurTechnique = TechniqueInstance::create(this, mShader->getSupportTechnique());
+                mTechInstances.push_back(mCurTechnique);
+            }
 
             // 设置 shader constant buffer 值
             for (const auto &item : mConstantValues)

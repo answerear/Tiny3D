@@ -72,6 +72,9 @@ namespace Tiny3D
 
         TPROPERTY()
         String  iconPath = "";        ///< 窗口图标路径，空表示未指定
+
+        TPROPERTY()
+        uint32_t maxShaderLOD = UINT32_MAX; ///< 全局最大 Shader LOD 上限（UINT32_MAX 表示不限制）
     };
 
     /**

@@ -79,12 +79,11 @@ namespace Tiny3D
                     T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Failed to compile shader [%s] ! ERROR [%d]", getName().c_str(), ret);
                     break;
                 }
+            }
 
-                if (mSupportTechnique == nullptr)
-                {
-                    // 先设置第一个 technique 为支持的 technique ，临时使用
-                    mSupportTechnique = tech;
-                }
+            if (T3D_SUCCEEDED(ret))
+            {
+                mSupportTechnique = selectTechniqueByLOD(mMaxLOD);
             }
 
             T3D_LOG_DEBUG(LOG_TAG_RESOURCE, "Completed compiling shader !");
@@ -215,13 +214,9 @@ namespace Tiny3D
 
         if (!found)
         {
-            if (mTechniques.empty())
-            {
-                mSupportTechnique = tech;
-            }
-            
             mTechniques.push_back(tech);
             tech->setShader(this);
+            mSupportTechnique = selectTechniqueByLOD(mMaxLOD);
         }
 
         return !found;
@@ -235,8 +230,9 @@ namespace Tiny3D
         {
             if ((*itr)->getName() == name)
             {
-                mTechniques.erase(itr);
                 (*itr)->setShader(nullptr);
+                mTechniques.erase(itr);
+                mSupportTechnique = selectTechniqueByLOD(mMaxLOD);
                 break;
             }
         }
@@ -259,6 +255,75 @@ namespace Tiny3D
         }
 
         return found;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void Shader::setMaxLOD(uint32_t maxLOD)
+    {
+        mMaxLOD = maxLOD;
+        mSupportTechnique = selectTechniqueByLOD(mMaxLOD);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TechniquePtr Shader::selectTechniqueByLOD(uint32_t maxLOD) const
+    {
+        if (mTechniques.empty())
+        {
+            return nullptr;
+        }
+
+        TechniquePtr bestPositive = nullptr;
+        uint32_t bestPositiveLOD = 0;
+
+        TechniquePtr firstUnrestricted = nullptr;
+
+        TechniquePtr minLODTech = nullptr;
+        uint32_t minLOD = UINT32_MAX;
+
+        for (const auto &tech : mTechniques)
+        {
+            if (tech == nullptr)
+            {
+                continue;
+            }
+
+            const uint32_t lod = tech->getLOD();
+            if (lod == 0)
+            {
+                if (firstUnrestricted == nullptr)
+                {
+                    firstUnrestricted = tech;
+                }
+            }
+            else
+            {
+                if (lod <= maxLOD && lod > bestPositiveLOD)
+                {
+                    bestPositiveLOD = lod;
+                    bestPositive = tech;
+                }
+
+                if (lod < minLOD)
+                {
+                    minLOD = lod;
+                    minLODTech = tech;
+                }
+            }
+        }
+
+        if (bestPositive != nullptr)
+        {
+            return bestPositive;
+        }
+
+        if (firstUnrestricted != nullptr)
+        {
+            return firstUnrestricted;
+        }
+
+        return minLODTech != nullptr ? minLODTech : mTechniques.front();
     }
 
     //--------------------------------------------------------------------------
