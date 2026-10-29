@@ -1,11 +1,13 @@
 # T1-2 实现计划：AnimationPlayer 双/多片段交叉混合过渡（CrossFade Blending）
 
 > **所属批次**：T1（引擎渲染管线与动画半成品补齐）  
+> **状态**：✅ **已完成**（`T3DAnimationPlayer` + `SkeletalAnimationApp` 验收通过）  
 > **前置依赖**：T0-4（`AnimationPlayer` 单 Clip 按名查找与 `mElapsedMS` 时间累积）  
 > **预估工作量**：2.5 人日  
 > **涉及文件**：
 > - `source/Core/Include/Animation/T3DAnimationPlayer.h`
 > - `source/Core/Source/Animation/T3DAnimationPlayer.cpp`
+> - `source/Samples/SkeletalAnimationApp/SkeletalAnimationApp.cpp`
 
 ---
 
