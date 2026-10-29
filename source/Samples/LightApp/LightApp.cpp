@@ -23,6 +23,7 @@
  ******************************************************************************/
 
 #include "LightApp.h"
+#include <rttr/registration>
 #include <random>
 
 
@@ -51,6 +52,111 @@ extern const char *SAMPLE_LIT_VERTEX_SHADER_GLES;
 extern const char *SAMPLE_LIT_PIXEL_SHADER_GLES;
 #endif
 
+namespace Tiny3D
+{
+    /**
+     * \brief LightApp 运行时交互控制器：支持按键 1 / 2 / Space 或触屏点击切换 Shader LOD (100 / 400)
+     */
+    class LightLODSwitchBehaviour : public Behaviour
+    {
+        TRTTI_ENABLE(Behaviour)
+        TRTTI_FRIEND
+
+    public:
+        LightLODSwitchBehaviour() = default;
+        explicit LightLODSwitchBehaviour(const UUID &uuid)
+            : Behaviour(uuid)
+        {
+        }
+
+        ~LightLODSwitchBehaviour() override = default;
+
+        void setTarget(Shader *shader, Material *material)
+        {
+            mShader = shader;
+            mMaterial = material;
+        }
+
+        void onStart() override
+        {
+            T3D_LOG_INFO(LOG_TAG_APP,
+                "[LightApp] Press [1] for LOD 100 (ForwardBase only, 4 point lights), "
+                "[2] for LOD 400 (ForwardBase + ForwardAdd, 6 point lights), "
+                "or [Space] / Touch to toggle.");
+        }
+
+        void onUpdate() override
+        {
+            if (mShader == nullptr || Input::getInstancePtr() == nullptr)
+            {
+                return;
+            }
+
+            if (T3D_INPUT.getKeyDown(APP_SCANCODE_1) || T3D_INPUT.getKeyDown(APP_SCANCODE_KP_1))
+            {
+                applyLOD(200);
+            }
+            else if (T3D_INPUT.getKeyDown(APP_SCANCODE_2) || T3D_INPUT.getKeyDown(APP_SCANCODE_KP_2))
+            {
+                applyLOD(400);
+            }
+            else if (T3D_INPUT.getKeyDown(APP_SCANCODE_SPACE))
+            {
+                const uint32_t nextMaxLOD = (mShader->getMaxLOD() <= 200) ? 400 : 200;
+                applyLOD(nextMaxLOD);
+            }
+            else if (T3D_INPUT.getTouchCount() == 1)
+            {
+                const Touch touch = T3D_INPUT.getTouch(0);
+                if (touch.phase == TouchPhase::Began)
+                {
+                    const uint32_t nextMaxLOD = (mShader->getMaxLOD() <= 200) ? 400 : 200;
+                    applyLOD(nextMaxLOD);
+                }
+            }
+        }
+
+    private:
+        void applyLOD(uint32_t maxLOD)
+        {
+            mShader->setMaxLOD(maxLOD);
+            TechniqueInstancePtr techInst = mMaterial != nullptr ? mMaterial->getCurrentTechnique() : nullptr;
+            const char *techName = (techInst != nullptr && techInst->getTechnique() != nullptr)
+                ? techInst->getTechnique()->getName().c_str()
+                : "None";
+            const uint32_t activeLOD = (techInst != nullptr && techInst->getTechnique() != nullptr)
+                ? techInst->getTechnique()->getLOD()
+                : 0;
+            const bool hasForwardAdd = (techInst != nullptr)
+                && (techInst->getPassInstances().find(ShaderLab::kBuiltinLightModeForwardAdd)
+                    != techInst->getPassInstances().end());
+
+            T3D_LOG_INFO(LOG_TAG_APP,
+                "[LightApp] Switched Shader maxLOD = %u -> Active Technique: %s (LOD %u, ForwardAdd: %s)",
+                maxLOD, techName, activeLOD, hasForwardAdd ? "ON [6 lights]" : "OFF [4 lights]");
+        }
+
+        Shader   *mShader {nullptr};
+        Material *mMaterial {nullptr};
+    };
+}
+
+RTTR_REGISTRATION
+{
+    using namespace rttr;
+    using namespace Tiny3D;
+
+    registration::class_<Tiny3D::LightLODSwitchBehaviour>("Tiny3D::LightLODSwitchBehaviour")
+        .constructor<>()(policy::ctor::as_raw_ptr)
+        .constructor<const Tiny3D::UUID &>()(policy::ctor::as_raw_ptr);
+
+    type::register_wrapper_converter_for_base_classes<SmartPtr<Tiny3D::LightLODSwitchBehaviour>>();
+
+    registration::class_<Tiny3D::SmartPtr<Tiny3D::LightLODSwitchBehaviour>>("Tiny3D::SmartPtr<Tiny3D::LightLODSwitchBehaviour>")
+        .constructor<Object *>()(policy::ctor::as_object)
+        .constructor<Object &>()(policy::ctor::as_object);
+}
+
 LightApp::LightApp()
 {
 }
@@ -72,10 +178,10 @@ TResult LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     scene->init();
     T3D_SCENE_MGR.setCurrentScene(scene);
 
-    // add ambient light to the root of scene
+    // add ambient light to the root of scene (dimmed so point lights stand out clearly)
     AmbientLightPtr ambient = scene->getRootGameObject()->addComponent<AmbientLight>();
     ambient->setColor(ColorRGB::WHITE);
-    ambient->setIntensity(0.5f);
+    ambient->setIntensity(0.12f);
     
     // root game object
     GameObjectPtr go = GameObject::create("TestScene");
@@ -83,7 +189,7 @@ TResult LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     Transform3DPtr root = go->addComponent<Transform3D>();
     scene->getRootTransform()->addChild(root);
 
-    // directional light
+    // directional light (dimmed so point light ForwardAdd contribution is obvious on the cubes)
     go = GameObject::create("DirectionLight");
     Transform3DPtr node = go->addComponent<Transform3D>();
     Quaternion q(Radian(Math::PI * 0.5f), Vector3::UNIT_X);
@@ -91,29 +197,50 @@ TResult LightApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
     root->addChild(node);
     DirectionalLightPtr light = go->addComponent<DirectionalLight>();
     light->setColor(ColorRGB::WHITE);
-    light->setDiffuseIntensity(1.0f);
-    light->setSpecularIntensity(1.0f);
+    light->setDiffuseIntensity(0.2f);
+    light->setSpecularIntensity(0.2f);
 
-    // point light
-    go = GameObject::create("PointLight");
-    node = go->addComponent<Transform3D>();
-    Vector3 lightPos(-2.0f, -2.0f, -4.0f);
-    // Vector3 lightPos(0.0f, 5.0f, 0.0f);
-    node->setPosition(lightPos);
-    root->addChild(node);
-    PointLightPtr pointLight = go->addComponent<PointLight>();
-    pointLight->setColor(ColorRGB::WHITE);
-    pointLight->setDiffuseIntensity(1.0f);
-    pointLight->setSpecularIntensity(1.0f);
-    pointLight->setAttenuationConstant(1.0f);
-    pointLight->setAttenuationLinear(0.09f);
-    pointLight->setAttenuationQuadratic(0.032f);
-    
+    // point lights (6 point lights: [0..3] in ForwardBase, [4..5] in ForwardAdd illuminating the visible cubes at x=-5, 0)
+    const Vector3 pointLightPositions[6] = {
+        Vector3(-10.0f,  1.5f, -1.5f),
+        Vector3(-10.0f, -1.5f, -1.5f),
+        Vector3(  5.0f,  1.5f, -1.5f),
+        Vector3( 10.0f,  1.5f, -1.5f),
+        Vector3(  0.0f,  0.5f, -1.8f), // #4 (ForwardAdd): bright Gold right in front of center Cube#2 (x=0)
+        Vector3( -5.0f,  0.5f, -1.8f), // #5 (ForwardAdd): bright Cyan right in front of left Cube#1 (x=-5)
+    };
+    const ColorRGB pointLightColors[6] = {
+        ColorRGB(0.4f, 0.4f, 0.4f),
+        ColorRGB(0.4f, 0.2f, 0.2f),
+        ColorRGB(0.2f, 0.4f, 0.2f),
+        ColorRGB(0.2f, 0.2f, 0.4f),
+        ColorRGB(1.0f, 0.85f, 0.1f),
+        ColorRGB(0.1f, 1.0f, 1.0f),
+    };
+
+    for (int32_t i = 0; i < 6; ++i)
+    {
+        std::stringstream lightName;
+        lightName << "PointLight#" << i;
+        go = GameObject::create(lightName.str());
+        node = go->addComponent<Transform3D>();
+        node->setPosition(pointLightPositions[i]);
+        root->addChild(node);
+
+        PointLightPtr pointLight = go->addComponent<PointLight>();
+        pointLight->setColor(pointLightColors[i]);
+        pointLight->setDiffuseIntensity(i >= 4 ? 2.5f : 0.6f);
+        pointLight->setSpecularIntensity(i >= 4 ? 2.5f : 0.6f);
+        pointLight->setAttenuationConstant(1.0f);
+        pointLight->setAttenuationLinear(0.09f);
+        pointLight->setAttenuationQuadratic(0.032f);
+    }
+
     // spotlight
     go = GameObject::create("Spotlight");
     node = go->addComponent<Transform3D>();
     // spotlight position
-    lightPos = Vector3(0.0f, 5.0f, 0.0f);
+    Vector3 lightPos(0.0f, 5.0f, 0.0f);
     node->setPosition(lightPos);
     // spotlight direction
     q.fromAngleAxis(Radian(Math::PI * 0.5f), Vector3::UNIT_X);
@@ -209,6 +336,13 @@ void LightApp::buildCamera(Transform3D *parent)
     // construct frustum bound
     auto frustum = go->addComponent<FrustumBound>();
     T3D_ASSERT(frustum != nullptr);
+
+    // 挂载交互切换组件：按 1 切 LOD 100（仅 ForwardBase），按 2 切 LOD 400（含 ForwardAdd），按 Space 切换
+    auto lodSwitcher = go->addComponent<LightLODSwitchBehaviour>();
+    if (lodSwitcher != nullptr && mMaterial != nullptr)
+    {
+        lodSwitcher->setTarget(mMaterial->getShader().get(), mMaterial.get());
+    }
 }
 
 void LightApp::buildCube(Transform3D *parent, const Vector3 &pos, const Radian &yAngles)
@@ -478,7 +612,7 @@ MaterialPtr LightApp::buildMaterial()
     RasterizerDesc rasterizeDesc;
     renderState->setRasterizerDesc(rasterizeDesc);
     
-    // pass
+    // pass: ForwardBase
     PassPtr pass = Pass::create("ForwardBase");
     ret = pass->addShaderVariant(vshader->getShaderKeyword(), vshader);
     T3D_ASSERT(T3D_SUCCEEDED(ret));
@@ -487,15 +621,53 @@ MaterialPtr LightApp::buildMaterial()
     T3D_ASSERT(T3D_SUCCEEDED(ret));
     pass->setRenderState(renderState);
 
-    // technique
+    // pass: ForwardAdd (Additive Blend One One, ZWrite Off, ZTest LEqual)
+    RenderStatePtr addRenderState = RenderState::create();
+    BlendDesc addBlendDesc;
+    addBlendDesc.RenderTargetStates[0].BlendEnable = true;
+    addBlendDesc.RenderTargetStates[0].SrcBlend = BlendFactor::kOne;
+    addBlendDesc.RenderTargetStates[0].DestBlend = BlendFactor::kOne;
+    addBlendDesc.RenderTargetStates[0].BlendOp = BlendOperation::kAdd;
+    addBlendDesc.RenderTargetStates[0].SrcBlendAlpha = BlendFactor::kOne;
+    addBlendDesc.RenderTargetStates[0].DstBlendAlpha = BlendFactor::kOne;
+    addBlendDesc.RenderTargetStates[0].BlendOpAlpha = BlendOperation::kAdd;
+    addRenderState->setBlendDesc(addBlendDesc);
+
+    DepthStencilDesc addDepthDesc;
+    addDepthDesc.DepthWriteEnable = false;
+    addDepthDesc.DepthFunc = CompareFunction::kLessEqual;
+    addRenderState->setDepthStencilDesc(addDepthDesc);
+    addRenderState->setRasterizerDesc(rasterizeDesc);
+
+    PassPtr addPass = Pass::create("ForwardAdd");
+    ret = addPass->addShaderVariant(vshader->getShaderKeyword(), vshader);
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
+    addPass->addTag(ShaderLab::kBuiltinTagLightMode, ShaderLab::kBuiltinLightModeForwardAddStr);
+    ret = addPass->addShaderVariant(pshader->getShaderKeyword(), pshader);
+    T3D_ASSERT(T3D_SUCCEEDED(ret));
+    addPass->setRenderState(addRenderState);
+
+    // technique: High LOD (400, ForwardBase + ForwardAdd) & Low LOD (100, ForwardBase only)
     TechniquePtr tech = Technique::create("Default-Technique");
+    tech->setLOD(400);
     bool rval = tech->addPass(pass);
     T3D_ASSERT(rval);
+    rval = tech->addPass(addPass);
+    T3D_ASSERT(rval);
     tech->addTag(ShaderLab::kBuiltinTagQueue, ShaderLab::kBuiltinQueueGeometryStr);
+
+    // 低配 Technique (LOD 100) 仅包含 ForwardBase Pass，不画 ForwardAdd 叠加光源
+    TechniquePtr lowTech = Technique::create("LowLOD-Technique");
+    lowTech->setLOD(100);
+    rval = lowTech->addPass(pass->clone());
+    T3D_ASSERT(rval);
+    lowTech->addTag(ShaderLab::kBuiltinTagQueue, ShaderLab::kBuiltinQueueGeometryStr);
 
     // shader
     ShaderPtr shader = T3D_SHADER_MGR.createShader("Default-Shader");
     rval = shader->addTechnique(tech);
+    T3D_ASSERT(rval);
+    rval = shader->addTechnique(lowTech);
     T3D_ASSERT(rval);
 
     // // constants
@@ -531,6 +703,17 @@ MaterialPtr LightApp::buildMaterial()
     
     // material
     MaterialPtr material = T3D_MATERIAL_MGR.createMaterial("Default-Material", shader);
+
+    // 验证 Technique LOD 自动切换：默认选中 LOD 400，设置 setMaxLOD(200) 后自动切到 LOD 100
+    T3D_ASSERT(material->getCurrentTechnique() != nullptr
+        && material->getCurrentTechnique()->getTechnique()->getLOD() == 400);
+    shader->setMaxLOD(200);
+    T3D_ASSERT(material->getCurrentTechnique() != nullptr
+        && material->getCurrentTechnique()->getTechnique()->getLOD() == 100);
+    shader->setMaxLOD(UINT32_MAX);
+    T3D_ASSERT(material->getCurrentTechnique() != nullptr
+        && material->getCurrentTechnique()->getTechnique()->getLOD() == 400);
+
     StringArray enableKeywrods;
     enableKeywrods.push_back("");
     StringArray disableKeywords;
