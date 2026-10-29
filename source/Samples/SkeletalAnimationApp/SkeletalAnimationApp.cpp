@@ -637,16 +637,30 @@ void SkeletalAnimationApp::buildArm(Transform3D *parent, const Vector3 &pos, con
     // 验证 2：按名称播放第二个片段 kArmRotateRight 与第一个片段 kArmRotateLeft，返回递增正整数 ID
     ID firstID = player->playClip(kArmRotateRight, false, true, useGPUSkin);
     T3D_ASSERT(firstID != AnimationPlayer::INVALID_ID);
+    // 验证 T1-2：多片段混合 playClips 与双片段混合 playClip(from, to, startMS) 接口返回有效 ID
+    ID layeredInvalidID = player->playClips({ "NonExistentClip" }, useGPUSkin);
+    T3D_ASSERT(layeredInvalidID == AnimationPlayer::INVALID_ID);
+    ID layeredID = player->playClips({ kArmRotateLeft, kArmRotateRight }, useGPUSkin);
+    T3D_ASSERT(layeredID > firstID);
+    ID twoClipID = player->playClip(kArmRotateLeft, kArmRotateRight, 500, true, useGPUSkin);
+    T3D_ASSERT(twoClipID > layeredID && player->isCrossFading());
+    T3D_LOG_INFO(LOG_TAG_APP, "[T1-2 Verify] playClips ID=%u, playClip('%s'->'%s', start=500ms) ID=%u",
+        layeredID, kArmRotateLeft, kArmRotateRight, twoClipID);
+
     bool playOK = geometry->play(kArmRotateLeft, true);
     ID secondID = geometry->getPlaybackID();
-    T3D_ASSERT(playOK && secondID > firstID);
+    T3D_ASSERT(playOK && secondID > twoClipID);
     T3D_LOG_INFO(LOG_TAG_APP, "[T0-4 Verify] playClip('%s') ID=%u, play('%s') ID=%u",
         kArmRotateRight, firstID, kArmRotateLeft, secondID);
 
-    // 验证 3：定时验证 pausePlayback -> 定格保持 -> resumePlayback 平滑继续
+    // 验证 3：250ms 高频采样定时器 —— 依次验证：
+    //   (A) T0-4: pausePlayback -> 定格保持 -> resumePlayback
+    //   (B) T1-2 对比实验 1（硬切 isBlending=false）：切换瞬间角度发生 ~28° 剧烈跳变（画面瞬间弹回竖直）
+    //   (C) T1-2 对比实验 2（混合 isBlending=true, 1500ms）：切换瞬间 0° 跳变，打印每 250ms 的 From/To/Blended 角度与进度条
+    //   (D) 持续循环交替演示 CrossFade 与硬切，方便在窗口中肉眼观察对比
     mArmGeometry = geometry;
     mTimerTickCount = 0;
-    mPauseResumeTimerID = T3D_TIMER_MGR.startTimer(1000, true, [this](ID timerID, int32_t dt)
+    mPauseResumeTimerID = T3D_TIMER_MGR.startTimer(250, true, [this, useGPUSkin](ID timerID, int32_t dt)
     {
         if (mArmGeometry == nullptr)
         {
@@ -659,57 +673,167 @@ void SkeletalAnimationApp::buildArm(Transform3D *parent, const Vector3 &pos, con
         Transform3D *palmXform = (palmIt != bones.end())
             ? static_cast<Transform3D *>(palmIt->second->getTransformNode())
             : nullptr;
+        if (palmXform == nullptr)
+        {
+            return;
+        }
+
+        // 辅助函数：从绕 Z 轴旋转的四元数提取带符号角度（度，范围 [-45°, +45°]）
+        auto quatToZDeg = [](const Quaternion &q) -> float
+        {
+            float w = (q.w() < 0.0f) ? -q.w() : q.w();
+            float z = (q.w() < 0.0f) ? -q.z() : q.z();
+            return 2.0f * std::atan2(z, w) * (180.0f / Math::PI);
+        };
+
+        // 辅助函数：计算单个片段在给定 elapsedMS 下 Palm 的理论独立采样角度（度）
+        auto calcClipStandaloneDeg = [](const String &clipName, float elapsedMS) -> float
+        {
+            float tSec = std::clamp(elapsedMS / 1000.0f, 0.0f, 8.0f);
+            float ratio = (tSec <= 4.0f) ? (tSec / 4.0f) : ((8.0f - tSec) / 4.0f);
+            float maxDeg = (clipName == kArmRotateLeft) ? 45.0f : -45.0f;
+            return maxDeg * ratio;
+        };
 
         mTimerTickCount++;
-        if (mTimerTickCount == 2)
+
+        // --- (A) T0-4 暂停/恢复验证（Tick 4 = 1.0s 暂停，Tick 6 = 1.5s 检查定格，Tick 8 = 2.0s 恢复） ---
+        if (mTimerTickCount == 4)
         {
-            // 播放 2 秒后暂停
             TResult res = animPlayer->pausePlayback(playbackID);
             T3D_ASSERT(T3D_SUCCEEDED(res) && animPlayer->isPaused());
-            if (palmXform != nullptr)
-            {
-                mPausedPalmOrientation = palmXform->getOrientation();
-                T3D_LOG_INFO(LOG_TAG_APP, "[T0-4 Verify] Paused at 2s (ID=%u), Palm orientation=(%.4f, %.4f, %.4f, %.4f)",
-                    playbackID,
-                    mPausedPalmOrientation.x(), mPausedPalmOrientation.y(),
-                    mPausedPalmOrientation.z(), mPausedPalmOrientation.w());
-            }
+            mPausedPalmOrientation = palmXform->getOrientation();
+            T3D_LOG_INFO(LOG_TAG_APP, "[T0-4 Verify] Paused at 1.0s (ID=%u), Palm Z-angle=%+.2f deg",
+                playbackID, quatToZDeg(mPausedPalmOrientation));
         }
-        else if (mTimerTickCount == 3)
+        else if (mTimerTickCount == 6)
         {
-            // 暂停期间（第 3 秒）验证骨骼姿态定格未变
-            if (palmXform != nullptr)
-            {
-                const Quaternion &curOri = palmXform->getOrientation();
-                T3D_ASSERT(curOri == mPausedPalmOrientation);
-                T3D_LOG_INFO(LOG_TAG_APP, "[T0-4 Verify] Hold check at 3s while paused, Palm orientation=(%.4f, %.4f, %.4f, %.4f)",
-                    curOri.x(), curOri.y(), curOri.z(), curOri.w());
-            }
+            const Quaternion &curOri = palmXform->getOrientation();
+            T3D_ASSERT(curOri == mPausedPalmOrientation);
+            T3D_LOG_INFO(LOG_TAG_APP, "[T0-4 Verify] Hold check at 1.5s while paused, Palm Z-angle=%+.2f deg (unchanged)",
+                quatToZDeg(curOri));
         }
-        else if (mTimerTickCount == 4)
+        else if (mTimerTickCount == 8)
         {
-            // 暂停 2 秒后（第 4 秒）恢复播放，验证从定格帧继续
-            if (palmXform != nullptr)
-            {
-                const Quaternion &curOri = palmXform->getOrientation();
-                T3D_ASSERT(curOri == mPausedPalmOrientation);
-            }
+            T3D_ASSERT(palmXform->getOrientation() == mPausedPalmOrientation);
             TResult res = animPlayer->resumePlayback(playbackID);
             T3D_ASSERT(T3D_SUCCEEDED(res) && !animPlayer->isPaused());
-            T3D_LOG_INFO(LOG_TAG_APP, "[T0-4 Verify] Resumed at 4s (ID=%u), continuing smoothly from paused frame.", playbackID);
+            T3D_LOG_INFO(LOG_TAG_APP, "[T0-4 Verify] Resumed at 2.0s (ID=%u), continuing smoothly.", playbackID);
         }
-        else if (mTimerTickCount == 5)
+        // --- (B) Tick 14 (3.5s，有效播放约 2.5s，手臂已大幅向左弯曲)：演示【无混合硬切 isBlending=false】 ---
+        else if (mTimerTickCount == 14)
         {
-            // 恢复 1 秒后（第 5 秒，实际动画累计时长约 3s），验证姿态已继续推进且停止测试定时器
-            if (palmXform != nullptr)
+            const Quaternion &curOri = palmXform->getOrientation();
+            T3D_ASSERT(curOri != mPausedPalmOrientation);
+            float beforeDeg = quatToZDeg(curOri);
+
+            // 使用 isBlending = false 硬切到 RotateRight，并立即执行一次求值对比切换前后同一时刻的突变
+            ID hardCutID = animPlayer->playClip(kArmRotateRight, /*isBlending=*/false, true, useGPUSkin);
+            T3D_ASSERT(hardCutID != AnimationPlayer::INVALID_ID && !animPlayer->isCrossFading());
+            animPlayer->updateAnimation();
+            float afterDeg = quatToZDeg(palmXform->getOrientation());
+            float jumpDeg = std::abs(afterDeg - beforeDeg);
+
+            // 硬切断言：从 ~+28° 直接归零到 0°，瞬间跳变必然大于 15°
+            T3D_ASSERT(jumpDeg > 15.0f);
+            T3D_LOG_INFO(LOG_TAG_APP,
+                "\n================================================================================\n"
+                "[T1-2 Compare 1: HARD CUT (isBlending = false)] '%s' -> '%s'\n"
+                "  Palm Z-Angle BEFORE switch = %+6.2f deg\n"
+                "  Palm Z-Angle AFTER  switch = %+6.2f deg  >>> INSTANT JUMP Delta = %.2f deg (snaps back to 0!)\n"
+                "================================================================================",
+                kArmRotateLeft, kArmRotateRight, beforeDeg, afterDeg, jumpDeg);
+        }
+        // --- (C) Tick 24 (6.0s，RotateRight 已播放 2.5s，手臂大幅向右弯曲至 ~-28°)：启动【CrossFade 混合 isBlending=true】 ---
+        else if (mTimerTickCount == 24)
+        {
+            float beforeDeg = quatToZDeg(palmXform->getOrientation());
+
+            animPlayer->setBlendDuration(1500);
+            ID blendID = animPlayer->playClip(kArmRotateLeft, /*isBlending=*/true, true, useGPUSkin);
+            T3D_ASSERT(blendID != AnimationPlayer::INVALID_ID && animPlayer->isCrossFading());
+
+            // 立即求值验证：在 alpha=0 处，切换前后姿态完全连续，零跳变！
+            animPlayer->updateAnimation();
+            float afterDeg = quatToZDeg(palmXform->getOrientation());
+            float jumpDeg = std::abs(afterDeg - beforeDeg);
+            T3D_ASSERT(jumpDeg < 1.0f);
+
+            T3D_LOG_INFO(LOG_TAG_APP,
+                "\n================================================================================\n"
+                "[T1-2 Compare 2: CROSSFADE BLEND (isBlending = true, duration = 1500ms)] '%s' -> '%s'\n"
+                "  Palm Z-Angle BEFORE switch = %+6.2f deg\n"
+                "  Palm Z-Angle AFTER  switch = %+6.2f deg  >>> INSTANT JUMP Delta = %.2f deg (ZERO jump, smooth start!)\n"
+                "--------------------------------------------------------------------------------",
+                kArmRotateRight, kArmRotateLeft, beforeDeg, afterDeg, jumpDeg);
+        }
+        // --- Tick 25 ~ 30 (6.25s ~ 7.50s)：每 250ms 实时打印 CrossFade 混合进度条与三方角度对比 ---
+        else if (mTimerTickCount >= 25 && mTimerTickCount <= 30)
+        {
+            float blendedDeg = quatToZDeg(palmXform->getOrientation());
+            float alpha = animPlayer->getBlendAlpha();
+            const auto &primary = animPlayer->getPrimaryClipState();
+            const auto &target = animPlayer->getTargetClipState();
+
+            if (animPlayer->isCrossFading())
             {
-                const Quaternion &curOri = palmXform->getOrientation();
-                T3D_ASSERT(curOri != mPausedPalmOrientation);
-                T3D_LOG_INFO(LOG_TAG_APP, "[T0-4 Verify] 1s after resume (wall 5s, anim ~3s), Palm orientation=(%.4f, %.4f, %.4f, %.4f)",
-                    curOri.x(), curOri.y(), curOri.z(), curOri.w());
+                float fromDeg = calcClipStandaloneDeg(primary.clipName, primary.elapsedMS);
+                float toDeg = calcClipStandaloneDeg(target.clipName, target.elapsedMS);
+
+                // 断言：混合后的角度严格介于源片段角度与目标片段角度之间！
+                float minDeg = std::min(fromDeg, toDeg) - 0.5f;
+                float maxDeg = std::max(fromDeg, toDeg) + 0.5f;
+                T3D_ASSERT(blendedDeg >= minDeg && blendedDeg <= maxDeg);
+
+                int filled = static_cast<int>(alpha * 20.0f + 0.5f);
+                String bar(filled, '#');
+                bar.append(20 - filled, '.');
+
+                T3D_LOG_INFO(LOG_TAG_APP,
+                    "  [CrossFade alpha=%.2f | %s] From(%s)=%+6.2f deg + To(%s)=%+6.2f deg ===> Blended=%+6.2f deg",
+                    alpha, bar.c_str(),
+                    primary.clipName.c_str(), fromDeg,
+                    target.clipName.c_str(), toDeg,
+                    blendedDeg);
             }
-            T3D_TIMER_MGR.stopTimer(timerID);
-            mPauseResumeTimerID = T3D_INVALID_ID;
+            else
+            {
+                T3D_ASSERT(animPlayer->getCurrentClipName() == kArmRotateLeft);
+                T3D_LOG_INFO(LOG_TAG_APP,
+                    "  [CrossFade alpha=1.00 | ####################] Done! Seamlessly switched to '%s', Palm=%+6.2f deg\n"
+                    "================================================================================",
+                    animPlayer->getCurrentClipName().c_str(), blendedDeg);
+            }
+        }
+        else if (mTimerTickCount == 31)
+        {
+            // 第 31 tick（1750ms > 1500ms）：确保过渡必定已完成并稳定在 kArmRotateLeft
+            T3D_ASSERT(!animPlayer->isCrossFading());
+            T3D_ASSERT(animPlayer->getCurrentClipName() == kArmRotateLeft);
+            T3D_LOG_INFO(LOG_TAG_APP,
+                "[T1-2 Verify] All assertions passed! Now alternating CROSSFADE vs HARD CUT every 3s in window...");
+        }
+        // --- (D) Tick > 31：每 12 ticks (3.0s) 在窗口中自动交替触发一次 CrossFade 与硬切，方便肉眼直观对比 ---
+        else if (mTimerTickCount > 31 && ((mTimerTickCount - 31) % 12 == 0))
+        {
+            uint32_t cycle = (mTimerTickCount - 31) / 12;
+            String curClip = animPlayer->getCurrentClipName();
+            String nextClip = (curClip == kArmRotateLeft) ? kArmRotateRight : kArmRotateLeft;
+            // 奇数轮演示 CrossFade 平滑过渡，偶数轮演示硬切瞬移
+            bool useBlend = (cycle % 2 == 1);
+            float beforeDeg = quatToZDeg(palmXform->getOrientation());
+
+            animPlayer->setBlendDuration(1200);
+            animPlayer->playClip(nextClip, useBlend, true, useGPUSkin);
+            animPlayer->updateAnimation();
+            float afterDeg = quatToZDeg(palmXform->getOrientation());
+
+            T3D_LOG_INFO(LOG_TAG_APP,
+                "[Live Compare #%u] %s : '%s' -> '%s' | Before=%+6.2f deg -> After=%+6.2f deg (Jump Delta=%.2f deg)",
+                cycle,
+                useBlend ? ">>> CROSSFADE BLEND (1200ms) <<<" : "!!! HARD CUT (NO BLEND) !!!",
+                curClip.c_str(), nextClip.c_str(),
+                beforeDeg, afterDeg, std::abs(afterDeg - beforeDeg));
         }
     });
     
