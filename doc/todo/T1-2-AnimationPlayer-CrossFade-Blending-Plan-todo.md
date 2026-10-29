@@ -36,11 +36,33 @@
 
 ---
 
-## 2. 设计方案（建议实现）
+## 2. 设计方案（建议实现，面向未来 BlendTree 演进就绪）
 
-### 2.1 引入播放轨道状态结构 `ClipState`
+为了在不增加当前实现负担的前提下，让底层架构能够零返工平滑演进到未来的**动画混合树（Blend Tree，含 1D/2D 混合、相位同步、分层遮罩）**，本方案采用 **「Clip 状态对象化 + 整姿缓冲（SkeletonPose）+ 独立混合算子」** 的三层解耦设计。
 
-将原本散落在 `AnimationPlayer` 成员里的单片段状态封装为 `ClipState`，使播放器能同时维护「主轨道（当前/源片段）」与「过渡轨道（目标片段）」或多条并行混合轨道：
+### 2.1 引入姿势缓冲结构 `BonePose` / `SkeletonPose` 与轨道状态 `ClipState`
+
+1. **显式姿势缓冲（Pose Buffer）**——将“姿势采样（Evaluate）”与“场景节点写入（Apply to Transform3D）”彻底解耦，作为未来混合树节点的标准输入/输出载体：
+
+```cpp
+// 单根骨骼的局部空间姿势
+struct BonePose
+{
+    Vector3     translation {Vector3::ZERO};
+    Quaternion  orientation {Quaternion::IDENTITY};
+    Vector3     scaling     {Vector3::UNIT_SCALE};
+    uint8_t     validMask   {0}; // bit0: T, bit1: O, bit2: S（标记该骨骼在 Clip 中是否有对应有效轨道）
+};
+
+// 整套骨骼的局部姿势缓冲（混合树节点求值的标准 I/O）
+struct SkeletonPose
+{
+    BonePose    bones[T3D_MAX_SKIN_BONES];
+    size_t      boneCount {0};
+};
+```
+
+2. **播放轨道状态结构 `ClipState`**——将原本散落在 `AnimationPlayer` 成员里的单片段状态封装为 `ClipState`（即未来混合树中叶子节点 `ClipNode` 的运行时状态），并引入浮点时间与速率支持未来的**步频/相位同步（Phase Sync）**：
 
 ```cpp
 // 建议实现（位于 AnimationPlayer protected 区）
@@ -48,14 +70,21 @@ struct ClipState
 {
     String          clipName {};
     AnimationClip  *clip {nullptr};
-    uint32_t        elapsedMS {0};
+    Real            elapsedMS {REAL_ZERO};   // 使用 Real 支持非整数倍速率缩放与归一化时间同步
+    Real            speed {REAL_ONE};        // 播放速率倍率，供未来 BlendTree 同步不同周期的 Walk/Run 步频
+    Real            weight {REAL_ONE};       // 混合权重
     bool            isLoop {false};
-    Real            weight {REAL_ONE};
     uint32_t        frameT[T3D_MAX_SKIN_BONES] {0};
     uint32_t        frameO[T3D_MAX_SKIN_BONES] {0};
     uint32_t        frameS[T3D_MAX_SKIN_BONES] {0};
+
+    // 获取/设置归一化进度 [0, 1]，便于未来混合树按统一相位驱动子片段
+    Real getNormalizedTime() const;
+    void setNormalizedTime(Real normalizedTime);
 };
 ```
+
+> **关键帧游标回退保护**：当 `speed` 动态变化或通过 `setNormalizedTime` 回退时间时，若 `getKeyframe` 检测到当前查询时间 `time < keyframes[startFrame]->getTime()`，需自动将 `startFrame` 重置为 `0` 重新检索。
 
 在 `AnimationPlayer` 中持有：
 - `ClipState mPrimaryClip {};`（当前主片段或 `fromClip`）
@@ -80,26 +109,51 @@ struct ClipState
    - 校验 `clipNames` 非空；
    - 将每个有效片段放入 `mLayeredClips`，默认均分权重 `weight = 1.0f / N`（或按骨骼轨道独立覆盖：若片段 A 只含下半身骨骼 Track、片段 B 只含上半身骨骼 Track，则各自在有效骨骼上取满权重，实现上下半身分层动画！）。
 
-### 2.3 骨骼姿势采样与插值混合（`updateBones`）
+### 2.3 整姿采样、无状态混合算子与骨骼写回（Pose Evaluation Pipeline）
 
-抽出单片段对单根骨骼的采样函数：
+将 `updateBones()` 拆分为 **「采样 → 混合 → 写回」** 三步标准管线，所有算子均围绕 `SkeletonPose` 运作：
 
-```cpp
-bool sampleBonePose(ClipState &state, size_t boneIdx, const String &boneName,
-    Vector3 &outTrans, Quaternion &outRot, Vector3 &outScale);
-```
+1. **单片段整姿采样函数**（未来可直接作为混合树叶子节点 `ClipNode::evaluate` 的实现）：
+   ```cpp
+   void sampleClipPose(ClipState &state, const BoneGameObjects &bones, SkeletonPose &outPose);
+   ```
+2. **独立的无状态姿势混合算子**（未来可直接作为 1D/2D 混合节点与分层遮罩节点的内核）：
+   ```cpp
+   // 双姿态插值（用于 CrossFade 过渡与未来 1D BlendTree 相邻区间插值）
+   static void blendPoses(const SkeletonPose &poseA, const SkeletonPose &poseB,
+       Real alpha, SkeletonPose &outPose);
 
-在 `updateBones()` 中：
-1. 若处于双片段 CrossFade 过渡态（`mTargetClip.clip != nullptr`）：
-   - 计算混合因子 $\alpha = \text{clamp}(\text{float}(mBlendElapsedMS) / mBlendDurationMS, 0.0f, 1.0f)$；
-   - 对每根骨骼分别调用 `sampleBonePose(mPrimaryClip, ...)` 得到 $(T_0, R_0, S_0)$，调用 `sampleBonePose(mTargetClip, ...)` 得到 $(T_1, R_1, S_1)$；
-   - 混合：
-     - `T = Vector3::lerp(T0, T1, alpha)`
-     - `R = Quaternion::slerp(R0, R1, alpha)`（注意处理四元数点积 `< 0` 时的最短路径号反转）
-     - `S = Vector3::lerp(S0, S1, alpha)`
-   - 当 $\alpha \ge 1.0f$ 时，过渡完成：执行 `mPrimaryClip = mTargetClip; mTargetClip = ClipState{};`，无缝切入目标片段独立播放。
-2. 若处于 `playClips` 多片段模式：
-   - 对每根骨骼遍历 `mLayeredClips`，仅汇总包含该骨骼 Track 的片段（若只有一个片段含该骨骼，则直接采用其 TRS，天然支持上下半身分离动画；若有多个片段含同一骨骼，则按归一化权重顺序 `lerp` / `slerp`）。
+   // 多姿态加权混合（用于 playClips 同骨骼多轨道混合与未来 2D BlendTree）
+   // 注：四元数采用半球符号对齐（dot < 0 时取反）后的加权累加并归一化（Weighted Nlerp），保证顺序无关性
+   static void blendPosesWeighted(const SkeletonPose *poses, const Real *weights,
+       size_t count, SkeletonPose &outPose);
+
+   // 分层/局部轨道覆盖混合（基于 BonePose::validMask 或未来的 BoneMask 实现上下半身分层叠加）
+   static void blendPosesLayered(const SkeletonPose &basePose, const SkeletonPose &layerPose,
+       Real layerWeight, SkeletonPose &outPose);
+   ```
+3. **最终姿势写回场景节点**：
+   ```cpp
+   void applySkeletonPose(const SkeletonPose &pose, const BoneGameObjects &bones);
+   ```
+
+4. **`updateBones()` 管线执行流程**：
+   - **双片段 CrossFade 过渡态**（`mTargetClip.clip != nullptr`）：
+     - 计算混合因子 $\alpha = \text{clamp}(\text{float}(mBlendElapsedMS) / mBlendDurationMS, 0.0f, 1.0f)$；
+     - 分别调用 `sampleClipPose(mPrimaryClip, ..., poseA)` 与 `sampleClipPose(mTargetClip, ..., poseB)`；
+     - 调用 `blendPoses(poseA, poseB, alpha, finalPose)`（内部对平移/缩放执行 `Vector3::lerp`，对旋转执行带最短路径半球修正的 `Quaternion::slerp`）；
+     - 调用 `applySkeletonPose(finalPose, boneGameObjects)` 统一写回 `Transform3D`；
+     - 当 $\alpha \ge 1.0f$ 时，过渡完成：执行 `mPrimaryClip = mTargetClip; mTargetClip = ClipState{};`，无缝切入目标片段独立播放。
+   - **`playClips` 多片段模式**：
+     - 对 `mLayeredClips` 中各片段采样得到 `SkeletonPose`，根据 `BonePose::validMask` 判断：若某骨骼仅在单个片段中存在有效轨道，则直接采用该片段姿势（天然支持上下半身分离动画）；若多个片段包含同一骨骼轨道，则按归一化权重调用 `blendPosesWeighted` 或 `blendPosesLayered` 汇总后写回。
+
+### 2.4 未来向完整「动画混合树（Blend Tree）」演进的路径
+
+基于上述结构，未来引入混合树时无需修改采样、混合与蒙皮底层代码，仅需：
+1. 抽象基类 `AnimNode { virtual void evaluate(Real dt, const BoneGameObjects &bones, SkeletonPose &outPose) = 0; }`；
+2. 将 `ClipState + sampleClipPose` 包装为叶子节点 `AnimClipNode`；
+3. 将 `blendPoses` / `blendPosesWeighted` / `blendPosesLayered` 包装为容器节点 `AnimBlend1DNode`、`AnimBlend2DNode`、`AnimLayerNode`；
+4. `AnimationPlayer` 只需持有一棵根 `AnimNodePtr mRootNode`，每帧调用 `mRootNode->evaluate(dt, bones, finalPose)` 后执行 `applySkeletonPose(finalPose, bones)` 即可。
 
 ---
 
