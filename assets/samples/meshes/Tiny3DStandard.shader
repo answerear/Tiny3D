@@ -36,6 +36,29 @@ Shader "Tiny3DBuiltin/Standard"
 
 			Pass
 			{
+				Name "FORWARD_ADD"
+				Tags { "LightMode" = "ForwardAdd" }
+
+				Blend One One
+				ZWrite Off
+				ZTest LEqual
+
+				CGPROGRAM
+
+				#pragma vertex vertForward
+				#pragma fragment fragForwardAdditive
+				#pragma target 4.0
+
+				#pragma multi_compile _ T3D_SKINNED_MESH
+				#pragma multi_compile _ T3D_GPU_SKINNING
+
+				#include "Tiny3DStandardForward.cginc"
+
+				ENDCG
+			}
+
+			Pass
+			{
 			Name "ShadowCaster"
 			Tags { "LightMode" = "ShadowCaster" }
 

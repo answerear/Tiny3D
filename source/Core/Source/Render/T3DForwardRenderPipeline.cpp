@@ -239,6 +239,7 @@ namespace Tiny3D
         }
 
         mLights.emplace(light->getUUID(), light);
+        mOrderedLights.push_back(light);
 
         
         if (mImportantDirLight == nullptr)
@@ -270,6 +271,7 @@ namespace Tiny3D
         }
         
         mLights.erase(itr);
+        mOrderedLights.erase(std::remove(mOrderedLights.begin(), mOrderedLights.end(), light), mOrderedLights.end());
         
         return T3D_OK;
     }
@@ -286,6 +288,8 @@ namespace Tiny3D
         mCameras.clear();
         mRenderQueue.clear();
         mLights.clear();
+        mOrderedLights.clear();
+        mLightBatches.clear();
 
         mImportantDirLight = nullptr;
         mSceneSkybox = nullptr;
@@ -342,6 +346,7 @@ namespace Tiny3D
         // 光源与相机无关，整个场景只收集一次。放在循环外，这样首台相机被禁用、
         // 乃至场景里一台相机都没有时，光源列表依然是完整的
         go->setupLights(this);
+        buildLightBatches();
 
         return T3D_OK;
     }
@@ -710,6 +715,34 @@ namespace Tiny3D
                         {
                             submitRenderable(ctx, renderable, material, pass);
                         }
+
+                        // ForwardAdd 多光源分批叠加：当存在第 2 个及以上 LightBatch 且非线框覆盖模式时执行
+                        if (mLightBatches.size() > 1 && rasterizerOverride == RasterizerOverride::kNone)
+                        {
+                            const auto itrAddPass = tech->getPassInstances().find(ShaderLab::kBuiltinLightModeForwardAdd);
+                            if (itrAddPass != tech->getPassInstances().end() && itrAddPass->second != nullptr)
+                            {
+                                PassInstance *addPass = itrAddPass->second;
+                                RenderState *addRenderState = addPass->getPass()->getRenderState();
+                                if (addRenderState == nullptr)
+                                {
+                                    addRenderState = tech->getTechnique()->getRenderState();
+                                }
+
+                                setupForwardAddRenderState(ctx, addRenderState, rasterizerOverride);
+
+                                for (size_t batchIdx = 1; batchIdx < mLightBatches.size(); ++batchIdx)
+                                {
+                                    applyLightBatch(material, batchIdx);
+                                    setupShaders(ctx, material, addPass);
+
+                                    for (const auto &renderable : renderables)
+                                    {
+                                        submitRenderable(ctx, renderable, material, addPass);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 else
@@ -811,6 +844,34 @@ namespace Tiny3D
                         }
 
                         submitRenderable(ctx, renderable, material, lastPass);
+
+                        if (mLightBatches.size() > 1 && rasterizerOverride == RasterizerOverride::kNone)
+                        {
+                            TechniqueInstancePtr tech = material->getCurrentTechnique();
+                            const auto itrAddPass = tech->getPassInstances().find(ShaderLab::kBuiltinLightModeForwardAdd);
+                            if (itrAddPass != tech->getPassInstances().end() && itrAddPass->second != nullptr)
+                            {
+                                PassInstance *addPass = itrAddPass->second;
+                                RenderState *addRenderState = addPass->getPass()->getRenderState();
+                                if (addRenderState == nullptr)
+                                {
+                                    addRenderState = tech->getTechnique()->getRenderState();
+                                }
+
+                                setupForwardAddRenderState(ctx, addRenderState, rasterizerOverride);
+
+                                for (size_t batchIdx = 1; batchIdx < mLightBatches.size(); ++batchIdx)
+                                {
+                                    applyLightBatch(material, batchIdx);
+                                    setupShaders(ctx, material, addPass);
+                                    submitRenderable(ctx, renderable, material, addPass);
+                                }
+
+                                // 状态已被 ForwardAdd 修改，下一件透明物体需重新绑定 ForwardBase 状态与第 0 批光源
+                                lastMaterial = nullptr;
+                                lastPass = nullptr;
+                            }
+                        }
                     }
                 }
             }
@@ -966,142 +1027,203 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult ForwardRenderPipeline::setupLights(RHIContext *ctx, Material *material)
+    void ForwardRenderPipeline::buildLightBatches()
     {
-        int32_t pointLightCount = 0;
-        int32_t spotLightCount = 0;
-        
-        for (const auto &item : mLights)
+        ColorRGBA ambientColor(0.0f, 0.0f, 0.0f, 0.0f);
+        TArray<DirectionalLight *> dirLights;
+        TArray<PointLight *> pointLights;
+        TArray<SpotLight *> spotLights;
+
+        if (mImportantDirLight != nullptr)
         {
-            switch (item.second->getLightType())
+            dirLights.push_back(mImportantDirLight);
+        }
+
+        for (Light *light : mOrderedLights)
+        {
+            if (light == nullptr)
+            {
+                continue;
+            }
+
+            switch (light->getLightType())
             {
             case LightType::kAmbient:
                 {
-                    // 设置环境光
-                    AmbientLight *light = static_cast<AmbientLight *>(item.second);
-                    ColorRGBA color = light->getColor();
-                    color.alpha() = light->getIntensity();
-                    material->setColor("tiny3d_AmbientLight", color);
+                    AmbientLight *amb = static_cast<AmbientLight *>(light);
+                    ambientColor = amb->getColor();
+                    ambientColor.alpha() = amb->getIntensity();
                 }
                 break;
             case LightType::kDirectional:
                 {
-                    // 设置方向光
-                    DirectionalLight *light = static_cast<DirectionalLight *>(item.second);
-
-                    // 颜色和漫反射强度
-                    ColorRGBA color = light->getColor();
-                    color.alpha() = light->getDiffuseIntensity();
-                    material->setColor("tiny3d_DirLightColor", color);
-                    // 方向和镜面反射强度
-                    // Transform3D *xform = light->getGameObject()->getComponent<Transform3D>();
-                    Transform3D *xform = static_cast<Transform3D *>(light->getGameObject()->getTransformNode());
-                    const Matrix4 &mat = xform->getLocalToWorldTransform().getAffineMatrix();
-                    float specularIntensity = light->getSpecularIntensity();
-                    Vector4 dir(mat[0][2], mat[1][2], mat[2][2], specularIntensity);
-                    material->setVector("tiny3d_DirLightDir", dir);
+                    DirectionalLight *dir = static_cast<DirectionalLight *>(light);
+                    if (dir != mImportantDirLight)
+                    {
+                        dirLights.push_back(dir);
+                    }
                 }
                 break;
             case LightType::kPoint:
-                {
-                    if (pointLightCount >= kMaxPointLights)
-                    {
-                        T3D_LOG_WARNING(LOG_TAG_RENDER, "Too many point lights in scene !");
-                        continue;
-                    }
-                
-                    // 设置点光源
-                    PointLight *light = static_cast<PointLight *>(item.second);
-
-                    // 颜色和漫反射强度
-                    ColorRGBA &lightColor = mPointLightColor[pointLightCount];
-                    lightColor.red() = light->getColor().red();
-                    lightColor.green() = light->getColor().green();
-                    lightColor.blue() = light->getColor().blue();
-                    lightColor.alpha() = light->getDiffuseIntensity();
-
-                    // 位置和镜面反射强度
-                    Vector4f &lightPos = mPointLightPos[pointLightCount];
-                    // Transform3D *xform = light->getGameObject()->getComponent<Transform3D>();
-                    Transform3D *xform = static_cast<Transform3D *>(light->getGameObject()->getTransformNode());
-                    const Vector3 &pos = xform->getLocalToWorldTransform().getTranslation();
-                    lightPos[0] = pos[0];
-                    lightPos[1] = pos[1];
-                    lightPos[2] = pos[2];
-                    lightPos[3] = light->getSpecularIntensity();
-                
-                    // 光源衰减参数
-                    Vector4f &lightAttenuation = mPointLightAttenuation[pointLightCount];
-                    lightAttenuation[0] = light->getAttenuationConstant();
-                    lightAttenuation[1] = light->getAttenuationLinear();
-                    lightAttenuation[2] = light->getAttenuationQuadratic();
-                    lightAttenuation[3] = 0.0f;
-                    pointLightCount++;
-                }
+                pointLights.push_back(static_cast<PointLight *>(light));
                 break;
             case LightType::kSpot:
-                {
-                    if (spotLightCount >= kMaxSpotLights)
-                    {
-                        T3D_LOG_WARNING(LOG_TAG_RENDER, "Too many spot lights in scene !");
-                        continue;
-                    }
-
-                    // 设置聚光灯
-                    SpotLight *light = static_cast<SpotLight *>(item.second);
-
-                    // 颜色和漫反射强度
-                    ColorRGBA &lightColor = mSpotLightColor[spotLightCount];
-                    lightColor.red() = light->getColor().red();
-                    lightColor.green() = light->getColor().green();
-                    lightColor.blue() = light->getColor().blue();
-                    lightColor.alpha() = light->getDiffuseIntensity();
-
-                    // 位置和镜面反射强度
-                    Vector4f &lightPos = mSpotLightPos[spotLightCount];
-                    // Transform3D *xform = light->getGameObject()->getComponent<Transform3D>();
-                    Transform3D *xform = static_cast<Transform3D *>(light->getGameObject()->getTransformNode());
-                    const Vector3 &pos = xform->getLocalToWorldTransform().getTranslation();
-                    lightPos[0] = pos[0];
-                    lightPos[1] = pos[1];
-                    lightPos[2] = pos[2];
-                    lightPos[3] = light->getSpecularIntensity();
-
-                    // 方向和切角 cos 值
-                    Vector4f &lightDir = mSpotLightDir[spotLightCount];
-                    const Matrix4 &mat = xform->getLocalTransform().getAffineMatrix();
-                    lightDir[0] = mat[0][2];
-                    lightDir[1] = mat[1][2];
-                    lightDir[2] = mat[2][2];
-                    lightDir[3] = Math::cos(light->getInnerCutoffAngle() * 0.5f);
-
-                    // 光源衰减参数
-                    Vector4f &attenuation = mSpotLightAttenuation[spotLightCount];
-                    attenuation[0] = light->getAttenuationConstant();
-                    attenuation[1] = light->getAttenuationLinear();
-                    attenuation[2] = light->getAttenuationQuadratic();
-                    attenuation[3] = Math::cos(light->getCutoffAngle() * 0.5f);
-                
-                    spotLightCount++;
-                }
+                spotLights.push_back(static_cast<SpotLight *>(light));
                 break;
             default:
                 break;
             }
         }
 
-        // 点光源
-        material->setColorArray("tiny3d_PointLightColor", mPointLightColor);
-        material->setVectorArray("tiny3d_PointLightPos", mPointLightPos);
-        material->setVectorArray("tiny3d_PointLightAttenuation", mPointLightAttenuation);
+        const size_t dirBatchCount = dirLights.size();
+        const size_t pointBatchCount = (pointLights.size() + kMaxPointLights - 1) / kMaxPointLights;
+        const size_t spotBatchCount = (spotLights.size() + kMaxSpotLights - 1) / kMaxSpotLights;
+        const size_t totalBatches = std::max<size_t>({1, dirBatchCount, pointBatchCount, spotBatchCount});
 
-        // 聚光灯
-        material->setColorArray("tiny3d_SpotLightColor", mSpotLightColor);
-        material->setVectorArray("tiny3d_SpotLightPos", mSpotLightPos);
-        material->setVectorArray("tiny3d_SpotLightDir", mSpotLightDir);
-        material->setVectorArray("tiny3d_SpotLightAttenuation", mSpotLightAttenuation);
-        
+        mLightBatches.clear();
+        mLightBatches.resize(totalBatches);
+
+        // 环境光仅在第 0 批（ForwardBase）生效，ForwardAdd 批次保持为 0 避免重复累加
+        mLightBatches[0].ambientColor = ambientColor;
+
+        // 填充各批次方向光
+        for (size_t i = 0; i < dirLights.size(); ++i)
+        {
+            DirectionalLight *light = dirLights[i];
+            LightBatch &batch = mLightBatches[i];
+
+            ColorRGBA color = light->getColor();
+            color.alpha() = light->getDiffuseIntensity();
+            batch.dirLightColor = color;
+
+            Transform3D *xform = static_cast<Transform3D *>(light->getGameObject()->getTransformNode());
+            const Matrix4 &mat = xform->getLocalToWorldTransform().getAffineMatrix();
+            const float specularIntensity = light->getSpecularIntensity();
+            batch.dirLightDir = Vector4(mat[0][2], mat[1][2], mat[2][2], specularIntensity);
+        }
+
+        // 填充各批次点光源（每批最多 kMaxPointLights = 4 盏）
+        for (size_t i = 0; i < pointLights.size(); ++i)
+        {
+            PointLight *light = pointLights[i];
+            const size_t batchIdx = i / kMaxPointLights;
+            const size_t slot = i % kMaxPointLights;
+            LightBatch &batch = mLightBatches[batchIdx];
+
+            ColorRGBA &lightColor = batch.pointLightColor[slot];
+            lightColor.red() = light->getColor().red();
+            lightColor.green() = light->getColor().green();
+            lightColor.blue() = light->getColor().blue();
+            lightColor.alpha() = light->getDiffuseIntensity();
+
+            Vector4f &lightPos = batch.pointLightPos[slot];
+            Transform3D *xform = static_cast<Transform3D *>(light->getGameObject()->getTransformNode());
+            const Vector3 &pos = xform->getLocalToWorldTransform().getTranslation();
+            lightPos[0] = pos[0];
+            lightPos[1] = pos[1];
+            lightPos[2] = pos[2];
+            lightPos[3] = light->getSpecularIntensity();
+
+            Vector4f &lightAttenuation = batch.pointLightAttenuation[slot];
+            lightAttenuation[0] = light->getAttenuationConstant();
+            lightAttenuation[1] = light->getAttenuationLinear();
+            lightAttenuation[2] = light->getAttenuationQuadratic();
+            lightAttenuation[3] = 0.0f;
+
+            batch.pointLightCount++;
+        }
+
+        // 填充各批次聚光灯（每批最多 kMaxSpotLights = 4 盏）
+        for (size_t i = 0; i < spotLights.size(); ++i)
+        {
+            SpotLight *light = spotLights[i];
+            const size_t batchIdx = i / kMaxSpotLights;
+            const size_t slot = i % kMaxSpotLights;
+            LightBatch &batch = mLightBatches[batchIdx];
+
+            ColorRGBA &lightColor = batch.spotLightColor[slot];
+            lightColor.red() = light->getColor().red();
+            lightColor.green() = light->getColor().green();
+            lightColor.blue() = light->getColor().blue();
+            lightColor.alpha() = light->getDiffuseIntensity();
+
+            Vector4f &lightPos = batch.spotLightPos[slot];
+            Transform3D *xform = static_cast<Transform3D *>(light->getGameObject()->getTransformNode());
+            const Vector3 &pos = xform->getLocalToWorldTransform().getTranslation();
+            lightPos[0] = pos[0];
+            lightPos[1] = pos[1];
+            lightPos[2] = pos[2];
+            lightPos[3] = light->getSpecularIntensity();
+
+            Vector4f &lightDir = batch.spotLightDir[slot];
+            const Matrix4 &mat = xform->getLocalTransform().getAffineMatrix();
+            lightDir[0] = mat[0][2];
+            lightDir[1] = mat[1][2];
+            lightDir[2] = mat[2][2];
+            lightDir[3] = Math::cos(light->getInnerCutoffAngle() * 0.5f);
+
+            Vector4f &attenuation = batch.spotLightAttenuation[slot];
+            attenuation[0] = light->getAttenuationConstant();
+            attenuation[1] = light->getAttenuationLinear();
+            attenuation[2] = light->getAttenuationQuadratic();
+            attenuation[3] = Math::cos(light->getCutoffAngle() * 0.5f);
+
+            batch.spotLightCount++;
+        }
+
+        // 同步缓存第 0 批数组成员
+        mPointLightColor = mLightBatches[0].pointLightColor;
+        mPointLightPos = mLightBatches[0].pointLightPos;
+        mPointLightAttenuation = mLightBatches[0].pointLightAttenuation;
+        mSpotLightColor = mLightBatches[0].spotLightColor;
+        mSpotLightPos = mLightBatches[0].spotLightPos;
+        mSpotLightDir = mLightBatches[0].spotLightDir;
+        mSpotLightAttenuation = mLightBatches[0].spotLightAttenuation;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::applyLightBatch(Material *material, size_t batchIndex)
+    {
+        if (material == nullptr)
+        {
+            return T3D_ERR_INVALID_POINTER;
+        }
+
+        if (mLightBatches.empty())
+        {
+            buildLightBatches();
+        }
+
+        if (batchIndex >= mLightBatches.size())
+        {
+            return T3D_ERR_OUT_OF_BOUND;
+        }
+
+        const LightBatch &batch = mLightBatches[batchIndex];
+
+        material->setColor("tiny3d_AmbientLight", batch.ambientColor);
+        material->setColor("tiny3d_DirLightColor", batch.dirLightColor);
+        material->setVector("tiny3d_DirLightDir", batch.dirLightDir);
+
+        material->setColorArray("tiny3d_PointLightColor", batch.pointLightColor);
+        material->setVectorArray("tiny3d_PointLightPos", batch.pointLightPos);
+        material->setVectorArray("tiny3d_PointLightAttenuation", batch.pointLightAttenuation);
+
+        material->setColorArray("tiny3d_SpotLightColor", batch.spotLightColor);
+        material->setVectorArray("tiny3d_SpotLightPos", batch.spotLightPos);
+        material->setVectorArray("tiny3d_SpotLightDir", batch.spotLightDir);
+        material->setVectorArray("tiny3d_SpotLightAttenuation", batch.spotLightAttenuation);
+
         return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::setupLights(RHIContext *ctx, Material *material)
+    {
+        (void)ctx;
+        return applyLightBatch(material, 0);
     }
 
     //--------------------------------------------------------------------------
@@ -1167,6 +1289,67 @@ namespace Tiny3D
             {
                 ctx->setRasterizerState(rasterState);
             }
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::setupForwardAddRenderState(RHIContext *ctx, RenderState *renderState,
+        RasterizerOverride rasterizerOverride)
+    {
+        BlendDesc blendDesc;
+        DepthStencilDesc depthDesc;
+        RasterizerDesc rasterDesc;
+
+        if (renderState != nullptr)
+        {
+            blendDesc = renderState->getBlendDesc();
+            depthDesc = renderState->getDepthStencilDesc();
+            rasterDesc = renderState->getRasterizerDesc();
+        }
+
+        // 若 Pass 未显式开启混合，默认强制使用 One + One 加法混合
+        BlendDesc::RTBlendDesc &rt = blendDesc.RenderTargetStates[0];
+        if (!rt.BlendEnable)
+        {
+            rt.BlendEnable = true;
+            rt.SrcBlend = BlendFactor::kOne;
+            rt.DestBlend = BlendFactor::kOne;
+            rt.BlendOp = BlendOperation::kAdd;
+            rt.SrcBlendAlpha = BlendFactor::kOne;
+            rt.DstBlendAlpha = BlendFactor::kOne;
+            rt.BlendOpAlpha = BlendOperation::kAdd;
+        }
+
+        // ForwardAdd 叠加在已有表面上：关闭深度写入，并将默认的 Less 提升为 LessEqual 以通过相同深度片元
+        depthDesc.DepthWriteEnable = false;
+        if (depthDesc.DepthFunc == CompareFunction::kLess)
+        {
+            depthDesc.DepthFunc = CompareFunction::kLessEqual;
+        }
+
+        if (rasterizerOverride != RasterizerOverride::kNone)
+        {
+            rasterDesc.FillMode = PolygonMode::kWireframe;
+        }
+
+        BlendStatePtr addBlend = T3D_RENDER_STATE_MGR.loadBlendState(blendDesc);
+        DepthStencilStatePtr addDepth = T3D_RENDER_STATE_MGR.loadDepthStencilState(depthDesc);
+        RasterizerStatePtr addRaster = T3D_RENDER_STATE_MGR.loadRasterizerState(rasterDesc);
+
+        if (addBlend != nullptr)
+        {
+            ctx->setBlendState(addBlend.get());
+        }
+        if (addDepth != nullptr)
+        {
+            ctx->setDepthStencilState(addDepth.get());
+        }
+        if (addRaster != nullptr)
+        {
+            ctx->setRasterizerState(addRaster.get());
         }
 
         return T3D_OK;

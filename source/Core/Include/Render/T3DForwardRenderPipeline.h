@@ -145,13 +145,25 @@ namespace Tiny3D
         TResult setupForwardPassMatrices(RHIContext *ctx, Material *material);
 
         /**
-         * \brief 遍历 mLights，将环境光/方向光/点光/聚光参数写入材质常量
+         * \brief 遍历 mLights，将第 0 批（ForwardBase）环境光/方向光/点光/聚光参数写入材质常量
          * \param [in] ctx : RHI 上下文（当前未直接使用）
          * \param [in] material : 目标材质
          * \return 调用成功返回 T3D_OK
-         * \note 点光最多 kMaxPointLights、聚光最多 kMaxSpotLights，超出时打 warning 并跳过
          */
         TResult setupLights(RHIContext *ctx, Material *material);
+
+        /**
+         * \brief 将 mLights 按单次 Pass 容量（1 方向光 + 4 点光 + 4 聚光）切分为 mLightBatches
+         */
+        void buildLightBatches();
+
+        /**
+         * \brief 将指定批次的光源参数写入材质常量
+         * \param [in] material : 目标材质
+         * \param [in] batchIndex : 批次索引（0 为 ForwardBase，1..N-1 为 ForwardAdd）
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult applyLightBatch(Material *material, size_t batchIndex);
 
         /**
          * \brief 编辑器相机覆盖光栅化填充模式
@@ -174,6 +186,16 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         TResult setupRenderState(RHIContext *ctx, RenderState *renderState,
+            RasterizerOverride rasterizerOverride = RasterizerOverride::kNone);
+
+        /**
+         * \brief 为 ForwardAdd Pass 绑定渲染状态（默认兜底 One+One 加法混合、关闭深度写入、LessEqual 深度测试）
+         * \param [in] ctx : RHI 上下文
+         * \param [in] renderState : Pass 或 Technique 的渲染状态
+         * \param [in] rasterizerOverride : 编辑器线框模式覆盖
+         * \return 调用成功返回 T3D_OK
+         */
+        TResult setupForwardAddRenderState(RHIContext *ctx, RenderState *renderState,
             RasterizerOverride rasterizerOverride = RasterizerOverride::kNone);
 
         /**
@@ -322,6 +344,28 @@ namespace Tiny3D
             kMaxSpotLights = 4,
         };
 
+        /**
+         * \brief 单次 Pass（ForwardBase 或单次 ForwardAdd）可承载的光源批次
+         */
+        struct LightBatch
+        {
+            ColorRGBA       ambientColor {0.0f, 0.0f, 0.0f, 0.0f};
+            ColorRGBA       dirLightColor {0.0f, 0.0f, 0.0f, 0.0f};
+            Vector4         dirLightDir {0.0f, 0.0f, 0.0f, 0.0f};
+            uint32_t        pointLightCount {0};
+            ColorArray      pointLightColor {kMaxPointLights, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f)};
+            Vector4Array    pointLightPos {kMaxPointLights, Vector4f::ZERO};
+            Vector4Array    pointLightAttenuation {kMaxPointLights, Vector4f(1.0f, 0.0f, 0.0f, 0.0f)};
+            uint32_t        spotLightCount {0};
+            ColorArray      spotLightColor {kMaxSpotLights, ColorRGBA(0.0f, 0.0f, 0.0f, 0.0f)};
+            Vector4Array    spotLightPos {kMaxSpotLights, Vector4f::ZERO};
+            Vector4Array    spotLightDir {kMaxSpotLights, Vector4f::ZERO};
+            Vector4Array    spotLightAttenuation {kMaxSpotLights, Vector4f(1.0f, 0.0f, 0.0f, 0.0f)};
+        };
+
+        /// 按容量切分后的每帧光源批次表（[0] 供 ForwardBase，[1..N-1] 供 ForwardAdd）
+        TArray<LightBatch> mLightBatches {};
+
         /// 按相机 → 队列 → 材质分组的渲染队列
         CameraRenderQueue mRenderQueue {};
         /// 复用的透明队列排序缓冲区（仅 clear 不释放 capacity，避免每帧堆分配）
@@ -330,6 +374,8 @@ namespace Tiny3D
         Cameras mCameras {};
         /// cull 阶段收集的场景光源表（UUID → Light*）
         Lights mLights {};
+        /// cull 阶段按场景树遍历顺序收集的光源列表（保证批次划分顺序稳定）
+        TArray<Light *> mOrderedLights {};
 
         /// 首个登记的方向光，用于阴影贴图投射
         DirectionalLight *mImportantDirLight {nullptr};

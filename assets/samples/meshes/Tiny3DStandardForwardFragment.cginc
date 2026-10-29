@@ -193,4 +193,48 @@ float4 fragForwardBase(VertexOutputForwardBase input) : SV_Target
     return finalColor;
 }
 
+float4 fragForwardAdd(VertexOutputForwardBase input) : SV_Target
+{
+	float smoothness = tiny3d_ObjectSmoothness.x;
+	float3 viewDir = normalize(tiny3d_CameraWorldPos.xyz - input.worldPos);
+	float3 normal = normalize(input.worldNormal);
+	float4 albedo = SAMPLE(_MainTex, input.uv);
+
+	// 附加批次方向光（不乘主光阴影贴图，不加环境光）
+	float3 color = float3(0, 0, 0);
+	float diffuseIntensity = tiny3d_DirLightColor.a;
+	float specularIntensity = tiny3d_DirLightDir.w;
+	float3 lightDir = tiny3d_DirLightDir.xyz;
+	float3 lightColor = tiny3d_DirLightColor.rgb;
+	color += calcDirectionalLight(normal, viewDir, albedo.rgb, lightDir, lightColor, diffuseIntensity, specularIntensity, smoothness);
+
+	int i = 0;
+	// 附加批次点光源
+	[unroll]
+	for (i = 0; i < T3D_MAX_POINT_LIGHTS; i++)
+	{
+		diffuseIntensity = tiny3d_PointLightColor[i].a;
+		specularIntensity = tiny3d_PointLightPos[i].w;
+		float3 lightPos = tiny3d_PointLightPos[i].xyz;
+		lightColor = tiny3d_PointLightColor[i].rgb;
+		color += calcPointLight(input.worldPos, normal, viewDir, albedo.rgb, lightPos, lightColor, diffuseIntensity, specularIntensity, tiny3d_PointLightAttenuation[i].xyz, smoothness);
+	}
+
+	// 附加批次聚光灯
+	[unroll]
+	for (i = 0; i < T3D_MAX_SPOT_LIGHTS; i++)
+	{
+		diffuseIntensity = tiny3d_SpotLightColor[i].a;
+		specularIntensity = tiny3d_SpotLightPos[i].w;
+		float3 lightPos = tiny3d_SpotLightPos[i].xyz;
+		float3 spotDir = tiny3d_SpotLightDir[i].xyz;
+		lightColor = tiny3d_SpotLightColor[i].rgb;
+		float cutoff = tiny3d_SpotLightDir[i].w;
+		float outerCutoff = tiny3d_SpotLightAttenuation[i].w;
+		color += calcSpotLight(input.worldPos, normal, viewDir, albedo.rgb, lightPos, spotDir, lightColor, diffuseIntensity, specularIntensity, tiny3d_SpotLightAttenuation[i].xyz, smoothness, cutoff, outerCutoff);
+	}
+
+	return float4(color, 1.0f);
+}
+
 #endif  /*TINY3D_STANDARD_FORWARD_FRAGMENT_INCLUDED*/
