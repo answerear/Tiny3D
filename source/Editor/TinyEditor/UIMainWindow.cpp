@@ -456,12 +456,18 @@ namespace Tiny3D
         
         // Graphics Tier
         IM_MENU_ITEM_DATA(ImMenuItemType::kPopup, ID_MENU_ITEM_GRAPHICS_TIER, STR(TXT_GRAPHICS_TIER), "", "", nullptr, nullptr, nullptr)
-        // Tier 1
-        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_GRAPHICS_TIER_1, STR(TXT_GRAPHICS_TIER_1), "", "", queryDisableDefault, nullptr, nullptr)
-        // Tier 2
-        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_GRAPHICS_TIER_2, STR(TXT_GRAPHICS_TIER_2), "", "", queryDisableDefault, nullptr, nullptr)
-        // Tier 3
-        IM_MENU_ITEM_DATA(ImMenuItemType::kNormal, ID_MENU_ITEM_GRAPHICS_TIER_3, STR(TXT_GRAPHICS_TIER_3), "", "", queryDisableDefault, nullptr, nullptr)
+        // Tier 1 (LOD <= 200)
+        IM_MENU_ITEM_DATA(ImMenuItemType::kCheck, ID_MENU_ITEM_GRAPHICS_TIER_1, STR(TXT_GRAPHICS_TIER_1), "", "", queryEnableDefault,
+            [](ImWidget*) { return T3D_AGENT.getSettings().renderSettings.maxShaderLOD == 200; },
+            [](ImWidget*) { T3D_AGENT.getSettings().renderSettings.maxShaderLOD = 200; })
+        // Tier 2 (LOD <= 400)
+        IM_MENU_ITEM_DATA(ImMenuItemType::kCheck, ID_MENU_ITEM_GRAPHICS_TIER_2, STR(TXT_GRAPHICS_TIER_2), "", "", queryEnableDefault,
+            [](ImWidget*) { return T3D_AGENT.getSettings().renderSettings.maxShaderLOD == 400; },
+            [](ImWidget*) { T3D_AGENT.getSettings().renderSettings.maxShaderLOD = 400; })
+        // Tier 3 (Unlimited)
+        IM_MENU_ITEM_DATA(ImMenuItemType::kCheck, ID_MENU_ITEM_GRAPHICS_TIER_3, STR(TXT_GRAPHICS_TIER_3), "", "", queryEnableDefault,
+            [](ImWidget*) { return T3D_AGENT.getSettings().renderSettings.maxShaderLOD == UINT32_MAX; },
+            [](ImWidget*) { T3D_AGENT.getSettings().renderSettings.maxShaderLOD = UINT32_MAX; })
         
         return T3D_OK;
     }
@@ -1036,9 +1042,9 @@ namespace Tiny3D
                 IM_MENU_ITEM(ID_MENU_ITEM_CLEAR_ALL_PLAYERPREFS) // Clear All PlayerPrefs
 
                 IM_MENU_POPUP_BEGIN(ID_MENU_ITEM_GRAPHICS_TIER)// Graphics Tier
-                    IM_MENU_ITEM(ID_MENU_ITEM_GRAPHICS_TIER_1) // Tier 1
-                    IM_MENU_ITEM(ID_MENU_ITEM_GRAPHICS_TIER_2) // Tier 2
-                    IM_MENU_ITEM(ID_MENU_ITEM_GRAPHICS_TIER_3) // Tier 3
+                    IM_MENU_CHECK(ID_MENU_ITEM_GRAPHICS_TIER_1) // Tier 1
+                    IM_MENU_CHECK(ID_MENU_ITEM_GRAPHICS_TIER_2) // Tier 2
+                    IM_MENU_CHECK(ID_MENU_ITEM_GRAPHICS_TIER_3) // Tier 3
                 IM_MENU_POPUP_END()
             IM_MENU_POPUP_END()
         IM_MENU_END()
