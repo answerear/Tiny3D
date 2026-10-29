@@ -34,6 +34,30 @@
 namespace Tiny3D
 {
     /**
+     * \brief 单根骨骼的局部空间姿势（供动画采样与混合树节点求值使用）
+     */
+    struct T3D_ENGINE_API BonePose
+    {
+        static constexpr uint8_t VALID_TRANSLATION = 0x01;
+        static constexpr uint8_t VALID_ORIENTATION = 0x02;
+        static constexpr uint8_t VALID_SCALING     = 0x04;
+
+        Vector3     translation {Vector3::ZERO};
+        Quaternion  orientation {Quaternion::IDENTITY};
+        Vector3     scaling     {Vector3::UNIT_SCALE};
+        uint8_t     validMask   {0}; ///< bit0: T, bit1: O, bit2: S（标记该骨骼在 Clip 中是否有对应有效轨道）
+    };
+
+    /**
+     * \brief 整套骨骼的局部姿势缓冲（混合树节点求值的标准 I/O 载体）
+     */
+    struct T3D_ENGINE_API SkeletonPose
+    {
+        BonePose    bones[T3D_MAX_SKIN_BONES];
+        size_t      boneCount {0};
+    };
+
+    /**
      * \brief 绑定 SkinnedGeometry 的骨骼动画播放器，负责插值更新骨骼变换与 CPU/GPU 蒙皮
      */
     class T3D_ENGINE_API AnimationPlayer : public Object
@@ -41,6 +65,34 @@ namespace Tiny3D
     public:
         /// 无效播放实例 ID，与 T3D_INVALID_ID 相同
         static const ID INVALID_ID;
+
+        /// 默认 CrossFade 过渡时长（毫秒）
+        static constexpr uint32_t DEFAULT_BLEND_DURATION_MS = 250;
+
+        /**
+         * \brief 单条动画片段轨道的运行时状态（对应未来混合树叶子节点 ClipNode 的状态）
+         */
+        struct T3D_ENGINE_API ClipState
+        {
+            String          clipName {};
+            AnimationClip  *clip {nullptr};
+            Real            elapsedMS {REAL_ZERO};  ///< 已累积播放时长（毫秒），支持非整数倍速率缩放
+            Real            speed {REAL_ONE};       ///< 播放速率倍率，供未来 BlendTree 同步步频使用
+            Real            weight {REAL_ONE};      ///< 混合权重
+            bool            isLoop {false};
+            uint32_t        frameT[T3D_MAX_SKIN_BONES] {0};
+            uint32_t        frameO[T3D_MAX_SKIN_BONES] {0};
+            uint32_t        frameS[T3D_MAX_SKIN_BONES] {0};
+
+            /// 重置各骨骼的关键帧游标
+            void resetFrames();
+
+            /// 获取归一化播放进度 [0, 1]
+            Real getNormalizedTime() const;
+
+            /// 按归一化进度 [0, 1] 设置播放时间
+            void setNormalizedTime(Real normalizedTime);
+        };
         
         /**
          * \brief 创建动画播放器
@@ -50,9 +102,9 @@ namespace Tiny3D
         static AnimationPlayerPtr create(SkinnedGeometry *geometry);
         
         /**
-         * \brief 启动单片段播放并注册到 AnimationPlayerMgr
+         * \brief 启动单片段播放（或从当前播放片段平滑 CrossFade 过渡到新片段）并注册到 AnimationPlayerMgr
          * \param [in] clipName : 动画片段名称，在 SkeletalAnimation 中按名查找（若为 "default" 且未命中则回退首个片段）
-         * \param [in] isBlending : 是否混合过渡（当前实现未使用）
+         * \param [in] isBlending : 若当前正在播放其他片段，是否启用平滑交叉淡入淡出过渡
          * \param [in] isLoop : 片段播完后是否循环
          * \param [in] isGPUSkinning : 是否切换材质 shader 关键字以启用 GPU 蒙皮
          * \return 成功返回递增生成的播放实例 ID；参数校验失败或未找到片段时返回 INVALID_ID
@@ -61,21 +113,21 @@ namespace Tiny3D
         ID playClip(const String &clipName, bool isBlending, bool isLoop = false, bool isGPUSkinning = false);
 
         /**
-         * \brief 两片段混合播放（未实现）
+         * \brief 两片段按指定起始时刻交叉混合过渡播放
          * \param [in] fromClipName : 起始片段名称
          * \param [in] toClipName : 目标片段名称
-         * \param [in] toClipStartedMS : 目标片段起始时间（毫秒）
+         * \param [in] toClipStartedMS : 当起始片段播放到该时刻（毫秒）时触发向目标片段混合过渡
          * \param [in] isLoop : 目标片段是否循环
          * \param [in] isGPUSkinning : 是否使用 GPU 蒙皮
-         * \return 当前实现始终返回 INVALID_ID
+         * \return 成功返回递增生成的播放实例 ID；校验失败返回 INVALID_ID
          */
         ID playClip(const String &fromClipName, const String &toClipName, uint32_t toClipStartedMS, bool isLoop = false, bool isGPUSkinning = false);
         
         /**
-         * \brief 多片段混合播放（未实现）
+         * \brief 多片段并行混合/分层叠加播放
          * \param [in] clipNames : 待混合的片段名称列表
          * \param [in] isGPUSkinning : 是否使用 GPU 蒙皮
-         * \return 当前实现始终返回 INVALID_ID
+         * \return 成功返回递增生成的播放实例 ID；校验失败返回 INVALID_ID
          */
         ID playClips(const StringArray &clipNames, bool isGPUSkinning = false);
 
@@ -116,11 +168,55 @@ namespace Tiny3D
         /// 是否处于暂停状态
         bool isPaused() const { return mIsPaused; }
 
+        /// 是否处于双片段过渡态（包含等待触发或正在插值过渡）
+        bool isCrossFading() const { return mTargetClip.clip != nullptr; }
+
         /// 获取当前播放实例 ID
         ID getCurrentPlaybackID() const { return mCurrentPlaybackID; }
 
-        /// 获取当前播放片段名称
-        const String &getCurrentClipName() const { return mCurrentClipName; }
+        /// 获取当前主播放片段名称
+        const String &getCurrentClipName() const { return mPrimaryClip.clipName; }
+
+        /// 设置默认 CrossFade 过渡时长（毫秒）
+        void setBlendDuration(uint32_t durationMS) { mBlendDurationMS = (durationMS > 0) ? durationMS : 1; }
+
+        /// 获取当前 CrossFade 过渡时长（毫秒）
+        uint32_t getBlendDuration() const { return mBlendDurationMS; }
+
+        /// 获取当前 CrossFade 混合权重因子 alpha [0, 1]（非过渡态返回 0）
+        Real getBlendAlpha() const
+        {
+            if (mTargetClip.clip == nullptr || mBlendDurationMS == 0)
+            {
+                return REAL_ZERO;
+            }
+            return std::clamp(mBlendElapsedMS / static_cast<Real>(mBlendDurationMS), REAL_ZERO, REAL_ONE);
+        }
+
+        /// 获取主轨道只读状态
+        const ClipState &getPrimaryClipState() const { return mPrimaryClip; }
+
+        /// 获取过渡目标轨道只读状态
+        const ClipState &getTargetClipState() const { return mTargetClip; }
+
+        /**
+         * \brief 双姿态线性/球面插值算子（用于 CrossFade 过渡与未来 1D BlendTree 相邻区间插值）
+         */
+        static void blendPoses(const SkeletonPose &poseA, const SkeletonPose &poseB,
+            Real alpha, SkeletonPose &outPose);
+
+        /**
+         * \brief 多姿态加权混合算子（用于 playClips 同骨骼多轨道混合与未来 2D BlendTree）
+         * \note 四元数采用半球符号对齐（dot < 0 时取反）后的加权累加并归一化（Weighted Nlerp），保证顺序无关性
+         */
+        static void blendPosesWeighted(const SkeletonPose *poses, const Real *weights,
+            size_t count, SkeletonPose &outPose);
+
+        /**
+         * \brief 分层/局部轨道覆盖混合算子（基于 BonePose::validMask 实现上下半身分层叠加）
+         */
+        static void blendPosesLayered(const SkeletonPose &basePose, const SkeletonPose &layerPose,
+            Real layerWeight, SkeletonPose &outPose);
         
     protected:        
         /**
@@ -131,6 +227,32 @@ namespace Tiny3D
 
         /// 递增生成播放实例 ID
         ID generateID() const { return ++msGeneratedID; }
+
+        /**
+         * \brief 在 SkeletalAnimation 中按名查找 AnimationClip（"default" 未命中时回退首个片段）
+         */
+        AnimationClip *findClip(const String &clipName) const;
+
+        /**
+         * \brief 切换 CPU/GPU 蒙皮模式并同步材质关键字
+         */
+        void applyGPUSkinningMode(bool isGPUSkinning);
+
+        /**
+         * \brief 推进单条 ClipState 的播放时间并处理循环取模
+         * \return 非循环片段是否已到达末尾
+         */
+        bool advanceClipState(ClipState &state, Real dtMS);
+
+        /**
+         * \brief 单片段整姿采样函数（未来可直接作为混合树叶子节点 ClipNode::evaluate 的实现）
+         */
+        void sampleClipPose(ClipState &state, const BoneGameObjects &bones, SkeletonPose &outPose);
+
+        /**
+         * \brief 将计算完成的整姿缓冲写回各骨骼的 Transform3D 节点
+         */
+        void applySkeletonPose(const SkeletonPose &pose, const BoneGameObjects &bones);
 
         /**
          * \brief 在平移轨道上按时间插值
@@ -172,7 +294,7 @@ namespace Tiny3D
         Real getInterplationTime(Keyframe *kf0, Keyframe *kf1, uint32_t time) const;
 
         /**
-         * \brief 按骨骼层次顺序对当前选中 AnimationClip 插值并写回 Transform3D；播完非循环片段时自动停止
+         * \brief 执行「采样 → 混合 → 写回」三步骨骼姿势求值管线；播完非循环片段时自动停止
          */
         void updateBones();
 
@@ -197,31 +319,29 @@ namespace Tiny3D
         /// 当前播放实例 ID
         ID mCurrentPlaybackID {INVALID_ID};
 
-        /// 当前正在播放的动画片段名称
-        String mCurrentClipName {};
-        /// 当前绑定的 AnimationClip 缓存指针
-        AnimationClip *mCurrentClip {nullptr};
+        /// 当前主轨道状态（或 CrossFade 的起始片段 fromClip）
+        ClipState mPrimaryClip {};
+        /// 正在淡入的目标轨道状态（clip == nullptr 表示非 CrossFade 态）
+        ClipState mTargetClip {};
+        /// 多片段并行混合/分层叠加轨道列表（供 playClips 使用）
+        TArray<ClipState> mLayeredClips {};
+
+        /// 触发向 mTargetClip 过渡的主轨道时刻（毫秒，0 表示立即过渡）
+        uint32_t mToClipStartedMS {0};
+        /// CrossFade 交叉混合总时长（毫秒）
+        uint32_t mBlendDurationMS {DEFAULT_BLEND_DURATION_MS};
+        /// 当前 CrossFade 已进行时长（毫秒）
+        Real mBlendElapsedMS {REAL_ZERO};
+
         /// 是否处于暂停状态
         bool mIsPaused {false};
-        /// 已累积播放时长（毫秒），替代单纯的 DateTime 差值以支持暂停/恢复与 Time::deltaTime
-        uint32_t mElapsedMS {0};
         /// 上一帧更新时的墙钟时间戳（毫秒）
         int64_t mLastUpdateTimestamp {0};
-
         /// 本次播放起始时间戳（毫秒）
         int64_t mStartTimestamp {0};
 
-        /// 各骨骼平移轨道当前关键帧索引
-        uint32_t mCurrentFrameT[T3D_MAX_SKIN_BONES] {0};
-        /// 各骨骼旋转轨道当前关键帧索引
-        uint32_t mCurrentFrameO[T3D_MAX_SKIN_BONES] {0};
-        /// 各骨骼缩放轨道当前关键帧索引
-        uint32_t mCurrentFrameS[T3D_MAX_SKIN_BONES] {0};
-
         /// 是否正在播放
         bool mIsPlaying {false};
-        /// 播完后是否循环
-        bool mIsLoop {false};
         /// 是否使用 GPU 蒙皮路径
         bool mIsGPUSkinning {false};
     };

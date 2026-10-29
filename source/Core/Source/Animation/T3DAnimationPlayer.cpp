@@ -81,6 +81,18 @@ namespace Tiny3D
     bool getKeyframe(uint32_t startFrame, uint32_t time, const keyframes_t &keyframes, Keyframe *&frame0, Keyframe *&frame1, uint32_t &frame)
     {
         bool found = false;
+        if (!keyframes.empty())
+        {
+            uint32_t checkIdx = (startFrame < keyframes.size())
+                ? startFrame
+                : static_cast<uint32_t>(keyframes.size() - 1);
+            if (time < keyframes[checkIdx]->getTime())
+            {
+                // 关键帧游标回退保护：当播放速率变化或归一化时间回退时重置搜索起点
+                startFrame = 0;
+            }
+        }
+
         uint32_t i = startFrame;
         
         while (i < keyframes.size())
@@ -119,6 +131,42 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
+    void AnimationPlayer::ClipState::resetFrames()
+    {
+        memset(frameT, 0, sizeof(frameT));
+        memset(frameO, 0, sizeof(frameO));
+        memset(frameS, 0, sizeof(frameS));
+    }
+
+    //--------------------------------------------------------------------------
+
+    Real AnimationPlayer::ClipState::getNormalizedTime() const
+    {
+        if (clip == nullptr || clip->getDuration() == 0)
+        {
+            return REAL_ZERO;
+        }
+        return std::clamp(elapsedMS / static_cast<Real>(clip->getDuration()), REAL_ZERO, REAL_ONE);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AnimationPlayer::ClipState::setNormalizedTime(Real normalizedTime)
+    {
+        if (clip != nullptr)
+        {
+            Real clamped = std::clamp(normalizedTime, REAL_ZERO, REAL_ONE);
+            Real newElapsed = clamped * static_cast<Real>(clip->getDuration());
+            if (newElapsed < elapsedMS)
+            {
+                resetFrames();
+            }
+            elapsedMS = newElapsed;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     const ID AnimationPlayer::INVALID_ID = T3D_INVALID_ID;
 
     //--------------------------------------------------------------------------
@@ -142,132 +190,281 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    AnimationClip *AnimationPlayer::findClip(const String &clipName) const
+    {
+        if (mSkinnedGeometry == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_ANIMATION, "SkinnedGeometry is nullptr.");
+            return nullptr;
+        }
+
+        if (clipName.empty())
+        {
+            T3D_LOG_ERROR(LOG_TAG_ANIMATION, "clipName is empty.");
+            return nullptr;
+        }
+
+        SkinnedMesh *skinnedMesh = static_cast<SkinnedMesh *>(mSkinnedGeometry->getMeshObject());
+        if (skinnedMesh == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_ANIMATION, "SkinnedMesh is nullptr.");
+            return nullptr;
+        }
+
+        SkeletalAnimation *skeletalAni = skinnedMesh->getSkeletalAnimation();
+        if (skeletalAni == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_ANIMATION, "SkeletalAnimation is nullptr.");
+            return nullptr;
+        }
+
+        const AnimationClips &clips = skeletalAni->getAnimationClips();
+        AnimationClip *clip = nullptr;
+        const auto clipIt = clips.find(clipName);
+        if (clipIt != clips.end())
+        {
+            clip = clipIt->second;
+        }
+        else if (clipName == "default" && !clips.empty())
+        {
+            clip = clips.begin()->second;
+            T3D_LOG_WARNING(LOG_TAG_ANIMATION,
+                "Animation clip [%s] not found, fallback to first clip [%s].",
+                clipName.c_str(), clips.begin()->first.c_str());
+        }
+        else
+        {
+            T3D_LOG_ERROR(LOG_TAG_ANIMATION, "Animation clip [%s] not found !", clipName.c_str());
+            return nullptr;
+        }
+
+        if (clip == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_ANIMATION, "Animation clip [%s] is nullptr !", clipName.c_str());
+        }
+
+        return clip;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AnimationPlayer::applyGPUSkinningMode(bool isGPUSkinning)
+    {
+        if (mIsGPUSkinning != isGPUSkinning)
+        {
+            // 切换 GPU 还是 CPU 蒙皮
+            mIsGPUSkinning = isGPUSkinning;
+
+            // 通过 shader 变体来控制使用 GPU 蒙皮还是 CPU 蒙皮
+            const String kwGPUSkin = "T3D_GPU_SKIN";
+            Material *material = (mSkinnedGeometry != nullptr) ? mSkinnedGeometry->getMaterial() : nullptr;
+            if (material != nullptr)
+            {
+                StringArray enabledKeywrods = material->getEnabledKeywords();
+                StringArray disabledKeywords = material->getDisabledKeywords();
+                if (mIsGPUSkinning)
+                {
+                    enabledKeywrods.emplace_back(kwGPUSkin);
+                    const auto it = std::find(disabledKeywords.begin(), disabledKeywords.end(), kwGPUSkin);
+                    if (it != disabledKeywords.end())
+                    {
+                        disabledKeywords.erase(it);
+                    }
+                }
+                else
+                {
+                    disabledKeywords.emplace_back(kwGPUSkin);
+                    const auto it = std::find(enabledKeywrods.begin(), enabledKeywrods.end(), kwGPUSkin);
+                    if (it != enabledKeywrods.end())
+                    {
+                        enabledKeywrods.erase(it);
+                    }
+                }
+            
+                material->switchKeywords(enabledKeywrods, disabledKeywords);
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     ID AnimationPlayer::playClip(const String &clipName, bool isBlending, bool isLoop, bool isGPUSkinning)
     {
-        ID ret = INVALID_ID;
-
-        do
+        AnimationClip *clip = findClip(clipName);
+        if (clip == nullptr)
         {
-            if (mSkinnedGeometry == nullptr)
+            return INVALID_ID;
+        }
+
+        int64_t now = DateTime::currentMSecsSinceEpoch();
+        mLayeredClips.clear();
+
+        if (mIsPlaying && isBlending && mPrimaryClip.clip != nullptr && clipName != mPrimaryClip.clipName)
+        {
+            // 若在未暂停播放中触发平滑过渡，先把当前帧已流逝时间累积到主轨道
+            if (!mIsPaused && now > mLastUpdateTimestamp)
             {
-                T3D_LOG_ERROR(LOG_TAG_ANIMATION, "SkinnedGeometry is nullptr.");
-                break;
+                advanceClipState(mPrimaryClip, static_cast<Real>(now - mLastUpdateTimestamp));
             }
 
-            if (clipName.empty())
-            {
-                T3D_LOG_ERROR(LOG_TAG_ANIMATION, "clipName is empty.");
-                break;
-            }
+            mTargetClip = ClipState{};
+            mTargetClip.clipName = clipName;
+            mTargetClip.clip = clip;
+            mTargetClip.elapsedMS = REAL_ZERO;
+            mTargetClip.speed = REAL_ONE;
+            mTargetClip.weight = REAL_ONE;
+            mTargetClip.isLoop = isLoop;
+            mTargetClip.resetFrames();
 
-            SkinnedMesh *skinnedMesh = static_cast<SkinnedMesh *>(mSkinnedGeometry->getMeshObject());
-            if (skinnedMesh == nullptr)
+            mToClipStartedMS = 0;
+            if (mBlendDurationMS == 0)
             {
-                T3D_LOG_ERROR(LOG_TAG_ANIMATION, "SkinnedMesh is nullptr.");
-                break;
+                mBlendDurationMS = DEFAULT_BLEND_DURATION_MS;
             }
+            mBlendElapsedMS = REAL_ZERO;
+        }
+        else
+        {
+            mPrimaryClip = ClipState{};
+            mPrimaryClip.clipName = clipName;
+            mPrimaryClip.clip = clip;
+            mPrimaryClip.elapsedMS = REAL_ZERO;
+            mPrimaryClip.speed = REAL_ONE;
+            mPrimaryClip.weight = REAL_ONE;
+            mPrimaryClip.isLoop = isLoop;
+            mPrimaryClip.resetFrames();
 
-            SkeletalAnimation *skeletalAni = skinnedMesh->getSkeletalAnimation();
-            if (skeletalAni == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_ANIMATION, "SkeletalAnimation is nullptr.");
-                break;
-            }
+            mTargetClip = ClipState{};
+            mToClipStartedMS = 0;
+            mBlendElapsedMS = REAL_ZERO;
+        }
 
-            const AnimationClips &clips = skeletalAni->getAnimationClips();
-            AnimationClip *clip = nullptr;
-            const auto clipIt = clips.find(clipName);
-            if (clipIt != clips.end())
-            {
-                clip = clipIt->second;
-            }
-            else if (clipName == "default" && !clips.empty())
-            {
-                clip = clips.begin()->second;
-                T3D_LOG_WARNING(LOG_TAG_ANIMATION,
-                    "Animation clip [%s] not found, fallback to first clip [%s].",
-                    clipName.c_str(), clips.begin()->first.c_str());
-            }
-            else
-            {
-                T3D_LOG_ERROR(LOG_TAG_ANIMATION, "Animation clip [%s] not found !", clipName.c_str());
-                break;
-            }
+        mStartTimestamp = now;
+        mLastUpdateTimestamp = now;
+        mIsPlaying = true;
+        mIsPaused = false;
+        mCurrentPlaybackID = generateID();
 
-            if (clip == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_ANIMATION, "Animation clip [%s] is nullptr !", clipName.c_str());
-                break;
-            }
+        applyGPUSkinningMode(isGPUSkinning);
+        T3D_ANIMATION_PLAYER_MGR.addPlayer(this);
 
-            mCurrentClipName = clipName;
-            mCurrentClip = clip;
-            mElapsedMS = 0;
-            mStartTimestamp = DateTime::currentMSecsSinceEpoch();
-            mLastUpdateTimestamp = mStartTimestamp;
-            memset(mCurrentFrameT, 0, sizeof(mCurrentFrameT));
-            memset(mCurrentFrameO, 0, sizeof(mCurrentFrameO));
-            memset(mCurrentFrameS, 0, sizeof(mCurrentFrameS));
-            
-            mIsPlaying = true;
-            mIsPaused = false;
-            mIsLoop = isLoop;
-            mCurrentPlaybackID = generateID();
-            ret = mCurrentPlaybackID;
-
-            if (mIsGPUSkinning != isGPUSkinning)
-            {
-                // 切换 GPU 还是 CPU 蒙皮
-                mIsGPUSkinning = isGPUSkinning;
-
-                // 通过 shader 变体来控制使用 GPU 蒙皮还是 CPU 蒙皮
-                const String kwGPUSkin = "T3D_GPU_SKIN";
-                Material *material = mSkinnedGeometry->getMaterial();
-                if (material != nullptr)
-                {
-                    StringArray enabledKeywrods = material->getEnabledKeywords();
-                    StringArray disabledKeywords = material->getDisabledKeywords();
-                    if (mIsGPUSkinning)
-                    {
-                        enabledKeywrods.emplace_back(kwGPUSkin);
-                        const auto it = std::find(disabledKeywords.begin(), disabledKeywords.end(), kwGPUSkin);
-                        if (it != disabledKeywords.end())
-                        {
-                            disabledKeywords.erase(it);
-                        }
-                    }
-                    else
-                    {
-                        disabledKeywords.emplace_back(kwGPUSkin);
-                        const auto it = std::find(enabledKeywrods.begin(), enabledKeywrods.end(), kwGPUSkin);
-                        if (it != enabledKeywrods.end())
-                        {
-                            enabledKeywrods.erase(it);
-                        }
-                    }
-                
-                    material->switchKeywords(enabledKeywrods, disabledKeywords);
-                }
-            }
-            
-            T3D_ANIMATION_PLAYER_MGR.addPlayer(this);
-        } while (false);
-        
-        return ret;
+        return mCurrentPlaybackID;
     }   
 
     //--------------------------------------------------------------------------
 
     ID AnimationPlayer::playClip(const String &fromClipName, const String &toClipName, uint32_t toClipStartedMS, bool isLoop, bool isGPUSkinning)
     {
-        return INVALID_ID;
+        AnimationClip *fromClip = findClip(fromClipName);
+        AnimationClip *toClip = findClip(toClipName);
+        if (fromClip == nullptr || toClip == nullptr)
+        {
+            return INVALID_ID;
+        }
+
+        mLayeredClips.clear();
+
+        mPrimaryClip = ClipState{};
+        mPrimaryClip.clipName = fromClipName;
+        mPrimaryClip.clip = fromClip;
+        mPrimaryClip.elapsedMS = REAL_ZERO;
+        mPrimaryClip.speed = REAL_ONE;
+        mPrimaryClip.weight = REAL_ONE;
+        mPrimaryClip.isLoop = false;
+        mPrimaryClip.resetFrames();
+
+        mTargetClip = ClipState{};
+        mTargetClip.clipName = toClipName;
+        mTargetClip.clip = toClip;
+        mTargetClip.elapsedMS = REAL_ZERO;
+        mTargetClip.speed = REAL_ONE;
+        mTargetClip.weight = REAL_ONE;
+        mTargetClip.isLoop = isLoop;
+        mTargetClip.resetFrames();
+
+        mToClipStartedMS = toClipStartedMS;
+        mBlendElapsedMS = REAL_ZERO;
+        if (toClipStartedMS == 0)
+        {
+            mBlendDurationMS = DEFAULT_BLEND_DURATION_MS;
+        }
+        else
+        {
+            uint32_t fromDuration = fromClip->getDuration();
+            uint32_t fromRemain = (fromDuration > toClipStartedMS)
+                ? (fromDuration - toClipStartedMS)
+                : DEFAULT_BLEND_DURATION_MS;
+            uint32_t toDuration = (toClip->getDuration() > 0)
+                ? toClip->getDuration()
+                : DEFAULT_BLEND_DURATION_MS;
+            uint32_t computedDuration = std::min(fromRemain, toDuration);
+            mBlendDurationMS = (computedDuration > 0) ? computedDuration : DEFAULT_BLEND_DURATION_MS;
+        }
+
+        int64_t now = DateTime::currentMSecsSinceEpoch();
+        mStartTimestamp = now;
+        mLastUpdateTimestamp = now;
+        mIsPlaying = true;
+        mIsPaused = false;
+        mCurrentPlaybackID = generateID();
+
+        applyGPUSkinningMode(isGPUSkinning);
+        T3D_ANIMATION_PLAYER_MGR.addPlayer(this);
+
+        return mCurrentPlaybackID;
     }
 
     //--------------------------------------------------------------------------
 
     ID AnimationPlayer::playClips(const StringArray &clipNames, bool isGPUSkinning)
     {
-        return INVALID_ID;
+        if (clipNames.empty())
+        {
+            T3D_LOG_ERROR(LOG_TAG_ANIMATION, "clipNames is empty.");
+            return INVALID_ID;
+        }
+
+        TArray<ClipState> layeredStates;
+        layeredStates.reserve(clipNames.size());
+        const Real uniformWeight = REAL_ONE / static_cast<Real>(clipNames.size());
+
+        for (const String &name : clipNames)
+        {
+            AnimationClip *clip = findClip(name);
+            if (clip == nullptr)
+            {
+                return INVALID_ID;
+            }
+
+            ClipState state{};
+            state.clipName = name;
+            state.clip = clip;
+            state.elapsedMS = REAL_ZERO;
+            state.speed = REAL_ONE;
+            state.weight = uniformWeight;
+            state.isLoop = true;
+            state.resetFrames();
+            layeredStates.push_back(state);
+        }
+
+        mLayeredClips = std::move(layeredStates);
+        mPrimaryClip = ClipState{};
+        mPrimaryClip.clipName = clipNames.front();
+        mTargetClip = ClipState{};
+        mToClipStartedMS = 0;
+        mBlendElapsedMS = REAL_ZERO;
+
+        int64_t now = DateTime::currentMSecsSinceEpoch();
+        mStartTimestamp = now;
+        mLastUpdateTimestamp = now;
+        mIsPlaying = true;
+        mIsPaused = false;
+        mCurrentPlaybackID = generateID();
+
+        applyGPUSkinningMode(isGPUSkinning);
+        T3D_ANIMATION_PLAYER_MGR.addPlayer(this);
+
+        return mCurrentPlaybackID;
     }
 
     //--------------------------------------------------------------------------
@@ -283,7 +480,11 @@ namespace Tiny3D
         mIsPlaying = false;
         mIsPaused = false;
         mCurrentPlaybackID = INVALID_ID;
-        mCurrentClip = nullptr;
+        mPrimaryClip = ClipState{};
+        mTargetClip = ClipState{};
+        mLayeredClips.clear();
+        mToClipStartedMS = 0;
+        mBlendElapsedMS = REAL_ZERO;
         return T3D_OK;
     }
 
@@ -301,8 +502,26 @@ namespace Tiny3D
             int64_t now = DateTime::currentMSecsSinceEpoch();
             if (now > mLastUpdateTimestamp)
             {
-                mElapsedMS += static_cast<uint32_t>(now - mLastUpdateTimestamp);
+                Real dtMS = static_cast<Real>(now - mLastUpdateTimestamp);
+                if (!mLayeredClips.empty())
+                {
+                    for (ClipState &layer : mLayeredClips)
+                    {
+                        advanceClipState(layer, dtMS);
+                    }
+                }
+                else
+                {
+                    advanceClipState(mPrimaryClip, dtMS);
+                    if (mTargetClip.clip != nullptr
+                        && mPrimaryClip.elapsedMS >= static_cast<Real>(mToClipStartedMS))
+                    {
+                        advanceClipState(mTargetClip, dtMS);
+                        mBlendElapsedMS += dtMS;
+                    }
+                }
             }
+            mLastUpdateTimestamp = now;
             mIsPaused = true;
         }
         return T3D_OK;
@@ -340,6 +559,343 @@ namespace Tiny3D
             updateBones();
         } while (false);
     }
+
+    //--------------------------------------------------------------------------
+
+    bool AnimationPlayer::advanceClipState(ClipState &state, Real dtMS)
+    {
+        if (state.clip == nullptr)
+        {
+            return true;
+        }
+
+        state.elapsedMS += dtMS * state.speed;
+        const uint32_t duration = state.clip->getDuration();
+        const Real durationReal = static_cast<Real>(std::max(1u, duration));
+
+        if (state.elapsedMS >= static_cast<Real>(duration))
+        {
+            if (state.isLoop)
+            {
+                state.elapsedMS = std::fmod(state.elapsedMS, durationReal);
+                state.resetFrames();
+                return false;
+            }
+            else
+            {
+                state.elapsedMS = static_cast<Real>(duration);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AnimationPlayer::sampleClipPose(ClipState &state, const BoneGameObjects &bones, SkeletonPose &outPose)
+    {
+        const size_t boneCount = std::min(bones.size(), static_cast<size_t>(T3D_MAX_SKIN_BONES));
+        outPose.boneCount = boneCount;
+
+        if (state.clip == nullptr && !state.clipName.empty())
+        {
+            state.clip = findClip(state.clipName);
+        }
+
+        if (state.clip == nullptr)
+        {
+            for (size_t i = 0; i < boneCount; ++i)
+            {
+                outPose.bones[i] = BonePose{};
+            }
+            return;
+        }
+
+        const AnimationTracks &tracks = state.clip->getTracks();
+        const uint32_t duration = state.clip->getDuration();
+        const uint32_t elapsed = std::min(
+            static_cast<uint32_t>( std::max(REAL_ZERO, state.elapsedMS) ),
+            duration);
+
+        for (size_t i = 0; i < boneCount; ++i)
+        {
+            BonePose &bonePose = outPose.bones[i];
+            bonePose = BonePose{};
+
+            GameObject *boneGO = bones[i];
+            if (boneGO == nullptr)
+            {
+                continue;
+            }
+
+            const String &boneName = boneGO->getName();
+            const auto trackIt = tracks.find(boneName);
+            if (trackIt == tracks.end() || trackIt->second == nullptr)
+            {
+                continue;
+            }
+
+            AnimationTrack *track = trackIt->second;
+
+            // 插值计算平移
+            const TranslationTrack &trackT = track->getTranslationTrack();
+            Vector3 translation;
+            state.frameT[i] = interpolateTranslation(state.frameT[i], elapsed, trackT, translation);
+            if (state.frameT[i] != static_cast<uint32_t>(-1))
+            {
+                bonePose.translation = translation;
+                bonePose.validMask |= BonePose::VALID_TRANSLATION;
+            }
+
+            // 插值计算旋转
+            const OrientationTrack &trackO = track->getOrientationTrack();
+            Quaternion orientation;
+            state.frameO[i] = interpolateOrientation(state.frameO[i], elapsed, trackO, orientation);
+            if (state.frameO[i] != static_cast<uint32_t>(-1))
+            {
+                bonePose.orientation = orientation;
+                bonePose.validMask |= BonePose::VALID_ORIENTATION;
+            }
+
+            // 插值计算缩放
+            const ScalingTrack &trackS = track->getScalingTrack();
+            Vector3 scaling;
+            state.frameS[i] = interpolateScaling(state.frameS[i], elapsed, trackS, scaling);
+            if (state.frameS[i] != static_cast<uint32_t>(-1))
+            {
+                bonePose.scaling = scaling;
+                bonePose.validMask |= BonePose::VALID_SCALING;
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AnimationPlayer::blendPoses(const SkeletonPose &poseA, const SkeletonPose &poseB,
+        Real alpha, SkeletonPose &outPose)
+    {
+        const Real t = std::clamp(alpha, REAL_ZERO, REAL_ONE);
+        const size_t boneCount = std::min(
+            std::max(poseA.boneCount, poseB.boneCount),
+            static_cast<size_t>(T3D_MAX_SKIN_BONES));
+        outPose.boneCount = boneCount;
+
+        for (size_t i = 0; i < boneCount; ++i)
+        {
+            const BonePose &a = poseA.bones[i];
+            const BonePose &b = poseB.bones[i];
+            BonePose dst{};
+            dst.validMask = a.validMask | b.validMask;
+
+            // Translation
+            const bool hasTA = (a.validMask & BonePose::VALID_TRANSLATION) != 0;
+            const bool hasTB = (b.validMask & BonePose::VALID_TRANSLATION) != 0;
+            if (hasTA && hasTB)
+            {
+                dst.translation.lerp(a.translation, b.translation, t);
+            }
+            else if (hasTA)
+            {
+                dst.translation = a.translation;
+            }
+            else if (hasTB)
+            {
+                dst.translation = b.translation;
+            }
+
+            // Orientation（Quaternion::slerp 默认 shortestPath = true，自动处理点积 < 0 最短路径反转）
+            const bool hasOA = (a.validMask & BonePose::VALID_ORIENTATION) != 0;
+            const bool hasOB = (b.validMask & BonePose::VALID_ORIENTATION) != 0;
+            if (hasOA && hasOB)
+            {
+                dst.orientation.slerp(a.orientation, b.orientation, t, true);
+            }
+            else if (hasOA)
+            {
+                dst.orientation = a.orientation;
+            }
+            else if (hasOB)
+            {
+                dst.orientation = b.orientation;
+            }
+
+            // Scaling
+            const bool hasSA = (a.validMask & BonePose::VALID_SCALING) != 0;
+            const bool hasSB = (b.validMask & BonePose::VALID_SCALING) != 0;
+            if (hasSA && hasSB)
+            {
+                dst.scaling.lerp(a.scaling, b.scaling, t);
+            }
+            else if (hasSA)
+            {
+                dst.scaling = a.scaling;
+            }
+            else if (hasSB)
+            {
+                dst.scaling = b.scaling;
+            }
+
+            outPose.bones[i] = dst;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AnimationPlayer::blendPosesWeighted(const SkeletonPose *poses, const Real *weights,
+        size_t count, SkeletonPose &outPose)
+    {
+        if (poses == nullptr || weights == nullptr || count == 0)
+        {
+            outPose.boneCount = 0;
+            return;
+        }
+
+        size_t maxBoneCount = 0;
+        for (size_t c = 0; c < count; ++c)
+        {
+            maxBoneCount = std::max(maxBoneCount, poses[c].boneCount);
+        }
+        const size_t boneCount = std::min(maxBoneCount, static_cast<size_t>(T3D_MAX_SKIN_BONES));
+        outPose.boneCount = boneCount;
+
+        for (size_t i = 0; i < boneCount; ++i)
+        {
+            BonePose dst{};
+
+            // 1. Translation 加权混合
+            Vector3 accumT = Vector3::ZERO;
+            Real sumWeightT = REAL_ZERO;
+            for (size_t c = 0; c < count; ++c)
+            {
+                const BonePose &bp = poses[c].bones[i];
+                if ((bp.validMask & BonePose::VALID_TRANSLATION) != 0 && weights[c] > REAL_ZERO)
+                {
+                    accumT += bp.translation * weights[c];
+                    sumWeightT += weights[c];
+                    dst.validMask |= BonePose::VALID_TRANSLATION;
+                }
+            }
+            if (sumWeightT > REAL_ZERO)
+            {
+                dst.translation = accumT / sumWeightT;
+            }
+
+            // 2. Orientation 加权混合（半球对齐 Weighted Nlerp，若仅两个有效轨道则精确 slerp）
+            size_t validOCount = 0;
+            size_t firstOIdx = 0;
+            size_t secondOIdx = 0;
+            Quaternion accumO = Quaternion::ZERO;
+            Quaternion refO = Quaternion::IDENTITY;
+            Real sumWeightO = REAL_ZERO;
+
+            for (size_t c = 0; c < count; ++c)
+            {
+                const BonePose &bp = poses[c].bones[i];
+                if ((bp.validMask & BonePose::VALID_ORIENTATION) != 0 && weights[c] > REAL_ZERO)
+                {
+                    if (validOCount == 0)
+                    {
+                        firstOIdx = c;
+                        refO = bp.orientation;
+                    }
+                    else if (validOCount == 1)
+                    {
+                        secondOIdx = c;
+                    }
+                    validOCount++;
+
+                    Quaternion aligned = (refO.dot(bp.orientation) < REAL_ZERO)
+                        ? (-bp.orientation)
+                        : bp.orientation;
+                    accumO += aligned * weights[c];
+                    sumWeightO += weights[c];
+                    dst.validMask |= BonePose::VALID_ORIENTATION;
+                }
+            }
+
+            if (validOCount == 1)
+            {
+                dst.orientation = poses[firstOIdx].bones[i].orientation;
+            }
+            else if (validOCount == 2 && sumWeightO > REAL_ZERO)
+            {
+                Real t = weights[secondOIdx] / sumWeightO;
+                dst.orientation.slerp(
+                    poses[firstOIdx].bones[i].orientation,
+                    poses[secondOIdx].bones[i].orientation,
+                    t, true);
+            }
+            else if (validOCount > 2 && sumWeightO > REAL_ZERO)
+            {
+                accumO.normalize();
+                dst.orientation = accumO;
+            }
+
+            // 3. Scaling 加权混合
+            Vector3 accumS = Vector3::ZERO;
+            Real sumWeightS = REAL_ZERO;
+            for (size_t c = 0; c < count; ++c)
+            {
+                const BonePose &bp = poses[c].bones[i];
+                if ((bp.validMask & BonePose::VALID_SCALING) != 0 && weights[c] > REAL_ZERO)
+                {
+                    accumS += bp.scaling * weights[c];
+                    sumWeightS += weights[c];
+                    dst.validMask |= BonePose::VALID_SCALING;
+                }
+            }
+            if (sumWeightS > REAL_ZERO)
+            {
+                dst.scaling = accumS / sumWeightS;
+            }
+
+            outPose.bones[i] = dst;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AnimationPlayer::blendPosesLayered(const SkeletonPose &basePose, const SkeletonPose &layerPose,
+        Real layerWeight, SkeletonPose &outPose)
+    {
+        blendPoses(basePose, layerPose, layerWeight, outPose);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void AnimationPlayer::applySkeletonPose(const SkeletonPose &pose, const BoneGameObjects &bones)
+    {
+        // 按照骨骼层次结构顺序（BoneGameObjects 已按父子 DFS 顺序存储）写回 Transform3D
+        const size_t count = std::min(pose.boneCount, bones.size());
+        for (size_t i = 0; i < count; ++i)
+        {
+            const BonePose &bp = pose.bones[i];
+            if (bp.validMask == 0 || bones[i] == nullptr)
+            {
+                continue;
+            }
+
+            Transform3D *xform = static_cast<Transform3D *>(bones[i]->getTransformNode());
+            if (xform == nullptr)
+            {
+                continue;
+            }
+
+            if ((bp.validMask & BonePose::VALID_TRANSLATION) != 0)
+            {
+                xform->setPosition(bp.translation);
+            }
+            if ((bp.validMask & BonePose::VALID_ORIENTATION) != 0)
+            {
+                xform->setOrientation(bp.orientation);
+            }
+            if ((bp.validMask & BonePose::VALID_SCALING) != 0)
+            {
+                xform->setScaling(bp.scaling);
+            }
+        }
+    }
     
     //--------------------------------------------------------------------------
 
@@ -350,117 +906,91 @@ namespace Tiny3D
             return;
         }
 
-        AnimationClip *clip = mCurrentClip;
-        if (clip == nullptr)
+        int64_t now = DateTime::currentMSecsSinceEpoch();
+        Real dtMS = REAL_ZERO;
+        if (now > mLastUpdateTimestamp)
         {
-            SkinnedMesh *skinnedMesh = static_cast<SkinnedMesh *>(mSkinnedGeometry->getMeshObject());
-            if (skinnedMesh != nullptr)
+            dtMS = static_cast<Real>(now - mLastUpdateTimestamp);
+        }
+        mLastUpdateTimestamp = now;
+
+        const BoneGameObjects &boneGameObjects = mSkinnedGeometry->getBoneGameObjects();
+        SkeletonPose finalPose{};
+
+        // 1. 多片段并行混合/分层叠加模式（playClips）
+        if (!mLayeredClips.empty())
+        {
+            const size_t clipCount = mLayeredClips.size();
+            TArray<SkeletonPose> sampledPoses(clipCount);
+            TArray<Real> weights(clipCount);
+
+            for (size_t c = 0; c < clipCount; ++c)
             {
-                SkeletalAnimation *skeletalAni = skinnedMesh->getSkeletalAnimation();
-                if (skeletalAni != nullptr && !mCurrentClipName.empty())
-                {
-                    const AnimationClips &clips = skeletalAni->getAnimationClips();
-                    const auto clipIt = clips.find(mCurrentClipName);
-                    if (clipIt != clips.end())
-                    {
-                        clip = clipIt->second;
-                    }
-                    else if (mCurrentClipName == "default" && !clips.empty())
-                    {
-                        clip = clips.begin()->second;
-                    }
-                    mCurrentClip = clip;
-                }
+                advanceClipState(mLayeredClips[c], dtMS);
+                sampleClipPose(mLayeredClips[c], boneGameObjects, sampledPoses[c]);
+                weights[c] = mLayeredClips[c].weight;
             }
+
+            blendPosesWeighted(sampledPoses.data(), weights.data(), clipCount, finalPose);
+            applySkeletonPose(finalPose, boneGameObjects);
+            return;
         }
 
-        if (clip != nullptr)
+        // 2. 双片段 CrossFade 过渡模式或单片段播放模式
+        if (mPrimaryClip.clip == nullptr && !mPrimaryClip.clipName.empty())
         {
-            const AnimationTracks &tracks = clip->getTracks();
+            mPrimaryClip.clip = findClip(mPrimaryClip.clipName);
+        }
 
-            int64_t now = DateTime::currentMSecsSinceEpoch();
-            if (now > mLastUpdateTimestamp)
+        if (mPrimaryClip.clip == nullptr)
+        {
+            return;
+        }
+
+        const bool primaryFinished = advanceClipState(mPrimaryClip, dtMS);
+
+        if (mTargetClip.clip != nullptr)
+        {
+            // 检查是否已达到过渡触发时刻 mToClipStartedMS
+            if (mPrimaryClip.elapsedMS >= static_cast<Real>(mToClipStartedMS))
             {
-                mElapsedMS += static_cast<uint32_t>(now - mLastUpdateTimestamp);
+                advanceClipState(mTargetClip, dtMS);
+                mBlendElapsedMS += dtMS;
+
+                const Real blendDuration = static_cast<Real>(std::max(1u, mBlendDurationMS));
+                const Real alpha = std::clamp(mBlendElapsedMS / blendDuration, REAL_ZERO, REAL_ONE);
+
+                SkeletonPose poseA{};
+                SkeletonPose poseB{};
+                sampleClipPose(mPrimaryClip, boneGameObjects, poseA);
+                sampleClipPose(mTargetClip, boneGameObjects, poseB);
+                blendPoses(poseA, poseB, alpha, finalPose);
+                applySkeletonPose(finalPose, boneGameObjects);
+
+                if (alpha >= REAL_ONE)
+                {
+                    // 过渡完成：无缝切入目标片段独立播放
+                    mPrimaryClip = mTargetClip;
+                    mTargetClip = ClipState{};
+                    mToClipStartedMS = 0;
+                    mBlendElapsedMS = REAL_ZERO;
+                }
             }
-            mLastUpdateTimestamp = now;
-
-            const uint32_t duration = clip->getDuration();
-            if (mElapsedMS >= duration && mIsLoop)
+            else
             {
-                mElapsedMS %= std::max(1u, duration);
-                memset(mCurrentFrameT, 0, sizeof(mCurrentFrameT));
-                memset(mCurrentFrameO, 0, sizeof(mCurrentFrameO));
-                memset(mCurrentFrameS, 0, sizeof(mCurrentFrameS));
+                // 尚未到达 toClipStartedMS，仅采样主片段
+                sampleClipPose(mPrimaryClip, boneGameObjects, finalPose);
+                applySkeletonPose(finalPose, boneGameObjects);
             }
+        }
+        else
+        {
+            // 单片段播放
+            sampleClipPose(mPrimaryClip, boneGameObjects, finalPose);
+            applySkeletonPose(finalPose, boneGameObjects);
 
-            // 设置时间为动画的持续时间
-            uint32_t elapsed = std::min(mElapsedMS, duration);
-
-            // T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Elapsed Time : %u", elapsed);
-        
-            // 重要：按照骨骼层次结构顺序更新（使用BoneGameObjects数组，它按照父子顺序存储）
-            // 这样可以确保父骨骼的世界变换先于子骨骼更新
-            const BoneGameObjects &boneGameObjects = mSkinnedGeometry->getBoneGameObjects();
-            for (size_t i = 0; i < boneGameObjects.size(); i++)
+            if (primaryFinished && !mPrimaryClip.isLoop)
             {
-                GameObject *boneGO = boneGameObjects[i];
-                const String &boneName = boneGO->getName();
-                
-                // 查找对应的动画轨道
-                const auto trackIt = tracks.find(boneName);
-                if (trackIt == tracks.end())
-                {
-                    // 该骨骼没有动画轨道，跳过
-                    continue;
-                }
-                
-                AnimationTrack *track = trackIt->second;
-
-                // 差值计算平移
-                const TranslationTrack &trackT = track->getTranslationTrack();
-                Vector3 translation;
-                mCurrentFrameT[i] = interpolateTranslation(mCurrentFrameT[i], elapsed, trackT, translation);
-
-                // 差值计算旋转
-                const OrientationTrack &trackO = track->getOrientationTrack();
-                Quaternion orientation;
-                mCurrentFrameO[i] = interpolateOrientation(mCurrentFrameO[i], elapsed, trackO, orientation);
-
-                // 差值计算缩放
-                const ScalingTrack &trackS = track->getScalingTrack();
-                Vector3 scaling;
-                mCurrentFrameS[i] = interpolateScaling(mCurrentFrameS[i], elapsed, trackS, scaling);
-
-                // 更新对应骨骼的 RTS
-                Transform3D *xform = static_cast<Transform3D *>(boneGO->getTransformNode());
-                if (mCurrentFrameT[i] != static_cast<uint32_t>(-1))
-                {
-                    xform->setPosition(translation);
-                }
-                if (mCurrentFrameO[i] != static_cast<uint32_t>(-1))
-                {
-                    xform->setOrientation(orientation);
-                }
-                if (mCurrentFrameS[i] != static_cast<uint32_t>(-1))
-                {
-                    xform->setScaling(scaling);
-                }
-
-// #if defined (T3D_DEBUG)
-//                 Radian xAngle, yAngle, zAngle;
-//                 xform->getRotation(xAngle, yAngle, zAngle);
-//                 T3D_LOG_DEBUG(LOG_TAG_ANIMATION, "Bone %s, Elapse %u, Translation[%u] : (%f, %f, %f), Euler Angle[%u] : (%f, %f, %f), Scaling[%u] : (%f, %f, %f)",
-//                     boneName.c_str(), elapsed,
-//                     mCurrentFrameT[i], xform->getPosition().x(), xform->getPosition().y(), xform->getPosition().z(),
-//                     mCurrentFrameO[i], xAngle.valueDegrees(), yAngle.valueDegrees(), zAngle.valueDegrees(),
-//                     mCurrentFrameS[i], xform->getScaling().x(), xform->getScaling().y(), xform->getScaling().z());
-// #endif
-            }
-
-            if (mElapsedMS >= duration && !mIsLoop)
-            {
-                // 停止播放
                 stopPlayback(mCurrentPlaybackID);
             }
         }
