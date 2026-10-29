@@ -114,11 +114,11 @@ flowchart TB
 
 - **前向渲染管线（`source/Core/Source/Render/T3DForwardRenderPipeline.cpp`）**：
   - **阴影 Pass（`renderShadowMap`）**：提取场景首个方向光（`mImportantDirLight`），构建正交光空间矩阵并乘以后端 `getDepthRemapMatrix()`，绘制 `ShadowCaster` Pass 到 $2048 \times 2048$ `D24S8` 深度纹理，前向 Pass 中执行 $3 \times 3$ PCF 比较采样。
-  - **前向 Pass（`renderForward`）**：按相机 → 渲染队列 → 材质分组绘制 `ForwardBase` Pass，支持 1 盏环境光、1 盏方向光、最多 4 盏点光源（`kMaxPointLights = 4`）与 4 盏聚光灯（`kMaxSpotLights = 4`）；不透明队列（`queue < 3000`）按材质聚合绘制，透明队列（`queue >= 3000`）按相机距离平方从后往前（Back-to-Front）稳定排序并复用相邻同材质状态绘制。
+  - **前向 Pass（`renderForward`）**：按相机 → 渲染队列 → 材质分组绘制 `ForwardBase` Pass（单次支持 1 盏环境光、1 盏主阴影方向光、最多 4 盏点光源 `kMaxPointLights = 4` 与 4 盏聚光灯 `kMaxSpotLights = 4`），超出单 Pass 容量的额外方向光/点光源/聚光灯自动切分为 `LightBatch` 并通过 `ForwardAdd` Pass（`Blend One One`、`ZWrite Off`、`ZTest LEqual`）逐批叠加绘制；不透明队列（`queue < 3000`）按材质聚合绘制，透明队列（`queue >= 3000`）按相机距离平方从后往前（Back-to-Front）稳定排序并复用相邻同材质状态绘制。
   - **天空盒绘制（`renderSkybox`）**：在不透明队列之后、透明队列之前，利用全屏三角形与 `inverse(VP)` 反投影绘制 Cubemap 天空盒，利用已有深度剔除被遮挡像素。
   - **后处理与全屏绘制（`runCameraPostprocessing` / `drawFullscreen`）**：内置按 `(width, height, format)` 分桶复用的临时 RT 池（`mTempRTPool`），自动处理 MSAA 源的 Resolve，串联执行相机上的 `CameraEffectBehaviour` 后再 Blit 回目标窗口。
 - **多层材质与三维着色器变体（`Core/Material/`）**：
-  - 采用 `Shader` → `Technique` → `Pass` → `ShaderVariantSet` 结构，变体按 `(UUID) × (Keyword 组合) × (Language)` 三维索引，运行时仅编译当前活动 RHI 对应语言的变体。
+  - 采用 `Shader` → `Technique` → `Pass` → `ShaderVariantSet` 结构，变体按 `(UUID) × (Keyword 组合) × (Language)` 三维索引，运行时仅编译当前活动 RHI 对应语言的变体；支持按 `Shader::setMaxLOD` 与全局 `RenderSettings::maxShaderLOD`（联动编辑器 `Graphics Tier 1/2/3`）自动筛选并切换匹配的 `TechniqueInstance`。
 - **自研着色器跨编译链（`HLSLCross` + `scc`）**：
   - 基于 Flex/Bison 解析 `.shader` 文件，通过 `HLSLCross`（`DXC` 编译 HLSL 到 SPIR-V，再经 `SPIRV-Cross` 转译）一次性产出 `hlsl`、`glsl`、`essl`、`spirv`、`msl_macos`、`msl_ios` 变体，并结合 Console 渲染后端提取常量缓冲与采样器反射信息写入 `.tshader`。
 
@@ -266,7 +266,7 @@ flowchart LR
 |:------:|------|-------------------|--------------|--------------|:----:|
 | **T1-1** | **透明物体从后往前排序（Back-to-Front）** | ✅ **已完成**（`T3DForwardRenderPipeline` 对 `queue >= kBuiltinQueueTransparent` 的透明队列复用 `mTransparentItems` 连续缓冲，基于 `Bound` 世界中心或 `Transform3D` 平移计算相机距离平方，通过 `std::sort` 从远到近排序并以入队流水号 `order` 保序，相邻同材质物体复用渲染状态与着色器，`SkyboxApp` 验证通过） | 对 `queue >= kBuiltinQueueTransparent` 的队列，不再按材质合并，改为收集 `(distanceSqToCamera, Renderable*)` 按距离降序排列后逐个绘制 | `doc/todo/T1-1-Transparent-Queue-Sorting-Plan-todo.md` | **已完成** |
 | **T1-2** | **AnimationPlayer 双/多片段混合过渡（CrossFade）** | ✅ **已完成**（`T3DAnimationPlayer` 引入 `BonePose` / `SkeletonPose` 整姿缓冲与 `ClipState` 轨道状态，实现 `sampleClipPose`、`blendPoses` / `blendPosesWeighted` / `blendPosesLayered` 无状态混合算子及 `applySkeletonPose` 三步求值管线，补齐单片段 `isBlending` CrossFade、双片段 `playClip(from, to, startMS)` 与多片段 `playClips` 叠加播放，`SkeletalAnimationApp` 验证通过） | 在 `updateBones()` 中同时对 `fromClip` 与 `toClip` 求值，按过渡时间权值 $\alpha \in [0,1]$ 对骨骼局部 `translation` / `scaling` 做 `lerp`、对 `orientation` 做 `slerp` | `doc/todo/T1-2-AnimationPlayer-CrossFade-Blending-Plan-todo.md` | **已完成** |
-| **T1-3** | **Technique LOD 与 ForwardAdd 多光源 Pass** | 1) `T3DTechnique.h` 已有 `mLOD` 字段，管线未消费；<br/>2) `T3DPass.cpp:314` 已解析 `LightMode = ForwardAdd`，但 `ForwardRenderPipeline` 只画了 `ForwardBase`（点光/聚光被硬塞进 Base 的 4 槽数组里） | 1) 支持按全局/Shader 最大 LOD 等级筛选 Technique；<br/>2) 补齐 `ForwardAdd` 叠加 Pass 以突破 4 点光/4 聚光上限 | `doc/todo/T1-3-Technique-LOD-And-ForwardAdd-Plan-todo.md` | **2.5 d** |
+| **T1-3** | **Technique LOD 与 ForwardAdd 多光源 Pass** | ✅ **已完成**（`RenderSettings::maxShaderLOD` 与 `Shader::setMaxLOD` 支持按有效上限自动筛选 `Material` 的 `TechniqueInstance` 并联动编辑器 `Graphics Tier 1/2/3`；`ForwardRenderPipeline` 引入 `LightBatch` 混合分批模式与 `ForwardAdd` 叠加 Pass 突破 4 点光/4 聚光/单方向光上限，内置 `Tiny3DStandard` 补齐 `FORWARD_ADD` Pass，`LightApp` 6 点光与 LOD 实时切换验证通过） | 1) 支持按全局/Shader 最大 LOD 等级筛选 Technique；<br/>2) 补齐 `ForwardAdd` 叠加 Pass 以突破 4 点光/4 聚光上限 | `doc/todo/T1-3-Technique-LOD-And-ForwardAdd-Plan-todo.md` | **已完成** |
 | **T1-4** | **动态合批 `ForwardRenderPipeline::setupBatch()`** | `T3DForwardRenderPipeline.h:129`、`T3DSettings.h`<br/>`renderSettings.enableDynamicBatch` 配置项与 `setupBatch()` 声明早已存在，但无 `.cpp` 实现 | 对共享同一 Material、顶点数低于阈值（如 $\le 300$ 顶点）的小网格，在 CPU 侧变换至世界空间合并进共享动态 VB/IB 单次提交 | `doc/todo/T1-4-ForwardPipeline-Dynamic-Batching-Plan-todo.md` | **3.0 d** |
 
 ---
