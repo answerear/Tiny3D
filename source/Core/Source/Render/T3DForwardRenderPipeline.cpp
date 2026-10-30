@@ -36,8 +36,12 @@
 #include "Component/T3DCamera.h"
 #include "Light/T3DLight.h"
 #include "Component/T3DRenderable.h"
+#include "Component/T3DGeometry.h"
+#include "Component/T3DSkinnedGeometry.h"
 #include "Component/T3DSkybox.h"
 #include "Component/T3DTransform3D.h"
+#include "Resource/T3DMesh.h"
+#include "Resource/T3DSubMesh.h"
 #include "Bound/T3DBound.h"
 #include "Bound/T3DSphereBound.h"
 #include "Bound/T3DAabbBound.h"
@@ -121,6 +125,16 @@ namespace Tiny3D
         mSkyboxVertexDeclShader = nullptr;
         mPostProcessVertexDecl = nullptr;
         mPostProcessVertexDeclShader = nullptr;
+        mPreparedGroups.clear();
+        mBatchVBPool.clear();
+        mBatchVBPool.shrink_to_fit();
+        mBatchIBPool.clear();
+        mBatchIBPool.shrink_to_fit();
+        mBatchPoolUsedCount = 0;
+        mBatchCPUertices.clear();
+        mBatchCPUertices.shrink_to_fit();
+        mBatchCPUIndices.clear();
+        mBatchCPUIndices.shrink_to_fit();
         mTransparentItems.clear();
         mTransparentItems.shrink_to_fit();
         clearTempRTPool();
@@ -138,7 +152,9 @@ namespace Tiny3D
             itCamera = rval.first;
         }
 
-        Material *material = renderable->getMaterial();
+        const bool batchEnabled = isDynamicBatchEnabled()
+            || (Agent::getInstancePtr() != nullptr && T3D_AGENT.getSettings().renderSettings.enableDynamicBatch);
+        Material *material = batchEnabled ? renderable->getSharedMaterial() : renderable->getMaterial();
         if (material == nullptr || material->getCurrentTechnique() == nullptr)
         {
             return T3D_OK;
@@ -290,6 +306,7 @@ namespace Tiny3D
         mLights.clear();
         mOrderedLights.clear();
         mLightBatches.clear();
+        mFrameStats = FrameStats {};
 
         mImportantDirLight = nullptr;
         mSceneSkybox = nullptr;
@@ -347,6 +364,7 @@ namespace Tiny3D
         // 乃至场景里一台相机都没有时，光源列表依然是完整的
         go->setupLights(this);
         buildLightBatches();
+        setupBatch();
 
         return T3D_OK;
     }
@@ -451,11 +469,12 @@ namespace Tiny3D
 
         if (itr != mRenderQueue.end())
         {
-            for (auto itemQueue : itr->second)
+            for (const auto &itemQueue : itr->second)
             {
+                const uint32_t queue = itemQueue.first;
                 const RenderGroup &group = itemQueue.second;
 
-                for (auto itemGroup : group)
+                for (const auto &itemGroup : group)
                 {
                     Material *material = itemGroup.first;
                     const Renderables &renderables = itemGroup.second;
@@ -497,10 +516,9 @@ namespace Tiny3D
                     // 设置着色器
                     setupShaders(ctx, material, pass);
 
-                    for (const auto &renderable : renderables)
-                    {
-                        submitRenderable(ctx, renderable, material, pass);
-                    }
+                    const uint32_t beforeDraws = mFrameStats.totalDrawCalls;
+                    submitRenderGroup(ctx, camera, queue, material, renderables, pass);
+                    mFrameStats.shadowDrawCalls += (mFrameStats.totalDrawCalls - beforeDraws);
                 }
             }
         }
@@ -711,10 +729,9 @@ namespace Tiny3D
                         // 设置着色器
                         setupShaders(ctx, material, pass);
 
-                        for (const auto &renderable : renderables)
-                        {
-                            submitRenderable(ctx, renderable, material, pass);
-                        }
+                        const uint32_t beforeBaseDraws = mFrameStats.totalDrawCalls;
+                        submitRenderGroup(ctx, camera, queue, material, renderables, pass);
+                        mFrameStats.forwardDrawCalls += (mFrameStats.totalDrawCalls - beforeBaseDraws);
 
                         // ForwardAdd 多光源分批叠加：当存在第 2 个及以上 LightBatch 且非线框覆盖模式时执行
                         if (mLightBatches.size() > 1 && rasterizerOverride == RasterizerOverride::kNone)
@@ -736,10 +753,9 @@ namespace Tiny3D
                                     applyLightBatch(material, batchIdx);
                                     setupShaders(ctx, material, addPass);
 
-                                    for (const auto &renderable : renderables)
-                                    {
-                                        submitRenderable(ctx, renderable, material, addPass);
-                                    }
+                                    const uint32_t beforeAddDraws = mFrameStats.totalDrawCalls;
+                                    submitRenderGroup(ctx, camera, queue, material, renderables, addPass);
+                                    mFrameStats.forwardDrawCalls += (mFrameStats.totalDrawCalls - beforeAddDraws);
                                 }
                             }
                         }
@@ -843,7 +859,9 @@ namespace Tiny3D
                             lastPass = pass;
                         }
 
+                        const uint32_t beforeTransDraws = mFrameStats.totalDrawCalls;
                         submitRenderable(ctx, renderable, material, lastPass);
+                        mFrameStats.forwardDrawCalls += (mFrameStats.totalDrawCalls - beforeTransDraws);
 
                         if (mLightBatches.size() > 1 && rasterizerOverride == RasterizerOverride::kNone)
                         {
@@ -864,7 +882,9 @@ namespace Tiny3D
                                 {
                                     applyLightBatch(material, batchIdx);
                                     setupShaders(ctx, material, addPass);
+                                    const uint32_t beforeTransAddDraws = mFrameStats.totalDrawCalls;
                                     submitRenderable(ctx, renderable, material, addPass);
+                                    mFrameStats.forwardDrawCalls += (mFrameStats.totalDrawCalls - beforeTransAddDraws);
                                 }
 
                                 // 状态已被 ForwardAdd 修改，下一件透明物体需重新绑定 ForwardBase 状态与第 0 批光源
@@ -994,6 +1014,8 @@ namespace Tiny3D
         ctx->setVertexBuffers(0, vbs, strides, offsets);
 
         ctx->render(3, 0);
+        mFrameStats.totalDrawCalls++;
+        mFrameStats.forwardDrawCalls++;
 
         return T3D_OK;
     }
@@ -1374,9 +1396,573 @@ namespace Tiny3D
             if (vertexShader != nullptr)
             {
                 vertexShader->updateConstantBuffers(startSlot);
+                if (!vertexShader->getConstantBuffers().empty())
+                {
+                    ctx->setVSConstantBuffers(startSlot, vertexShader->getConstantBuffers());
+                }
             }
         }
         return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool ForwardRenderPipeline::canDynamicBatch(const Renderable *renderable) const
+    {
+        if (renderable == nullptr)
+        {
+            return false;
+        }
+
+        const bool batchEnabled = isDynamicBatchEnabled()
+            || (Agent::getInstancePtr() != nullptr && T3D_AGENT.getSettings().renderSettings.enableDynamicBatch);
+        if (!batchEnabled)
+        {
+            return false;
+        }
+
+        if (renderable->getPrimitiveType() != PrimitiveType::kTriangleList)
+        {
+            return false;
+        }
+
+        // 必须是普通静态 Geometry，排除 SkinnedGeometry 派生类
+        if (rttr::rttr_cast<const Geometry *>(renderable) == nullptr
+            || rttr::rttr_cast<const SkinnedGeometry *>(renderable) != nullptr)
+        {
+            return false;
+        }
+
+        const Geometry *geometry = static_cast<const Geometry *>(renderable);
+        const Mesh *mesh = geometry->getMeshObject();
+        const SubMesh *submesh = geometry->getSubMeshObject();
+        if (mesh == nullptr || submesh == nullptr)
+        {
+            return false;
+        }
+
+        if (renderable->getVertexBuffers().size() != 1 || renderable->getVertexDeclaration() == nullptr)
+        {
+            return false;
+        }
+
+        if (mesh->getVertices().size() != 1
+            || mesh->getVertices()[0].Data == nullptr
+            || mesh->getVertices()[0].DataSize == 0
+            || mesh->getVertexStrides().empty()
+            || mesh->getVertexStrides()[0] == 0)
+        {
+            return false;
+        }
+
+        const Buffer &ibData = submesh->getIndices();
+        if (ibData.Data == nullptr || ibData.DataSize == 0 || renderable->getIndexBuffer() == nullptr)
+        {
+            return false;
+        }
+
+        const uint32_t stride = mesh->getVertexStrides()[0];
+        const uint32_t vertexCount = static_cast<uint32_t>(mesh->getVertices()[0].DataSize / stride);
+        const uint32_t maxObjVerts = (mMaxNumOfVertexInMethForDynamicBatch > 0)
+            ? mMaxNumOfVertexInMethForDynamicBatch
+            : kMaxBatchObjectVertices;
+        if (vertexCount == 0 || vertexCount > maxObjVerts || vertexCount > kMaxBatchVertices)
+        {
+            return false;
+        }
+
+        const uint32_t idxElemSize = submesh->is16Bits() ? sizeof(uint16_t) : sizeof(uint32_t);
+        const uint32_t indexCount = static_cast<uint32_t>(ibData.DataSize / idxElemSize);
+        if (indexCount == 0 || indexCount > kMaxBatchIndices)
+        {
+            return false;
+        }
+
+        bool hasPos = false;
+        for (const auto &attr : renderable->getVertexDeclaration()->getAttributes())
+        {
+            if (attr.getSlot() != 0 || attr.getInputRate() != VertexAttribute::InputRate::kPerVertex)
+            {
+                return false;
+            }
+            const auto sem = attr.getSemantic();
+            if (sem == VertexAttribute::Semantic::E_VAS_BLENDWEIGHT
+                || sem == VertexAttribute::Semantic::E_VAS_BLENDINDICES)
+            {
+                return false;
+            }
+            if (sem == VertexAttribute::Semantic::E_VAS_POSITION && attr.getSemanticIndex() == 0)
+            {
+                if (attr.getType() != VertexAttribute::Type::E_VAT_FLOAT3
+                    && attr.getType() != VertexAttribute::Type::E_VAT_FLOAT4)
+                {
+                    return false;
+                }
+                hasPos = true;
+            }
+            else if (sem == VertexAttribute::Semantic::E_VAS_NORMAL
+                || sem == VertexAttribute::Semantic::E_VAS_TANGENT
+                || sem == VertexAttribute::Semantic::E_VAS_BINORMAL)
+            {
+                if (attr.getType() != VertexAttribute::Type::E_VAT_FLOAT3
+                    && attr.getType() != VertexAttribute::Type::E_VAT_FLOAT4)
+                {
+                    return false;
+                }
+            }
+        }
+
+        if (!hasPos)
+        {
+            return false;
+        }
+
+        GameObject *go = renderable->getGameObject();
+        Transform3D *xform = (go != nullptr) ? static_cast<Transform3D *>(go->getTransformNode()) : nullptr;
+        if (xform == nullptr)
+        {
+            return false;
+        }
+
+        Matrix3 mat3x3;
+        xform->getLocalToWorldTransform().getAffineMatrix().extractMatrix(mat3x3);
+        if (Math::abs(mat3x3.determinant()) <= Real(1e-6))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult ForwardRenderPipeline::setupBatch()
+    {
+        mPreparedGroups.clear();
+        mBatchPoolUsedCount = 0;
+
+        const bool batchEnabled = isDynamicBatchEnabled()
+            || (Agent::getInstancePtr() != nullptr && T3D_AGENT.getSettings().renderSettings.enableDynamicBatch);
+        if (!batchEnabled)
+        {
+            for (const auto &camPair : mRenderQueue)
+            {
+                for (const auto &queuePair : camPair.second)
+                {
+                    for (const auto &groupPair : queuePair.second)
+                    {
+                        mFrameStats.unbatchedObjects += static_cast<uint32_t>(groupPair.second.size());
+                    }
+                }
+            }
+            return T3D_OK;
+        }
+
+        struct BucketKey
+        {
+            uint32_t declHash   {0};
+            uint32_t stride     {0};
+            bool     negScaling {false};
+
+            bool operator<(const BucketKey &rhs) const
+            {
+                if (declHash != rhs.declHash)
+                {
+                    return declHash < rhs.declHash;
+                }
+                if (stride != rhs.stride)
+                {
+                    return stride < rhs.stride;
+                }
+                return negScaling < rhs.negScaling;
+            }
+        };
+
+        auto flushChunk = [this](const TArray<Renderable *> &chunk,
+            VertexDeclaration *vertexDecl, uint32_t stride,
+            uint32_t totalVertices, uint32_t totalIndices,
+            PreparedRenderGroup &outPrepared)
+        {
+            if (chunk.size() <= 1)
+            {
+                for (Renderable *r : chunk)
+                {
+                    outPrepared.unbatched.emplace_back(r);
+                }
+                return;
+            }
+
+            const size_t vbDataSize = static_cast<size_t>(totalVertices) * stride;
+            const size_t ibDataSize = static_cast<size_t>(totalIndices) * sizeof(uint16_t);
+
+            mBatchCPUertices.resize(vbDataSize);
+            mBatchCPUIndices.resize(totalIndices);
+
+            const VertexAttribute *posAttr = nullptr;
+            const VertexAttribute *normalAttr = nullptr;
+            const VertexAttribute *tangentAttr = nullptr;
+            const VertexAttribute *binormalAttr = nullptr;
+
+            for (const auto &attr : vertexDecl->getAttributes())
+            {
+                if (attr.getSemanticIndex() != 0)
+                {
+                    continue;
+                }
+                switch (attr.getSemantic())
+                {
+                case VertexAttribute::Semantic::E_VAS_POSITION:
+                    posAttr = &attr;
+                    break;
+                case VertexAttribute::Semantic::E_VAS_NORMAL:
+                    normalAttr = &attr;
+                    break;
+                case VertexAttribute::Semantic::E_VAS_TANGENT:
+                    tangentAttr = &attr;
+                    break;
+                case VertexAttribute::Semantic::E_VAS_BINORMAL:
+                    binormalAttr = &attr;
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            uint32_t baseVertexOffset = 0;
+            uint32_t baseIndexOffset = 0;
+
+            for (Renderable *r : chunk)
+            {
+                const Geometry *geometry = static_cast<const Geometry *>(r);
+                const Mesh *mesh = geometry->getMeshObject();
+                const SubMesh *submesh = geometry->getSubMeshObject();
+
+                const Buffer &srcVB = mesh->getVertices()[0];
+                const Buffer &srcIB = submesh->getIndices();
+                const uint32_t vCount = static_cast<uint32_t>(srcVB.DataSize / stride);
+                const bool is16Bit = submesh->is16Bits();
+                const uint32_t iCount = static_cast<uint32_t>(srcIB.DataSize / (is16Bit ? sizeof(uint16_t) : sizeof(uint32_t)));
+
+                uint8_t *dstVtxBase = mBatchCPUertices.data() + static_cast<size_t>(baseVertexOffset) * stride;
+                memcpy(dstVtxBase, srcVB.Data, static_cast<size_t>(vCount) * stride);
+
+                Transform3D *xform = static_cast<Transform3D *>(r->getGameObject()->getTransformNode());
+                const Matrix4 &worldMat = xform->getLocalToWorldTransform().getAffineMatrix();
+                Matrix3 world3x3;
+                worldMat.extractMatrix(world3x3);
+                Matrix3 normalMat = world3x3.inverse().transpose();
+                if (normalMat == Matrix3::ZERO)
+                {
+                    normalMat = world3x3;
+                }
+
+                for (uint32_t v = 0; v < vCount; ++v)
+                {
+                    uint8_t *vtxPtr = dstVtxBase + static_cast<size_t>(v) * stride;
+
+                    if (posAttr != nullptr)
+                    {
+                        float *p = reinterpret_cast<float *>(vtxPtr + posAttr->getOffset());
+                        const Vector3 worldPos = worldMat.transformAffine(Vector3(p[0], p[1], p[2]));
+                        p[0] = static_cast<float>(worldPos.x());
+                        p[1] = static_cast<float>(worldPos.y());
+                        p[2] = static_cast<float>(worldPos.z());
+                    }
+
+                    auto transformDirAttr = [&normalMat](uint8_t *basePtr, const VertexAttribute *attr)
+                    {
+                        if (attr == nullptr)
+                        {
+                            return;
+                        }
+                        float *d = reinterpret_cast<float *>(basePtr + attr->getOffset());
+                        Vector3 worldDir = normalMat * Vector3(d[0], d[1], d[2]);
+                        worldDir.normalize();
+                        d[0] = static_cast<float>(worldDir.x());
+                        d[1] = static_cast<float>(worldDir.y());
+                        d[2] = static_cast<float>(worldDir.z());
+                    };
+
+                    transformDirAttr(vtxPtr, normalAttr);
+                    transformDirAttr(vtxPtr, tangentAttr);
+                    transformDirAttr(vtxPtr, binormalAttr);
+                }
+
+                uint16_t *dstIdxBase = mBatchCPUIndices.data() + baseIndexOffset;
+                if (is16Bit)
+                {
+                    const uint16_t *srcIndices16 = reinterpret_cast<const uint16_t *>(srcIB.Data);
+                    for (uint32_t idx = 0; idx < iCount; ++idx)
+                    {
+                        dstIdxBase[idx] = static_cast<uint16_t>(srcIndices16[idx] + baseVertexOffset);
+                    }
+                }
+                else
+                {
+                    const uint32_t *srcIndices32 = reinterpret_cast<const uint32_t *>(srcIB.Data);
+                    for (uint32_t idx = 0; idx < iCount; ++idx)
+                    {
+                        dstIdxBase[idx] = static_cast<uint16_t>(srcIndices32[idx] + baseVertexOffset);
+                    }
+                }
+
+                baseVertexOffset += vCount;
+                baseIndexOffset += iCount;
+            }
+
+            const size_t slotIdx = mBatchPoolUsedCount++;
+            if (mBatchVBPool.size() <= slotIdx)
+            {
+                mBatchVBPool.resize(slotIdx + 1, nullptr);
+            }
+            if (mBatchIBPool.size() <= slotIdx)
+            {
+                mBatchIBPool.resize(slotIdx + 1, nullptr);
+            }
+
+            VertexBufferPtr &batchVB = mBatchVBPool[slotIdx];
+            if (batchVB == nullptr || batchVB->getBufferSize() < vbDataSize || batchVB->getVertexSize() != stride)
+            {
+                const uint32_t allocVerts = std::max<uint32_t>(kMaxBatchVertices, totalVertices);
+                Buffer initVB;
+                initVB.DataSize = static_cast<size_t>(allocVerts) * stride;
+                initVB.Data = T3D_POD_NEW_ARRAY(uint8_t, initVB.DataSize);
+                memcpy(initVB.Data, mBatchCPUertices.data(), vbDataSize);
+                if (initVB.DataSize > vbDataSize)
+                {
+                    memset(initVB.Data + vbDataSize, 0, initVB.DataSize - vbDataSize);
+                }
+
+                batchVB = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(
+                    stride, allocVerts, initVB, MemoryType::kBoth, Usage::kDynamic, kCPUWrite);
+                initVB.release();
+            }
+            else
+            {
+                Buffer writeVB;
+                writeVB.Data = mBatchCPUertices.data();
+                writeVB.DataSize = vbDataSize;
+                batchVB->writeData(0, writeVB, true);
+                writeVB.Data = nullptr;
+            }
+
+            IndexBufferPtr &batchIB = mBatchIBPool[slotIdx];
+            if (batchIB == nullptr || batchIB->getBufferSize() < ibDataSize)
+            {
+                const uint32_t allocIndices = std::max<uint32_t>(kMaxBatchIndices, totalIndices);
+                Buffer initIB;
+                initIB.DataSize = static_cast<size_t>(allocIndices) * sizeof(uint16_t);
+                initIB.Data = T3D_POD_NEW_ARRAY(uint8_t, initIB.DataSize);
+                memcpy(initIB.Data, mBatchCPUIndices.data(), ibDataSize);
+                if (initIB.DataSize > ibDataSize)
+                {
+                    memset(initIB.Data + ibDataSize, 0, initIB.DataSize - ibDataSize);
+                }
+
+                batchIB = T3D_RENDER_BUFFER_MGR.loadIndexBuffer(
+                    IndexType::E_IT_16BITS, allocIndices, initIB, MemoryType::kBoth, Usage::kDynamic, kCPUWrite);
+                initIB.release();
+            }
+            else
+            {
+                Buffer writeIB;
+                writeIB.Data = reinterpret_cast<uint8_t *>(mBatchCPUIndices.data());
+                writeIB.DataSize = ibDataSize;
+                batchIB->writeData(0, writeIB, true);
+                writeIB.Data = nullptr;
+            }
+
+            if (batchVB != nullptr && batchIB != nullptr)
+            {
+                DynamicBatchDrawItem drawItem;
+                drawItem.vertexDecl = vertexDecl;
+                drawItem.vb = batchVB;
+                drawItem.ib = batchIB;
+                drawItem.stride = stride;
+                drawItem.indexCount = totalIndices;
+                outPrepared.batches.push_back(drawItem);
+
+                mFrameStats.dynamicBatchCount++;
+                mFrameStats.batchedObjects += static_cast<uint32_t>(chunk.size());
+                mFrameStats.batchedVertices += totalVertices;
+                mFrameStats.batchedIndices += totalIndices;
+            }
+            else
+            {
+                for (Renderable *r : chunk)
+                {
+                    outPrepared.unbatched.emplace_back(r);
+                }
+            }
+        };
+
+        for (const auto &camPair : mRenderQueue)
+        {
+            Camera *camera = camPair.first;
+            for (const auto &queuePair : camPair.second)
+            {
+                const uint32_t queue = queuePair.first;
+                // 透明队列需要按物体深度从后往前逐个混合绘制，仅对不透明队列做动态合批
+                if (queue >= ShaderLab::kBuiltinQueueTransparent)
+                {
+                    for (const auto &groupPair : queuePair.second)
+                    {
+                        mFrameStats.unbatchedObjects += static_cast<uint32_t>(groupPair.second.size());
+                    }
+                    continue;
+                }
+
+                for (const auto &groupPair : queuePair.second)
+                {
+                    Material *material = groupPair.first;
+                    const Renderables &renderables = groupPair.second;
+                    if (renderables.size() <= 1)
+                    {
+                        mFrameStats.unbatchedObjects += static_cast<uint32_t>(renderables.size());
+                        continue;
+                    }
+
+                    PreparedRenderGroup prepared;
+                    TMap<BucketKey, TArray<Renderable *>> buckets;
+
+                    for (Renderable *r : renderables)
+                    {
+                        if (!canDynamicBatch(r))
+                        {
+                            prepared.unbatched.emplace_back(r);
+                            continue;
+                        }
+
+                        const Geometry *geometry = static_cast<const Geometry *>(r);
+                        const Mesh *mesh = geometry->getMeshObject();
+                        VertexDeclaration *decl = r->getVertexDeclaration();
+                        Transform3D *xform = static_cast<Transform3D *>(r->getGameObject()->getTransformNode());
+                        Matrix3 mat3x3;
+                        xform->getLocalToWorldTransform().getAffineMatrix().extractMatrix(mat3x3);
+
+                        BucketKey key;
+                        key.declHash = decl->hash();
+                        key.stride = mesh->getVertexStrides()[0];
+                        key.negScaling = (mat3x3.determinant() < REAL_ZERO);
+
+                        buckets[key].push_back(r);
+                    }
+
+                    for (const auto &bucketPair : buckets)
+                    {
+                        const TArray<Renderable *> &bucketList = bucketPair.second;
+                        if (bucketList.size() <= 1)
+                        {
+                            for (Renderable *r : bucketList)
+                            {
+                                prepared.unbatched.emplace_back(r);
+                            }
+                            continue;
+                        }
+
+                        TArray<Renderable *> currentChunk;
+                        currentChunk.reserve(bucketList.size());
+                        uint32_t currentVerts = 0;
+                        uint32_t currentIndices = 0;
+                        const uint32_t stride = bucketPair.first.stride;
+                        VertexDeclaration *decl = bucketList[0]->getVertexDeclaration();
+
+                        for (Renderable *r : bucketList)
+                        {
+                            const Geometry *geometry = static_cast<const Geometry *>(r);
+                            const Mesh *mesh = geometry->getMeshObject();
+                            const SubMesh *submesh = geometry->getSubMeshObject();
+                            const uint32_t vCount = static_cast<uint32_t>(mesh->getVertices()[0].DataSize / stride);
+                            const uint32_t idxElemSize = submesh->is16Bits() ? sizeof(uint16_t) : sizeof(uint32_t);
+                            const uint32_t iCount = static_cast<uint32_t>(submesh->getIndices().DataSize / idxElemSize);
+
+                            if (!currentChunk.empty()
+                                && (currentVerts + vCount > kMaxBatchVertices
+                                    || currentIndices + iCount > kMaxBatchIndices))
+                            {
+                                flushChunk(currentChunk, decl, stride, currentVerts, currentIndices, prepared);
+                                currentChunk.clear();
+                                currentVerts = 0;
+                                currentIndices = 0;
+                            }
+
+                            currentChunk.push_back(r);
+                            currentVerts += vCount;
+                            currentIndices += iCount;
+                        }
+
+                        if (!currentChunk.empty())
+                        {
+                            flushChunk(currentChunk, decl, stride, currentVerts, currentIndices, prepared);
+                        }
+                    }
+
+                    mFrameStats.unbatchedObjects += static_cast<uint32_t>(prepared.unbatched.size());
+
+                    if (!prepared.batches.empty())
+                    {
+                        PreparedGroupKey groupKey {camera, queue, material};
+                        mPreparedGroups.emplace(groupKey, std::move(prepared));
+                    }
+                }
+            }
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ForwardRenderPipeline::submitRenderGroup(RHIContext *ctx, Camera *camera, uint32_t queue,
+        Material *material, const Renderables &renderables, PassInstance *pass)
+    {
+        PreparedGroupKey key {camera, queue, material};
+        const auto itr = mPreparedGroups.find(key);
+        if (itr == mPreparedGroups.end() || itr->second.batches.empty())
+        {
+            for (const auto &renderable : renderables)
+            {
+                submitRenderable(ctx, renderable, material, pass);
+            }
+            return;
+        }
+
+        const PreparedRenderGroup &prepared = itr->second;
+
+        // 合批顶点已在 CPU 变换至世界空间，将模型矩阵设为单位矩阵并刷新 VS 常量缓冲
+        material->setMatrix("tiny3d_ObjectToWorld", Matrix4::IDENTITY);
+        material->setMatrix("tiny3d_WorldToObject", Matrix4::IDENTITY);
+
+        uint32_t startSlot = 0;
+        ShaderVariantInstance *vertexShader = pass->getCurrentVertexShader();
+        if (vertexShader != nullptr)
+        {
+            vertexShader->updateConstantBuffers(startSlot);
+            if (!vertexShader->getConstantBuffers().empty())
+            {
+                ctx->setVSConstantBuffers(startSlot, vertexShader->getConstantBuffers());
+            }
+        }
+
+        ctx->setPrimitiveType(PrimitiveType::kTriangleList);
+
+        for (const DynamicBatchDrawItem &batch : prepared.batches)
+        {
+            ctx->setVertexDeclaration(batch.vertexDecl);
+
+            VertexBuffers vbs(1, batch.vb);
+            VertexStrides strides(1, batch.stride);
+            VertexOffsets offsets(1, 0);
+            ctx->setVertexBuffers(0, vbs, strides, offsets);
+            ctx->setIndexBuffer(batch.ib);
+            ctx->render(batch.indexCount, 0, 0);
+            mFrameStats.totalDrawCalls++;
+        }
+
+        for (Renderable *renderable : prepared.unbatched)
+        {
+            submitRenderable(ctx, renderable, material, pass);
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -1402,6 +1988,7 @@ namespace Tiny3D
             ctx->setIndexBuffer(ib);
             // render
             ctx->render(ib->getIndexCount(), 0, 0);
+            mFrameStats.totalDrawCalls++;
         }
         else
         {
@@ -1409,6 +1996,7 @@ namespace Tiny3D
 
             // 没有索引缓冲区，直接 render
             ctx->render(vb->getVertexCount(), 0);
+            mFrameStats.totalDrawCalls++;
         }
     }
 

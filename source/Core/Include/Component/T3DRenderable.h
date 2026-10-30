@@ -53,10 +53,16 @@ namespace Tiny3D
         bool supportsEnabled() const override { return true; }
 
         /**
-         * \brief 返回渲染使用的材质
+         * \brief 返回渲染使用的材质（非合批路径或单物体独立绘制用）
          * \return 材质指针；子类未就绪时可能为 nullptr
          */
         virtual Material *getMaterial() = 0;
+
+        /**
+         * \brief 返回共享源材质（供渲染管线按共享材质合批分组）
+         * \return 默认返回 getMaterial()；子类可返回未克隆的共享材质
+         */
+        virtual Material *getSharedMaterial() { return getMaterial(); }
 
         /**
          * \brief 返回图元类型

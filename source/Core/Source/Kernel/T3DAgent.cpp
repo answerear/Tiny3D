@@ -433,6 +433,11 @@ namespace Tiny3D
             // 配置就绪后创建全局 Time 单例
             initTime();
 
+            if (mRenderPipeline != nullptr)
+            {
+                mRenderPipeline->enableDynamicBatch(mSettings.renderSettings.enableDynamicBatch);
+            }
+
             // 加载配置文件中指定的插件
             ret = loadPlugins();
             if (T3D_FAILED(ret))
@@ -503,6 +508,11 @@ namespace Tiny3D
 
             // 配置就绪后创建全局 Time 单例
             initTime();
+
+            if (mRenderPipeline != nullptr)
+            {
+                mRenderPipeline->enableDynamicBatch(mSettings.renderSettings.enableDynamicBatch);
+            }
 
             mArchiveMgr = ArchiveManager::create();
 

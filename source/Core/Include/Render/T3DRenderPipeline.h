@@ -113,11 +113,30 @@ namespace Tiny3D
 
         /// 参与动态合批的 mesh 最大顶点数
         uint32_t getMaxNumOfVertexInMethForDynamicBatch() const { return mMaxNumOfVertexInMethForDynamicBatch; }
+
+        /**
+         * \brief 单帧渲染统计信息（供调试与 Sample 观察 DrawCall 与动态合批效果）
+         */
+        struct FrameStats
+        {
+            uint32_t totalDrawCalls      {0}; ///< 本帧总 DrawCall 次数（含阴影、前向、天空盒等）
+            uint32_t shadowDrawCalls     {0}; ///< 阴影 Pass DrawCall 次数
+            uint32_t forwardDrawCalls    {0}; ///< 前向 Pass DrawCall 次数
+            uint32_t dynamicBatchCount   {0}; ///< 本帧生成的动态合批批次数量（Batch 数）
+            uint32_t batchedObjects      {0}; ///< 本帧被合并进动态批次的 Renderable 物体总数
+            uint32_t batchedVertices     {0}; ///< 本帧动态合批合并的总顶点数
+            uint32_t batchedIndices      {0}; ///< 本帧动态合批合并的总索引数
+            uint32_t unbatchedObjects    {0}; ///< 本帧未合批（独立提交）的 Renderable 物体数
+        };
+
+        /// 获取最近一帧的渲染统计信息
+        const FrameStats &getFrameStats() const { return mFrameStats; }
         
 
     protected:
         bool mDynamicBatchEnabled {false};
-        uint32_t mMaxNumOfVertexInMethForDynamicBatch {0};
+        uint32_t mMaxNumOfVertexInMethForDynamicBatch {300};
+        FrameStats mFrameStats {};
     };
 
     #define T3D_RENDER_PIPELINE     (RenderPipeline::getInstance()) 

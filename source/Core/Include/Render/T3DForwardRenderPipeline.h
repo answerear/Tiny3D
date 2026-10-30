@@ -123,10 +123,36 @@ namespace Tiny3D
         using CameraRenderQueue = TMap<Camera*, RenderQueue>;
         using Cameras = TList<Camera*>;
         
+        /// 动态合批单批最大顶点数（控制在 65535 以内以使用 16 位索引）
+        static constexpr uint32_t kMaxBatchVertices = 16384;
+        /// 动态合批单批最大索引数
+        static constexpr uint32_t kMaxBatchIndices = 49152;
+        /// 单个物体允许参与动态合批的最大顶点数
+        static constexpr uint32_t kMaxBatchObjectVertices = 300;
+
         /**
-         * \brief 动态合批预处理（头文件已声明，当前无 .cpp 实现）
+         * \brief 动态合批预处理：构建当前帧所有相机的动态合批顶点/索引缓冲并准备批次
          */
         TResult setupBatch();
+
+        /**
+         * \brief 判定单个 Renderable 是否满足 CPU 动态合批准入条件
+         * \param [in] renderable : 待检查的可渲染对象
+         * \return 满足条件返回 true，否则返回 false
+         */
+        bool canDynamicBatch(const Renderable *renderable) const;
+
+        /**
+         * \brief 提交同一材质分组下的可渲染对象列表（若存在已预处理的动态合批批次则合并提交）
+         * \param [in] ctx : RHI 上下文
+         * \param [in] camera : 当前相机
+         * \param [in] queue : 渲染队列号
+         * \param [in] material : 分组材质
+         * \param [in] renderables : 该材质下的 Renderable 列表
+         * \param [in] pass : Pass 实例
+         */
+        void submitRenderGroup(RHIContext *ctx, Camera *camera, uint32_t queue,
+            Material *material, const Renderables &renderables, PassInstance *pass);
 
         /**
          * \brief 为 ShadowCaster Pass 设置光空间 VP 矩阵到材质
@@ -455,6 +481,63 @@ namespace Tiny3D
         Vector4Array mSpotLightDir {kMaxSpotLights, Vector4f::ZERO};
         /// 聚光灯衰减参数 + 外切角 cos 值
         Vector4Array mSpotLightAttenuation {kMaxSpotLights, Vector4f(1.0f, 0.0f, 0.0f, 0.0f)};
+
+        /**
+         * \brief 动态合批批次记录
+         */
+        struct DynamicBatchDrawItem
+        {
+            VertexDeclaration *vertexDecl {nullptr};
+            VertexBufferPtr    vb         {nullptr};
+            IndexBufferPtr     ib         {nullptr};
+            uint32_t           stride     {0};
+            uint32_t           indexCount {0};
+        };
+
+        /**
+         * \brief 同一 (Camera, Queue, Material) 分组在 setupBatch 预处理后的结果
+         */
+        struct PreparedRenderGroup
+        {
+            TArray<DynamicBatchDrawItem> batches {};
+            Renderables                  unbatched {};
+        };
+
+        /**
+         * \brief 预设分组查找键
+         */
+        struct PreparedGroupKey
+        {
+            Camera   *camera   {nullptr};
+            uint32_t  queue    {0};
+            Material *material {nullptr};
+
+            bool operator<(const PreparedGroupKey &rhs) const
+            {
+                if (camera != rhs.camera)
+                {
+                    return camera < rhs.camera;
+                }
+                if (queue != rhs.queue)
+                {
+                    return queue < rhs.queue;
+                }
+                return material < rhs.material;
+            }
+        };
+
+        /// setupBatch 生成的当帧合批结果表
+        TMap<PreparedGroupKey, PreparedRenderGroup> mPreparedGroups {};
+        /// 动态合批 VB 复用池
+        TArray<VertexBufferPtr> mBatchVBPool {};
+        /// 动态合批 IB 复用池
+        TArray<IndexBufferPtr>  mBatchIBPool {};
+        /// 当帧已分配使用的动态合批 VB/IB 槽位计数
+        size_t                  mBatchPoolUsedCount {0};
+        /// CPU 侧合并顶点临时缓冲区
+        TArray<uint8_t>         mBatchCPUertices {};
+        /// CPU 侧合并索引临时缓冲区
+        TArray<uint16_t>        mBatchCPUIndices {};
     };
 }
 

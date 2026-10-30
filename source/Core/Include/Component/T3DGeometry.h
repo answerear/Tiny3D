@@ -57,6 +57,12 @@ namespace Tiny3D
         Material *getMaterial() override;
 
         /**
+         * \brief 返回 SubMesh 关联的共享源材质（供动态合批分组使用）
+         * \return 共享源材质指针；未绑定时回退为 mMaterial
+         */
+        Material *getSharedMaterial() override;
+
+        /**
          * \brief 返回图元类型
          * \return mesh 与 submesh 就绪时返回 submesh 类型，否则 kTriangleList
          */
@@ -183,6 +189,8 @@ namespace Tiny3D
         SubMesh *mSubMesh {nullptr};
         /// 渲染使用的材质（非动态合批时为 clone 副本）
         MaterialPtr mMaterial {nullptr};
+        /// SubMesh 关联的共享源材质（不持有 unload 责任，供动态合批分组使用）
+        MaterialPtr mSharedMaterial {nullptr};
         /// 是否动态合批（当前实现恒为 false）
         bool mIsDynamicBatch {false};
     };

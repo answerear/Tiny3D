@@ -24,7 +24,9 @@
 
 
 #include "Component/T3DGeometry.h"
+#include "Kernel/T3DAgent.h"
 #include "Kernel/T3DArchive.h"
+#include "Render/T3DRenderPipeline.h"
 #include "Resource/T3DMaterialManager.h"
 #include "Resource/T3DMesh.h"
 #include "Resource/T3DSubMesh.h"
@@ -63,6 +65,8 @@ namespace Tiny3D
         {
             mMaterial = nullptr;
         }
+
+        mSharedMaterial = nullptr;
 
         Renderable::onDestroy();
     }
@@ -110,6 +114,36 @@ namespace Tiny3D
     Material *Geometry::getMaterial()
     {
         return mMaterial;
+    }
+
+    //--------------------------------------------------------------------------
+
+    Material *Geometry::getSharedMaterial()
+    {
+        if (mMaterial != nullptr && mSharedMaterial != nullptr && mMaterial != mSharedMaterial)
+        {
+            const auto &clonedSamplers = mMaterial->getSamplerValues();
+            const auto &sharedSamplers = mSharedMaterial->getSamplerValues();
+            if (clonedSamplers.size() != sharedSamplers.size())
+            {
+                return mMaterial.get();
+            }
+
+            for (const auto &kv : sharedSamplers)
+            {
+                if (kv.first == "shadowMap")
+                {
+                    continue;
+                }
+                const auto it = clonedSamplers.find(kv.first);
+                if (it == clonedSamplers.end()
+                    || it->second->getTextureUUID() != kv.second->getTextureUUID())
+                {
+                    return mMaterial.get();
+                }
+            }
+        }
+        return (mSharedMaterial != nullptr) ? mSharedMaterial.get() : mMaterial.get();
     }
 
     //--------------------------------------------------------------------------
@@ -191,10 +225,15 @@ namespace Tiny3D
             mSubMesh = nullptr;
             mMeshUUID = UUID::INVALID;
             mSubMeshName = "";
+            mSharedMaterial = nullptr;
 
             if (!mIsDynamicBatch && mMaterial != nullptr)
             {
                 T3D_MATERIAL_MGR.unload(mMaterial);
+                mMaterial = nullptr;
+            }
+            else
+            {
                 mMaterial = nullptr;
             }
         }
@@ -240,7 +279,12 @@ namespace Tiny3D
                     T3D_MATERIAL_MGR.unload(mMaterial);
                     mMaterial = nullptr;
                 }
-                
+                else
+                {
+                    mMaterial = nullptr;
+                }
+
+                mSharedMaterial = nullptr;
                 mMesh = nullptr;
             }
         }
@@ -319,18 +363,12 @@ namespace Tiny3D
             return;
         }
 
-        mIsDynamicBatch = false;
+        mSharedMaterial = material;
 
-        if (mIsDynamicBatch)
-        {
-            // 动态合批，直接使用 submesh 的材质即可
-            mMaterial = material;
-        }
-        else
-        {
-            // 不合批，生成一个新材质
-            mMaterial = T3D_MATERIAL_MGR.clone(material);
-        }
+        // 始终为每个实例克隆独立的 mMaterial，以便关闭动态合批或回退单物体绘制时各物体有独立常量缓冲；
+        // 开启合批时，管线通过 getSharedMaterial() 按共享源材质分组并合并 DrawCall。
+        mIsDynamicBatch = false;
+        mMaterial = T3D_MATERIAL_MGR.clone(material);
     }
 
     //--------------------------------------------------------------------------

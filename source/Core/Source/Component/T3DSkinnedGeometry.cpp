@@ -29,6 +29,9 @@
 #include "Component/T3DTransform3D.h"
 #include "Component/T3DBone.h"
 #include "Resource/T3DSkeleton.h"
+#include "Resource/T3DSubMesh.h"
+#include "Resource/T3DMaterial.h"
+#include "Resource/T3DMaterialManager.h"
 #include "Kernel/T3DGameObject.h"
 
 
@@ -132,7 +135,29 @@ namespace Tiny3D
 
     void SkinnedGeometry::generateRenderMaterial()
     {
-        Geometry::generateRenderMaterial();
+        if (mSubMesh == nullptr)
+        {
+            T3D_LOG_WARNING(LOG_TAG_COMPONENT,
+                "No sub mesh to generate render material (mesh : %s) !",
+                mMeshUUID.toString().c_str());
+            return;
+        }
+
+        Material *material = static_cast<Material *>(T3D_MATERIAL_MGR.getResource(mSubMesh->getMaterialUUID()));
+        T3D_ASSERT(material != nullptr);
+        if (material == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_COMPONENT,
+                "Material (%s) of sub mesh (%s) is not loaded !",
+                mSubMesh->getMaterialUUID().toString().c_str(),
+                mSubMeshName.c_str());
+            return;
+        }
+
+        // 蒙皮网格每个实例有独立的骨骼矩阵与蒙皮关键字，不参与动态合批，始终克隆独立材质
+        mIsDynamicBatch = false;
+        mMaterial = T3D_MATERIAL_MGR.clone(material);
+        mSharedMaterial = mMaterial;
     }
 
     //--------------------------------------------------------------------------
