@@ -191,6 +191,70 @@ namespace  Tiny3D
 
             // 解析 AST
             ret = generateAST(args, pendingFiles, opts.NumThreads);
+            if (!T3D_FAILED(ret))
+            {
+                uint32_t okCount = 0;
+                for (const auto &pf : pendingFiles)
+                {
+                    if (pf.processed)
+                    {
+                        ++okCount;
+                    }
+                }
+
+                // 若挂了 PCH 且存在文件解析失败（例如 CXError_ASTReadError 4），
+                // 自动重建一次 PCH 并重试未通过的源文件，防止过期或跨环境 PCH 卡死构建。
+                if (okCount < (uint32_t)pendingFiles.size() && !pchPath.empty())
+                {
+                    RP_LOG_WARNING("[PCH] %u of %u source file(s) failed to parse with existing PCH, regenerating PCH and retrying ...",
+                        (uint32_t)pendingFiles.size() - okCount, (uint32_t)pendingFiles.size());
+
+                    for (auto it = mArgs.begin(); it != mArgs.end(); )
+                    {
+                        if (*it == "-include-pch")
+                        {
+                            it = mArgs.erase(it);
+                            if (it != mArgs.end())
+                            {
+                                it = mArgs.erase(it);
+                            }
+                        }
+                        else
+                        {
+                            ++it;
+                        }
+                    }
+                    syncClangArgs(args);
+
+                    pchPath = detectAndGeneratePCH(path, args, true);
+                    if (!pchPath.empty())
+                    {
+                        mArgs.push_back("-include-pch");
+                        mArgs.push_back(pchPath);
+                        syncClangArgs(args);
+                    }
+
+                    std::vector<PendingFile> retryFiles;
+                    for (const auto &pf : pendingFiles)
+                    {
+                        if (!pf.processed)
+                        {
+                            retryFiles.push_back(pf);
+                        }
+                    }
+
+                    ret = generateAST(args, retryFiles, opts.NumThreads);
+                    size_t rIdx = 0;
+                    for (auto &pf : pendingFiles)
+                    {
+                        if (!pf.processed && rIdx < retryFiles.size())
+                        {
+                            pf.processed = retryFiles[rIdx++].processed;
+                        }
+                    }
+                }
+            }
+
             if (T3D_FAILED(ret))
             {
                 RP_LOG_ERROR("Generating AST failed ! ERROR [%d]", ret);
@@ -686,6 +750,11 @@ namespace  Tiny3D
         {
             if (s == "-isystem")
             {
+                // ReflectionSettings.json 已显式指定 SystemIncludePath：
+                // 清除进程继承的 INCLUDE / EXTERNAL_INCLUDE，防止 VS IDE (MSBuild) 与命令行
+                // 环境差异导致 libclang 把 %INCLUDE% 排在 -isystem 前面而使 PCH 失效（CXErrorCode 4）。
+                _putenv("INCLUDE=");
+                _putenv("EXTERNAL_INCLUDE=");
                 RP_LOG_INFO("Reflection settings provide system include paths.");
                 return;
             }

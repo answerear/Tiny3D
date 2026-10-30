@@ -46,26 +46,13 @@ endfunction()
 function(_tiny3d_detect_msvc_includes OUT_INCLUDES)
     set(_includes "")
 
-    # ---- 第 1 级：环境变量 -------------------------------------------------
-    # EXTERNAL_INCLUDE 是新版 vcvarsall 拆出去的一份，一并收下（与 cct 一致）
-    foreach (_env_name INCLUDE EXTERNAL_INCLUDE)
-        if (DEFINED ENV{${_env_name}} AND NOT "$ENV{${_env_name}}" STREQUAL "")
-            # %INCLUDE% 是 ';' 分隔，而 ';' 在 CMake 里正好是列表分隔符
-            string(REPLACE ";" "\\;" _raw "$ENV{${_env_name}}")
-            string(REPLACE "\\;" ";" _entries "${_raw}")
-            _tiny3d_append_existing_dir(_includes ${_entries})
-        endif ()
-    endforeach ()
-
-    if (_includes)
-        set(${OUT_INCLUDES} "${_includes}" PARENT_SCOPE)
-        return()
-    endif ()
-
-    # ---- 第 2 级：从 CMAKE_CXX_COMPILER 反推 -------------------------------
-    # cl.exe 的位置形如
-    #   <VS>/VC/Tools/MSVC/<toolset>/bin/Host<arch>/<arch>/cl.exe
-    # 往上四级即工具集根目录。
+    # ---- 第 1 级：从 CMAKE_CXX_COMPILER 反推 -------------------------------
+    # 必须优先于 %INCLUDE%：如果在 VS2022 的开发者终端或环境变量里去 configure
+    # 一个 VS2019 (-G "Visual Studio 16 2019") 工程，%INCLUDE% 里装的是 VS2022
+    # 头文件，而 MSBuild 实际编译用的是 VS2019 的 cl.exe（且在 VS IDE 内构建时
+    # MSBuild 会把 %INCLUDE% 覆盖成 VS2019，导致 rpp 复用的 PCH 因头文件不一致
+    # 直接报 CXErrorCode 4 崩溃）。CMAKE_CXX_COMPILER 永远指向当前工程真正使用的
+    # 编译器工具集，因此应当作为第一权威来源。
     set(_toolset_root "${CMAKE_CXX_COMPILER}")
     foreach (_i RANGE 3)
         get_filename_component(_toolset_root "${_toolset_root}" DIRECTORY)
@@ -100,10 +87,10 @@ function(_tiny3d_detect_msvc_includes OUT_INCLUDES)
         "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows Kits\\Installed Roots;KitsRoot10]"
         ABSOLUTE CACHE)
     if (NOT _kits_root OR NOT IS_DIRECTORY "${_kits_root}")
-        set(_kits_root "$ENV{ProgramFiles\(x86\)}/Windows Kits/10")
+        set(_kits_root "$ENV{ProgramFiles(x86)}/Windows Kits/10")
     endif ()
 
-    if (IS_DIRECTORY "${_kits_root}")
+    if (_includes AND IS_DIRECTORY "${_kits_root}")
         # 版本号拿不到就退而挑目录里最大的那个（um 与 ucrt 齐备才算数）
         if (NOT _sdk_version)
             file(GLOB _sdk_dirs RELATIVE "${_kits_root}/Include" "${_kits_root}/Include/*")
@@ -125,6 +112,22 @@ function(_tiny3d_detect_msvc_includes OUT_INCLUDES)
             endforeach ()
         endif ()
     endif ()
+
+    if (_includes)
+        set(${OUT_INCLUDES} "${_includes}" PARENT_SCOPE)
+        return()
+    endif ()
+
+    # ---- 第 2 级：环境变量兜底 ---------------------------------------------
+    # EXTERNAL_INCLUDE 是新版 vcvarsall 拆出去的一份，一并收下（与 cct 一致）
+    foreach (_env_name INCLUDE EXTERNAL_INCLUDE)
+        if (DEFINED ENV{${_env_name}} AND NOT "$ENV{${_env_name}}" STREQUAL "")
+            # %INCLUDE% 是 ';' 分隔，而 ';' 在 CMake 里正好是列表分隔符
+            string(REPLACE ";" "\\;" _raw "$ENV{${_env_name}}")
+            string(REPLACE "\\;" ";" _entries "${_raw}")
+            _tiny3d_append_existing_dir(_includes ${_entries})
+        endif ()
+    endforeach ()
 
     set(${OUT_INCLUDES} "${_includes}" PARENT_SCOPE)
 endfunction()
