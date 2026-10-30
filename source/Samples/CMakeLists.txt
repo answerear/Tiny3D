@@ -25,6 +25,7 @@ add_subdirectory(PointLightApp)
 add_subdirectory(SpotLightApp)
 add_subdirectory(LightApp)
 add_subdirectory(ShadowApp)
+add_subdirectory(DynamicBatchApp)
 add_subdirectory(BehaviourApp)
 add_subdirectory(PostProcessingApp)
 add_subdirectory(InputApp)
@@ -49,7 +50,7 @@ if (TINY3D_OS_ANDROID AND TINY3D_BUILD_RMLUI)
     # 这里给已有 Android 工程补上运行时 UI 库，避免其它样例启动时找不到插件。
     set(_t3d_android_samples
         HelloApp CameraApp GeometryApp SceneApp DirectionalLightApp PointLightApp
-        SpotLightApp LightApp ShadowApp BehaviourApp PostProcessingApp InputApp
+        SpotLightApp LightApp ShadowApp DynamicBatchApp BehaviourApp PostProcessingApp InputApp
         TextureApp SkeletalAnimationApp ResourceApp SkyboxApp ComputeApp
         PlatformApp FrameworkApp RmlUiApp)
     foreach(_t3d_android_sample IN LISTS _t3d_android_samples)
