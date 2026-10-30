@@ -6,6 +6,10 @@
 > - `source/Core/Include/Kernel/T3DSettings.h`
 > - `source/Core/Include/Render/T3DForwardRenderPipeline.h`
 > - `source/Core/Source/Render/T3DForwardRenderPipeline.cpp`
+> - `source/Samples/CMakeLists.txt`
+> - `source/Samples/DynamicBatchApp/CMakeLists.txt`（新增）
+> - `source/Samples/DynamicBatchApp/DynamicBatchApp.h`（新增）
+> - `source/Samples/DynamicBatchApp/DynamicBatchApp.cpp`（新增）
 
 ---
 
@@ -29,7 +33,7 @@
 | **路径 A：CPU 动态网格合批（Dynamic Mesh Batching）** | 相同 `Material*`、不同 `Mesh`（或同 Mesh）、单物体顶点数 $\le 300$、单一 VB Stream、无骨骼蒙皮、缩放符号一致（无负缩放翻转绕序） | CPU 侧将各物体的顶点 Position/Normal/Tangent 乘上各自的 `LocalToWorld` 变换到世界空间，写入一块共享的 `Usage::kDynamic` 顶点/索引缓冲，将 `tiny3d_ObjectToWorld` 设为单位矩阵，1 次 `ctx->render(...)` 画出整批 | **无需修改现有 Shader**（直接兼容 `Tiny3DStandard.shader`） |
 | **路径 B：同网格硬件实例化（Auto GPU Instancing）** | 相同 `Material*`、**相同 `VertexBuffer*` 与 `IndexBuffer*`**、材质开启 Instancing 关键字 | 将各实例的 `LocalToWorld` 矩阵写入 slot 1 的 Per-Instance VB，调用 `ctx->renderIndexedInstanced` | CPU 零顶点变换开销，适合成百上千个相同 Cube/Sphere |
 
-**本期（T1-4）以「路径 A（CPU 动态合批）」为主实现**，因为它对现有 `.shader` 零侵入，开启 `enableDynamicBatch = true` 后现有的 `SceneApp` / `GeometryApp` 即可直接合批降 DrawCall。
+**本期（T1-4）以「路径 A（CPU 动态合批）」为主实现**，因为它对现有 `.shader` 零侵入，开启 `enableDynamicBatch = true` 后即可直接对同材质小网格进行合批降 DrawCall。为避免污染现有各司其职的样例（`GeometryApp` 专用于验证 `Geometry` 组件基础渲染、`SceneApp` 专用于验证视锥场景剔除），本期新建独立样例 **`DynamicBatchApp`** 专门验证动态合批。
 
 ---
 
@@ -74,7 +78,17 @@ static constexpr uint32_t kMaxBatchObjectVertices = 300;
 
 ---
 
+### 3.4 新增独立验证样例 `DynamicBatchApp`
+
+为保持职责单一，不修改 `SceneApp`（用于验证场景视锥剔除）和 `GeometryApp`（用于验证 `Geometry` 组件基础渲染），在 `source/Samples/DynamicBatchApp/` 下新建独立样例工程：
+1. 在 `source/Samples/CMakeLists.txt` 中注册 `add_subdirectory(DynamicBatchApp)`；
+2. 参照 `ShadowApp` 搭建带方向光、地面 `Plane`、`ForwardBase` + `ShadowCaster` 双 Pass 的场景；
+3. 在场景中放置 20 个共享同一材质（`mCubeMaterial`）且具有不同位移/旋转/正缩放的 Cube；
+4. 开启 `enableDynamicBatch`（并支持按键或配置切换开关对比），验证合批前后画面一致性与 DrawCall 合并效果。
+
+---
+
 ## 4. 验收标准
 
-1. 在 `SceneApp` 或 `GeometryApp` 中开启 `renderSettings.enableDynamicBatch = true`，放置 20 个共享同一材质的 Cube；
-2. 用 RenderDoc 抓帧确认：20 个 Cube 在 `ForwardBase` Pass 和 `ShadowCaster` Pass 中均被合并为 **1 次 `DrawIndexed` 调用**，且画面光照、法线、阴影与未开启合批时像素级一致。
+1. 新建独立样例 `DynamicBatchApp`（不污染 `SceneApp` 与 `GeometryApp`），在其中开启 `enableDynamicBatch`，放置 20 个共享同一材质的 Cube；
+2. 用 RenderDoc 抓帧确认：`DynamicBatchApp` 中 20 个 Cube 在 `ForwardBase` Pass 和 `ShadowCaster` Pass 中均被合并为 **1 次 `DrawIndexed` 调用**，且画面光照、法线、阴影与未开启合批时像素级一致。
