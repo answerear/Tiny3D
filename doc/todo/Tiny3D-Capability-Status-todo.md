@@ -1,6 +1,6 @@
 # Tiny3D 引擎能力全景与缺口分析报告
 
-> **更新日期**：2026-10-23  
+> **更新日期**：2026-10-29  
 > **任务类型**：全引擎现状分析与设计对照（基于 `source/*`、`CMakeLists.txt` 及 `doc/todo/*` 源码级核验）  
 > **定位**：盘点 Tiny3D 当前已落地的核心能力、各图形后端/平台真实完成度、设计文档与代码实现的偏差，并按 P0 / P1 / P2 梳理后续演进路线图。
 
@@ -178,7 +178,7 @@ flowchart TB
 |----------|--------------------------|--------------|-------------------|-----------------------|----------------|
 | **Windows (x64)** | ✅ 完整（14+ Adapter） | D3D11 / GL4 / Vulkan | ✅ 全套可用 | ✅ 完整可用 | 无（主力开发与回归平台） |
 | **Android (arm64)** | ✅ 完整（JNI + `ZipAssetManager`） | GLES3 / Vulkan | —（仅主机运行） | —（仅桌面） | 部分低端设备 GLES 3.1 不支持 VS 侧 SSBO（`ComputeApp` 已加 CPU 降级） |
-| **macOS** | ✅ 完整（Cocoa + `UnixSharedLibrary`） | Metal（待修）/ GL4 | ⚠️ 仅 x86_64 | ⚠️ 受限于渲染后端 | 1) `FreeImage` 与 `FBX SDK` 预编译库仅 `x86_64`，主工程被迫锁 Intel 架构；<br/>2) Metal 后端有 15 项 P0 缺陷待修 |
+| **macOS** | ✅ 完整（Cocoa + `UnixSharedLibrary`） | Metal（待修）/ GL4 | ⚠️ 仅 x86_64 | ⚠️ 受限于渲染后端 | 1) `FreeImage`、`FBX SDK`、`DXC (libdxcompiler)`、`SDL2` 预编译库仅 `x86_64`，主工程被迫锁 Intel 架构（见 T2）；<br/>2) Metal 后端有 15 项 P0 缺陷待修 |
 | **iOS** | ⚠️ 缺 `ZipAssetManager` / Thread 等 | Metal（CMake 已注释） | — | — | 缺 SDL2 iOS 预编译库、缺 `MetalWindow` UIKit 分支、缺 `assets/config/iOS` |
 | **Linux (x64/arm64)** | ❌ 无法编译 | GL4 / Vulkan（CMake 已注释） | ⚠️ 仅 `HLSLCross` 就绪 | ❌ 未打通 | `LinuxFactory` 缺 `createPlatform` / `Thread` / `SyncObject` / `Process` / `Locale` 等十余个纯虚实现 |
 
@@ -212,7 +212,7 @@ flowchart TB
 
 | 编号 | 缺失领域 | 具体缺口说明 | 关联路径 / 现有基础 |
 |------|----------|--------------|---------------------|
-| **GAP-05** | **现代 PBR 材质、IBL 与高阶光影** | 1) **无 PBR 与 IBL**：内置 `Tiny3DStandard.shader` 仍为 Blinn-Phong，`IndirectLight` 为空类，缺金属度-粗糙度 PBR 工作流、辐照度漫反射/预滤波高光 Cubemap + BRDF LUT（IBL）与反射探针；<br/>2) **阴影单一**：仅首个方向光投射单张固定范围（`kShadowDistance = 15`）阴影，缺级联阴影（CSM）及点光/聚光阴影；<br/>3) **缺内置后处理效果库**：虽有 `CameraEffectBehaviour` 机制，但引擎未内置 Bloom、ToneMapping（ACES）、FXAA/TAA、SSAO 等标准效果；<br/>4) **透明排序与动态合批**：~~透明队列缺 back-to-front 深度排序~~（**T1-1 已完成**）；`ForwardRenderPipeline::setupBatch()` 仅有声明无实现。 | `source/Core/Include/Render/T3DForwardRenderPipeline.h` |
+| **GAP-05** | **现代 PBR 材质、IBL 与高阶光影** | 1) **无 PBR 与 IBL**：内置 `Tiny3DStandard.shader` 仍为 Blinn-Phong，`IndirectLight` 为空类，缺金属度-粗糙度 PBR 工作流、辐照度漫反射/预滤波高光 Cubemap + BRDF LUT（IBL）与反射探针；<br/>2) **阴影单一**：仅首个方向光投射单张固定范围（`kShadowDistance = 15`）阴影，缺级联阴影（CSM）及点光/聚光阴影；<br/>3) **缺内置后处理效果库**：虽有 `CameraEffectBehaviour` 机制，但引擎未内置 Bloom、ToneMapping（ACES）、FXAA/TAA、SSAO 等标准效果；<br/>4) **透明排序与动态合批**：~~透明队列缺 back-to-front 深度排序~~（**T1-1 已完成**）；~~`ForwardRenderPipeline::setupBatch()` 仅有声明无实现~~（**T1-4 已完成**）。 | `source/Core/Include/Render/T3DForwardRenderPipeline.h` |
 | **GAP-06** | **RHI 跨后端 Compute/UAV 收尾与材质层集成** | 1) **五期后端对齐未完**：`VKContext` 的 Compute / UAV / Indirect 仍为 `T3D_RHI_UNSUPPORTED` 桩（E1）；`GL4Context` / `GLES3Context` 缺 `RWTexture2D`（`glBindImageTexture`）支持，绑定纹理 UAV 会静默失效（E2/E4）；<br/>2) ~~**SRV 输入类型不对称**~~（**T0-1 已完成**：已放宽为 `ShaderResourceBuffers = TArray<RenderBufferPtr>`，支持 `VertexBuffer` / `IndexBuffer` 作为 `ByteAddressBuffer` 绑定给 VS/PS/CS 读取，并通过 `ComputeApp` K9 验证）；<br/>3) **材质层未接通 Compute**：`Pass::addShaderVariant` 对 `kCompute` 返回 `T3D_ERR_NOT_IMPLEMENT`，缺少独立的 `ComputeShader` 资源类。 | `doc/todo/RHI-Compute-UAV-Indirect-Draw-Design-todo.md` |
 | **GAP-07** | **动画状态机（Animator）与通用粒子系统** | 1) **动画高阶能力待扩**：~~`AnimationPlayer` 仅支持单 Clip 播放，`pausePlayback` / `resumePlayback` 及双 Clip 混合重载均为空实现/返回无效值~~（**T0-4 / T1-2 已完成**：`AnimationPlayer` 已支持单/双/多 Clip 播放、暂停/恢复、CrossFade 平滑过渡及 `SkeletonPose` 整姿求值管线）；仍缺 `Animator` 状态机、混合树节点图（BlendTree）、IK、根运动（Root Motion）与顶点变形（BlendShape / Morph Target）；<br/>2) **缺引擎级粒子组件**：粒子目前仅在 `Samples/ComputeApp/ParticleSystem.*` 中作为 Sample 演示代码存在，Core 层无通用的 `ParticleSystem` 组件、发射器模块与粒子专用材质管线。 | `source/Core/Include/Animation/T3DAnimationPlayer.h` |
 | **GAP-08** | **TinyEditor 编辑器交互闭环补齐** | 1) **Scene 视口缺 Gizmo 与拾取**：`UISceneWindow::onGUI()` 仅绘制着色模式下拉框与 `ImGui::Image`，无 3D 变换手柄（Translate/Rotate/Scale Gizmo）、无视口相机漫游控制、无鼠标射线点击选中物体（Picking）；<br/>2) **无 Undo / Redo 命令栈**：所有属性编辑、组件增删、节点拖拽均不可撤销，菜单项常驻禁用；<br/>3) **Console 面板为空**：`UIConsoleWindow::onGUI()` 为空函数，未对接 `T3DLog` 实时显示日志与堆栈；<br/>4) **缺多选与子编辑器**：Inspector 仅支持单选（`mSelectedGameObject`），缺动画时间轴/曲线编辑器、材质预览球与内嵌 Profiler 面板。 | `source/Editor/TinyEditor/UISceneWindow.cpp` |
@@ -221,7 +221,7 @@ flowchart TB
 
 | 编号 | 缺失领域 | 具体缺口说明 | 关联路径 / 现有基础 |
 |------|----------|--------------|---------------------|
-| **GAP-09** | **Linux 平台补齐、macOS 彻底原生 arm64 与软渲染重写** | 1) **Linux 编译阻塞**：需在 `T3DPlatform` 补齐 `LinuxPlatform`（转调 `UnixSharedLibrary::queryModulePath`）及 `LinuxFactory` 的 `PosixThread` / `PosixSyncObject` / `PosixProcess` / `PosixLocale` 创建（见 `Platform-SharedLibrary-Abstraction-todo.md` §8 P1b）；<br/>2) **macOS 第三方库架构解锁**：`HLSLCross` 与 `libclang` 已解决 arm64，但 `dependencies/freeimage` 与 `dependencies/fbx` 仍只有 `x86_64`，导致 `source/CMakeLists.txt:16` 仍强制锁定 `x86_64`；<br/>3) **Reference3D 软渲染重写**：按 `Reference3D-Software-Renderer-Design-todo.md` 基于 `RHIContext` + SPIR-V 4-lane SIMD 虚拟机重写全平台软件渲染后端。 | `doc/todo/ShaderConductor-Replacement-todo.md`<br/>`doc/todo/Reference3D-Software-Renderer-Design-todo.md` |
+| **GAP-09** | **Linux 平台补齐、macOS 彻底原生 arm64 与软渲染重写** | 1) **Linux 编译阻塞**：需在 `T3DPlatform` 补齐 `LinuxPlatform`（转调 `UnixSharedLibrary::queryModulePath`）及 `LinuxFactory` 的 `PosixThread` / `PosixSyncObject` / `PosixProcess` / `PosixLocale` 创建（见 `Platform-SharedLibrary-Abstraction-todo.md` §8 P1b）；<br/>2) **macOS Apple Silicon (arm64) 第三方库与工具链解锁（见 T2）**：`SPIRV-Cross` 源码化与 `rpp` 优先链本机 Xcode `libclang` 已就绪，但 `dependencies/freeimage`、`dependencies/fbxsdk`、`dependencies/dxc`（`libdxcompiler.dylib`）、`dependencies/sdl2` 仍仅含 `x86_64` 切片，`FindGlslang.cmake` 写死 `.lib` 扩展名，且 `scc` / `bgen` 离线工具在 macOS 下仍耦合 Windows 专属的 `D3D11RendererConsole` / `scc.exe`，导致 `source/CMakeLists.txt:16-20` 与 `generate-xcode-osx.sh:19` 仍强制锁定 `x86_64`；<br/>3) **Reference3D 软渲染重写**：按 `Reference3D-Software-Renderer-Design-todo.md` 基于 `RHIContext` + SPIR-V 4-lane SIMD 虚拟机重写全平台软件渲染后端。 | `doc/todo/ShaderConductor-Replacement-todo.md`<br/>`doc/todo/Reference3D-Software-Renderer-Design-todo.md` |
 | **GAP-10** | **大场景加速、异步流式资源与单元测试 CI** | 1) **空间加速结构**：`GameObject::frustumCulling` 目前为场景树全量 DFS 遍历，缺 Octree / BVH 空间划分与遮挡剔除（Occlusion Culling）；<br/>2) **异步加载与现代资产格式**：`Resource` 虽有 `kLoading` 枚举但无 `loadAsync` 后台流式加载实现；~~`AssetManager` 尚未覆盖 `Skeleton` / `SkeletalAnimation`~~（**T0-2 已完成**）；模型导入仅支持 FBX/Ogre（缺 glTF 2.0）；移动端缺 ASTC / ETC2 / KTX2 硬件压缩纹理导入管线；<br/>3) **大世界与 AI 组件**：缺多场景叠加（Additive Scene）、高度图地形（Terrain）、贴花（Decal）与导航网格寻路（NavMesh）；<br/>4) **自动化测试与跨平台 CI**：无 C++ 单元测试套件（如 GoogleTest / Catch2），CI 仅覆盖 Windows 手动触发构建。 | `source/Core/Include/Resource/T3DResource.h` |
 
 ---
@@ -229,18 +229,19 @@ flowchart TB
 ## 6. 存量「半成品」模块收口优先级（先引擎内核与后端，后编辑器，最后新建子系统）
 
 > **排序原则**：
-> 1. **先引擎本体（Runtime / RHI / 渲染管线 / 动画 / 跨平台后端），后编辑器（`TinyEditor`）**；
+> 1. **先引擎本体（Runtime / RHI / 渲染管线 / 动画 / 跨平台工具链与后端），后编辑器（`TinyEditor`）**；
 > 2. 完全不引入新的第三方重型子系统（物理、音频、V8 脚本全部后置）；
-> 3. 只针对仓库内「接口/头文件/数据结构/UI 控件已经写好，但函数体为空、`return T3D_OK`、写死取首个元素或为 `T3D_RHI_UNSUPPORTED` 桩」的存量半成品，按 **T0 → T4** 五个批次推进。
+> 3. 只针对仓库内「接口/头文件/数据结构/UI 控件已经写好，但函数体为空、`return T3D_OK`、写死取首个元素、受限于旧 `x86_64` 预编译库或为 `T3D_RHI_UNSUPPORTED` 桩」的存量半成品，按 **T0 → T5** 六个批次推进。
 
-### 6.1 总览：五个收口批次
+### 6.1 总览：六个收口批次
 
 ```mermaid
 flowchart LR
     T0["T0 核心层小切口收尾<br/>(0.5~1.5 天/项，零风险)"] --> T1["T1 动画与渲染管线半成品<br/>(补齐 Core 已声明空函数)"]
-    T1 --> T2["T2 RHI 多后端与材质 Compute<br/>(消灭 T3D_RHI_UNSUPPORTED 桩)"]
-    T2 --> T3["T3 跨平台尾项与重型后端<br/>(Linux / Metal / Reference3D)"]
-    T3 --> T4["T4 编辑器 TinyEditor 断点接线<br/>(引擎完备后再接活 UI)"]
+    T1 --> T2["T2 macOS ARM64 工具链与依赖库<br/>(Apple Silicon 原生构建解锁)"]
+    T2 --> T3["T3 RHI 多后端与材质 Compute<br/>(消灭 T3D_RHI_UNSUPPORTED 桩)"]
+    T3 --> T4["T4 跨平台尾项与重型后端<br/>(Linux / Metal / Reference3D)"]
+    T4 --> T5["T5 编辑器 TinyEditor 断点接线<br/>(引擎完备后再接活 UI)"]
 ```
 
 ---
@@ -267,53 +268,82 @@ flowchart LR
 | **T1-1** | **透明物体从后往前排序（Back-to-Front）** | ✅ **已完成**（`T3DForwardRenderPipeline` 对 `queue >= kBuiltinQueueTransparent` 的透明队列复用 `mTransparentItems` 连续缓冲，基于 `Bound` 世界中心或 `Transform3D` 平移计算相机距离平方，通过 `std::sort` 从远到近排序并以入队流水号 `order` 保序，相邻同材质物体复用渲染状态与着色器，`SkyboxApp` 验证通过） | 对 `queue >= kBuiltinQueueTransparent` 的队列，不再按材质合并，改为收集 `(distanceSqToCamera, Renderable*)` 按距离降序排列后逐个绘制 | `doc/todo/T1-1-Transparent-Queue-Sorting-Plan-todo.md` | **已完成** |
 | **T1-2** | **AnimationPlayer 双/多片段混合过渡（CrossFade）** | ✅ **已完成**（`T3DAnimationPlayer` 引入 `BonePose` / `SkeletonPose` 整姿缓冲与 `ClipState` 轨道状态，实现 `sampleClipPose`、`blendPoses` / `blendPosesWeighted` / `blendPosesLayered` 无状态混合算子及 `applySkeletonPose` 三步求值管线，补齐单片段 `isBlending` CrossFade、双片段 `playClip(from, to, startMS)` 与多片段 `playClips` 叠加播放，`SkeletalAnimationApp` 验证通过） | 在 `updateBones()` 中同时对 `fromClip` 与 `toClip` 求值，按过渡时间权值 $\alpha \in [0,1]$ 对骨骼局部 `translation` / `scaling` 做 `lerp`、对 `orientation` 做 `slerp` | `doc/todo/T1-2-AnimationPlayer-CrossFade-Blending-Plan-todo.md` | **已完成** |
 | **T1-3** | **Technique LOD 与 ForwardAdd 多光源 Pass** | ✅ **已完成**（`RenderSettings::maxShaderLOD` 与 `Shader::setMaxLOD` 支持按有效上限自动筛选 `Material` 的 `TechniqueInstance` 并联动编辑器 `Graphics Tier 1/2/3`；`ForwardRenderPipeline` 引入 `LightBatch` 混合分批模式与 `ForwardAdd` 叠加 Pass 突破 4 点光/4 聚光/单方向光上限，内置 `Tiny3DStandard` 补齐 `FORWARD_ADD` Pass，`LightApp` 6 点光与 LOD 实时切换验证通过） | 1) 支持按全局/Shader 最大 LOD 等级筛选 Technique；<br/>2) 补齐 `ForwardAdd` 叠加 Pass 以突破 4 点光/4 聚光上限 | `doc/todo/T1-3-Technique-LOD-And-ForwardAdd-Plan-todo.md` | **已完成** |
-| **T1-4** | **动态合批 `ForwardRenderPipeline::setupBatch()`** | `T3DForwardRenderPipeline.h:129`、`T3DSettings.h`<br/>`renderSettings.enableDynamicBatch` 配置项与 `setupBatch()` 声明早已存在，但无 `.cpp` 实现 | 对共享同一 Material、顶点数低于阈值（如 $\le 300$ 顶点）的小网格，在 CPU 侧变换至世界空间合并进共享动态 VB/IB 单次提交 | `doc/todo/T1-4-ForwardPipeline-Dynamic-Batching-Plan-todo.md` | **3.0 d** |
+| **T1-4** | **动态合批 `ForwardRenderPipeline::setupBatch()`** | ✅ **已完成**（`RenderSettings::enableDynamicBatch` 与 `RenderPipeline::enableDynamicBatch` 打通，`Geometry` 维护 `getSharedMaterial()` 支持同材质分组；`ForwardRenderPipeline` 实现 `canDynamicBatch`、`setupBatch` 与 `submitRenderGroup`，将满足条件的小网格在 CPU 侧变换至世界空间写入复用池动态 VB/IB 单次提交，新建独立样例 `DynamicBatchApp` 验证通过） | 对共享同一 Material、顶点数低于阈值（如 $\le 300$ 顶点）的小网格，在 CPU 侧变换至世界空间合并进共享动态 VB/IB 单次提交 | `doc/todo/T1-4-ForwardPipeline-Dynamic-Batching-Plan-todo.md` | **已完成** |
 
 ---
 
-### 6.4 T2 批次：RHI 渲染后端存量 Stub 填平与材质 Compute 接入（各 1.5～3.5 天）
+### 6.4 T2 批次：macOS ARM64（Apple Silicon）工具链与第三方依赖库原生适配（各 0.5～2.5 天）
+
+目前 `source/CMakeLists.txt:16-20` 与 `source/Projects/generate-xcode-osx.sh:19` 被迫把 macOS 构建架构硬编码锁死在 `x86_64`（依赖 Rosetta 2 转译运行）。全面盘点仓库内所有 `dependencies/` 预编译库、`tools/` 离线工具及 `source/Tools/` 构建链路，**阻塞 macOS ARM64 原生编译与运行的第三方依赖库与工具共计 7 项**（注：`rttr`、`protobuf`、`freetype`、`imgui`、`spirv-cross`、`spirv-reflect`、`glad`、`rapidjson` 为源码编译已原生支持 arm64；`rpp` 已支持优先链接本机 Xcode `libclang.dylib`）：
+
+#### 6.4.1 第三方源码仓库、对应分支与目标产物总表
+
+| 依赖项 | 维护仓库 (`answerear/*`) | 当前引擎版本 | 推荐分支 / Tag | 主要生成的依赖文件（按平台落盘路径） | 依赖该产物的引擎模块 |
+|--------|:------------------------:|:------------:|:--------------:|--------------------------------------|----------------------|
+| **DXC** | [DirectXShaderCompiler](https://github.com/answerear/DirectXShaderCompiler) | `1.9.2607` | 分支 `release-1.9.2607`<br/>(Tag `v1.9.2607`) | • **macOS (`dependencies/dxc/prebuilt/OSX/`)**：`libdxcompiler.dylib` (Universal `arm64+x86_64`)<br/>• **Windows (`dependencies/dxc/prebuilt/Windows/x64/`)**：`dxcompiler.dll`<br/>• **Linux (`dependencies/dxc/prebuilt/Linux/{x64,arm64}/`)**：`libdxcompiler.so` | `HLSLCross`、`ShaderCrossCompiler (scc)`（运行期 `LoadLibrary`/`dlopen` 动态加载） |
+| **FreeImage** | [FreeImage](https://github.com/answerear/FreeImage) | `3.18.0` | 分支 `main`<br/>(Tag `v3.18.0`) | • **macOS (`dependencies/freeimage/prebuilt/OSX/`)**：`libfreeimage.a`、`libfreeimage-3.18.0.dylib` (Universal)<br/>• **Windows (`dependencies/freeimage/prebuilt/win32/{x64,x86}/`)**：`FreeImage.dll`、`FreeImage.lib`<br/>• **Android (`dependencies/freeimage/prebuilt/Android/<ABI>/`)**：`libFreeImage.a`、`libFreeImageShared.so`<br/>• **Linux (`dependencies/freeimage/prebuilt/Linux/`)**：`libfreeimage.a`、`libfreeimage-3.18.0.so`<br/>• **iOS (`dependencies/freeimage/prebuilt/iOS/`)**：`libfreeimage-arm64.a`、`libfreeimage-x86_64.a` | `FreeImageCodec`、`FreeImageCodecEditor`、`ImageConverter (imgconv)`、`MeshConverter (mconv)`、`BuiltinGenerator (bgen)` |
+| **SDL2** | [SDL](https://github.com/answerear/SDL) | `2.32.11` | 分支 `release-2.32.x`<br/>(或 `SDL2`) | • **macOS (`dependencies/sdl2/prebuilt/osx/`)**：`libSDL2-2.0.0.dylib`、`libSDL2-2.0.dylib` (Universal)<br/>• **Windows (`dependencies/sdl2/prebuilt/windows/{x64,x86}/`)**：`bin/SDL2.dll`、`lib/SDL2.lib`、`lib/SDL2main.lib`、`lib/SDL2-static.lib`<br/>• **Android (`dependencies/sdl2/prebuilt/android/<ABI>/`)**：`bin/libSDL2.so`、`lib/libSDL2.a`、`lib/libSDL2main.a`<br/>• **iOS (`dependencies/sdl2/prebuilt/ios/`)**：`libSDL2.a` | `T3DPlatform` 及所有运行时宿主（`TinyPlayer`、`Samples`）、编辑器（`TinyEditor`）、离线工具 |
+| **glslang** | [glslang](https://github.com/answerear/glslang) | `16.2.0` | Tag `16.2.0`<br/>(或分支 `vulkan-sdk-1.4.341`) | • **macOS (`dependencies/glslang/prebuilt/OSX/{Debug,Release}/`)** 与 **Linux (`prebuilt/Linux/x64/`)**：<br/>  `libglslang.a`、`libMachineIndependent.a`、`libGenericCodeGen.a`、`libOSDependent.a`、`libSPIRV.a`、`libglslang-default-resource-limits.a`（Debug 带 `d` 后缀）<br/>• **Windows (`dependencies/glslang/prebuilt/Windows/x64/{Debug,Release}/`)**：<br/>  `glslang[d].lib`、`MachineIndependent[d].lib`、`GenericCodeGen[d].lib`、`OSDependent[d].lib`、`SPIRV[d].lib`、`glslang-default-resource-limits[d].lib`<br/>• **Android (`dependencies/glslang/prebuilt/Android/<ABI>/`)**：<br/>  合并后的 `libglslang.a` + `libglslang-default-resource-limits.a` | `GL4Renderer`、`GL4RendererConsole`、`GLES3Renderer`（运行期 GLSL/ESSL → SPIR-V 编译与 Uniform/UBO 反射） |
+| **SPIRV-Tools** | [SPIRV-Tools](https://github.com/answerear/SPIRV-Tools) | `v2026.1`<br/>(`fbe4f3ad91`) | 分支 `vulkan-sdk-1.4.341`<br/>(Tag `v2026.1`) | 与 `glslang` 同目录输出配套优化器静态库：<br/>• **macOS / Linux (`dependencies/glslang/prebuilt/{OSX,Linux/x64}/{Debug,Release}/`)**：<br/>  `libSPIRV-Tools.a`、`libSPIRV-Tools-opt.a`（Debug 带 `d` 后缀）<br/>• **Windows (`dependencies/glslang/prebuilt/Windows/x64/{Debug,Release}/`)**：<br/>  `SPIRV-Tools[d].lib`、`SPIRV-Tools-opt[d].lib`<br/>• **Android (`dependencies/glslang/prebuilt/Android/<ABI>/`)**：合并打入 `libglslang.a` 中 | 被 `glslang` (`SPIRV` 组件) 静态链接调用，负责 SPIR-V IR 优化与校验 |
+| **FBX SDK** *(闭源官方包)* | Autodesk 官方预编译包 | `2020.3.7` | 官方 Release 包<br/>(无需源码构建，**已完成**) | • **macOS (`dependencies/fbxsdk/prebuilt/OSX/`)**：`libfbxsdk.dylib`、`libfbxsdk.a`、`libalembic.a` (Universal)<br/>• **Linux (`dependencies/fbxsdk/prebuilt/Linux/`)**：`libfbxsdk.so`、`libfbxsdk.a`、`libalembic.a`<br/>• **Windows (`dependencies/fbxsdk/prebuilt/Windows/{x64,arm64}/{debug,release}/`)**：`libfbxsdk.dll`、`libfbxsdk.lib` | `MeshConverter (mconv)` 离线模型/骨骼/动画导入工具 |
+
+#### 6.4.2 T2 批次具体推进任务表
+
+| 优先级 | 模块 / 依赖项 | 现状（不支持 ARM64 的具体位置与原因） | 要补齐的内容 | 关联路径 / 参考文档 | 预估 |
+|:------:|--------------|--------------------------------------|--------------|---------------------|:----:|
+| **T2-1** | **DXC 着色器编译器库（`libdxcompiler.dylib`）** | `dependencies/dxc/prebuilt/OSX/libdxcompiler.dylib`（见 `dependencies/dxc/VERSION.txt:18-22`）<br/>当前文件是从已归档的旧 `ShaderConductor` 过渡搬来的旧版二进制，**仅有 `x86_64` 单架构切片**；切到 `arm64` 时会被 `FindDXC.cmake:55-68` 的 `lipo -archs` 检查直接 `FATAL_ERROR` 拦截，导致 `HLSLCross` 与 `ShaderCrossCompiler (scc)` 无法构建 | 从 DirectXShaderCompiler 源码（已 Fork 至 `https://github.com/answerear/DirectXShaderCompiler`，v1.9.2607+）按 `-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"` 编译 Universal `libdxcompiler.dylib` 并替换入库，确保 `lipo -archs` 同时包含 `x86_64 arm64` | `dependencies/dxc/VERSION.txt`<br/>`source/CMake/Packages/FindDXC.cmake`<br/>`doc/todo/ShaderConductor-Replacement-todo.md` (§4.1) | **1.0 d** |
+| **T2-2** | **FreeImage 图像编解码库（`FreeImage`）** | `dependencies/freeimage/prebuilt/OSX/`（`libfreeimage.a` / `libfreeimage-3.18.0.dylib`）<br/>预编译库**仅有 `x86_64` 架构**，直接阻塞运行时/编辑器纹理解码插件 `FreeImageCodec`、`FreeImageCodecEditor` 以及依赖它的离线工具 `ImageConverter (imgconv)`、`MeshConverter (mconv)`、`BuiltinGenerator (bgen)` | 方案 A：基于已建好的跨平台 CMake 源码仓 `https://github.com/answerear/FreeImage`（FreeImage 3.18.0，已内置 `-DPNG_ARM_NEON_OPT=0`）在 macOS 下编译 `arm64 + x86_64` Universal 静态库/动态库替换；<br/>方案 B：长期用源码内联的 `stb_image` + `libpng`/`libjpeg` 替代 | `source/CMake/Packages/FindFreeImage.cmake`<br/>`source/Plugins/ImageCodec/FreeImageCodec/` | **1.5 d** |
+| **T2-3** | **Autodesk FBX SDK（`libfbxsdk`）** | ✅ **已完成**（已更新为 Autodesk FBX SDK 2020.3.7 官方预编译包：`dependencies/fbxsdk/prebuilt/OSX/` 已替换为 `x86_64 + arm64` Universal 的 `libfbxsdk.dylib`、`libfbxsdk.a`、`libalembic.a`；同时补齐 `dependencies/fbxsdk/prebuilt/Linux/` 并更新 `FindFBXSDK.cmake` 与 `MeshConverter/CMakeLists.txt`） | 升级至 Autodesk FBX SDK 2020.3.2+ 官方 macOS 版本（原生提供 `arm64` 与 `x86_64` Universal 二进制），更新 `dependencies/fbxsdk/include` 与 `prebuilt/OSX/` 并校对 `FindFBXSDK.cmake` | `source/CMake/Packages/FindFBXSDK.cmake`<br/>`source/Tools/MeshConverter/CMakeLists.txt` | **已完成** |
+| **T2-4** | **SDL2 窗口与多媒体库（`libSDL2`）** | `dependencies/sdl2/prebuilt/osx/libSDL2-2.0.dylib`（及 `ProjectCMakeModule.cmake:117` 引用的 `libSDL2-2.0.0.dylib`）<br/>仓库自带的预编译 dylib 为早期 `x86_64` 产物，且 `source/CMakeLists.txt:121-128` 专门写了针对 `x86_64` 屏蔽 `/opt/homebrew`（arm64 Homebrew）的兼容补丁；作为 `T3DPlatform` 的底层核心依赖，直接影响所有运行时、编辑器与离线工具 | 使用 SDL 2.28/2.30+ 官方 macOS Universal 二进制（或基于已 Fork 的 `https://github.com/answerear/SDL` 的 `SDL2` 分支自建 `arm64;x86_64` 的 `libSDL2-2.0.0.dylib` + `libSDL2main.a`）更新 `dependencies/sdl2/prebuilt/osx/`，统一 `FindSDL2.cmake` 与 `ProjectCMakeModule.cmake` 中的文件名 | `source/CMake/Packages/FindSDL2.cmake`<br/>`source/CMake/Utils/ProjectCMakeModule.cmake` | **1.0 d** |
+| **T2-5** | **glslang + SPIRV-Tools 着色器前端库** | `dependencies/glslang/prebuilt/OSX/` 与 `source/CMake/Packages/FindGlslang.cmake:56-60`<br/>1) `FindGlslang.cmake` 桌面端分支硬编码拼接 Windows 静态库后缀 `${_lib}d.lib` / `${_lib}.lib`，macOS/Linux 下根本无法匹配 `.a`；<br/>2) `prebuilt/OSX` 缺少 `arm64`（或 Universal）的 `libglslang.a` / `libSPIRV-Tools.a` 等 7 个静态库，导致 `GL4Renderer` 与 `GL4RendererConsole` 在 macOS ARM64 上无法链接 | 1) 修复 `FindGlslang.cmake`：非 MSVC 桌面平台按 `lib${_lib}.a` 查找；<br/>2) 基于已 Fork 的 `https://github.com/answerear/glslang` 与 `https://github.com/answerear/SPIRV-Tools` 编译 macOS `arm64;x86_64` Universal 静态库放入 `dependencies/glslang/prebuilt/OSX/`（或像 `spirv-cross` 一样改为源码构建） | `source/CMake/Packages/FindGlslang.cmake`<br/>`source/Plugins/Renderer/OpenGL4/` | **1.5 d** |
+| **T2-6** | **离线工具集（`scc` / `bgen` / `protoc` / `flex&bison`）macOS 原生闭环** | 1) `ShaderCrossCompiler`：`T3DShaderCrossApp.cpp:142-156` 在 `-t hlsl/msl_macos/msl_ios` 时默认加载 `D3D11RendererConsole`（仅 Windows 存在，`Plugins/Renderer/CMakeLists.txt:32-49` 在 macOS 下未构建任何 Console 反射后端），导致 `scc` 在 macOS 上无法生成 `.tshader`；<br/>2) `BuiltinGenerator`：`T3DBuiltinShaders.cpp:135-145` 硬编码 `scc.exe`，且 `#elif defined(T3D_OS_MAC)` 分支为空（宏名还写错成 `T3D_OS_MAC` 而非 `T3D_OS_OSX`），同时 `scc` / `mconv` / `bgen` 在 macOS 被配成 `MACOSX_BUNDLE`（`.app`）导致同目录 CLI 子进程调用路径不一致；<br/>3) `tools/protobuf/` 与 `tools/WinFlexBison/`：仓库仅存了 Windows `.exe`/`.bat`，macOS ARM64 下重新生成 `.pb.cc` 或词法/语法文件需依赖系统工具 | 1) 在 `Plugins/Renderer/CMakeLists.txt` 为 macOS 启用 `GL4RendererConsole`（或基于 SPIRV-Cross/SPIRV-Reflect 提供跨平台无头反射），解除 `scc` 对 `D3D11RendererConsole` 的强依赖；<br/>2) 修复 `T3DBuiltinShaders.cpp` 的 `T3D_OS_OSX` 分支（调用同目录 `scc` 并追加 `msl_macos` target），将 `scc` / `mconv` / `bgen` 在 macOS 下统一改为普通命令行可执行文件（去掉 `MACOSX_BUNDLE`，对齐 `imgconv` 与 `bundlebuilder`）；<br/>3) 为 `tools/protobuf/` 补齐 `.sh` 生成脚本（优先調用 `protoc` / Homebrew `flex` & `bison`） | `source/Tools/ShaderCrossCompiler/Source/T3DShaderCrossApp.cpp`<br/>`source/Tools/BuiltinGenerator/Source/T3DBuiltinShaders.cpp`<br/>`source/Plugins/Renderer/CMakeLists.txt` | **2.0 d** |
+| **T2-7** | **CMake 与 Xcode 生成脚本解除 `x86_64` 硬编码锁** | 1) `source/CMakeLists.txt:16-20` 默认将 `CMAKE_OSX_ARCHITECTURES` 设为 `"x86_64"`；<br/>2) `source/Projects/generate-xcode-osx.sh:19` 写死 `ENGINE_ARCH="x86_64"` 且仍残留已废弃的 `cct` / `nmake` 旧反射流程；`refresh-xcode-osx.sh:20` 同样写死 `x86_64`；<br/>3) `dependencies/llvm/prebuilt/OSX/libclang.dylib`（LLVM 15）在未装完整 Xcode 仅装 CommandLineTools 的机器上回退时需确认为 Universal | 在 T2-1～T2-6 就位后：<br/>1) 移除 `source/CMakeLists.txt:16-20` 的 `x86_64` 强制覆盖，默认跟随宿主机原生架构（`arm64`）或支持 `arm64;x86_64` Universal 构建；<br/>2) 重写 `generate-xcode-osx.sh` 与 `refresh-xcode-osx.sh`：切到 CMake 原生反射链路（`TINY3D_REFLECT_CMAKE_NATIVE=ON`），默认架构改为 `arm64`（可通过环境变量覆盖），全量验证 Apple Silicon 原生编译与运行 | `source/CMakeLists.txt`<br/>`source/Projects/generate-xcode-osx.sh`<br/>`source/Projects/refresh-xcode-osx.sh` | **1.0 d** |
+
+---
+
+### 6.5 T3 批次：RHI 渲染后端存量 Stub 填平与材质 Compute 接入（各 1.5～3.5 天）
 
 在 RHI 抽象层已经定型的前提下，把各渲染后端里标记为 `T3D_RHI_UNSUPPORTED` 或空实现的存量函数填平，让多后端能力真正对齐 D3D11：
 
 | 优先级 | 模块 | 现状（半成品位置） | 要补齐的内容 | 实现计划文档 | 预估 |
 |:------:|------|-------------------|--------------|--------------|:----:|
-| **T2-1** | **GL4 / GLES3 纹理 UAV（`RWTexture2D`）** | `T3DGL4Context.cpp:3374-3405`<br/>`setCSUnorderedAccessBuffers` 只处理了 `kStructuredBuffer`，传入纹理时静默绑 0，导致 `ComputeApp` 的 K5（纹理 UAV）在 GL 上只能跳过 | 为 `GL4PixelBuffer2D` / `GLES3PixelBuffer2D` 在 `kGPUUnorderedAccess` 时记录内部格式，绑定时调用 `glBindImageTexture`，放开 `ComputeApp` K5 的 GL 掩码 | `doc/todo/GL4-Renderer-Backend-todo.md` (附录 B) | **1.5 d** |
-| **T2-2** | **Vulkan 后端 Compute / UAV / Indirect / MRT 补齐（五期 E1）** | `T3DVKContext.cpp`<br/>图形管线、Swapchain、Instancing、Readback 均已实现，唯独 `createStructuredBuffer`、`setCSUnorderedAccessBuffers`、`dispatch`、`uavBarrier`、`renderIndexedIndirect` 等 11 个接口是 `T3D_RHI_UNSUPPORTED` stub | 实现 Vulkan SSBO / Storage Image 描述符绑定、`vkCmdDispatch` / `vkCmdDispatchIndirect`、`vkCmdPipelineBarrier`、`vkCmdDrawIndexedIndirect` 以及 MRT Framebuffer | `doc/todo/VK-Renderer-Backend-todo.md` (附录 A) | **3.5 d** |
-| **T2-3** | **Material / Pass 层接入 ComputeStage** | `T3DPass.cpp:359-362`<br/>`Pass::addShaderVariant` 的 `SHADER_STAGE::kCompute` 分支直接 `return T3D_ERR_NOT_IMPLEMENT;`，导致 `ComputeApp` 被迫手写 dummy Pass 绕过材质系统 | 在 `Pass` / `PassInstance` 增加 `mComputeShaders`（`ShaderVariantSets`），支持在 `.shader` / `.tshader` 中编译、反射、持久化并绑定 Compute Stage | `doc/todo/T2-3-Material-Pass-ComputeStage-Plan-todo.md` | **2.0 d** |
+| **T3-1** | **GL4 / GLES3 纹理 UAV（`RWTexture2D`）** | `T3DGL4Context.cpp:3374-3405`<br/>`setCSUnorderedAccessBuffers` 只处理了 `kStructuredBuffer`，传入纹理时静默绑 0，导致 `ComputeApp` 的 K5（纹理 UAV）在 GL 上只能跳过 | 为 `GL4PixelBuffer2D` / `GLES3PixelBuffer2D` 在 `kGPUUnorderedAccess` 时记录内部格式，绑定时调用 `glBindImageTexture`，放开 `ComputeApp` K5 的 GL 掩码 | `doc/todo/GL4-Renderer-Backend-todo.md` (附录 B) | **1.5 d** |
+| **T3-2** | **Vulkan 后端 Compute / UAV / Indirect / MRT 补齐（五期 E1）** | `T3DVKContext.cpp`<br/>图形管线、Swapchain、Instancing、Readback 均已实现，唯独 `createStructuredBuffer`、`setCSUnorderedAccessBuffers`、`dispatch`、`uavBarrier`、`renderIndexedIndirect` 等 11 个接口是 `T3D_RHI_UNSUPPORTED` stub | 实现 Vulkan SSBO / Storage Image 描述符绑定、`vkCmdDispatch` / `vkCmdDispatchIndirect`、`vkCmdPipelineBarrier`、`vkCmdDrawIndexedIndirect` 以及 MRT Framebuffer | `doc/todo/VK-Renderer-Backend-todo.md` (附录 A) | **3.5 d** |
+| **T3-3** | **Material / Pass 层接入 ComputeStage** | `T3DPass.cpp:359-362`<br/>`Pass::addShaderVariant` 的 `SHADER_STAGE::kCompute` 分支直接 `return T3D_ERR_NOT_IMPLEMENT;`，导致 `ComputeApp` 被迫手写 dummy Pass 绕过材质系统 | 在 `Pass` / `PassInstance` 增加 `mComputeShaders`（`ShaderVariantSets`），支持在 `.shader` / `.tshader` 中编译、反射、持久化并绑定 Compute Stage | `doc/todo/T2-3-Material-Pass-ComputeStage-Plan-todo.md` | **2.0 d** |
 
 ---
 
-### 6.5 T3 批次：跨平台底层尾项与重型渲染后端收口（已有完整施工蓝图）
+### 6.6 T4 批次：跨平台底层尾项与重型渲染后端收口（已有完整施工蓝图）
 
 这三项同样属于**引擎底层与渲染后端**，且已有代码骨架或详细设计文档，完成它们后引擎在五端与软硬渲染后端上将彻底完备：
 
 | 优先级 | 模块 | 现状（半成品位置） | 要补齐的内容 | 实现计划文档 | 预估 |
 |:------:|------|-------------------|--------------|--------------|:----:|
-| **T3-1** | **T3DPlatform 的 Linux 工厂与平台类补齐（P1b）** | `source/Platform/Include/Adapter/Linux/T3DLinuxFactory.h`<br/>`LinuxFactory` 缺少 `createPlatform` / `Thread` / `SyncObject` / `Process` / `Locale` 实现，导致 `T3DPlatform` 在 Linux 上无法实例化 | 复用 `Adapter/Unix/` 下现成的 `PosixThread`、`PosixSyncObject`、`PosixProcess`、`PosixLocale`，新建 `LinuxPlatform` 转调 `UnixSharedLibrary::queryModulePath`，打通 Linux 编译 | `doc/todo/Platform-SharedLibrary-Abstraction-todo.md` (§11) | **2.0 d** |
-| **T3-2** | **Metal 渲染后端 Phase 0～Phase 3 补齐** | `source/Plugins/Renderer/Metal/`（约 2800 行已有骨架）<br/>已完成全部接口审计与改动清单 | 依次修复 P0-1（VB 高位槽 23 偏移）、P0-2（允许 `fragmentFunction = nil`）、P0-5（深度 `Store`）、P0-6（`getDepthRemapMatrix`）、P0-7（Pending 绑定表）、P0-8（`MetalMSLReflect`）等 | `doc/todo/Metal-Renderer-Backend-todo.md` (§31-§32) | **8～10 d** |
-| **T3-3** | **Reference3D 软件渲染器重写** | `source/Plugins/Renderer/Reference3D/`<br/>26 个旧文件仍继承已废弃的 `HardwareBufferManager`，无法编译 | 归档旧代码至 `Legacy/`，基于 `RHIContext`（最新 96 接口契约）+ `spirv-reflect` + 4-lane SIMD SPIR-V 虚拟机重写 | `doc/todo/Reference3D-Software-Renderer-Design-todo.md` (§6, §9) | **10～15 d** |
+| **T4-1** | **T3DPlatform 的 Linux 工厂与平台类补齐（P1b）** | `source/Platform/Include/Adapter/Linux/T3DLinuxFactory.h`<br/>`LinuxFactory` 缺少 `createPlatform` / `Thread` / `SyncObject` / `Process` / `Locale` 实现，导致 `T3DPlatform` 在 Linux 上无法实例化 | 复用 `Adapter/Unix/` 下现成的 `PosixThread`、`PosixSyncObject`、`PosixProcess`、`PosixLocale`，新建 `LinuxPlatform` 转调 `UnixSharedLibrary::queryModulePath`，打通 Linux 编译 | `doc/todo/Platform-SharedLibrary-Abstraction-todo.md` (§11) | **2.0 d** |
+| **T4-2** | **Metal 渲染后端 Phase 0～Phase 3 补齐** | `source/Plugins/Renderer/Metal/`（约 2800 行已有骨架）<br/>已完成全部接口审计与改动清单 | 依次修复 P0-1（VB 高位槽 23 偏移）、P0-2（允许 `fragmentFunction = nil`）、P0-5（深度 `Store`）、P0-6（`getDepthRemapMatrix`）、P0-7（Pending 绑定表）、P0-8（`MetalMSLReflect`）等 | `doc/todo/Metal-Renderer-Backend-todo.md` (§31-§32) | **8～10 d** |
+| **T4-3** | **Reference3D 软件渲染器重写** | `source/Plugins/Renderer/Reference3D/`<br/>26 个旧文件仍继承已废弃的 `HardwareBufferManager`，无法编译 | 归档旧代码至 `Legacy/`，基于 `RHIContext`（最新 96 接口契约）+ `spirv-reflect` + 4-lane SIMD SPIR-V 虚拟机重写 | `doc/todo/Reference3D-Software-Renderer-Design-todo.md` (§6, §9) | **10～15 d** |
 
 ---
 
-### 6.6 T4 批次：编辑器 `TinyEditor` 现有面板与菜单断点接通（待引擎基本能力完备后推进）
+### 6.7 T5 批次：编辑器 `TinyEditor` 现有面板与菜单断点接通（待引擎基本能力完备后推进）
 
-待 T0～T3 把引擎自身运行时能力全部收口后，再回头把 `TinyEditor` 里已经画出来的空窗口、空按钮和置灰菜单接活：
+待 T0～T4 把引擎自身运行时与跨平台能力全部收口后，再回头把 `TinyEditor` 里已经画出来的空窗口、空按钮和置灰菜单接活：
 
 | 优先级 | 模块 | 现状（半成品位置） | 要补齐的内容 | 实现计划文档 | 预估 |
 |:------:|------|-------------------|--------------|--------------|:----:|
-| **T4-1** | **Play Mode 下 Pause / Step（单帧步进）** | `UIGameWindow.cpp:234-243` & `UIMainWindow.cpp:410`<br/>Game 窗口工具栏上的 Pause 与 Step 按钮、Edit 菜单的 Pause 项图标和按钮都已建好，但常驻置灰、回调为空 | 在 `PlayModeController` / `Agent` 增加 `mIsPaused` 与 `stepOneFrame()`：Pause 态下冻结 `Scene::update` / `fixedUpdate` 与 `AnimationPlayerMgr`；点 Step 放行一帧后再自动挂起 | `doc/todo/Game-Plugin-Play-Mode-Design-todo.md` (§14) | **1.5 d** |
-| **T4-2** | **Console 日志面板实现** | `UIConsoleWindow.cpp:34-37`<br/>窗口已注册并可在 Window 菜单勾选打开，但 `UIConsoleWindow::onGUI()` 是纯空函数 | 在 `T3DLog` 增加日志监听回调，在 `UIConsoleWindow` 中实现 Info / Warning / Error 分级过滤、关键词搜索、Clear、Collapse 折叠与自动滚动 | `doc/todo/T4-2-Editor-Console-Window-Plan-todo.md` | **1.5 d** |
-| **T4-3** | **Hierarchy 与 Project 窗口工具栏按钮及右键菜单接线** | 1) `UIHierarchyWindow.cpp:48,64,81,450`：左上角 `+` 按钮回调为空、搜索框不筛树、右键为空；<br/>2) `UIProjectWindow.cpp:118,1175`：左上角 `+` 按钮为空、缺 `BeginDragDropSource` | 1) Hierarchy `+` 按钮与右键弹出创建/删除上下文菜单；搜索框实时过滤树节点；<br/>2) Project 面板右侧 `ImListItem` 补上 `ImGui::BeginDragDropSource`，打通拖拽资产到 Inspector | `doc/todo/T4-3-Editor-Hierarchy-Project-Wiring-Plan-todo.md` | **2.5 d** |
-| **T4-4** | **GameObject 菜单补齐 Camera / Light 创建** | `UIMainWindow.cpp:658-670`<br/>`GameObject -> 3D Object` 下 6 种几何体全通，但同级的 `Light` 和 `Camera` 菜单项被绑在 `queryDisableDefault` 上未实现 | 抽出通用创建辅助函数，补齐创建带 `Camera`、`DirectionalLight`、`PointLight`、`SpotLight`、`AmbientLight` 组件的菜单回调 | `doc/todo/T4-4-Editor-Create-Camera-Light-Menu-Plan-todo.md` | **1.0 d** |
-| **T4-5** | **Scene 视口交互（相机漫游 + 射线点选 + Gizmo）** | `UISceneWindow.cpp:38-70`<br/>目前只画了 Shading Mode 下拉框和 `ImGui::Image`，鼠标在 Scene 窗口内无法旋转平移编辑器相机、无法点击选中物体、无变换手柄 | 1) 鼠标右键+WASD / 中键平移 / 滚轮缩放驱动 `EditorCamera`；<br/>2) 左键点击用射线与场景 `Bound` 求交选中物体；<br/>3) 集成 `ImGuizmo` 绘制 Translate / Rotate / Scale 手柄 | `doc/todo/T4-5-Editor-SceneView-Camera-Picking-Gizmo-Plan-todo.md` | **3.5 d** |
-| **T4-6** | **Edit 菜单常用操作与 Undo / Redo 命令栈** | `UIMainWindow.cpp:365-400`<br/>`Undo (Ctrl+Z)`、`Redo (Ctrl+Y)`、`Duplicate (Ctrl+D)`、`Rename`、`Frame Selected (F)` 菜单项均已建好但处于 `queryDisableDefault` | 1) 接通 `Duplicate`（调 `GameObject::clone()`）、`Copy/Paste`、`Toggle Active`、`Frame Selected`；<br/>2) 引入基于 UUID + RTTR 快照的 `UndoManager` 命令栈 | `doc/todo/T4-6-Editor-Undo-Redo-And-EditMenu-Plan-todo.md` | **4.0 d** |
-| **T4-7** | **File 菜单新建/打开/另存为场景 & 资产热重载** | 1) `UIMainWindow.cpp:316-326` `New Scene` / `Open Scene` / `Save As` 仍为 disable；<br/>2) 外部工具覆盖资产后内存 `Resource` 未自动 `reload()` | 1) 接通 `ImOpenFileDialog` 实现新建空场景、切换打开 `.tscene`、另存为场景；<br/>2) `MetaFSMonitor` 修改事件在帧末安全点触发对应已加载 `Resource::reload()` | `doc/todo/T4-7-Editor-Scene-FileMenu-And-HotReload-Plan-todo.md` | **2.5 d** |
+| **T5-1** | **Play Mode 下 Pause / Step（单帧步进）** | `UIGameWindow.cpp:234-243` & `UIMainWindow.cpp:410`<br/>Game 窗口工具栏上的 Pause 与 Step 按钮、Edit 菜单的 Pause 项图标和按钮都已建好，但常驻置灰、回调为空 | 在 `PlayModeController` / `Agent` 增加 `mIsPaused` 与 `stepOneFrame()`：Pause 态下冻结 `Scene::update` / `fixedUpdate` 与 `AnimationPlayerMgr`；点 Step 放行一帧后再自动挂起 | `doc/todo/Game-Plugin-Play-Mode-Design-todo.md` (§14) | **1.5 d** |
+| **T5-2** | **Console 日志面板实现** | `UIConsoleWindow.cpp:34-37`<br/>窗口已注册并可在 Window 菜单勾选打开，但 `UIConsoleWindow::onGUI()` 是纯空函数 | 在 `T3DLog` 增加日志监听回调，在 `UIConsoleWindow` 中实现 Info / Warning / Error 分级过滤、关键词搜索、Clear、Collapse 折叠与自动滚动 | `doc/todo/T4-2-Editor-Console-Window-Plan-todo.md` | **1.5 d** |
+| **T5-3** | **Hierarchy 与 Project 窗口工具栏按钮及右键菜单接线** | 1) `UIHierarchyWindow.cpp:48,64,81,450`：左上角 `+` 按钮回调为空、搜索框不筛树、右键为空；<br/>2) `UIProjectWindow.cpp:118,1175`：左上角 `+` 按钮为空、缺 `BeginDragDropSource` | 1) Hierarchy `+` 按钮与右键弹出创建/删除上下文菜单；搜索框实时过滤树节点；<br/>2) Project 面板右侧 `ImListItem` 补上 `ImGui::BeginDragDropSource`，打通拖拽资产到 Inspector | `doc/todo/T4-3-Editor-Hierarchy-Project-Wiring-Plan-todo.md` | **2.5 d** |
+| **T5-4** | **GameObject 菜单补齐 Camera / Light 创建** | `UIMainWindow.cpp:658-670`<br/>`GameObject -> 3D Object` 下 6 种几何体全通，但同级的 `Light` 和 `Camera` 菜单项被绑在 `queryDisableDefault` 上未实现 | 抽出通用创建辅助函数，补齐创建带 `Camera`、`DirectionalLight`、`PointLight`、`SpotLight`、`AmbientLight` 组件的菜单回调 | `doc/todo/T4-4-Editor-Create-Camera-Light-Menu-Plan-todo.md` | **1.0 d** |
+| **T5-5** | **Scene 视口交互（相机漫游 + 射线点选 + Gizmo）** | `UISceneWindow.cpp:38-70`<br/>目前只画了 Shading Mode 下拉框和 `ImGui::Image`，鼠标在 Scene 窗口内无法旋转平移编辑器相机、无法点击选中物体、无变换手柄 | 1) 鼠标右键+WASD / 中键平移 / 滚轮缩放驱动 `EditorCamera`；<br/>2) 左键点击用射线与场景 `Bound` 求交选中物体；<br/>3) 集成 `ImGuizmo` 绘制 Translate / Rotate / Scale 手柄 | `doc/todo/T4-5-Editor-SceneView-Camera-Picking-Gizmo-Plan-todo.md` | **3.5 d** |
+| **T5-6** | **Edit 菜单常用操作与 Undo / Redo 命令栈** | `UIMainWindow.cpp:365-400`<br/>`Undo (Ctrl+Z)`、`Redo (Ctrl+Y)`、`Duplicate (Ctrl+D)`、`Rename`、`Frame Selected (F)` 菜单项均已建好但处于 `queryDisableDefault` | 1) 接通 `Duplicate`（调 `GameObject::clone()`）、`Copy/Paste`、`Toggle Active`、`Frame Selected`；<br/>2) 引入基于 UUID + RTTR 快照的 `UndoManager` 命令栈 | `doc/todo/T4-6-Editor-Undo-Redo-And-EditMenu-Plan-todo.md` | **4.0 d** |
+| **T5-7** | **File 菜单新建/打开/另存为场景 & 资产热重载** | 1) `UIMainWindow.cpp:316-326` `New Scene` / `Open Scene` / `Save As` 仍为 disable；<br/>2) 外部工具覆盖资产后内存 `Resource` 未自动 `reload()` | 1) 接通 `ImOpenFileDialog` 实现新建空场景、切换打开 `.tscene`、另存为场景；<br/>2) `MetaFSMonitor` 修改事件在帧末安全点触发对应已加载 `Resource::reload()` | `doc/todo/T4-7-Editor-Scene-FileMenu-And-HotReload-Plan-todo.md` | **2.5 d** |
 
 ---
 
-### 6.7 延后项（明确放后，不占当前排期）
+### 6.8 延后项（明确放后，不占当前排期）
 
-以下模块属于**从零新建的独立子系统**，统一排在 T0～T4 存量收口完成之后：
+以下模块属于**从零新建的独立子系统**，统一排在 T0～T5 存量收口完成之后：
 - **延后 1**：TypeScript / V8 脚本虚拟机与自动绑定（`doc/todo/引擎接入TypeScript和V8.md`）
 - **延后 2**：3D / 2D 物理引擎接入（RigidBody / Collider / Jolt 或 PhysX）
 - **延后 3**：音频系统接入（AudioClip / AudioSource / miniaudio 或 OpenAL）
