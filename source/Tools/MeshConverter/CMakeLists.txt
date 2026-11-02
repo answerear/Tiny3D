@@ -179,9 +179,11 @@ elseif (TINY3D_OS_LINUX)
         T3DLog
         T3DUtils
         T3DMath
+        T3DFramework
         T3DCoreEditor
         rttr_core
         ${PROTOBUF_LIBRARY}
+        ${FBXSDK_LIBRARY}
         ${Iconv_LIBRARIES}
         ${ZLIB_LIBRARIES}
         ${LIBXML2_LIBRARY}
