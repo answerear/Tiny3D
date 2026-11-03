@@ -19,8 +19,8 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef SDL_config_windows_h_
-#define SDL_config_windows_h_
+#ifndef SDL_config_h_
+#define SDL_config_h_
 
 /**
  *  \file SDL_config.h.in
@@ -123,7 +123,6 @@
 /* #undef HAVE_STRTOK_R */
 /* #undef HAVE_ITOA */
 /* #undef HAVE__LTOA */
-/* #undef HAVE__UITOA */
 /* #undef HAVE__ULTOA */
 /* #undef HAVE_STRTOL */
 /* #undef HAVE_STRTOUL */
@@ -568,4 +567,4 @@ typedef unsigned int uintptr_t;
 #endif /* Visual Studio 2008 */
 #endif /* !_STDINT_H_ && !HAVE_STDINT_H */
 
-#endif /* SDL_config_windows_h_ */
+#endif /* SDL_config_h_ */
