@@ -1,6 +1,6 @@
-# T4-6 实现计划：Edit 菜单常用操作接线与全局 Undo / Redo 命令栈
+# T5-6 实现计划：Edit 菜单常用操作接线与全局 Undo / Redo 命令栈
 
-> **所属批次**：T4（编辑器 `TinyEditor` 面板与菜单断点接通）  
+> **所属批次**：T5（编辑器 `TinyEditor` 面板与菜单断点接通）  
 > **预估工作量**：4.0 人日  
 > **涉及文件**：
 > - `source/Editor/TinyEditor/UIMainWindow.cpp`
@@ -45,7 +45,7 @@
 3. **`Toggle Active State (Alt+Shift+A)`**：
    - 调用 `selected->setActive(!selected->isActive());`，发送 `kEvtModifyScene`。
 4. **`Frame Selected (F)`**：
-   - 发送聚焦事件（与 T4-5 的 Scene 相机聚焦联动），将编辑器相机对准选中物体的世界坐标/包围盒。
+   - 发送聚焦事件（与 T5-5 的 Scene 相机聚焦联动），将编辑器相机对准选中物体的世界坐标/包围盒。
 
 ### 2.2 第二步：设计轻量级 `UndoManager`（命令模式 + RTTR 属性快照）（1.5 d）
 

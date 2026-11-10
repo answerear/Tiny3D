@@ -1,6 +1,6 @@
-# T4-3 实现计划：Hierarchy 与 Project 窗口工具栏按钮、右键菜单及资产拖拽接线
+# T5-3 实现计划：Hierarchy 与 Project 窗口工具栏按钮、右键菜单及资产拖拽接线
 
-> **所属批次**：T4（编辑器 `TinyEditor` 面板与菜单断点接通）  
+> **所属批次**：T5（编辑器 `TinyEditor` 面板与菜单断点接通）  
 > **预估工作量**：2.5 人日  
 > **涉及文件**：
 > - `source/Editor/TinyEditor/UIHierarchyWindow.h` / `UIHierarchyWindow.cpp`

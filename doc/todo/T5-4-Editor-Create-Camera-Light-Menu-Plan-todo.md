@@ -1,6 +1,6 @@
-# T4-4 实现计划：GameObject 菜单补齐 Camera 与四类 Light 创建
+# T5-4 实现计划：GameObject 菜单补齐 Camera 与四类 Light 创建
 
-> **所属批次**：T4（编辑器 `TinyEditor` 面板与菜单断点接通）  
+> **所属批次**：T5（编辑器 `TinyEditor` 面板与菜单断点接通）  
 > **预估工作量**：1.0 人日  
 > **涉及文件**：
 > - `source/Editor/TinyEditor/UIEditorWidgetID.h`
@@ -57,7 +57,7 @@
        IM_MENU_ITEM(ID_MENU_ITEM_CREATE_AMBIENT_LIGHT)
    IM_MENU_POPUP_END()
    ```
-   （若已实施 T4-3 的 Hierarchy 右键菜单，同步将 `Light` 子菜单与 `Camera` 挂入 Hierarchy 右键菜单）。
+   （若已实施 T5-3 的 Hierarchy 右键菜单，同步将 `Light` 子菜单与 `Camera` 挂入 Hierarchy 右键菜单）。
 
 ### 2.3 在 `UIHierarchyView` 实现创建回调并收敛重复代码
 

@@ -583,7 +583,7 @@ struct GameSettings
 
 ---
 
-## 14. T4-1 补充实现计划：Play Mode 下的 Pause 与单帧 Step
+## 14. T5-1 补充实现计划：Play Mode 下的 Pause 与单帧 Step
 
 ### 14.1 现状分析（半成品定位）
 

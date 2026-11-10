@@ -526,7 +526,7 @@ replace方案阶段 2（DXC 驱动）启动前，本文至少完成 P1。否则�
 
 ---
 
-## 11. T3-1（P1b）详细实现计划：补齐 LinuxPlatform 与 LinuxFactory
+## 11. T4-1（P1b）详细实现计划：补齐 LinuxPlatform 与 LinuxFactory
 
 ### 11.1 现状与代码依据
 

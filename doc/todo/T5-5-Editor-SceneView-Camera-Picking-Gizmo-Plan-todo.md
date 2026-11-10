@@ -1,6 +1,6 @@
-# T4-5 实现计划：Scene 视口交互（编辑器相机漫游 + 射线点选 + 3D Gizmo）
+# T5-5 实现计划：Scene 视口交互（编辑器相机漫游 + 射线点选 + 3D Gizmo）
 
-> **所属批次**：T4（编辑器 `TinyEditor` 面板与菜单断点接通）  
+> **所属批次**：T5（编辑器 `TinyEditor` 面板与菜单断点接通）  
 > **预估工作量**：3.5 人日  
 > **涉及文件**：
 > - `source/Editor/TinyEditor/UISceneWindow.h` / `UISceneWindow.cpp`
@@ -84,7 +84,7 @@
      - 以及 `Local / World` 坐标系切换按钮。
 3. **变换写回与脏标记**：
    - 当选中 `GameObject` 存在 `Transform3D` 时，读取其世界或局部矩阵喂给 Gizmo；
-   - 拖拽发生修改时，分解或反算出新的局部 `Position` / `Orientation` / `Scaling` 写回 `Transform3D`，并发送 `kEvtModifyScene` 标记场景已修改（若 T4-6 Undo 栈已就位，在松开鼠标时压入一条 `TransformCommand`）。
+   - 拖拽发生修改时，分解或反算出新的局部 `Position` / `Orientation` / `Scaling` 写回 `Transform3D`，并发送 `kEvtModifyScene` 标记场景已修改（若 T5-6 Undo 栈已就位，在松开鼠标时压入一条 `TransformCommand`）。
 
 ---
 

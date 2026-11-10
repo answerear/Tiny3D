@@ -1,6 +1,6 @@
-# T2-3 实现计划：Material / Pass 层接入 Compute Shader Stage
+# T3-3 实现计划：Material / Pass 层接入 Compute Shader Stage
 
-> **所属批次**：T2（RHI 多后端存量 Stub 填平与材质 Compute 接入）  
+> **所属批次**：T3（RHI 多后端存量 Stub 填平与材质 Compute 接入）  
 > **预估工作量**：2.0 人日  
 > **涉及文件**：
 > - `source/Core/Include/Material/T3DPass.h`

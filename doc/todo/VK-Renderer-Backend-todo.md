@@ -1272,7 +1272,7 @@
 ---
 ---
 
-# 附录 A：T2-2 实现计划 —— Vulkan Compute / UAV / Indirect / MRT 补齐（对应 RHI-Compute 五期 E1）
+# 附录 A：T3-2 实现计划 —— Vulkan Compute / UAV / Indirect / MRT 补齐（对应 RHI-Compute 五期 E1）
 
 > **目标**：消除 `VKContext`（`source/Plugins/Renderer/Vulkan/Window/Source/T3DVKContext.cpp`）中剩余的 `T3D_RHI_UNSUPPORTED` 桩与 MRT 空函数，使 Vulkan 后端能力与 D3D11 / GL4 完整对齐，跑通 `ComputeApp` 的 K1–K10 全部用例及 `TextureApp` GPU 读回。
 

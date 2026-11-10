@@ -1,6 +1,6 @@
-# T4-2 实现计划：TinyEditor Console 日志面板（`UIConsoleWindow`）
+# T5-2 实现计划：TinyEditor Console 日志面板（`UIConsoleWindow`）
 
-> **所属批次**：T4（编辑器 `TinyEditor` 面板与菜单断点接通）  
+> **所属批次**：T5（编辑器 `TinyEditor` 面板与菜单断点接通）  
 > **预估工作量**：1.5 人日  
 > **涉及文件**：
 > - `source/Log/Include/T3DLogger.h` / `Source/T3DLogger.cpp`（或编辑器侧日志监听桥接）

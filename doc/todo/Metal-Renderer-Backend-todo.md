@@ -1816,7 +1816,7 @@ endif (TINY3D_BUILD_EDITOR)
 
 ## 32. 与最新 RHI 扩展（T0-1 / Compute / Readback / Stencil）的同步说明（2026-10 补充）
 
-在本文初版编写之后，`RHIContext` 新增了以下纯虚接口，实施 T3-2（Metal 后端补齐）时须一并纳入对应阶段：
+在本文初版编写之后，`RHIContext` 新增了以下纯虚接口，实施 T4-2（Metal 后端补齐）时须一并纳入对应阶段：
 
 1. **`clearStencil(uint32_t stencil)`**（`T3DRHIContext.h:198`）：
    - RmlUi 运行时 UI 用于在不清空深度缓冲的前提下仅清模板缓冲；
