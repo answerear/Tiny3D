@@ -344,7 +344,6 @@ public:
     TIntermTyped* handleUnaryMath(const TSourceLoc&, const char* str, TOperator op, TIntermTyped* childNode);
     TIntermTyped* handleDotDereference(const TSourceLoc&, TIntermTyped* base, const TString& field);
     TIntermTyped* handleDotSwizzle(const TSourceLoc&, TIntermTyped* base, const TString& field);
-    TIntermTyped* handleTypeCast(const TSourceLoc&, TType *castType, TIntermTyped *base);
     void blockMemberExtensionCheck(const TSourceLoc&, const TIntermTyped* base, int member, const TString& memberName);
     TFunction* handleFunctionDeclarator(const TSourceLoc&, TFunction& function, bool prototype);
     TIntermAggregate* handleFunctionDefinition(const TSourceLoc&, TFunction&);
@@ -529,32 +528,6 @@ protected:
     virtual void finalizeAtomicCounterBlockLayout(TVariable&) override;
     virtual void setAtomicCounterBlockDefaults(TType& block) const override;
     virtual void setInvariant(const TSourceLoc& loc, const char* builtin) override;
-
-    // Returns true if the given long vector type is correctly parameterized.
-    // Otherwise emits an error and returns false.
-    template<typename TTYPE>
-    bool isValidLongVectorElseError(const TSourceLoc& loc, const TTYPE& type) {
-        assert(type.isLongVector());
-        const TTypeParameters* typeParams = type.getTypeParameters();
-        if (typeParams == nullptr) {
-            error(loc, "vector type missing type parameters", "", "");
-            return false;
-        }
-        const auto basicType = typeParams->basicType;
-        if (!isTypeInt(basicType) && !isTypeFloat(basicType) && basicType != EbtBool) {
-            error(loc, "invalid element type for vector", TType::getBasicString(typeParams->basicType), "");
-            return false;
-        }
-        if (typeParams->arraySizes == nullptr) {
-            error(loc, "vector type missing element count", "", "");
-            return false;
-        }
-        if (typeParams->arraySizes->getNumDims() != 1) {
-            error(loc, "vector type requires exactly 1 element count", "", "");
-            return false;
-        }
-        return true;
-    }
 
 public:
     //

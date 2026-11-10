@@ -47,7 +47,6 @@
 #include "SpirvIntrinsics.h"
 
 #include <algorithm>
-#include <climits>
 
 namespace glslang {
 
@@ -959,13 +958,13 @@ public:
                  unsigned int layoutAttachment           :  8;  // for input_attachment_index
     static const unsigned int layoutAttachmentEnd      = 0XFF;
 
-                 unsigned int layoutSpecConstantId;
-    static const unsigned int layoutSpecConstantIdEnd = UINT_MAX;
+                 unsigned int layoutSpecConstantId       : 11;
+    static const unsigned int layoutSpecConstantIdEnd = 0x7FF;
 
                  unsigned int layoutBank                 : 4;
     static const unsigned int layoutBankEnd            = 0xF;
 
-                 unsigned int layoutDescriptorStride;
+                 unsigned int layoutDescriptorStride     : 4;
     static const unsigned int layoutDescriptorStrideEnd = 0x0;
 
     // stored as log2 of the actual alignment value
@@ -1566,8 +1565,6 @@ public:
 
     bool isTensorLayoutNV() const { return basicType == EbtTensorLayoutNV; }
     bool isTensorViewNV() const { return basicType == EbtTensorViewNV; }
-
-    const TTypeParameters* getTypeParameters() const { return typeParameters; }
 
     void initType(const TSourceLoc& l)
     {
@@ -2718,13 +2715,7 @@ public:
         uint32_t components = 0;
 
         if (isCoopVecOrLongVector()) {
-            auto* arraySizes = typeParameters->arraySizes;
-            if (!arraySizes || arraySizes->getNumDims() < 1) {
-                // This is a malformed vector type. A later step will
-                // catch the error and emit a diagnostic.
-                return 0;
-            }
-            components = arraySizes->getDimSize(0);
+            components = typeParameters->arraySizes->getDimSize(0);
         } else if (getBasicType() == EbtStruct || getBasicType() == EbtBlock) {
             for (TTypeList::const_iterator tl = getStruct()->begin(); tl != getStruct()->end(); tl++)
                 components += ((*tl).type)->computeNumComponents();
