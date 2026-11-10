@@ -7,8 +7,8 @@
  * When upgrading SDL, do NOT overwrite this file. Instead, rename the
  * generated SDL_config.h to SDL_config_<platform>.h.
  */
-#ifndef SDL_config_h_
-#define SDL_config_h_
+#ifndef SDL_config_bridge_h_
+#define SDL_config_bridge_h_
 
 #ifdef __ANDROID__
 #include "SDL_config_android.h"
@@ -34,4 +34,4 @@
 #error "Unsupported platform for SDL2"
 #endif
 
-#endif /* SDL_config_h_ */
+#endif /* SDL_config_bridge_h_ */
