@@ -17,16 +17,24 @@
 include(FindPkgMacros)
 findpkg_begin(SpirvReflect)
 
+if (SPIRV_REFLECT_INCLUDE_DIR AND NOT EXISTS "${SPIRV_REFLECT_INCLUDE_DIR}/spirv_reflect.h")
+    unset(SPIRV_REFLECT_INCLUDE_DIR CACHE)
+endif ()
+
+if (SPIRV_REFLECT_SOURCES AND NOT EXISTS "${SPIRV_REFLECT_SOURCES}")
+    unset(SPIRV_REFLECT_SOURCES CACHE)
+endif ()
+
 find_path(SPIRV_REFLECT_INCLUDE_DIR spirv_reflect.h
     HINTS
         "${SPIRV_REFLECT_DIR}"
-        "${CMAKE_SOURCE_DIR}/../dependencies/spirv-reflect"
+        "${CMAKE_SOURCE_DIR}/External/spirv-reflect"
 )
 
 find_file(SPIRV_REFLECT_SOURCES spirv_reflect.c
     HINTS
         "${SPIRV_REFLECT_DIR}"
-        "${CMAKE_SOURCE_DIR}/../dependencies/spirv-reflect"
+        "${CMAKE_SOURCE_DIR}/External/spirv-reflect"
 )
 
 if (SPIRV_REFLECT_INCLUDE_DIR AND SPIRV_REFLECT_SOURCES)

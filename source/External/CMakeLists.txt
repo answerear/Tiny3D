@@ -18,6 +18,7 @@ endif()
 
 if (TINY3D_OS_DESKTOP)
 	add_subdirectory(imgui)
+	add_subdirectory(spirv-cross)
 endif (TINY3D_OS_DESKTOP)
 
 if (TINY3D_BUILD_RMLUI)
