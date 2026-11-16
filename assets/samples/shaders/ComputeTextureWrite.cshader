@@ -1,7 +1,7 @@
 #pragma compute CSMain
 #pragma target 5.0
 
-// K5：RWTexture2D，仅 D3D11。期望 px(x,y) == (x, y, 128, 255)。
+// K5：RWTexture2D（D3D11 / GL4 / GLES3）。期望 px(x,y) == (x, y, 128, 255)。
 
 RWTexture2D<float4> gOutput : register(u0);
 
