@@ -254,6 +254,13 @@ namespace Tiny3D
 
             GlslangReflectionData data;
 
+            if (shader->getShaderStage() == SHADER_STAGE::kCompute)
+            {
+                data.localSize[0] = program.getLocalSize(0);
+                data.localSize[1] = program.getLocalSize(1);
+                data.localSize[2] = program.getLocalSize(2);
+            }
+
             int numBlocks = program.getNumUniformBlocks();
             data.blocks.resize(numBlocks);
             for (int i = 0; i < numBlocks; ++i)
@@ -300,6 +307,12 @@ namespace Tiny3D
             }
 
             const GlslangReflectionData &data = itr->second;
+
+            if (shader->getShaderStage() == SHADER_STAGE::kCompute
+                && data.localSize[0] > 0 && data.localSize[1] > 0 && data.localSize[2] > 0)
+            {
+                shader->setThreadGroupSize(data.localSize[0], data.localSize[1], data.localSize[2]);
+            }
 
             for (int blockIdx = 0; blockIdx < static_cast<int>(data.blocks.size()); ++blockIdx)
             {

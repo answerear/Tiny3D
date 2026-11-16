@@ -58,6 +58,7 @@ namespace Tiny3D
         {
             TArray<GlslangBlockInfo> blocks;
             TArray<GlslangUniformInfo> uniforms;
+            uint32_t localSize[3] {0, 0, 0};
         };
 
         TResult glslangCompileAndReflect(ShaderVariant *shader);

@@ -85,6 +85,7 @@ namespace Tiny3D
         void *getNativeObject() const override;
 
         GLuint GLTexture {0};
+        GLenum GLInternalFormat {GL_RGBA8};
     protected:
         GLES3PixelBuffer1D() = default;
     };
@@ -97,6 +98,7 @@ namespace Tiny3D
         void *getNativeObject() const override;
 
         GLuint GLTexture {0};
+        GLenum GLInternalFormat {GL_RGBA8};
         GLuint GLFBO {0};
         GLuint GLDepthRBO {0};
         GLuint GLResolveTex {0};
@@ -114,6 +116,7 @@ namespace Tiny3D
         void *getNativeObject() const override;
 
         GLuint GLTexture {0};
+        GLenum GLInternalFormat {GL_RGBA8};
     protected:
         GLES3PixelBuffer3D() = default;
     };

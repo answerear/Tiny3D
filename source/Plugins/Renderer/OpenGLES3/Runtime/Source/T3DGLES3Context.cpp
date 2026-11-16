@@ -64,6 +64,13 @@ namespace Tiny3D
     GLES3Context::~GLES3Context()
     {
         mCurrentRenderTarget = nullptr;
+        mPendingVertexDecl = nullptr;
+        mCurrentVSVariant = nullptr;
+        mCurrentPSVariant = nullptr;
+        mCurrentHSVariant = nullptr;
+        mCurrentDSVariant = nullptr;
+        mCurrentGSVariant = nullptr;
+        mCurrentCSVariant = nullptr;
 
         GL_SAFE_DELETE_PROGRAM(mCurrentComputeProgram);
         GL_SAFE_DELETE_PROGRAM(mCurrentProgram);
@@ -382,6 +389,7 @@ namespace Tiny3D
             const GLenum pixelType = GLES3Mapping::getPixelType(desc.format);
             const bool hasStencil = (desc.format == PixelFormat::E_PF_D24_UNORM_S8_UINT
                 || desc.format == PixelFormat::E_PF_D32_FLOAT_S8X24_UINT);
+            glPixelBuffer->GLInternalFormat = internalFmt;
 
             if (isColorRT)
             {
@@ -1583,10 +1591,9 @@ namespace Tiny3D
 
     TResult GLES3Context::setVertexBuffers(uint32_t startSlot, const VertexBuffers &buffers, const VertexStrides &strides, const VertexOffsets &offsets)
     {
-        VertexDeclaration *pendingDecl = mPendingVertexDecl;
-        mPendingVertexDecl = nullptr;
+        VertexDeclarationPtr pendingDecl = std::move(mPendingVertexDecl);
 
-        auto lambda = [this](uint32_t startSlot, const VertexBuffers &buffers, const VertexStrides &strides, const VertexOffsets &offsets, VertexDeclaration *pendingDecl)
+        auto lambda = [this](uint32_t startSlot, const VertexBuffers &buffers, const VertexStrides &strides, const VertexOffsets &offsets, const VertexDeclarationPtr &pendingDecl)
         {
             TResult ret = T3D_OK;
 
@@ -1763,14 +1770,27 @@ namespace Tiny3D
                 }
 
                 // GLES3 has no GL_TEXTURE_1D — simulate with height=1 2D texture
+                const GLenum internalFmt = GLES3Mapping::getInternalFormat(desc.format);
+                const GLenum pixelFmt = GLES3Mapping::get(desc.format);
+                const GLenum pixelType = GLES3Mapping::getPixelType(desc.format);
+                glBuffer->GLInternalFormat = internalFmt;
+
                 glGenTextures(1, &glBuffer->GLTexture);
                 glBindTexture(GL_TEXTURE_2D, glBuffer->GLTexture);
-                glTexImage2D(GL_TEXTURE_2D, 0,
-                    GLES3Mapping::getInternalFormat(desc.format),
-                    desc.width, 1, 0,
-                    GLES3Mapping::get(desc.format),
-                    GLES3Mapping::getPixelType(desc.format),
-                    uploadData);
+                if ((buffer->getGPUAccess() & kGPUUnorderedAccess) != 0)
+                {
+                    glTexStorage2D(GL_TEXTURE_2D, 1, internalFmt, desc.width, 1);
+                    if (uploadData != nullptr)
+                    {
+                        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, desc.width, 1,
+                            pixelFmt, pixelType, uploadData);
+                    }
+                }
+                else
+                {
+                    glTexImage2D(GL_TEXTURE_2D, 0, internalFmt,
+                        desc.width, 1, 0, pixelFmt, pixelType, uploadData);
+                }
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -1823,10 +1843,37 @@ namespace Tiny3D
 
                 const uint32_t mipLevels = std::max<uint32_t>(1, desc.mipmaps);
                 const uint32_t bpp = Image::getBPP(desc.format) / 8;
+                const GLenum internalFmt = GLES3Mapping::getInternalFormat(desc.format);
+                const GLenum pixelFmt = GLES3Mapping::get(desc.format);
+                const GLenum pixelType = GLES3Mapping::getPixelType(desc.format);
+                glBuffer->GLInternalFormat = internalFmt;
+
                 const size_t totalSize = buffer->getBuffer().DataSize;
                 size_t offset = 0;
 
-                if (uploadData != nullptr && bpp > 0)
+                if ((buffer->getGPUAccess() & kGPUUnorderedAccess) != 0)
+                {
+                    glTexStorage2D(GL_TEXTURE_2D, mipLevels, internalFmt, desc.width, desc.height);
+                    if (uploadData != nullptr && bpp > 0)
+                    {
+                        for (uint32_t level = 0; level < mipLevels; ++level)
+                        {
+                            const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                            const uint32_t mipH = std::max<uint32_t>(1, desc.height >> level);
+                            const size_t levelSize = static_cast<size_t>(mipW) * mipH * bpp;
+                            if (offset + levelSize > totalSize)
+                            {
+                                break;
+                            }
+                            glTexSubImage2D(GL_TEXTURE_2D, level, 0, 0,
+                                mipW, mipH, pixelFmt, pixelType, uploadData + offset);
+                            offset += levelSize;
+                        }
+                    }
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                        mipLevels > 1 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+                }
+                else if (uploadData != nullptr && bpp > 0)
                 {
                     uint32_t uploadedLevels = 0;
                     for (uint32_t level = 0; level < mipLevels; ++level)
@@ -1838,11 +1885,8 @@ namespace Tiny3D
                         {
                             break;
                         }
-                        glTexImage2D(GL_TEXTURE_2D, level,
-                            GLES3Mapping::getInternalFormat(desc.format),
-                            mipW, mipH, 0,
-                            GLES3Mapping::get(desc.format),
-                            GLES3Mapping::getPixelType(desc.format),
+                        glTexImage2D(GL_TEXTURE_2D, level, internalFmt,
+                            mipW, mipH, 0, pixelFmt, pixelType,
                             uploadData + offset);
                         offset += levelSize;
                         ++uploadedLevels;
@@ -1855,11 +1899,8 @@ namespace Tiny3D
                 }
                 else
                 {
-                    glTexImage2D(GL_TEXTURE_2D, 0,
-                        GLES3Mapping::getInternalFormat(desc.format),
-                        desc.width, desc.height, 0,
-                        GLES3Mapping::get(desc.format),
-                        GLES3Mapping::getPixelType(desc.format),
+                    glTexImage2D(GL_TEXTURE_2D, 0, internalFmt,
+                        desc.width, desc.height, 0, pixelFmt, pixelType,
                         uploadData);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
@@ -1895,15 +1936,29 @@ namespace Tiny3D
             do
             {
                 const auto &desc = buffer->getDescriptor();
+                const GLenum internalFmt = GLES3Mapping::getInternalFormat(desc.format);
+                const GLenum pixelFmt = GLES3Mapping::get(desc.format);
+                const GLenum pixelType = GLES3Mapping::getPixelType(desc.format);
+                glBuffer->GLInternalFormat = internalFmt;
 
                 glGenTextures(1, &glBuffer->GLTexture);
                 glBindTexture(GL_TEXTURE_3D, glBuffer->GLTexture);
-                glTexImage3D(GL_TEXTURE_3D, 0,
-                    GLES3Mapping::getInternalFormat(desc.format),
-                    desc.width, desc.height, desc.depth, 0,
-                    GLES3Mapping::get(desc.format),
-                    GLES3Mapping::getPixelType(desc.format),
-                    buffer->getBuffer().Data);
+                if ((buffer->getGPUAccess() & kGPUUnorderedAccess) != 0)
+                {
+                    glTexStorage3D(GL_TEXTURE_3D, 1, internalFmt, desc.width, desc.height, desc.depth);
+                    if (buffer->getBuffer().Data != nullptr)
+                    {
+                        glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, 0,
+                            desc.width, desc.height, desc.depth,
+                            pixelFmt, pixelType, buffer->getBuffer().Data);
+                    }
+                }
+                else
+                {
+                    glTexImage3D(GL_TEXTURE_3D, 0, internalFmt,
+                        desc.width, desc.height, desc.depth, 0,
+                        pixelFmt, pixelType, buffer->getBuffer().Data);
+                }
                 glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glBindTexture(GL_TEXTURE_3D, 0);
@@ -2523,7 +2578,7 @@ namespace Tiny3D
             return ENQUEUE_UNIQUE_COMMAND(lambda);
         }
 
-        auto lambda = [this](ShaderVariant *variant) -> TResult
+        auto lambda = [this](const ShaderVariantPtr &variant) -> TResult
         {
             TResult ret = T3D_OK;
 
@@ -2531,7 +2586,7 @@ namespace Tiny3D
             {
                 mCurrentCSVariant = variant;
 
-                const GLuint shaderHandle = getGLShaderHandle(variant);
+                const GLuint shaderHandle = getGLShaderHandle(variant.get());
                 if (shaderHandle == 0)
                 {
                     T3D_LOG_ERROR(LOG_TAG_GLES3RENDERER, "setComputeShader : shader has no RHI object !");
@@ -2552,7 +2607,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, shader);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, ShaderVariantPtr(shader));
     }
 
     //--------------------------------------------------------------------------
@@ -2907,6 +2962,22 @@ namespace Tiny3D
             return T3D_ERR_INVALID_PARAM;
         }
 
+        for (uint32_t i = 0; i < buffers.size(); ++i)
+        {
+            RenderBuffer *rb = buffers[i].get();
+            if (rb == nullptr)
+            {
+                continue;
+            }
+
+            if ((rb->getGPUAccess() & kGPUUnorderedAccess) == 0)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GLES3RENDERER, "setCSUnorderedAccessBuffers : resource at slot [%u] "
+                    "was not created with kGPUUnorderedAccess !", startSlot + i);
+                return T3D_ERR_INVALID_PARAM;
+            }
+        }
+
         auto lambda = [this](uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts)
         {
             TResult ret = T3D_OK;
@@ -2915,21 +2986,52 @@ namespace Tiny3D
             {
                 for (uint32_t i = 0; i < buffers.size(); ++i)
                 {
-                    GLuint ssbo = 0;
+                    const uint32_t slot = startSlot + i;
+                    RenderBuffer *rb = buffers[i].get();
+
+                    if (rb == nullptr || rb->getRHIResource() == nullptr)
+                    {
+                        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, 0);
+                        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, slot, 0);
+                        glBindImageTexture(slot, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+                        mBoundCSImages.erase(slot);
+                        continue;
+                    }
+
+                    GLuint imgTex = 0;
+                    GLenum imgFmt = GL_RGBA8;
+                    GLboolean imgLayered = GL_FALSE;
+                    if (getGLImageInfo(rb, imgTex, imgFmt, imgLayered))
+                    {
+                        if (imgTex == 0)
+                        {
+                            T3D_LOG_ERROR(LOG_TAG_GLES3RENDERER,
+                                "setCSUnorderedAccessBuffers : texture at slot [%u] is not valid for image load/store (MSAA not supported) !",
+                                slot);
+                            ret = T3D_ERR_INVALID_PARAM;
+                            break;
+                        }
+
+                        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, 0);
+                        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, slot, 0);
+                        glBindImageTexture(slot, imgTex, 0, imgLayered, 0, GL_READ_WRITE, imgFmt);
+                        mBoundCSImages[slot] = imgTex;
+                        continue;
+                    }
+
+                    GLuint ssbo = getGLBufferHandle(rb);
                     GLuint counter = 0;
                     bool hasCounter = false;
 
-                    RenderBuffer *rb = buffers[i].get();
-                    ssbo = getGLBufferHandle(rb);
-                    if (rb != nullptr && rb->getRHIResource() != nullptr
-                        && rb->getRHIResource()->getResourceType() == RHIResource::ResourceType::kStructuredBuffer)
+                    if (rb->getRHIResource()->getResourceType() == RHIResource::ResourceType::kStructuredBuffer)
                     {
                         GLES3StructuredBuffer *glSB = static_cast<GLES3StructuredBuffer*>(rb->getRHIResource().get());
                         counter = glSB->GLCounterBuffer;
                         hasCounter = glSB->HasCounter;
                     }
 
-                    const uint32_t slot = startSlot + i;
+                    glBindImageTexture(slot, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+                    mBoundCSImages.erase(slot);
                     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 
                     if (hasCounter && counter != 0)
@@ -3054,19 +3156,56 @@ namespace Tiny3D
             T3D_RHI_UNSUPPORTED(supportsUnorderedAccess);
         }
 
-        auto lambda = [this]()
+        auto lambda = [this](const UnorderedAccessBuffers &buffers)
         {
             glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT
                 | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT
                 | GL_TEXTURE_FETCH_BARRIER_BIT
                 | GL_ATOMIC_COUNTER_BARRIER_BIT
                 | GL_COMMAND_BARRIER_BIT
-                | GL_BUFFER_UPDATE_BARRIER_BIT);
+                | GL_BUFFER_UPDATE_BARRIER_BIT
+                | GL_PIXEL_BUFFER_BARRIER_BIT);
+
+            if (buffers.empty())
+            {
+                for (const auto &kv : mBoundCSImages)
+                {
+                    glBindImageTexture(kv.first, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+                }
+                mBoundCSImages.clear();
+            }
+            else
+            {
+                for (const auto &buf : buffers)
+                {
+                    GLuint imgTex = 0;
+                    GLenum imgFmt = GL_RGBA8;
+                    GLboolean imgLayered = GL_FALSE;
+                    if (!getGLImageInfo(buf.get(), imgTex, imgFmt, imgLayered) || imgTex == 0)
+                    {
+                        continue;
+                    }
+
+                    for (auto it = mBoundCSImages.begin(); it != mBoundCSImages.end(); )
+                    {
+                        if (it->second == imgTex)
+                        {
+                            glBindImageTexture(it->first, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+                            it = mBoundCSImages.erase(it);
+                        }
+                        else
+                        {
+                            ++it;
+                        }
+                    }
+                }
+            }
+
             GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::uavBarrier");
             return T3D_OK;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, buffers);
     }
 
     TResult GLES3Context::copyStructureCount(RenderBuffer *dstBuffer, size_t dstOffset, RenderBuffer *srcBuffer)
@@ -3207,6 +3346,8 @@ namespace Tiny3D
     TResult GLES3Context::reset()
     {
         mCurrentRenderTarget = nullptr;
+        mRenderingToFBO = false;
+        mProjectionFlipped = false;
 
         auto lambda = [this]()
         {
@@ -3214,13 +3355,18 @@ namespace Tiny3D
 
             do
             {
-                mRenderingToFBO = false;
                 mCurrentVSVariant = nullptr;
                 mCurrentPSVariant = nullptr;
                 mCurrentHSVariant = nullptr;
                 mCurrentDSVariant = nullptr;
                 mCurrentGSVariant = nullptr;
                 mCurrentCSVariant = nullptr;
+
+                for (const auto &kv : mBoundCSImages)
+                {
+                    glBindImageTexture(kv.first, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+                }
+                mBoundCSImages.clear();
 
                 GL_SAFE_DELETE_PROGRAM(mCurrentComputeProgram);
                 mComputeProgramDirty = false;
@@ -4128,8 +4274,8 @@ namespace Tiny3D
                 };
 
                 ShaderVariant *variants[] = {
-                    mCurrentPSVariant, mCurrentVSVariant, mCurrentGSVariant,
-                    mCurrentHSVariant, mCurrentDSVariant, mCurrentCSVariant
+                    mCurrentPSVariant.get(), mCurrentVSVariant.get(), mCurrentGSVariant.get(),
+                    mCurrentHSVariant.get(), mCurrentDSVariant.get(), mCurrentCSVariant.get()
                 };
 
                 for (ShaderVariant *variant : variants)
@@ -4309,9 +4455,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GLES3Context::attachGraphicsShader(ShaderVariant *shader, ShaderVariant *&currentVariant)
+    TResult GLES3Context::attachGraphicsShader(ShaderVariant *shader, ShaderVariantPtr &currentVariant)
     {
-        ShaderVariant **slot = &currentVariant;
+        ShaderVariantPtr *slot = &currentVariant;
 
         if (shader == nullptr)
         {
@@ -4323,7 +4469,7 @@ namespace Tiny3D
             return ENQUEUE_UNIQUE_COMMAND(lambda);
         }
 
-        auto lambda = [this](ShaderVariant *variant, ShaderVariant **slot) -> TResult
+        auto lambda = [this](const ShaderVariantPtr &variant, ShaderVariantPtr *slot) -> TResult
         {
             TResult ret = T3D_OK;
 
@@ -4331,7 +4477,7 @@ namespace Tiny3D
             {
                 *slot = variant;
 
-                const GLuint shaderHandle = getGLShaderHandle(variant);
+                const GLuint shaderHandle = getGLShaderHandle(variant.get());
                 if (shaderHandle == 0)
                 {
                     T3D_LOG_ERROR(LOG_TAG_GLES3RENDERER, "attachGraphicsShader : shader has no RHI object !");
@@ -4354,7 +4500,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, shader, slot);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, ShaderVariantPtr(shader), slot);
     }
 
     //--------------------------------------------------------------------------
@@ -4381,6 +4527,59 @@ namespace Tiny3D
         }
 
         return 0;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool GLES3Context::getGLImageInfo(RenderBuffer *buffer, GLuint &outTex, GLenum &outFormat, GLboolean &outLayered) const
+    {
+        outTex = 0;
+        outFormat = GL_RGBA8;
+        outLayered = GL_FALSE;
+
+        if (buffer == nullptr || buffer->getRHIResource() == nullptr)
+        {
+            return false;
+        }
+
+        switch (buffer->getRHIResource()->getResourceType())
+        {
+        case RHIResource::ResourceType::kPixelBuffer1D:
+            {
+                GLES3PixelBuffer1D *pb = static_cast<GLES3PixelBuffer1D*>(buffer->getRHIResource().get());
+                outTex = pb->GLTexture;
+                outFormat = pb->GLInternalFormat;
+                outLayered = GL_FALSE;
+                return true;
+            }
+        case RHIResource::ResourceType::kPixelBuffer2D:
+            {
+                GLES3PixelBuffer2D *pb = static_cast<GLES3PixelBuffer2D*>(buffer->getRHIResource().get());
+                if (pb->GLMSAACount > 1)
+                {
+                    outTex = 0;
+                }
+                else
+                {
+                    outTex = pb->GLTexture;
+                }
+                outFormat = pb->GLInternalFormat;
+                outLayered = GL_FALSE;
+                return true;
+            }
+        case RHIResource::ResourceType::kPixelBuffer3D:
+            {
+                GLES3PixelBuffer3D *pb = static_cast<GLES3PixelBuffer3D*>(buffer->getRHIResource().get());
+                outTex = pb->GLTexture;
+                outFormat = pb->GLInternalFormat;
+                outLayered = GL_TRUE;
+                return true;
+            }
+        default:
+            break;
+        }
+
+        return false;
     }
 
     //--------------------------------------------------------------------------

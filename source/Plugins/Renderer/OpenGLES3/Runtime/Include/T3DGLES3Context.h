@@ -210,12 +210,13 @@ namespace Tiny3D
         TResult compileGLSLShader(GLenum shaderType, const String &source, GLuint &outHandle, const char *stageName);
         /// 挂新 shader 之前，把程序上同一阶段的旧 shader 摘下来
         void detachShaderStage(GLuint program, GLuint shader);
-        TResult attachGraphicsShader(ShaderVariant *shader, ShaderVariant *&currentVariant);
+        TResult attachGraphicsShader(ShaderVariant *shader, ShaderVariantPtr &currentVariant);
 
         void releaseRenderTextureResources(GLES3PixelBuffer2D *pb);
         TResult buildRenderTextureResources(PixelBuffer2D *buffer, GLES3PixelBuffer2D *glPixelBuffer);
 
         GLuint getGLBufferHandle(RenderBuffer *buffer) const;
+        bool getGLImageInfo(RenderBuffer *buffer, GLuint &outTex, GLenum &outFormat, GLboolean &outLayered) const;
         TResult validateIndirectArgs(RenderBuffer *argsBuffer, size_t argsOffset, size_t argsSize);
 
         bool supportsTessellation() const;
@@ -271,17 +272,20 @@ namespace Tiny3D
         uint32_t mIndexSize {2};
         RenderTargetPtr mCurrentRenderTarget {nullptr};
         GLuint  mCurrentVAO {0};
-        VertexDeclaration *mPendingVertexDecl {nullptr};
+        VertexDeclarationPtr mPendingVertexDecl {nullptr};
         TMap<String, GLuint> mPendingUBOs;
         bool    mProgramDirty {false};
         bool    mRenderingToFBO {false};
 
-        ShaderVariant *mCurrentVSVariant {nullptr};
-        ShaderVariant *mCurrentPSVariant {nullptr};
-        ShaderVariant *mCurrentHSVariant {nullptr};
-        ShaderVariant *mCurrentDSVariant {nullptr};
-        ShaderVariant *mCurrentGSVariant {nullptr};
-        ShaderVariant *mCurrentCSVariant {nullptr};
+        ShaderVariantPtr mCurrentVSVariant {nullptr};
+        ShaderVariantPtr mCurrentPSVariant {nullptr};
+        ShaderVariantPtr mCurrentHSVariant {nullptr};
+        ShaderVariantPtr mCurrentDSVariant {nullptr};
+        ShaderVariantPtr mCurrentGSVariant {nullptr};
+        ShaderVariantPtr mCurrentCSVariant {nullptr};
+
+        /// 当前绑定的 CS Image Unit 槽位 -> GL 纹理对象（供 uavBarrier 解绑）
+        TMap<uint32_t, GLuint> mBoundCSImages;
 
         /// 被 doBlit 与 map(texture) 共用：每次使用前必须重新 attach，不能按附件缓存跳过
         GLuint  mScratchReadFBO {0};
