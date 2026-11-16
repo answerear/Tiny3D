@@ -927,19 +927,21 @@
 ---
 ---
 
-# 附录 A：完整度复核（2026-08）
+# 附录 A：完整度复核（2026-11 源码级核验更新）
 
-> **本附录的作用**：上文第 1～21 章及其汇总统计是按当时的 `RHIContext` 口径（约 64 个接口）写的，此后 RHI 层做过一轮较大的扩容——新增了裁剪矩形、结构化缓冲、Cubemap、实例化/间接绘制、compute dispatch/UAV、渲染目标 resize、以及后端能力集查询。这些新接口在上文中**完全没有出现**，因此上文的「汇总统计」（42 ✅ / 2 ⚠️ / 4 ❌ / 15 🔇 / 1 💬）已不能代表当前完成度。
+> **本附录的作用**：上文第 1～21 章及其汇总统计是按早期 `RHIContext` 口径（64 个接口）编写的历史记录。此后 RHI 层经历了多轮扩容——新增了裁剪矩形、独立模板清除（`clearStencil`）、结构化缓冲、Cubemap、实例化/间接绘制、Compute Dispatch/UAV、渲染目标 Resize、GPU 读回（`map`/`unmap`）以及后端能力集查询；同时 GL4 Window 后端在 2026-09 完成了 P0/P1/P2 全量补齐。
 >
-> 本附录以当前代码为准，重新给出**全量口径**下的完整度结论，并修正上文中已经过时的条目。上文保留不动，作为历史记录。
+> 本附录以 **2026-11 当前最新源码**为准，给出全量口径（**97 个虚接口**）下的真实实现状态、修正上文及早期复核中已过时的条目，并盘点剩余的未完成项（如纹理 UAV `glBindImageTexture` 与 `GL4ContextBase` 去重）。上文第 1～21 章保留不动，仅作历史演进参考。
 >
 > **复核基准**
 >
-> - 接口定义：`source/Core/Include/RHI/T3DRHIContext.h`（`T3DRHIContext.inl` 为空）
+> - 接口定义：`source/Core/Include/RHI/T3DRHIContext.h`
 > - 能力集定义：`source/Core/Include/RHI/T3DRHICapabilities.h`
-> - GL4 Window 实现：`source/Plugins/Renderer/OpenGL4/Window/Source/T3DGL4Context.cpp`（约 3376 行）
-> - GL4 基类实现：`source/Plugins/Renderer/OpenGL4/Base/Source/T3DGL4ContextBase.cpp`
-> - GL4 Console 实现：`source/Plugins/Renderer/OpenGL4/Console/Source/T3DGL4ConsoleContext.cpp`
+> - GL4 Window 实现：`source/Plugins/Renderer/OpenGL4/Window/Source/T3DGL4Context.cpp`（5029 行）
+> - GL4 Window 头文件：`source/Plugins/Renderer/OpenGL4/Window/Include/T3DGL4Context.h`
+> - GL4 缓冲资源定义：`source/Plugins/Renderer/OpenGL4/Window/Include/T3DGL4RenderBuffer.h`
+> - GL4 基类实现：`source/Plugins/Renderer/OpenGL4/Base/Source/T3DGL4ContextBase.cpp`（512 行）
+> - GL4 Console 实现：`source/Plugins/Renderer/OpenGL4/Console/Source/T3DGL4ConsoleContext.cpp`（228 行）
 > - 对标基线：`doc/todo/D3D11-Renderer-Backend-todo.md` + `D3D11Context`（Window 版）
 >
 > 本附录中未标注文件名的行号均指 `T3DGL4Context.cpp`。
@@ -948,20 +950,23 @@
 
 ## A.1 接口口径的变化
 
-`RHIContext` 当前共 **93 个虚接口**：88 个纯虚 + 5 个带默认实现（`getDepthRemapMatrix`、`resizeRenderTexture`、`resizeRenderTarget`、`getNativeContext`、`restoreNativeContext`）。此外 `getCapabilities()` 是非虚 inline getter，读取由后端在 `init()` 中填充的 `mCapabilities` 成员。
+`RHIContext` 当前共 **97 个虚接口**（不含析构函数）：**92 个纯虚 + 5 个带默认实现**（`getDepthRemapMatrix`、`resizeRenderTexture`、`resizeRenderTarget`、`getNativeContext`、`restoreNativeContext`）。此外 `getCapabilities()` 是非虚 inline getter，读取由后端在 `init()` 中填充的 `mCapabilities` 成员。
 
-上文各章**未覆盖**的新接口共 22 个：
+上文第 1～21 章**未覆盖**的新增接口共 **26 个**：
 
-| 分类 | 新接口 | 上文是否提及 |
-|------|--------|-------------|
-| 裁剪 | `setScissorRect` | ❌ 未提及 |
-| 渲染目标 | `resizeRenderTexture`、`resizeRenderTarget` | ❌ 未提及 |
-| 深度约定 | `getDepthRemapMatrix` | ❌ 未提及 |
-| 资源 | `createStructuredBuffer`、`createPixelBufferCubemap` | ❌ 未提及 |
-| 结构化缓冲绑定 | `setVSStructuredBuffers`、`setPSStructuredBuffers`、`setCSStructuredBuffers` | ❌ 未提及 |
-| GPU-driven | `setCSUnorderedAccessBuffers`、`dispatch`、`dispatchIndirect`、`uavBarrier`、`copyStructureCount` | ❌ 未提及 |
-| 实例化绘制 | `renderIndexedInstanced`、`renderInstanced` | ❌ 未提及 |
-| 间接绘制 | `renderIndexedIndirect`、`renderIndirect` | ❌ 未提及 |
+| 分类 | 新接口 | 数量 | GL4 Window 当前状态 |
+|------|--------|------|---------------------|
+| 裁剪 | `setScissorRect` | 1 | ✅ 已完成 |
+| 清除 | `clearStencil` | 1 | ✅ 已完成（含 `ClearMaskGuard`） |
+| 渲染目标 | `resizeRenderTexture`、`resizeRenderTarget` | 2 | ✅ 已完成 |
+| 深度约定 | `getDepthRemapMatrix` | 1 | ✅ 已完成 |
+| 资源 | `createStructuredBuffer`、`createPixelBufferCubemap` | 2 | ✅ 已完成 |
+| 结构化缓冲绑定 | `setVSStructuredBuffers`、`setPSStructuredBuffers`、`setCSStructuredBuffers` | 3 | ✅ 已完成（支持 `StructuredBuffer` 与 `VB`/`IB` Raw SRV） |
+| GPU-driven / Compute | `setCSUnorderedAccessBuffers`、`dispatch`、`dispatchIndirect`、`uavBarrier`、`copyStructureCount` | 5 | ✅ 已完成（同时支持 Buffer SSBO UAV、Atomic Counter 与 1D/2D/3D 纹理 `glBindImageTexture` UAV） |
+| 实例化绘制 | `renderIndexedInstanced`、`renderInstanced` | 2 | ✅ 已完成 |
+| 间接绘制 | `renderIndexedIndirect`、`renderIndirect` | 2 | ✅ 已完成 |
+| GPU 读回 | `map(buffer)`、`map(region)`、`unmap` | 3 | ✅ 已完成（PBO / Staging Buffer） |
+| 合计（相比旧 64 接口 + 7 项统计口径调整） | — | **26** | — |
 
 ---
 
@@ -1095,121 +1100,98 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | 🚧 契约式不支持 |
+| **状态** | ✅ 已完成（全部 11 个接口均已完整实现） |
 | **接口** | `createStructuredBuffer`、`setVSStructuredBuffers`、`setPSStructuredBuffers`、`setCSStructuredBuffers`、`setCSUnorderedAccessBuffers`、`dispatch`、`dispatchIndirect`、`uavBarrier`、`copyStructureCount`、`renderIndexedIndirect`、`renderIndirect` |
-| **实现位置** | T3DGL4Context.cpp:2764-2774（每个接口一行） |
-| **返回值** | `T3D_ERR_NOT_IMPLEMENT`（指针版返回 `nullptr`），并打警告日志 |
-| **对应能力位** | `supportsStructuredBuffer`（4 个）、`supportsUnorderedAccess`（2 个）、`supportsCompute`（1 个）、`supportsIndirectDispatch`（1 个）、`supportsAppendConsumeBuffer`（1 个）、`supportsIndirectDraw`（2 个） |
-| **备注** | 实现形态如下，是**规范做法**：<br>`TResult GL4Context::dispatch(...) { T3D_RHI_UNSUPPORTED(supportsCompute); }`<br>GL 4.3+ 原生支持这一整套（`glDispatchCompute` / `glDispatchComputeIndirect` / SSBO / `glMemoryBarrier` / `glDrawElementsIndirect`），属于**尚未实现**而非 API 不支持。设计范围见 `doc/todo/RHI-Compute-UAV-Indirect-Draw-Design-todo.md` |
+| **实现位置** | T3DGL4Context.cpp:2705-3115 |
+| **功能** | 1) **能力位守卫**：低版本 GL 不支持时通过 `T3D_RHI_UNSUPPORTED` / `T3D_RHI_UNSUPPORTED_PTR` 返回错误；<br>2) **StructuredBuffer / Raw SRV**：`createStructuredBuffer` 创建 `GL_SHADER_STORAGE_BUFFER`（带 counter/append 时额外创建 4 字节 `GL_ATOMIC_COUNTER_BUFFER`）；`set{VS,PS,CS}StructuredBuffers` 委托 `bindStructuredBuffers`，通过 `getGLBufferHandle` 同时支持 `StructuredBuffer`、`VertexBuffer`、`IndexBuffer` 绑定到 SSBO；<br>3) **Buffer & Texture UAV (`setCSUnorderedAccessBuffers`)**：校验 `kGPUUnorderedAccess` 标志，对线性缓冲（`StructuredBuffer`/`VB`/`IB`）绑定 `GL_SHADER_STORAGE_BUFFER`（及 `GL_ATOMIC_COUNTER_BUFFER`），对纹理资源（`PixelBuffer1D/2D/3D`）通过 `getGLImageInfo` 调用 `glBindImageTexture` 并记录到 `mBoundCSImages`；<br>4) **Compute Dispatch & Indirect**：`dispatch` 含组数非零与硬件上限校验，链接激活 `mCurrentComputeProgram` 后调 `glDispatchCompute` 并恢复 `mCurrentProgram`；`dispatchIndirect` / `renderIndexedIndirect` / `renderIndirect` 统一经 `validateIndirectArgs` 校验 `kGPUIndirectArgs` 与 4 字节对齐；<br>5) **Counter 拷贝与 Barrier**：`copyStructureCount` 通过 `glCopyNamedBufferSubData` 将 `GLCounterBuffer` 的 4 字节计数拷入目标缓冲；`uavBarrier` 调用 `glMemoryBarrier`（含 `GL_PIXEL_BUFFER_BARRIER_BIT`）并解绑 `mBoundCSImages` 中的 image unit |
 
 ### A.4.7 resizeRenderTexture / resizeRenderTarget
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ⛔ 未 override |
+| **状态** | ✅ 已完成 |
 | **签名** | `TResult resizeRenderTexture(RenderTexture *rt, uint32_t width, uint32_t height)`<br>`TResult resizeRenderTarget(RenderTarget *rt, uint32_t width, uint32_t height)` |
-| **返回值** | 基类默认 `T3D_ERR_NOT_IMPLEMENT`（T3DRHIContext.h:125 / T3DRHIContext.h:134） |
-| **问题** | 引擎侧 `RenderTexture::resize` 是统一入口，D3D11 已 override 并实现（`T3DD3D11Context.cpp:993` / `T3DD3D11Context.cpp:1029`）。GL4 未实现，意味着**编辑器视口拖拽改变大小、渲染纹理动态调整分辨率这类路径在 GL4 下走不通**。<br>GL4 只有非 RHI 接口 `resizeRenderWindow(GL4RenderWindow*, w, h)`（T3DGL4Context.cpp:458），且仅调 `glViewport`，不重建 FBO/RBO/Resolve 附件 |
+| **实现位置** | T3DGL4Context.cpp:953（`resizeRenderTexture`）、T3DGL4Context.cpp:988（`resizeRenderTarget`） |
+| **功能** | `resizeRenderTexture` 校验非空与描述符尺寸一致性后，在 RHI 线程调用 `releaseRenderTextureResources` + `buildRenderTextureResources` 重建 `GLTexture` / `GLFBO` / `GLDepthRBO` / `GLResolveTex` / `GLResolveFBO`；`resizeRenderTarget` 对窗口类型转调 `resizeRenderWindow`，对纹理类型逐个重建所有颜色 RT 与 DepthStencil RT |
+
+### A.4.8 clearStencil（新增接口）
+
+| 项目 | 内容 |
+|------|------|
+| **状态** | ✅ 已完成 |
+| **签名** | `TResult clearStencil(uint32_t stencil)` |
+| **实现位置** | T3DGL4Context.cpp:1313 |
+| **功能** | 仅清除模板缓冲而不动颜色与深度（供 RmlUi 等 UI 裁剪掩码在场景绘制后、后处理前使用）。与 `clearColor` / `clearDepth` / `clearDepthStencil` 一样配备了 `ClearMaskGuard`（T3DGL4Context.cpp:1181-1235），在 `glClear` 前临时关闭 `GL_SCISSOR_TEST` 并打开全写掩码，结束后恢复管线状态，严格对齐 D3D11 `ClearDepthStencilView` 语义 |
+
+### A.4.9 map / unmap（GPU → CPU 读回，3 个接口）
+
+| 项目 | 内容 |
+|------|------|
+| **状态** | ✅ 已完成 |
+| **签名** | `ReadbackHandle map(RenderBuffer *src, size_t offset, size_t size)`<br>`ReadbackHandle map(RenderBuffer *src, const ReadbackRegion &region)`<br>`TResult unmap(ReadbackHandle handle, Buffer &dst)` |
+| **实现位置** | T3DGL4Context.cpp:3902（线性缓冲 `map`）、T3DGL4Context.cpp:3959（纹理 `map`）、T3DGL4Context.cpp:4060（`unmap`）、T3DGL4Context.cpp:4907-5025（辅助函数） |
+| **功能** | 1) `allocReadbackRequest` 強制校验 `kCPURead` 标志与资源类型匹配；<br>2) 线性缓冲 `map`：使用 DSA `glCreateBuffers` + `glNamedBufferData(GL_STREAM_READ)` + `glCopyNamedBufferSubData` 录制拷贝；<br>3) 2D 纹理 `map`：若为 MSAA 源先通过 `glBlitFramebuffer` resolve 到 `GLResolveTex`，再绑定 `GL_PIXEL_PACK_BUFFER` 调用 `glGetTextureSubImage` 录制子区域读取；<br>4) `unmap`：同步 RHI 线程（`syncRHIThread`），校验 `CopyRecorded` 时序，调用 `glMapNamedBuffer(GL_READ_ONLY)` 拷出紧凑数据后销毁 Staging 缓冲 |
+| **注意** | 纹理读回当前支持 `kPixelBuffer2D`（含 MSAA 自动 resolve）；1D/3D/Cubemap 返回 `T3D_ERR_GL4_UNSUPPORTED_OPERATION` |
 
 ---
 
-## A.5 对上文条目的修正
+## A.5 对上文第 1～21 章历史条目的修正对照
 
-上文若干条目的状态判断已随代码演进而失效，此处逐条修正：
+上文第 1～21 章的描述与状态判断已随代码演进而过时，此处给出与当前最新代码（`T3DGL4Context.cpp`）的对照修正：
 
-| 上文章节 | 上文说法 | 当前实际 |
-|---------|---------|---------|
-| §10.1 `createHullShader` | 🔇 按设计为空 | ❌ 未实现。返回**空的 `GL4HullShader` 对象**（非 nullptr）并打警告 `"Hull shader is not supported in OpenGL 3.3"`（T3DGL4Context.cpp:2117）。调用方拿到一个没有 GL handle 的 shader 对象，后续 attach 会失败。归类应为「未实现」而非「按设计为空」——GL 4.5 Core Profile 原生支持 Tessellation |
-| §11.1 `createDomainShader` | 🔇 按设计为空 | ❌ 未实现，同上（T3DGL4Context.cpp:2132） |
-| §13.1 `createComputeShader` | 🔇 按设计为空 | ❌ 未实现，同上（T3DGL4Context.cpp:2246） |
-| §10.3 / §11.3 / §13.3 各 set 系列 | 🔇 按设计为空 | ❌ 未实现。均为 `{ return T3D_OK; }` 单行（T3DGL4Context.cpp:2123-2126、T3DGL4Context.cpp:2138-2141、T3DGL4Context.cpp:2252-2255）。谎报成功，未走 `T3D_RHI_UNSUPPORTED` 契约 |
-| §17.6 `writeBuffer` | ⚠️ 纹理分支 width/height 写死为 0 | ⚠️ **缺陷仍然存在，且比上文描述更严重**。除 width/height 为 0 外，格式也硬编码为 `GL_RGBA` / `GL_UNSIGNED_BYTE`，未使用 `PixelBuffer2D` 描述符中的真实像素格式（T3DGL4Context.cpp:2987） |
-| §8.2 `setVertexShader` | ⚠️ 缺 nullptr 检查 | ⚠️ **仍未修复**（T3DGL4Context.cpp:1956 直接 `shader->getRHIShader()`）。注意 D3D11 侧同名缺陷**已修复**，见 `D3D11-Renderer-Backend-todo.md` 待办优先级表 |
-| §12.2 `setGeometryShader` | 💬 被注释禁用 | 💬 **仍被注释**（T3DGL4Context.cpp:2199-2223，函数体首行即 `return T3D_OK;`，其下 20 行实现全部注释）。对比：GLES3 后端的同名接口**已实现并可用** |
-| §2.4 `resetRenderTarget` | ✅ 已完成 | ⚠️ 部分完成。只解绑 FBO，**未重置 `mRenderingToFBO`**（T3DGL4Context.cpp:885）。该标志由 `setRenderTarget` 设置、被 `setRasterizerState` 用于交换 Front/Back CullFace，`resetRenderTarget` 之后若在下一次 `setRenderTarget` 之前调用 `setRasterizerState`，会拿到过期的翻转状态 |
-| §21 被注释禁用的功能 | 仅 `setGeometryShader` 一处 | 结论不变，`setGeometryShader` 仍是 GL4 唯一的被注释实现 |
-| 汇总统计 | 42 ✅ / 2 ⚠️ / 4 ❌ / 15 🔇 / 1 💬 | 口径已过时，见 A.7 |
-
-> 另外，上文多处把 Hull/Domain/Compute 的缺失归因于代码注释里的 "not supported in OpenGL 3.3"。这些注释本身是错的——GL4 后端创建的是 Core Profile 4.5 上下文，Tessellation（4.0+）与 Compute（4.3+）都在核心规范内。上文 §21 的 P3 项已经指出这点，此处再次确认注释仍未修正。
-
----
-
-## A.6 GL4 后端当前的三类问题
-
-### A.6.1 静默失败的接口（最高优先级）
-
-以下 19 个接口直接返回 `T3D_OK` 或空对象，**上层无法察觉操作没有发生**：
-
-| 分组 | 接口 | 实现位置 |
-|------|------|---------|
-| Hull Shader | `createHullShader`、`setHullShader`、`setHSConstantBuffers`、`setHSPixelBuffers`、`setHSSamplers` | T3DGL4Context.cpp:2117-2126 |
-| Domain Shader | `createDomainShader`、`setDomainShader`、`setDSConstantBuffers`、`setDSPixelBuffers`、`setDSSamplers` | T3DGL4Context.cpp:2132-2141 |
-| Compute Shader | `createComputeShader`、`setComputeShader`、`setCSConstantBuffers`、`setCSPixelBuffers`、`setCSSamplers` | T3DGL4Context.cpp:2246-2255 |
-| 数据传输 | `blit(RT→RT)`、`blit(RT→Tex)`、`blit(Tex→Tex)` | T3DGL4Context.cpp:2815、T3DGL4Context.cpp:2927、T3DGL4Context.cpp:2934 |
-| 数据传输 | `copyBuffer` | T3DGL4Context.cpp:2941 |
-
-其中 `blit(RT→RT)` 与 `copyBuffer` 带 TODO 注释：
-
-```cpp
-// T3DGL4Context.cpp:2815
-TResult GL4Context::blit(RenderTarget *src, RenderTarget *dst, ...)
-{
-    // TODO: implement using glBlitFramebuffer
-    return T3D_OK;
-}
-```
-
-**最低成本的改进不是实现它们，而是先让它们诚实报错**。参考 D3D11 的做法：`copyBuffer` 对不支持的资源类型明确返回 `T3D_ERR_D3D11_UNSUPPORTED_OPERATION` 并打日志（`T3DD3D11Context.cpp:4113`），而不是静默返回成功。
-
-### A.6.2 已知功能缺陷
-
-| 缺陷 | 位置 | 影响 |
-|------|------|------|
-| `writeBuffer` 纹理分支尺寸为 0、格式硬编码 | T3DGL4Context.cpp:2987 | 纹理动态更新完全不可用 |
-| `setVertexShader` 无 nullptr 检查 | T3DGL4Context.cpp:1956 | 传 nullptr 崩溃，与 `setPixelShader`（T3DGL4Context.cpp:2058 有 nullptr 解绑分支）行为不一致 |
-| `resetRenderTarget` 不重置 `mRenderingToFBO` | T3DGL4Context.cpp:885 | 面剔除方向可能残留上一个 FBO 的翻转状态 |
-| `setGeometryShader` 实现被注释 | T3DGL4Context.cpp:2199 | GS 可编译但永远 attach 不进 program，几何着色器整体不可用 |
-| `createBlendState` 仅读 `RenderTargetStates[0]` | T3DGL4Context.cpp:1119 | MRT 下无法为各 RT 配置独立混合 |
-| `blit(Tex→RT)` 不把 `size==ZERO` 当成整张拷贝 | T3DGL4Context.cpp:2858 | D3D11 的契约是 `ZERO` = 整资源。`CameraEffectBehaviour::blitCopy` 用默认参数，Copy 效果在 GL4 上 blit 一块 0×0。最终上屏那次带了明确宽高，无效果回归不受影响 |
-| `bindPixelBuffers` 不切 MSAA 的 `GLResolveTex` | T3DGL4Context.cpp:3309 | 2D 永远绑 `GLTexture` + `GL_TEXTURE_2D`。MSAA RT 的可采样对象是 `GLResolveTex`；与空的 `blit(Tex→Tex)` 叠在一起，MSAA 相机的后处理链采不到合法 2D 纹理 |
-
-### A.6.3 能力缺口（与 D3D11 基线的差距）
-
-| 能力 | D3D11 | GL4 | GL API 是否支持 |
-|------|-------|-----|----------------|
-| Compute + dispatch | ✅ 完整（FL≥11.0） | 🚧 契约式不支持 | ✅ GL 4.3+ |
-| UAV / SSBO | ✅ 完整 | 🚧 契约式不支持 | ✅ GL 4.3+ |
-| StructuredBuffer | ✅ 完整 | 🚧 契约式不支持 | ✅ GL 4.3+ SSBO |
-| Indirect Draw / Dispatch | ✅ 完整 | 🚧 契约式不支持 | ✅ GL 4.0+ / 4.3+ |
-| Append/Consume + `copyStructureCount` | ✅ 完整 | 🚧 契约式不支持 | ⚠️ 需用 atomic counter 手工搭 |
-| 实例化绘制 | ✅ 完整 | ✅ 完整 | ✅ |
-| 非零 startInstance | ✅ 完整 | ✅ GL 4.2+ 动态判定 | ✅ GL 4.2+ |
-| Tessellation（Hull/Domain） | ✅ 完整 | ❌ 未实现 | ✅ GL 4.0+ |
-| Geometry Shader | ✅ 完整 | 💬 编译可用、绑定被注释 | ✅ |
-| `resizeRenderTexture` / `resizeRenderTarget` | ✅ 完整 | ⛔ 未 override | ✅ |
-| 四个 blit 重载 | ✅ 统一走 `resolveBlitEndpoint`+`doBlit` | ⚠️ 仅 `Tex→RT` | ✅ `glBlitFramebuffer` / `glCopyImageSubData` |
-| `copyBuffer` | ✅（限线性缓冲） | ❌ 未实现 | ✅ `glCopyBufferSubData` |
-| Cubemap 创建 | ✅ 含 mip 链与 Cubemap Array | ✅ 含 6 面 + mipmap | ✅ |
-| Shader 反射 | `D3DReflect`（含 CS thread group） | glslang，仅 VS/PS/GS | ⚠️ glslang 支持全阶段，是后端只接了三个 |
+| 上文章节 | 上文历史说法 | 当前代码实际实现 |
+|---------|-------------|-----------------|
+| §1.1 `setViewProjectionTransform` | 使用 `glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE)` 并通过 `conversionMat` 将 Z 重映射到 `[0,1]` | ✅ **已改为保持 OpenGL 原生 `[-1,1]` NDC 深度**（不调用 `glClipControl`，T3DGL4Context.cpp:504-530），仅在 `mRenderingToFBO` 时翻转投影矩阵 Y 轴；光空间深度 `[0,1]` 映射改由 `getDepthRemapMatrix()`（T3DGL4Context.cpp:534）提供 |
+| §2.4 `resetRenderTarget` | 仅调用 `glBindFramebuffer(GL_FRAMEBUFFER, 0)` | ✅ **已补齐重置 `mRenderingToFBO = false`**（T3DGL4Context.cpp:741），避免后续 `setRasterizerState` 残留上一个 FBO 的正反面翻转状态 |
+| §4.1~4.3 `clearColor` / `clearDepth` / `clearDepthStencil` | 直接调 `glClear*` | ✅ **已引入 `ClearMaskGuard`**（T3DGL4Context.cpp:1181-1235），临时禁用 Scissor 并开启写掩码，防止被前一个 Pass 的 `ColorMask=0` 或 `DepthWrite=false` 拦截 |
+| §5.1 / §5.5 `createBlendState` / `setBlendState` | 仅读取 `RenderTargetStates[0]`，不支持独立 RT 混合 | ✅ **已支持 `IndependentBlendEnable`**（T3DGL4Context.cpp:1337-1363、1593-1611），按 `glEnablei` / `glBlendFuncSeparateiARB` / `glBlendEquationSeparateiARB` / `glColorMaski` 逐 RT 配置 |
+| §8.2 `setVertexShader` | ⚠️ 缺 `nullptr` 检查，传入 null 会崩溃 | ✅ **已修复**（T3DGL4Context.cpp:2268-2283），支持 `shader == nullptr` 解绑，且非空时改用 `detachShaderStage` 避免冲掉先绑定的 PS |
+| §10 / §11 Hull & Domain Shader（10 个接口） | 🔇 按设计为空（返回空对象 / `T3D_OK`） | ✅ **已全部真实现**（T3DGL4Context.cpp:2447-2525），使用 `GL_TESS_CONTROL_SHADER` / `GL_TESS_EVALUATION_SHADER` 编译，通过 `attachGraphicsShader` 挂载 |
+| §12.2 `setGeometryShader` | 💬 实现代码被注释禁用 | ✅ **已启用**（T3DGL4Context.cpp:2582-2585），委托 `attachGraphicsShader(shader, mCurrentGSVariant)` |
+| §13 Compute Shader（5 个接口） | 🔇 按设计为空 | ✅ **已全部真实现**（T3DGL4Context.cpp:2608-2689），独立维护 `mCurrentComputeProgram` 与 `ensureComputeProgramLinked()` |
+| §14.1 `compileShader` (`glslangCompileAndReflect`) | glslang 仅支持 Vertex/Fragment/Geometry 三个阶段 | ✅ **已支持全部 6 个阶段**（含 Hull/Domain/Compute，T3DGL4Context.cpp:2710-2719），并用实测 GL 硬件上限覆盖 `GetDefaultResources()` |
+| §17.1~17.4 四个 `blit` 重载 | 仅 `Tex→RT` 实现，其余 3 个 ❌ 未实现 | ✅ **四个重载全部完成**（T3DGL4Context.cpp:3706-3822），统一走 `resolveBlitEndpoint` + `doBlit`（4697-4903），支持 `size == Vector3::ZERO` 整张拷贝、普通纹理临时挂 `mScratchReadFBO`/`mScratchDrawFBO`、以及 MSAA 源直接 resolve |
+| §17.5 `copyBuffer` | ❌ 未实现（仅 TODO 注释） | ✅ **已完成**（T3DGL4Context.cpp:3826-3898），使用 DSA `glCopyNamedBufferSubData`，含越界与 `Usage::kImmutable` 检查 |
+| §17.6 `writeBuffer` | ⚠️ 纹理分支 width/height 写死为 0 | ✅ **已修复**（T3DGL4Context.cpp:4096-4126），从 `PixelBuffer2D` 描述符读取真实宽高与像素格式，且线性缓冲支持 `kStructuredBuffer` |
 
 ---
 
-## A.7 全量口径汇总统计（93 个虚接口 + 3 个 readback）
+## A.6 GL4 后端第二轮收尾修复记录（2026-11 已全部清零）
 
-> **2026-09 复核**：Window 变体原先的 ❌ / 🚧 / 💬 / ⛔ 项已补成 ✅。下列数字以当前代码为准。
+在 2026-09 完成第一轮 P0/P1/P2 补齐后，2026-11 源码审计发现的最后 5 项遗留问题均已修复并验证通过：
 
-| 状态 | 数量 | 说明 |
-|------|------|------|
-| ✅ 已完成 | 92 | 原 53 项 + P0/P1/P2 补齐（blit 四重载、copyBuffer、writeBuffer、resize、Hull/Domain/GS/Compute、SSBO/UAV/dispatch/indirect、map/unmap、独立 RT 混合） |
-| 🔇 按设计为空 | 4 | `beginRender`、`endRender`、`beginPass`、`endPass` |
-| **合计** | **96** | 93 个虚接口 + `map` / `map(region)` / `unmap` |
+1. **纹理 UAV 支持（`RWTexture2D` / `glBindImageTexture`，即 T3-1）**：✅ **已完成**
+   - `GL4PixelBuffer1D/2D/3D`（及 `GLES3PixelBuffer1D/2D/3D`）新增 `GLInternalFormat` 字段，并在带 `kGPUUnorderedAccess` 时通过 `glTexStorage1D/2D/3D` 创建不可变格式纹理；
+   - `setCSUnorderedAccessBuffers` 新增 `getGLImageInfo` 分支，对 1D/2D/3D 纹理调用 `glBindImageTexture` 并记录到 `mBoundCSImages`；
+   - `uavBarrier` 补充 `GL_PIXEL_BUFFER_BARRIER_BIT` 并在屏障后自动解绑 `mBoundCSImages`；
+   - `ComputeApp` 的 K5（`K5 texture UAV`）已在 OpenGL 4.5 下实测 `PASS`。
+2. **`reset()` 状态复位补齐**：✅ **已完成**
+   - `GL4Context::reset()`（及 `GLES3Context::reset()`）已补齐 `mRenderingToFBO = false;`、`mProjectionFlipped = false;` 以及 `mBoundCSImages` 解绑清理。
+3. **合并 `GL4Context` 与 `GL4ContextBase` 重复实现**：✅ **已完成**
+   - 将 Core Profile 4.5 Dummy Context 升级、`fillCapabilities()`、`getDepthRemapMatrix()`、6 阶段 `glslangCompileAndReflect`（含 Compute `local_size` 线程组尺寸反射与 `mGLSLangLimits` 硬件上限抬升）、`reflectShaderAllBindings`、`reflectSamplerBindings` 全部统一收归 `GL4ContextBase`，消除了 `GL4Context` 中约 350 行重复代码；
+   - `GL4ConsoleContext` 同步补齐了 `createHullShader`、`createDomainShader`、`createComputeShader` 的真实 `glCompileShader` 实现。
+4. **窗口销毁后 GL 上下文悬空导致退出崩溃修复（`makeDummyCurrent`）**：✅ **已完成**
+   - `Agent::~Agent()` 先销毁 `RenderWindow`（触发 `GL4RenderWindow::~GL4RenderWindow()` 调用 `wglMakeCurrent(nullptr, nullptr)` 并销毁 `GLContext`），随后再释放残留材质/着色器/缓冲并卸载 `GL4Renderer`；
+   - 新增 `GL4ContextBase::makeDummyCurrent()`，在主窗口 `GLContext` 销毁后及 `~GL4Context()` 析构前切回共享了对象空间的 `mDummyHGLRC`，彻底消除了退出时无 GL 上下文调用 `glDelete*` 引发的 `0xC0000005` 崩溃。
+5. **清理 `T3DGL4Context.h` 过时注释**：✅ **已完成**
+
+---
+
+## A.7 全量口径汇总统计（97 个 RHIContext 虚接口）
+
+> **2026-11 源码实测统计**：按 `T3DRHIContext.h` 当前全部 **97 个虚接口**统计 `GL4Context`（Window 变体）：
+
+| 状态 | 数量 | 接口明细 |
+|------|------|----------|
+| ✅ 已完成 | **93** | 变换(2)、渲染目标与Resize(6)、视口与裁剪(2)、清除含`clearStencil`(4)、渲染状态含独立RT混合(7)、顶点输入与缓冲(11)、VS/PS/HS/DS/GS/CS 六阶段着色器与绑定(33)、Shader编译与反射(3)、结构化缓冲创建与SRV绑定(4)、Compute派发/Buffer&Texture UAV/Barrier/Counter拷贝(5)、图元与常规/实例化/间接绘制(7)、状态重置(1)、四个`blit`重载(4)、`copyBuffer`与`writeBuffer`(2)、GPU读回`map`/`unmap`(3) |
+| 🔇 按设计为空 | **4** | `beginRender`、`endRender`、`beginPass`、`endPass` |
+| **合计** | **97** | `T3DRHIContext.h` 全部 97 个虚接口（92 纯虚 + 5 虚默认） |
 
 ### 换算成完成度
 
-- **有效可用**（✅ + 🔇）：**96 / 96 = 100%**（Window 变体；Console 仍按 A.8 为工具链 null backend）
-- **对比 D3D11 基线**：GPU-driven、Tessellation、blit 契约、读回已对齐；Append/Consume 在 GL 侧用独立 4 字节 counter buffer 模拟，shader 需走 atomic counter / SSBO atomic，不能直接复用 D3D11 的 `AppendStructuredBuffer` 语法
-
-> 注：D3D11 的 `doc/todo/D3D11-Renderer-Backend-todo.md` 汇总统计一节仍写着「Compute dispatch + Instanced/Indirect 为 RHI 层缺口、暂缓」，那段话同样已过时——RHI 接口已就位、D3D11 侧也已实现。以代码为准。
+- **接口覆盖率**（✅ + 🔇）：**97 / 97 = 100%**
+- **完全实现率**（✅ + 🔇）：**97 / 97 = 100%**（全部待办项已清零）
+- **对比 D3D11 基线**：GL4 Window 后端在常规渲染、MRT、MSAA、后处理 Blit、Tessellation、Geometry Shader、Instancing、Indirect Draw/Dispatch、SSBO、纹理 UAV（`RWTexture2D`）、Append/Consume Counter、GPU Readback 方面已与 D3D11 全面对齐，`ComputeApp` 自检用例（K1、K2、K4、K5、K7、K8、K9）在 OpenGL 4 下 7/7 全部 `PASS`。
 
 ---
 
@@ -1217,121 +1199,77 @@ TResult GL4Context::blit(RenderTarget *src, RenderTarget *dst, ...)
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ✅ 定位明确（按设计为 null backend） |
+| **状态** | ✅ 定位明确且 6 阶段编译与反射已齐全 |
 | **位置** | `source/Plugins/Renderer/OpenGL4/Console/Source/T3DGL4ConsoleContext.cpp` |
-| **有效接口** | `createRenderWindow`（返回空的 `GL4ConsoleWindow`）、`createVertexShader` / `createPixelShader` / `createGeometryShader`（真实 `glCompileShader`，同步执行不走命令队列）、以及继承自 `GL4ContextBase` 的 `compileShader` / `reflectShaderAllBindings` / `reflectSamplerBindings` |
+| **有效接口** | `createRenderWindow`（返回空的 `GL4ConsoleWindow`）、全部 6 个阶段的 `create*Shader`（VS/PS/GS/HS/DS/CS 真实 `glCompileShader`，同步执行不走命令队列）、以及继承自 `GL4ContextBase` 的 `getDepthRemapMatrix`、`compileShader`（含 6 阶段 glslang 反射与 CS `local_size` 提取）、`reflectShaderAllBindings`、`reflectSamplerBindings` |
 | **其余接口** | 全部为单行空实现或 `T3D_RHI_UNSUPPORTED` |
-| **结论** | 这是刻意的 null backend，用于让 `BundleBuilder` / `BuiltinGenerator` 等命令行工具在无 GPU 上下文时跑通 shader 预编译与反射。**不应该按 Window 后端的标准去「补全」它**，判断口径与 D3D11 Console 一致（见 `D3D11-Renderer-Backend-todo.md` §22） |
-| **需要注意的两点** | 1）`GL4ConsoleContext` **从不调用** `fillCapabilities()`，`mCapabilities` 全为默认 false/0，因此连实例化绘制都会返回 `T3D_ERR_NOT_IMPLEMENT`——对工具链场景无影响，但与 Window 变体行为不同<br>2）`getDepthRemapMatrix` 未 override，返回基类单位矩阵。若将来 Console 变体参与任何深度相关的离线烘焙，这里会给出错误的 Z 范围 |
+| **结论** | 这是刻意的 null backend，用于让 `ShaderCrossCompiler (scc)` / `BundleBuilder` / `BuiltinGenerator` 等命令行工具在无窗口时跑通全阶段 shader 预编译与反射。`GL4ConsoleContext::init()` 现已统一调用 `GL4ContextBase::init()`，自动升级 Core Profile 4.5 Dummy Context 并执行 `fillCapabilities()` |
 
 ---
 
-## A.9 更新后的待办优先级
+## A.9 待办优先级与完成状态跟踪（2026-11 全部完成）
 
-> **2026-09 落地说明**：A.9 原 P0 / P1 / P2 项已在 GL4 Window 后端补齐。`fillCapabilities` 按 GL 版本动态打开 compute / SSBO / UAV / indirect / readback；四个 blit 统一走 `resolveBlitEndpoint` + `doBlit`（`ZERO` = 整张，MSAA 先 resolve）；Hull / Domain / Compute / GS 绑定、`copyBuffer`、`resizeRenderTexture` / `resizeRenderTarget`、`map` / `unmap` 均为真实现。Console 变体仍按 A.8 保持 null backend，不要按 Window 标准去补。
+### 已完成项总表
 
-### P0 — 修复缺陷
-
-| 接口 | 问题 | 状态 |
-|------|------|------|
-| `writeBuffer` 纹理分支 | 尺寸传 0、格式硬编码 `GL_RGBA` | ✅ 已从 `PixelBuffer2D` 描述符取 width/height 与像素格式 |
-| `setVertexShader` | 缺 nullptr 检查 | ✅ 已补 nullptr 解绑，与 `setPixelShader` 对齐 |
-| Hull/Domain/Compute 的 create 系列 | 返回空对象让调用方误以为成功 | ✅ 已改为真实编译；能力不足时 `createComputeShader` 返回 `nullptr` |
-| Hull/Domain/Compute 的 set 系列 + 三个 blit + `copyBuffer` | 静默返回 `T3D_OK` | ✅ 已实现，不再静默成功 |
-
-### P1 — 核心功能
-
-| 接口 | 原因 | 状态 |
-|------|------|------|
-| `setGeometryShader` | 取消注释即可启用 | ✅ 已启用，含 nullptr 与 `mProgramDirty` |
-| `blit(RT→RT)` / `blit(RT→Tex)` / `blit(Tex→Tex)` | 后处理卡在 `Tex→Tex` | ✅ 四重载统一 `doBlit`；`ZERO` 当整张；MSAA 先 resolve |
-| `blit(Tex→RT)` 的 `ZERO` 语义 | Copy 效果默认 `size=ZERO` | ✅ 与 D3D11 对齐，用源纹理剩余宽高 |
-| `copyBuffer` | 常用操作 | ✅ `glCopyNamedBufferSubData`，含 `size==0` 与 StructuredBuffer |
-| `resizeRenderTexture` / `resizeRenderTarget` | 编辑器视口与动态分辨率 | ✅ 重建 GLTexture/FBO/RBO/Resolve 全套附件 |
-| `resetRenderTarget` | 重置 `mRenderingToFBO` | ✅ 已重置 |
-
-### P2 — 能力补齐
-
-| 模块 | 状态 |
-|------|------|
-| Compute + SSBO + UAV + Indirect 一整套 | ✅ GL 4.3+ 真实现；4.0–4.2 仅 `supportsIndirectDraw`；低版本走能力位 stub |
-| Tessellation（Hull / Domain） | ✅ `GL_TESS_CONTROL_SHADER` / `GL_TESS_EVALUATION_SHADER` + glslang `EShLangTessControl` / `EShLangTessEvaluation` |
-| `createBlendState` 独立 RT 混合 | ✅ 支持 `IndependentBlendEnable` + `glBlendFunci` / `glColorMaski` |
-| GPU 读回 `map` / `unmap` | ✅ PBO / staging buffer + `supportsReadback=true` |
-
-### P3 — 清理
-
-| 项目 | 说明 |
-|------|------|
-| 修正 "not supported in OpenGL 3.3" 注释 | 三处（Hull / Domain / Compute），实际目标是 GL 4.5 Core Profile |
-| 消除 `GL4Context` 与 `GL4ContextBase` 的重复实现 | `initDummyContext`、`glslangCompileAndReflect`、`reflectShader*` 在两处各有一份，且 `GL4Context::init()` 不调用 `GL4ContextBase::init()`。D3D11 已做过同类合并（见 `D3D11-Renderer-Backend-todo.md` P3 项） |
-| `ensureProgramLinked` 补 `GL_CHECK_ERROR` | `glLinkProgram` / `glUseProgram` 后无错误检查 |
-| Console 变体调用 `fillCapabilities` 或显式注释说明 | 避免「能力位全 false」成为隐式行为 |
+| 原优先级 | 接口 / 模块 | 解决的问题 | 状态 |
+|:--------:|-------------|------------|:----:|
+| **P0** | `writeBuffer` 纹理与 SSBO 分支 | 从 `PixelBuffer2D` 描述符取真实 width/height 与像素格式；线性缓冲支持 `kStructuredBuffer` | ✅ 已完成 |
+| **P0** | `setVertexShader` | 补齐 `nullptr` 解绑分支，使用 `detachShaderStage` 避免冲掉已挂载的 PS | ✅ 已完成 |
+| **P0** | Hull / Domain / Compute 的 create & set 系列 | 全部改为真实编译与挂载；能力不足时 `createComputeShader` 返回 `nullptr` | ✅ 已完成 |
+| **P1** | `setGeometryShader` | 启用并统一走 `attachGraphicsShader(shader, mCurrentGSVariant)` | ✅ 已完成 |
+| **P1** | 四个 `blit` 重载 + `ZERO` 语义 + MSAA | 统一走 `resolveBlitEndpoint` + `doBlit`；`ZERO` 当整张；支持普通纹理 Scratch FBO 与 MSAA resolve | ✅ 已完成 |
+| **P1** | `copyBuffer` | 使用 `glCopyNamedBufferSubData` 实现，支持 `size == 0` 与 `StructuredBuffer` | ✅ 已完成 |
+| **P1** | `resizeRenderTexture` / `resizeRenderTarget` | 重建 `GLTexture` / `GLFBO` / `GLDepthRBO` / `GLResolveTex` / `GLResolveFBO` 全套附件 | ✅ 已完成 |
+| **P1** | `resetRenderTarget` & `clearStencil` | `resetRenderTarget` 重置 `mRenderingToFBO`；新增 `clearStencil` 与 `ClearMaskGuard` | ✅ 已完成 |
+| **P1 (T3-1)** | **纹理 UAV 支持（`RWTexture2D` / `glBindImageTexture`）** | `GL4PixelBuffer1D/2D/3D` 与 `GLES3PixelBuffer1D/2D/3D` 记录 `GLInternalFormat` 并在 UAV 时走 `glTexStorage*`；`setCSUnorderedAccessBuffers` 支持 `glBindImageTexture`；`uavBarrier` 补 `GL_PIXEL_BUFFER_BARRIER_BIT` 并解绑 image unit；`ComputeApp` K5 验证通过 | ✅ 已完成 |
+| **P2** | Compute + SSBO + Indirect + Counter 一整套 | GL 4.3+ 真实现（含 `VertexBuffer`/`IndexBuffer` 作为 Raw SRV 绑定）；GL 4.0+ 支持 `supportsIndirectDraw` | ✅ 已完成 |
+| **P2** | Tessellation（Hull / Domain） | `GL_TESS_CONTROL_SHADER` / `GL_TESS_EVALUATION_SHADER` + glslang 反射支持 | ✅ 已完成 |
+| **P2** | `createBlendState` / `setBlendState` 独立 RT 混合 | 支持 `IndependentBlendEnable` + `glEnablei` / `glBlendFuncSeparateiARB` / `glColorMaski` | ✅ 已完成 |
+| **P2** | GPU 读回 `map` / `unmap` | 线性缓冲与 2D 纹理（含 MSAA 自动 resolve）PBO/Staging 读回，`supportsReadback = true` | ✅ 已完成 |
+| **P2** | `reset()` 补齐翻转标志与 Image Unit 复位 | 在 `GL4Context::reset()` 与 `GLES3Context::reset()` 中复位 `mRenderingToFBO`、`mProjectionFlipped` 并解绑 `mBoundCSImages` | ✅ 已完成 |
+| **P3** | 合并 `GL4Context` 与 `GL4ContextBase` 重复代码 | 将 Core Profile 4.5 Dummy Context、`fillCapabilities`、`getDepthRemapMatrix`、6 阶段 `glslangCompileAndReflect`（含 CS `localSize`）及 `reflect*` 统一收归 `GL4ContextBase`，补齐 `GL4ConsoleContext` 的 HS/DS/CS 编译与 `makeDummyCurrent()` 析构保护 | ✅ 已完成 |
+| **P3** | 注释清理与 `ensureProgramLinked` 错误检查 | 移除过时注释；`ensureProgramLinked` / `ensureComputeProgramLinked` 已补 `GL_CHECK_ERROR` | ✅ 已完成 |
 
 ---
 
 ## A.10 跨文档一致性与回填清单
 
-GL4 后端的需求分散在多份设计文档中，本节记录它们与本文档的对应关系，以及哪些说法已经与代码脱节。
+GL4 后端的需求分散在多份设计文档中，本节记录它们与当前代码的最新对应状态：
 
-### A.10.1 GPU Readback：接口已进 RHI，GL4 仍是 stub
+### A.10.1 GPU Readback：GL4 Window 已落地真实现
 
-`doc/todo/GPU-Readback-onRender-Design-todo.md` 第一期已落地。RHI 接口不是当初草案的四个 `beginRead*` / `endRead*`，而是三个纯虚：
+`doc/todo/GPU-Readback-onRender-Design-todo.md` 定义的三个纯虚接口：
 
 - `RHIContext::map(RenderBuffer *, size_t, size_t)`
 - `RHIContext::map(RenderBuffer *, const ReadbackRegion &)`
 - `RHIContext::unmap(ReadbackHandle, Buffer &)`
 
-`T3DGL4Context` / `T3DGL4ConsoleContext` 已用 `T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, …)` / `T3D_RHI_UNSUPPORTED` stub，`supportsReadback` 保持 false。
+- **当前状态**：`T3DGL4Context` **已完成真实现**（`supportsReadback = true`，基于 `glCreateBuffers` + `GL_STREAM_READ` + `glCopyNamedBufferSubData` / `GL_PIXEL_PACK_BUFFER` + `glGetTextureSubImage`）；`T3DGL4ConsoleContext` 按 null backend 定位保持 `T3D_RHI_UNSUPPORTED` stub。
 
-因此：
+### A.10.2 Compute / UAV / Indirect：E2 与 T3-1 已全部完成
 
-- 本文档 A.7 的 93 个接口口径需加上这 3 个 stub，总数按 96 理解（若原先按 93 统计）；
-- GL4 真实现仍待做：`Usage::kCopy` 映射到 `GL_STREAM_READ`（该文档 §3.1 已指定），时序跟 D3D11 一样——`onRender` 里 `map` 只录 Copy，`onPostRender` 里 `unmap` 再读。
-
-### A.10.2 Compute / UAV / Indirect：对应 RHI-Compute 的第五期 E2
-
-`doc/todo/RHI-Compute-UAV-Indirect-Draw-Design-todo.md` 把 GL4 的补齐工作单列为**第五期任务 E2**（状态 ⏸，预估 3 天），要求「GL 4.3+ 全量真实现 + 低版本按能力位 stub」。本文档 A.9 的 P2 项即对应 E2。
-
-该文档 §10.1 记录的当前实现程度与本次复核**完全一致**：GL4 的实例化绘制是真实现，structured buffer / compute / UAV / indirect 是 stub。其 §8.1 给出了 RHI 接口到 GL API 的完整映射表（`glDispatchCompute`、`glMemoryBarrier`、`glBindBufferBase(GL_SHADER_STORAGE_BUFFER)`、`glDraw*Indirect`），可直接作为 E2 的实现依据。
-
-需注意 §8.2 的降级要求：**GL 4.0–4.2 有 indirect draw 但没有 compute**，所以 `supportsIndirectDraw` 与 `supportsCompute` 必须分别按版本判定，不能合成一个开关。
+`doc/todo/RHI-Compute-UAV-Indirect-Draw-Design-todo.md` 第五期任务 E2（GL 4.3+ 全量真实现 + 低版本按能力位 stub）、T0-1（`VertexBuffer`/`IndexBuffer` 作为 `ByteAddressBuffer` SRV 绑定）以及 T3-1（纹理 UAV `glBindImageTexture`）在 `GL4Context` 与 `GLES3Context` 中**均已落地**，`ComputeApp` 的 K1、K2、K4、K5、K7、K8、K9 在 OpenGL 4 下全部实测通过（7 passed, 0 failed）。
 
 ### A.10.3 Cubemap：Skybox 文档中的「死代码」说法已过时
 
 `doc/todo/Skybox-Support-Design-todo.md` §2.2 称 GL4 的 `setPixelBuffers` 虽有 `kPixelBufferCubemap` 分支但是**死代码**（cast 错误），§4.5 把「修正 `setPixelBuffers` cast」列为待办。
 
-**核对结果：这个问题已经修好了。** T3DGL4Context.cpp:3295-3298 的分支正确 cast 到 `GL4PixelBufferCubemap` 并使用 `GL_TEXTURE_CUBE_MAP` target。该文档 §4.3 对 GL4「`createPixelBufferCubemap` ✅ 完整实现」的判断与本次复核一致（见 A.4.3）。Skybox 文档的 §2.2 / §4.5 待办项可以关闭。
-
-`GL4ConsoleContext` 的 cubemap 为空实现，与 A.8 的 null backend 定位一致，不属缺陷。
+**核对结果：这个问题已经修好了。** `T3DGL4Context.cpp:4439-4442` 的分支正确 cast 到 `GL4PixelBufferCubemap` 并使用 `GL_TEXTURE_CUBE_MAP` target。Skybox 文档的 §2.2 / §4.5 待办项可以关闭。
 
 ### A.10.4 Shader 变体链路：GL4 侧已验证
 
 `doc/todo/Shader-MultiBackend-Variant-Design-todo.md` 记录 `OPENGL4` → `SHADER_LANGUAGE::kGLSL`（scc target `glsl`），且 ResourceApp 在 D3D11 / GL4 / VK 三个后端间切换均验证成功、GL4 正确取到 `kGLSL` 变体。这条链路无待办。
 
-### A.10.5 相机后处理：绘制 / GLSL 已齐，blit 契约未对齐
+### A.10.5 相机后处理：四个 `blit` 重载与 MSAA 采样已对齐
 
-`doc/todo/Camera-PostProcess-Design-todo.md` B1–B5 已合。效果链是后端无关的管线代码；**GL4 差的是 blit 契约，不是缺 `setRenderTarget` 或后处理 shader**。对照总表见该文档 §12。
+`doc/todo/Camera-PostProcess-Design-todo.md` B1–B5 已合，且 GL4 Window 后端的四个 `blit` 重载、`size == Vector3::ZERO` 整张拷贝语义、`bindPixelBuffers` 对 MSAA 渲染纹理优先绑定 `GLResolveTex`（`T3DGL4Context.cpp:4418-4422`）以及 `map`/`unmap` 读回**均已补齐**：
 
-效果链实际打到的 RHI：
-
-| 调用点 | 重载 | GL4 Window |
-|--------|------|------------|
-| `resolveIfMultisampled` | `blit(Texture*, Texture*)`，`size` 默认 `ZERO` | ❌ `T3DGL4Context.cpp:2934` 空实现，`return T3D_OK` |
-| `CameraEffectBehaviour::blitCopy` | `blit(Texture*, RenderTarget*)`，`size` 默认 `ZERO` | ⚠️ 有 `glBlitFramebuffer`，但不把 `ZERO` 当整张，算出 0×0 |
-| `drawFullscreen`（灰度 / 反相 / 染色） | `setRenderTarget` + VS/PS + `_MainTex` + `render(3,0)` | ✅ 接口齐。GLSL 变体由 `PostProcessShaderSources` 按 `OPENGL4` 选取（`POSTPROCESS_*_GL`） |
-| 无效果 / 链结束后上屏 | `blit(Texture*, RenderTarget*)`，带明确 size | ✅ 这条已经在用，无效果回归可以看 |
-
-因此：
-
-- **非 MSAA + shader 效果**：接口清单上可以跑（相机颜色 RT 已是 `shaderReadable=true`，会跳过 resolve）。blit 补齐前仍建议只在 D3D11 做观感验收，FBO Y 翻转与 GLSL UV（`y*0.5+0.5`，HLSL 是 `0.5-y*0.5`）可能上下颠倒。
-- **MSAA 相机或 Copy 效果**：现在是静默失败。`resolveIfMultisampled` 申请临时 RT、空 blit、却把这张空 RT 当作后续 `src`，不是回退到原图。
-- `GL4ConsoleContext` 四个 blit 全空，与 A.8 null backend 定位一致，后处理不要指望 Console。
-- `map` / `unmap` 仍是 stub（A.10.1）。效果链不用读回；PostProcessingApp 的 P2 像素断言在 GL4 上做不了。
-
-补齐顺序与 A.9 P1 一致：**先 `blit(Tex→Tex)` + 已有 `Tex→RT` 的 `ZERO` 语义**，再让 `bindPixelBuffers` 对 MSAA 源绑 `GLResolveTex`。`RT→RT` / `RT→Tex` 当前效果链用不到。不要再静默 `T3D_OK`。
-
-`doc/todo/PostProcessingApp-Design-todo.md` 已按本节回填：Sample 与 GLSL 变体已落地，第一期人眼验收仍写 D3D11。
+| 调用点 | 重载 | GL4 Window 当前状态 |
+|--------|------|---------------------|
+| `resolveIfMultisampled` | `blit(Texture*, Texture*)`，`size` 默认 `ZERO` | ✅ 已实现（`doBlit` 自动处理 `ZERO` 尺寸与 MSAA 源 resolve） |
+| `CameraEffectBehaviour::blitCopy` | `blit(Texture*, RenderTarget*)`，`size` 默认 `ZERO` | ✅ 已实现（`ZERO` 映射为源纹理剩余宽高） |
+| `drawFullscreen`（灰度 / 反相 / 染色） | `setRenderTarget` + VS/PS + `_MainTex` + `render(3,0)` | ✅ 已实现 |
+| 无效果 / 链结束后上屏 | `blit(Texture*, RenderTarget*)`，带明确 size | ✅ 已实现 |
 
 ### A.10.6 需要修正的上游文档
 
@@ -1346,9 +1284,11 @@ GL4 后端的需求分散在多份设计文档中，本节记录它们与本文�
 ---
 ---
 
-# 附录 B：T3-1 实现计划 —— GL4 / GLES3 纹理 UAV（`RWTexture2D` / `glBindImageTexture`）
+# 附录 B：T3-1 实现计划 —— GL4 / GLES3 纹理 UAV（`RWTexture2D` / `glBindImageTexture`）（✅ 已完成）
 
-> **目标**：补齐 `GL4Context` 与 `GLES3Context` 中 `setCSUnorderedAccessBuffers` 对纹理资源（`PixelBuffer2D` 等）的 Image Load/Store 绑定支持，消除当前的「静默绑 0」缺陷，使 `ComputeApp` 的 **K5（纹理 UAV 写入）** 在 OpenGL 4.3+ 与 OpenGL ES 3.1+ 上通过验证。
+> **状态**：✅ **已于 2026-11 落地并验证通过**（`ComputeApp` K5 `texture UAV` 在 OpenGL 4.5 下实测 `PASS`）。
+>
+> **目标**：补齐 `GL4Context` 与 `GLES3Context` 中 `setCSUnorderedAccessBuffers` 对纹理资源（`PixelBuffer2D` 等）的 Image Load/Store 绑定支持，消除原先的「静默绑 0」缺陷，使 `ComputeApp` 的 **K5（纹理 UAV 写入）** 在 OpenGL 4.3+ 与 OpenGL ES 3.1+ 上通过验证。
 
 ## B.1 现状与缺陷根因
 
