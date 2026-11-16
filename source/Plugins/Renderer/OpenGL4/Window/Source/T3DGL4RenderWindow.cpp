@@ -61,6 +61,11 @@ namespace Tiny3D
             wglMakeCurrent(nullptr, nullptr);
             wglDeleteContext(GLContext);
             GLContext = nullptr;
+
+            if (GL4_CONTEXT != nullptr)
+            {
+                GL4_CONTEXT->makeDummyCurrent();
+            }
         }
         GLDeviceContext = nullptr;
 #elif defined(T3D_OS_LINUX)
@@ -69,6 +74,11 @@ namespace Tiny3D
             glXMakeCurrent(GLDisplay, None, nullptr);
             glXDestroyContext(GLDisplay, GLContext);
             GLContext = nullptr;
+
+            if (GL4_CONTEXT != nullptr)
+            {
+                GL4_CONTEXT->makeDummyCurrent();
+            }
         }
         GLDisplay = nullptr;
         GLWindow = 0;

@@ -61,6 +61,15 @@ namespace Tiny3D
     GL4Context::~GL4Context()
     {
         mCurrentRenderTarget = nullptr;
+        mPendingVertexDecl = nullptr;
+        mCurrentVSVariant = nullptr;
+        mCurrentPSVariant = nullptr;
+        mCurrentHSVariant = nullptr;
+        mCurrentDSVariant = nullptr;
+        mCurrentGSVariant = nullptr;
+        mCurrentCSVariant = nullptr;
+
+        makeDummyCurrent();
 
         GL_SAFE_DELETE_PROGRAM(mCurrentProgram);
         GL_SAFE_DELETE_PROGRAM(mCurrentComputeProgram);
@@ -73,379 +82,13 @@ namespace Tiny3D
             GL_SAFE_DELETE_BUFFER(pair.second.Staging);
         }
         mPendingReadbacks.clear();
-
-        if (mGlslangInitialized)
-        {
-            glslang::FinalizeProcess();
-            mGlslangInitialized = false;
-        }
-
-        destroyDummyContext();
     }
 
     //--------------------------------------------------------------------------
 
     TResult GL4Context::init()
     {
-        TResult ret = T3D_OK;
-
-        do
-        {
-            ret = initDummyContext();
-            if (T3D_FAILED(ret))
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Failed to init dummy GL context !");
-                break;
-            }
-
-            if (!mGlslangInitialized)
-            {
-                glslang::InitializeProcess();
-                mGlslangInitialized = true;
-            }
-
-            fillCapabilities();
-        } while (false);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void GL4Context::fillCapabilities()
-    {
-        GLint major = 0;
-        GLint minor = 0;
-        glGetIntegerv(GL_MAJOR_VERSION, &major);
-        glGetIntegerv(GL_MINOR_VERSION, &minor);
-
-        const bool has40 = (major > 4) || (major == 4 && minor >= 0);
-        const bool has42 = (major > 4) || (major == 4 && minor >= 2);
-        const bool has43 = (major > 4) || (major == 4 && minor >= 3);
-
-        // 实例化与 divisor 是 GL 3.3 核心功能；base instance 需要 GL 4.2
-        mCapabilities.supportsInstancing = true;
-        mCapabilities.supportsBaseInstance = has42;
-        // GL 4.0 有 indirect draw，compute / SSBO / UAV 从 4.3 起才齐
-        mCapabilities.supportsIndirectDraw = has40;
-        mCapabilities.supportsCompute = has43;
-        mCapabilities.supportsUnorderedAccess = has43;
-        mCapabilities.supportsStructuredBuffer = has43;
-        mCapabilities.supportsIndirectDispatch = has43;
-        mCapabilities.supportsAppendConsumeBuffer = has43;
-        mCapabilities.supportsReadback = true;
-
-        if (has43)
-        {
-            for (GLuint i = 0; i < 3; ++i)
-            {
-                GLint count = 0;
-                GLint size = 0;
-                glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, i, &count);
-                glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, i, &size);
-                mCapabilities.maxDispatchGroupCount[i] = (uint32_t)count;
-                mCapabilities.maxComputeGroupSize[i] = (uint32_t)size;
-            }
-
-            GLint sharedMemory = 0;
-            glGetIntegerv(GL_MAX_COMPUTE_SHARED_MEMORY_SIZE, &sharedMemory);
-            mCapabilities.maxComputeSharedMemory = (uint32_t)sharedMemory;
-
-            GLint storageBuffers = 0;
-            glGetIntegerv(GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS, &storageBuffers);
-            mCapabilities.maxUnorderedAccessSlots = (uint32_t)storageBuffers;
-
-            glGetIntegerv(GL_MAX_COMPUTE_ATOMIC_COUNTERS, &mGLSLangLimits.computeAtomicCounters);
-            glGetIntegerv(GL_MAX_COMPUTE_ATOMIC_COUNTER_BUFFERS, &mGLSLangLimits.computeAtomicCounterBuffers);
-            glGetIntegerv(GL_MAX_COMBINED_SHADER_OUTPUT_RESOURCES, &mGLSLangLimits.combinedShaderOutputResources);
-        }
-
-        if (has42)
-        {
-            glGetIntegerv(GL_MAX_ATOMIC_COUNTER_BUFFER_BINDINGS, &mGLSLangLimits.atomicCounterBindings);
-            glGetIntegerv(GL_MAX_IMAGE_UNITS, &mGLSLangLimits.imageUnits);
-        }
-
-        while (glGetError() != GL_NO_ERROR) {}
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult GL4Context::initDummyContext()
-    {
-        TResult ret = T3D_OK;
-
-        do
-        {
-#if defined(T3D_OS_WINDOWS)
-            // 注册一个不可见的 dummy 窗口类
-            const wchar_t *className = L"Tiny3DGL4DummyWindow";
-            WNDCLASSW wc = {};
-            wc.lpfnWndProc = DefWindowProcW;
-            wc.hInstance = GetModuleHandleW(nullptr);
-            wc.lpszClassName = className;
-            RegisterClassW(&wc);
-
-            // 创建不可见的 dummy 窗口
-            mDummyHWND = CreateWindowExW(
-                0, className, L"", WS_POPUP,
-                0, 0, 1, 1,
-                nullptr, nullptr, wc.hInstance, nullptr);
-            if (mDummyHWND == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Failed to create dummy window !");
-                ret = T3D_ERR_GL4_CREATE_CONTEXT;
-                break;
-            }
-
-            mDummyHDC = GetDC(mDummyHWND);
-            if (mDummyHDC == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Failed to get dummy HDC !");
-                ret = T3D_ERR_GL4_CREATE_CONTEXT;
-                break;
-            }
-
-            // 设置像素格式（必须与正式窗口兼容）
-            PIXELFORMATDESCRIPTOR pfd = {};
-            pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-            pfd.nVersion = 1;
-            pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-            pfd.iPixelType = PFD_TYPE_RGBA;
-            pfd.cColorBits = 32;
-            pfd.cDepthBits = 24;
-            pfd.cStencilBits = 8;
-            pfd.iLayerType = PFD_MAIN_PLANE;
-
-            int pixelFormat = ChoosePixelFormat(mDummyHDC, &pfd);
-            if (pixelFormat == 0)
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "ChoosePixelFormat failed for dummy window !");
-                ret = T3D_ERR_GL4_SET_PIXEL_FORMAT;
-                break;
-            }
-
-            if (!SetPixelFormat(mDummyHDC, pixelFormat, &pfd))
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "SetPixelFormat failed for dummy window !");
-                ret = T3D_ERR_GL4_SET_PIXEL_FORMAT;
-                break;
-            }
-
-            // 创建 GL 上下文
-            mDummyHGLRC = wglCreateContext(mDummyHDC);
-            if (mDummyHGLRC == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "wglCreateContext failed for dummy window !");
-                ret = T3D_ERR_GL4_CREATE_CONTEXT;
-                break;
-            }
-
-            if (!wglMakeCurrent(mDummyHDC, mDummyHGLRC))
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "wglMakeCurrent failed for dummy window !");
-                ret = T3D_ERR_GL4_CREATE_CONTEXT;
-                break;
-            }
-
-            // 加载 GLAD
-            // 注意：wglGetProcAddress 只能加载 GL 1.2+ 扩展函数，
-            // GL 1.1 核心函数（glGenTextures 等）需要从 opengl32.dll 获取。
-            // 这里用组合 loader 解决此问题。
-            {
-                static HMODULE hOpenGL32 = LoadLibrary(TEXT("opengl32.dll"));
-                auto combinedLoader = [](const char *name) -> void*
-                {
-                    // 优先尝试 wglGetProcAddress（GL 1.2+ 扩展）
-                    void *proc = (void *)wglGetProcAddress(name);
-                    if (proc == nullptr
-                        || proc == (void *)0x1 || proc == (void *)0x2
-                        || proc == (void *)0x3 || proc == (void *)-1)
-                    {
-                        // 回退到从 opengl32.dll 加载（GL 1.0/1.1 核心函数）
-                        static HMODULE hGL = LoadLibrary(TEXT("opengl32.dll"));
-                        proc = (void *)GetProcAddress(hGL, name);
-                    }
-                    return proc;
-                };
-
-                if (!gladLoadGLLoader((GLADloadproc)+combinedLoader))
-                {
-                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "gladLoadGLLoader failed !");
-                    ret = T3D_ERR_GL4_GLAD_LOAD;
-                    break;
-                }
-            }
-
-#elif defined(T3D_OS_LINUX)
-            mDummyDisplay = XOpenDisplay(nullptr);
-            if (mDummyDisplay == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "XOpenDisplay failed for dummy !");
-                ret = T3D_ERR_GL4_CREATE_CONTEXT;
-                break;
-            }
-
-            int screen = DefaultScreen(mDummyDisplay);
-            int attribs[] = {
-                GLX_RGBA,
-                GLX_RED_SIZE, 8,
-                GLX_GREEN_SIZE, 8,
-                GLX_BLUE_SIZE, 8,
-                GLX_ALPHA_SIZE, 8,
-                GLX_DEPTH_SIZE, 24,
-                GLX_STENCIL_SIZE, 8,
-                GLX_DOUBLEBUFFER,
-                None
-            };
-
-            XVisualInfo *vi = glXChooseVisual(mDummyDisplay, screen, attribs);
-            if (vi == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "glXChooseVisual failed for dummy !");
-                ret = T3D_ERR_GL4_CREATE_CONTEXT;
-                break;
-            }
-
-            ::Window rootWin = RootWindow(mDummyDisplay, screen);
-            XSetWindowAttributes swa = {};
-            swa.colormap = XCreateColormap(mDummyDisplay, rootWin, vi->visual, AllocNone);
-            mDummyWindow = XCreateWindow(mDummyDisplay, rootWin,
-                0, 0, 1, 1, 0, vi->depth, InputOutput, vi->visual,
-                CWColormap, &swa);
-
-            mDummyGLXContext = glXCreateContext(mDummyDisplay, vi, nullptr, GL_TRUE);
-            XFree(vi);
-
-            if (mDummyGLXContext == nullptr)
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "glXCreateContext failed for dummy !");
-                ret = T3D_ERR_GL4_CREATE_CONTEXT;
-                break;
-            }
-
-            if (!glXMakeCurrent(mDummyDisplay, mDummyWindow, mDummyGLXContext))
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "glXMakeCurrent failed for dummy !");
-                ret = T3D_ERR_GL4_CREATE_CONTEXT;
-                break;
-            }
-
-            if (!gladLoadGLLoader((GLADloadproc)glXGetProcAddress))
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "gladLoadGLLoader failed !");
-                ret = T3D_ERR_GL4_GLAD_LOAD;
-                break;
-            }
-#endif
-
-            mGLADLoaded = true;
-
-#if defined(T3D_OS_WINDOWS)
-            // 获取 WGL 扩展函数指针（用于 MSAA 像素格式选择）
-            mWglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
-            mWglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
-            mWglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
-
-            if (mWglChoosePixelFormatARB != nullptr)
-            {
-                T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "wglChoosePixelFormatARB is available, MSAA pixel format selection enabled.");
-            }
-            else
-            {
-                T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "wglChoosePixelFormatARB is NOT available, MSAA will be disabled for render windows.");
-            }
-
-            // 升级 dummy 上下文为 Core Profile（RenderDoc 要求通过 wglCreateContextAttribsARB 创建）
-            if (mWglCreateContextAttribsARB != nullptr)
-            {
-                int contextFlags = 0;
-#if defined(T3D_DEBUG)
-                contextFlags |= WGL_CONTEXT_DEBUG_BIT_ARB;
-#endif
-                int attribs[] = {
-                    WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
-                    WGL_CONTEXT_MINOR_VERSION_ARB, 5,
-                    WGL_CONTEXT_FLAGS_ARB, contextFlags,
-                    WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-                    0
-                };
-
-                HGLRC coreRC = mWglCreateContextAttribsARB(mDummyHDC, nullptr, attribs);
-                if (coreRC != nullptr)
-                {
-                    wglMakeCurrent(mDummyHDC, coreRC);
-                    wglDeleteContext(mDummyHGLRC);
-                    mDummyHGLRC = coreRC;
-                    T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "Dummy context upgraded to OpenGL 4.5 Core Profile (RenderDoc compatible).");
-                }
-                else
-                {
-                    T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "wglCreateContextAttribsARB failed for Core Profile 4.5, keeping legacy context.");
-                }
-            }
-            else
-            {
-                T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "wglCreateContextAttribsARB is NOT available, RenderDoc may not work.");
-            }
-#endif
-
-            T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "OpenGL Vendor: %s", glGetString(GL_VENDOR));
-            T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "OpenGL Renderer: %s", glGetString(GL_RENDERER));
-            T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "OpenGL Version: %s", glGetString(GL_VERSION));
-            T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "GLSL Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
-
-            T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "Dummy GL context initialized, GLAD loaded successfully.");
-
-        } while (false);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    void GL4Context::destroyDummyContext()
-    {
-#if defined(T3D_OS_WINDOWS)
-        if (mDummyHGLRC != nullptr)
-        {
-            wglMakeCurrent(nullptr, nullptr);
-            wglDeleteContext(mDummyHGLRC);
-            mDummyHGLRC = nullptr;
-        }
-
-        if (mDummyHDC != nullptr && mDummyHWND != nullptr)
-        {
-            ReleaseDC(mDummyHWND, mDummyHDC);
-            mDummyHDC = nullptr;
-        }
-
-        if (mDummyHWND != nullptr)
-        {
-            DestroyWindow(mDummyHWND);
-            mDummyHWND = nullptr;
-            UnregisterClassW(L"Tiny3DGL4DummyWindow", GetModuleHandleW(nullptr));
-        }
-#elif defined(T3D_OS_LINUX)
-        if (mDummyGLXContext != nullptr)
-        {
-            glXMakeCurrent(mDummyDisplay, None, nullptr);
-            glXDestroyContext(mDummyDisplay, mDummyGLXContext);
-            mDummyGLXContext = nullptr;
-        }
-
-        if (mDummyWindow != 0)
-        {
-            XDestroyWindow(mDummyDisplay, mDummyWindow);
-            mDummyWindow = 0;
-        }
-
-        if (mDummyDisplay != nullptr)
-        {
-            XCloseDisplay(mDummyDisplay);
-            mDummyDisplay = nullptr;
-        }
-#endif
+        return GL4ContextBase::init();
     }
 
     //--------------------------------------------------------------------------
@@ -527,19 +170,6 @@ namespace Tiny3D
 
         mProjViewMatrix = mProjMatrix * mViewMatrix;
         return T3D_OK;
-    }
-
-    //--------------------------------------------------------------------------
-
-    const Matrix4& GL4Context::getDepthRemapMatrix() const
-    {
-        static Matrix4 zRemapMat(
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.5f, 0.5f,
-            0.0f, 0.0f, 0.0f, 1.0f
-            );
-        return zRemapMat;
     }
 
     //--------------------------------------------------------------------------
@@ -799,6 +429,7 @@ namespace Tiny3D
             const GLenum pixelType = GL4Mapping::getPixelType(desc.format);
             const bool hasStencil = (desc.format == PixelFormat::E_PF_D24_UNORM_S8_UINT
                 || desc.format == PixelFormat::E_PF_D32_FLOAT_S8X24_UINT);
+            glPixelBuffer->GLInternalFormat = internalFmt;
 
             if (isColorRT)
             {
@@ -1837,10 +1468,9 @@ namespace Tiny3D
 
     TResult GL4Context::setVertexBuffers(uint32_t startSlot, const VertexBuffers &buffers, const VertexStrides &strides, const VertexOffsets &offsets)
     {
-        VertexDeclaration *pendingDecl = mPendingVertexDecl;
-        mPendingVertexDecl = nullptr;
+        VertexDeclarationPtr pendingDecl = std::move(mPendingVertexDecl);
 
-        auto lambda = [this](uint32_t startSlot, const VertexBuffers &buffers, const VertexStrides &strides, const VertexOffsets &offsets, VertexDeclaration *pendingDecl)
+        auto lambda = [this](uint32_t startSlot, const VertexBuffers &buffers, const VertexStrides &strides, const VertexOffsets &offsets, const VertexDeclarationPtr &pendingDecl)
         {
             TResult ret = T3D_OK;
 
@@ -2001,15 +1631,28 @@ namespace Tiny3D
             do
             {
                 const auto &desc = buffer->getDescriptor();
+                const GLenum internalFmt = GL4Mapping::getInternalFormat(desc.format);
+                const GLenum pixelFmt = GL4Mapping::get(desc.format);
+                const GLenum pixelType = GL4Mapping::getPixelType(desc.format);
+                glBuffer->GLInternalFormat = internalFmt;
 
                 glGenTextures(1, &glBuffer->GLTexture);
                 glBindTexture(GL_TEXTURE_1D, glBuffer->GLTexture);
-                glTexImage1D(GL_TEXTURE_1D, 0,
-                    GL4Mapping::getInternalFormat(desc.format),
-                    desc.width, 0,
-                    GL4Mapping::get(desc.format),
-                    GL4Mapping::getPixelType(desc.format),
-                    buffer->getBuffer().Data);
+                if ((buffer->getGPUAccess() & kGPUUnorderedAccess) != 0)
+                {
+                    glTexStorage1D(GL_TEXTURE_1D, 1, internalFmt, desc.width);
+                    if (buffer->getBuffer().Data != nullptr)
+                    {
+                        glTexSubImage1D(GL_TEXTURE_1D, 0, 0, desc.width,
+                            pixelFmt, pixelType, buffer->getBuffer().Data);
+                    }
+                }
+                else
+                {
+                    glTexImage1D(GL_TEXTURE_1D, 0, internalFmt,
+                        desc.width, 0, pixelFmt, pixelType,
+                        buffer->getBuffer().Data);
+                }
                 glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glBindTexture(GL_TEXTURE_1D, 0);
@@ -2040,6 +1683,10 @@ namespace Tiny3D
                 const auto &desc = buffer->getDescriptor();
                 const uint32_t mipLevels = std::max<uint32_t>(1, desc.mipmaps);
                 const uint32_t bpp = Image::getBPP(desc.format) / 8;
+                const GLenum internalFmt = GL4Mapping::getInternalFormat(desc.format);
+                const GLenum pixelFmt = GL4Mapping::get(desc.format);
+                const GLenum pixelType = GL4Mapping::getPixelType(desc.format);
+                glBuffer->GLInternalFormat = internalFmt;
 
                 glGenTextures(1, &glBuffer->GLTexture);
                 glBindTexture(GL_TEXTURE_2D, glBuffer->GLTexture);
@@ -2048,7 +1695,29 @@ namespace Tiny3D
                 const size_t totalSize = buffer->getBuffer().DataSize;
                 size_t offset = 0;
 
-                if (cursor != nullptr && bpp > 0)
+                if ((buffer->getGPUAccess() & kGPUUnorderedAccess) != 0)
+                {
+                    glTexStorage2D(GL_TEXTURE_2D, mipLevels, internalFmt, desc.width, desc.height);
+                    if (cursor != nullptr && bpp > 0)
+                    {
+                        for (uint32_t level = 0; level < mipLevels; ++level)
+                        {
+                            const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                            const uint32_t mipH = std::max<uint32_t>(1, desc.height >> level);
+                            const size_t levelSize = static_cast<size_t>(mipW) * mipH * bpp;
+                            if (offset + levelSize > totalSize)
+                            {
+                                break;
+                            }
+                            glTexSubImage2D(GL_TEXTURE_2D, level, 0, 0,
+                                mipW, mipH, pixelFmt, pixelType, cursor + offset);
+                            offset += levelSize;
+                        }
+                    }
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                        mipLevels > 1 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+                }
+                else if (cursor != nullptr && bpp > 0)
                 {
                     uint32_t uploadedLevels = 0;
                     for (uint32_t level = 0; level < mipLevels; ++level)
@@ -2060,11 +1729,8 @@ namespace Tiny3D
                         {
                             break;
                         }
-                        glTexImage2D(GL_TEXTURE_2D, level,
-                            GL4Mapping::getInternalFormat(desc.format),
-                            mipW, mipH, 0,
-                            GL4Mapping::get(desc.format),
-                            GL4Mapping::getPixelType(desc.format),
+                        glTexImage2D(GL_TEXTURE_2D, level, internalFmt,
+                            mipW, mipH, 0, pixelFmt, pixelType,
                             cursor + offset);
                         offset += levelSize;
                         ++uploadedLevels;
@@ -2077,11 +1743,8 @@ namespace Tiny3D
                 }
                 else
                 {
-                    glTexImage2D(GL_TEXTURE_2D, 0,
-                        GL4Mapping::getInternalFormat(desc.format),
-                        desc.width, desc.height, 0,
-                        GL4Mapping::get(desc.format),
-                        GL4Mapping::getPixelType(desc.format),
+                    glTexImage2D(GL_TEXTURE_2D, 0, internalFmt,
+                        desc.width, desc.height, 0, pixelFmt, pixelType,
                         cursor);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
@@ -2115,15 +1778,29 @@ namespace Tiny3D
             do
             {
                 const auto &desc = buffer->getDescriptor();
+                const GLenum internalFmt = GL4Mapping::getInternalFormat(desc.format);
+                const GLenum pixelFmt = GL4Mapping::get(desc.format);
+                const GLenum pixelType = GL4Mapping::getPixelType(desc.format);
+                glBuffer->GLInternalFormat = internalFmt;
 
                 glGenTextures(1, &glBuffer->GLTexture);
                 glBindTexture(GL_TEXTURE_3D, glBuffer->GLTexture);
-                glTexImage3D(GL_TEXTURE_3D, 0,
-                    GL4Mapping::getInternalFormat(desc.format),
-                    desc.width, desc.height, desc.depth, 0,
-                    GL4Mapping::get(desc.format),
-                    GL4Mapping::getPixelType(desc.format),
-                    buffer->getBuffer().Data);
+                if ((buffer->getGPUAccess() & kGPUUnorderedAccess) != 0)
+                {
+                    glTexStorage3D(GL_TEXTURE_3D, 1, internalFmt, desc.width, desc.height, desc.depth);
+                    if (buffer->getBuffer().Data != nullptr)
+                    {
+                        glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, 0,
+                            desc.width, desc.height, desc.depth,
+                            pixelFmt, pixelType, buffer->getBuffer().Data);
+                    }
+                }
+                else
+                {
+                    glTexImage3D(GL_TEXTURE_3D, 0, internalFmt,
+                        desc.width, desc.height, desc.depth, 0,
+                        pixelFmt, pixelType, buffer->getBuffer().Data);
+                }
                 glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glBindTexture(GL_TEXTURE_3D, 0);
@@ -2282,7 +1959,7 @@ namespace Tiny3D
             return ENQUEUE_UNIQUE_COMMAND(lambda);
         }
 
-        auto lambda = [this](ShaderVariant *variant)
+        auto lambda = [this](const ShaderVariantPtr &variant)
         {
             TResult ret = T3D_OK;
 
@@ -2290,7 +1967,7 @@ namespace Tiny3D
             {
                 mCurrentVSVariant = variant;
 
-                const GLuint shaderHandle = getGLShaderHandle(variant);
+                const GLuint shaderHandle = getGLShaderHandle(variant.get());
 
                 // 这里不能删掉重建 program：调用方允许先绑 PS 再绑 VS，
                 // 重建会把已经 attach 的 PS 丢掉，link 出一个只有 VS 的 program，
@@ -2308,7 +1985,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, shader);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, ShaderVariantPtr(shader));
     }
 
     //--------------------------------------------------------------------------
@@ -2396,7 +2073,7 @@ namespace Tiny3D
             return ENQUEUE_UNIQUE_COMMAND(lambda);
         }
 
-        auto lambda = [this](ShaderVariant *variant)
+        auto lambda = [this](const ShaderVariantPtr &variant)
         {
             TResult ret = T3D_OK;
 
@@ -2404,7 +2081,7 @@ namespace Tiny3D
             {
                 mCurrentPSVariant = variant;
 
-                const GLuint shaderHandle = getGLShaderHandle(variant);
+                const GLuint shaderHandle = getGLShaderHandle(variant.get());
 
                 if (mCurrentProgram == 0)
                 {
@@ -2419,7 +2096,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, shader);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, ShaderVariantPtr(shader));
     }
 
     //--------------------------------------------------------------------------
@@ -2647,7 +2324,7 @@ namespace Tiny3D
             return ENQUEUE_UNIQUE_COMMAND(lambda);
         }
 
-        auto lambda = [this](ShaderVariant *variant)
+        auto lambda = [this](const ShaderVariantPtr &variant)
         {
             TResult ret = T3D_OK;
 
@@ -2655,7 +2332,7 @@ namespace Tiny3D
             {
                 mCurrentCSVariant = variant;
 
-                const GLuint shaderHandle = getGLShaderHandle(variant);
+                const GLuint shaderHandle = getGLShaderHandle(variant.get());
 
                 if (mCurrentComputeProgram != 0)
                 {
@@ -2670,7 +2347,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, shader);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, ShaderVariantPtr(shader));
     }
 
     TResult GL4Context::setCSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
@@ -2686,328 +2363,6 @@ namespace Tiny3D
     TResult GL4Context::setCSSamplers(uint32_t startSlot, const Samplers &samplers)
     {
         return bindSamplers(startSlot, samplers);
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult GL4Context::compileShader(ShaderVariant *shader)
-    {
-        size_t bytesLength = 0;
-        const char *bytes = shader->getBytesCode(bytesLength);
-        shader->setBytesCode(bytes, bytesLength);
-
-        return glslangCompileAndReflect(shader);
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult GL4Context::glslangCompileAndReflect(ShaderVariant *shader)
-    {
-        TResult ret = T3D_OK;
-
-        do
-        {
-            EShLanguage glslangStage;
-            switch (shader->getShaderStage())
-            {
-            case SHADER_STAGE::kVertex:   glslangStage = EShLangVertex; break;
-            case SHADER_STAGE::kPixel:    glslangStage = EShLangFragment; break;
-            case SHADER_STAGE::kGeometry: glslangStage = EShLangGeometry; break;
-            case SHADER_STAGE::kHull:     glslangStage = EShLangTessControl; break;
-            case SHADER_STAGE::kDomain:   glslangStage = EShLangTessEvaluation; break;
-            case SHADER_STAGE::kCompute:  glslangStage = EShLangCompute; break;
-            default:
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "glslangCompileAndReflect: unsupported shader stage !");
-                ret = T3D_ERR_GL4_SHADER_REFLECTION;
-                break;
-            }
-
-            if (T3D_FAILED(ret))
-                break;
-
-            size_t bytesLength = 0;
-            const char *source = shader->getBytesCode(bytesLength);
-
-            glslang::TShader glslangShader(glslangStage);
-            int sourceLen = static_cast<int>(bytesLength);
-            glslangShader.setStringsWithLengths(&source, &sourceLen, 1);
-
-            // 用实际 GL 上限覆盖 glslang 的规范最低值，否则合法 shader 会被误判。
-            // 查不到（能力位不支持）就留着默认值，别用 0 去卡。
-            TBuiltInResource resources = *GetDefaultResources();
-            auto raise = [](int &dst, int actual)
-            {
-                if (actual > dst) { dst = actual; }
-            };
-            raise(resources.maxAtomicCounterBindings, mGLSLangLimits.atomicCounterBindings);
-            raise(resources.maxComputeAtomicCounters, mGLSLangLimits.computeAtomicCounters);
-            raise(resources.maxComputeAtomicCounterBuffers, mGLSLangLimits.computeAtomicCounterBuffers);
-            raise(resources.maxCombinedShaderOutputResources, mGLSLangLimits.combinedShaderOutputResources);
-            raise(resources.maxImageUnits, mGLSLangLimits.imageUnits);
-            raise(resources.maxComputeWorkGroupCountX, (int)mCapabilities.maxDispatchGroupCount[0]);
-            raise(resources.maxComputeWorkGroupCountY, (int)mCapabilities.maxDispatchGroupCount[1]);
-            raise(resources.maxComputeWorkGroupCountZ, (int)mCapabilities.maxDispatchGroupCount[2]);
-            raise(resources.maxComputeWorkGroupSizeX, (int)mCapabilities.maxComputeGroupSize[0]);
-            raise(resources.maxComputeWorkGroupSizeY, (int)mCapabilities.maxComputeGroupSize[1]);
-            raise(resources.maxComputeWorkGroupSizeZ, (int)mCapabilities.maxComputeGroupSize[2]);
-
-            const int glslVersion = (shader->getShaderStage() == SHADER_STAGE::kCompute) ? 430 : 400;
-            if (!glslangShader.parse(&resources, glslVersion, false, EShMsgDefault))
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "glslang parse error:\n%s", glslangShader.getInfoLog());
-                ret = T3D_ERR_GL4_SHADER_REFLECTION;
-                break;
-            }
-
-            glslang::TProgram program;
-            program.addShader(&glslangShader);
-
-            if (!program.link(EShMsgDefault))
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "glslang link error:\n%s", program.getInfoLog());
-                ret = T3D_ERR_GL4_SHADER_REFLECTION;
-                break;
-            }
-
-            if (!program.buildReflection(EShReflectionAllBlockVariables))
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "glslang buildReflection failed !");
-                ret = T3D_ERR_GL4_SHADER_REFLECTION;
-                break;
-            }
-
-            GlslangReflectionData data;
-
-            int numBlocks = program.getNumUniformBlocks();
-            data.blocks.resize(numBlocks);
-            for (int i = 0; i < numBlocks; ++i)
-            {
-                const auto &block = program.getUniformBlock(i);
-                data.blocks[i].name = block.name.c_str();
-                data.blocks[i].size = block.size;
-            }
-
-            int numUniforms = program.getNumUniformVariables();
-            data.uniforms.resize(numUniforms);
-            for (int i = 0; i < numUniforms; ++i)
-            {
-                const auto &uniform = program.getUniform(i);
-                data.uniforms[i].name = uniform.name.c_str();
-                data.uniforms[i].glDefineType = uniform.glDefineType;
-                data.uniforms[i].offset = uniform.offset;
-                data.uniforms[i].size = uniform.size;
-                data.uniforms[i].blockIndex = uniform.index;
-                data.uniforms[i].arrayStride = uniform.arrayStride;
-            }
-
-            mReflectionCache[shader] = std::move(data);
-
-        } while (false);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult GL4Context::reflectShaderAllBindings(ShaderVariant *shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams)
-    {
-        TResult ret = T3D_OK;
-
-        do
-        {
-            auto itr = mReflectionCache.find(shader);
-            if (itr == mReflectionCache.end())
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "reflectShaderAllBindings: no cached reflection data (compileShader not called?)");
-                ret = T3D_ERR_GL4_SHADER_REFLECTION;
-                break;
-            }
-
-            const GlslangReflectionData &data = itr->second;
-
-            // Reflect Uniform Blocks (cbuffers) — iterate block members
-            for (int blockIdx = 0; blockIdx < static_cast<int>(data.blocks.size()); ++blockIdx)
-            {
-                for (const auto &uniform : data.uniforms)
-                {
-                    if (uniform.blockIndex != blockIdx)
-                        continue;
-
-                    if (uniform.glDefineType == GL_SAMPLER_1D
-                        || uniform.glDefineType == GL_SAMPLER_2D
-                        || uniform.glDefineType == GL_SAMPLER_3D
-                        || uniform.glDefineType == GL_SAMPLER_CUBE
-                        || uniform.glDefineType == GL_SAMPLER_2D_SHADOW)
-                    {
-                        continue;
-                    }
-
-                    uint32_t dataSize = 0;
-                    ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_FLOAT;
-
-                    switch (uniform.glDefineType)
-                    {
-                    case GL_FLOAT:       dataSize = sizeof(float) * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT; break;
-                    case GL_FLOAT_VEC4:  dataSize = sizeof(float) * 4 * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_VECTOR4_ARRAY : ShaderConstantParam::DATA_TYPE::DT_VECTOR4; break;
-                    case GL_FLOAT_MAT4:  dataSize = sizeof(float) * 16 * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_MATRIX4_ARRAY : ShaderConstantParam::DATA_TYPE::DT_MATRIX4; break;
-                    case GL_INT:         dataSize = sizeof(int) * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_INTEGER_ARRAY : ShaderConstantParam::DATA_TYPE::DT_INTEGER; break;
-                    case GL_BOOL:        dataSize = sizeof(int) * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_BOOL_ARRAY : ShaderConstantParam::DATA_TYPE::DT_BOOL; break;
-                    default:             dataSize = uniform.arrayStride > 0 ? uniform.arrayStride * uniform.size : 4 * uniform.size; dataType = ShaderConstantParam::DATA_TYPE::DT_STRUCT; break;
-                    }
-
-                    // Convert SPIRV-Cross generated names back to original names
-                    String cbufferName = data.blocks[blockIdx].name;
-                    String cname = uniform.name;
-
-                    if (StringUtil::startsWith(cbufferName, "type_"))
-                    {
-                        cbufferName = cbufferName.substr(5);
-                    }
-
-                    String::size_type dotPos = cname.find('.');
-                    if (dotPos != String::npos)
-                    {
-                        cname = cname.substr(dotPos + 1);
-                    }
-
-                    String::size_type bracketPos = cname.find('[');
-                    if (bracketPos != String::npos)
-                    {
-                        cname = cname.substr(0, bracketPos);
-                    }
-
-                    ShaderConstantParamPtr param = ShaderConstantParam::create(cbufferName, cname, blockIdx, dataSize, uniform.offset, dataType);
-                    constantParams.emplace(param->getName(), param);
-
-                    T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "Shader reflection - UBO: %s -> %s, uniform: %s -> %s, type: %u, size: %u, offset: %d",
-                        data.blocks[blockIdx].name.c_str(), cbufferName.c_str(), uniform.name.c_str(), cname.c_str(), dataType, dataSize, uniform.offset);
-                }
-            }
-
-            // 按 GL 类型识别采样器。glslang 的 uniform.index 语义随版本变化，
-            // 用它反推 standalone / block 成员不可靠，直接看类型。
-            uint32_t samplerIndex = 0;
-            for (const auto &uniform : data.uniforms)
-            {
-                bool isSampler = false;
-                TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
-
-                switch (uniform.glDefineType)
-                {
-                case GL_SAMPLER_1D:         isSampler = true; texType = TEXTURE_TYPE::TT_1D; break;
-                case GL_SAMPLER_2D:         isSampler = true; texType = TEXTURE_TYPE::TT_2D; break;
-                case GL_SAMPLER_3D:         isSampler = true; texType = TEXTURE_TYPE::TT_3D; break;
-                case GL_SAMPLER_CUBE:       isSampler = true; texType = TEXTURE_TYPE::TT_CUBE; break;
-                case GL_SAMPLER_2D_SHADOW:  isSampler = true; texType = TEXTURE_TYPE::TT_2D; break;
-                default: break;
-                }
-
-                if (isSampler)
-                {
-                    String name = uniform.name;
-
-                    const String kSpirvPrefix = "SPIRV_Cross_Combined";
-                    if (StringUtil::startsWith(name, kSpirvPrefix, false))
-                    {
-                        String remainder = name.substr(kSpirvPrefix.size());
-                        String::size_type samplerPos = remainder.find("sampler");
-                        if (samplerPos != String::npos && samplerPos > 0)
-                        {
-                            name = remainder.substr(0, samplerPos);
-                        }
-                    }
-
-                    ShaderSamplerParamPtr param;
-                    const auto it = samplerParams.find(name);
-                    if (it == samplerParams.end())
-                    {
-                        param = ShaderSamplerParam::create(name);
-                        samplerParams.emplace(name, param);
-                    }
-                    else
-                    {
-                        param = it->second;
-                    }
-
-                    param->setTexBinding(samplerIndex);
-                    param->setSamplerBinding(samplerIndex);
-                    param->setTextureType(texType);
-
-                    T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "Shader reflection - sampler: %s -> %s, binding: %d, type: %d",
-                        uniform.name.c_str(), name.c_str(), samplerIndex, texType);
-                    samplerIndex++;
-                }
-            }
-
-        } while (false);
-
-        return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult GL4Context::reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams)
-    {
-        TResult ret = T3D_OK;
-
-        do
-        {
-            auto itr = mReflectionCache.find(shader);
-            if (itr == mReflectionCache.end())
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "reflectSamplerBindings: no cached reflection data (compileShader not called?)");
-                ret = T3D_ERR_GL4_SHADER_REFLECTION;
-                break;
-            }
-
-            const GlslangReflectionData &data = itr->second;
-
-            uint32_t samplerIndex = 0;
-            for (const auto &uniform : data.uniforms)
-            {
-                bool isSampler = false;
-                TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
-
-                switch (uniform.glDefineType)
-                {
-                case GL_SAMPLER_1D:         isSampler = true; texType = TEXTURE_TYPE::TT_1D; break;
-                case GL_SAMPLER_2D:         isSampler = true; texType = TEXTURE_TYPE::TT_2D; break;
-                case GL_SAMPLER_3D:         isSampler = true; texType = TEXTURE_TYPE::TT_3D; break;
-                case GL_SAMPLER_CUBE:       isSampler = true; texType = TEXTURE_TYPE::TT_CUBE; break;
-                case GL_SAMPLER_2D_SHADOW:  isSampler = true; texType = TEXTURE_TYPE::TT_2D; break;
-                default: break;
-                }
-
-                if (isSampler)
-                {
-                    String name = uniform.name;
-
-                    const String kSpirvPrefix = "SPIRV_Cross_Combined";
-                    if (StringUtil::startsWith(name, kSpirvPrefix, false))
-                    {
-                        String remainder = name.substr(kSpirvPrefix.size());
-                        String::size_type samplerPos = remainder.find("sampler");
-                        if (samplerPos != String::npos && samplerPos > 0)
-                        {
-                            name = remainder.substr(0, samplerPos);
-                        }
-                    }
-
-                    auto it = samplerParams.find(name);
-                    if (it != samplerParams.end())
-                    {
-                        it->second->setTexBinding(samplerIndex);
-                        it->second->setSamplerBinding(samplerIndex);
-                        it->second->setTextureType(texType);
-                    }
-
-                    samplerIndex++;
-                }
-            }
-
-        } while (false);
-
-        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -3364,6 +2719,22 @@ namespace Tiny3D
             return T3D_ERR_INVALID_PARAM;
         }
 
+        for (uint32_t i = 0; i < buffers.size(); ++i)
+        {
+            RenderBuffer *rb = buffers[i].get();
+            if (rb == nullptr)
+            {
+                continue;
+            }
+
+            if ((rb->getGPUAccess() & kGPUUnorderedAccess) == 0)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "setCSUnorderedAccessBuffers : resource at slot [%u] "
+                    "was not created with kGPUUnorderedAccess !", startSlot + i);
+                return T3D_ERR_INVALID_PARAM;
+            }
+        }
+
         auto lambda = [this](uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts)
         {
             TResult ret = T3D_OK;
@@ -3372,21 +2743,52 @@ namespace Tiny3D
             {
                 for (uint32_t i = 0; i < buffers.size(); ++i)
                 {
-                    GLuint ssbo = 0;
+                    const uint32_t slot = startSlot + i;
+                    RenderBuffer *rb = buffers[i].get();
+
+                    if (rb == nullptr || rb->getRHIResource() == nullptr)
+                    {
+                        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, 0);
+                        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, slot, 0);
+                        glBindImageTexture(slot, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+                        mBoundCSImages.erase(slot);
+                        continue;
+                    }
+
+                    GLuint imgTex = 0;
+                    GLenum imgFmt = GL_RGBA8;
+                    GLboolean imgLayered = GL_FALSE;
+                    if (getGLImageInfo(rb, imgTex, imgFmt, imgLayered))
+                    {
+                        if (imgTex == 0)
+                        {
+                            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER,
+                                "setCSUnorderedAccessBuffers : texture at slot [%u] is not valid for image load/store (MSAA not supported) !",
+                                slot);
+                            ret = T3D_ERR_INVALID_PARAM;
+                            break;
+                        }
+
+                        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, 0);
+                        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, slot, 0);
+                        glBindImageTexture(slot, imgTex, 0, imgLayered, 0, GL_READ_WRITE, imgFmt);
+                        mBoundCSImages[slot] = imgTex;
+                        continue;
+                    }
+
+                    GLuint ssbo = getGLBufferHandle(rb);
                     GLuint counter = 0;
                     bool hasCounter = false;
 
-                    RenderBuffer *rb = buffers[i].get();
-                    ssbo = getGLBufferHandle(rb);
-                    if (rb != nullptr && rb->getRHIResource() != nullptr
-                        && rb->getRHIResource()->getResourceType() == RHIResource::ResourceType::kStructuredBuffer)
+                    if (rb->getRHIResource()->getResourceType() == RHIResource::ResourceType::kStructuredBuffer)
                     {
                         GL4StructuredBuffer *glSB = static_cast<GL4StructuredBuffer*>(rb->getRHIResource().get());
                         counter = glSB->GLCounterBuffer;
                         hasCounter = glSB->HasCounter;
                     }
 
-                    const uint32_t slot = startSlot + i;
+                    glBindImageTexture(slot, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+                    mBoundCSImages.erase(slot);
                     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 
                     if (hasCounter && counter != 0)
@@ -3509,19 +2911,56 @@ namespace Tiny3D
             T3D_RHI_UNSUPPORTED(supportsUnorderedAccess);
         }
 
-        auto lambda = [this]()
+        auto lambda = [this](const UnorderedAccessBuffers &buffers)
         {
             glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT
                 | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT
                 | GL_TEXTURE_FETCH_BARRIER_BIT
                 | GL_ATOMIC_COUNTER_BARRIER_BIT
                 | GL_COMMAND_BARRIER_BIT
-                | GL_BUFFER_UPDATE_BARRIER_BIT);
+                | GL_BUFFER_UPDATE_BARRIER_BIT
+                | GL_PIXEL_BUFFER_BARRIER_BIT);
+
+            if (buffers.empty())
+            {
+                for (const auto &kv : mBoundCSImages)
+                {
+                    glBindImageTexture(kv.first, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+                }
+                mBoundCSImages.clear();
+            }
+            else
+            {
+                for (const auto &buf : buffers)
+                {
+                    GLuint imgTex = 0;
+                    GLenum imgFmt = GL_RGBA8;
+                    GLboolean imgLayered = GL_FALSE;
+                    if (!getGLImageInfo(buf.get(), imgTex, imgFmt, imgLayered) || imgTex == 0)
+                    {
+                        continue;
+                    }
+
+                    for (auto it = mBoundCSImages.begin(); it != mBoundCSImages.end(); )
+                    {
+                        if (it->second == imgTex)
+                        {
+                            glBindImageTexture(it->first, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+                            it = mBoundCSImages.erase(it);
+                        }
+                        else
+                        {
+                            ++it;
+                        }
+                    }
+                }
+            }
+
             GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::uavBarrier");
             return T3D_OK;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, buffers);
     }
 
     TResult GL4Context::copyStructureCount(RenderBuffer *dstBuffer, size_t dstOffset, RenderBuffer *srcBuffer)
@@ -3658,6 +3097,8 @@ namespace Tiny3D
     TResult GL4Context::reset()
     {
         mCurrentRenderTarget = nullptr;
+        mRenderingToFBO = false;
+        mProjectionFlipped = false;
 
         auto lambda = [this]()
         {
@@ -3671,6 +3112,12 @@ namespace Tiny3D
                 mCurrentDSVariant = nullptr;
                 mCurrentGSVariant = nullptr;
                 mCurrentCSVariant = nullptr;
+
+                for (const auto &kv : mBoundCSImages)
+                {
+                    glBindImageTexture(kv.first, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+                }
+                mBoundCSImages.clear();
 
                 GL_SAFE_DELETE_PROGRAM(mCurrentComputeProgram);
                 mComputeProgramDirty = false;
@@ -4288,8 +3735,8 @@ namespace Tiny3D
         auto findSlot = [this](const String &texName) -> int32_t
         {
             ShaderVariant *variants[] = {
-                mCurrentPSVariant, mCurrentVSVariant, mCurrentGSVariant,
-                mCurrentHSVariant, mCurrentDSVariant, mCurrentCSVariant
+                mCurrentPSVariant.get(), mCurrentVSVariant.get(), mCurrentGSVariant.get(),
+                mCurrentHSVariant.get(), mCurrentDSVariant.get(), mCurrentCSVariant.get()
             };
             for (ShaderVariant *variant : variants)
             {
@@ -4552,9 +3999,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GL4Context::attachGraphicsShader(ShaderVariant *shader, ShaderVariant *&currentVariant)
+    TResult GL4Context::attachGraphicsShader(ShaderVariant *shader, ShaderVariantPtr &currentVariant)
     {
-        ShaderVariant **slot = &currentVariant;
+        ShaderVariantPtr *slot = &currentVariant;
 
         if (shader == nullptr)
         {
@@ -4566,7 +4013,7 @@ namespace Tiny3D
             return ENQUEUE_UNIQUE_COMMAND(lambda);
         }
 
-        auto lambda = [this](ShaderVariant *variant, ShaderVariant **slot)
+        auto lambda = [this](const ShaderVariantPtr &variant, ShaderVariantPtr *slot)
         {
             TResult ret = T3D_OK;
 
@@ -4574,7 +4021,7 @@ namespace Tiny3D
             {
                 *slot = variant;
 
-                const GLuint shaderHandle = getGLShaderHandle(variant);
+                const GLuint shaderHandle = getGLShaderHandle(variant.get());
 
                 if (mCurrentProgram == 0)
                 {
@@ -4589,7 +4036,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, shader, slot);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, ShaderVariantPtr(shader), slot);
     }
 
     //--------------------------------------------------------------------------
@@ -4652,6 +4099,59 @@ namespace Tiny3D
         }
 
         return 0;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool GL4Context::getGLImageInfo(RenderBuffer *buffer, GLuint &outTex, GLenum &outFormat, GLboolean &outLayered) const
+    {
+        outTex = 0;
+        outFormat = GL_RGBA8;
+        outLayered = GL_FALSE;
+
+        if (buffer == nullptr || buffer->getRHIResource() == nullptr)
+        {
+            return false;
+        }
+
+        switch (buffer->getRHIResource()->getResourceType())
+        {
+        case RHIResource::ResourceType::kPixelBuffer1D:
+            {
+                GL4PixelBuffer1D *pb = static_cast<GL4PixelBuffer1D*>(buffer->getRHIResource().get());
+                outTex = pb->GLTexture;
+                outFormat = pb->GLInternalFormat;
+                outLayered = GL_FALSE;
+                return true;
+            }
+        case RHIResource::ResourceType::kPixelBuffer2D:
+            {
+                GL4PixelBuffer2D *pb = static_cast<GL4PixelBuffer2D*>(buffer->getRHIResource().get());
+                if (pb->GLMSAACount > 1)
+                {
+                    outTex = 0;
+                }
+                else
+                {
+                    outTex = pb->GLTexture;
+                }
+                outFormat = pb->GLInternalFormat;
+                outLayered = GL_FALSE;
+                return true;
+            }
+        case RHIResource::ResourceType::kPixelBuffer3D:
+            {
+                GL4PixelBuffer3D *pb = static_cast<GL4PixelBuffer3D*>(buffer->getRHIResource().get());
+                outTex = pb->GLTexture;
+                outFormat = pb->GLInternalFormat;
+                outLayered = GL_TRUE;
+                return true;
+            }
+        default:
+            break;
+        }
+
+        return false;
     }
 
     //--------------------------------------------------------------------------

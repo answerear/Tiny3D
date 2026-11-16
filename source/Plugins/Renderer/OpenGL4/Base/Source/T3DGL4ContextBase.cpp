@@ -38,13 +38,99 @@ namespace Tiny3D
 
     TResult GL4ContextBase::init()
     {
-        TResult ret = initDummyContext();
-        if (T3D_OK == ret && !mGlslangInitialized)
+        TResult ret = T3D_OK;
+
+        do
         {
-            glslang::InitializeProcess();
-            mGlslangInitialized = true;
-        }
+            ret = initDummyContext();
+            if (T3D_FAILED(ret))
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "Failed to init dummy GL context !");
+                break;
+            }
+
+            if (!mGlslangInitialized)
+            {
+                glslang::InitializeProcess();
+                mGlslangInitialized = true;
+            }
+
+            fillCapabilities();
+        } while (false);
+
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    const Matrix4& GL4ContextBase::getDepthRemapMatrix() const
+    {
+        static Matrix4 zRemapMat(
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.5f, 0.5f,
+            0.0f, 0.0f, 0.0f, 1.0f
+            );
+        return zRemapMat;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4ContextBase::fillCapabilities()
+    {
+        GLint major = 0;
+        GLint minor = 0;
+        glGetIntegerv(GL_MAJOR_VERSION, &major);
+        glGetIntegerv(GL_MINOR_VERSION, &minor);
+
+        const bool has40 = (major > 4) || (major == 4 && minor >= 0);
+        const bool has42 = (major > 4) || (major == 4 && minor >= 2);
+        const bool has43 = (major > 4) || (major == 4 && minor >= 3);
+
+        // 实例化与 divisor 是 GL 3.3 核心功能；base instance 需要 GL 4.2
+        mCapabilities.supportsInstancing = true;
+        mCapabilities.supportsBaseInstance = has42;
+        // GL 4.0 有 indirect draw，compute / SSBO / UAV 从 4.3 起才齐
+        mCapabilities.supportsIndirectDraw = has40;
+        mCapabilities.supportsCompute = has43;
+        mCapabilities.supportsUnorderedAccess = has43;
+        mCapabilities.supportsStructuredBuffer = has43;
+        mCapabilities.supportsIndirectDispatch = has43;
+        mCapabilities.supportsAppendConsumeBuffer = has43;
+        mCapabilities.supportsReadback = true;
+
+        if (has43)
+        {
+            for (GLuint i = 0; i < 3; ++i)
+            {
+                GLint count = 0;
+                GLint size = 0;
+                glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, i, &count);
+                glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, i, &size);
+                mCapabilities.maxDispatchGroupCount[i] = (uint32_t)count;
+                mCapabilities.maxComputeGroupSize[i] = (uint32_t)size;
+            }
+
+            GLint sharedMemory = 0;
+            glGetIntegerv(GL_MAX_COMPUTE_SHARED_MEMORY_SIZE, &sharedMemory);
+            mCapabilities.maxComputeSharedMemory = (uint32_t)sharedMemory;
+
+            GLint storageBuffers = 0;
+            glGetIntegerv(GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS, &storageBuffers);
+            mCapabilities.maxUnorderedAccessSlots = (uint32_t)storageBuffers;
+
+            glGetIntegerv(GL_MAX_COMPUTE_ATOMIC_COUNTERS, &mGLSLangLimits.computeAtomicCounters);
+            glGetIntegerv(GL_MAX_COMPUTE_ATOMIC_COUNTER_BUFFERS, &mGLSLangLimits.computeAtomicCounterBuffers);
+            glGetIntegerv(GL_MAX_COMBINED_SHADER_OUTPUT_RESOURCES, &mGLSLangLimits.combinedShaderOutputResources);
+        }
+
+        if (has42)
+        {
+            glGetIntegerv(GL_MAX_ATOMIC_COUNTER_BUFFER_BINDINGS, &mGLSLangLimits.atomicCounterBindings);
+            glGetIntegerv(GL_MAX_IMAGE_UNITS, &mGLSLangLimits.imageUnits);
+        }
+
+        while (glGetError() != GL_NO_ERROR) {}
     }
 
     //--------------------------------------------------------------------------
@@ -56,13 +142,15 @@ namespace Tiny3D
         do
         {
 #if defined(T3D_OS_WINDOWS)
-            const wchar_t *className = L"Tiny3DGL4ConsoleDummyWindow";
+            // 注册一个不可见的 dummy 窗口类
+            const wchar_t *className = L"Tiny3DGL4DummyWindow";
             WNDCLASSW wc = {};
             wc.lpfnWndProc = DefWindowProcW;
             wc.hInstance = GetModuleHandleW(nullptr);
             wc.lpszClassName = className;
             RegisterClassW(&wc);
 
+            // 创建不可见的 dummy 窗口
             mDummyHWND = CreateWindowExW(
                 0, className, L"", WS_POPUP,
                 0, 0, 1, 1,
@@ -82,6 +170,7 @@ namespace Tiny3D
                 break;
             }
 
+            // 设置像素格式（必须与正式窗口兼容）
             PIXELFORMATDESCRIPTOR pfd = {};
             pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
             pfd.nVersion = 1;
@@ -95,42 +184,49 @@ namespace Tiny3D
             int pixelFormat = ChoosePixelFormat(mDummyHDC, &pfd);
             if (pixelFormat == 0)
             {
-                T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "ChoosePixelFormat failed !");
+                T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "ChoosePixelFormat failed for dummy window !");
                 ret = T3D_ERR_GL4_SET_PIXEL_FORMAT;
                 break;
             }
 
             if (!SetPixelFormat(mDummyHDC, pixelFormat, &pfd))
             {
-                T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "SetPixelFormat failed !");
+                T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "SetPixelFormat failed for dummy window !");
                 ret = T3D_ERR_GL4_SET_PIXEL_FORMAT;
                 break;
             }
 
+            // 创建 GL 上下文
             mDummyHGLRC = wglCreateContext(mDummyHDC);
             if (mDummyHGLRC == nullptr)
             {
-                T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "wglCreateContext failed !");
+                T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "wglCreateContext failed for dummy window !");
                 ret = T3D_ERR_GL4_CREATE_CONTEXT;
                 break;
             }
 
             if (!wglMakeCurrent(mDummyHDC, mDummyHGLRC))
             {
-                T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "wglMakeCurrent failed !");
+                T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "wglMakeCurrent failed for dummy window !");
                 ret = T3D_ERR_GL4_CREATE_CONTEXT;
                 break;
             }
 
+            // 加载 GLAD
+            // 注意：wglGetProcAddress 只能加载 GL 1.2+ 扩展函数，
+            // GL 1.1 核心函数（glGenTextures 等）需要从 opengl32.dll 获取。
+            // 这里用组合 loader 解决此问题。
             {
                 static HMODULE hOpenGL32 = LoadLibrary(TEXT("opengl32.dll"));
                 auto combinedLoader = [](const char *name) -> void*
                 {
+                    // 优先尝试 wglGetProcAddress（GL 1.2+ 扩展）
                     void *proc = (void *)wglGetProcAddress(name);
                     if (proc == nullptr
                         || proc == (void *)0x1 || proc == (void *)0x2
                         || proc == (void *)0x3 || proc == (void *)-1)
                     {
+                        // 回退到从 opengl32.dll 加载（GL 1.0/1.1 核心函数）
                         static HMODULE hGL = LoadLibrary(TEXT("opengl32.dll"));
                         proc = (void *)GetProcAddress(hGL, name);
                     }
@@ -149,7 +245,7 @@ namespace Tiny3D
             mDummyDisplay = XOpenDisplay(nullptr);
             if (mDummyDisplay == nullptr)
             {
-                T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "XOpenDisplay failed !");
+                T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "XOpenDisplay failed for dummy !");
                 ret = T3D_ERR_GL4_CREATE_CONTEXT;
                 break;
             }
@@ -170,7 +266,7 @@ namespace Tiny3D
             XVisualInfo *vi = glXChooseVisual(mDummyDisplay, screen, attribs);
             if (vi == nullptr)
             {
-                T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "glXChooseVisual failed !");
+                T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "glXChooseVisual failed for dummy !");
                 ret = T3D_ERR_GL4_CREATE_CONTEXT;
                 break;
             }
@@ -187,14 +283,14 @@ namespace Tiny3D
 
             if (mDummyGLXContext == nullptr)
             {
-                T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "glXCreateContext failed !");
+                T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "glXCreateContext failed for dummy !");
                 ret = T3D_ERR_GL4_CREATE_CONTEXT;
                 break;
             }
 
             if (!glXMakeCurrent(mDummyDisplay, mDummyWindow, mDummyGLXContext))
             {
-                T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "glXMakeCurrent failed !");
+                T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "glXMakeCurrent failed for dummy !");
                 ret = T3D_ERR_GL4_CREATE_CONTEXT;
                 break;
             }
@@ -209,6 +305,55 @@ namespace Tiny3D
 
             mGLADLoaded = true;
 
+#if defined(T3D_OS_WINDOWS)
+            // 获取 WGL 扩展函数指针（用于 MSAA 像素格式选择与 Core Profile 创建）
+            mWglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
+            mWglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
+            mWglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
+
+            if (mWglChoosePixelFormatARB != nullptr)
+            {
+                T3D_LOG_INFO(LOG_TAG_GL4CONTEXTBASE, "wglChoosePixelFormatARB is available, MSAA pixel format selection enabled.");
+            }
+            else
+            {
+                T3D_LOG_WARNING(LOG_TAG_GL4CONTEXTBASE, "wglChoosePixelFormatARB is NOT available, MSAA will be disabled for render windows.");
+            }
+
+            // 升级 dummy 上下文为 Core Profile（RenderDoc 要求通过 wglCreateContextAttribsARB 创建）
+            if (mWglCreateContextAttribsARB != nullptr)
+            {
+                int contextFlags = 0;
+#if defined(T3D_DEBUG)
+                contextFlags |= WGL_CONTEXT_DEBUG_BIT_ARB;
+#endif
+                int attribs[] = {
+                    WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+                    WGL_CONTEXT_MINOR_VERSION_ARB, 5,
+                    WGL_CONTEXT_FLAGS_ARB, contextFlags,
+                    WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+                    0
+                };
+
+                HGLRC coreRC = mWglCreateContextAttribsARB(mDummyHDC, nullptr, attribs);
+                if (coreRC != nullptr)
+                {
+                    wglMakeCurrent(mDummyHDC, coreRC);
+                    wglDeleteContext(mDummyHGLRC);
+                    mDummyHGLRC = coreRC;
+                    T3D_LOG_INFO(LOG_TAG_GL4CONTEXTBASE, "Dummy context upgraded to OpenGL 4.5 Core Profile (RenderDoc compatible).");
+                }
+                else
+                {
+                    T3D_LOG_WARNING(LOG_TAG_GL4CONTEXTBASE, "wglCreateContextAttribsARB failed for Core Profile 4.5, keeping legacy context.");
+                }
+            }
+            else
+            {
+                T3D_LOG_WARNING(LOG_TAG_GL4CONTEXTBASE, "wglCreateContextAttribsARB is NOT available, RenderDoc may not work.");
+            }
+#endif
+
             T3D_LOG_INFO(LOG_TAG_GL4CONTEXTBASE, "OpenGL Vendor: %s", glGetString(GL_VENDOR));
             T3D_LOG_INFO(LOG_TAG_GL4CONTEXTBASE, "OpenGL Renderer: %s", glGetString(GL_RENDERER));
             T3D_LOG_INFO(LOG_TAG_GL4CONTEXTBASE, "OpenGL Version: %s", glGetString(GL_VERSION));
@@ -218,6 +363,23 @@ namespace Tiny3D
         } while (false);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4ContextBase::makeDummyCurrent()
+    {
+#if defined(T3D_OS_WINDOWS)
+        if (mDummyHDC != nullptr && mDummyHGLRC != nullptr)
+        {
+            wglMakeCurrent(mDummyHDC, mDummyHGLRC);
+        }
+#elif defined(T3D_OS_LINUX)
+        if (mDummyDisplay != nullptr && mDummyWindow != 0 && mDummyGLXContext != nullptr)
+        {
+            glXMakeCurrent(mDummyDisplay, mDummyWindow, mDummyGLXContext);
+        }
+#endif
     }
 
     //--------------------------------------------------------------------------
@@ -242,7 +404,7 @@ namespace Tiny3D
         {
             DestroyWindow(mDummyHWND);
             mDummyHWND = nullptr;
-            UnregisterClassW(L"Tiny3DGL4ConsoleDummyWindow", GetModuleHandleW(nullptr));
+            UnregisterClassW(L"Tiny3DGL4DummyWindow", GetModuleHandleW(nullptr));
         }
 #elif defined(T3D_OS_LINUX)
         if (mDummyGLXContext != nullptr)
@@ -291,6 +453,9 @@ namespace Tiny3D
             case SHADER_STAGE::kVertex:   glslangStage = EShLangVertex; break;
             case SHADER_STAGE::kPixel:    glslangStage = EShLangFragment; break;
             case SHADER_STAGE::kGeometry: glslangStage = EShLangGeometry; break;
+            case SHADER_STAGE::kHull:     glslangStage = EShLangTessControl; break;
+            case SHADER_STAGE::kDomain:   glslangStage = EShLangTessEvaluation; break;
+            case SHADER_STAGE::kCompute:  glslangStage = EShLangCompute; break;
             default:
                 T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "glslangCompileAndReflect: unsupported shader stage !");
                 ret = T3D_ERR_GL4_SHADER_REFLECTION;
@@ -307,8 +472,27 @@ namespace Tiny3D
             int sourceLen = static_cast<int>(bytesLength);
             glslangShader.setStringsWithLengths(&source, &sourceLen, 1);
 
-            const TBuiltInResource *resources = GetDefaultResources();
-            if (!glslangShader.parse(resources, 400, false, EShMsgDefault))
+            // 用实际 GL 上限覆盖 glslang 的规范最低值，否则合法 shader 会被误判。
+            // 查不到（能力位不支持）就留着默认值，别用 0 去卡。
+            TBuiltInResource resources = *GetDefaultResources();
+            auto raise = [](int &dst, int actual)
+            {
+                if (actual > dst) { dst = actual; }
+            };
+            raise(resources.maxAtomicCounterBindings, mGLSLangLimits.atomicCounterBindings);
+            raise(resources.maxComputeAtomicCounters, mGLSLangLimits.computeAtomicCounters);
+            raise(resources.maxComputeAtomicCounterBuffers, mGLSLangLimits.computeAtomicCounterBuffers);
+            raise(resources.maxCombinedShaderOutputResources, mGLSLangLimits.combinedShaderOutputResources);
+            raise(resources.maxImageUnits, mGLSLangLimits.imageUnits);
+            raise(resources.maxComputeWorkGroupCountX, (int)mCapabilities.maxDispatchGroupCount[0]);
+            raise(resources.maxComputeWorkGroupCountY, (int)mCapabilities.maxDispatchGroupCount[1]);
+            raise(resources.maxComputeWorkGroupCountZ, (int)mCapabilities.maxDispatchGroupCount[2]);
+            raise(resources.maxComputeWorkGroupSizeX, (int)mCapabilities.maxComputeGroupSize[0]);
+            raise(resources.maxComputeWorkGroupSizeY, (int)mCapabilities.maxComputeGroupSize[1]);
+            raise(resources.maxComputeWorkGroupSizeZ, (int)mCapabilities.maxComputeGroupSize[2]);
+
+            const int glslVersion = (shader->getShaderStage() == SHADER_STAGE::kCompute) ? 430 : 400;
+            if (!glslangShader.parse(&resources, glslVersion, false, EShMsgDefault))
             {
                 T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "glslang parse error:\n%s", glslangShader.getInfoLog());
                 ret = T3D_ERR_GL4_SHADER_REFLECTION;
@@ -333,6 +517,13 @@ namespace Tiny3D
             }
 
             GlslangReflectionData data;
+
+            if (shader->getShaderStage() == SHADER_STAGE::kCompute)
+            {
+                data.localSize[0] = program.getLocalSize(0);
+                data.localSize[1] = program.getLocalSize(1);
+                data.localSize[2] = program.getLocalSize(2);
+            }
 
             int numBlocks = program.getNumUniformBlocks();
             data.blocks.resize(numBlocks);
@@ -381,6 +572,13 @@ namespace Tiny3D
 
             const GlslangReflectionData &data = itr->second;
 
+            if (shader->getShaderStage() == SHADER_STAGE::kCompute
+                && data.localSize[0] > 0 && data.localSize[1] > 0 && data.localSize[2] > 0)
+            {
+                shader->setThreadGroupSize(data.localSize[0], data.localSize[1], data.localSize[2]);
+            }
+
+            // Reflect Uniform Blocks (cbuffers) — iterate block members
             for (int blockIdx = 0; blockIdx < static_cast<int>(data.blocks.size()); ++blockIdx)
             {
                 for (const auto &uniform : data.uniforms)
@@ -410,6 +608,7 @@ namespace Tiny3D
                     default:             dataSize = uniform.arrayStride > 0 ? uniform.arrayStride * uniform.size : 4 * uniform.size; dataType = ShaderConstantParam::DATA_TYPE::DT_STRUCT; break;
                     }
 
+                    // Convert SPIRV-Cross generated names back to original names
                     String cbufferName = data.blocks[blockIdx].name;
                     String cname = uniform.name;
 
@@ -433,10 +632,88 @@ namespace Tiny3D
                     ShaderConstantParamPtr param = ShaderConstantParam::create(cbufferName, cname, blockIdx, dataSize, uniform.offset, dataType);
                     constantParams.emplace(param->getName(), param);
 
-                    T3D_LOG_DEBUG(LOG_TAG_GL4CONTEXTBASE, "Reflect - UBO: %s -> %s, uniform: %s -> %s, type: %u, size: %u, offset: %d",
+                    T3D_LOG_DEBUG(LOG_TAG_GL4CONTEXTBASE, "Shader reflection - UBO: %s -> %s, uniform: %s -> %s, type: %u, size: %u, offset: %d",
                         data.blocks[blockIdx].name.c_str(), cbufferName.c_str(), uniform.name.c_str(), cname.c_str(), dataType, dataSize, uniform.offset);
                 }
             }
+
+            // 按 GL 类型识别采样器。glslang 的 uniform.index 语义随版本变化，
+            // 用它反推 standalone / block 成员不可靠，直接看类型。
+            uint32_t samplerIndex = 0;
+            for (const auto &uniform : data.uniforms)
+            {
+                bool isSampler = false;
+                TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
+
+                switch (uniform.glDefineType)
+                {
+                case GL_SAMPLER_1D:         isSampler = true; texType = TEXTURE_TYPE::TT_1D; break;
+                case GL_SAMPLER_2D:         isSampler = true; texType = TEXTURE_TYPE::TT_2D; break;
+                case GL_SAMPLER_3D:         isSampler = true; texType = TEXTURE_TYPE::TT_3D; break;
+                case GL_SAMPLER_CUBE:       isSampler = true; texType = TEXTURE_TYPE::TT_CUBE; break;
+                case GL_SAMPLER_2D_SHADOW:  isSampler = true; texType = TEXTURE_TYPE::TT_2D; break;
+                default: break;
+                }
+
+                if (isSampler)
+                {
+                    String name = uniform.name;
+
+                    const String kSpirvPrefix = "SPIRV_Cross_Combined";
+                    if (StringUtil::startsWith(name, kSpirvPrefix, false))
+                    {
+                        String remainder = name.substr(kSpirvPrefix.size());
+                        String::size_type samplerPos = remainder.find("sampler");
+                        if (samplerPos != String::npos && samplerPos > 0)
+                        {
+                            name = remainder.substr(0, samplerPos);
+                        }
+                    }
+
+                    ShaderSamplerParamPtr param;
+                    const auto it = samplerParams.find(name);
+                    if (it == samplerParams.end())
+                    {
+                        param = ShaderSamplerParam::create(name);
+                        samplerParams.emplace(name, param);
+                    }
+                    else
+                    {
+                        param = it->second;
+                    }
+
+                    param->setTexBinding(samplerIndex);
+                    param->setSamplerBinding(samplerIndex);
+                    param->setTextureType(texType);
+
+                    T3D_LOG_DEBUG(LOG_TAG_GL4CONTEXTBASE, "Shader reflection - sampler: %s -> %s, binding: %d, type: %d",
+                        uniform.name.c_str(), name.c_str(), samplerIndex, texType);
+                    samplerIndex++;
+                }
+            }
+
+        } while (false);
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4ContextBase::reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams)
+    {
+        TResult ret = T3D_OK;
+
+        do
+        {
+            auto itr = mReflectionCache.find(shader);
+            if (itr == mReflectionCache.end())
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "reflectSamplerBindings: no cached reflection data (compileShader not called?)");
+                ret = T3D_ERR_GL4_SHADER_REFLECTION;
+                break;
+            }
+
+            const GlslangReflectionData &data = itr->second;
 
             uint32_t samplerIndex = 0;
             for (const auto &uniform : data.uniforms)
@@ -469,29 +746,14 @@ namespace Tiny3D
                         }
                     }
 
-                    if (name.find("_MainTex") != String::npos)
+                    auto it = samplerParams.find(name);
+                    if (it != samplerParams.end())
                     {
-                        name = "_MainTex";
+                        it->second->setTexBinding(samplerIndex);
+                        it->second->setSamplerBinding(samplerIndex);
+                        it->second->setTextureType(texType);
                     }
 
-                    ShaderSamplerParamPtr param;
-                    const auto it = samplerParams.find(name);
-                    if (it == samplerParams.end())
-                    {
-                        param = ShaderSamplerParam::create(name);
-                        samplerParams.emplace(name, param);
-                    }
-                    else
-                    {
-                        param = it->second;
-                    }
-
-                    param->setTexBinding(samplerIndex);
-                    param->setSamplerBinding(samplerIndex);
-                    param->setTextureType(texType);
-
-                    T3D_LOG_DEBUG(LOG_TAG_GL4CONTEXTBASE, "Reflect - sampler: %s -> %s, binding: %d, type: %d",
-                        uniform.name.c_str(), name.c_str(), samplerIndex, texType);
                     samplerIndex++;
                 }
             }
@@ -499,13 +761,6 @@ namespace Tiny3D
         } while (false);
 
         return ret;
-    }
-
-    //--------------------------------------------------------------------------
-
-    TResult GL4ContextBase::reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams)
-    {
-        return T3D_OK;
     }
 
     //--------------------------------------------------------------------------

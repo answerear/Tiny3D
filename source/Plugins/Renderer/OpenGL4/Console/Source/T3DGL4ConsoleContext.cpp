@@ -138,9 +138,108 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    RHIShaderPtr GL4ConsoleContext::createHullShader(ShaderVariant *shader) { return GL4ConsoleHullShader::create(); }
-    RHIShaderPtr GL4ConsoleContext::createDomainShader(ShaderVariant *shader) { return GL4ConsoleDomainShader::create(); }
-    RHIShaderPtr GL4ConsoleContext::createComputeShader(ShaderVariant *shader) { return GL4ConsoleComputeShader::create(); }
+    RHIShaderPtr GL4ConsoleContext::createHullShader(ShaderVariant *shader)
+    {
+        GL4ConsoleHullShaderPtr glShader = GL4ConsoleHullShader::create();
+
+        size_t bytecodeLength = 0;
+        const char *bytecode = shader->getBytesCode(bytecodeLength);
+
+        glShader->GLShaderHandle = glCreateShader(GL_TESS_CONTROL_SHADER);
+        GLint len = static_cast<GLint>(bytecodeLength);
+        glShaderSource(glShader->GLShaderHandle, 1, &bytecode, &len);
+        glCompileShader(glShader->GLShaderHandle);
+
+        GLint compiled = 0;
+        glGetShaderiv(glShader->GLShaderHandle, GL_COMPILE_STATUS, &compiled);
+        if (!compiled)
+        {
+            GLint logLen = 0;
+            glGetShaderiv(glShader->GLShaderHandle, GL_INFO_LOG_LENGTH, &logLen);
+            if (logLen > 0)
+            {
+                TArray<char> log(logLen + 1, 0);
+                glGetShaderInfoLog(glShader->GLShaderHandle, logLen, nullptr, log.data());
+                T3D_LOG_ERROR(LOG_TAG_GL4CONSOLERENDERER, "Hull shader compile error: %s", log.data());
+            }
+            GL_SAFE_DELETE_SHADER(glShader->GLShaderHandle);
+            return nullptr;
+        }
+
+        return glShader;
+    }
+
+    //--------------------------------------------------------------------------
+
+    RHIShaderPtr GL4ConsoleContext::createDomainShader(ShaderVariant *shader)
+    {
+        GL4ConsoleDomainShaderPtr glShader = GL4ConsoleDomainShader::create();
+
+        size_t bytecodeLength = 0;
+        const char *bytecode = shader->getBytesCode(bytecodeLength);
+
+        glShader->GLShaderHandle = glCreateShader(GL_TESS_EVALUATION_SHADER);
+        GLint len = static_cast<GLint>(bytecodeLength);
+        glShaderSource(glShader->GLShaderHandle, 1, &bytecode, &len);
+        glCompileShader(glShader->GLShaderHandle);
+
+        GLint compiled = 0;
+        glGetShaderiv(glShader->GLShaderHandle, GL_COMPILE_STATUS, &compiled);
+        if (!compiled)
+        {
+            GLint logLen = 0;
+            glGetShaderiv(glShader->GLShaderHandle, GL_INFO_LOG_LENGTH, &logLen);
+            if (logLen > 0)
+            {
+                TArray<char> log(logLen + 1, 0);
+                glGetShaderInfoLog(glShader->GLShaderHandle, logLen, nullptr, log.data());
+                T3D_LOG_ERROR(LOG_TAG_GL4CONSOLERENDERER, "Domain shader compile error: %s", log.data());
+            }
+            GL_SAFE_DELETE_SHADER(glShader->GLShaderHandle);
+            return nullptr;
+        }
+
+        return glShader;
+    }
+
+    //--------------------------------------------------------------------------
+
+    RHIShaderPtr GL4ConsoleContext::createComputeShader(ShaderVariant *shader)
+    {
+        if (!mCapabilities.supportsCompute)
+        {
+            T3D_LOG_WARNING(LOG_TAG_GL4CONSOLERENDERER, "Compute shader requires OpenGL 4.3+");
+            return nullptr;
+        }
+
+        GL4ConsoleComputeShaderPtr glShader = GL4ConsoleComputeShader::create();
+
+        size_t bytecodeLength = 0;
+        const char *bytecode = shader->getBytesCode(bytecodeLength);
+
+        glShader->GLShaderHandle = glCreateShader(GL_COMPUTE_SHADER);
+        GLint len = static_cast<GLint>(bytecodeLength);
+        glShaderSource(glShader->GLShaderHandle, 1, &bytecode, &len);
+        glCompileShader(glShader->GLShaderHandle);
+
+        GLint compiled = 0;
+        glGetShaderiv(glShader->GLShaderHandle, GL_COMPILE_STATUS, &compiled);
+        if (!compiled)
+        {
+            GLint logLen = 0;
+            glGetShaderiv(glShader->GLShaderHandle, GL_INFO_LOG_LENGTH, &logLen);
+            if (logLen > 0)
+            {
+                TArray<char> log(logLen + 1, 0);
+                glGetShaderInfoLog(glShader->GLShaderHandle, logLen, nullptr, log.data());
+                T3D_LOG_ERROR(LOG_TAG_GL4CONSOLERENDERER, "Compute shader compile error: %s", log.data());
+            }
+            GL_SAFE_DELETE_SHADER(glShader->GLShaderHandle);
+            return nullptr;
+        }
+
+        return glShader;
+    }
 
     //--------------------------------------------------------------------------
     // Empty implementations for Console

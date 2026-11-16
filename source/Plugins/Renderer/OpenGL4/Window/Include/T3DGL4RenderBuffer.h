@@ -69,6 +69,7 @@ namespace Tiny3D
         void *getNativeObject() const override;
 
         GLuint GLTexture {0};
+        GLenum GLInternalFormat {GL_RGBA8};
     protected:
         GL4PixelBuffer1D() = default;
     };
@@ -81,6 +82,7 @@ namespace Tiny3D
         void *getNativeObject() const override;
 
         GLuint GLTexture {0};
+        GLenum GLInternalFormat {GL_RGBA8};
         GLuint GLFBO {0};
         GLuint GLDepthRBO {0};
         /// MSAA resolve 纹理（非多采样，用于 shader 读取）
@@ -101,6 +103,7 @@ namespace Tiny3D
         void *getNativeObject() const override;
 
         GLuint GLTexture {0};
+        GLenum GLInternalFormat {GL_RGBA8};
     protected:
         GL4PixelBuffer3D() = default;
     };

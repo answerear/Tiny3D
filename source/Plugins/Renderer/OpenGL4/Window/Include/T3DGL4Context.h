@@ -50,8 +50,6 @@ namespace Tiny3D
 
         TResult setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat) override;
 
-        const Matrix4& getDepthRemapMatrix() const override;
-
         RHIRenderTargetPtr createRenderWindow(RenderWindow *renderWindow) override;
 
         RHIPixelBuffer2DPtr createRenderTexture(PixelBuffer2D *buffer) override;
@@ -135,12 +133,6 @@ namespace Tiny3D
         TResult setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
         TResult setCSSamplers(uint32_t startSlot, const Samplers &samplers) override;
 
-        TResult compileShader(ShaderVariant *shader) override;
-        TResult reflectShaderAllBindings(ShaderVariant *shader, ShaderConstantParams &constantParams, ShaderSamplerParams &samplerParams) override;
-
-        TResult reflectSamplerBindings(ShaderVariant *shader, ShaderSamplerParams &samplerParams) override;
-
-
         RHIStructuredBufferPtr createStructuredBuffer(StructuredBuffer *buffer) override;
         TResult setVSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
         TResult setPSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
@@ -168,7 +160,7 @@ namespace Tiny3D
         TResult copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset = 0, size_t size = 0, size_t dstOffset = 0) override;
         TResult writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer = false) override;
 
-        /// GPU 读回未实现
+        /// GPU → CPU 读回
         ReadbackHandle map(RenderBuffer *src, size_t offset, size_t size) override;
         ReadbackHandle map(RenderBuffer *src, const ReadbackRegion &region) override;
         TResult unmap(ReadbackHandle handle, Buffer &dst) override;
@@ -182,28 +174,9 @@ namespace Tiny3D
         TResult beginPass() override { return T3D_OK; }
         TResult endPass() override { return T3D_OK; }
 
-        /// GLAD 是否已加载（供 GL4RenderWindow 检查，避免重复加载）
-        bool isGLADLoaded() const { return mGLADLoaded; }
-
-        /// 获取 dummy GL 上下文（供 GL4RenderWindow 做 wglShareLists 共享）
-#if defined(T3D_OS_WINDOWS)
-        HGLRC getDummyGLRC() const { return mDummyHGLRC; }
-
-        /// 获取 wglChoosePixelFormatARB 函数指针（供 GL4RenderWindow 使用 MSAA 像素格式）
-        PFNWGLCHOOSEPIXELFORMATARBPROC getWglChoosePixelFormatARB() const { return mWglChoosePixelFormatARB; }
-
-        /// 获取 wglCreateContextAttribsARB 函数指针（供 GL4RenderWindow 创建 Core Profile 上下文）
-        PFNWGLCREATECONTEXTATTRIBSARBPROC getWglCreateContextAttribsARB() const { return mWglCreateContextAttribsARB; }
-#elif defined(T3D_OS_LINUX)
-        GLXContext getDummyGLXContext() const { return mDummyGLXContext; }
-#endif
-
     protected:
         GL4Context();
         ~GL4Context() override;
-
-        TResult initDummyContext();
-        void destroyDummyContext();
 
         TResult stageConstantBuffers(const ConstantBuffers &buffers);
         TResult bindPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers);
@@ -235,9 +208,6 @@ namespace Tiny3D
             GLboolean   mScissorEnabled {GL_FALSE};
         };
 
-        /// 按 GL 版本与实现限制填充 mCapabilities，必须在 GLAD 加载后调用
-        void fillCapabilities();
-
         /**
          * \brief draw call 之前确保当前 graphics program 已链接并激活
          * \return 链接失败返回 T3D_ERR_GL4_LINK_PROGRAM
@@ -250,12 +220,13 @@ namespace Tiny3D
         TResult ensureComputeProgramLinked();
 
         TResult compileGLSLShader(GLenum shaderType, const String &source, GLuint &outHandle, const char *stageName);
-        TResult attachGraphicsShader(ShaderVariant *shader, ShaderVariant *&currentVariant);
+        TResult attachGraphicsShader(ShaderVariant *shader, ShaderVariantPtr &currentVariant);
 
         void releaseRenderTextureResources(GL4PixelBuffer2D *pb);
         TResult buildRenderTextureResources(PixelBuffer2D *buffer, GL4PixelBuffer2D *pb);
 
         GLuint getGLBufferHandle(RenderBuffer *buffer) const;
+        bool getGLImageInfo(RenderBuffer *buffer, GLuint &outTex, GLenum &outFormat, GLboolean &outLayered) const;
         TResult validateIndirectArgs(RenderBuffer *argsBuffer, size_t argsOffset, size_t argsSize);
 
         struct BlitEndpoint
@@ -299,52 +270,6 @@ namespace Tiny3D
         ReadbackHandle allocReadbackRequest(RenderBuffer *src, bool isTexture, ReadbackRequest *&outRequest);
         TResult finishReadback(ReadbackHandle handle, Buffer &dst);
 
-        //-------------------------------------------------------------------
-        // glslang CPU-side reflection cache
-        //-------------------------------------------------------------------
-        struct GlslangUniformInfo
-        {
-            String name;        // e.g. "Tiny3DPerDraw.tiny3d_ObjectToWorld"
-            int glDefineType;   // GL_FLOAT_MAT4, GL_SAMPLER_2D, etc.
-            int offset;         // byte offset within the uniform block
-            int size;           // array size (1 for non-array)
-            int blockIndex;     // index of owning uniform block (-1 for standalone)
-            int arrayStride;
-        };
-
-        struct GlslangBlockInfo
-        {
-            String name;        // e.g. "type_Tiny3DPerDraw"
-            int size;           // block data size in bytes
-        };
-
-        struct GlslangReflectionData
-        {
-            TArray<GlslangBlockInfo> blocks;
-            TArray<GlslangUniformInfo> uniforms;
-        };
-
-        TResult glslangCompileAndReflect(ShaderVariant *shader);
-
-        TMap<ShaderVariant*, GlslangReflectionData> mReflectionCache;
-        bool mGlslangInitialized {false};
-
-        /// glslang 校验 shader 用的实际 GL 上限。
-        /// GetDefaultResources() 给的是 GL 规范的最低保证值，比真实驱动紧得多 ——
-        /// 比如 maxAtomicCounterBindings 只有 1，于是 binding = 1 的 atomic_uint
-        /// 会被判成 "binding is too large"，而驱动本身支持 8 个。
-        /// 这些值在 fillCapabilities() 里趁 GL 上下文可用时查好，编译时只读不查
-        /// （compileShader 跑在主线程，那里不保证有 GL 上下文）。
-        struct GLSLangLimits
-        {
-            int atomicCounterBindings {0};
-            int computeAtomicCounters {0};
-            int computeAtomicCounterBuffers {0};
-            int combinedShaderOutputResources {0};
-            int imageUnits {0};
-        };
-        GLSLangLimits mGLSLangLimits;
-
     protected:
         /// 当前激活的 graphics GL Program
         GLuint  mCurrentProgram {0};
@@ -362,7 +287,7 @@ namespace Tiny3D
         /// 当前绑定的 VAO
         GLuint  mCurrentVAO {0};
         /// 延迟配置顶点属性用的 VertexDeclaration 缓存
-        VertexDeclaration *mPendingVertexDecl {nullptr};
+        VertexDeclarationPtr mPendingVertexDecl {nullptr};
         /// 延迟绑定 UBO：cbuffer 名 -> GL buffer handle（render() link 后统一绑定）
         TMap<String, GLuint> mPendingUBOs;
         /// mPendingUBOs 的修订号，每次 stageConstantBuffers 递增
@@ -375,19 +300,20 @@ namespace Tiny3D
         uint32_t mUBOBoundRevision {0};
         /// program 是否需要重新 link（setVertexShader/setPixelShader 后置 true，link 后置 false）
         bool    mProgramDirty {false};
-        /// GLAD 是否已加载
-        bool    mGLADLoaded {false};
 
         /// 当前是否渲染到 FBO（非 backbuffer），用于 Y 翻转判断
         bool    mRenderingToFBO {false};
 
         /// 当前绑定的各阶段 ShaderVariant（用于 setupSamplerBindings 查找 slot）
-        ShaderVariant *mCurrentVSVariant {nullptr};
-        ShaderVariant *mCurrentPSVariant {nullptr};
-        ShaderVariant *mCurrentHSVariant {nullptr};
-        ShaderVariant *mCurrentDSVariant {nullptr};
-        ShaderVariant *mCurrentGSVariant {nullptr};
-        ShaderVariant *mCurrentCSVariant {nullptr};
+        ShaderVariantPtr mCurrentVSVariant {nullptr};
+        ShaderVariantPtr mCurrentPSVariant {nullptr};
+        ShaderVariantPtr mCurrentHSVariant {nullptr};
+        ShaderVariantPtr mCurrentDSVariant {nullptr};
+        ShaderVariantPtr mCurrentGSVariant {nullptr};
+        ShaderVariantPtr mCurrentCSVariant {nullptr};
+
+        /// 当前绑定的 CS Image Unit 槽位 -> GL 纹理对象（供 uavBarrier 解绑）
+        TMap<uint32_t, GLuint> mBoundCSImages;
 
         /// blit 用的临时 FBO（给没有自带 FBO 的普通纹理）
         GLuint  mScratchReadFBO {0};
@@ -405,24 +331,6 @@ namespace Tiny3D
         GLXContext  mSavedGLContext {nullptr};
         Display    *mSavedGLDisplay {nullptr};
         ::Window    mSavedGLWindow {0};
-#endif
-
-        //-------------------------------------------------------------------
-        // Dummy window/context 用于在 createRenderWindow 之前初始化 GLAD
-        //-------------------------------------------------------------------
-#if defined(T3D_OS_WINDOWS)
-        HWND    mDummyHWND {nullptr};
-        HDC     mDummyHDC {nullptr};
-        HGLRC   mDummyHGLRC {nullptr};
-
-        /// WGL 扩展函数指针（在 initDummyContext 中获取）
-        PFNWGLCHOOSEPIXELFORMATARBPROC  mWglChoosePixelFormatARB {nullptr};
-        PFNWGLGETEXTENSIONSSTRINGARBPROC mWglGetExtensionsStringARB {nullptr};
-        PFNWGLCREATECONTEXTATTRIBSARBPROC mWglCreateContextAttribsARB {nullptr};
-#elif defined(T3D_OS_LINUX)
-        Display     *mDummyDisplay {nullptr};
-        ::Window    mDummyWindow {0};
-        GLXContext  mDummyGLXContext {nullptr};
 #endif
     };
 }

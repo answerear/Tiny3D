@@ -108,7 +108,7 @@ namespace Tiny3D
         TResult copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset = 0, size_t size = 0, size_t dstOffset = 0) override;
         TResult writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer = false) override;
 
-        /// GPU 读回未实现
+        /// GPU 读回（Console null backend 不支持）
         ReadbackHandle map(RenderBuffer *src, size_t offset, size_t size) override;
         ReadbackHandle map(RenderBuffer *src, const ReadbackRegion &region) override;
         TResult unmap(ReadbackHandle handle, Buffer &dst) override;
