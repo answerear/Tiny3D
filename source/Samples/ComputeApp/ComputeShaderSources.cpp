@@ -300,7 +300,26 @@ void main(uint3 id : SV_DispatchThreadID)
     gOutput[id.xy] = float4(id.x / 255.0f, id.y / 255.0f, 128.0f / 255.0f, 1.0f);
 }
 )";
-    return make(hlsl, nullptr, nullptr);
+    static const char *gl = R"(
+#version 430
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+layout(rgba8, binding = 0) uniform writeonly image2D gOutput;
+void main()
+{
+    uvec2 id = gl_GlobalInvocationID.xy;
+    imageStore(gOutput, ivec2(id), vec4(float(id.x) / 255.0, float(id.y) / 255.0, 128.0 / 255.0, 1.0));
+}
+)";
+    static const char *gles = R"(#version 310 es
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+layout(rgba8, binding = 0) uniform highp writeonly image2D gOutput;
+void main()
+{
+    uvec2 id = gl_GlobalInvocationID.xy;
+    imageStore(gOutput, ivec2(id), vec4(float(id.x) / 255.0, float(id.y) / 255.0, 128.0 / 255.0, 1.0));
+}
+)";
+    return make(hlsl, gl, gles);
 }
 
 ComputeShaderSource reflectProbeSource()

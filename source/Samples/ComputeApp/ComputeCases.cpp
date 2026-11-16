@@ -481,7 +481,7 @@ namespace
         {
             return kNeedCompute | kNeedUnorderedAccess | kNeedReadback;
         }
-        uint32_t getBackendMask() const override { return kBackendD3D11; }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4 | kBackendGLES3; }
 
         TResult setup() override
         {
