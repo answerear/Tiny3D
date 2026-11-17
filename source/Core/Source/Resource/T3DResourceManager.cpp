@@ -379,10 +379,11 @@ namespace Tiny3D
             TResult ret = res->onLoad(archive);
             if (T3D_FAILED(ret))
             {
+                const String name = !res->getFilename().empty() ? res->getFilename() : res->getName();
                 res->mState = Resource::State::kUnloaded;
                 removeCache(res);
                 res = nullptr;
-                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load resource [%s] failed ! UUID : %s", uuid.toString().c_str());
+                T3D_LOG_ERROR(LOG_TAG_RESOURCE, "Load resource [%s] failed ! UUID : %s", name.c_str(), uuid.toString().c_str());
                 break;
             }
         } while (false);
