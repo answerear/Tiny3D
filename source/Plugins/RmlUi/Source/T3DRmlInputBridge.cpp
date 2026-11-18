@@ -349,6 +349,10 @@ namespace Tiny3D
             switch (event->type)
             {
             case APP_MOUSEMOTION:
+                if (event->motion.which == T3D_APP_TOUCH_MOUSEID)
+                {
+                    break;
+                }
                 deliver([&](RmlCanvas *canvas, Rml::Context *context)
                 {
                     int x = 0;
@@ -358,6 +362,10 @@ namespace Tiny3D
                 });
                 break;
             case APP_MOUSEBUTTONDOWN:
+                if (event->button.which == T3D_APP_TOUCH_MOUSEID)
+                {
+                    break;
+                }
                 deliver([&](RmlCanvas *canvas, Rml::Context *context)
                 {
                     (void)canvas;
@@ -365,6 +373,10 @@ namespace Tiny3D
                 });
                 break;
             case APP_MOUSEBUTTONUP:
+                if (event->button.which == T3D_APP_TOUCH_MOUSEID)
+                {
+                    break;
+                }
                 deliver([&](RmlCanvas *canvas, Rml::Context *context)
                 {
                     (void)canvas;
@@ -372,6 +384,10 @@ namespace Tiny3D
                 });
                 break;
             case APP_MOUSEWHEEL:
+                if (event->wheel.which == T3D_APP_TOUCH_MOUSEID)
+                {
+                    break;
+                }
                 deliver([&](RmlCanvas *canvas, Rml::Context *context)
                 {
                     (void)canvas;
