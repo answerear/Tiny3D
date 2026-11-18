@@ -15,5 +15,6 @@
 
 #include "Tiny3DStandardForwardFragment.cginc"
 float4 fragForward(VertexOutputForwardBase i) : SV_Target { return fragForwardBase(i); }
+float4 fragForwardAdditive(VertexOutputForwardBase i) : SV_Target { return fragForwardAdd(i); }
 
 #endif  /*TINY3D_STANDARD_CORE_FORWARD_INCLUDED*/
