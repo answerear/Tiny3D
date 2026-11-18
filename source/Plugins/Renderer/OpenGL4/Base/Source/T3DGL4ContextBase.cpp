@@ -10,6 +10,7 @@
 
 #include <glslang/Public/ShaderLang.h>
 #include <glslang/Public/ResourceLimits.h>
+#include <glslang/Include/Types.h>
 
 
 namespace Tiny3D
@@ -109,6 +110,8 @@ namespace Tiny3D
                 glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, i, &size);
                 mCapabilities.maxDispatchGroupCount[i] = (uint32_t)count;
                 mCapabilities.maxComputeGroupSize[i] = (uint32_t)size;
+                mGLSLangLimits.maxComputeWorkGroupCount[i] = count;
+                mGLSLangLimits.maxComputeWorkGroupSize[i] = size;
             }
 
             GLint sharedMemory = 0;
@@ -484,12 +487,12 @@ namespace Tiny3D
             raise(resources.maxComputeAtomicCounterBuffers, mGLSLangLimits.computeAtomicCounterBuffers);
             raise(resources.maxCombinedShaderOutputResources, mGLSLangLimits.combinedShaderOutputResources);
             raise(resources.maxImageUnits, mGLSLangLimits.imageUnits);
-            raise(resources.maxComputeWorkGroupCountX, (int)mCapabilities.maxDispatchGroupCount[0]);
-            raise(resources.maxComputeWorkGroupCountY, (int)mCapabilities.maxDispatchGroupCount[1]);
-            raise(resources.maxComputeWorkGroupCountZ, (int)mCapabilities.maxDispatchGroupCount[2]);
-            raise(resources.maxComputeWorkGroupSizeX, (int)mCapabilities.maxComputeGroupSize[0]);
-            raise(resources.maxComputeWorkGroupSizeY, (int)mCapabilities.maxComputeGroupSize[1]);
-            raise(resources.maxComputeWorkGroupSizeZ, (int)mCapabilities.maxComputeGroupSize[2]);
+            raise(resources.maxComputeWorkGroupCountX, mGLSLangLimits.maxComputeWorkGroupCount[0]);
+            raise(resources.maxComputeWorkGroupCountY, mGLSLangLimits.maxComputeWorkGroupCount[1]);
+            raise(resources.maxComputeWorkGroupCountZ, mGLSLangLimits.maxComputeWorkGroupCount[2]);
+            raise(resources.maxComputeWorkGroupSizeX, mGLSLangLimits.maxComputeWorkGroupSize[0]);
+            raise(resources.maxComputeWorkGroupSizeY, mGLSLangLimits.maxComputeWorkGroupSize[1]);
+            raise(resources.maxComputeWorkGroupSizeZ, mGLSLangLimits.maxComputeWorkGroupSize[2]);
 
             const int glslVersion = (shader->getShaderStage() == SHADER_STAGE::kCompute) ? 430 : 400;
             if (!glslangShader.parse(&resources, glslVersion, false, EShMsgDefault))
@@ -509,7 +512,7 @@ namespace Tiny3D
                 break;
             }
 
-            if (!program.buildReflection(EShReflectionAllBlockVariables))
+            if (!program.buildReflection(EShReflectionAllBlockVariables | EShReflectionSeparateBuffers))
             {
                 T3D_LOG_ERROR(LOG_TAG_GL4CONTEXTBASE, "glslang buildReflection failed !");
                 ret = T3D_ERR_GL4_SHADER_REFLECTION;
@@ -545,6 +548,48 @@ namespace Tiny3D
                 data.uniforms[i].size = uniform.size;
                 data.uniforms[i].blockIndex = uniform.index;
                 data.uniforms[i].arrayStride = uniform.arrayStride;
+                data.uniforms[i].binding = uniform.getBinding();
+            }
+
+            int numBufferBlocks = program.getNumBufferBlocks();
+            data.bufferBlocks.resize(numBufferBlocks);
+            for (int i = 0; i < numBufferBlocks; ++i)
+            {
+                const auto &block = program.getBufferBlock(i);
+                data.bufferBlocks[i].name = block.name.c_str();
+                data.bufferBlocks[i].binding = block.getBinding();
+                data.bufferBlocks[i].size = block.size;
+                const glslang::TType *blockType = block.getType();
+                data.bufferBlocks[i].isReadOnly = (blockType != nullptr && blockType->getQualifier().isReadOnly());
+            }
+
+            int numBufVars = program.getNumBufferVariables();
+            for (int i = 0; i < numBufVars; ++i)
+            {
+                const auto &var = program.getBufferVariable(i);
+                if (var.index >= 0 && var.index < numBufferBlocks)
+                {
+                    uint32_t stride = 0;
+                    if (var.topLevelArrayStride > 0)
+                    {
+                        stride = static_cast<uint32_t>(var.topLevelArrayStride);
+                    }
+                    else if (var.arrayStride > 0)
+                    {
+                        stride = static_cast<uint32_t>(var.arrayStride);
+                    }
+                    if (stride > 0 && data.bufferBlocks[var.index].elementStride == 0)
+                    {
+                        data.bufferBlocks[var.index].elementStride = stride;
+                    }
+                }
+            }
+
+            int numAtomicCounters = program.getNumAtomicCounters();
+            data.atomicCounterBindings.resize(numAtomicCounters);
+            for (int i = 0; i < numAtomicCounters; ++i)
+            {
+                data.atomicCounterBindings[i] = program.getAtomicCounter(i).getBinding();
             }
 
             mReflectionCache[shader] = std::move(data);
@@ -552,6 +597,128 @@ namespace Tiny3D
         } while (false);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool GL4ContextBase::mapSamplerGLType(GLenum glDefineType, TEXTURE_TYPE &outTexType)
+    {
+        switch (glDefineType)
+        {
+        case GL_SAMPLER_1D:
+        case GL_SAMPLER_1D_SHADOW:
+        case GL_SAMPLER_1D_ARRAY:
+        case GL_SAMPLER_1D_ARRAY_SHADOW:
+        case GL_INT_SAMPLER_1D:
+        case GL_INT_SAMPLER_1D_ARRAY:
+        case GL_UNSIGNED_INT_SAMPLER_1D:
+        case GL_UNSIGNED_INT_SAMPLER_1D_ARRAY:
+            outTexType = TEXTURE_TYPE::TT_1D;
+            return true;
+        case GL_SAMPLER_2D:
+        case GL_SAMPLER_2D_SHADOW:
+        case GL_SAMPLER_2D_MULTISAMPLE:
+        case GL_INT_SAMPLER_2D:
+        case GL_INT_SAMPLER_2D_MULTISAMPLE:
+        case GL_UNSIGNED_INT_SAMPLER_2D:
+        case GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE:
+            outTexType = TEXTURE_TYPE::TT_2D;
+            return true;
+        case GL_SAMPLER_2D_ARRAY:
+        case GL_SAMPLER_2D_ARRAY_SHADOW:
+        case GL_SAMPLER_2D_MULTISAMPLE_ARRAY:
+        case GL_INT_SAMPLER_2D_ARRAY:
+        case GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY:
+        case GL_UNSIGNED_INT_SAMPLER_2D_ARRAY:
+        case GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY:
+            outTexType = TEXTURE_TYPE::TT_2D_ARRAY;
+            return true;
+        case GL_SAMPLER_3D:
+        case GL_INT_SAMPLER_3D:
+        case GL_UNSIGNED_INT_SAMPLER_3D:
+            outTexType = TEXTURE_TYPE::TT_3D;
+            return true;
+        case GL_SAMPLER_CUBE:
+        case GL_SAMPLER_CUBE_SHADOW:
+        case GL_INT_SAMPLER_CUBE:
+        case GL_UNSIGNED_INT_SAMPLER_CUBE:
+            outTexType = TEXTURE_TYPE::TT_CUBE;
+            return true;
+        case GL_SAMPLER_CUBE_MAP_ARRAY_ARB:
+        case GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW_ARB:
+        case GL_INT_SAMPLER_CUBE_MAP_ARRAY_ARB:
+        case GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY_ARB:
+            outTexType = TEXTURE_TYPE::TT_CUBE_ARRAY;
+            return true;
+        default:
+            break;
+        }
+        return false;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool GL4ContextBase::isSamplerBufferGLType(GLenum glDefineType)
+    {
+        switch (glDefineType)
+        {
+        case GL_SAMPLER_BUFFER:
+        case GL_INT_SAMPLER_BUFFER:
+        case GL_UNSIGNED_INT_SAMPLER_BUFFER:
+            return true;
+        default:
+            break;
+        }
+        return false;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool GL4ContextBase::isImageGLType(GLenum glDefineType, bool &outIsBuffer)
+    {
+        outIsBuffer = false;
+        switch (glDefineType)
+        {
+        case GL_IMAGE_BUFFER:
+        case GL_INT_IMAGE_BUFFER:
+        case GL_UNSIGNED_INT_IMAGE_BUFFER:
+            outIsBuffer = true;
+            return true;
+        case GL_IMAGE_1D:
+        case GL_IMAGE_2D:
+        case GL_IMAGE_3D:
+        case GL_IMAGE_2D_RECT:
+        case GL_IMAGE_CUBE:
+        case GL_IMAGE_1D_ARRAY:
+        case GL_IMAGE_2D_ARRAY:
+        case GL_IMAGE_CUBE_MAP_ARRAY:
+        case GL_IMAGE_2D_MULTISAMPLE:
+        case GL_IMAGE_2D_MULTISAMPLE_ARRAY:
+        case GL_INT_IMAGE_1D:
+        case GL_INT_IMAGE_2D:
+        case GL_INT_IMAGE_3D:
+        case GL_INT_IMAGE_2D_RECT:
+        case GL_INT_IMAGE_CUBE:
+        case GL_INT_IMAGE_1D_ARRAY:
+        case GL_INT_IMAGE_2D_ARRAY:
+        case GL_INT_IMAGE_CUBE_MAP_ARRAY:
+        case GL_INT_IMAGE_2D_MULTISAMPLE:
+        case GL_INT_IMAGE_2D_MULTISAMPLE_ARRAY:
+        case GL_UNSIGNED_INT_IMAGE_1D:
+        case GL_UNSIGNED_INT_IMAGE_2D:
+        case GL_UNSIGNED_INT_IMAGE_3D:
+        case GL_UNSIGNED_INT_IMAGE_2D_RECT:
+        case GL_UNSIGNED_INT_IMAGE_CUBE:
+        case GL_UNSIGNED_INT_IMAGE_1D_ARRAY:
+        case GL_UNSIGNED_INT_IMAGE_2D_ARRAY:
+        case GL_UNSIGNED_INT_IMAGE_CUBE_MAP_ARRAY:
+        case GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE:
+        case GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_ARRAY:
+            return true;
+        default:
+            break;
+        }
+        return false;
     }
 
     //--------------------------------------------------------------------------
@@ -586,26 +753,160 @@ namespace Tiny3D
                     if (uniform.blockIndex != blockIdx)
                         continue;
 
-                    if (uniform.glDefineType == GL_SAMPLER_1D
-                        || uniform.glDefineType == GL_SAMPLER_2D
-                        || uniform.glDefineType == GL_SAMPLER_3D
-                        || uniform.glDefineType == GL_SAMPLER_CUBE
-                        || uniform.glDefineType == GL_SAMPLER_2D_SHADOW)
+                    TEXTURE_TYPE unusedTexType = TEXTURE_TYPE::TT_2D;
+                    bool unusedIsBuf = false;
+                    if (mapSamplerGLType(static_cast<GLenum>(uniform.glDefineType), unusedTexType)
+                        || isSamplerBufferGLType(static_cast<GLenum>(uniform.glDefineType))
+                        || isImageGLType(static_cast<GLenum>(uniform.glDefineType), unusedIsBuf)
+                        || uniform.glDefineType == GL_UNSIGNED_INT_ATOMIC_COUNTER)
                     {
                         continue;
                     }
+
+                    const uint32_t elemCount = static_cast<uint32_t>(std::max(1, uniform.size));
+                    const bool isArray = (elemCount > 1);
+                    auto calcSize = [&](uint32_t elemBytes) -> uint32_t
+                    {
+                        if (isArray && uniform.arrayStride > 0)
+                        {
+                            return static_cast<uint32_t>(uniform.arrayStride) * elemCount;
+                        }
+                        return elemBytes * elemCount;
+                    };
 
                     uint32_t dataSize = 0;
                     ShaderConstantParam::DATA_TYPE dataType = ShaderConstantParam::DATA_TYPE::DT_FLOAT;
 
                     switch (uniform.glDefineType)
                     {
-                    case GL_FLOAT:       dataSize = sizeof(float) * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT; break;
-                    case GL_FLOAT_VEC4:  dataSize = sizeof(float) * 4 * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_VECTOR4_ARRAY : ShaderConstantParam::DATA_TYPE::DT_VECTOR4; break;
-                    case GL_FLOAT_MAT4:  dataSize = sizeof(float) * 16 * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_MATRIX4_ARRAY : ShaderConstantParam::DATA_TYPE::DT_MATRIX4; break;
-                    case GL_INT:         dataSize = sizeof(int) * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_INTEGER_ARRAY : ShaderConstantParam::DATA_TYPE::DT_INTEGER; break;
-                    case GL_BOOL:        dataSize = sizeof(int) * uniform.size; dataType = (uniform.size > 1) ? ShaderConstantParam::DATA_TYPE::DT_BOOL_ARRAY : ShaderConstantParam::DATA_TYPE::DT_BOOL; break;
-                    default:             dataSize = uniform.arrayStride > 0 ? uniform.arrayStride * uniform.size : 4 * uniform.size; dataType = ShaderConstantParam::DATA_TYPE::DT_STRUCT; break;
+                    case GL_FLOAT:
+                        dataSize = calcSize(sizeof(float));
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                        break;
+                    case GL_FLOAT_VEC2:
+                        dataSize = calcSize(sizeof(float) * 2);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                        break;
+                    case GL_FLOAT_VEC3:
+                        dataSize = calcSize(sizeof(float) * 3);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                        break;
+                    case GL_FLOAT_VEC4:
+                        dataSize = calcSize(sizeof(float) * 4);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_VECTOR4_ARRAY : ShaderConstantParam::DATA_TYPE::DT_VECTOR4;
+                        break;
+                    case GL_FLOAT_MAT2:
+                        dataSize = calcSize(sizeof(float) * 4);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                        break;
+                    case GL_FLOAT_MAT2x3:
+                    case GL_FLOAT_MAT3x2:
+                        dataSize = calcSize(sizeof(float) * 6);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                        break;
+                    case GL_FLOAT_MAT2x4:
+                    case GL_FLOAT_MAT4x2:
+                        dataSize = calcSize(sizeof(float) * 8);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                        break;
+                    case GL_FLOAT_MAT3:
+                        dataSize = calcSize(sizeof(float) * 9);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                        break;
+                    case GL_FLOAT_MAT3x4:
+                    case GL_FLOAT_MAT4x3:
+                        dataSize = calcSize(sizeof(float) * 12);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                        break;
+                    case GL_FLOAT_MAT4:
+                        dataSize = calcSize(sizeof(float) * 16);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_MATRIX4_ARRAY : ShaderConstantParam::DATA_TYPE::DT_MATRIX4;
+                        break;
+                    case GL_INT:
+                    case GL_UNSIGNED_INT:
+                        dataSize = calcSize(sizeof(int));
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_INTEGER_ARRAY : ShaderConstantParam::DATA_TYPE::DT_INTEGER;
+                        break;
+                    case GL_INT_VEC2:
+                    case GL_UNSIGNED_INT_VEC2:
+                        dataSize = calcSize(sizeof(int) * 2);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_INTEGER_ARRAY : ShaderConstantParam::DATA_TYPE::DT_INTEGER;
+                        break;
+                    case GL_INT_VEC3:
+                    case GL_UNSIGNED_INT_VEC3:
+                        dataSize = calcSize(sizeof(int) * 3);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_INTEGER_ARRAY : ShaderConstantParam::DATA_TYPE::DT_INTEGER;
+                        break;
+                    case GL_INT_VEC4:
+                    case GL_UNSIGNED_INT_VEC4:
+                        dataSize = calcSize(sizeof(int) * 4);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_INTEGER_ARRAY : ShaderConstantParam::DATA_TYPE::DT_INTEGER;
+                        break;
+                    case GL_BOOL:
+                        dataSize = calcSize(sizeof(int));
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_BOOL_ARRAY : ShaderConstantParam::DATA_TYPE::DT_BOOL;
+                        break;
+                    case GL_BOOL_VEC2:
+                        dataSize = calcSize(sizeof(int) * 2);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_BOOL_ARRAY : ShaderConstantParam::DATA_TYPE::DT_BOOL;
+                        break;
+                    case GL_BOOL_VEC3:
+                        dataSize = calcSize(sizeof(int) * 3);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_BOOL_ARRAY : ShaderConstantParam::DATA_TYPE::DT_BOOL;
+                        break;
+                    case GL_BOOL_VEC4:
+                        dataSize = calcSize(sizeof(int) * 4);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_BOOL_ARRAY : ShaderConstantParam::DATA_TYPE::DT_BOOL;
+                        break;
+                    case GL_DOUBLE:
+                        dataSize = calcSize(sizeof(double));
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                        break;
+                    case GL_DOUBLE_VEC2:
+                        dataSize = calcSize(sizeof(double) * 2);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                        break;
+                    case GL_DOUBLE_VEC3:
+                        dataSize = calcSize(sizeof(double) * 3);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                        break;
+                    case GL_DOUBLE_VEC4:
+                        dataSize = calcSize(sizeof(double) * 4);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                        break;
+                    case GL_DOUBLE_MAT2:
+                        dataSize = calcSize(sizeof(double) * 4);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                        break;
+                    case GL_DOUBLE_MAT2x3:
+                    case GL_DOUBLE_MAT3x2:
+                        dataSize = calcSize(sizeof(double) * 6);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                        break;
+                    case GL_DOUBLE_MAT2x4:
+                    case GL_DOUBLE_MAT4x2:
+                        dataSize = calcSize(sizeof(double) * 8);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                        break;
+                    case GL_DOUBLE_MAT3:
+                        dataSize = calcSize(sizeof(double) * 9);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                        break;
+                    case GL_DOUBLE_MAT3x4:
+                    case GL_DOUBLE_MAT4x3:
+                        dataSize = calcSize(sizeof(double) * 12);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                        break;
+                    case GL_DOUBLE_MAT4:
+                        dataSize = calcSize(sizeof(double) * 16);
+                        dataType = isArray ? ShaderConstantParam::DATA_TYPE::DT_FLOAT_ARRAY : ShaderConstantParam::DATA_TYPE::DT_FLOAT;
+                        break;
+                    default:
+                        dataSize = uniform.arrayStride > 0
+                            ? static_cast<uint32_t>(uniform.arrayStride) * elemCount
+                            : static_cast<uint32_t>(std::max(1, data.blocks[blockIdx].size - std::max(0, uniform.offset)));
+                        dataType = ShaderConstantParam::DATA_TYPE::DT_STRUCT;
+                        break;
                     }
 
                     // Convert SPIRV-Cross generated names back to original names
@@ -640,22 +941,12 @@ namespace Tiny3D
             // 按 GL 类型识别采样器。glslang 的 uniform.index 语义随版本变化，
             // 用它反推 standalone / block 成员不可靠，直接看类型。
             uint32_t samplerIndex = 0;
+            ShaderResourceParams resourceParams;
+
             for (const auto &uniform : data.uniforms)
             {
-                bool isSampler = false;
                 TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
-
-                switch (uniform.glDefineType)
-                {
-                case GL_SAMPLER_1D:         isSampler = true; texType = TEXTURE_TYPE::TT_1D; break;
-                case GL_SAMPLER_2D:         isSampler = true; texType = TEXTURE_TYPE::TT_2D; break;
-                case GL_SAMPLER_3D:         isSampler = true; texType = TEXTURE_TYPE::TT_3D; break;
-                case GL_SAMPLER_CUBE:       isSampler = true; texType = TEXTURE_TYPE::TT_CUBE; break;
-                case GL_SAMPLER_2D_SHADOW:  isSampler = true; texType = TEXTURE_TYPE::TT_2D; break;
-                default: break;
-                }
-
-                if (isSampler)
+                if (mapSamplerGLType(static_cast<GLenum>(uniform.glDefineType), texType))
                 {
                     String name = uniform.name;
 
@@ -689,8 +980,64 @@ namespace Tiny3D
                     T3D_LOG_DEBUG(LOG_TAG_GL4CONTEXTBASE, "Shader reflection - sampler: %s -> %s, binding: %d, type: %d",
                         uniform.name.c_str(), name.c_str(), samplerIndex, texType);
                     samplerIndex++;
+                    continue;
+                }
+
+                if (isSamplerBufferGLType(static_cast<GLenum>(uniform.glDefineType)))
+                {
+                    const uint32_t binding = (uniform.binding >= 0) ? static_cast<uint32_t>(uniform.binding) : 0u;
+                    ShaderResourceParamPtr param = ShaderResourceParam::create(
+                        uniform.name, ShaderResourceParam::Kind::kTypedSRV, binding, 0, false);
+                    resourceParams.emplace(uniform.name, param);
+
+                    T3D_LOG_DEBUG(LOG_TAG_GL4CONTEXTBASE,
+                        "Shader reflection - samplerBuffer resource: %s, kind: %u, binding: %u",
+                        uniform.name.c_str(), static_cast<uint32_t>(ShaderResourceParam::Kind::kTypedSRV), binding);
+                    continue;
+                }
+
+                bool isImageBuf = false;
+                if (isImageGLType(static_cast<GLenum>(uniform.glDefineType), isImageBuf))
+                {
+                    const uint32_t binding = (uniform.binding >= 0) ? static_cast<uint32_t>(uniform.binding) : 0u;
+                    const ShaderResourceParam::Kind kind = isImageBuf
+                        ? ShaderResourceParam::Kind::kTypedUAV
+                        : ShaderResourceParam::Kind::kTextureUAV;
+                    ShaderResourceParamPtr param = ShaderResourceParam::create(uniform.name, kind, binding, 0, false);
+                    resourceParams.emplace(uniform.name, param);
+
+                    T3D_LOG_DEBUG(LOG_TAG_GL4CONTEXTBASE,
+                        "Shader reflection - image resource: %s, kind: %u, binding: %u",
+                        uniform.name.c_str(), static_cast<uint32_t>(kind), binding);
                 }
             }
+
+            for (const auto &block : data.bufferBlocks)
+            {
+                bool hasCounter = false;
+                for (int acBinding : data.atomicCounterBindings)
+                {
+                    if (acBinding == block.binding)
+                    {
+                        hasCounter = true;
+                        break;
+                    }
+                }
+
+                const ShaderResourceParam::Kind kind = block.isReadOnly
+                    ? ShaderResourceParam::Kind::kStructuredSRV
+                    : ShaderResourceParam::Kind::kStructuredUAV;
+                const uint32_t binding = (block.binding >= 0) ? static_cast<uint32_t>(block.binding) : 0u;
+                ShaderResourceParamPtr param = ShaderResourceParam::create(
+                    block.name, kind, binding, block.elementStride, hasCounter);
+                resourceParams.emplace(block.name, param);
+
+                T3D_LOG_DEBUG(LOG_TAG_GL4CONTEXTBASE,
+                    "Shader reflection - buffer block: %s, kind: %u, binding: %u, stride: %u, counter: %d",
+                    block.name.c_str(), static_cast<uint32_t>(kind), binding, block.elementStride, hasCounter ? 1 : 0);
+            }
+
+            shader->setShaderResourceParams(resourceParams);
 
         } while (false);
 
@@ -718,20 +1065,8 @@ namespace Tiny3D
             uint32_t samplerIndex = 0;
             for (const auto &uniform : data.uniforms)
             {
-                bool isSampler = false;
                 TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
-
-                switch (uniform.glDefineType)
-                {
-                case GL_SAMPLER_1D:         isSampler = true; texType = TEXTURE_TYPE::TT_1D; break;
-                case GL_SAMPLER_2D:         isSampler = true; texType = TEXTURE_TYPE::TT_2D; break;
-                case GL_SAMPLER_3D:         isSampler = true; texType = TEXTURE_TYPE::TT_3D; break;
-                case GL_SAMPLER_CUBE:       isSampler = true; texType = TEXTURE_TYPE::TT_CUBE; break;
-                case GL_SAMPLER_2D_SHADOW:  isSampler = true; texType = TEXTURE_TYPE::TT_2D; break;
-                default: break;
-                }
-
-                if (isSampler)
+                if (mapSamplerGLType(static_cast<GLenum>(uniform.glDefineType), texType))
                 {
                     String name = uniform.name;
 

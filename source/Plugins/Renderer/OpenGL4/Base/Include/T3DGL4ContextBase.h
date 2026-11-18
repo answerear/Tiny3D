@@ -19,7 +19,7 @@ namespace Tiny3D
     public:
         virtual ~GL4ContextBase();
 
-        TResult init();
+        virtual TResult init();
 
         // Depth remap matrix [-1, 1] -> [0, 1] (shared by Console and Runtime)
         const Matrix4& getDepthRemapMatrix() const override;
@@ -60,6 +60,10 @@ namespace Tiny3D
         //-------------------------------------------------------------------
         // glslang CPU-side reflection cache
         //-------------------------------------------------------------------
+        static bool mapSamplerGLType(GLenum glDefineType, TEXTURE_TYPE &outTexType);
+        static bool isSamplerBufferGLType(GLenum glDefineType);
+        static bool isImageGLType(GLenum glDefineType, bool &outIsBuffer);
+
         struct GlslangUniformInfo
         {
             String name;        // e.g. "Tiny3DPerDraw.tiny3d_ObjectToWorld"
@@ -68,6 +72,7 @@ namespace Tiny3D
             int size;           // array size (1 for non-array)
             int blockIndex;     // index of owning uniform block (-1 for standalone)
             int arrayStride;
+            int binding {-1};   // layout(binding = ...) for samplers/images
         };
 
         struct GlslangBlockInfo
@@ -76,10 +81,21 @@ namespace Tiny3D
             int size;           // block data size in bytes
         };
 
+        struct GlslangBufferBlockInfo
+        {
+            String name;
+            int binding {0};
+            int size {0};
+            uint32_t elementStride {0};
+            bool isReadOnly {false};
+        };
+
         struct GlslangReflectionData
         {
             TArray<GlslangBlockInfo> blocks;
             TArray<GlslangUniformInfo> uniforms;
+            TArray<GlslangBufferBlockInfo> bufferBlocks;
+            TArray<int> atomicCounterBindings;
             uint32_t localSize[3] {0, 0, 0};
         };
 
@@ -101,6 +117,8 @@ namespace Tiny3D
             int computeAtomicCounterBuffers {0};
             int combinedShaderOutputResources {0};
             int imageUnits {0};
+            int maxComputeWorkGroupCount[3] {0, 0, 0};
+            int maxComputeWorkGroupSize[3] {0, 0, 0};
         };
         GLSLangLimits mGLSLangLimits;
 
