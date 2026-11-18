@@ -1179,19 +1179,22 @@
 
 ## A.7 全量口径汇总统计（97 个 RHIContext 虚接口）
 
-> **2026-11 源码实测统计**：按 `T3DRHIContext.h` 当前全部 **97 个虚接口**统计 `GL4Context`（Window 变体）：
+> **2026-11 源码实测统计（含第三轮部分实现补齐）**：按 `T3DRHIContext.h` 当前全部 **97 个虚接口**统计 `GL4Context`（Window 变体）：
+> - 按**接口覆盖**（均已重写并具备核心路径）：**97 / 97 = 100%**
+> - 按**细节与边界完整度**：**93 ✅ + 0 ⚠️ + 4 🔇 = 97**（原 19 个 ⚠️ 部分完成接口以及 `GL4Mapping`、纹理数组、`ShaderResourceParams` 反射、Console 变体缺口均已补齐；仅剩余非 `RHIContext` 接口 `GL4Renderer::getEditorInfo` 见附录 C）
 
 | 状态 | 数量 | 接口明细 |
 |------|------|----------|
-| ✅ 已完成 | **93** | 变换(2)、渲染目标与Resize(6)、视口与裁剪(2)、清除含`clearStencil`(4)、渲染状态含独立RT混合(7)、顶点输入与缓冲(11)、VS/PS/HS/DS/GS/CS 六阶段着色器与绑定(33)、Shader编译与反射(3)、结构化缓冲创建与SRV绑定(4)、Compute派发/Buffer&Texture UAV/Barrier/Counter拷贝(5)、图元与常规/实例化/间接绘制(7)、状态重置(1)、四个`blit`重载(4)、`copyBuffer`与`writeBuffer`(2)、GPU读回`map`/`unmap`(3) |
+| ✅ 已完成 | **93** | `T3DRHIContext.h` 中除 4 个按设计为空外的全部 93 个虚接口均已完整实现（含第三轮补齐的 `setRenderTarget`、`setViewport`、`setRasterizerState`、`setVertexBuffers`、`createPixelBuffer1D`/`3D`/`Cubemap` 含数组与 Mipmap、`setPixelShader`/`setHullShader`/`setDomainShader`/`setGeometryShader` 空指针 detach、`reflectShaderAllBindings` 含全类型与 `ShaderResourceParams`/`reflectSamplerBindings`、四个 `blit` 重载、`writeBuffer`、`map(region)`） |
+| ⚠️ 部分完成 | **0** | 已全部清零 |
 | 🔇 按设计为空 | **4** | `beginRender`、`endRender`、`beginPass`、`endPass` |
 | **合计** | **97** | `T3DRHIContext.h` 全部 97 个虚接口（92 纯虚 + 5 虚默认） |
 
 ### 换算成完成度
 
-- **接口覆盖率**（✅ + 🔇）：**97 / 97 = 100%**
-- **完全实现率**（✅ + 🔇）：**97 / 97 = 100%**（全部待办项已清零）
-- **对比 D3D11 基线**：GL4 Window 后端在常规渲染、MRT、MSAA、后处理 Blit、Tessellation、Geometry Shader、Instancing、Indirect Draw/Dispatch、SSBO、纹理 UAV（`RWTexture2D`）、Append/Consume Counter、GPU Readback 方面已与 D3D11 全面对齐，`ComputeApp` 自检用例（K1、K2、K4、K5、K7、K8、K9）在 OpenGL 4 下 7/7 全部 `PASS`。
+- **接口覆盖率**（✅ + ⚠️ + 🔇）：**97 / 97 = 100%**
+- **完全无缺口实现率**（✅ + 🔇）：**97 / 97 = 100%**（`RHIContext` 全量 97 个虚接口全部无缺口；仅剩非 `RHIContext` 编辑器对接接口 `GL4Renderer::getEditorInfo` 待编辑器侧扩展）
+- **对比 D3D11 基线**：GL4 Window 后端在常规渲染、MRT、MSAA、后处理 Blit、Tessellation、Geometry Shader、Instancing、Indirect Draw/Dispatch、SSBO、纹理数组、纹理 UAV（`RWTexture2D`）、Append/Consume Counter、GPU 全类型纹理读回与资源反射方面已全面对齐，`ComputeApp` 自检用例（K1、K2、K4、K5、K7、K8、K9）在 OpenGL 4 下 7/7 全部 `PASS`。
 
 ---
 
@@ -1199,15 +1202,15 @@
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ✅ 定位明确且 6 阶段编译与反射已齐全 |
+| **状态** | ✅ 已完成（6 阶段编译与反射齐全，能力位契约与资源工厂桩已对齐） |
 | **位置** | `source/Plugins/Renderer/OpenGL4/Console/Source/T3DGL4ConsoleContext.cpp` |
-| **有效接口** | `createRenderWindow`（返回空的 `GL4ConsoleWindow`）、全部 6 个阶段的 `create*Shader`（VS/PS/GS/HS/DS/CS 真实 `glCompileShader`，同步执行不走命令队列）、以及继承自 `GL4ContextBase` 的 `getDepthRemapMatrix`、`compileShader`（含 6 阶段 glslang 反射与 CS `local_size` 提取）、`reflectShaderAllBindings`、`reflectSamplerBindings` |
-| **其余接口** | 全部为单行空实现或 `T3D_RHI_UNSUPPORTED` |
-| **结论** | 这是刻意的 null backend，用于让 `ShaderCrossCompiler (scc)` / `BundleBuilder` / `BuiltinGenerator` 等命令行工具在无窗口时跑通全阶段 shader 预编译与反射。`GL4ConsoleContext::init()` 现已统一调用 `GL4ContextBase::init()`，自动升级 Core Profile 4.5 Dummy Context 并执行 `fillCapabilities()` |
+| **有效接口** | `createRenderWindow`（返回空的 `GL4ConsoleWindow`）、全部 6 个阶段的 `create*Shader`（VS/PS/GS/HS/DS/CS 真实 `glCompileShader`，同步执行不走命令队列）、以及继承自 `GL4ContextBase` 的 `getDepthRemapMatrix`、`compileShader`（含 6 阶段 glslang 反射、CS `local_size` 与 `ShaderResourceParams` 提取）、`reflectShaderAllBindings`、`reflectSamplerBindings` |
+| **其余接口** | 全部为单行空实现、`GL4Console*` 桩对象或 `T3D_RHI_UNSUPPORTED` |
+| **说明** | `GL4ConsoleContext::init()` 已重写：保留 `mSupportsComputeShader` 与 `mGLSLangLimits` 供离线编译/反射使用，同时将 `mCapabilities` 置为全 false，与 `T3D_RHI_UNSUPPORTED` 宏内的 `T3D_ASSERT(!getCapabilities().capField)` 完全一致；`createRenderTexture` / `createPixelBuffer3D` / `createPixelBufferCubemap` 已统一返回桩对象 |
 
 ---
 
-## A.9 待办优先级与完成状态跟踪（2026-11 全部完成）
+## A.9 待办优先级与完成状态跟踪（第一/二轮已清零，剩余缺口见附录 C）
 
 ### 已完成项总表
 
@@ -1340,3 +1343,81 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 - 文件：`source/Samples/ComputeApp/ComputeCases.cpp`
 - 将 K5（`ComputeTextureWrite`）的 `backendMask` 从 `kBackendD3D11` 放宽为 `kBackendD3D11 | kBackendGL4 | kBackendGLES3`。
 - 验证启动 `ComputeApp`（GL4 后端）时 K5 读回 $256 \times 256$ 纹理像素与期望值 `(x, y, 128, 255)` 逐像素一致。
+
+---
+---
+
+# 附录 C：未实现与未完整实现项清单（源码核验）
+
+> 本附录基于对 `source/Plugins/Renderer/OpenGL4/` 全量源码的逐项核验整理，列出当前 GL4 后端（含 Window、Base、Mapping 与 Console 变体）中**尚未实现**或**仅部分实现 / 存在边界缺口**的功能，并标注对应状态与待办优先级。
+>
+> **状态说明**（沿用附录 A 图例）：
+> - ❌ **未实现**：函数体为空/仅 TODO 注释，或核心能力路径完全缺失
+> - ⚠️ **部分完成**：主路径可用，但缺少部分资源类型、参数分支、边界保护或存在已知缺陷
+
+---
+
+## C.1 未实现项（❌）
+
+| 编号 | 模块 / 接口 | 状态 | 实现位置 | 缺失内容与影响说明 | 优先级 |
+|:----:|-------------|:----:|----------|--------------------|:------:|
+| C.1.1 | `GL4Renderer::getEditorInfo` | ❌ 未实现 | `Window/Source/T3DGL4Renderer.cpp:84-87` | 函数体仅有 `// TODO: 填充编辑器需要的 GL 上下文信息`，未填充任何编辑器信息；编辑器侧（`EditorApp.cpp` / `LauncherApp.cpp`）目前亦仅对接 `EditorInfoDX11`，尚无 GL4 的 Editor 信息结构体与对接实现 | **P2** |
+| C.1.2 | `ShaderResourceParams` 反射（SSBO / Image UAV / Atomic Counter） | ✅ 已完成 | `Base/Source/T3DGL4ContextBase.cpp` | `glslangCompileAndReflect` 已采集 `bufferBlocks`（含 `isReadOnly` 与 stride）、`atomicCounterBindings` 与 `image*` 绑定，`reflectShaderAllBindings` 已填充 `ShaderResourceParams` 并调用 `shader->setShaderResourceParams(...)` | **P2** |
+| C.1.3 | 纹理数组（`TT_2D_ARRAY` / `TT_CUBE_ARRAY` / 1D Array） | ✅ 已完成 | `Window/Source/T3DGL4Context.cpp` | `createPixelBuffer1D`/`2D`/`Cubemap`、`bindPixelBuffers`、`getGLImageInfo`、`unbindTextureUnits`、`writeBuffer`、`map(region)`、`blit` 均已补齐 `GL_TEXTURE_1D_ARRAY`、`GL_TEXTURE_2D_ARRAY`、`GL_TEXTURE_CUBE_MAP_ARRAY` 支持 | **P2** |
+
+---
+
+## C.2 部分完成 / 存在边界缺口项（⚠️，已全部补齐 ✅）
+
+### C.2.1 管线状态、渲染目标与顶点输入
+
+| 编号 | 接口 | 状态 | 实现位置 | 实现补齐说明 | 优先级 |
+|:----:|------|:----:|----------|--------------|:------:|
+| C.2.1 | `setVertexBuffers` | ✅ 已完成 | `T3DGL4Context.cpp` | 1) 叠加 `offsets[i]` 与 `attrib.getOffset()`（与 D3D11 语义一致）；<br>2) 循环内对 `buffers[i]` 与 `getRHIResource()` 做判空，同时保持 `mPendingVertexDecl` 至下一次 `setVertexDeclaration` / `reset()` | **P0** |
+| C.2.2 | `setPixelShader` / `setHullShader` / `setDomainShader` / `setGeometryShader` | ✅ 已完成 | `T3DGL4Context.cpp` | 统一走 `attachGraphicsShader(..., stageType)`；传入 `nullptr` 时调用 `detachShaderStageByType` 从 `mCurrentProgram` 摘除对应阶段并置 `mProgramDirty = true` | **P0** |
+| C.2.3 | `setRenderTarget` | ✅ 已完成 | `T3DGL4Context.cpp` | 1) `renderTarget == nullptr` 转调 `resetRenderTarget()`；<br>2) MRT 支持 MSAA 目标，切回较少 RT 时清理残留 `GL_COLOR_ATTACHMENT` 并始终刷新 `glDrawBuffers`，且无外部深度时恢复 `GLDepthRBO`；<br>3) Depth-only FBO 改为成员 `mDepthOnlyFBO` 并在 `~GL4Context()` 释放，支持 MSAA 与无模板深度格式 | **P1** |
+| C.2.4 | `setRasterizerState` | ✅ 已完成 | `T3DGL4Context.cpp` | 根据 `d.multisampleEnabled` 调用 `glEnable/glDisable(GL_MULTISAMPLE)` | **P2** |
+| C.2.5 | `setViewport` | ✅ 已完成 | `T3DGL4Context.cpp` | 主路径与 fallback 路径均透传 `glDepthRange(vp.MinDepth, vp.MaxDepth)` | **P3** |
+
+### C.2.2 纹理资源创建与数据传输 / 读回
+
+| 编号 | 接口 | 状态 | 实现位置 | 实现补齐说明 | 优先级 |
+|:----:|------|:----:|----------|--------------|:------:|
+| C.2.6 | `writeBuffer` | ✅ 已完成 | `T3DGL4Context.cpp` | 1) 纹理分支已完整支持 `1D`/`1D_ARRAY`/`2D`/`2D_ARRAY`/`3D`/`CUBE`/`CUBE_ARRAY`（拒绝 MSAA）；<br>2) 支持单层 mip 0 及完整多级/多层链上传，设 `GL_UNPACK_ALIGNMENT = 1`；<br>3) 增加 `renderBuffer`/`buffer.Data`/`DataSize == 0`/`Usage::kImmutable` 与线性缓冲越界检查 | **P1** |
+| C.2.7 | `map(RenderBuffer*, const ReadbackRegion&)` | ✅ 已完成 | `T3DGL4Context.cpp` | 1) 支持 `1D`/`1D_ARRAY`/`2D`（含 MSAA resolve）/`2D_ARRAY`/`3D`/`CUBE`/`CUBE_ARRAY`；<br>2) 正确处理 `region.arraySlice` 与边界校验；<br>3) 显式拦截深度模板格式（`isDepthFormat`）并设 `GL_PACK_ALIGNMENT = 1` | **P1** |
+| C.2.8 | `blit`（四个重载） | ✅ 已完成 | `T3DGL4Context.cpp` | 1) `resolveBlitEndpoint` 支持 `1D`/`2D`/`2D_ARRAY`/`3D`/`CUBE`/`CUBE_ARRAY`/`RENDER_TEXTURE`，校验 `kImmutable` 目标与深度/颜色匹配；<br>2) 支持同格式 1:1 走 `glCopyImageSubData`、异格式/跨层走 `attachScratchFBO`（含 1D/Layer/Depth/Stencil）；<br>3) 支持 `size == ZERO` 缩放与彩色缩放 `GL_LINEAR` 过滤，异常路径亦恢复 `prevFBO` | **P2** |
+| C.2.9 | `createPixelBuffer1D` / `createPixelBuffer3D` | ✅ 已完成 | `T3DGL4Context.cpp` | 完整支持 `desc.mipmaps` 多级分配/上传与 `BASE_LEVEL`/`MAX_LEVEL`（1D 同时支持 `arraySize` 与 UAV `glTexStorage*`），设 `GL_UNPACK_ALIGNMENT = 1` | **P2** |
+| C.2.10 | `createPixelBufferCubemap` | ✅ 已完成 | `T3DGL4Context.cpp` | `GL4PixelBufferCubemap` 记录 `GLInternalFormat` 与 `GLTarget`；支持 `CubemapArray`、UAV `glTexStorage2D/3D`、预生成多级 mip 上传与按需 `glGenerateMipmap` | **P2** |
+
+### C.2.3 Shader 反射、采样绑定与枚举映射
+
+| 编号 | 接口 / 模块 | 状态 | 实现位置 | 实现补齐说明 | 优先级 |
+|:----:|-------------|:----:|----------|--------------|:------:|
+| C.2.11 | `reflectShaderAllBindings` / `reflectSamplerBindings` / `setupSamplerBindings` | ✅ 已完成 | `T3DGL4ContextBase.cpp`<br>`T3DGL4Context.cpp` | 1) `reflectShaderAllBindings` 补齐 `vec2/3`、`mat2/3`、`mat*x*`、`uint`/`ivec*`/`uvec*`/`bvec*`、`double/dvec*/dmat*` 映射与准确字节大小；<br>2) 三处统一调用 `GL4ContextBase::mapSamplerGLType`，覆盖 `1D/2D/3D/Cube/1DArray/2DArray/CubeArray/Shadow/Multisample` 及整型采样器 | **P2** |
+| C.2.12 | `GL4Mapping`（顶点属性 & 像素格式映射） | ✅ 已完成 | `Base/Source/T3DGL4Mapping.cpp` | 1) 补齐 `E_VAT_INT4`、`E_VAT_UINT1~4`、`E_VAT_FLOAT16_2`/`4`；<br>2) `isIntegerAttrib()` 补齐 `E_VAT_INT1~4` 与 `E_VAT_UINT1~4`；<br>3) `PixelFormat::E_PF_PALETTE8` 映射为 `GL_RED`/`GL_R8`/`GL_UNSIGNED_BYTE` | **P1** |
+
+---
+
+## C.3 Console 变体（`GL4ConsoleContext`）遗留问题（已全部补齐 ✅）
+
+| 编号 | 接口 / 模块 | 状态 | 实现位置 | 实现补齐说明 | 优先级 |
+|:----:|-------------|:----:|----------|--------------|:------:|
+| C.3.1 | `GL4ConsoleContext::init` 与能力位断言冲突 | ✅ 已完成 | `Console/Source/T3DGL4ConsoleContext.cpp`<br>`Base/Source/T3DGL4ContextBase.cpp` | 重写 `GL4ConsoleContext::init()`，保留 `mSupportsComputeShader` 与 `mGLSLangLimits` 后重置 `mCapabilities = RHICapabilities{}`，不再触发 `T3D_RHI_UNSUPPORTED` 断言失败 | **P1** |
+| C.3.2 | `GL4ConsoleContext` 部分资源工厂返回 `nullptr` | ✅ 已完成 | `Console/Source/T3DGL4ConsoleContext.cpp`<br>`Console/Include/T3DGL4ConsoleRenderBuffer.h` | 补齐 `GL4ConsolePixelBuffer3D::create()` 与 `GL4ConsolePixelBufferCubemap`，`createRenderTexture`/`createPixelBuffer3D`/`createPixelBufferCubemap` 统一返回桩对象 | **P3** |
+
+---
+
+## C.4 后续建议修复优先级汇总
+
+| 优先级 | 编号 | 项 | 状态 |
+|:------:|:----:|----|:----:|
+| **P0** | C.2.1 | `setVertexBuffers` 补齐 `offsets[i]` 与判空 | ✅ 已完成 |
+| **P0** | C.2.2 | `set{PS,HS,DS,GS}Shader(nullptr)` 真正 detach | ✅ 已完成 |
+| **P1** | C.2.3 | `setRenderTarget` 判空、MRT 清理与成员 `mDepthOnlyFBO` | ✅ 已完成 |
+| **P1** | C.2.12 | `GL4Mapping` 补齐整型/半精度顶点属性与 `PALETTE8` 映射 | ✅ 已完成 |
+| **P1** | C.2.6 / C.2.7 | `writeBuffer` 与 `map(region)` 补齐 1D/3D/Cube/Array、判空及格式检查 | ✅ 已完成 |
+| **P1** | C.3.1 | `GL4ConsoleContext` 能力位与 `T3D_RHI_UNSUPPORTED` 对齐 | ✅ 已完成 |
+| **P2** | C.1.2 / C.1.3 / C.2.4 / C.2.8~C.2.11 | 纹理数组、`ShaderResourceParams` 反射、3D/Cube Blit、Mipmap、Sampler/Uniform 类型、MSAA 状态 | ✅ 已完成 |
+| **P2** | C.1.1 | `GL4Renderer::getEditorInfo`（需编辑器侧同步新增 GL4 对接结构，属于 ❌ 未实现项） | ❌ 待编辑器侧接入 |
+| **P3** | C.2.5 / C.3.2 | `setViewport` 深度范围、`GL4ConsoleContext` 桩对象统一 | ✅ 已完成 |
+
