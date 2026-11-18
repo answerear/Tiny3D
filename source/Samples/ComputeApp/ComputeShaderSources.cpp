@@ -140,12 +140,12 @@ void main(uint3 id : SV_DispatchThreadID)
 #version 430
 layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
 layout(std430, binding = 0) buffer gRaw { uint data[]; } gRawBuf;
-layout(std430, binding = 1) buffer gTyped { vec4 data[]; } gTypedBuf;
+layout(rgba8, binding = 1) uniform writeonly imageBuffer gTyped;
 void main()
 {
     uint i = gl_GlobalInvocationID.x;
     gRawBuf.data[i] = i ^ 0xA5A5A5A5u;
-    gTypedBuf.data[i] = vec4(float(i & 255u) / 255.0, 0.0, 128.0 / 255.0, 1.0);
+    imageStore(gTyped, int(i), vec4(float(i & 255u) / 255.0, 0.0, 128.0 / 255.0, 1.0));
 }
 )";
     static const char *gles = R"(#version 310 es
@@ -344,7 +344,27 @@ void main(uint3 id : SV_DispatchThreadID)
     gTextureUAV[id.xy] = float4(0, 0, 0, 1);
 }
 )";
-    return make(hlsl, nullptr, nullptr);
+    static const char *gl = R"(
+#version 430
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+layout(std430, binding = 0) readonly buffer gStructuredSRV { vec4 data[]; } gStructuredSRVBuf;
+layout(std430, binding = 1) readonly buffer gByteSRV { uint data[]; } gByteSRVBuf;
+layout(std430, binding = 2) buffer gStructuredUAV { uint data[]; } gStructuredUAVBuf;
+layout(std430, binding = 3) buffer gByteUAV { uint data[]; } gByteUAVBuf;
+layout(rgba8, binding = 2) uniform writeonly image2D gTextureUAV;
+void main()
+{
+    uvec2 id = gl_GlobalInvocationID.xy;
+    if (id.x == 0u && id.y == 0u)
+    {
+        uint v = gStructuredUAVBuf.data[0] + gByteSRVBuf.data[0] + uint(gStructuredSRVBuf.data[0].x);
+        gStructuredUAVBuf.data[0] = v;
+        gByteUAVBuf.data[0] = v;
+    }
+    imageStore(gTextureUAV, ivec2(id), vec4(0.0, 0.0, 0.0, 1.0));
+}
+)";
+    return make(hlsl, gl, nullptr);
 }
 
 ComputeShaderSource makeArgsSource()

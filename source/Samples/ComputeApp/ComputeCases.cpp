@@ -298,7 +298,7 @@ namespace
         {
             return kNeedCompute | kNeedUnorderedAccess | kNeedStructuredBuffer | kNeedReadback;
         }
-        uint32_t getBackendMask() const override { return kBackendD3D11; }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
 
         TResult setup() override
         {
@@ -566,7 +566,7 @@ namespace
     public:
         const char *getName() const override { return "K6 reflect"; }
         uint32_t getRequiredCaps() const override { return kNeedCompute; }
-        uint32_t getBackendMask() const override { return kBackendD3D11; }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
 
         TResult setup() override
         {
@@ -588,6 +588,52 @@ namespace
             }
 
             const ShaderResourceParams &params = mKernel->getVariant()->getShaderResourceParams();
+
+            if (isGLFamily())
+            {
+                // GLSL 没有区分 ByteAddressBuffer 与 StructuredBuffer 的语法，两者均映射为 SSBO，
+                // 且 SSBO 在同一 binding 空间内依次编号（0, 1, 2, 3），image 独立编号（2）。
+                auto findName = [&](const char *name) -> const ShaderResourceParam *
+                {
+                    auto it = params.find(name);
+                    return (it != params.end()) ? it->second.get() : nullptr;
+                };
+
+                const ShaderResourceParam *srvS = findName("gStructuredSRV");
+                const ShaderResourceParam *srvB = findName("gByteSRV");
+                const ShaderResourceParam *uavS = findName("gStructuredUAV");
+                const ShaderResourceParam *uavB = findName("gByteUAV");
+                const ShaderResourceParam *uavT = findName("gTextureUAV");
+
+                if (srvS == nullptr || srvB == nullptr || uavS == nullptr || uavB == nullptr || uavT == nullptr)
+                {
+                    APP_LOG_DEBUG("[%s] FAILED : missing GL reflected resources (count=%zu)",
+                        getName(), params.size());
+                    return T3D_ERR_FAIL;
+                }
+
+                if (srvS->getKind() != ShaderResourceParam::Kind::kStructuredSRV
+                    || srvB->getKind() != ShaderResourceParam::Kind::kStructuredSRV
+                    || uavS->getKind() != ShaderResourceParam::Kind::kStructuredUAV
+                    || uavB->getKind() != ShaderResourceParam::Kind::kStructuredUAV
+                    || uavT->getKind() != ShaderResourceParam::Kind::kTextureUAV)
+                {
+                    APP_LOG_DEBUG("[%s] FAILED : unexpected GL resource kinds", getName());
+                    return T3D_ERR_FAIL;
+                }
+
+                if (srvS->getBinding() != 0 || srvB->getBinding() != 1
+                    || uavS->getBinding() != 2 || uavB->getBinding() != 3 || uavT->getBinding() != 2)
+                {
+                    APP_LOG_DEBUG("[%s] FAILED : unexpected GL bindings srv(%u,%u) uav(%u,%u,%u)",
+                        getName(), srvS->getBinding(), srvB->getBinding(),
+                        uavS->getBinding(), uavB->getBinding(), uavT->getBinding());
+                    return T3D_ERR_FAIL;
+                }
+
+                return T3D_OK;
+            }
+
             auto findKind = [&](ShaderResourceParam::Kind kind) -> const ShaderResourceParam *
             {
                 for (const auto &kv : params)
