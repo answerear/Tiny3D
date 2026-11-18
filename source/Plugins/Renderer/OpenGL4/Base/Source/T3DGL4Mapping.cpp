@@ -15,6 +15,7 @@ namespace Tiny3D
     {
         switch (format)
         {
+        case PixelFormat::E_PF_PALETTE8:    return GL_RED;
         case PixelFormat::E_PF_R8G8B8:      return GL_RGB;
         case PixelFormat::E_PF_B8G8R8:      return GL_BGR;
         case PixelFormat::E_PF_R8G8B8A8:    return GL_RGBA;
@@ -35,6 +36,7 @@ namespace Tiny3D
     {
         switch (format)
         {
+        case PixelFormat::E_PF_PALETTE8:    return GL_R8;
         case PixelFormat::E_PF_R8G8B8:      return GL_RGB8;
         case PixelFormat::E_PF_B8G8R8:      return GL_RGB8;
         case PixelFormat::E_PF_R8G8B8A8:    return GL_RGBA8;
@@ -59,6 +61,7 @@ namespace Tiny3D
     {
         switch (format)
         {
+        case PixelFormat::E_PF_PALETTE8:
         case PixelFormat::E_PF_R8G8B8:
         case PixelFormat::E_PF_B8G8R8:
         case PixelFormat::E_PF_R8G8B8A8:
@@ -113,6 +116,24 @@ namespace Tiny3D
             break;
         }
         return 0;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool GL4Mapping::isDepthFormat(PixelFormat format)
+    {
+        return format == PixelFormat::E_PF_D24_UNORM_S8_UINT
+            || format == PixelFormat::E_PF_D32_FLOAT_S8X24_UINT
+            || format == PixelFormat::E_PF_D32_FLOAT
+            || format == PixelFormat::E_PF_D16_UNORM;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool GL4Mapping::hasStencil(PixelFormat format)
+    {
+        return format == PixelFormat::E_PF_D24_UNORM_S8_UINT
+            || format == PixelFormat::E_PF_D32_FLOAT_S8X24_UINT;
     }
 
     //--------------------------------------------------------------------------
@@ -303,11 +324,11 @@ namespace Tiny3D
     {
         switch (type)
         {
-        case VertexAttribute::Type::E_VAT_FLOAT1:  return 1;
-        case VertexAttribute::Type::E_VAT_FLOAT2:  return 2;
-        case VertexAttribute::Type::E_VAT_FLOAT3:  return 3;
-        case VertexAttribute::Type::E_VAT_FLOAT4:  return 4;
-        case VertexAttribute::Type::E_VAT_COLOR:   return 4;
+        case VertexAttribute::Type::E_VAT_FLOAT1:    return 1;
+        case VertexAttribute::Type::E_VAT_FLOAT2:    return 2;
+        case VertexAttribute::Type::E_VAT_FLOAT3:    return 3;
+        case VertexAttribute::Type::E_VAT_FLOAT4:    return 4;
+        case VertexAttribute::Type::E_VAT_COLOR:     return 4;
         case VertexAttribute::Type::E_VAT_BYTE4:
         case VertexAttribute::Type::E_VAT_BYTE4_NORM:
         case VertexAttribute::Type::E_VAT_UBYTE4:
@@ -323,13 +344,20 @@ namespace Tiny3D
         case VertexAttribute::Type::E_VAT_USHORT4:
         case VertexAttribute::Type::E_VAT_USHORT4_NORM:
             return 4;
-        case VertexAttribute::Type::E_VAT_DOUBLE1: return 1;
-        case VertexAttribute::Type::E_VAT_DOUBLE2: return 2;
-        case VertexAttribute::Type::E_VAT_DOUBLE3: return 3;
-        case VertexAttribute::Type::E_VAT_DOUBLE4: return 4;
-        case VertexAttribute::Type::E_VAT_INT1:    return 1;
-        case VertexAttribute::Type::E_VAT_INT2:    return 2;
-        case VertexAttribute::Type::E_VAT_INT3:    return 3;
+        case VertexAttribute::Type::E_VAT_DOUBLE1:   return 1;
+        case VertexAttribute::Type::E_VAT_DOUBLE2:   return 2;
+        case VertexAttribute::Type::E_VAT_DOUBLE3:   return 3;
+        case VertexAttribute::Type::E_VAT_DOUBLE4:   return 4;
+        case VertexAttribute::Type::E_VAT_INT1:      return 1;
+        case VertexAttribute::Type::E_VAT_INT2:      return 2;
+        case VertexAttribute::Type::E_VAT_INT3:      return 3;
+        case VertexAttribute::Type::E_VAT_INT4:      return 4;
+        case VertexAttribute::Type::E_VAT_UINT1:     return 1;
+        case VertexAttribute::Type::E_VAT_UINT2:     return 2;
+        case VertexAttribute::Type::E_VAT_UINT3:     return 3;
+        case VertexAttribute::Type::E_VAT_UINT4:     return 4;
+        case VertexAttribute::Type::E_VAT_FLOAT16_2: return 2;
+        case VertexAttribute::Type::E_VAT_FLOAT16_4: return 4;
         default: break;
         }
         return 4;
@@ -346,6 +374,9 @@ namespace Tiny3D
         case VertexAttribute::Type::E_VAT_FLOAT3:
         case VertexAttribute::Type::E_VAT_FLOAT4:
             return GL_FLOAT;
+        case VertexAttribute::Type::E_VAT_FLOAT16_2:
+        case VertexAttribute::Type::E_VAT_FLOAT16_4:
+            return GL_HALF_FLOAT;
         case VertexAttribute::Type::E_VAT_COLOR:
         case VertexAttribute::Type::E_VAT_UBYTE4:
         case VertexAttribute::Type::E_VAT_UBYTE4_NORM:
@@ -371,7 +402,13 @@ namespace Tiny3D
         case VertexAttribute::Type::E_VAT_INT1:
         case VertexAttribute::Type::E_VAT_INT2:
         case VertexAttribute::Type::E_VAT_INT3:
+        case VertexAttribute::Type::E_VAT_INT4:
             return GL_INT;
+        case VertexAttribute::Type::E_VAT_UINT1:
+        case VertexAttribute::Type::E_VAT_UINT2:
+        case VertexAttribute::Type::E_VAT_UINT3:
+        case VertexAttribute::Type::E_VAT_UINT4:
+            return GL_UNSIGNED_INT;
         default: break;
         }
         return GL_FLOAT;
@@ -408,6 +445,14 @@ namespace Tiny3D
         case VertexAttribute::Type::E_VAT_SHORT4:
         case VertexAttribute::Type::E_VAT_USHORT2:
         case VertexAttribute::Type::E_VAT_USHORT4:
+        case VertexAttribute::Type::E_VAT_INT1:
+        case VertexAttribute::Type::E_VAT_INT2:
+        case VertexAttribute::Type::E_VAT_INT3:
+        case VertexAttribute::Type::E_VAT_INT4:
+        case VertexAttribute::Type::E_VAT_UINT1:
+        case VertexAttribute::Type::E_VAT_UINT2:
+        case VertexAttribute::Type::E_VAT_UINT3:
+        case VertexAttribute::Type::E_VAT_UINT4:
             return true;
         default:
             break;
