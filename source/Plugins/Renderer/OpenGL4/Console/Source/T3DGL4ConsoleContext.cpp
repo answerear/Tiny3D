@@ -36,6 +36,22 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    TResult GL4ConsoleContext::init()
+    {
+        TResult ret = GL4ContextBase::init();
+        if (T3D_SUCCEEDED(ret))
+        {
+            // 保留离线着色器编译所需的 GL 4.3+ 支持标记（与 mGLSLangLimits 一起），
+            // 然后将 mCapabilities 重置为全 false，以匹配 Console null backend 的
+            // T3D_RHI_UNSUPPORTED 契约（避免 Debug 断言失败）。
+            mSupportsComputeShader = mCapabilities.supportsCompute;
+            mCapabilities = RHICapabilities{};
+        }
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
     // Shader creation (real GL compilation, moved from GL4ContextBase)
     //--------------------------------------------------------------------------
 
@@ -206,7 +222,7 @@ namespace Tiny3D
 
     RHIShaderPtr GL4ConsoleContext::createComputeShader(ShaderVariant *shader)
     {
-        if (!mCapabilities.supportsCompute)
+        if (!mSupportsComputeShader)
         {
             T3D_LOG_WARNING(LOG_TAG_GL4CONSOLERENDERER, "Compute shader requires OpenGL 4.3+");
             return nullptr;
@@ -247,7 +263,7 @@ namespace Tiny3D
 
     TResult GL4ConsoleContext::setViewProjectionTransform(const Matrix4 &viewMat, const Matrix4 &projMat) { return T3D_OK; }
     RHIRenderTargetPtr GL4ConsoleContext::createRenderWindow(RenderWindow *renderWindow) { return GL4ConsoleWindow::create(); }
-    RHIPixelBuffer2DPtr GL4ConsoleContext::createRenderTexture(PixelBuffer2D *buffer) { return nullptr; }
+    RHIPixelBuffer2DPtr GL4ConsoleContext::createRenderTexture(PixelBuffer2D *buffer) { return GL4ConsolePixelBuffer2D::create(); }
     TResult GL4ConsoleContext::setRenderTarget(RenderTarget *renderTarget) { return T3D_OK; }
     TResult GL4ConsoleContext::resetRenderTarget() { return T3D_OK; }
     TResult GL4ConsoleContext::setViewport(const Viewport &viewport) { return T3D_OK; }
@@ -272,8 +288,8 @@ namespace Tiny3D
     RHIConstantBufferPtr GL4ConsoleContext::createConstantBuffer(ConstantBuffer *buffer) { return GL4ConsoleConstantBuffer::create(); }
     RHIPixelBuffer1DPtr GL4ConsoleContext::createPixelBuffer1D(PixelBuffer1D *buffer) { return GL4ConsolePixelBuffer1D::create(); }
     RHIPixelBuffer2DPtr GL4ConsoleContext::createPixelBuffer2D(PixelBuffer2D *buffer) { return GL4ConsolePixelBuffer2D::create(); }
-    RHIPixelBuffer3DPtr GL4ConsoleContext::createPixelBuffer3D(PixelBuffer3D *buffer) { return nullptr; }
-    RHIPixelBufferCubemapPtr GL4ConsoleContext::createPixelBufferCubemap(PixelBufferCubemap *buffer) { return nullptr; }
+    RHIPixelBuffer3DPtr GL4ConsoleContext::createPixelBuffer3D(PixelBuffer3D *buffer) { return GL4ConsolePixelBuffer3D::create(); }
+    RHIPixelBufferCubemapPtr GL4ConsoleContext::createPixelBufferCubemap(PixelBufferCubemap *buffer) { return GL4ConsolePixelBufferCubemap::create(); }
     TResult GL4ConsoleContext::setVertexShader(ShaderVariant *shader) { return T3D_OK; }
     TResult GL4ConsoleContext::setVSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) { return T3D_OK; }
     TResult GL4ConsoleContext::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) { return T3D_OK; }

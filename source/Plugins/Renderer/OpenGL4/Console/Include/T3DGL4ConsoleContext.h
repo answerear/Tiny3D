@@ -22,6 +22,8 @@ namespace Tiny3D
 
         virtual ~GL4ConsoleContext();
 
+        TResult init() override;
+
         // Shader creation (real GL compilation)
         RHIShaderPtr createVertexShader(ShaderVariant *shader) override;
         RHIShaderPtr createPixelShader(ShaderVariant *shader) override;
@@ -121,6 +123,8 @@ namespace Tiny3D
 
     protected:
         GL4ConsoleContext();
+
+        bool mSupportsComputeShader {false};
     };
 }
 

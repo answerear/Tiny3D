@@ -76,7 +76,21 @@ namespace Tiny3D
     class GL4ConsolePixelBuffer3D : public RHIPixelBuffer3D
     {
     public:
+        static GL4ConsolePixelBuffer3DPtr create();
+        ~GL4ConsolePixelBuffer3D() override;
         void *getNativeObject() const override;
+    protected:
+        GL4ConsolePixelBuffer3D() = default;
+    };
+
+    class GL4ConsolePixelBufferCubemap : public RHIPixelBufferCubemap
+    {
+    public:
+        static GL4ConsolePixelBufferCubemapPtr create();
+        ~GL4ConsolePixelBufferCubemap() override;
+        void *getNativeObject() const override;
+    protected:
+        GL4ConsolePixelBufferCubemap() = default;
     };
 }
 

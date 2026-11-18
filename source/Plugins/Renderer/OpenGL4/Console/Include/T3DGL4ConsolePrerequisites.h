@@ -51,6 +51,7 @@ namespace Tiny3D
     class GL4ConsolePixelBuffer1D;
     class GL4ConsolePixelBuffer2D;
     class GL4ConsolePixelBuffer3D;
+    class GL4ConsolePixelBufferCubemap;
     class GL4ConsoleBlendState;
     class GL4ConsoleRasterizerState;
     class GL4ConsoleDepthStencilState;
@@ -73,6 +74,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(GL4ConsolePixelBuffer1D);
     T3D_DECLARE_SMART_PTR(GL4ConsolePixelBuffer2D);
     T3D_DECLARE_SMART_PTR(GL4ConsolePixelBuffer3D);
+    T3D_DECLARE_SMART_PTR(GL4ConsolePixelBufferCubemap);
     T3D_DECLARE_SMART_PTR(GL4ConsoleBlendState);
     T3D_DECLARE_SMART_PTR(GL4ConsoleRasterizerState);
     T3D_DECLARE_SMART_PTR(GL4ConsoleDepthStencilState);

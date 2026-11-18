@@ -34,5 +34,11 @@ namespace Tiny3D
     GL4ConsolePixelBuffer2D::~GL4ConsolePixelBuffer2D() {}
     void *GL4ConsolePixelBuffer2D::getNativeObject() const { return nullptr; }
 
+    GL4ConsolePixelBuffer3DPtr GL4ConsolePixelBuffer3D::create() { return T3D_NEW GL4ConsolePixelBuffer3D(); }
+    GL4ConsolePixelBuffer3D::~GL4ConsolePixelBuffer3D() {}
     void *GL4ConsolePixelBuffer3D::getNativeObject() const { return nullptr; }
+
+    GL4ConsolePixelBufferCubemapPtr GL4ConsolePixelBufferCubemap::create() { return T3D_NEW GL4ConsolePixelBufferCubemap(); }
+    GL4ConsolePixelBufferCubemap::~GL4ConsolePixelBufferCubemap() {}
+    void *GL4ConsolePixelBufferCubemap::getNativeObject() const { return nullptr; }
 }
