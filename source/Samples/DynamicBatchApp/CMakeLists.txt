@@ -134,6 +134,15 @@ elseif (TINY3D_OS_ANDROID)
             $<TARGET_FILE:GLES3Renderer>
             ${T3D_ANDROID_LIB_PATH}
         )
+
+    if (TINY3D_BUILD_RMLUI)
+        add_custom_command(TARGET ${BIN_NAME}
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                "${CMAKE_SOURCE_DIR}/../assets/samples/ui"
+                "${ANDROID_ASSETS_DIR}/assets/samples/ui"
+            )
+    endif ()
 elseif (TINY3D_OS_IOS OR TINY3D_OS_MACOSX)
     # Setup executable project for iOS or Mac OS X.
     add_executable(
