@@ -38,7 +38,7 @@ namespace Tiny3D
     public:
         static GL4ContextPtr create();
 
-        TResult init();
+        TResult init() override;
 
         TResult swapBackBuffer(GL4RenderWindow *renderWindow);
 
@@ -188,6 +188,7 @@ namespace Tiny3D
 
         /// 解开 program 上与 shader 同阶段的旧 shader，避免同一阶段挂两个对象
         void detachShaderStage(GLuint program, GLuint shader);
+        void detachShaderStageByType(GLuint program, GLenum stageType);
 
         /// 解开所有常用纹理单元上的 texture / sampler，避免同一张纹理既被采样
         /// 又当 FBO 附件，以及上一 pass 留下的 comparison sampler 影响下一 pass。
@@ -220,7 +221,7 @@ namespace Tiny3D
         TResult ensureComputeProgramLinked();
 
         TResult compileGLSLShader(GLenum shaderType, const String &source, GLuint &outHandle, const char *stageName);
-        TResult attachGraphicsShader(ShaderVariant *shader, ShaderVariantPtr &currentVariant);
+        TResult attachGraphicsShader(ShaderVariant *shader, ShaderVariantPtr &currentVariant, GLenum stageType);
 
         void releaseRenderTextureResources(GL4PixelBuffer2D *pb);
         TResult buildRenderTextureResources(PixelBuffer2D *buffer, GL4PixelBuffer2D *pb);
@@ -233,16 +234,22 @@ namespace Tiny3D
         {
             GLuint      fbo {0};
             GLuint      texture {0};
+            GLenum      target {GL_TEXTURE_2D};
+            GLenum      internalFormat {GL_RGBA8};
             GLuint      resolveFbo {0};
             GLuint      resolveTex {0};
             uint32_t    width {0};
             uint32_t    height {0};
+            uint32_t    depth {1};
+            uint32_t    arraySize {1};
             uint32_t    sampleCount {1};
             bool        isWindow {false};
             bool        isDepth {false};
+            bool        hasStencil {false};
             bool        needsScratchFbo {false};
         };
 
+        void attachScratchFBO(GLuint fbo, const BlitEndpoint &ep, GLint layer);
         TResult resolveBlitEndpoint(Texture *tex, bool asSource, BlitEndpoint &out);
         TResult resolveBlitEndpoint(RenderTarget *rt, bool asSource, BlitEndpoint &out);
         TResult doBlit(const BlitEndpoint &src, const BlitEndpoint &dst,
@@ -318,6 +325,8 @@ namespace Tiny3D
         /// blit 用的临时 FBO（给没有自带 FBO 的普通纹理）
         GLuint  mScratchReadFBO {0};
         GLuint  mScratchDrawFBO {0};
+        /// depth-only RenderTarget 用的 FBO
+        GLuint  mDepthOnlyFBO {0};
 
         uint32_t mNextReadbackIndex {0};
         uint32_t mReadbackGeneration {1};

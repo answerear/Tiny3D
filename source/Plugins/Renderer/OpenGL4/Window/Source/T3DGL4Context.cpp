@@ -75,6 +75,7 @@ namespace Tiny3D
         GL_SAFE_DELETE_PROGRAM(mCurrentComputeProgram);
         GL_SAFE_DELETE_FBO(mScratchReadFBO);
         GL_SAFE_DELETE_FBO(mScratchDrawFBO);
+        GL_SAFE_DELETE_FBO(mDepthOnlyFBO);
         GL_SAFE_DELETE_VAO(mCurrentVAO);
 
         for (auto &pair : mPendingReadbacks)
@@ -251,6 +252,11 @@ namespace Tiny3D
 
     TResult GL4Context::setRenderTarget(RenderTarget *renderTarget)
     {
+        if (renderTarget == nullptr)
+        {
+            return resetRenderTarget();
+        }
+
         TResult ret = T3D_OK;
 
         auto lambda = [this](RenderTargetPtr renderTarget)
@@ -293,30 +299,51 @@ namespace Tiny3D
                                         renderTarget->getDepthStencil()->getPixelBuffer()->getRHIResource().get());
                                     if (glDS != nullptr)
                                     {
-                                        GLenum dsTexTarget = (glDS->GLMSAACount > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
                                         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                                            GL_TEXTURE_2D, 0, 0);
+                                        GLenum dsTexTarget = (glDS->GLMSAACount > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+                                        GLenum dsAttachment = glDS->GLHasStencil ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
+                                        glFramebufferTexture2D(GL_FRAMEBUFFER, dsAttachment,
                                             dsTexTarget, glDS->GLTexture, 0);
                                         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget: glFramebufferTexture2D(depth texture)");
                                     }
                                 }
-
-                                uint32_t numRT = renderTarget->getNumOfRenderTextures();
-                                if (numRT > 1)
+                                else if (glPB->GLDepthRBO != 0)
                                 {
-                                    GLenum drawBuffers[8];
-                                    for (uint32_t i = 0; i < numRT && i < 8; ++i)
+                                    // 若上次曾挂载过外部深度纹理，切回无外部深度时恢复自带 RBO
+                                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                                        GL_TEXTURE_2D, 0, 0);
+                                    glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+                                        GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, glPB->GLDepthRBO);
+                                }
+
+                                const uint32_t numRT = renderTarget->getNumOfRenderTextures();
+                                const uint32_t activeRTs = std::min<uint32_t>(numRT, 8);
+                                GLenum drawBuffers[8] = {};
+                                for (uint32_t i = 0; i < activeRTs; ++i)
+                                {
+                                    drawBuffers[i] = GL_COLOR_ATTACHMENT0 + i;
+                                    if (i > 0)
                                     {
-                                        drawBuffers[i] = GL_COLOR_ATTACHMENT0 + i;
-                                        if (i > 0)
+                                        GL4PixelBuffer2D *pb = static_cast<GL4PixelBuffer2D*>(
+                                            renderTarget->getRenderTexture(i)->getPixelBuffer()->getRHIResource().get());
+                                        if (pb != nullptr)
                                         {
-                                            GL4PixelBuffer2D *pb = static_cast<GL4PixelBuffer2D*>(
-                                                renderTarget->getRenderTexture(i)->getPixelBuffer()->getRHIResource().get());
+                                            GLenum rtTarget = (pb->GLMSAACount > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
                                             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
-                                                GL_TEXTURE_2D, pb->GLTexture, 0);
+                                                rtTarget, pb->GLTexture, 0);
                                         }
                                     }
-                                    glDrawBuffers(numRT, drawBuffers);
                                 }
+
+                                for (uint32_t i = activeRTs; i < glPB->GLAttachedColorCount && i < 8; ++i)
+                                {
+                                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
+                                        GL_TEXTURE_2D, 0, 0);
+                                }
+                                glPB->GLAttachedColorCount = activeRTs;
+
+                                glDrawBuffers(static_cast<GLsizei>(activeRTs), drawBuffers);
                             }
                         }
                         else if (renderTarget->getDepthStencil() != nullptr)
@@ -325,15 +352,18 @@ namespace Tiny3D
                                 renderTarget->getDepthStencil()->getPixelBuffer()->getRHIResource().get());
                             if (glDS != nullptr)
                             {
-                                static GLuint sDepthOnlyFBO = 0;
-                                if (sDepthOnlyFBO == 0)
+                                if (mDepthOnlyFBO == 0)
                                 {
-                                    glGenFramebuffers(1, &sDepthOnlyFBO);
+                                    glGenFramebuffers(1, &mDepthOnlyFBO);
                                 }
 
-                                glBindFramebuffer(GL_FRAMEBUFFER, sDepthOnlyFBO);
+                                glBindFramebuffer(GL_FRAMEBUFFER, mDepthOnlyFBO);
                                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                                    GL_TEXTURE_2D, glDS->GLTexture, 0);
+                                    GL_TEXTURE_2D, 0, 0);
+                                GLenum dsTexTarget = (glDS->GLMSAACount > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+                                GLenum dsAttachment = glDS->GLHasStencil ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
+                                glFramebufferTexture2D(GL_FRAMEBUFFER, dsAttachment,
+                                    dsTexTarget, glDS->GLTexture, 0);
                                 glDrawBuffer(GL_NONE);
                                 glReadBuffer(GL_NONE);
                                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget: depth-only FBO");
@@ -400,6 +430,8 @@ namespace Tiny3D
         GL_SAFE_DELETE_FBO(pb->GLFBO);
         GL_SAFE_DELETE_TEXTURE(pb->GLTexture);
         pb->GLMSAACount = 1;
+        pb->GLHasStencil = false;
+        pb->GLAttachedColorCount = 1;
     }
 
     //--------------------------------------------------------------------------
@@ -411,12 +443,7 @@ namespace Tiny3D
         do
         {
             const auto &desc = buffer->getDescriptor();
-            bool isColorRT = true;
-            if (desc.format >= PixelFormat::E_PF_D24_UNORM_S8_UINT
-                && desc.format <= PixelFormat::E_PF_D16_UNORM)
-            {
-                isColorRT = false;
-            }
+            bool isColorRT = !GL4Mapping::isDepthFormat(desc.format);
 
             uint32_t msaaCount = desc.sampleDesc.Count;
             if (msaaCount < 1) msaaCount = 1;
@@ -427,9 +454,11 @@ namespace Tiny3D
             const GLenum internalFmt = GL4Mapping::getInternalFormat(desc.format);
             const GLenum pixelFmt = GL4Mapping::get(desc.format);
             const GLenum pixelType = GL4Mapping::getPixelType(desc.format);
-            const bool hasStencil = (desc.format == PixelFormat::E_PF_D24_UNORM_S8_UINT
-                || desc.format == PixelFormat::E_PF_D32_FLOAT_S8X24_UINT);
+            const bool hasStencil = GL4Mapping::hasStencil(desc.format);
             glPixelBuffer->GLInternalFormat = internalFmt;
+            glPixelBuffer->GLTarget = (msaaCount > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+            glPixelBuffer->GLHasStencil = hasStencil;
+            glPixelBuffer->GLAttachedColorCount = 1;
 
             if (isColorRT)
             {
@@ -716,6 +745,7 @@ namespace Tiny3D
                     GLsizei gw = static_cast<GLsizei>(vp.Width * w);
                     GLsizei gh = static_cast<GLsizei>(vp.Height * h);
                     glViewport(x, y, gw, gh);
+                    glDepthRange(static_cast<GLdouble>(vp.MinDepth), static_cast<GLdouble>(vp.MaxDepth));
                     GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setViewport(fallback)");
                 } while (false);
                 return ret;
@@ -727,21 +757,24 @@ namespace Tiny3D
         GLint y = static_cast<GLint>(viewport.Top * height);
         GLsizei w = static_cast<GLsizei>(viewport.Width * width);
         GLsizei h = static_cast<GLsizei>(viewport.Height * height);
+        const GLdouble minDepth = static_cast<GLdouble>(viewport.MinDepth);
+        const GLdouble maxDepth = static_cast<GLdouble>(viewport.MaxDepth);
 
-        auto lambda = [this](GLint x, GLint y, GLsizei w, GLsizei h)
+        auto lambda = [this](GLint x, GLint y, GLsizei w, GLsizei h, GLdouble minDepth, GLdouble maxDepth)
         {
             TResult ret = T3D_OK;
 
             do
             {
                 glViewport(x, y, w, h);
+                glDepthRange(minDepth, maxDepth);
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setViewport");
             } while (false);
 
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, x, y, w, h);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, x, y, w, h, minDepth, maxDepth);
     }
 
     //--------------------------------------------------------------------------
@@ -785,7 +818,8 @@ namespace Tiny3D
         }
 
         // 无 RenderTarget（如 ImGui 子 viewport）：在 RHI 线程查当前 viewport 高度再翻转
-        auto lambda = [this](int32_t x, int32_t y, uint32_t width, uint32_t height)
+        const bool renderingToFBO = mRenderingToFBO;
+        auto lambda = [this](int32_t x, int32_t y, uint32_t width, uint32_t height, bool renderingToFBO)
         {
             GLint currentVP[4];
             glGetIntegerv(GL_VIEWPORT, currentVP);
@@ -796,7 +830,7 @@ namespace Tiny3D
                     "GL4Context::setScissorRect: no render target and GL viewport height is zero");
                 return T3D_OK;
             }
-            const GLint glY = mRenderingToFBO
+            const GLint glY = renderingToFBO
                 ? static_cast<GLint>(y)
                 : fbH - (y + static_cast<int32_t>(height));
             glScissor(static_cast<GLint>(x), glY,
@@ -804,7 +838,7 @@ namespace Tiny3D
             GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setScissorRect(fallback)");
             return T3D_OK;
         };
-        return ENQUEUE_UNIQUE_COMMAND(lambda, x, y, width, height);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, x, y, width, height, renderingToFBO);
     }
 
     //--------------------------------------------------------------------------
@@ -1374,6 +1408,11 @@ namespace Tiny3D
                     glDisable(GL_POLYGON_OFFSET_LINE);
                 }
 
+                if (d.multisampleEnabled)
+                    glEnable(GL_MULTISAMPLE);
+                else
+                    glDisable(GL_MULTISAMPLE);
+
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setRasterizerState");
             } while (false);
 
@@ -1411,6 +1450,19 @@ namespace Tiny3D
 
     TResult GL4Context::setVertexDeclaration(VertexDeclaration *decl)
     {
+        if (decl == nullptr || decl->getRHIResource() == nullptr)
+        {
+            mPendingVertexDecl = nullptr;
+            auto lambda = [this]()
+            {
+                mCurrentVAO = 0;
+                glBindVertexArray(0);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setVertexDeclaration(null)");
+                return T3D_OK;
+            };
+            return ENQUEUE_UNIQUE_COMMAND(lambda);
+        }
+
         GL4VertexDeclarationPtr glDecl = static_cast<GL4VertexDeclaration*>(decl->getRHIResource().get());
         mPendingVertexDecl = decl;
 
@@ -1468,7 +1520,7 @@ namespace Tiny3D
 
     TResult GL4Context::setVertexBuffers(uint32_t startSlot, const VertexBuffers &buffers, const VertexStrides &strides, const VertexOffsets &offsets)
     {
-        VertexDeclarationPtr pendingDecl = std::move(mPendingVertexDecl);
+        VertexDeclarationPtr pendingDecl = mPendingVertexDecl;
 
         auto lambda = [this](uint32_t startSlot, const VertexBuffers &buffers, const VertexStrides &strides, const VertexOffsets &offsets, const VertexDeclarationPtr &pendingDecl)
         {
@@ -1478,11 +1530,19 @@ namespace Tiny3D
             {
                 for (uint32_t i = 0; i < buffers.size(); ++i)
                 {
+                    if (buffers[i] == nullptr || buffers[i]->getRHIResource() == nullptr)
+                    {
+                        continue;
+                    }
+
                     GL4VertexBuffer *glVB = static_cast<GL4VertexBuffer*>(buffers[i]->getRHIResource().get());
                     glBindBuffer(GL_ARRAY_BUFFER, glVB->GLBuffer);
 
                     if (pendingDecl != nullptr)
                     {
+                        const GLsizei stride = (i < strides.size()) ? static_cast<GLsizei>(strides[i]) : 0;
+                        const uintptr_t baseOffset = (i < offsets.size()) ? static_cast<uintptr_t>(offsets[i]) : 0;
+
                         for (uint32_t j = 0; j < pendingDecl->getAttributeCount(); ++j)
                         {
                             const VertexAttribute &attrib = pendingDecl->getAttributes()[j];
@@ -1492,19 +1552,16 @@ namespace Tiny3D
                             GLint size = GL4Mapping::getVertexAttribSize(attrib.getType());
                             GLenum type = GL4Mapping::getVertexAttribType(attrib.getType());
                             GLboolean normalized = GL4Mapping::getVertexAttribNormalized(attrib.getType());
+                            const void *pointer = reinterpret_cast<const void*>(baseOffset + static_cast<uintptr_t>(attrib.getOffset()));
 
                             glEnableVertexAttribArray(j);
                             if (GL4Mapping::isIntegerAttrib(attrib.getType()))
                             {
-                                glVertexAttribIPointer(j, size, type,
-                                    (GLsizei)strides[i],
-                                    reinterpret_cast<const void*>((uintptr_t)attrib.getOffset()));
+                                glVertexAttribIPointer(j, size, type, stride, pointer);
                             }
                             else
                             {
-                                glVertexAttribPointer(j, size, type, normalized,
-                                    (GLsizei)strides[i],
-                                    reinterpret_cast<const void*>((uintptr_t)attrib.getOffset()));
+                                glVertexAttribPointer(j, size, type, normalized, stride, pointer);
                             }
 
                             if (attrib.getInputRate() == VertexAttribute::InputRate::kPerInstance)
@@ -1565,17 +1622,31 @@ namespace Tiny3D
 
     TResult GL4Context::setIndexBuffer(IndexBuffer *buffer)
     {
+        if (buffer == nullptr || buffer->getRHIResource() == nullptr)
+        {
+            auto lambda = [this]()
+            {
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setIndexBuffer(null)");
+                return T3D_OK;
+            };
+            return ENQUEUE_UNIQUE_COMMAND(lambda);
+        }
+
         GL4IndexBufferPtr glIB = static_cast<GL4IndexBuffer*>(buffer->getRHIResource().get());
+        const GLenum indexType = GL4Mapping::get(buffer->getIndexType());
+        const uint32_t indexSize = (buffer->getIndexType() == IndexType::E_IT_16BITS) ? 2 : 4;
 
-        mIndexType = GL4Mapping::get(buffer->getIndexType());
-        mIndexSize = (buffer->getIndexType() == IndexType::E_IT_16BITS) ? 2 : 4;
-
-        auto lambda = [this](const GL4IndexBufferPtr &glIB)
+        auto lambda = [this](const GL4IndexBufferPtr &glIB, GLenum indexType, uint32_t indexSize)
         {
             TResult ret = T3D_OK;
 
             do
             {
+                // mIndexType/mIndexSize 必须在 RHI 线程随命令流顺序更新，
+                // 否则主线程提前改写会与正在执行的上一帧 draw 发生数据竞态（如 16-bit 场景与 32-bit UI 混用）。
+                mIndexType = indexType;
+                mIndexSize = indexSize;
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIB->GLBuffer);
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setIndexBuffer");
             } while (false);
@@ -1583,7 +1654,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, glIB);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, glIB, indexType, indexSize);
     }
 
     //--------------------------------------------------------------------------
@@ -1631,31 +1702,141 @@ namespace Tiny3D
             do
             {
                 const auto &desc = buffer->getDescriptor();
+                const uint32_t mipLevels = std::max<uint32_t>(1, desc.mipmaps);
+                const uint32_t arraySize = std::max<uint32_t>(1, desc.arraySize);
+                const bool isArray = (arraySize > 1);
+                const GLenum target = isArray ? GL_TEXTURE_1D_ARRAY : GL_TEXTURE_1D;
+                const uint32_t bpp = GL4Mapping::getBytesPerPixel(desc.format);
                 const GLenum internalFmt = GL4Mapping::getInternalFormat(desc.format);
                 const GLenum pixelFmt = GL4Mapping::get(desc.format);
                 const GLenum pixelType = GL4Mapping::getPixelType(desc.format);
                 glBuffer->GLInternalFormat = internalFmt;
+                glBuffer->GLTarget = target;
 
                 glGenTextures(1, &glBuffer->GLTexture);
-                glBindTexture(GL_TEXTURE_1D, glBuffer->GLTexture);
+                glBindTexture(target, glBuffer->GLTexture);
+
+                GLint prevUnpackAlign = 4;
+                glGetIntegerv(GL_UNPACK_ALIGNMENT, &prevUnpackAlign);
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+                const uint8_t *cursor = buffer->getBuffer().Data;
+                const size_t totalSize = buffer->getBuffer().DataSize;
+                size_t offset = 0;
+
                 if ((buffer->getGPUAccess() & kGPUUnorderedAccess) != 0)
                 {
-                    glTexStorage1D(GL_TEXTURE_1D, 1, internalFmt, desc.width);
-                    if (buffer->getBuffer().Data != nullptr)
+                    if (isArray)
                     {
-                        glTexSubImage1D(GL_TEXTURE_1D, 0, 0, desc.width,
-                            pixelFmt, pixelType, buffer->getBuffer().Data);
+                        glTexStorage2D(GL_TEXTURE_1D_ARRAY, mipLevels, internalFmt, desc.width, arraySize);
                     }
+                    else
+                    {
+                        glTexStorage1D(GL_TEXTURE_1D, mipLevels, internalFmt, desc.width);
+                    }
+
+                    if (cursor != nullptr && bpp > 0)
+                    {
+                        for (uint32_t slice = 0; slice < arraySize; ++slice)
+                        {
+                            for (uint32_t level = 0; level < mipLevels; ++level)
+                            {
+                                const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                                const size_t levelSize = static_cast<size_t>(mipW) * bpp;
+                                if (offset + levelSize > totalSize)
+                                {
+                                    break;
+                                }
+                                if (isArray)
+                                {
+                                    glTexSubImage2D(GL_TEXTURE_1D_ARRAY, level, 0, slice,
+                                        mipW, 1, pixelFmt, pixelType, cursor + offset);
+                                }
+                                else
+                                {
+                                    glTexSubImage1D(GL_TEXTURE_1D, level, 0, mipW,
+                                        pixelFmt, pixelType, cursor + offset);
+                                }
+                                offset += levelSize;
+                            }
+                        }
+                    }
+                    glTexParameteri(target, GL_TEXTURE_MIN_FILTER,
+                        mipLevels > 1 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
                 }
                 else
                 {
-                    glTexImage1D(GL_TEXTURE_1D, 0, internalFmt,
-                        desc.width, 0, pixelFmt, pixelType,
-                        buffer->getBuffer().Data);
+                    uint32_t maxLevelUploaded = 0;
+                    if (isArray)
+                    {
+                        for (uint32_t level = 0; level < mipLevels; ++level)
+                        {
+                            const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                            glTexImage2D(GL_TEXTURE_1D_ARRAY, level, internalFmt,
+                                mipW, arraySize, 0, pixelFmt, pixelType, nullptr);
+                        }
+                        if (cursor != nullptr && bpp > 0)
+                        {
+                            for (uint32_t slice = 0; slice < arraySize; ++slice)
+                            {
+                                for (uint32_t level = 0; level < mipLevels; ++level)
+                                {
+                                    const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                                    const size_t levelSize = static_cast<size_t>(mipW) * bpp;
+                                    if (offset + levelSize > totalSize)
+                                    {
+                                        break;
+                                    }
+                                    glTexSubImage2D(GL_TEXTURE_1D_ARRAY, level, 0, slice,
+                                        mipW, 1, pixelFmt, pixelType, cursor + offset);
+                                    offset += levelSize;
+                                    maxLevelUploaded = std::max(maxLevelUploaded, level);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            maxLevelUploaded = mipLevels - 1;
+                        }
+                    }
+                    else if (cursor != nullptr && bpp > 0)
+                    {
+                        uint32_t uploadedLevels = 0;
+                        for (uint32_t level = 0; level < mipLevels; ++level)
+                        {
+                            const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                            const size_t levelSize = static_cast<size_t>(mipW) * bpp;
+                            if (offset + levelSize > totalSize)
+                            {
+                                break;
+                            }
+                            glTexImage1D(GL_TEXTURE_1D, level, internalFmt,
+                                mipW, 0, pixelFmt, pixelType, cursor + offset);
+                            offset += levelSize;
+                            ++uploadedLevels;
+                        }
+                        maxLevelUploaded = (uploadedLevels > 0) ? (uploadedLevels - 1) : 0;
+                    }
+                    else
+                    {
+                        for (uint32_t level = 0; level < mipLevels; ++level)
+                        {
+                            const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                            glTexImage1D(GL_TEXTURE_1D, level, internalFmt,
+                                mipW, 0, pixelFmt, pixelType, nullptr);
+                        }
+                        maxLevelUploaded = mipLevels - 1;
+                    }
+
+                    glTexParameteri(target, GL_TEXTURE_BASE_LEVEL, 0);
+                    glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(maxLevelUploaded));
+                    glTexParameteri(target, GL_TEXTURE_MIN_FILTER,
+                        maxLevelUploaded > 0 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
                 }
-                glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glBindTexture(GL_TEXTURE_1D, 0);
+
+                glPixelStorei(GL_UNPACK_ALIGNMENT, prevUnpackAlign);
+                glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glBindTexture(target, 0);
 
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createPixelBuffer1D");
             } while (false);
@@ -1682,14 +1863,23 @@ namespace Tiny3D
             {
                 const auto &desc = buffer->getDescriptor();
                 const uint32_t mipLevels = std::max<uint32_t>(1, desc.mipmaps);
-                const uint32_t bpp = Image::getBPP(desc.format) / 8;
+                const uint32_t arraySize = std::max<uint32_t>(1, desc.arraySize);
+                const bool isArray = (arraySize > 1);
+                const GLenum target = isArray ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D;
+                const uint32_t bpp = GL4Mapping::getBytesPerPixel(desc.format);
                 const GLenum internalFmt = GL4Mapping::getInternalFormat(desc.format);
                 const GLenum pixelFmt = GL4Mapping::get(desc.format);
                 const GLenum pixelType = GL4Mapping::getPixelType(desc.format);
                 glBuffer->GLInternalFormat = internalFmt;
+                glBuffer->GLTarget = target;
+                glBuffer->GLHasStencil = GL4Mapping::hasStencil(desc.format);
 
                 glGenTextures(1, &glBuffer->GLTexture);
-                glBindTexture(GL_TEXTURE_2D, glBuffer->GLTexture);
+                glBindTexture(target, glBuffer->GLTexture);
+
+                GLint prevUnpackAlign = 4;
+                glGetIntegerv(GL_UNPACK_ALIGNMENT, &prevUnpackAlign);
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
                 const uint8_t *cursor = buffer->getBuffer().Data;
                 const size_t totalSize = buffer->getBuffer().DataSize;
@@ -1697,25 +1887,85 @@ namespace Tiny3D
 
                 if ((buffer->getGPUAccess() & kGPUUnorderedAccess) != 0)
                 {
-                    glTexStorage2D(GL_TEXTURE_2D, mipLevels, internalFmt, desc.width, desc.height);
+                    if (isArray)
+                    {
+                        glTexStorage3D(GL_TEXTURE_2D_ARRAY, mipLevels, internalFmt, desc.width, desc.height, arraySize);
+                    }
+                    else
+                    {
+                        glTexStorage2D(GL_TEXTURE_2D, mipLevels, internalFmt, desc.width, desc.height);
+                    }
+
                     if (cursor != nullptr && bpp > 0)
                     {
-                        for (uint32_t level = 0; level < mipLevels; ++level)
+                        for (uint32_t slice = 0; slice < arraySize; ++slice)
                         {
-                            const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
-                            const uint32_t mipH = std::max<uint32_t>(1, desc.height >> level);
-                            const size_t levelSize = static_cast<size_t>(mipW) * mipH * bpp;
-                            if (offset + levelSize > totalSize)
+                            for (uint32_t level = 0; level < mipLevels; ++level)
                             {
-                                break;
+                                const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                                const uint32_t mipH = std::max<uint32_t>(1, desc.height >> level);
+                                const size_t levelSize = static_cast<size_t>(mipW) * mipH * bpp;
+                                if (offset + levelSize > totalSize)
+                                {
+                                    break;
+                                }
+                                if (isArray)
+                                {
+                                    glTexSubImage3D(GL_TEXTURE_2D_ARRAY, level, 0, 0, slice,
+                                        mipW, mipH, 1, pixelFmt, pixelType, cursor + offset);
+                                }
+                                else
+                                {
+                                    glTexSubImage2D(GL_TEXTURE_2D, level, 0, 0,
+                                        mipW, mipH, pixelFmt, pixelType, cursor + offset);
+                                }
+                                offset += levelSize;
                             }
-                            glTexSubImage2D(GL_TEXTURE_2D, level, 0, 0,
-                                mipW, mipH, pixelFmt, pixelType, cursor + offset);
-                            offset += levelSize;
                         }
                     }
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                    glTexParameteri(target, GL_TEXTURE_MIN_FILTER,
                         mipLevels > 1 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+                }
+                else if (isArray)
+                {
+                    for (uint32_t level = 0; level < mipLevels; ++level)
+                    {
+                        const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                        const uint32_t mipH = std::max<uint32_t>(1, desc.height >> level);
+                        glTexImage3D(GL_TEXTURE_2D_ARRAY, level, internalFmt,
+                            mipW, mipH, arraySize, 0, pixelFmt, pixelType, nullptr);
+                    }
+
+                    uint32_t maxLevelUploaded = 0;
+                    if (cursor != nullptr && bpp > 0)
+                    {
+                        for (uint32_t slice = 0; slice < arraySize; ++slice)
+                        {
+                            for (uint32_t level = 0; level < mipLevels; ++level)
+                            {
+                                const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                                const uint32_t mipH = std::max<uint32_t>(1, desc.height >> level);
+                                const size_t levelSize = static_cast<size_t>(mipW) * mipH * bpp;
+                                if (offset + levelSize > totalSize)
+                                {
+                                    break;
+                                }
+                                glTexSubImage3D(GL_TEXTURE_2D_ARRAY, level, 0, 0, slice,
+                                    mipW, mipH, 1, pixelFmt, pixelType, cursor + offset);
+                                offset += levelSize;
+                                maxLevelUploaded = std::max(maxLevelUploaded, level);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        maxLevelUploaded = mipLevels - 1;
+                    }
+
+                    glTexParameteri(target, GL_TEXTURE_BASE_LEVEL, 0);
+                    glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(maxLevelUploaded));
+                    glTexParameteri(target, GL_TEXTURE_MIN_FILTER,
+                        maxLevelUploaded > 0 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
                 }
                 else if (cursor != nullptr && bpp > 0)
                 {
@@ -1743,16 +1993,22 @@ namespace Tiny3D
                 }
                 else
                 {
-                    glTexImage2D(GL_TEXTURE_2D, 0, internalFmt,
-                        desc.width, desc.height, 0, pixelFmt, pixelType,
-                        cursor);
+                    for (uint32_t level = 0; level < mipLevels; ++level)
+                    {
+                        const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                        const uint32_t mipH = std::max<uint32_t>(1, desc.height >> level);
+                        glTexImage2D(GL_TEXTURE_2D, level, internalFmt,
+                            mipW, mipH, 0, pixelFmt, pixelType, nullptr);
+                    }
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(mipLevels - 1));
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                        mipLevels > 1 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
                 }
 
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glBindTexture(GL_TEXTURE_2D, 0);
+                glPixelStorei(GL_UNPACK_ALIGNMENT, prevUnpackAlign);
+                glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glBindTexture(target, 0);
 
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createPixelBuffer2D");
             } while (false);
@@ -1778,6 +2034,8 @@ namespace Tiny3D
             do
             {
                 const auto &desc = buffer->getDescriptor();
+                const uint32_t mipLevels = std::max<uint32_t>(1, desc.mipmaps);
+                const uint32_t bpp = GL4Mapping::getBytesPerPixel(desc.format);
                 const GLenum internalFmt = GL4Mapping::getInternalFormat(desc.format);
                 const GLenum pixelFmt = GL4Mapping::get(desc.format);
                 const GLenum pixelType = GL4Mapping::getPixelType(desc.format);
@@ -1785,23 +2043,81 @@ namespace Tiny3D
 
                 glGenTextures(1, &glBuffer->GLTexture);
                 glBindTexture(GL_TEXTURE_3D, glBuffer->GLTexture);
+
+                GLint prevUnpackAlign = 4;
+                glGetIntegerv(GL_UNPACK_ALIGNMENT, &prevUnpackAlign);
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+                const uint8_t *cursor = buffer->getBuffer().Data;
+                const size_t totalSize = buffer->getBuffer().DataSize;
+                size_t offset = 0;
+
                 if ((buffer->getGPUAccess() & kGPUUnorderedAccess) != 0)
                 {
-                    glTexStorage3D(GL_TEXTURE_3D, 1, internalFmt, desc.width, desc.height, desc.depth);
-                    if (buffer->getBuffer().Data != nullptr)
+                    glTexStorage3D(GL_TEXTURE_3D, mipLevels, internalFmt, desc.width, desc.height, desc.depth);
+                    if (cursor != nullptr && bpp > 0)
                     {
-                        glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, 0,
-                            desc.width, desc.height, desc.depth,
-                            pixelFmt, pixelType, buffer->getBuffer().Data);
+                        for (uint32_t level = 0; level < mipLevels; ++level)
+                        {
+                            const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                            const uint32_t mipH = std::max<uint32_t>(1, desc.height >> level);
+                            const uint32_t mipD = std::max<uint32_t>(1, desc.depth >> level);
+                            const size_t levelSize = static_cast<size_t>(mipW) * mipH * mipD * bpp;
+                            if (offset + levelSize > totalSize)
+                            {
+                                break;
+                            }
+                            glTexSubImage3D(GL_TEXTURE_3D, level, 0, 0, 0,
+                                mipW, mipH, mipD, pixelFmt, pixelType, cursor + offset);
+                            offset += levelSize;
+                        }
                     }
+                    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
+                        mipLevels > 1 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+                }
+                else if (cursor != nullptr && bpp > 0)
+                {
+                    uint32_t uploadedLevels = 0;
+                    for (uint32_t level = 0; level < mipLevels; ++level)
+                    {
+                        const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                        const uint32_t mipH = std::max<uint32_t>(1, desc.height >> level);
+                        const uint32_t mipD = std::max<uint32_t>(1, desc.depth >> level);
+                        const size_t levelSize = static_cast<size_t>(mipW) * mipH * mipD * bpp;
+                        if (offset + levelSize > totalSize)
+                        {
+                            break;
+                        }
+                        glTexImage3D(GL_TEXTURE_3D, level, internalFmt,
+                            mipW, mipH, mipD, 0,
+                            pixelFmt, pixelType, cursor + offset);
+                        offset += levelSize;
+                        ++uploadedLevels;
+                    }
+                    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, 0);
+                    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL,
+                        uploadedLevels > 0 ? static_cast<GLint>(uploadedLevels - 1) : 0);
+                    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
+                        uploadedLevels > 1 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
                 }
                 else
                 {
-                    glTexImage3D(GL_TEXTURE_3D, 0, internalFmt,
-                        desc.width, desc.height, desc.depth, 0,
-                        pixelFmt, pixelType, buffer->getBuffer().Data);
+                    for (uint32_t level = 0; level < mipLevels; ++level)
+                    {
+                        const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                        const uint32_t mipH = std::max<uint32_t>(1, desc.height >> level);
+                        const uint32_t mipD = std::max<uint32_t>(1, desc.depth >> level);
+                        glTexImage3D(GL_TEXTURE_3D, level, internalFmt,
+                            mipW, mipH, mipD, 0,
+                            pixelFmt, pixelType, nullptr);
+                    }
+                    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, 0);
+                    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(mipLevels - 1));
+                    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER,
+                        mipLevels > 1 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
                 }
-                glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+                glPixelStorei(GL_UNPACK_ALIGNMENT, prevUnpackAlign);
                 glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glBindTexture(GL_TEXTURE_3D, 0);
 
@@ -1831,31 +2147,215 @@ namespace Tiny3D
                 const auto &desc = buffer->getDescriptor();
                 const Buffer &src = buffer->getBuffer();
 
-                const size_t bpp = Image::getBPP(desc.format) / 8;
-                const size_t faceSize = (size_t)desc.width * desc.height * bpp;
+                const uint32_t mipLevels = std::max<uint32_t>(1, desc.mipmaps);
+                const uint32_t faceCount = std::max<uint32_t>(PixelBufferCubemap::FACE_COUNT, desc.arraySize);
+                const uint32_t cubeCount = std::max<uint32_t>(1, faceCount / PixelBufferCubemap::FACE_COUNT);
+                const bool isArray = (cubeCount > 1);
+                const GLenum target = isArray ? GL_TEXTURE_CUBE_MAP_ARRAY : GL_TEXTURE_CUBE_MAP;
+
+                const size_t bpp = GL4Mapping::getBytesPerPixel(desc.format);
+                const GLenum internalFmt = GL4Mapping::getInternalFormat(desc.format);
+                const GLenum pixelFmt = GL4Mapping::get(desc.format);
+                const GLenum pixelType = GL4Mapping::getPixelType(desc.format);
+                glBuffer->GLInternalFormat = internalFmt;
+                glBuffer->GLTarget = target;
+
+                size_t singleFaceFullMipBytes = 0;
+                for (uint32_t level = 0; level < mipLevels; ++level)
+                {
+                    const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                    const uint32_t mipH = std::max<uint32_t>(1, desc.height >> level);
+                    singleFaceFullMipBytes += static_cast<size_t>(mipW) * mipH * bpp;
+                }
+                const size_t fullMipBytes = singleFaceFullMipBytes * faceCount;
+                const size_t mip0FaceBytes = static_cast<size_t>(desc.width) * desc.height * bpp;
                 const uint8_t *data = static_cast<const uint8_t*>(src.Data);
+                const bool hasFullMipData = (data != nullptr && bpp > 0 && mipLevels > 1 && src.DataSize >= fullMipBytes);
 
                 glGenTextures(1, &glBuffer->GLTexture);
-                glBindTexture(GL_TEXTURE_CUBE_MAP, glBuffer->GLTexture);
+                glBindTexture(target, glBuffer->GLTexture);
 
-                for (uint32_t face = 0; face < PixelBufferCubemap::FACE_COUNT; ++face)
+                GLint prevUnpackAlign = 4;
+                glGetIntegerv(GL_UNPACK_ALIGNMENT, &prevUnpackAlign);
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+                if ((buffer->getGPUAccess() & kGPUUnorderedAccess) != 0)
                 {
-                    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0,
-                        GL4Mapping::getInternalFormat(desc.format),
-                        desc.width, desc.height, 0,
-                        GL4Mapping::get(desc.format),
-                        GL4Mapping::getPixelType(desc.format),
-                        data != nullptr ? data + face * faceSize : nullptr);
+                    if (isArray)
+                    {
+                        glTexStorage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mipLevels, internalFmt, desc.width, desc.height, faceCount);
+                    }
+                    else
+                    {
+                        glTexStorage2D(GL_TEXTURE_CUBE_MAP, mipLevels, internalFmt, desc.width, desc.height);
+                    }
+
+                    if (data != nullptr && bpp > 0)
+                    {
+                        if (hasFullMipData)
+                        {
+                            size_t offset = 0;
+                            for (uint32_t face = 0; face < faceCount; ++face)
+                            {
+                                for (uint32_t level = 0; level < mipLevels; ++level)
+                                {
+                                    const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                                    const uint32_t mipH = std::max<uint32_t>(1, desc.height >> level);
+                                    const size_t levelSize = static_cast<size_t>(mipW) * mipH * bpp;
+                                    if (isArray)
+                                    {
+                                        glTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, level, 0, 0, face,
+                                            mipW, mipH, 1, pixelFmt, pixelType, data + offset);
+                                    }
+                                    else
+                                    {
+                                        glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, level, 0, 0,
+                                            mipW, mipH, pixelFmt, pixelType, data + offset);
+                                    }
+                                    offset += levelSize;
+                                }
+                            }
+                        }
+                        else if (src.DataSize >= mip0FaceBytes * faceCount)
+                        {
+                            for (uint32_t face = 0; face < faceCount; ++face)
+                            {
+                                const uint8_t *facePtr = data + face * mip0FaceBytes;
+                                if (isArray)
+                                {
+                                    glTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, 0, 0, face,
+                                        desc.width, desc.height, 1, pixelFmt, pixelType, facePtr);
+                                }
+                                else
+                                {
+                                    glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, 0, 0,
+                                        desc.width, desc.height, pixelFmt, pixelType, facePtr);
+                                }
+                            }
+                            if (mipLevels > 1)
+                            {
+                                glGenerateMipmap(target);
+                            }
+                        }
+                    }
+
+                    glTexParameteri(target, GL_TEXTURE_MIN_FILTER,
+                        mipLevels > 1 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+                }
+                else if (isArray)
+                {
+                    for (uint32_t level = 0; level < mipLevels; ++level)
+                    {
+                        const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                        const uint32_t mipH = std::max<uint32_t>(1, desc.height >> level);
+                        glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, level, internalFmt,
+                            mipW, mipH, faceCount, 0, pixelFmt, pixelType, nullptr);
+                    }
+
+                    if (hasFullMipData)
+                    {
+                        size_t offset = 0;
+                        for (uint32_t face = 0; face < faceCount; ++face)
+                        {
+                            for (uint32_t level = 0; level < mipLevels; ++level)
+                            {
+                                const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                                const uint32_t mipH = std::max<uint32_t>(1, desc.height >> level);
+                                const size_t levelSize = static_cast<size_t>(mipW) * mipH * bpp;
+                                glTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, level, 0, 0, face,
+                                    mipW, mipH, 1, pixelFmt, pixelType, data + offset);
+                                offset += levelSize;
+                            }
+                        }
+                        glTexParameteri(target, GL_TEXTURE_BASE_LEVEL, 0);
+                        glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(mipLevels - 1));
+                        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                    }
+                    else if (data != nullptr && bpp > 0 && src.DataSize >= mip0FaceBytes * faceCount)
+                    {
+                        for (uint32_t face = 0; face < faceCount; ++face)
+                        {
+                            glTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, 0, 0, face,
+                                desc.width, desc.height, 1, pixelFmt, pixelType, data + face * mip0FaceBytes);
+                        }
+                        if (desc.mipmaps == 0 || mipLevels > 1)
+                        {
+                            glGenerateMipmap(target);
+                            glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                        }
+                        else
+                        {
+                            glTexParameteri(target, GL_TEXTURE_BASE_LEVEL, 0);
+                            glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, 0);
+                            glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                        }
+                    }
+                    else
+                    {
+                        glTexParameteri(target, GL_TEXTURE_BASE_LEVEL, 0);
+                        glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(mipLevels - 1));
+                        glTexParameteri(target, GL_TEXTURE_MIN_FILTER,
+                            mipLevels > 1 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+                    }
+                }
+                else
+                {
+                    if (hasFullMipData)
+                    {
+                        size_t offset = 0;
+                        for (uint32_t face = 0; face < PixelBufferCubemap::FACE_COUNT; ++face)
+                        {
+                            for (uint32_t level = 0; level < mipLevels; ++level)
+                            {
+                                const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                                const uint32_t mipH = std::max<uint32_t>(1, desc.height >> level);
+                                const size_t levelSize = static_cast<size_t>(mipW) * mipH * bpp;
+                                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, level,
+                                    internalFmt, mipW, mipH, 0, pixelFmt, pixelType, data + offset);
+                                offset += levelSize;
+                            }
+                        }
+                        glTexParameteri(target, GL_TEXTURE_BASE_LEVEL, 0);
+                        glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(mipLevels - 1));
+                        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                    }
+                    else
+                    {
+                        for (uint32_t level = 0; level < mipLevels; ++level)
+                        {
+                            const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
+                            const uint32_t mipH = std::max<uint32_t>(1, desc.height >> level);
+                            for (uint32_t face = 0; face < PixelBufferCubemap::FACE_COUNT; ++face)
+                            {
+                                const uint8_t *facePtr = (level == 0 && data != nullptr && src.DataSize >= mip0FaceBytes * PixelBufferCubemap::FACE_COUNT)
+                                    ? (data + face * mip0FaceBytes)
+                                    : nullptr;
+                                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, level,
+                                    internalFmt, mipW, mipH, 0, pixelFmt, pixelType, facePtr);
+                            }
+                        }
+
+                        if (data != nullptr && (desc.mipmaps == 0 || mipLevels > 1))
+                        {
+                            glGenerateMipmap(target);
+                            glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                        }
+                        else
+                        {
+                            glTexParameteri(target, GL_TEXTURE_BASE_LEVEL, 0);
+                            glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(mipLevels - 1));
+                            glTexParameteri(target, GL_TEXTURE_MIN_FILTER,
+                                mipLevels > 1 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+                        }
+                    }
                 }
 
-                glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-
-                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-                glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+                glPixelStorei(GL_UNPACK_ALIGNMENT, prevUnpackAlign);
+                glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+                glBindTexture(target, 0);
 
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createPixelBufferCubemap");
             } while (false);
@@ -2063,40 +2563,7 @@ namespace Tiny3D
 
     TResult GL4Context::setPixelShader(ShaderVariant *shader)
     {
-        if (shader == nullptr)
-        {
-            auto lambda = [this]()
-            {
-                mCurrentPSVariant = nullptr;
-                return T3D_OK;
-            };
-            return ENQUEUE_UNIQUE_COMMAND(lambda);
-        }
-
-        auto lambda = [this](const ShaderVariantPtr &variant)
-        {
-            TResult ret = T3D_OK;
-
-            do
-            {
-                mCurrentPSVariant = variant;
-
-                const GLuint shaderHandle = getGLShaderHandle(variant.get());
-
-                if (mCurrentProgram == 0)
-                {
-                    mCurrentProgram = glCreateProgram();
-                }
-                detachShaderStage(mCurrentProgram, shaderHandle);
-                glAttachShader(mCurrentProgram, shaderHandle);
-                mProgramDirty = true;
-                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setPixelShader");
-            } while (false);
-
-            return ret;
-        };
-
-        return ENQUEUE_UNIQUE_COMMAND(lambda, ShaderVariantPtr(shader));
+        return attachGraphicsShader(shader, mCurrentPSVariant, GL_FRAGMENT_SHADER);
     }
 
     //--------------------------------------------------------------------------
@@ -2140,7 +2607,7 @@ namespace Tiny3D
 
     TResult GL4Context::setHullShader(ShaderVariant *shader)
     {
-        return attachGraphicsShader(shader, mCurrentHSVariant);
+        return attachGraphicsShader(shader, mCurrentHSVariant, GL_TESS_CONTROL_SHADER);
     }
 
     TResult GL4Context::setHSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
@@ -2182,7 +2649,7 @@ namespace Tiny3D
 
     TResult GL4Context::setDomainShader(ShaderVariant *shader)
     {
-        return attachGraphicsShader(shader, mCurrentDSVariant);
+        return attachGraphicsShader(shader, mCurrentDSVariant, GL_TESS_EVALUATION_SHADER);
     }
 
     TResult GL4Context::setDSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
@@ -2258,7 +2725,7 @@ namespace Tiny3D
 
     TResult GL4Context::setGeometryShader(ShaderVariant *shader)
     {
-        return attachGraphicsShader(shader, mCurrentGSVariant);
+        return attachGraphicsShader(shader, mCurrentGSVariant, GL_GEOMETRY_SHADER);
     }
 
     //--------------------------------------------------------------------------
@@ -2648,23 +3115,36 @@ namespace Tiny3D
         const size_t byteWidth = buffer->getGPUSizeInBytes();
         const GLenum usage = GL4Mapping::getBufferUsage(buffer->getUsage());
         const bool hasCounter = desc.hasCounter || desc.isAppendConsume;
+        const bool isTyped = (desc.kind == StructuredBufferKind::kTyped);
+        const GLenum typedFormat = isTyped ? GL4Mapping::getInternalFormat(desc.format) : GL_RGBA8;
 
+        glBuffer->Kind = desc.kind;
+        glBuffer->GLInternalFormat = typedFormat;
         glBuffer->ElementCount = desc.elementCount;
         glBuffer->ElementSize = desc.elementSize;
         glBuffer->HasCounter = hasCounter;
 
         auto lambda = [this](const GL4StructuredBufferPtr &glBuffer, const StructuredBufferPtr &buffer,
-            size_t byteWidth, GLenum usage, bool hasCounter)
+            size_t byteWidth, GLenum usage, bool hasCounter, bool isTyped, GLenum typedFormat)
         {
             TResult ret = T3D_OK;
 
             do
             {
+                const GLenum target = isTyped ? GL_TEXTURE_BUFFER : GL_SHADER_STORAGE_BUFFER;
                 glGenBuffers(1, &glBuffer->GLBuffer);
-                glBindBuffer(GL_SHADER_STORAGE_BUFFER, glBuffer->GLBuffer);
-                glBufferData(GL_SHADER_STORAGE_BUFFER, (GLsizeiptr)byteWidth,
+                glBindBuffer(target, glBuffer->GLBuffer);
+                glBufferData(target, (GLsizeiptr)byteWidth,
                     buffer->getBuffer().Data, usage);
-                glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+                glBindBuffer(target, 0);
+
+                if (isTyped)
+                {
+                    glGenTextures(1, &glBuffer->GLTextureBuffer);
+                    glBindTexture(GL_TEXTURE_BUFFER, glBuffer->GLTextureBuffer);
+                    glTexBuffer(GL_TEXTURE_BUFFER, typedFormat, glBuffer->GLBuffer);
+                    glBindTexture(GL_TEXTURE_BUFFER, 0);
+                }
 
                 if (hasCounter)
                 {
@@ -2681,7 +3161,7 @@ namespace Tiny3D
             return ret;
         };
 
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glBuffer, StructuredBufferPtr(buffer), byteWidth, usage, hasCounter);
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glBuffer, StructuredBufferPtr(buffer), byteWidth, usage, hasCounter, isTyped, typedFormat);
         if (T3D_FAILED(ret))
         {
             return nullptr;
@@ -3097,6 +3577,7 @@ namespace Tiny3D
     TResult GL4Context::reset()
     {
         mCurrentRenderTarget = nullptr;
+        mPendingVertexDecl = nullptr;
         mRenderingToFBO = false;
         mProjectionFlipped = false;
 
@@ -3418,57 +3899,156 @@ namespace Tiny3D
         {
             request->CopyRecorded = true;
 
-            if (src->getRHIResource() == nullptr
-                || src->getRHIResource()->getResourceType() != RHIResource::ResourceType::kPixelBuffer2D)
+            if (src->getRHIResource() == nullptr)
             {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "map : only 2D textures are supported for texture readback !");
-                request->CopyResult = T3D_ERR_GL4_UNSUPPORTED_OPERATION;
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "map : texture has no RHI resource !");
+                request->CopyResult = T3D_ERR_INVALID_POINTER;
                 return request->CopyResult;
             }
 
-            PixelBuffer2D *pb = static_cast<PixelBuffer2D*>(src.get());
-            const auto &desc = pb->getDescriptor();
-            const uint32_t bpp = GL4Mapping::getBytesPerPixel(desc.format);
-            if (bpp == 0)
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "map : format is not supported for readback !");
-                request->CopyResult = T3D_ERR_GL4_UNSUPPORTED_OPERATION;
-                return request->CopyResult;
-            }
+            const RHIResource::ResourceType resType = src->getRHIResource()->getResourceType();
+            uint32_t dimension = 2;
+            uint32_t width = 1;
+            uint32_t height = 1;
+            uint32_t depth = 1;
+            uint32_t mipLevels = 1;
+            uint32_t arraySize = 1;
+            PixelFormat format = PixelFormat::E_PF_UNKNOWN;
+            GLuint tex = 0;
 
-            GL4PixelBuffer2D *glPB = static_cast<GL4PixelBuffer2D*>(src->getRHIResource().get());
-            GLuint tex = glPB->GLTexture;
-            if (glPB->GLMSAACount > 1 && glPB->GLResolveTex != 0)
+            switch (resType)
             {
-                if (glPB->GLFBO != 0 && glPB->GLResolveFBO != 0)
+            case RHIResource::ResourceType::kPixelBuffer1D:
                 {
-                    glBindFramebuffer(GL_READ_FRAMEBUFFER, glPB->GLFBO);
-                    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glPB->GLResolveFBO);
-                    glBlitFramebuffer(0, 0, (GLint)desc.width, (GLint)desc.height,
-                        0, 0, (GLint)desc.width, (GLint)desc.height,
-                        GL_COLOR_BUFFER_BIT, GL_NEAREST);
-                    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                    PixelBuffer1D *pb = static_cast<PixelBuffer1D*>(src.get());
+                    const auto &desc = pb->getDescriptor();
+                    dimension = 1;
+                    width = desc.width;
+                    mipLevels = std::max<uint32_t>(1, desc.mipmaps);
+                    arraySize = std::max<uint32_t>(1, desc.arraySize);
+                    format = desc.format;
+                    tex = static_cast<GL4PixelBuffer1D*>(src->getRHIResource().get())->GLTexture;
                 }
-                tex = glPB->GLResolveTex;
+                break;
+            case RHIResource::ResourceType::kPixelBuffer2D:
+                {
+                    PixelBuffer2D *pb = static_cast<PixelBuffer2D*>(src.get());
+                    const auto &desc = pb->getDescriptor();
+                    dimension = 2;
+                    width = desc.width;
+                    height = desc.height;
+                    mipLevels = std::max<uint32_t>(1, desc.mipmaps);
+                    arraySize = std::max<uint32_t>(1, desc.arraySize);
+                    format = desc.format;
+
+                    GL4PixelBuffer2D *glPB = static_cast<GL4PixelBuffer2D*>(src->getRHIResource().get());
+                    tex = glPB->GLTexture;
+                    if (glPB->GLMSAACount > 1)
+                    {
+                        if (glPB->GLResolveTex != 0 && glPB->GLFBO != 0 && glPB->GLResolveFBO != 0)
+                        {
+                            glBindFramebuffer(GL_READ_FRAMEBUFFER, glPB->GLFBO);
+                            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glPB->GLResolveFBO);
+                            glBlitFramebuffer(0, 0, (GLint)desc.width, (GLint)desc.height,
+                                0, 0, (GLint)desc.width, (GLint)desc.height,
+                                GL_COLOR_BUFFER_BIT, GL_NEAREST);
+                            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                            tex = glPB->GLResolveTex;
+                        }
+                        else
+                        {
+                            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "map : MSAA texture without resolve FBO is not supported for readback !");
+                            request->CopyResult = T3D_ERR_GL4_UNSUPPORTED_OPERATION;
+                            return request->CopyResult;
+                        }
+                    }
+                }
+                break;
+            case RHIResource::ResourceType::kPixelBuffer3D:
+                {
+                    PixelBuffer3D *pb = static_cast<PixelBuffer3D*>(src.get());
+                    const auto &desc = pb->getDescriptor();
+                    dimension = 3;
+                    width = desc.width;
+                    height = desc.height;
+                    depth = desc.depth;
+                    mipLevels = std::max<uint32_t>(1, desc.mipmaps);
+                    arraySize = 1;
+                    format = desc.format;
+                    tex = static_cast<GL4PixelBuffer3D*>(src->getRHIResource().get())->GLTexture;
+                }
+                break;
+            case RHIResource::ResourceType::kPixelBufferCubemap:
+                {
+                    PixelBufferCubemap *pb = static_cast<PixelBufferCubemap*>(src.get());
+                    const auto &desc = pb->getDescriptor();
+                    dimension = 2;
+                    width = desc.width;
+                    height = desc.height;
+                    mipLevels = std::max<uint32_t>(1, desc.mipmaps);
+                    arraySize = std::max<uint32_t>(PixelBufferCubemap::FACE_COUNT, desc.arraySize);
+                    format = desc.format;
+                    tex = static_cast<GL4PixelBufferCubemap*>(src->getRHIResource().get())->GLTexture;
+                }
+                break;
+            default:
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "map : unsupported texture resource type [%d] !", (int32_t)resType);
+                request->CopyResult = T3D_ERR_GL4_UNSUPPORTED_OPERATION;
+                return request->CopyResult;
             }
 
-            const uint32_t mipWidth = std::max<uint32_t>(1, desc.width >> request->Region.mipLevel);
-            const uint32_t mipHeight = std::max<uint32_t>(1, desc.height >> request->Region.mipLevel);
+            if (tex == 0)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "map : underlying GL texture is not ready !");
+                request->CopyResult = T3D_ERR_INVALID_POINTER;
+                return request->CopyResult;
+            }
+
+            const uint32_t bpp = GL4Mapping::getBytesPerPixel(format);
+            if (bpp == 0 || GL4Mapping::isDepthFormat(format))
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "map : format [%d] is not supported for readback (compressed and depth/stencil formats are out of scope) !", (int32_t)format);
+                request->CopyResult = T3D_ERR_GL4_UNSUPPORTED_OPERATION;
+                return request->CopyResult;
+            }
+
+            if (request->Region.mipLevel >= mipLevels || request->Region.arraySlice >= arraySize)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "map : out of range ! mip [%u / %u] slice [%u / %u]",
+                    request->Region.mipLevel, mipLevels, request->Region.arraySlice, arraySize);
+                request->CopyResult = T3D_ERR_INVALID_PARAM;
+                return request->CopyResult;
+            }
+
+            const uint32_t mipWidth = std::max<uint32_t>(1, width >> request->Region.mipLevel);
+            const uint32_t mipHeight = (dimension >= 2) ? std::max<uint32_t>(1, height >> request->Region.mipLevel) : 1;
+            const uint32_t mipDepth = (dimension == 3) ? std::max<uint32_t>(1, depth >> request->Region.mipLevel) : 1;
+
             const uint32_t offsetX = static_cast<uint32_t>(request->Region.offset.x());
-            const uint32_t offsetY = static_cast<uint32_t>(request->Region.offset.y());
+            const uint32_t offsetY = (dimension >= 2) ? static_cast<uint32_t>(request->Region.offset.y()) : 0;
+            const uint32_t offsetZ = (dimension == 3) ? static_cast<uint32_t>(request->Region.offset.z()) : 0;
+
             uint32_t copyWidth = static_cast<uint32_t>(request->Region.size.x());
-            uint32_t copyHeight = static_cast<uint32_t>(request->Region.size.y());
+            uint32_t copyHeight = (dimension >= 2) ? static_cast<uint32_t>(request->Region.size.y()) : 1;
+            uint32_t copyDepth = (dimension == 3) ? static_cast<uint32_t>(request->Region.size.z()) : 1;
+
             if (copyWidth == 0)
             {
                 copyWidth = mipWidth - std::min(offsetX, mipWidth);
             }
             if (copyHeight == 0)
             {
-                copyHeight = mipHeight - std::min(offsetY, mipHeight);
+                copyHeight = (dimension >= 2) ? (mipHeight - std::min(offsetY, mipHeight)) : 1;
+            }
+            if (copyDepth == 0)
+            {
+                copyDepth = (dimension == 3) ? (mipDepth - std::min(offsetZ, mipDepth)) : 1;
             }
 
-            if (copyWidth == 0 || copyHeight == 0
-                || offsetX + copyWidth > mipWidth || offsetY + copyHeight > mipHeight)
+            if (copyWidth == 0 || copyHeight == 0 || copyDepth == 0
+                || offsetX + copyWidth > mipWidth
+                || (dimension >= 2 && offsetY + copyHeight > mipHeight)
+                || (dimension == 3 && offsetZ + copyDepth > mipDepth))
             {
                 T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "map : region out of range !");
                 request->CopyResult = T3D_ERR_INVALID_PARAM;
@@ -3477,21 +4057,42 @@ namespace Tiny3D
 
             request->CopyWidth = copyWidth;
             request->CopyHeight = copyHeight;
-            request->CopyDepth = 1;
+            request->CopyDepth = copyDepth;
             request->TightRowPitch = copyWidth * bpp;
             request->TightSlicePitch = request->TightRowPitch * copyHeight;
-            request->TotalBytes = request->TightSlicePitch;
+            request->TotalBytes = static_cast<size_t>(request->TightSlicePitch) * copyDepth;
+
+            GLint glYOffset = static_cast<GLint>(offsetY);
+            GLint glZOffset = 0;
+            if (dimension == 1)
+            {
+                glYOffset = (arraySize > 1) ? static_cast<GLint>(request->Region.arraySlice) : 0;
+                glZOffset = 0;
+            }
+            else if (dimension == 2)
+            {
+                glZOffset = static_cast<GLint>(request->Region.arraySlice);
+            }
+            else if (dimension == 3)
+            {
+                glZOffset = static_cast<GLint>(offsetZ);
+            }
+
+            GLint prevPackAlign = 4;
+            glGetIntegerv(GL_PACK_ALIGNMENT, &prevPackAlign);
+            glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
             // 同上：glNamedBufferData 要求缓冲对象已存在，只能用 glCreateBuffers
             glCreateBuffers(1, &request->Staging);
             glNamedBufferData(request->Staging, (GLsizeiptr)request->TotalBytes, nullptr, GL_STREAM_READ);
             glBindBuffer(GL_PIXEL_PACK_BUFFER, request->Staging);
             glGetTextureSubImage(tex, (GLint)request->Region.mipLevel,
-                (GLint)offsetX, (GLint)offsetY, 0,
-                (GLsizei)copyWidth, (GLsizei)copyHeight, 1,
-                GL4Mapping::get(desc.format), GL4Mapping::getPixelType(desc.format),
+                (GLint)offsetX, glYOffset, glZOffset,
+                (GLsizei)copyWidth, (GLsizei)copyHeight, (GLsizei)copyDepth,
+                GL4Mapping::get(format), GL4Mapping::getPixelType(format),
                 (GLsizei)request->TotalBytes, nullptr);
             glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+            glPixelStorei(GL_PACK_ALIGNMENT, prevPackAlign);
 
             request->CopyResult = T3D_OK;
             GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::map(texture)");
@@ -3513,24 +4114,255 @@ namespace Tiny3D
 
     TResult GL4Context::writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer)
     {
-        TResult ret = T3D_OK;
+        if (renderBuffer == nullptr || renderBuffer->getRHIResource() == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "writeBuffer : renderBuffer or its RHI resource is null !");
+            return T3D_ERR_INVALID_POINTER;
+        }
+
+        if (buffer.Data == nullptr || buffer.DataSize == 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "writeBuffer : source buffer data is null or empty !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        if (renderBuffer->getUsage() == Usage::kImmutable)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "writeBuffer : cannot write to an immutable resource !");
+            return T3D_ERR_GL4_INVALID_USAGE;
+        }
 
         auto rhiRes = renderBuffer->getRHIResource();
+        const RHIResource::ResourceType resType = rhiRes->getResourceType();
         bool isTexture = false;
 
-        switch (rhiRes->getResourceType())
+        switch (resType)
         {
         case RHIResource::ResourceType::kVertexBuffer:
         case RHIResource::ResourceType::kIndexBuffer:
         case RHIResource::ResourceType::kConstantBuffer:
         case RHIResource::ResourceType::kStructuredBuffer:
+            if (!discardWholeBuffer && buffer.DataSize > renderBuffer->getGPUSizeInBytes())
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "writeBuffer : data size [%zu] exceeds buffer size [%zu] !",
+                    buffer.DataSize, renderBuffer->getGPUSizeInBytes());
+                return T3D_ERR_OUT_OF_BOUND;
+            }
             break;
+        case RHIResource::ResourceType::kPixelBuffer1D:
         case RHIResource::ResourceType::kPixelBuffer2D:
+        case RHIResource::ResourceType::kPixelBuffer3D:
+        case RHIResource::ResourceType::kPixelBufferCubemap:
             isTexture = true;
             break;
         default:
             T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Unsupported resource type for writeBuffer");
             return T3D_ERR_GL4_INVALID_USAGE;
+        }
+
+        if (isTexture)
+        {
+            uint32_t dimension = 2;
+            uint32_t width = 1;
+            uint32_t height = 1;
+            uint32_t depth = 1;
+            uint32_t mipLevels = 1;
+            uint32_t arraySize = 1;
+            PixelFormat format = PixelFormat::E_PF_UNKNOWN;
+
+            switch (resType)
+            {
+            case RHIResource::ResourceType::kPixelBuffer1D:
+                {
+                    const auto &desc = static_cast<PixelBuffer1D*>(renderBuffer)->getDescriptor();
+                    dimension = 1;
+                    width = desc.width;
+                    mipLevels = std::max<uint32_t>(1, desc.mipmaps);
+                    arraySize = std::max<uint32_t>(1, desc.arraySize);
+                    format = desc.format;
+                }
+                break;
+            case RHIResource::ResourceType::kPixelBuffer2D:
+                {
+                    const auto &desc = static_cast<PixelBuffer2D*>(renderBuffer)->getDescriptor();
+                    GL4PixelBuffer2D *glTex = static_cast<GL4PixelBuffer2D*>(rhiRes.get());
+                    if (glTex->GLMSAACount > 1)
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "writeBuffer : cannot write to an MSAA texture !");
+                        return T3D_ERR_GL4_UNSUPPORTED_OPERATION;
+                    }
+                    dimension = 2;
+                    width = desc.width;
+                    height = desc.height;
+                    mipLevels = std::max<uint32_t>(1, desc.mipmaps);
+                    arraySize = std::max<uint32_t>(1, desc.arraySize);
+                    format = desc.format;
+                }
+                break;
+            case RHIResource::ResourceType::kPixelBuffer3D:
+                {
+                    const auto &desc = static_cast<PixelBuffer3D*>(renderBuffer)->getDescriptor();
+                    dimension = 3;
+                    width = desc.width;
+                    height = desc.height;
+                    depth = desc.depth;
+                    mipLevels = std::max<uint32_t>(1, desc.mipmaps);
+                    arraySize = 1;
+                    format = desc.format;
+                }
+                break;
+            case RHIResource::ResourceType::kPixelBufferCubemap:
+                {
+                    const auto &desc = static_cast<PixelBufferCubemap*>(renderBuffer)->getDescriptor();
+                    dimension = 4; // cubemap
+                    width = desc.width;
+                    height = desc.height;
+                    mipLevels = std::max<uint32_t>(1, desc.mipmaps);
+                    arraySize = std::max<uint32_t>(PixelBufferCubemap::FACE_COUNT, desc.arraySize);
+                    format = desc.format;
+                }
+                break;
+            default:
+                break;
+            }
+
+            const uint32_t bpp = GL4Mapping::getBytesPerPixel(format);
+            const size_t sliceMip0Bytes = static_cast<size_t>(width) * height * depth * bpp;
+            const size_t minRequiredBytes = sliceMip0Bytes * arraySize;
+            if (bpp == 0 || width == 0 || height == 0 || depth == 0 || buffer.DataSize < minRequiredBytes)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER,
+                    "writeBuffer(texture) : invalid format or insufficient data size=%zu expected>=%zu bpp=%u %ux%ux%u slices=%u",
+                    buffer.DataSize, minRequiredBytes, bpp, width, height, depth, arraySize);
+                return T3D_ERR_INVALID_PARAM;
+            }
+
+            const GLenum pixelFmt = GL4Mapping::get(format);
+            const GLenum pixelType = GL4Mapping::getPixelType(format);
+
+            Buffer ownedBuffer;
+            ownedBuffer.DataSize = buffer.DataSize;
+            ownedBuffer.Data = T3D_POD_NEW_ARRAY(uint8_t, buffer.DataSize);
+            memcpy(ownedBuffer.Data, buffer.Data, buffer.DataSize);
+
+            auto lambda = [this](const RHIResourcePtr &rhiRes, Buffer ownedBuffer,
+                uint32_t dimension, uint32_t width, uint32_t height, uint32_t depth,
+                uint32_t mipLevels, uint32_t arraySize, uint32_t bpp,
+                GLenum pixelFmt, GLenum pixelType)
+            {
+                TResult ret = T3D_OK;
+
+                GLint prevUnpackAlign = 4;
+                glGetIntegerv(GL_UNPACK_ALIGNMENT, &prevUnpackAlign);
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+                GLuint glTex = 0;
+                GLenum glTarget = GL_TEXTURE_2D;
+
+                switch (rhiRes->getResourceType())
+                {
+                case RHIResource::ResourceType::kPixelBuffer1D:
+                    {
+                        GL4PixelBuffer1D *pb1 = static_cast<GL4PixelBuffer1D*>(rhiRes.get());
+                        glTex = pb1->GLTexture;
+                        glTarget = pb1->GLTarget;
+                    }
+                    break;
+                case RHIResource::ResourceType::kPixelBuffer2D:
+                    {
+                        GL4PixelBuffer2D *pb2 = static_cast<GL4PixelBuffer2D*>(rhiRes.get());
+                        glTex = pb2->GLTexture;
+                        glTarget = pb2->GLTarget;
+                    }
+                    break;
+                case RHIResource::ResourceType::kPixelBuffer3D:
+                    {
+                        GL4PixelBuffer3D *pb3 = static_cast<GL4PixelBuffer3D*>(rhiRes.get());
+                        glTex = pb3->GLTexture;
+                        glTarget = GL_TEXTURE_3D;
+                    }
+                    break;
+                case RHIResource::ResourceType::kPixelBufferCubemap:
+                    {
+                        GL4PixelBufferCubemap *pbCube = static_cast<GL4PixelBufferCubemap*>(rhiRes.get());
+                        glTex = pbCube->GLTexture;
+                        glTarget = pbCube->GLTarget;
+                    }
+                    break;
+                default:
+                    break;
+                }
+
+                if (glTex != 0)
+                {
+                    size_t singleSliceFullChain = 0;
+                    for (uint32_t level = 0; level < mipLevels; ++level)
+                    {
+                        const uint32_t mipW = std::max<uint32_t>(1, width >> level);
+                        const uint32_t mipH = (dimension >= 2) ? std::max<uint32_t>(1, height >> level) : 1;
+                        const uint32_t mipD = (dimension == 3) ? std::max<uint32_t>(1, depth >> level) : 1;
+                        singleSliceFullChain += static_cast<size_t>(mipW) * mipH * mipD * bpp;
+                    }
+                    const bool uploadFullChain = (mipLevels > 1 && ownedBuffer.DataSize >= singleSliceFullChain * arraySize);
+                    const uint32_t uploadMips = uploadFullChain ? mipLevels : 1;
+
+                    glBindTexture(glTarget, glTex);
+                    size_t offset = 0;
+
+                    for (uint32_t slice = 0; slice < arraySize; ++slice)
+                    {
+                        for (uint32_t level = 0; level < uploadMips; ++level)
+                        {
+                            const uint32_t mipW = std::max<uint32_t>(1, width >> level);
+                            const uint32_t mipH = (dimension >= 2) ? std::max<uint32_t>(1, height >> level) : 1;
+                            const uint32_t mipD = (dimension == 3) ? std::max<uint32_t>(1, depth >> level) : 1;
+                            const size_t levelSize = static_cast<size_t>(mipW) * mipH * mipD * bpp;
+                            if (offset + levelSize > ownedBuffer.DataSize)
+                            {
+                                break;
+                            }
+
+                            const uint8_t *srcPtr = ownedBuffer.Data + offset;
+                            if (glTarget == GL_TEXTURE_1D)
+                            {
+                                glTexSubImage1D(GL_TEXTURE_1D, level, 0, mipW, pixelFmt, pixelType, srcPtr);
+                            }
+                            else if (glTarget == GL_TEXTURE_1D_ARRAY)
+                            {
+                                glTexSubImage2D(GL_TEXTURE_1D_ARRAY, level, 0, slice, mipW, 1, pixelFmt, pixelType, srcPtr);
+                            }
+                            else if (glTarget == GL_TEXTURE_2D)
+                            {
+                                glTexSubImage2D(GL_TEXTURE_2D, level, 0, 0, mipW, mipH, pixelFmt, pixelType, srcPtr);
+                            }
+                            else if (glTarget == GL_TEXTURE_2D_ARRAY || glTarget == GL_TEXTURE_CUBE_MAP_ARRAY)
+                            {
+                                glTexSubImage3D(glTarget, level, 0, 0, slice, mipW, mipH, 1, pixelFmt, pixelType, srcPtr);
+                            }
+                            else if (glTarget == GL_TEXTURE_3D)
+                            {
+                                glTexSubImage3D(GL_TEXTURE_3D, level, 0, 0, 0, mipW, mipH, mipD, pixelFmt, pixelType, srcPtr);
+                            }
+                            else if (glTarget == GL_TEXTURE_CUBE_MAP)
+                            {
+                                glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + slice, level, 0, 0, mipW, mipH, pixelFmt, pixelType, srcPtr);
+                            }
+
+                            offset += levelSize;
+                        }
+                    }
+
+                    glBindTexture(glTarget, 0);
+                    GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::writeBuffer(texture)");
+                }
+
+                glPixelStorei(GL_UNPACK_ALIGNMENT, prevUnpackAlign);
+                T3D_POD_SAFE_DELETE_ARRAY(ownedBuffer.Data);
+                return ret;
+            };
+
+            return ENQUEUE_UNIQUE_COMMAND(lambda, rhiRes, ownedBuffer,
+                dimension, width, height, depth, mipLevels, arraySize, bpp, pixelFmt, pixelType);
         }
 
         // Deep copy Buffer.Data to avoid dangling pointer in multi-threaded mode.
@@ -3539,37 +4371,6 @@ namespace Tiny3D
         ownedBuffer.DataSize = buffer.DataSize;
         ownedBuffer.Data = T3D_POD_NEW_ARRAY(uint8_t, buffer.DataSize);
         memcpy(ownedBuffer.Data, buffer.Data, buffer.DataSize);
-
-        if (isTexture)
-        {
-            PixelBuffer2D *pb = static_cast<PixelBuffer2D*>(renderBuffer);
-            const auto &desc = pb->getDescriptor();
-            const GLenum pixelFmt = GL4Mapping::get(desc.format);
-            const GLenum pixelType = GL4Mapping::getPixelType(desc.format);
-            const GLsizei texW = static_cast<GLsizei>(desc.width);
-            const GLsizei texH = static_cast<GLsizei>(desc.height);
-            GL4PixelBuffer2DPtr glTex = static_cast<GL4PixelBuffer2D*>(rhiRes.get());
-
-            auto lambda = [this](const GL4PixelBuffer2DPtr &glTex, Buffer ownedBuffer,
-                GLsizei texW, GLsizei texH, GLenum pixelFmt, GLenum pixelType)
-            {
-                TResult ret = T3D_OK;
-
-                do
-                {
-                    glBindTexture(GL_TEXTURE_2D, glTex->GLTexture);
-                    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
-                        texW, texH, pixelFmt, pixelType, ownedBuffer.Data);
-                    glBindTexture(GL_TEXTURE_2D, 0);
-                    GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::writeBuffer(texture)");
-                } while (false);
-
-                T3D_POD_SAFE_DELETE_ARRAY(ownedBuffer.Data);
-                return ret;
-            };
-
-            return ENQUEUE_UNIQUE_COMMAND(lambda, glTex, ownedBuffer, texW, texH, pixelFmt, pixelType);
-        }
 
         // For buffer resources, use DSA (glNamedBufferData/glNamedBufferSubData) to avoid
         // polluting VAO's EBO binding when writing to GL_ELEMENT_ARRAY_BUFFER.
@@ -3603,7 +4404,6 @@ namespace Tiny3D
 
                 if (glBuf == 0)
                 {
-                    T3D_POD_SAFE_DELETE_ARRAY(ownedBuffer.Data);
                     break;
                 }
 
@@ -3611,6 +4411,16 @@ namespace Tiny3D
                 if (discardWholeBuffer)
                 {
                     glNamedBufferData(glBuf, (GLsizeiptr)ownedBuffer.DataSize, ownedBuffer.Data, GL_DYNAMIC_DRAW);
+                    if (rhiResPtr->getResourceType() == RHIResource::ResourceType::kStructuredBuffer)
+                    {
+                        GL4StructuredBuffer *glSB = static_cast<GL4StructuredBuffer*>(rhiResPtr.get());
+                        if (glSB->Kind == StructuredBufferKind::kTyped && glSB->GLTextureBuffer != 0)
+                        {
+                            glBindTexture(GL_TEXTURE_BUFFER, glSB->GLTextureBuffer);
+                            glTexBuffer(GL_TEXTURE_BUFFER, glSB->GLInternalFormat, glSB->GLBuffer);
+                            glBindTexture(GL_TEXTURE_BUFFER, 0);
+                        }
+                    }
                 }
                 else
                 {
@@ -3765,17 +4575,35 @@ namespace Tiny3D
             GLenum uniformType = 0;
             glGetActiveUniform(program, i, sizeof(name), &nameLen, &uniformSize, &uniformType, name);
 
-            bool isSampler = (uniformType == GL_SAMPLER_1D || uniformType == GL_SAMPLER_2D
-                || uniformType == GL_SAMPLER_3D || uniformType == GL_SAMPLER_CUBE
-                || uniformType == GL_SAMPLER_2D_SHADOW);
+            TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
+            bool isSampler = GL4ContextBase::mapSamplerGLType(uniformType, texType);
+            bool isSamplerBuf = !isSampler && GL4ContextBase::isSamplerBufferGLType(uniformType);
 
-            if (isSampler)
+            if (isSampler || isSamplerBuf)
             {
                 GLint loc = glGetUniformLocation(program, name);
                 if (loc >= 0)
                 {
                     String texName = parseSpirvName(String(name));
-                    int32_t slot = findSlot(texName);
+                    int32_t slot = isSampler ? findSlot(texName) : -1;
+                    if (slot < 0 && isSamplerBuf)
+                    {
+                        ShaderVariant *variants[] = {
+                            mCurrentPSVariant.get(), mCurrentVSVariant.get(), mCurrentGSVariant.get(),
+                            mCurrentHSVariant.get(), mCurrentDSVariant.get(), mCurrentCSVariant.get()
+                        };
+                        for (ShaderVariant *variant : variants)
+                        {
+                            if (variant == nullptr) continue;
+                            const auto &resParams = variant->getShaderResourceParams();
+                            const auto itr = resParams.find(texName);
+                            if (itr != resParams.end())
+                            {
+                                slot = static_cast<int32_t>(itr->second->getBinding());
+                                break;
+                            }
+                        }
+                    }
 
                     GLint texUnit;
                     if (slot >= 0)
@@ -3856,8 +4684,11 @@ namespace Tiny3D
                         switch (buffers[i]->getRHIResource()->getResourceType())
                         {
                         case RHIResource::ResourceType::kPixelBuffer1D:
-                            texHandle = static_cast<GL4PixelBuffer1D*>(buffers[i]->getRHIResource().get())->GLTexture;
-                            texTarget = GL_TEXTURE_1D;
+                            {
+                                GL4PixelBuffer1D *glPB = static_cast<GL4PixelBuffer1D*>(buffers[i]->getRHIResource().get());
+                                texHandle = glPB->GLTexture;
+                                texTarget = glPB->GLTarget;
+                            }
                             break;
                         case RHIResource::ResourceType::kPixelBuffer2D:
                             {
@@ -3875,7 +4706,7 @@ namespace Tiny3D
                                 else
                                 {
                                     texHandle = glPB->GLTexture;
-                                    texTarget = GL_TEXTURE_2D;
+                                    texTarget = glPB->GLTarget;
                                 }
                             }
                             break;
@@ -3884,8 +4715,11 @@ namespace Tiny3D
                             texTarget = GL_TEXTURE_3D;
                             break;
                         case RHIResource::ResourceType::kPixelBufferCubemap:
-                            texHandle = static_cast<GL4PixelBufferCubemap*>(buffers[i]->getRHIResource().get())->GLTexture;
-                            texTarget = GL_TEXTURE_CUBE_MAP;
+                            {
+                                GL4PixelBufferCubemap *glPB = static_cast<GL4PixelBufferCubemap*>(buffers[i]->getRHIResource().get());
+                                texHandle = glPB->GLTexture;
+                                texTarget = glPB->GLTarget;
+                            }
                             break;
                         default:
                             break;
@@ -3949,9 +4783,25 @@ namespace Tiny3D
         {
             for (uint32_t i = 0; i < buffers.size(); ++i)
             {
-                const GLuint handle = getGLBufferHandle(buffers[i].get());
-                glBindBufferBase(GL_SHADER_STORAGE_BUFFER, startSlot + i, handle);
+                const uint32_t slot = startSlot + i;
+                RenderBuffer *rb = buffers[i].get();
+                if (rb != nullptr && rb->getRHIResource() != nullptr
+                    && rb->getRHIResource()->getResourceType() == RHIResource::ResourceType::kStructuredBuffer)
+                {
+                    GL4StructuredBuffer *glSB = static_cast<GL4StructuredBuffer*>(rb->getRHIResource().get());
+                    if (glSB->Kind == StructuredBufferKind::kTyped && glSB->GLTextureBuffer != 0)
+                    {
+                        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, 0);
+                        glActiveTexture(GL_TEXTURE0 + slot);
+                        glBindTexture(GL_TEXTURE_BUFFER, glSB->GLTextureBuffer);
+                        continue;
+                    }
+                }
+
+                const GLuint handle = getGLBufferHandle(rb);
+                glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, handle);
             }
+            glActiveTexture(GL_TEXTURE0);
             GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::bindStructuredBuffers");
             return T3D_OK;
         };
@@ -3999,21 +4849,27 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GL4Context::attachGraphicsShader(ShaderVariant *shader, ShaderVariantPtr &currentVariant)
+    TResult GL4Context::attachGraphicsShader(ShaderVariant *shader, ShaderVariantPtr &currentVariant, GLenum stageType)
     {
         ShaderVariantPtr *slot = &currentVariant;
 
         if (shader == nullptr)
         {
-            auto lambda = [this, slot]()
+            auto lambda = [this, slot, stageType]()
             {
                 *slot = nullptr;
+                if (mCurrentProgram != 0)
+                {
+                    detachShaderStageByType(mCurrentProgram, stageType);
+                    mProgramDirty = true;
+                    GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::attachGraphicsShader(detach)");
+                }
                 return T3D_OK;
             };
             return ENQUEUE_UNIQUE_COMMAND(lambda);
         }
 
-        auto lambda = [this](const ShaderVariantPtr &variant, ShaderVariantPtr *slot)
+        auto lambda = [this, stageType](const ShaderVariantPtr &variant, ShaderVariantPtr *slot)
         {
             TResult ret = T3D_OK;
 
@@ -4022,6 +4878,15 @@ namespace Tiny3D
                 *slot = variant;
 
                 const GLuint shaderHandle = getGLShaderHandle(variant.get());
+                if (shaderHandle == 0)
+                {
+                    if (mCurrentProgram != 0)
+                    {
+                        detachShaderStageByType(mCurrentProgram, stageType);
+                        mProgramDirty = true;
+                    }
+                    break;
+                }
 
                 if (mCurrentProgram == 0)
                 {
@@ -4048,6 +4913,17 @@ namespace Tiny3D
         // 切材质（比如从场景着色器切到后处理着色器）每帧都会走到这里。
         GLint stage = 0;
         glGetShaderiv(shader, GL_SHADER_TYPE, &stage);
+        detachShaderStageByType(program, static_cast<GLenum>(stage));
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::detachShaderStageByType(GLuint program, GLenum stageType)
+    {
+        if (program == 0 || stageType == 0)
+        {
+            return;
+        }
 
         GLint count = 0;
         glGetProgramiv(program, GL_ATTACHED_SHADERS, &count);
@@ -4068,7 +4944,7 @@ namespace Tiny3D
 
             GLint attachedStage = 0;
             glGetShaderiv(attachedShader, GL_SHADER_TYPE, &attachedStage);
-            if (attachedStage == stage)
+            if (static_cast<GLenum>(attachedStage) == stageType)
             {
                 glDetachShader(program, attachedShader);
             }
@@ -4121,7 +4997,7 @@ namespace Tiny3D
                 GL4PixelBuffer1D *pb = static_cast<GL4PixelBuffer1D*>(buffer->getRHIResource().get());
                 outTex = pb->GLTexture;
                 outFormat = pb->GLInternalFormat;
-                outLayered = GL_FALSE;
+                outLayered = (pb->GLTarget == GL_TEXTURE_1D_ARRAY) ? GL_TRUE : GL_FALSE;
                 return true;
             }
         case RHIResource::ResourceType::kPixelBuffer2D:
@@ -4136,7 +5012,7 @@ namespace Tiny3D
                     outTex = pb->GLTexture;
                 }
                 outFormat = pb->GLInternalFormat;
-                outLayered = GL_FALSE;
+                outLayered = (pb->GLTarget == GL_TEXTURE_2D_ARRAY) ? GL_TRUE : GL_FALSE;
                 return true;
             }
         case RHIResource::ResourceType::kPixelBuffer3D:
@@ -4146,6 +5022,26 @@ namespace Tiny3D
                 outFormat = pb->GLInternalFormat;
                 outLayered = GL_TRUE;
                 return true;
+            }
+        case RHIResource::ResourceType::kPixelBufferCubemap:
+            {
+                GL4PixelBufferCubemap *pb = static_cast<GL4PixelBufferCubemap*>(buffer->getRHIResource().get());
+                outTex = pb->GLTexture;
+                outFormat = pb->GLInternalFormat;
+                outLayered = GL_TRUE;
+                return true;
+            }
+        case RHIResource::ResourceType::kStructuredBuffer:
+            {
+                GL4StructuredBuffer *sb = static_cast<GL4StructuredBuffer*>(buffer->getRHIResource().get());
+                if (sb->Kind == StructuredBufferKind::kTyped && sb->GLTextureBuffer != 0)
+                {
+                    outTex = sb->GLTextureBuffer;
+                    outFormat = sb->GLInternalFormat;
+                    outLayered = GL_FALSE;
+                    return true;
+                }
+                return false;
             }
         default:
             break;
@@ -4203,32 +5099,103 @@ namespace Tiny3D
             return T3D_ERR_INVALID_POINTER;
         }
 
-        const TEXTURE_TYPE type = tex->getTextureType();
-        if (type != TEXTURE_TYPE::TT_2D && type != TEXTURE_TYPE::TT_RENDER_TEXTURE)
+        PixelBuffer *pixelBuffer = tex->getPixelBuffer();
+        if (!asSource && pixelBuffer->getUsage() == Usage::kImmutable)
         {
-            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "blit : only 2D / render textures are supported !");
-            return T3D_ERR_GL4_UNSUPPORTED_OPERATION;
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "blit : destination texture [%s] is immutable !", tex->getName().c_str());
+            return T3D_ERR_GL4_INVALID_USAGE;
         }
 
-        Texture2D *tex2D = static_cast<Texture2D*>(tex);
-        PixelBuffer2D *pb = static_cast<PixelBuffer2D*>(tex2D->getPixelBuffer());
-        GL4PixelBuffer2D *glPB = static_cast<GL4PixelBuffer2D*>(pb->getRHIResource().get());
+        const TEXTURE_TYPE type = tex->getTextureType();
+        RHIResource *rhiRes = pixelBuffer->getRHIResource().get();
 
-        out.texture = glPB->GLTexture;
-        out.fbo = glPB->GLFBO;
-        out.resolveFbo = glPB->GLResolveFBO;
-        out.resolveTex = glPB->GLResolveTex;
-        out.width = tex2D->getWidth();
-        out.height = tex2D->getHeight();
-        out.sampleCount = glPB->GLMSAACount;
-        out.isWindow = false;
-        out.isDepth = (pb->getDescriptor().format >= PixelFormat::E_PF_D24_UNORM_S8_UINT
-            && pb->getDescriptor().format <= PixelFormat::E_PF_D16_UNORM);
-        out.needsScratchFbo = (glPB->GLFBO == 0);
-
-        if (asSource && glPB->GLMSAACount > 1 && glPB->GLResolveFBO != 0)
+        switch (type)
         {
-            // doBlit 会先 resolve，再以 resolve FBO 为读源
+        case TEXTURE_TYPE::TT_1D:
+            {
+                PixelBuffer1D *pb1 = static_cast<PixelBuffer1D*>(pixelBuffer);
+                GL4PixelBuffer1D *glPB = static_cast<GL4PixelBuffer1D*>(rhiRes);
+                const auto &desc = pb1->getDescriptor();
+                out.texture = glPB->GLTexture;
+                out.target = glPB->GLTarget;
+                out.internalFormat = glPB->GLInternalFormat;
+                out.width = desc.width;
+                out.height = 1;
+                out.depth = 1;
+                out.arraySize = std::max<uint32_t>(1, desc.arraySize);
+                out.sampleCount = 1;
+                out.isWindow = false;
+                out.isDepth = GL4Mapping::isDepthFormat(desc.format);
+                out.hasStencil = GL4Mapping::hasStencil(desc.format);
+                out.needsScratchFbo = true;
+            }
+            break;
+        case TEXTURE_TYPE::TT_2D:
+        case TEXTURE_TYPE::TT_2D_ARRAY:
+        case TEXTURE_TYPE::TT_RENDER_TEXTURE:
+            {
+                PixelBuffer2D *pb2 = static_cast<PixelBuffer2D*>(pixelBuffer);
+                GL4PixelBuffer2D *glPB = static_cast<GL4PixelBuffer2D*>(rhiRes);
+                const auto &desc = pb2->getDescriptor();
+                out.texture = glPB->GLTexture;
+                out.target = glPB->GLTarget;
+                out.internalFormat = glPB->GLInternalFormat;
+                out.fbo = glPB->GLFBO;
+                out.resolveFbo = glPB->GLResolveFBO;
+                out.resolveTex = glPB->GLResolveTex;
+                out.width = desc.width;
+                out.height = desc.height;
+                out.depth = 1;
+                out.arraySize = std::max<uint32_t>(1, desc.arraySize);
+                out.sampleCount = glPB->GLMSAACount;
+                out.isWindow = false;
+                out.isDepth = GL4Mapping::isDepthFormat(desc.format);
+                out.hasStencil = GL4Mapping::hasStencil(desc.format);
+                out.needsScratchFbo = (glPB->GLFBO == 0);
+            }
+            break;
+        case TEXTURE_TYPE::TT_3D:
+            {
+                PixelBuffer3D *pb3 = static_cast<PixelBuffer3D*>(pixelBuffer);
+                GL4PixelBuffer3D *glPB = static_cast<GL4PixelBuffer3D*>(rhiRes);
+                const auto &desc = pb3->getDescriptor();
+                out.texture = glPB->GLTexture;
+                out.target = GL_TEXTURE_3D;
+                out.internalFormat = glPB->GLInternalFormat;
+                out.width = desc.width;
+                out.height = desc.height;
+                out.depth = std::max<uint32_t>(1, desc.depth);
+                out.arraySize = 1;
+                out.sampleCount = 1;
+                out.isWindow = false;
+                out.isDepth = GL4Mapping::isDepthFormat(desc.format);
+                out.hasStencil = GL4Mapping::hasStencil(desc.format);
+                out.needsScratchFbo = true;
+            }
+            break;
+        case TEXTURE_TYPE::TT_CUBE:
+        case TEXTURE_TYPE::TT_CUBE_ARRAY:
+            {
+                PixelBufferCubemap *pbCube = static_cast<PixelBufferCubemap*>(pixelBuffer);
+                GL4PixelBufferCubemap *glPB = static_cast<GL4PixelBufferCubemap*>(rhiRes);
+                const auto &desc = pbCube->getDescriptor();
+                out.texture = glPB->GLTexture;
+                out.target = glPB->GLTarget;
+                out.internalFormat = glPB->GLInternalFormat;
+                out.width = desc.width;
+                out.height = desc.height;
+                out.depth = 1;
+                out.arraySize = std::max<uint32_t>(PixelBufferCubemap::FACE_COUNT, desc.arraySize);
+                out.sampleCount = 1;
+                out.isWindow = false;
+                out.isDepth = GL4Mapping::isDepthFormat(desc.format);
+                out.hasStencil = GL4Mapping::hasStencil(desc.format);
+                out.needsScratchFbo = true;
+            }
+            break;
+        default:
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "blit : unsupported texture type [%d] !", (int32_t)type);
+            return T3D_ERR_GL4_UNSUPPORTED_OPERATION;
         }
 
         return T3D_OK;
@@ -4247,11 +5214,16 @@ namespace Tiny3D
         {
             out.fbo = 0;
             out.texture = 0;
+            out.target = GL_TEXTURE_2D;
+            out.internalFormat = GL_RGBA8;
             out.width = rt->getRenderWindow()->getDescriptor().Width;
             out.height = rt->getRenderWindow()->getDescriptor().Height;
+            out.depth = 1;
+            out.arraySize = 1;
             out.sampleCount = 1;
             out.isWindow = true;
             out.isDepth = false;
+            out.hasStencil = false;
             out.needsScratchFbo = false;
             return T3D_OK;
         }
@@ -4278,13 +5250,63 @@ namespace Tiny3D
         {
             glActiveTexture(GL_TEXTURE0 + i);
             glBindTexture(GL_TEXTURE_1D, 0);
+            glBindTexture(GL_TEXTURE_1D_ARRAY, 0);
             glBindTexture(GL_TEXTURE_2D, 0);
+            glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
             glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
             glBindTexture(GL_TEXTURE_3D, 0);
             glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+            glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, 0);
+            glBindTexture(GL_TEXTURE_BUFFER, 0);
             glBindSampler(i, 0);
         }
         glActiveTexture(GL_TEXTURE0);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::attachScratchFBO(GLuint fbo, const BlitEndpoint &ep, GLint layer)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
+
+        const GLenum attachment = ep.isDepth
+            ? (ep.hasStencil ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT)
+            : GL_COLOR_ATTACHMENT0;
+
+        switch (ep.target)
+        {
+        case GL_TEXTURE_1D:
+            glFramebufferTexture1D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_1D, ep.texture, 0);
+            break;
+        case GL_TEXTURE_2D:
+            glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, ep.texture, 0);
+            break;
+        case GL_TEXTURE_CUBE_MAP:
+            glFramebufferTexture2D(GL_FRAMEBUFFER, attachment,
+                GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer, ep.texture, 0);
+            break;
+        case GL_TEXTURE_1D_ARRAY:
+        case GL_TEXTURE_2D_ARRAY:
+        case GL_TEXTURE_3D:
+        case GL_TEXTURE_CUBE_MAP_ARRAY:
+            glFramebufferTextureLayer(GL_FRAMEBUFFER, attachment, ep.texture, 0, layer);
+            break;
+        default:
+            break;
+        }
+
+        if (ep.isDepth)
+        {
+            glDrawBuffer(GL_NONE);
+            glReadBuffer(GL_NONE);
+        }
+        else
+        {
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
+            glReadBuffer(GL_COLOR_ATTACHMENT0);
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -4294,17 +5316,105 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        // 池化临时 RT 上一帧可能还绑在某个 texture unit 上，这里先摘干净，
+        // 避免同一张纹理既挂在 unit 上又当 FBO 附件写。
+        unbindTextureUnits();
+
+        if (src.isDepth != dst.isDepth)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "blit : cannot blit between color and depth/stencil endpoints !");
+            return T3D_ERR_GL4_INCOMPATIBLE_COPY;
+        }
+
+        if (!src.isWindow && !dst.isWindow && src.texture == dst.texture && srcOffset == dstOffset)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "blit : source and destination are the same subresource !");
+            return T3D_ERR_GL4_INCOMPATIBLE_COPY;
+        }
+
+        const bool isFullCopy = (size == Vector3::ZERO);
+        const uint32_t srcOffX = static_cast<uint32_t>(srcOffset.x());
+        const uint32_t srcOffY = static_cast<uint32_t>(srcOffset.y());
+        const uint32_t srcOffZ = static_cast<uint32_t>(srcOffset.z());
+        const uint32_t dstOffX = static_cast<uint32_t>(dstOffset.x());
+        const uint32_t dstOffY = static_cast<uint32_t>(dstOffset.y());
+        const uint32_t dstOffZ = static_cast<uint32_t>(dstOffset.z());
+
+        const uint32_t srcSlices = (src.depth > 1) ? src.depth : src.arraySize;
+        const uint32_t dstSlices = (dst.depth > 1) ? dst.depth : dst.arraySize;
+
+        const uint32_t copySrcW = isFullCopy
+            ? (src.width - std::min(srcOffX, src.width))
+            : static_cast<uint32_t>(size.x());
+        const uint32_t copySrcH = isFullCopy
+            ? (src.height - std::min(srcOffY, src.height))
+            : ((src.height == 1 && size.y() == 0) ? 1u : static_cast<uint32_t>(size.y()));
+        const uint32_t copySrcD = isFullCopy
+            ? (srcSlices - std::min(srcOffZ, srcSlices))
+            : std::max<uint32_t>(1, static_cast<uint32_t>(size.z()));
+
+        const uint32_t copyDstW = isFullCopy
+            ? ((src.width == dst.width && src.height == dst.height)
+                ? copySrcW
+                : (dst.width - std::min(dstOffX, dst.width)))
+            : copySrcW;
+        const uint32_t copyDstH = isFullCopy
+            ? ((src.width == dst.width && src.height == dst.height)
+                ? copySrcH
+                : (dst.height - std::min(dstOffY, dst.height)))
+            : copySrcH;
+
+        if (copySrcW == 0 || copySrcH == 0 || copySrcD == 0 || copyDstW == 0 || copyDstH == 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "blit : copy size is zero !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        if (srcOffZ + copySrcD > srcSlices || dstOffZ + copySrcD > dstSlices)
+        {
+            // 当目标是非数组单层时，如果只传输 1 层（常见于 3D/Cubemap 某层 -> RT/Window），允许 dstOffZ == 0
+            if (!(copySrcD == 1 && dstOffZ == 0 && dstSlices >= 1))
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "blit : slice/depth out of range !");
+                return T3D_ERR_INVALID_PARAM;
+            }
+        }
+
+        // 同格式、非 MSAA、非窗口、无需缩放时，优先走 glCopyImageSubData（支持 1D/2D/3D/Cube/Array 及深度）
+        if (!src.isWindow && !dst.isWindow
+            && src.texture != 0 && dst.texture != 0
+            && src.sampleCount == 1 && dst.sampleCount == 1
+            && src.internalFormat == dst.internalFormat
+            && copySrcW == copyDstW && copySrcH == copyDstH)
+        {
+            const GLint glSrcY = (src.target == GL_TEXTURE_1D_ARRAY) ? static_cast<GLint>(srcOffZ) : static_cast<GLint>(srcOffY);
+            const GLint glSrcZ = (src.target == GL_TEXTURE_1D_ARRAY) ? 0 : static_cast<GLint>(srcOffZ);
+            const GLint glDstY = (dst.target == GL_TEXTURE_1D_ARRAY) ? static_cast<GLint>(dstOffZ) : static_cast<GLint>(dstOffY);
+            const GLint glDstZ = (dst.target == GL_TEXTURE_1D_ARRAY) ? 0 : static_cast<GLint>(dstOffZ);
+            const GLsizei glSrcH = (src.target == GL_TEXTURE_1D_ARRAY) ? static_cast<GLsizei>(copySrcD) : static_cast<GLsizei>(copySrcH);
+            const GLsizei glSrcD = (src.target == GL_TEXTURE_1D_ARRAY) ? 1 : static_cast<GLsizei>(copySrcD);
+
+            glCopyImageSubData(
+                src.texture, src.target, 0, static_cast<GLint>(srcOffX), glSrcY, glSrcZ,
+                dst.texture, dst.target, 0, static_cast<GLint>(dstOffX), glDstY, glDstZ,
+                static_cast<GLsizei>(copySrcW), glSrcH, glSrcD);
+            GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::doBlit(glCopyImageSubData)");
+            return T3D_OK;
+        }
+
+        GLint prevFBO = 0;
+        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFBO);
+
         do
         {
-            // 池化临时 RT 上一帧可能还绑在某个 texture unit 上，这里先摘干净，
-            // 避免同一张纹理既挂在 unit 上又当 FBO 附件写。
-            unbindTextureUnits();
-
-            GLint prevFBO = 0;
-            glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFBO);
-
             GLuint readFBO = src.fbo;
             GLuint drawFBO = dst.fbo;
+
+            // MSAA 源直接 resolve 到目标，不要先写入 GLResolveTex 再拷一次。
+            if (src.sampleCount > 1 && src.fbo != 0)
+            {
+                readFBO = src.fbo;
+            }
 
             if (src.needsScratchFbo)
             {
@@ -4312,8 +5422,6 @@ namespace Tiny3D
                 {
                     glGenFramebuffers(1, &mScratchReadFBO);
                 }
-                glBindFramebuffer(GL_FRAMEBUFFER, mScratchReadFBO);
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, src.texture, 0);
                 readFBO = mScratchReadFBO;
             }
 
@@ -4323,45 +5431,53 @@ namespace Tiny3D
                 {
                     glGenFramebuffers(1, &mScratchDrawFBO);
                 }
-                glBindFramebuffer(GL_FRAMEBUFFER, mScratchDrawFBO);
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dst.texture, 0);
                 drawFBO = mScratchDrawFBO;
             }
 
-            const uint32_t copyW = (size == Vector3::ZERO)
-                ? (src.width - std::min(static_cast<uint32_t>(srcOffset.x()), src.width))
-                : static_cast<uint32_t>(size.x());
-            const uint32_t copyH = (size == Vector3::ZERO)
-                ? (src.height - std::min(static_cast<uint32_t>(srcOffset.y()), src.height))
-                : static_cast<uint32_t>(size.y());
+            GLint srcX0 = static_cast<GLint>(srcOffX);
+            GLint srcY0 = static_cast<GLint>(srcOffY);
+            GLint srcX1 = srcX0 + static_cast<GLint>(copySrcW);
+            GLint srcY1 = srcY0 + static_cast<GLint>(copySrcH);
 
-            if (copyW == 0 || copyH == 0)
-            {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "blit : copy size is zero !");
-                ret = T3D_ERR_INVALID_PARAM;
-                break;
-            }
+            GLint dstX0 = static_cast<GLint>(dstOffX);
+            GLint dstY0 = static_cast<GLint>(dstOffY);
+            GLint dstX1 = dstX0 + static_cast<GLint>(copyDstW);
+            GLint dstY1 = dstY0 + static_cast<GLint>(copyDstH);
 
-            GLint srcX0 = static_cast<GLint>(srcOffset.x());
-            GLint srcY0 = static_cast<GLint>(srcOffset.y());
-            GLint srcX1 = srcX0 + static_cast<GLint>(copyW);
-            GLint srcY1 = srcY0 + static_cast<GLint>(copyH);
-
-            GLint dstX0 = static_cast<GLint>(dstOffset.x());
-            GLint dstY0 = static_cast<GLint>(dstOffset.y());
-            GLint dstX1 = dstX0 + static_cast<GLint>(copyW);
-            GLint dstY1 = dstY0 + static_cast<GLint>(copyH);
-
-            if (dst.isWindow && mProjectionFlipped)
+            // 引擎纹理/FBO 统一采用上原点布局（row 0 为画面顶部，与 D3D11 一致），
+            // 而默认窗口 backbuffer（FBO 0）为 OpenGL 原生下原点布局（row H-1 为顶部）。
+            // 跨 Window <-> Texture/FBO 传输时必须做 Y 翻转；不能依赖易变的
+            // mProjectionFlipped（reset() 或后处理 drawFullscreen() 会清零它，且存在
+            // 多线程 RHI 队列竞态）。
+            if (!src.isWindow && dst.isWindow)
             {
                 GLint tmp = srcY0;
                 srcY0 = srcY1;
                 srcY1 = tmp;
+
+                dstY0 = static_cast<GLint>(dst.height) - static_cast<GLint>(dstOffY + copyDstH);
+                dstY1 = static_cast<GLint>(dst.height) - static_cast<GLint>(dstOffY);
+            }
+            else if (src.isWindow && !dst.isWindow)
+            {
+                srcY0 = static_cast<GLint>(src.height) - static_cast<GLint>(srcOffY);
+                srcY1 = static_cast<GLint>(src.height) - static_cast<GLint>(srcOffY + copySrcH);
             }
 
-            GLbitfield mask = src.isDepth || dst.isDepth
-                ? (GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)
-                : GL_COLOR_BUFFER_BIT;
+            GLbitfield mask = GL_COLOR_BUFFER_BIT;
+            if (src.isDepth)
+            {
+                mask = GL_DEPTH_BUFFER_BIT;
+                if (src.hasStencil && dst.hasStencil)
+                {
+                    mask |= GL_STENCIL_BUFFER_BIT;
+                }
+            }
+
+            const bool isScaled = (copySrcW != copyDstW || copySrcH != copyDstH);
+            const GLenum filter = (!src.isDepth && src.sampleCount == 1 && dst.sampleCount == 1 && isScaled)
+                ? GL_LINEAR
+                : GL_NEAREST;
 
             auto bindRead = [](GLuint fbo, bool isWindow, bool isDepth)
             {
@@ -4382,23 +5498,29 @@ namespace Tiny3D
                 glDrawBuffer(isWindow || fbo == 0 ? GL_BACK : GL_COLOR_ATTACHMENT0);
             };
 
-            // MSAA 源直接 resolve 到目标，不要先写入 GLResolveTex 再拷一次。
-            // 中间 resolve 贴图常被 bindPixelBuffers 绑在 unit 上，再当 FBO 写就是 feedback。
-            if (src.sampleCount > 1 && src.fbo != 0)
+            for (uint32_t z = 0; z < copySrcD; ++z)
             {
-                readFBO = src.fbo;
+                if (src.needsScratchFbo)
+                {
+                    attachScratchFBO(mScratchReadFBO, src, static_cast<GLint>(srcOffZ + z));
+                }
+
+                if (dst.needsScratchFbo)
+                {
+                    attachScratchFBO(mScratchDrawFBO, dst, static_cast<GLint>(dstOffZ + z));
+                }
+
+                bindRead(readFBO, src.isWindow, src.isDepth);
+                bindDraw(drawFBO, dst.isWindow, dst.isDepth);
+                glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1,
+                    dstX0, dstY0, dstX1, dstY1,
+                    mask, filter);
             }
 
-            bindRead(readFBO, src.isWindow, src.isDepth);
-            bindDraw(drawFBO, dst.isWindow, dst.isDepth);
-            glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1,
-                dstX0, dstY0, dstX1, dstY1,
-                mask, GL_NEAREST);
-
-            glBindFramebuffer(GL_FRAMEBUFFER, prevFBO);
             GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::doBlit");
         } while (false);
 
+        glBindFramebuffer(GL_FRAMEBUFFER, prevFBO);
         return ret;
     }
 

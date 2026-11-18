@@ -70,6 +70,7 @@ namespace Tiny3D
 
         GLuint GLTexture {0};
         GLenum GLInternalFormat {GL_RGBA8};
+        GLenum GLTarget {GL_TEXTURE_1D};
     protected:
         GL4PixelBuffer1D() = default;
     };
@@ -83,6 +84,9 @@ namespace Tiny3D
 
         GLuint GLTexture {0};
         GLenum GLInternalFormat {GL_RGBA8};
+        GLenum GLTarget {GL_TEXTURE_2D};
+        bool GLHasStencil {false};
+        uint32_t GLAttachedColorCount {1};
         GLuint GLFBO {0};
         GLuint GLDepthRBO {0};
         /// MSAA resolve 纹理（非多采样，用于 shader 读取）
@@ -116,6 +120,8 @@ namespace Tiny3D
         void *getNativeObject() const override;
 
         GLuint GLTexture {0};
+        GLenum GLInternalFormat {GL_RGBA8};
+        GLenum GLTarget {GL_TEXTURE_CUBE_MAP};
     protected:
         GL4PixelBufferCubemap() = default;
     };
@@ -130,6 +136,10 @@ namespace Tiny3D
         GLuint GLBuffer {0};
         /// Append/Consume 或 hasCounter 时的 4 字节计数器
         GLuint GLCounterBuffer {0};
+        /// kTyped 时关联的 GL_TEXTURE_BUFFER 纹理对象
+        GLuint GLTextureBuffer {0};
+        GLenum GLInternalFormat {GL_RGBA8};
+        StructuredBufferKind Kind {StructuredBufferKind::kStructured};
         uint32_t ElementCount {0};
         uint32_t ElementSize {0};
         bool HasCounter {false};

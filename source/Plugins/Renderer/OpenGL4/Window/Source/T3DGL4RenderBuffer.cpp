@@ -158,6 +158,7 @@ namespace Tiny3D
 
     GL4StructuredBuffer::~GL4StructuredBuffer()
     {
+        GL_SAFE_DELETE_TEXTURE(GLTextureBuffer);
         GL_SAFE_DELETE_BUFFER(GLCounterBuffer);
         GL_SAFE_DELETE_BUFFER(GLBuffer);
     }
