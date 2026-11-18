@@ -30,7 +30,10 @@
 #include <RmlUi/Core/Context.h>
 #include <RmlUi/Core/Element.h>
 #include <RmlUi/Core/ElementDocument.h>
+#include <RmlUi/Core/Event.h>
+#include <RmlUi/Core/EventListener.h>
 
+#include <functional>
 #include <sstream>
 
 #define ARCHIVE_TYPE_FS         "FileSystem"
@@ -67,12 +70,42 @@ extern const char *FORWARD_VERTEX_SHADER_GLES;
 extern const char *FORWARD_PIXEL_SHADER_GLES;
 #endif
 
+namespace
+{
+    class HudButtonListener : public Rml::EventListener
+    {
+    public:
+        explicit HudButtonListener(std::function<void()> onClick)
+            : mOnClick(std::move(onClick))
+        {
+        }
+
+        void ProcessEvent(Rml::Event &event) override
+        {
+            (void)event;
+            if (mOnClick)
+            {
+                mOnClick();
+            }
+        }
+
+    private:
+        std::function<void()> mOnClick;
+    };
+}
+
 DynamicBatchApp::DynamicBatchApp()
 {
 }
 
 DynamicBatchApp::~DynamicBatchApp()
 {
+    delete mToggleListener;
+    delete mOnListener;
+    delete mOffListener;
+    mToggleListener = nullptr;
+    mOnListener = nullptr;
+    mOffListener = nullptr;
 }
 
 TResult DynamicBatchApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
@@ -182,8 +215,13 @@ TResult DynamicBatchApp::applicationDidFinishLaunching(int32_t argc, char *argv[
     // plane
     buildPlane(root);
 
+#if defined(T3D_OS_MOBILE)
     T3D_LOG_INFO(LOG_TAG_APP,
-        "[DynamicBatchApp] Controls: Press [Space] / [B] (or [1]=ON, [2]=OFF, Touch on mobile) to toggle Dynamic Batching.");
+        "[DynamicBatchApp] Controls: Tap HUD buttons (Toggle / Batch ON / Batch OFF) or tap screen to toggle Dynamic Batching.");
+#else
+    T3D_LOG_INFO(LOG_TAG_APP,
+        "[DynamicBatchApp] Controls: Press [Space] / [B] (or [1]=ON, [2]=OFF) or click HUD buttons to toggle Dynamic Batching.");
+#endif
 
     return T3D_OK;
 }
@@ -223,6 +261,7 @@ void DynamicBatchApp::ensureHudDocument()
             color: #f0f4f8;
             width: 100%;
             height: 100%;
+            pointer-events: none;
         }
         #stats_box {
             display: block;
@@ -235,6 +274,7 @@ void DynamicBatchApp::ensureHudDocument()
             border-width: 1dp;
             border-color: #4a6282;
             border-radius: 6dp;
+            pointer-events: auto;
         }
         .title {
             display: block;
@@ -246,13 +286,50 @@ void DynamicBatchApp::ensureHudDocument()
             display: block;
             margin-bottom: 4dp;
         }
+        .actions {
+            display: block;
+            margin-top: 10dp;
+            padding-top: 8dp;
+            border-top-width: 1dp;
+            border-top-color: #2d3e55;
+        }
+        .btn {
+            display: inline-block;
+            width: 96dp;
+            height: 32dp;
+            line-height: 32dp;
+            text-align: center;
+            margin-right: 8dp;
+            background-color: #263850;
+            color: #f0f4f8;
+            border-width: 1dp;
+            border-color: #4a6282;
+            border-radius: 4dp;
+            font-size: 14dp;
+        }
+        .btn:hover {
+            background-color: #324a68;
+        }
+        .btn:active {
+            background-color: #44658c;
+        }
+        .btn.last {
+            margin-right: 0dp;
+        }
+        .btn.active_on {
+            background-color: #1f5c3a;
+            border-color: #52e580;
+            color: #ffffff;
+        }
+        .btn.active_off {
+            background-color: #5c242b;
+            border-color: #ff6b6b;
+            color: #ffffff;
+        }
         .hint {
             display: block;
             margin-top: 8dp;
-            padding-top: 6dp;
-            border-top-width: 1dp;
-            border-top-color: #2d3e55;
-            font-size: 14dp;
+            font-size: 13dp;
             color: #9bb4d0;
         }
     </style>
@@ -264,7 +341,12 @@ void DynamicBatchApp::ensureHudDocument()
         <div id="line_batches" class="row">Batches: 0 (Batched: 0, Unbatched: 0)</div>
         <div id="line_verts" class="row">Batched Mesh: 0 verts / 0 indices</div>
         <div id="line_draws" class="row">DrawCalls: 0 (Shadow: 0, Forward: 0)</div>
-        <div class="hint">[Space / B]: Toggle  |  [1]: ON  |  [2]: OFF</div>
+        <div class="actions">
+            <button id="btn_toggle" class="btn" type="button">Toggle</button>
+            <button id="btn_on" class="btn active_on" type="button">Batch ON</button>
+            <button id="btn_off" class="btn last" type="button">Batch OFF</button>
+        </div>
+        <div id="line_hint" class="hint">Tap buttons or screen to switch</div>
     </div>
 </body>
 </rml>
@@ -273,9 +355,92 @@ void DynamicBatchApp::ensureHudDocument()
     mHudDoc = mCanvas->getContext()->LoadDocumentFromMemory(rmlSource);
     if (mHudDoc != nullptr)
     {
+        if (Rml::Element *elHint = mHudDoc->GetElementById("line_hint"))
+        {
+#if defined(T3D_OS_MOBILE)
+            elHint->SetInnerRML("Tap buttons or screen to switch");
+#else
+            elHint->SetInnerRML("[Space / B]: Toggle  |  [1]: ON  |  [2]: OFF  |  Click HUD");
+#endif
+        }
+
+        attachHudListeners();
         mHudDoc->Show();
         mLastDynamicBatchCount = UINT32_MAX;
         mLastTotalDrawCalls = UINT32_MAX;
+    }
+}
+
+void DynamicBatchApp::attachHudListeners()
+{
+    if (mHudDoc == nullptr)
+    {
+        return;
+    }
+
+    if (mToggleListener == nullptr)
+    {
+        mToggleListener = new HudButtonListener([this]()
+        {
+            setDynamicBatchMode(!T3D_RENDER_PIPELINE.isDynamicBatchEnabled());
+        });
+    }
+    if (mOnListener == nullptr)
+    {
+        mOnListener = new HudButtonListener([this]()
+        {
+            setDynamicBatchMode(true);
+        });
+    }
+    if (mOffListener == nullptr)
+    {
+        mOffListener = new HudButtonListener([this]()
+        {
+            setDynamicBatchMode(false);
+        });
+    }
+
+    if (Rml::Element *btnToggle = mHudDoc->GetElementById("btn_toggle"))
+    {
+        btnToggle->AddEventListener("click", mToggleListener);
+    }
+    if (Rml::Element *btnOn = mHudDoc->GetElementById("btn_on"))
+    {
+        btnOn->AddEventListener("click", mOnListener);
+    }
+    if (Rml::Element *btnOff = mHudDoc->GetElementById("btn_off"))
+    {
+        btnOff->AddEventListener("click", mOffListener);
+    }
+}
+
+void DynamicBatchApp::detachHudListeners()
+{
+    if (mHudDoc == nullptr)
+    {
+        return;
+    }
+
+    if (mToggleListener != nullptr)
+    {
+        if (Rml::Element *btnToggle = mHudDoc->GetElementById("btn_toggle"))
+        {
+            btnToggle->RemoveEventListener("click", mToggleListener);
+        }
+    }
+    if (mOnListener != nullptr)
+    {
+        if (Rml::Element *btnOn = mHudDoc->GetElementById("btn_on"))
+        {
+            btnOn->RemoveEventListener("click", mOnListener);
+        }
+    }
+    if (mOffListener != nullptr)
+    {
+        if (Rml::Element *btnOff = mHudDoc->GetElementById("btn_off"))
+        {
+            btnOff->RemoveEventListener("click", mOffListener);
+        }
     }
 }
 
@@ -308,10 +473,45 @@ void DynamicBatchApp::onPreRender()
         else if (T3D_INPUT.getTouchCount() == 1)
         {
             const Touch touch = T3D_INPUT.getTouch(0);
+            UISystem *uiSystem = T3D_AGENT.getUISystem();
+            const bool overUI = (uiSystem != nullptr && uiSystem->isPointerOverUI());
+
             if (touch.phase == TouchPhase::Began)
             {
-                setDynamicBatchMode(!T3D_RENDER_PIPELINE.isDynamicBatchEnabled());
+                mTouchTracking = true;
+                mTouchStartPos = touch.position;
+                mTouchTapCandidate = !overUI;
             }
+            else if (touch.phase == TouchPhase::Moved && mTouchTracking && mTouchTapCandidate)
+            {
+                const Vector2 delta = touch.position - mTouchStartPos;
+                if (delta.x() * delta.x() + delta.y() * delta.y() > 24.0f * 24.0f)
+                {
+                    mTouchTapCandidate = false;
+                }
+            }
+            else if (touch.phase == TouchPhase::Ended)
+            {
+                // 若触点落在 HUD 控件上，则由 RmlUi 按钮 click 事件处理，避免重复切换；
+                // 同时兼容同帧完成按下+抬起的快速轻触（未经过 Began 帧、直接进入 Ended）。
+                const bool shouldToggle = mTouchTracking ? mTouchTapCandidate : !overUI;
+                if (shouldToggle && !overUI)
+                {
+                    setDynamicBatchMode(!T3D_RENDER_PIPELINE.isDynamicBatchEnabled());
+                }
+                mTouchTracking = false;
+                mTouchTapCandidate = false;
+            }
+            else if (touch.phase == TouchPhase::Canceled)
+            {
+                mTouchTracking = false;
+                mTouchTapCandidate = false;
+            }
+        }
+        else
+        {
+            mTouchTracking = false;
+            mTouchTapCandidate = false;
         }
     }
 }
@@ -390,11 +590,21 @@ bool DynamicBatchApp::updateStatsDisplay(bool forceUpdate)
         elDraws->SetInnerRML(ss.str());
     }
 
+    if (Rml::Element *btnOn = mHudDoc->GetElementById("btn_on"))
+    {
+        btnOn->SetClass("active_on", batchOn);
+    }
+    if (Rml::Element *btnOff = mHudDoc->GetElementById("btn_off"))
+    {
+        btnOff->SetClass("active_off", !batchOn);
+    }
+
     return true;
 }
 
 void DynamicBatchApp::applicationWillTerminate()
 {
+    detachHudListeners();
     mHudDoc = nullptr;
     mCanvas = nullptr;
     mCubeMesh = nullptr;

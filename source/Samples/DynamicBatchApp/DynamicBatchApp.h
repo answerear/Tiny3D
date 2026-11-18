@@ -32,6 +32,7 @@
 namespace Rml
 {
     class ElementDocument;
+    class EventListener;
 }
 
 namespace Tiny3D
@@ -81,11 +82,19 @@ protected:
 
     void setupUI(Tiny3D::GameObject *cameraObject);
     void ensureHudDocument();
+    void attachHudListeners();
+    void detachHudListeners();
     void setDynamicBatchMode(bool enabled);
     bool updateStatsDisplay(bool forceUpdate);
 
     Tiny3D::RmlCanvas    *mCanvas                {nullptr};
     Rml::ElementDocument *mHudDoc                {nullptr};
+    Rml::EventListener   *mToggleListener        {nullptr};
+    Rml::EventListener   *mOnListener            {nullptr};
+    Rml::EventListener   *mOffListener           {nullptr};
+    Tiny3D::Vector2       mTouchStartPos         {Tiny3D::Vector2::ZERO};
+    bool                  mTouchTracking         {false};
+    bool                  mTouchTapCandidate     {false};
     uint32_t              mLastDynamicBatchCount {UINT32_MAX};
     uint32_t              mLastTotalDrawCalls    {UINT32_MAX};
     bool                  mLastBatchEnabled      {true};
