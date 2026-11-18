@@ -901,7 +901,8 @@ namespace Tiny3D
                 static_cast<GLsizei>(width), static_cast<GLsizei>(height));
         }
 
-        auto lambda = [this](int32_t x, int32_t y, uint32_t width, uint32_t height)
+        const bool renderingToFBO = mRenderingToFBO;
+        auto lambda = [this](int32_t x, int32_t y, uint32_t width, uint32_t height, bool renderingToFBO)
         {
             GLint currentVP[4];
             glGetIntegerv(GL_VIEWPORT, currentVP);
@@ -912,7 +913,7 @@ namespace Tiny3D
                     "GLES3Context::setScissorRect: no render target and GL viewport height is zero");
                 return T3D_OK;
             }
-            const GLint glY = mRenderingToFBO
+            const GLint glY = renderingToFBO
                 ? static_cast<GLint>(y)
                 : fbH - (y + static_cast<int32_t>(height));
             glScissor(static_cast<GLint>(x), glY,
@@ -920,7 +921,7 @@ namespace Tiny3D
             GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::setScissorRect(fallback)");
             return T3D_OK;
         };
-        return ENQUEUE_UNIQUE_COMMAND(lambda, x, y, width, height);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, x, y, width, height, renderingToFBO);
     }
 
     //--------------------------------------------------------------------------
@@ -1109,22 +1110,9 @@ namespace Tiny3D
             dst.colorMask[3] = (src.ColorMask & kWriteMaskAlpha) ? GL_TRUE : GL_FALSE;
         }
 
-        auto lambda = [this](const GLES3BlendStatePtr &glState, GLES3BlendStateData d)
+        if (glState != nullptr)
         {
-            TResult ret = T3D_OK;
-
-            do
-            {
-                glState->data = d;
-            } while (false);
-
-            return ret;
-        };
-
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glState, d);
-        if (T3D_FAILED(ret))
-        {
-            glState = nullptr;
+            glState->data = d;
         }
 
         return glState;
@@ -1155,22 +1143,9 @@ namespace Tiny3D
         d.backStencilPass = GLES3Mapping::get(desc.BackFace.StencilPassOp);
         d.backStencilFunc = GLES3Mapping::get(desc.BackFace.StencilFunc);
 
-        auto lambda = [this](const GLES3DepthStencilStatePtr &glState, GLES3DepthStencilStateData d)
+        if (glState != nullptr)
         {
-            TResult ret = T3D_OK;
-
-            do
-            {
-                glState->data = d;
-            } while (false);
-
-            return ret;
-        };
-
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glState, d);
-        if (T3D_FAILED(ret))
-        {
-            glState = nullptr;
+            glState->data = d;
         }
 
         return glState;
@@ -1193,22 +1168,9 @@ namespace Tiny3D
         d.slopeScaledDepthBias = static_cast<GLfloat>(desc.SlopeScaledDepthBias);
         d.multisampleEnabled = desc.MultisampleEnable;
 
-        auto lambda = [this](const GLES3RasterizerStatePtr &glState, GLES3RasterizerStateData d)
+        if (glState != nullptr)
         {
-            TResult ret = T3D_OK;
-
-            do
-            {
-                glState->data = d;
-            } while (false);
-
-            return ret;
-        };
-
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glState, d);
-        if (T3D_FAILED(ret))
-        {
-            glState = nullptr;
+            glState->data = d;
         }
 
         return glState;
@@ -1688,17 +1650,31 @@ namespace Tiny3D
 
     TResult GLES3Context::setIndexBuffer(IndexBuffer *buffer)
     {
+        if (buffer == nullptr || buffer->getRHIResource() == nullptr)
+        {
+            auto lambda = [this]()
+            {
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::setIndexBuffer(null)");
+                return T3D_OK;
+            };
+            return ENQUEUE_UNIQUE_COMMAND(lambda);
+        }
+
         GLES3IndexBufferPtr glIB = static_cast<GLES3IndexBuffer*>(buffer->getRHIResource().get());
+        const GLenum indexType = GLES3Mapping::get(buffer->getIndexType());
+        const uint32_t indexSize = (buffer->getIndexType() == IndexType::E_IT_16BITS) ? 2 : 4;
 
-        mIndexType = GLES3Mapping::get(buffer->getIndexType());
-        mIndexSize = (buffer->getIndexType() == IndexType::E_IT_16BITS) ? 2 : 4;
-
-        auto lambda = [this](const GLES3IndexBufferPtr &glIB)
+        auto lambda = [this](const GLES3IndexBufferPtr &glIB, GLenum indexType, uint32_t indexSize)
         {
             TResult ret = T3D_OK;
 
             do
             {
+                // mIndexType/mIndexSize 必须在 RHI 线程随命令流顺序更新，
+                // 否则主线程提前改写会与正在执行的同帧/上一帧 draw 发生数据竞态（如 16-bit 场景与 32-bit UI 混用）。
+                mIndexType = indexType;
+                mIndexSize = indexSize;
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIB->GLBuffer);
                 GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::setIndexBuffer");
             } while (false);
@@ -1706,7 +1682,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, glIB);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, glIB, indexType, indexSize);
     }
 
     //--------------------------------------------------------------------------
@@ -4806,11 +4782,23 @@ namespace Tiny3D
             GLint dstX1 = dstX0 + static_cast<GLint>(copyW);
             GLint dstY1 = dstY0 + static_cast<GLint>(copyH);
 
-            if (dst.isWindow && mProjectionFlipped)
+            // 引擎纹理/FBO 统一采用上原点布局（row 0 为画面顶部），
+            // 而默认窗口 backbuffer（FBO 0）为 OpenGL 原生下原点布局（row H-1 为顶部）。
+            // 跨 Window <-> Texture/FBO 传输时必须做 Y 翻转；不能依赖易变的
+            // mProjectionFlipped（reset() 或 RmlUi/后处理会清零它，且存在多线程 RHI 队列竞态）。
+            if (!src.isWindow && dst.isWindow)
             {
                 GLint tmp = srcY0;
                 srcY0 = srcY1;
                 srcY1 = tmp;
+
+                dstY0 = static_cast<GLint>(dst.height) - static_cast<GLint>(dstOffset.y() + copyH);
+                dstY1 = static_cast<GLint>(dst.height) - static_cast<GLint>(dstOffset.y());
+            }
+            else if (src.isWindow && !dst.isWindow)
+            {
+                srcY0 = static_cast<GLint>(src.height) - static_cast<GLint>(srcOffset.y());
+                srcY1 = static_cast<GLint>(src.height) - static_cast<GLint>(srcOffset.y() + copyH);
             }
 
             GLbitfield mask = src.isDepth || dst.isDepth
