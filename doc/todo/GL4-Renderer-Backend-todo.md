@@ -1702,6 +1702,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | **问题** | 每个 ShaderVariant 的采样器序号都从 0 开始，`texBinding` 与 `samplerBinding` 取同一个值。`set{VS,PS,GS,HS,DS,CS}PixelBuffers` / `Samplers` 全部绑到全局的 `GL_TEXTURE0 + slot` / `glBindSampler(slot)`，GL 的纹理单元又是所有阶段共享的，于是 VS 的 t0 与 PS 的 t0 落到同一个 unit，后绑的覆盖先绑的。`findSlot` 先查 PS 再查 VS，VS 的 sampler uniform 也会指到 PS 的 unit |
 | **D3D11** | 每个阶段的 t# / s# 是独立的编号空间 |
 | **修复建议** | 在反射阶段按 program 统一分配 unit：链接时把各阶段的 sampler 依次排开（如 PS 从 0 开始，VS 接在 PS 之后），并记录「阶段 + 原 slot → unit」的映射；`bindPixelBuffers` / `bindSamplers` 增加阶段参数，按映射换算 unit。另一种做法是按阶段划分固定区间（如每阶段 16 个 unit），需要 `GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS` 足够大 |
+| **状态** | ✅ 已修复（2026-11-19），采用按阶段划分固定区间的方案。纹理绑定发生在 draw 之前、program 链接之前，而且 program 按 shader 组合缓存，按 program 分配需要在链接后回头重绑；固定区间下 unit 只取决于「阶段 + slot」，与链接时机无关。<br>**分区**：`GL4ContextBase::fillCapabilities` 查询 `GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS` 与各阶段上限，PS 从 0 开始取满片元阶段上限，VS / GS / HS / DS / CS 平分剩余单元并受各自上限约束，结果存入 `mTexUnitBase` / `mTexUnitCount`（RTX 5060 上为每阶段 32 个，PS@0、VS@32 … CS@160）。CS 也单独占一段，dispatch 不会冲掉图形管线的纹理。<br>**绑定**：`bindPixelBuffers` / `bindSamplers` / `bindStructuredBuffers` 增加阶段参数，unit = 阶段起点 + slot；槽位超出本阶段区间时返回 `T3D_ERR_INVALID_PARAM`。`unbindTextureUnits` 改为按各阶段实际用过的最高 slot 解绑，不再写死前 16 个单元。<br>**sampler uniform**：`setupSamplerBindings` 增加 `isCompute` 参数，graphics program 只查 PS / VS / GS / HS / DS 的反射，compute program 只查 CS，按命中的阶段换算 unit（原实现会让 graphics program 去查当前 CS 的反射）。samplerBuffer 同样按阶段换算。<br>**遗留限制**：GLSL 中同名 sampler 在一个 program 里只有一个 uniform，若 VS 与 PS 声明了同名纹理，只能指向一个 unit（以 PS 为准），链接时打 warning。SSBO 绑定点仍是各阶段共享的，不在本项范围内。<br>**回归用例**：`ComputeApp` 新增 K18 `cross stage textures`（D3D11 与 GL4），VS 的 t0 绑绿色纹理、PS 的 t0 绑红色纹理，PS 输出 (PS 纹理 R, VS 纹理 G)，两条竖带分别先绑 VS / 先绑 PS，期望均为黄色。修复前 GL4 两条竖带分别读回红、绿；修复后 D3D11 与 GL4 均 17/17 通过。<br>**样例侧配套**：`ComputeKernel::compileGraphics` 原先只编译不反射，GL4 只能按 uniform 顺序回退分配 unit，现补上 `reflect()`；D3D11 反射要求采样器命名为 `sampler<纹理名>`，样例 HLSL 的采样器随之改名 |
 
 ### E.1.4 窗口渲染目标忽略外部深度
 
@@ -1795,7 +1796,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 |:------:|:----:|----|:------:|
 | **P0** | E.1.1 | 资源析构改为投递到 RHI 线程删除（✅ 已修复） | 中 |
 | **P0** | E.1.2 | D32FS8 的 `getPixelType` 改为 `GL_FLOAT_32_UNSIGNED_INT_24_8_REV`（✅ 已修复） | 1 行 |
-| **P1** | E.1.3 | 纹理单元按 program 统一分配，消除跨阶段冲突 | 中 |
+| **P1** | E.1.3 | 纹理单元按阶段分区，消除跨阶段冲突（✅ 已修复） | 中 |
 | **P1** | E.1.4 | 窗口目标支持外部深度（中间 FBO）或显式报错 | 中 |
 | **P1** | E.1.5 | `createPixelBuffer2D` 支持 MSAA | 小 |
 | **P1** | E.1.7 | UAV 槽位越界检查 | 小 |
