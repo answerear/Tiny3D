@@ -133,6 +133,49 @@ namespace Tiny3D
             glGetIntegerv(GL_MAX_IMAGE_UNITS, &mGLSLangLimits.imageUnits);
         }
 
+        // 纹理单元按阶段分区：PS 拿满片元阶段上限，其余阶段平分剩下的单元，
+        // 再各自受本阶段上限约束。总数不超过 GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS，
+        // 它同时也是 glActiveTexture 能用的单元总数。
+        {
+            auto queryLimit = [](GLenum pname) -> uint32_t
+            {
+                GLint value = 0;
+                glGetIntegerv(pname, &value);
+                return value > 0 ? static_cast<uint32_t>(value) : 0u;
+            };
+
+            const uint32_t combined = queryLimit(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+            uint32_t stageMax[kTexStageCount] = {};
+            stageMax[kTexStagePS] = queryLimit(GL_MAX_TEXTURE_IMAGE_UNITS);
+            stageMax[kTexStageVS] = queryLimit(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+            stageMax[kTexStageGS] = queryLimit(GL_MAX_GEOMETRY_TEXTURE_IMAGE_UNITS);
+            stageMax[kTexStageHS] = has40 ? queryLimit(GL_MAX_TESS_CONTROL_TEXTURE_IMAGE_UNITS) : 0u;
+            stageMax[kTexStageDS] = has40 ? queryLimit(GL_MAX_TESS_EVALUATION_TEXTURE_IMAGE_UNITS) : 0u;
+            stageMax[kTexStageCS] = has43 ? queryLimit(GL_MAX_COMPUTE_TEXTURE_IMAGE_UNITS) : 0u;
+
+            const uint32_t psCount = std::min(stageMax[kTexStagePS], combined);
+            const uint32_t perStage = (combined - psCount) / (kTexStageCount - 1);
+
+            uint32_t base = 0;
+            for (uint32_t stage = 0; stage < kTexStageCount; ++stage)
+            {
+                const uint32_t count = (stage == kTexStagePS) ? psCount : std::min(stageMax[stage], perStage);
+                mTexUnitBase[stage] = base;
+                mTexUnitCount[stage] = count;
+                base += count;
+            }
+
+            T3D_LOG_INFO(LOG_TAG_GL4CONTEXTBASE,
+                "Texture units: combined=%u, PS=%u@%u, VS=%u@%u, GS=%u@%u, HS=%u@%u, DS=%u@%u, CS=%u@%u",
+                combined,
+                mTexUnitCount[kTexStagePS], mTexUnitBase[kTexStagePS],
+                mTexUnitCount[kTexStageVS], mTexUnitBase[kTexStageVS],
+                mTexUnitCount[kTexStageGS], mTexUnitBase[kTexStageGS],
+                mTexUnitCount[kTexStageHS], mTexUnitBase[kTexStageHS],
+                mTexUnitCount[kTexStageDS], mTexUnitBase[kTexStageDS],
+                mTexUnitCount[kTexStageCS], mTexUnitBase[kTexStageCS]);
+        }
+
         while (glGetError() != GL_NO_ERROR) {}
     }
 

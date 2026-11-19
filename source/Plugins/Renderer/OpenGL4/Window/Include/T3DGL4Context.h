@@ -179,15 +179,21 @@ namespace Tiny3D
         ~GL4Context() override;
 
         TResult stageConstantBuffers(const ConstantBuffers &buffers);
-        TResult bindPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers);
-        TResult bindSamplers(uint32_t startSlot, const Samplers &samplers);
-        TResult bindStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers);
+        TResult bindPixelBuffers(TextureUnitStage stage, uint32_t startSlot, const PixelBuffers &buffers);
+        TResult bindSamplers(TextureUnitStage stage, uint32_t startSlot, const Samplers &samplers);
+        TResult bindStructuredBuffers(TextureUnitStage stage, uint32_t startSlot, const ShaderResourceBuffers &buffers);
+
+        /// 校验 [startSlot, startSlot + count) 落在该阶段的纹理单元区间内
+        TResult checkTextureSlots(TextureUnitStage stage, uint32_t startSlot, size_t count, const char *func) const;
+
+        /// 阶段内 slot -> GL 纹理单元号，并记下该阶段用到的最高单元供 unbindTextureUnits 解绑
+        GLuint toTextureUnit(TextureUnitStage stage, uint32_t slot);
 
         void bindPendingUniformBlocks(GLuint program);
-        void setupSamplerBindings(GLuint program);
+        void setupSamplerBindings(GLuint program, bool isCompute);
 
         /// 链接 program，成功后建立 uniform block 绑定与 sampler 绑定并记录 block 名单
-        TResult linkProgram(GLuint program, const char *tag);
+        TResult linkProgram(GLuint program, const char *tag, bool isCompute);
 
         /// 解开所有常用纹理单元上的 texture / sampler，避免同一张纹理既被采样
         /// 又当 FBO 附件，以及上一 pass 留下的 comparison sampler 影响下一 pass。
@@ -344,6 +350,9 @@ namespace Tiny3D
         ShaderVariantPtr mCurrentDSVariant {nullptr};
         ShaderVariantPtr mCurrentGSVariant {nullptr};
         ShaderVariantPtr mCurrentCSVariant {nullptr};
+
+        /// 各阶段绑定过的 slot 上界（不含），unbindTextureUnits 只解绑这些单元
+        uint32_t mTexUnitUsed[kTexStageCount] {};
 
         /// 当前绑定的 CS Image Unit 槽位 -> GL 纹理对象（供 uavBarrier 解绑）
         TMap<uint32_t, GLuint> mBoundCSImages;

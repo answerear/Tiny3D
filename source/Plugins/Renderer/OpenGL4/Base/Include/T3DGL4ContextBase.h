@@ -122,6 +122,24 @@ namespace Tiny3D
         };
         GLSLangLimits mGLSLangLimits;
 
+        /// D3D11 每个阶段的 t# / s# 是独立的编号空间，而 GL 的纹理单元由所有阶段
+        /// （包括 compute）共享。这里给每个阶段划一段互不重叠的纹理单元，
+        /// 阶段内的 slot 加上该阶段的起点才是 GL 纹理单元号。PS 排在最前，从 0 开始。
+        enum TextureUnitStage : uint32_t
+        {
+            kTexStagePS = 0,
+            kTexStageVS,
+            kTexStageGS,
+            kTexStageHS,
+            kTexStageDS,
+            kTexStageCS,
+            kTexStageCount
+        };
+
+        /// 各阶段纹理单元区间的起点与长度，在 fillCapabilities() 里按驱动上限划分
+        uint32_t mTexUnitBase[kTexStageCount] {};
+        uint32_t mTexUnitCount[kTexStageCount] {};
+
 #if defined(T3D_OS_WINDOWS)
         HWND  mDummyHWND {nullptr};
         HDC   mDummyHDC {nullptr};
