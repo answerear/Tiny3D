@@ -1713,6 +1713,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | **问题** | `E_RT_WINDOW` 分支只执行 `glBindFramebuffer(GL_FRAMEBUFFER, 0)`，不读 `renderTarget->getDepthStencil()`。默认 framebuffer 不能挂外部附件，所以挂了外部深度的窗口目标在 GL4 上仍然使用窗口自带的深度 |
 | **D3D11** | 外挂的 DepthStencil 优先，没有时才退回窗口自带的 DSV（`T3DD3D11Context.cpp:1250-1253`） |
 | **修复建议** | 带外部深度时，改为渲染到一个与窗口同尺寸的中间 FBO（颜色附件 + 外部深度），`swapBackBuffer` 前 blit 到 FBO 0；或在 RHI 层明确禁止该用法并在 GL4 上报错，而不是静默忽略 |
+| **状态** | ✅ 已修复（2026-11-19），采用中间 FBO 方案。<br>**切换**：窗口目标挂了外部深度时，`setRenderTarget` 改绑 `mWindowProxyFBO`（RGBA8 颜色附件，与窗口同尺寸、同采样数，加外部深度），首次切入时把 backbuffer 当前内容拷进来，保留之前不带深度画上去的内容；切到其他目标、`resetRenderTarget`、`reset` 时拷回 backbuffer 并摘掉外部深度。`swapBackBuffer` 在 present 前拷回，中间 FBO 保持生效，present 之后的 draw 仍按外部深度画。`resizeRenderWindow` 按新尺寸重建颜色附件。窗口不挂深度时行为不变，仍直接画 FBO 0。<br>**方向**：中间 FBO 与纹理目标一样按上原点布局，`mRenderingToFBO` 置 true，投影翻转 Y，所以同一张深度可以在窗口目标与纹理目标之间共用；与 backbuffer 互拷时翻转 Y。MSAA 缓冲之间的 `glBlitFramebuffer` 要求矩形一致、不能翻转，MSAA 窗口先 resolve 到单采样中转纹理再翻转拷贝，拷入时每个样本取同一值，之前内容的子样本细节会丢失，resolve 后的结果不变。<br>**blit**：`blit` 的窗口端点若正是当前画到中间 FBO 的窗口，改指向中间 FBO（`BlitEndpoint` 新增 `window` 字段），读到的是最新内容。<br>**校验**（主线程，失败返回错误且不切换目标）：深度必须是深度格式、采样数与窗口实际采样数一致、尺寸不小于窗口，与 D3D11 的约束对齐。<br>**代价**：每次切入、切出与 present 各一次整屏 blit（MSAA 时两次），只发生在挂了外部深度的窗口目标上。<br>**回归用例**：`ComputeApp` 新增 K19 `window external depth`（D3D11 与 GL4）：窗口不挂深度时清黑、左半屏画白；纹理 RT 挂同一张深度，清 1.0 后上半屏写入 0.25；窗口挂这张深度，全屏以 0.5、LESS 画绿。期望左上白、右上黑、下半屏绿，同时检查窗口原有内容的保留和深度上下方向的一致。窗口为 4x MSAA，深度同为 4x。修复前 GL4 下半屏读回白 / 黑（用的是窗口自带深度）；修复后 D3D11 与 GL4 均 18/18 通过。<br>**顺带改动**：K17 的 `ndcZ` / `createFullscreenVB` 提为文件内自由函数，并新增 `bindVertexBuffer`，供 K19 复用 |
 
 ### E.1.5 非 RT 的 MSAA 纹理被静默降为 1x
 
@@ -1767,7 +1768,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | E.2.5 | 顶点格式不校验 VS 输入 | `createVertexDeclaration`（`T3DGL4Context.cpp:1409-1428`） | D3D11 的 `CreateInputLayout` 需要 VS 字节码，属性不匹配时创建失败；GL4 只创建 VAO，不匹配时静默画错。可在 Program 链接后用 `glGetProgramResource(GL_PROGRAM_INPUT)` 对照 VertexDeclaration，Debug 构建下打警告 | P3 |
 | E.2.6 | 创建资源时缺少参数校验 | `createVertexBuffer` / `createIndexBuffer` / `createPixelBuffer*`；`GL4Mapping::getBufferUsage`（`T3DGL4Mapping.cpp:309-318`） | D3D11 会拒绝非法的 Usage / CPUAccess 组合与宽高为 0 的纹理（`T3DD3D11Context.cpp:2561-2593` 等）；GL4 不读 `getCPUAccessMode()`，也不校验尺寸，非法描述只会在驱动层报错。另外 `getInternalFormat` 遇到未知格式回落为 `GL_RGBA8`，建议改为报错 | P2 |
 | E.2.7 | 读回没有 staging 池 | `map`（`T3DGL4Context.cpp:3893`、`3951`）、`finishReadback`（5577） | 每次 `map` 新建 staging buffer，`unmap` 后删除。D3D11 有 `acquireStagingBuffer/Texture` 复用池。只影响频繁读回时的分配开销 | P3 |
-| E.2.8 | 窗口深度格式固定、忽略 MSAA Quality | `T3DGL4RenderWindow.cpp:128-129`、`159-160` | 像素格式写死 24 位深度 + 8 位模板，D3D11 按 `DepthStencilFormat` 创建；MSAA 只用 Count。属于 WGL 像素格式的限制，可通过 E.1.4 的中间 FBO 方案一并解决 | P3 |
+| E.2.8 | 窗口深度格式固定、忽略 MSAA Quality | `T3DGL4RenderWindow.cpp:128-129`、`159-160` | 像素格式写死 24 位深度 + 8 位模板，D3D11 按 `DepthStencilFormat` 创建；MSAA 只用 Count。属于 WGL 像素格式的限制。E.1.4 修复后，需要其他深度格式时可以给窗口目标外挂深度绕开；窗口自带深度本身仍是固定格式 | P3 |
 | E.2.9 | SRV / UAV 共用 SSBO 绑定点的约定没有写进 RHI 接口 | `T3DRHIContext.h` `setCSStructuredBuffers` / `setCSUnorderedAccessBuffers` 注释 | 附录 D.3.2 的结论是「调用方把 UAV 槽号排在 SRV 之后」，但这条约定只体现在 `ComputeCases.cpp:46-50` 的 `uavSlot()`。建议写进接口注释，避免新的 compute 调用方踩坑 | P3 |
 
 ---
@@ -1797,7 +1798,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | **P0** | E.1.1 | 资源析构改为投递到 RHI 线程删除（✅ 已修复） | 中 |
 | **P0** | E.1.2 | D32FS8 的 `getPixelType` 改为 `GL_FLOAT_32_UNSIGNED_INT_24_8_REV`（✅ 已修复） | 1 行 |
 | **P1** | E.1.3 | 纹理单元按阶段分区，消除跨阶段冲突（✅ 已修复） | 中 |
-| **P1** | E.1.4 | 窗口目标支持外部深度（中间 FBO）或显式报错 | 中 |
+| **P1** | E.1.4 | 窗口目标支持外部深度（中间 FBO）（✅ 已修复） | 中 |
 | **P1** | E.1.5 | `createPixelBuffer2D` 支持 MSAA | 小 |
 | **P1** | E.1.7 | UAV 槽位越界检查 | 小 |
 | **P2** | E.1.6 | RenderTexture 支持 UAV | 小 |
