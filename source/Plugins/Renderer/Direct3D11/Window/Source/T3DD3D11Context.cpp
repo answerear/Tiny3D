@@ -4949,33 +4949,12 @@ namespace Tiny3D
                 
                 do
                 {
-                    ID3D11Resource *pD3DResource = nullptr;
-                    
-                    switch (renderBuffer->getRHIResource()->getResourceType())
+                    ID3D11Resource *pD3DResource = getD3DResource(renderBuffer.get());
+                    if (pD3DResource == nullptr)
                     {
-                    case RHIResource::ResourceType::kVertexBuffer:   /// 顶点缓冲
-                        pD3DResource = smart_pointer_cast<D3D11VertexBuffer>(renderBuffer->getRHIResource())->D3DBuffer;
-                        break;
-                    case RHIResource::ResourceType::kIndexBuffer:    /// 索引缓冲
-                        pD3DResource = smart_pointer_cast<D3D11IndexBuffer>(renderBuffer->getRHIResource())->D3DBuffer;
-                        break;
-                    case RHIResource::ResourceType::kPixelBuffer1D: /// 像素缓冲
-                        pD3DResource = smart_pointer_cast<D3D11PixelBuffer1D>(renderBuffer->getRHIResource())->D3DTexture;
-                        break;
-                    case RHIResource::ResourceType::kPixelBuffer2D:
-                        pD3DResource = smart_pointer_cast<D3D11PixelBuffer2D>(renderBuffer->getRHIResource())->D3DTexture;
-                        break;
-                    case RHIResource::ResourceType::kPixelBuffer3D:
-                        pD3DResource = smart_pointer_cast<D3D11PixelBuffer3D>(renderBuffer->getRHIResource())->D3DTexture;
-                        break;
-                    case RHIResource::ResourceType::kPixelBufferCubemap:
-                        pD3DResource = smart_pointer_cast<D3D11PixelBufferCubemap>(renderBuffer->getRHIResource())->D3DTexture;
-                        break;
-                    case RHIResource::ResourceType::kConstantBuffer: /// 常量缓冲
-                        pD3DResource = smart_pointer_cast<D3D11ConstantBuffer>(renderBuffer->getRHIResource())->D3DBuffer;
-                        break;
-                    default:
-                        T3D_ASSERT(false);
+                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to retrieve underlying D3D11 resource when write buffer ! Type [%d]",
+                            (int32_t)renderBuffer->getRHIResource()->getResourceType());
+                        ret = T3D_ERR_INVALID_POINTER;
                         break;
                     }
 
