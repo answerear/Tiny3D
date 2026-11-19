@@ -1724,6 +1724,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | **问题** | `createPixelBuffer2D` 从不读取 `desc.sampleDesc`，总是创建 `GL_TEXTURE_2D` / `GL_TEXTURE_2D_ARRAY` |
 | **D3D11** | `SampleDesc.Count = max(1, desc.sampleDesc.Count)`（`T3DD3D11Context.cpp:2716`） |
 | **修复建议** | `sampleDesc.Count > 1` 时走 `glTexStorage2DMultisample`（数组用 `glTexStorage3DMultisample`），`GLTarget` 设为 `GL_TEXTURE_2D_MULTISAMPLE(_ARRAY)`，并拒绝初始数据上传与 UAV |
+| **状态** | ✅ 已修复（2026-11-19）。<br>**创建**：`createPixelBuffer2D` 在采样数 > 1 时用 `glTexStorage2DMultisample` / `glTexStorage3DMultisample` 建不可变存储（`fixedsamplelocations = GL_TRUE`），`GLTarget` 设为 `GL_TEXTURE_2D_MULTISAMPLE(_ARRAY)`，`GLMSAACount` 记录采样数。创建前用 `glGetInternalformativ(GL_SAMPLES)` 查该格式的采样数上限，超出时报错。<br>**校验**（主线程，失败返回 `nullptr`）：MSAA 纹理带 mipmaps > 1 或带初始数据时拒绝创建；带 `kGPUUnorderedAccess` 时打 warning 并忽略，与 D3D11 一致（没有按修复建议直接拒绝）。<br>**消费侧**：`bindPixelBuffers` 的 MSAA 分支改用 `GLTarget`，原先写死 `GL_TEXTURE_2D_MULTISAMPLE`，数组会绑错 target；`unbindTextureUnits` 补解绑 `GL_TEXTURE_2D_MULTISAMPLE_ARRAY`；`attachScratchFBO` 补上两个多重采样 target，非 RT 的 MSAA 纹理可以作为 blit 端点挂到临时 FBO。`writeBuffer` 本来就拒绝 MSAA，`map` 对没有 resolve FBO 的 MSAA 纹理返回不支持，`getGLImageInfo` 对 MSAA 返回 0，都保持原样。<br>**D3D11 同类问题**：表中「D3D11 能做」的说法不成立。D3D11 的 `createPixelBuffer2D` 虽然设置了 `SampleDesc.Count`，SRV 维度却写死为 `TEXTURE2D` / `TEXTURE2DARRAY`，MSAA 纹理的 `CreateShaderResourceView` 返回 `E_INVALIDARG`。现改为 `TEXTURE2DMS` / `TEXTURE2DMSARRAY`，并与 GL4 一样在主线程拒绝 mipmaps > 1 与初始数据（原先这两种情况都会在 RHI 线程上 `CreateTexture2D` 失败）。<br>**回归用例**：`ComputeApp` 新增 K20 `MSAA texture`（D3D11 与 GL4）：用 `loadPixelBuffer2D` 建 16x8、4x、`Usage::kStatic`、不带数据的 Texture2DMS 与 3 层 Texture2DMSArray，PS 用 `GetDimensions` / `textureSize` + `textureSamples` 把采样数、宽高、层数编码进颜色后读回。Texture2D 资源固定为 `kImmutable`，不能作为 blit 目标，所以引擎层还没有给非 RT 的 MSAA 纹理写入内容的途径，用例只校验维度。临时去掉修复后，GL4 读回采样数 1、尺寸 1x1，D3D11 SRV 创建失败、读回全 0；修复后 D3D11 与 GL4 均 19/19 通过。<br>**未处理**：GLES3 的 `createPixelBuffer2D` 同样不读 `sampleDesc`，未改 |
 
 ### E.1.6 RenderTexture 不能作为 UAV
 
@@ -1799,7 +1800,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | **P0** | E.1.2 | D32FS8 的 `getPixelType` 改为 `GL_FLOAT_32_UNSIGNED_INT_24_8_REV`（✅ 已修复） | 1 行 |
 | **P1** | E.1.3 | 纹理单元按阶段分区，消除跨阶段冲突（✅ 已修复） | 中 |
 | **P1** | E.1.4 | 窗口目标支持外部深度（中间 FBO）（✅ 已修复） | 中 |
-| **P1** | E.1.5 | `createPixelBuffer2D` 支持 MSAA | 小 |
+| **P1** | E.1.5 | `createPixelBuffer2D` 支持 MSAA（✅ 已修复） | 小 |
 | **P1** | E.1.7 | UAV 槽位越界检查 | 小 |
 | **P2** | E.1.6 | RenderTexture 支持 UAV | 小 |
 | **P2** | E.2.1 / E.2.3 / E.2.6 / E.3.1 | CB 解绑、DepthBiasClamp 与抗锯齿线、创建参数校验、编辑器与启动器的渲染器选择 | 小～中 |
