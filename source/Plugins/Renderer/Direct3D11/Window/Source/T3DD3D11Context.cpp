@@ -759,7 +759,7 @@ namespace Tiny3D
                         d3dSRVFormat = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
                         break;
                     case PixelFormat::E_PF_D32_FLOAT_S8X24_UINT:
-                        d3dTexFormat = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+                        d3dTexFormat = DXGI_FORMAT_R32G8X24_TYPELESS;
                         d3dSRVFormat = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
                         break;
                     case PixelFormat::E_PF_D32_FLOAT:
