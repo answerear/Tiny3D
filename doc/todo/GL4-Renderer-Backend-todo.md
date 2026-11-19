@@ -1691,6 +1691,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | **问题** | `getPixelType(E_PF_D32_FLOAT_S8X24_UINT)` 返回 `GL_FLOAT`。非 MSAA 深度 RT 会调用 `glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, w, h, 0, GL_DEPTH_STENCIL, GL_FLOAT, nullptr)`，而 `GL_DEPTH_STENCIL` 格式只接受 `GL_UNSIGNED_INT_24_8` 或 `GL_FLOAT_32_UNSIGNED_INT_24_8_REV`，驱动报 `GL_INVALID_OPERATION`，纹理没有存储，FBO 不完整。MSAA 路径走 `glTexImage2DMultisample` 不需要 type，不受影响 |
 | **D3D11** | `DXGI_FORMAT_D32_FLOAT_S8X24_UINT` 映射正确 |
 | **修复建议** | `E_PF_D32_FLOAT_S8X24_UINT` 单独返回 `GL_FLOAT_32_UNSIGNED_INT_24_8_REV`；GLES3 的 Mapping 一并核对 |
+| **状态** | ✅ 已修复（2026-11-19）。`GL4Mapping::getPixelType` 与 `GLES3Mapping::getPixelType`（GLES3 有同样的错误）都改为返回 `GL_FLOAT_32_UNSIGNED_INT_24_8_REV`。该 type 每像素 8 字节，与 `getBytesPerPixel` 一致，`writeBuffer` 的数据量校验不受影响；`map(region)` 本来就拒绝深度格式。GL4 已做 `cl /Zs` 语法检查，未跑运行时验证 |
 
 ### E.1.3 各 shader 阶段共用纹理单元，VS 与 PS 同时采样会冲突
 
@@ -1783,7 +1784,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | 优先级 | 编号 | 项 | 改动量 |
 |:------:|:----:|----|:------:|
 | **P0** | E.1.1 | 资源析构改为投递到 RHI 线程删除（✅ 已修复） | 中 |
-| **P0** | E.1.2 | D32FS8 的 `getPixelType` 改为 `GL_FLOAT_32_UNSIGNED_INT_24_8_REV` | 1 行 |
+| **P0** | E.1.2 | D32FS8 的 `getPixelType` 改为 `GL_FLOAT_32_UNSIGNED_INT_24_8_REV`（✅ 已修复） | 1 行 |
 | **P1** | E.1.3 | 纹理单元按 program 统一分配，消除跨阶段冲突 | 中 |
 | **P1** | E.1.4 | 窗口目标支持外部深度（中间 FBO）或显式报错 | 中 |
 | **P1** | E.1.5 | `createPixelBuffer2D` 支持 MSAA | 小 |
