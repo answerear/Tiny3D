@@ -1311,6 +1311,35 @@ namespace
 
     const Viewport kFullViewport {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
 
+    /// 深度值 [0, 1] 换成 FullscreenVS 直出的 NDC z。GL 的 NDC 深度是 [-1, 1]，经 glDepthRange(0, 1) 映射到窗口深度；D3D 直接取 z
+    float ndcZ(float depth)
+    {
+        return isGLFamily() ? depth * 2.0f - 1.0f : depth;
+    }
+
+    /// 与 FullscreenDraw 相同的全屏三角形，z 取指定值
+    VertexBufferPtr createFullscreenVB(float z)
+    {
+        const float verts[9] = { -1.0f, -1.0f, z,  3.0f, -1.0f, z,  -1.0f, 3.0f, z };
+        Buffer vb = allocBytes(sizeof(verts));
+        memcpy(vb.Data, verts, sizeof(verts));
+        VertexBufferPtr buffer = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(sizeof(float) * 3, 3, vb,
+            MemoryType::kBoth, Usage::kImmutable, kCPUNone);
+        vb.release();
+        return buffer;
+    }
+
+    void bindVertexBuffer(RHIContext *ctx, VertexBuffer *vb)
+    {
+        VertexBuffers vbs;
+        vbs.push_back(VertexBufferPtr(vb));
+        VertexStrides strides;
+        strides.push_back(sizeof(float) * 3);
+        VertexOffsets offsets;
+        offsets.push_back(0);
+        ctx->setVertexBuffers(0, vbs, strides, offsets);
+    }
+
 
     /**
      * \brief MSAA 源缩放 blit：4x MSAA 的 64x64 白色 RT 整张 blit 到 32x32 的单采样 RT
@@ -1650,6 +1679,182 @@ namespace
         uint32_t            mWidth {0};
         uint32_t            mHeight {0};
         ReadbackHandle      mHandle {};
+    };
+
+
+    /**
+     * \brief 窗口目标外挂深度：同一张深度先在纹理目标里写好上半屏，再挂到窗口上做深度测试
+     * \remarks 依次：① 窗口（不挂深度）清黑，左半屏画白；② 纹理 RT 挂这张深度，深度清 1.0，
+     *          上半屏以深度 0.25 写入；③ 窗口挂这张深度，全屏以深度 0.5、LESS 画绿，不写深度。
+     *          期望左上白、右上黑、下半屏绿。① 检查切到外挂深度后窗口原有内容仍在，
+     *          ② 检查外部深度在窗口与纹理目标之间上下方向一致。外部深度与窗口同为窗口的 MSAA 采样数。
+     *          GL 的默认帧缓冲不能挂外部附件，后端曾直接忽略外部深度、改用窗口自带深度（E.1.4）。
+     *          用例会在窗口上清屏并绘制，自检那一帧画面会闪一下，属正常现象。
+     */
+    class CaseWindowExternalDepth : public ComputeCase
+    {
+    public:
+        ~CaseWindowExternalDepth() override
+        {
+            releaseColorRT(mCapture, mCaptureRT);
+            releaseColorRT(mPrepassColor, mPrepassRT);
+            mWindowDepthRT = nullptr;
+            RenderTargetPtr none;
+            releaseColorRT(mDepth, none);
+        }
+
+        const char *getName() const override { return "K19 window external depth"; }
+        uint32_t getRequiredCaps() const override { return kNeedReadback; }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            if (T3D_FAILED(mDraw.setup())) return T3D_ERR_FAIL;
+
+            RenderWindowPtr rw = T3D_AGENT.getDefaultRenderWindow();
+            if (rw == nullptr) return T3D_ERR_FAIL;
+
+            mWidth = rw->getDescriptor().Width;
+            mHeight = rw->getDescriptor().Height;
+            const uint32_t samples = std::max<uint32_t>(rw->getDescriptor().MSAA.Count, 1);
+
+            mDepth = T3D_TEXTURE_MGR.createRenderTexture("K19-Depth", mWidth, mHeight,
+                PixelFormat::E_PF_D24_UNORM_S8_UINT, 1, samples, 0, false, kCPUNone);
+            mPrepassColor = createColorRT("K19-Prepass", mWidth, mHeight, PixelFormat::E_PF_R8G8B8A8, samples, kCPUNone);
+            mCapture = createColorRT("K19-Capture", mWidth, mHeight, PixelFormat::E_PF_B8G8R8A8, 1, kCPURead);
+            if (mDepth == nullptr || mPrepassColor == nullptr || mCapture == nullptr) return T3D_ERR_FAIL;
+
+            mWindowRT = RenderTarget::create(rw);
+            mWindowDepthRT = RenderTarget::create(rw, mDepth);
+            mPrepassRT = RenderTarget::create(mPrepassColor, mDepth);
+            mCaptureRT = RenderTarget::create(mCapture);
+
+            mNearVB = createFullscreenVB(ndcZ(0.25f));
+            mMidVB = createFullscreenVB(ndcZ(0.5f));
+
+            DepthStencilDesc write;
+            write.DepthWriteEnable = true;
+            write.DepthFunc = CompareFunction::kAlwaysPass;
+            mDepthWrite = T3D_RENDER_STATE_MGR.loadDepthStencilState(write);
+
+            DepthStencilDesc test;
+            test.DepthWriteEnable = false;
+            test.DepthFunc = CompareFunction::kLess;
+            mDepthTest = T3D_RENDER_STATE_MGR.loadDepthStencilState(test);
+
+            return (mWindowRT && mWindowDepthRT && mPrepassRT && mCaptureRT && mNearVB && mMidVB
+                && mDepthWrite && mDepthTest) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+            TResult ret = T3D_OK;
+
+            do
+            {
+                ctx->setRenderTarget(mWindowRT.get());
+                mDraw.bindStates(ctx);
+                ctx->setViewport(kFullViewport);
+                ctx->clearColor(ColorRGB::BLACK);
+                ctx->beginPass();
+                ctx->setVertexShader(mDraw.vs());
+                ctx->setPixelShader(mDraw.whitePS());
+                ctx->setViewport(Viewport {0.0f, 0.0f, 0.5f, 1.0f, 0.0f, 1.0f});
+                ret = mDraw.draw(ctx);
+                ctx->endPass();
+                if (T3D_FAILED(ret)) break;
+
+                ctx->setRenderTarget(mPrepassRT.get());
+                mDraw.bindStates(ctx);
+                ctx->setViewport(kFullViewport);
+                ctx->clearColor(ColorRGB::BLACK);
+                ctx->clearDepthStencil(1.0f, 0);
+                ctx->beginPass();
+                ctx->setDepthStencilState(mDepthWrite.get());
+                bindVertexBuffer(ctx, mNearVB.get());
+                ctx->setVertexShader(mDraw.vs());
+                ctx->setPixelShader(mDraw.whitePS());
+                ctx->setViewport(Viewport {0.0f, 0.0f, 1.0f, 0.5f, 0.0f, 1.0f});
+                ret = mDraw.draw(ctx);
+                ctx->endPass();
+                if (T3D_FAILED(ret)) break;
+
+                ret = ctx->setRenderTarget(mWindowDepthRT.get());
+                if (T3D_FAILED(ret))
+                {
+                    APP_LOG_DEBUG("[%s] FAILED : setRenderTarget(window + depth) returned %d", getName(), ret);
+                    break;
+                }
+                mDraw.bindStates(ctx);
+                ctx->setDepthStencilState(mDepthTest.get());
+                bindVertexBuffer(ctx, mMidVB.get());
+                ctx->setViewport(kFullViewport);
+                ctx->beginPass();
+                ctx->setVertexShader(mDraw.vs());
+                ctx->setPixelShader(mDraw.greenPS());
+                ret = mDraw.draw(ctx);
+                ctx->endPass();
+                if (T3D_FAILED(ret)) break;
+
+                ret = ctx->blit(mWindowRT.get(), mCaptureRT.get());
+                if (T3D_FAILED(ret)) break;
+
+                mHandle = mapColorRT(mCapture.get());
+                ret = mHandle.isValid() ? T3D_OK : T3D_ERR_FAIL;
+            } while (false);
+
+            ctx->reset();
+            return ret;
+        }
+
+        TResult verify() override
+        {
+            Buffer data;
+            TResult ret = unmapColorRT(mCapture.get(), mHandle, data);
+            if (T3D_FAILED(ret)) return ret;
+
+            struct Probe { uint32_t x; uint32_t y; PixelClass expect; const char *name; };
+            const Probe probes[4] =
+            {
+                { mWidth / 4,     mHeight / 4,     PixelClass::kWhite, "top-left"     },
+                { mWidth * 3 / 4, mHeight / 4,     PixelClass::kBlack, "top-right"    },
+                { mWidth / 4,     mHeight * 3 / 4, PixelClass::kGreen, "bottom-left"  },
+                { mWidth * 3 / 4, mHeight * 3 / 4, PixelClass::kGreen, "bottom-right" },
+            };
+
+            uint32_t bad = 0;
+            for (const Probe &probe : probes)
+            {
+                const uint8_t *p = pixelAt(data, mWidth, mHeight, probe.x, probe.y);
+                const PixelClass got = (p != nullptr) ? classifyPixel(p) : PixelClass::kOther;
+                if (got != probe.expect)
+                {
+                    APP_LOG_DEBUG("[%s] FAILED : %s quadrant got '%c' expected '%c'",
+                        getName(), probe.name, char(got), char(probe.expect));
+                    ++bad;
+                }
+            }
+            data.release();
+            return (bad == 0) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+    private:
+        FullscreenDraw          mDraw;
+        RenderTargetPtr         mWindowRT;
+        RenderTargetPtr         mWindowDepthRT;
+        RenderTexturePtr        mDepth;
+        RenderTexturePtr        mPrepassColor;
+        RenderTargetPtr         mPrepassRT;
+        RenderTexturePtr        mCapture;
+        RenderTargetPtr         mCaptureRT;
+        VertexBufferPtr         mNearVB;
+        VertexBufferPtr         mMidVB;
+        DepthStencilStatePtr    mDepthWrite;
+        DepthStencilStatePtr    mDepthTest;
+        uint32_t                mWidth {0};
+        uint32_t                mHeight {0};
+        ReadbackHandle          mHandle {};
     };
 
 
@@ -2026,22 +2231,6 @@ namespace
             ReadbackHandle      sampleHandle {};
         };
 
-        static float ndcZ(float depth)
-        {
-            return isGLFamily() ? depth * 2.0f - 1.0f : depth;
-        }
-
-        static VertexBufferPtr createFullscreenVB(float z)
-        {
-            const float verts[9] = { -1.0f, -1.0f, z,  3.0f, -1.0f, z,  -1.0f, 3.0f, z };
-            Buffer vb = allocBytes(sizeof(verts));
-            memcpy(vb.Data, verts, sizeof(verts));
-            VertexBufferPtr buffer = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(sizeof(float) * 3, 3, vb,
-                MemoryType::kBoth, Usage::kImmutable, kCPUNone);
-            vb.release();
-            return buffer;
-        }
-
         static DepthStencilStatePtr loadStencilEqual(uint32_t ref)
         {
             DepthStencilDesc desc;
@@ -2063,15 +2252,8 @@ namespace
         TResult drawStripe(RHIContext *ctx, uint32_t index, DepthStencilState *state,
             VertexBuffer *vb, ShaderVariant *ps)
         {
-            VertexBuffers vbs;
-            vbs.push_back(VertexBufferPtr(vb));
-            VertexStrides strides;
-            strides.push_back(sizeof(float) * 3);
-            VertexOffsets offsets;
-            offsets.push_back(0);
-
             ctx->setDepthStencilState(state);
-            ctx->setVertexBuffers(0, vbs, strides, offsets);
+            bindVertexBuffer(ctx, vb);
             ctx->setPixelShader(ps);
             ctx->setViewport(stripe(index));
             return mDraw.draw(ctx);
@@ -2415,6 +2597,7 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseDynamicStructuredWrite());
     cases.emplace_back(new CaseDepthStencilFormats());
     cases.emplace_back(new CaseCrossStageTextures());
+    cases.emplace_back(new CaseWindowExternalDepth());
 }
 
 uint32_t currentBackendBit()
