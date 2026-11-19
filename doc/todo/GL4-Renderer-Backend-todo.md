@@ -1680,6 +1680,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | **D3D11** | COM `Release` 可以跨线程调用，不受影响 |
 | **修复建议** | 析构时不直接删除，而是把 GL 句柄（类型 + 名称）投递到 RHI 线程执行删除，例如在 `GL4Context` 维护一个延迟删除队列，在 `swapBackBuffer` 或每条命令执行前清空；RHI 线程未启用时保持直接删除。Program 缓存中引用的 shader 句柄删除时机需一并考虑 |
 | **验证** | 反复创建/销毁纹理与缓冲，观察显存与 `glIsBuffer` / `glIsTexture` |
+| **状态** | ✅ 已修复（2026-11-19）。新增 `releaseGLObjects`（声明在 `T3DGL4Prerequisites.h`，实现在 `T3DGL4RenderBuffer.cpp`），全部 RHI 资源析构、Shader 析构、`GL4SamplerState`、`GL4RenderWindow` 的深度 RBO 以及 `finishReadback` 的 staging buffer 都改走它：当前线程有 current context 时直接删除；否则作为一条命令投递到 RHI 线程，排在已入队命令之后执行，不会删掉后续命令还在用的句柄；RHI 线程已停止时借 dummy context 在当前线程删除，仍无 context 则打 warning。`~GL4Context` 把 `makeDummyCurrent()` 提到释放成员引用之前。只做了 `cl /Zs` 语法检查，尚未跑运行时验证。GLES3 后端的资源析构写法相同（`T3DGLES3RenderBuffer.cpp`），是否受影响取决于其 context 归属，未处理 |
 
 ### E.1.2 D32FS8 深度渲染纹理创建失败
 
@@ -1781,7 +1782,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 
 | 优先级 | 编号 | 项 | 改动量 |
 |:------:|:----:|----|:------:|
-| **P0** | E.1.1 | 资源析构改为投递到 RHI 线程删除 | 中 |
+| **P0** | E.1.1 | 资源析构改为投递到 RHI 线程删除（✅ 已修复） | 中 |
 | **P0** | E.1.2 | D32FS8 的 `getPixelType` 改为 `GL_FLOAT_32_UNSIGNED_INT_24_8_REV` | 1 行 |
 | **P1** | E.1.3 | 纹理单元按 program 统一分配，消除跨阶段冲突 | 中 |
 | **P1** | E.1.4 | 窗口目标支持外部深度（中间 FBO）或显式报错 | 中 |
