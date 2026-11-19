@@ -9,6 +9,8 @@
 > - **D3D11 Console 实现**：`source/Plugins/Renderer/Direct3D11/Console/Source/T3DD3D11ConsoleContext.cpp`
 >
 > 本文中未特别标注文件名的「实现位置」行号均指 `T3DD3D11Context.cpp`。
+>
+> 行号说明：§4.4、§7.10、§13.6–13.10、§15.4–15.5、§17.7、§20.7 是 2026-11-19 按当时代码登记的；其余章节的行号是更早登记的，之后文件多次增长，只能作为大致位置参考，请以函数名搜索为准。
 
 ---
 
@@ -162,6 +164,18 @@
 | **返回值** | `T3D_OK` |
 | **实现位置** | T3DD3D11Context.cpp:1341 |
 
+### 4.4 clearStencil
+
+| 项目 | 内容 |
+|------|------|
+| **状态** | ✅ 已完成 |
+| **签名** | `TResult clearStencil(uint32_t stencil)` |
+| **功能** | 只清模板，不动深度。传 `D3D11_CLEAR_STENCIL` 给 `clearDepthStencilView`，深度参数会被 D3D11 忽略 |
+| **参数** | `stencil` — 模板值，截断为 8 位 |
+| **返回值** | `T3D_OK` |
+| **实现位置** | T3DD3D11Context.cpp:1514 |
+| **备注** | 与 `clearDepth` / `clearDepthStencil` 共用 `clearDepthStencilView`（:1521），回退顺序相同：先找外挂的深度 RenderTexture，没有再退到窗口自带的 DSV |
+
 ---
 
 ## 5. 渲染状态 (Render State)
@@ -187,6 +201,7 @@
 | **参数** | `state` — 引擎深度模板状态对象，包含 DepthTestEnable/DepthWriteEnable/DepthFunc/StencilEnable/FrontFace/BackFace 等描述 |
 | **返回值** | 成功返回 `D3D11DepthStencilStatePtr`，失败返回 `nullptr` |
 | **实现位置** | T3DD3D11Context.cpp:1454 |
+| **备注** | 2026-11-19 修复了 `D3D11Mapping` 中 `kGreaterEqual` 与四个模板自增/自减操作的映射错误，并在状态对象上记录 `StencilRef`，见「映射修复记录（2026-11-19）」 |
 
 ### 5.3 createRasterizerState
 
@@ -209,6 +224,7 @@
 | **参数** | `state` — 引擎纹理采样状态对象 |
 | **返回值** | 成功返回 `D3D11SamplerStatePtr`，失败返回 `nullptr` |
 | **实现位置** | T3DD3D11Context.cpp:1557 |
+| **备注** | 2026-11-19 补上了 `TextureAddressMode::kMirrorOnce` 的映射，此前会被当成 WRAP，见「映射修复记录（2026-11-19）」 |
 
 ### 5.5 setBlendState
 
@@ -227,10 +243,11 @@
 |------|------|
 | **状态** | ✅ 已完成 |
 | **签名** | `TResult setDepthStencilState(DepthStencilState *state)` |
-| **功能** | 设置深度模板状态，调用 OMSetDepthStencilState |
+| **功能** | 设置深度模板状态，调用 OMSetDepthStencilState，stencil ref 取自 `DepthStencilDesc::StencilRef` |
 | **参数** | `state` — 深度模板状态对象 |
 | **返回值** | `T3D_OK` |
 | **实现位置** | T3DD3D11Context.cpp:1623 |
+| **备注** | 2026-11-19 之前 stencil ref 写死为 1，见「映射修复记录（2026-11-19）」 |
 
 ### 5.7 setRasterizerState
 
@@ -376,6 +393,18 @@
 | **实现位置** | T3DD3D11Context.cpp:2338 |
 | **备注** | `desc.arraySize` 存的是总面数，除以 6 得到立方体个数；`cubeCount > 1` 时 SRV 维度用 `TEXTURECUBEARRAY`，否则用 `TEXTURECUBE`。`buildSubresourceData` 产出的「外层 array slice、内层 mip」顺序正好匹配 D3D11 对 cubemap 的 `face * mipLevels + mip` 布局与 +X,-X,+Y,-Y,+Z,-Z 面序 |
 | **备注** | `SampleDesc.Count` 固定为 1 —— `D3D11_RESOURCE_MISC_TEXTURECUBE` 不能与 MSAA 组合，这是 API 限制而非实现缺口 |
+
+### 7.10 createStructuredBuffer
+
+| 项目 | 内容 |
+|------|------|
+| **状态** | ✅ 已完成 |
+| **签名** | `RHIStructuredBufferPtr createStructuredBuffer(StructuredBuffer *buffer)` |
+| **功能** | 创建结构化缓冲（`kStructured`）、原始缓冲（`kRaw`，`ByteAddressBuffer`）或类型化缓冲。`BindFlags` / `MiscFlags` 由 `D3D11Mapping::getBindFlags` / `getBufferMiscFlags` 按 `kind` 与 GPU 访问位生成，`kStructured` 时填 `StructureByteStride`。SRV / UAV 由 `buildBufferViews`（:2284）一并建好 |
+| **参数** | `buffer` — 引擎结构化缓冲对象，描述在 `StructuredBufferDesc`（`kind` / `format` / `elementSize` / `elementCount` / `hasCounter` / `isAppendConsume`） |
+| **返回值** | 成功返回 `D3D11StructuredBufferPtr`，失败返回 `nullptr` |
+| **实现位置** | T3DD3D11Context.cpp:2188 |
+| **备注** | 带 `kGPUUnorderedAccess` 时要求 `Usage::kStatic`（D3D11 只允许 `DEFAULT` 资源建 UAV），否则在主线程直接拒绝。`hasCounter` / `isAppendConsume` 会在 UAV 上打 `COUNTER` / `APPEND` 标志，供 `copyStructureCount` 读取 |
 
 ---
 
@@ -731,13 +760,67 @@
 | **返回值** | `T3D_OK` |
 | **实现位置** | T3DD3D11Context.cpp:2968 |
 
-### 13.6 Dispatch（缺失的接口）
+### 13.6 setVSStructuredBuffers / setPSStructuredBuffers / setCSStructuredBuffers
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ❌ 接口未定义 |
-| **说明** | `RHIContext` 提供了完整的 Compute Shader 创建与资源绑定接口，但**没有定义 Dispatch 接口**，也没有 UAV（Unordered Access View）相关的创建/绑定接口。这意味着当前无法真正执行一次 compute 派发，计算着色器一整套接口目前处于「能绑定但无法运行」的状态 |
-| **待办** | ⏸ **暂缓**。若要启用 Compute 管线，需要先在 `RHIContext` 增加 `dispatch(x, y, z)` / `dispatchIndirect` 与 UAV 资源接口，再在 D3D11 后端映射到 `CSSetUnorderedAccessViews` / `Dispatch`。**不单独排期** —— 与 UAV、结构化缓冲、Instanced/Indirect Draw 作为一个完整特性合并立项，范围见 `D3D11-Renderer-Backend-Implementation-Plan.md` §8 |
+| **状态** | ✅ 已完成 |
+| **签名** | `TResult setXSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers)` |
+| **功能** | 把缓冲的 SRV 绑到 VS / PS / CS 的 `t` 寄存器，三个阶段共用 `setStructuredBuffers`（:5617），通过成员函数指针分发到 `VS/PS/CSSetShaderResources` |
+| **参数** | `startSlot` — 起始 SRV 槽；`buffers` — 结构化缓冲，或带 `kGPUShaderResource` 的 VB / IB；数组里的 `nullptr` 表示解绑该槽 |
+| **返回值** | `T3D_OK` |
+| **实现位置** | T3DD3D11Context.cpp:3102 / 3197 / 3562 |
+| **备注** | SRV 由 `getD3DSRView` 取得。缓冲没有 SRV 时（缺 `kGPUShaderResource`）打错误日志并绑空，不中断整批绑定 |
+
+### 13.7 setCSUnorderedAccessBuffers
+
+| 项目 | 内容 |
+|------|------|
+| **状态** | ✅ 已完成 |
+| **签名** | `TResult setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts)` |
+| **功能** | 把缓冲或纹理的 UAV 绑到 CS 的 `u` 寄存器，调用 `CSSetUnorderedAccessViews`，同时把绑定记到 `mBoundCSUAVs` / `mBoundCSUAVCount` 供 `uavBarrier` 使用 |
+| **参数** | `startSlot` — 起始 UAV 槽；`buffers` — 带 `kGPUUnorderedAccess` 的资源，`nullptr` 表示解绑；`initialCounts` — Append / Counter 缓冲的初始计数，为空或与 `buffers` 等长 |
+| **返回值** | `T3D_OK`，参数不合法返回 `T3D_ERR_INVALID_PARAM` |
+| **实现位置** | T3DD3D11Context.cpp:3569 |
+| **备注** | `initialCounts` 为空时向 D3D11 传 `nullptr` 而不是全 0 数组，否则会把 Append 缓冲的计数清零。纹理 UAV 由 `buildTextureUAView`（:2384）建好：`createPixelBuffer1D/2D/3D` 与 RenderTexture 的颜色附件在 `BindFlags` 含 `D3D11_BIND_UNORDERED_ACCESS` 时都会创建 |
+| **备注** | 槽位上限按 `D3D11_1_UAV_SLOT_COUNT`（64）检查。FL 11.0 设备实际只有 8 个，超出时由 D3D11 debug layer 报错，`RHICapabilities::maxUnorderedAccessSlots` 给的是正确的 8 |
+
+### 13.8 dispatch / dispatchIndirect
+
+| 项目 | 内容 |
+|------|------|
+| **状态** | ✅ 已完成 |
+| **签名** | `TResult dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ)`；`TResult dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset)` |
+| **功能** | 分别调用 `Dispatch` / `DispatchIndirect` |
+| **参数** | `groupCount*` — 三个维度的线程组数量；`argsBuffer` — 带 `kGPUIndirectArgs` 的参数缓冲，`argsOffset` 处存放 `DispatchIndirectArgs` |
+| **返回值** | `T3D_OK`，参数不合法返回 `T3D_ERR_INVALID_PARAM` / `T3D_ERR_INVALID_POINTER` / `T3D_ERR_OUT_OF_BOUND` |
+| **实现位置** | T3DD3D11Context.cpp:3628 / 3657 |
+| **备注** | `dispatch` 拒绝含 0 的组数，并用 `RHICapabilities::maxDispatchGroupCount` 做上限校验。间接版本的参数缓冲由 `validateIndirectArgs`（:3784）统一校验：`kGPUIndirectArgs` 位、偏移 4 字节对齐、`偏移 + 结构体大小` 不越界、RHI 资源已创建 |
+| **备注** | 2026-11-19 修复：`fillCapabilities` 原先把 `maxDispatchGroupCount` 填成 `D3D11_CS_THREAD_GROUP_MAX_X/Y/Z`（1024 / 1024 / 64，这是单组线程数上限），`dispatch(2000, 1, 1)` 这类合法调用会被误拒。现改为 `D3D11_CS_DISPATCH_MAX_THREAD_GROUPS_PER_DIMENSION`（65535）。`maxComputeSharedMemory` 原先用的是临时寄存器池大小，现改为 `D3D11_CS_TGSM_REGISTER_COUNT * 4`（32 KB） |
+
+### 13.9 uavBarrier
+
+| 项目 | 内容 |
+|------|------|
+| **状态** | ✅ 已完成 |
+| **签名** | `TResult uavBarrier(const UnorderedAccessBuffers &buffers)` |
+| **功能** | D3D11 没有显式 UAV 屏障 API，用「解绑再绑回」迫使驱动在两次 dispatch 之间刷写。`buffers` 为空时对全部已绑 CS UAV 槽做一次；否则只处理绑着指定资源的槽位 |
+| **参数** | `buffers` — 需要屏障的资源，空表示全部 |
+| **返回值** | `T3D_OK` |
+| **实现位置** | T3DD3D11Context.cpp:3678 |
+| **备注** | 重新绑回时 `initialCounts` 传 `nullptr`，不会改动 Append / Counter 缓冲的计数 |
+
+### 13.10 copyStructureCount
+
+| 项目 | 内容 |
+|------|------|
+| **状态** | ✅ 已完成 |
+| **签名** | `TResult copyStructureCount(RenderBuffer *dstBuffer, size_t dstOffset, RenderBuffer *srcBuffer)` |
+| **功能** | 调用 `CopyStructureCount`，把 Append / Counter 缓冲的隐藏计数写到目标缓冲的指定偏移，典型用法是把 GPU 剔除结果的数量写进间接绘制参数 |
+| **参数** | `dstBuffer` — 目标缓冲；`dstOffset` — 写入偏移，4 字节对齐；`srcBuffer` — 带隐藏计数的结构化缓冲 |
+| **返回值** | `T3D_OK`，失败返回 `T3D_ERR_INVALID_POINTER` / `T3D_ERR_INVALID_PARAM` / `T3D_ERR_OUT_OF_BOUND` |
+| **实现位置** | T3DD3D11Context.cpp:3727 |
+| **备注** | 主线程先校验：源必须是 `StructuredBuffer` 且 `hasUAVCounter()` 为真，`dstOffset + 4` 不超过目标的 GPU 大小 |
 
 ---
 
@@ -816,14 +899,29 @@
 | **返回值** | `T3D_OK` |
 | **实现位置** | T3DD3D11Context.cpp:3003 |
 
-### 15.4 Instanced Draw（缺失的接口）
+### 15.4 renderIndexedInstanced / renderInstanced
 
 | 项目 | 内容 |
 |------|------|
-| **状态** | ❌ 接口未定义 |
-| **说明** | `RHIContext` 只定义了 `Draw` / `DrawIndexed` 两种绘制方式，没有实例化绘制（`DrawInstanced` / `DrawIndexedInstanced`）和间接绘制（`DrawIndirect`）接口。大批量重复几何体（草、粒子、植被）只能逐个 draw call |
-| **待办** | ⏸ **暂缓**，与 Compute / UAV 合并立项，见 `D3D11-Renderer-Backend-Implementation-Plan.md` §8。Indirect Draw 本身就依赖 UAV / 结构化缓冲，无法先行 |
-| **待办** | 属于 RHI 层接口扩展，需要先在 `RHIContext` 定义再由各后端实现，优先级低于现有 blit / 资源创建的缺口 |
+| **状态** | ✅ 已完成 |
+| **签名** | `TResult renderIndexedInstanced(uint32_t indexCount, uint32_t instanceCount, uint32_t startIndex, int32_t baseVertex, uint32_t startInstance)`；`TResult renderInstanced(uint32_t vertexCount, uint32_t instanceCount, uint32_t startVertex, uint32_t startInstance)` |
+| **功能** | 分别调用 `DrawIndexedInstanced` / `DrawInstanced` |
+| **参数** | `instanceCount` — 实例数；`startInstance` — 起始实例号，加到 `SV_InstanceID` 与逐实例顶点属性的取址上；其余同 `render` |
+| **返回值** | `T3D_OK` |
+| **实现位置** | T3DD3D11Context.cpp:3865 / 3884 |
+| **备注** | `instanceCount == 0` 时直接返回，不入队。D3D11 的 `StartInstanceLocation` 一直可以非零，所以 `supportsBaseInstance` 恒为 true |
+
+### 15.5 renderIndexedIndirect / renderIndirect
+
+| 项目 | 内容 |
+|------|------|
+| **状态** | ✅ 已完成 |
+| **签名** | `TResult renderIndexedIndirect(RenderBuffer *argsBuffer, size_t argsOffset)`；`TResult renderIndirect(RenderBuffer *argsBuffer, size_t argsOffset)` |
+| **功能** | 分别调用 `DrawIndexedInstancedIndirect` / `DrawInstancedIndirect`，绘制参数由 GPU 端缓冲提供 |
+| **参数** | `argsBuffer` — 带 `kGPUIndirectArgs` 的参数缓冲；`argsOffset` — `DrawIndexedIndirectArgs` / `DrawIndirectArgs` 所在偏移 |
+| **返回值** | `T3D_OK`，校验失败返回 `T3D_ERR_INVALID_PARAM` / `T3D_ERR_INVALID_POINTER` / `T3D_ERR_OUT_OF_BOUND` |
+| **实现位置** | T3DD3D11Context.cpp:3902 / 3922 |
+| **备注** | 与 `dispatchIndirect` 共用 `validateIndirectArgs`。lambda 捕获 `RenderBufferPtr`，参数缓冲会一直存活到 RHI 线程真正执行 |
 
 ---
 
@@ -914,7 +1012,8 @@
 | **参数** | `src` — 源渲染缓冲区；`dst` — 目标渲染缓冲区；`srcOffset` — 源缓冲区起始偏移（默认 0）；`size` — 复制数据的大小（默认 0 表示从 srcOffset 起的剩余部分）；`dstOffset` — 目标缓冲区起始偏移（默认 0） |
 | **返回值** | `T3D_OK`，失败返回 `T3D_ERR_D3D11_UNSUPPORTED_OPERATION` / `T3D_ERR_D3D11_INVALID_USAGE` / `T3D_ERR_D3D11_INCOMPATIBLE_COPY` / `T3D_ERR_INVALID_PARAM` |
 | **实现位置** | T3DD3D11Context.cpp:3252 |
-| **备注** | 只接受 VertexBuffer / IndexBuffer / ConstantBuffer，纹理类资源会被拒绝并提示改走 `blit`。边界校验用 `ID3D11Buffer::GetDesc` 拿到的真实 `ByteWidth`，而不是引擎侧 CPU 镜像的大小。线性缓冲的 `D3D11_BOX` 只有 X 方向有意义，其余维度填 0..1 |
+| **备注** | 只接受 VertexBuffer / IndexBuffer / ConstantBuffer / StructuredBuffer，纹理类资源会被拒绝并提示改走 `blit`。边界校验用 `ID3D11Buffer::GetDesc` 拿到的真实 `ByteWidth`，而不是引擎侧 CPU 镜像的大小。线性缓冲的 `D3D11_BOX` 只有 X 方向有意义，其余维度填 0..1 |
+| **备注** | 2026-11-19 起也接受 `StructuredBuffer`（`isLinearBuffer` 补上该类型），可用于结构化 / 原始缓冲之间、或从结构化缓冲拷到间接参数缓冲 |
 
 ### 17.6 writeBuffer
 
@@ -922,10 +1021,24 @@
 |------|------|
 | **状态** | ✅ 已完成 |
 | **签名** | `TResult writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer)` |
-| **功能** | 写 GPU 缓冲区。通过 Map/memcpy/Unmap 将 CPU 端数据写入 GPU 端缓冲区。支持全部 6 种缓冲区类型（VertexBuffer/IndexBuffer/PixelBuffer1D-3D/PixelBufferCubemap/ConstantBuffer），内部深拷贝数据以支持多线程命令队列 |
+| **功能** | 写 GPU 缓冲区。通过 Map/memcpy/Unmap 将 CPU 端数据写入 GPU 端缓冲区。支持 VertexBuffer / IndexBuffer / ConstantBuffer / StructuredBuffer / PixelBuffer1D-3D / PixelBufferCubemap，内部深拷贝数据以支持多线程命令队列 |
 | **参数** | `renderBuffer` — GPU 缓冲区（必须绑定 CPUAccessWrite 且 Usage 为 kDynamic）；`buffer` — CPU 端数据缓冲区；`discardWholeBuffer` — 是否丢弃旧数据（true 时使用 WRITE_DISCARD，false 时使用 WRITE_NO_OVERWRITE） |
 | **返回值** | `T3D_OK`，失败返回 `T3D_ERR_D3D11_INVALID_USAGE` / `T3D_ERR_D3D11_MAP_RESOURCE` |
-| **实现位置** | T3DD3D11Context.cpp:3353 |
+| **实现位置** | T3DD3D11Context.cpp:4923 |
+| **备注** | 2026-11-19 起改用 `getD3DResource` 取底层资源，覆盖包括 `StructuredBuffer` 在内的全部类型；取不到时返回 `T3D_ERR_INVALID_POINTER` 并打日志。原先手写的 switch 没有结构化缓冲分支，会断言后拿空指针去 `Map` |
+
+### 17.7 map / unmap（GPU 读回）
+
+| 项目 | 内容 |
+|------|------|
+| **状态** | ✅ 已完成 |
+| **签名** | `ReadbackHandle map(RenderBuffer *src, size_t offset, size_t size)`；`ReadbackHandle map(RenderBuffer *src, const ReadbackRegion &region)`；`TResult unmap(ReadbackHandle handle, Buffer &dst)` |
+| **功能** | `map` 只在 RHI 线程录制一次「源 → 内部 staging」的拷贝并返回句柄，不阻塞。`unmap` 在需要时同步 RHI 线程，把 staging 按紧凑行距拷进 `dst`，然后把 staging 还回池 |
+| **参数** | 缓冲版本按字节范围读，`size == 0` 表示读到末尾；纹理版本按 `ReadbackRegion`（mip / array slice / 区域）读 |
+| **返回值** | `map` 失败返回无效句柄；`unmap` 返回拷贝录制阶段或回读阶段的错误码，失败时 `dst` 被释放 |
+| **实现位置** | `allocReadbackRequest` :4492；`map` :4556 / :4631；`unmap` :4822；`finishReadback` :4829 |
+| **备注** | 源资源必须在创建时声明 `kCPURead`。这只是引擎的读回许可，资源本身仍是 `DEFAULT` / `IMMUTABLE`，读回走内部 staging 池，不会把活资源变成 `STAGING`。缓冲版本接受 VB / IB / CB / StructuredBuffer，纹理版本接受 1D / 2D / 3D / Cubemap；越界检查用 GPU 侧真实的 `ByteWidth` / 纹理描述，与 `copyBuffer` 口径一致 |
+| **备注** | 调用时机：`map` 在 `Application::onRender` 里调用，`unmap` 在 `onPostRender` 里调用。拷贝命令还没执行就 `unmap` 会返回 `T3D_ERR_FAIL` 并打日志。句柄带 `generation`，已消费或槽位复用后的旧句柄会被拒绝，不会读到别的请求的数据 |
 
 ---
 
@@ -1068,7 +1181,7 @@
 |------|------|------|------|
 | `setupBlitQuad` | ✅ | T3DD3D11Context.cpp:186 | 创建 blit 用的全屏 quad VB / InputLayout / VS / PS / Sampler / Blend / DepthStencil / Rasterizer 状态。VB 用 `D3D11_USAGE_DYNAMIC`，供 `blitRegion` 每次改写 UV |
 | `backupRenderState` | ✅ | T3DD3D11Context.cpp:1005 | 完整备份 6 个着色器阶段的全部管线状态，并解绑残留 SRV/RTV 避免 HAZARD 警告 |
-| `clearDepthStencilView` | ✅ | T3DD3D11Context.cpp:1348 | `clearDepth` / `clearDepthStencil` 共用；外挂的 RenderTexture 优先，没有时退回窗口自带的 DSV |
+| `clearDepthStencilView` | ✅ | T3DD3D11Context.cpp:1348 | `clearDepth` / `clearDepthStencil` / `clearStencil` 共用；外挂的 RenderTexture 优先，没有时退回窗口自带的 DSV |
 | `buildSubresourceData` | ✅ | T3DD3D11Context.cpp:1959 | 把扁平像素数据按 `[arraySlice][mipLevel]` 切分为 D3D11 子资源数组，逐层算 pitch 并做数据量校验 |
 | `buildRenderTextureResources` / `releaseRenderTextureResources` | ✅ | T3DD3D11Context.cpp:521 / 788 | 渲染纹理的资源创建与释放，`createRenderTexture` 与 `resizeRenderTexture` 共用 |
 | `blitRegion` | ✅ | T3DD3D11Context.cpp:3449 | 通过全屏 quad 绘制做区域拷贝，按 `srcOffset` / `srcSize` 改写顶点 UV、按 `dstOffset` / `dstSize` 设 viewport，自动保存与还原周边状态 |
@@ -1077,6 +1190,17 @@
 | `isDirectCopyCompatible` / `doBlit` | ✅ | T3DD3D11Context.cpp:3786 / 3804 | 判断能否用 D3D11 拷贝 API 直传，以及在两个端点间按兼容性选择传输路径 |
 | `getD3DResource` | ✅ | T3DD3D11Context.cpp:3876 | 从 `RenderBuffer` 取出底层 `ID3D11Resource` |
 | `setSamplers` / `setPixelBuffers` / `setConstantBuffers` | ✅ | — | 6 个着色器阶段共用的资源绑定实现，通过成员函数指针分发 |
+
+### 20.7 Compute / 结构化缓冲 / 读回相关的内部辅助
+
+| 函数 | 状态 | 位置 | 说明 |
+|------|------|------|------|
+| `fillCapabilities` | ✅ | T3DD3D11Context.cpp:173 | 按 Feature Level 填 `RHICapabilities`：FL 11.0 起打开 compute / UAV / 结构化缓冲 / 间接绘制与派发 / Append-Consume；实例化、base instance、读回恒为 true；UAV 槽 FL 11.1 为 64、FL 11.0 为 8；派发组数上限 65535，groupshared 上限 32 KB（这两项 2026-11-19 修正，见 §13.8） |
+| `buildBufferViews` | ✅ | T3DD3D11Context.cpp:2284 | 为结构化 / 原始 / 类型化缓冲建 SRV 和 UAV，按 `hasCounter` / `isAppendConsume` 打 `COUNTER` / `APPEND` 标志，`kRaw` 打 `RAW` 标志 |
+| `buildTextureUAView` | ✅ | T3DD3D11Context.cpp:2384 | 为 1D / 2D / 3D 纹理与 RenderTexture 颜色附件建 UAV |
+| `validateIndirectArgs` | ✅ | T3DD3D11Context.cpp:3784 | 三个间接调用共用的参数缓冲校验 |
+| `setStructuredBuffers` | ✅ | T3DD3D11Context.cpp:5617 | VS / PS / CS 共用的 SRV 缓冲绑定 |
+| `allocReadbackRequest` / `finishReadback` | ✅ | T3DD3D11Context.cpp:4492 / 4829 | 读回请求的分配与收尾，staging 按大小 / 格式池化复用 |
 
 ---
 
@@ -1139,15 +1263,17 @@
 
 ## 汇总统计
 
-### RHIContext 接口（含 3 个带默认实现的非纯虚接口，共 78 个）
+### RHIContext 接口（共 97 个：92 个纯虚 + 5 个带默认实现）
 
 | 状态 | 数量 | 接口 |
 |------|------|------|
-| ✅ 已完成 | 71 | 全部核心渲染、资源创建与数据传输接口 |
+| ✅ 已完成 | 90 | 全部核心渲染、资源创建与数据传输接口，以及 Compute / UAV / 结构化缓冲 / 实例化与间接绘制 / GPU 读回 |
 | ⚠️ 部分完成 | 0 | — |
 | ❌ 未实现 | 0 | — |
 | 🔇 按设计为空 | 7 | `beginRender`、`endRender`、`beginPass`、`endPass`、`getNativeContext`、`restoreNativeContext`、`getDepthRemapMatrix` |
 
+> 5 个带默认实现的虚接口是 `getDepthRemapMatrix`、`resizeRenderTexture`、`resizeRenderTarget`、`getNativeContext`、`restoreNativeContext`，D3D11 override 了其中两个 resize。
+>
 > `blit(Texture → *)` 对 Cubemap 只支持直接拷贝、不支持带缩放的全屏四边形路径，这是缺一个 cube 采样 shader，不是接口缺口；不支持的组合都会明确返回错误码并打日志。
 
 ### D3D11Context 专有接口（5 个）
@@ -1168,15 +1294,6 @@
 
 > `setupInternalCBuffers` + 注释版 `setWorldTransform` + `setConstantBuffer` 单缓冲版本已删除，见 §21.1。至此 D3D11 后端已无被注释禁用的代码块。
 
-### RHI 层缺失的接口（非 D3D11 后端问题，⏸ 暂缓）
-
-| 缺口 | 影响 |
-|------|------|
-| Compute `dispatch` + UAV 绑定 | Compute Shader 一整套接口无法真正执行 |
-| Instanced / Indirect Draw | 大批量重复几何体只能逐个 draw call |
-
-> 这两项**不单独排期**，与 UAV、结构化缓冲一起作为完整特性合并立项，范围见 `D3D11-Renderer-Backend-Implementation-Plan.md` §8。
-
 ---
 
 ## 待办优先级
@@ -1189,7 +1306,7 @@
 | **P0 - 修复缺陷** | `createPixelBuffer2D` 的 subresource 数组 | ✅ 改由 `buildSubresourceData` 逐 slice / 逐 mip 构建并做数据量校验，越界读已消除 |
 | **P0 - 修复缺陷** | 窗口自带 DepthStencil | ✅ 恢复创建并统一了 `setRenderTarget` / `clearDepth*` 的回退路径 |
 | **P1 - 核心功能** | 四个 `blit` 重载 + `copyBuffer` | ✅ 统一走 `resolveBlitEndpoint` + `doBlit`，不支持的组合明确报错 |
-| **P1 - 管线** | 相机效果链替换「源 RT 直接 blit 上屏」 | ✅ `ForwardRenderPipeline::runCameraPostprocessing`：无效果走原 blit；有 `CameraEffectBehaviour` 时过效果链再 blit。MSAA 源先 resolve。临时 RT 按 `(width, height, format)` 分桶，blit + `reset` 后还池，`destroy` 清池。见 `Camera-PostProcess-Design-todo.md` B1–B5。**这条管线已合，但 GL4 / GLES3 的 `blit(Tex→Tex)` 与 `ZERO` 语义还没对齐 D3D11，效果链在那两端会被空 resolve / 空拷贝卡住，见该文档 §12** |
+| **P1 - 管线** | 相机效果链替换「源 RT 直接 blit 上屏」 | ✅ `ForwardRenderPipeline::runCameraPostprocessing`：无效果走原 blit；有 `CameraEffectBehaviour` 时过效果链再 blit。MSAA 源先 resolve。临时 RT 按 `(width, height, format)` 分桶，blit + `reset` 后还池，`destroy` 清池。见 `Camera-PostProcess-Design-todo.md` B1–B5。GL4 / GLES3 的 blit 契约现已对齐 D3D11，见该文档 §12 |
 | **P1 - 窗口管理** | `resizeRenderTexture` / `resizeRenderTarget` | ✅ 已实现并提升为 `RHIContext` 虚接口，引擎侧入口为 `RenderTexture::resize` |
 | **P2 - 资源创建** | `createPixelBuffer1D` / `createPixelBuffer3D` | ✅ 已实现，`D3D11PixelBuffer3D` 类与 `D3D11Mapping::get(PixelBuffer3DDesc)` 一并补全 |
 | **P2 - 资源创建** | `createPixelBufferCubemap` 支持 mipmap | ✅ 支持完整 mip 链与 Cubemap Array |
@@ -1198,10 +1315,50 @@
 | **P3 - 架构清理** | 合并两份重复的 `reflectShaderAllBindings` | ✅ 删除 `D3D11Context` 的 override，统一走基类，并补上基类的 COM 泄漏 |
 | **P3 - 代码清理** | `D3D11RenderWindow::init`、`setConstantBuffer` 单缓冲版本、`D3D11Renderer::init` 冗余注释 | ✅ 三处全部删除，`D3D11Renderer::init` 改为检查 `create()` 返回值 |
 | **P3 - 可配置性** | `swapBackBuffer` 的 VSync | ✅ SyncInterval 改由 `RenderWindowDesc::IsVsync` 决定 |
+| **P0 - 修复缺陷** | `D3D11Mapping` 比较函数 / 模板操作 / 寻址模式，`setDepthStencilState` 的 StencilRef | ✅ 2026-11-19 修复，见下文「映射修复记录（2026-11-19）」 |
+| **P1 - RHI 扩展** | Compute 派发 + UAV + 结构化缓冲 | ✅ `createStructuredBuffer`、`set{VS,PS,CS}StructuredBuffers`、`setCSUnorderedAccessBuffers`、`dispatch` / `dispatchIndirect`、`uavBarrier`、`copyStructureCount`，见 §7.10、§13.6–13.10。原先登记的「RHI 层缺 dispatch / UAV 接口」已不存在 |
+| **P1 - RHI 扩展** | 实例化与间接绘制 | ✅ `renderIndexedInstanced` / `renderInstanced` / `renderIndexedIndirect` / `renderIndirect`，见 §15.4–15.5 |
+| **P1 - RHI 扩展** | GPU 读回 | ✅ `map`（缓冲 / 纹理两个重载）+ `unmap`，内部 staging 池，见 §17.7 |
+| **P1 - RHI 扩展** | 能力查询 | ✅ `fillCapabilities` 按 Feature Level 填 `RHICapabilities` |
+| **P2 - 功能补齐** | `clearStencil` | ✅ 只清模板，见 §4.4 |
+| **P1 - 修复缺陷** | `fillCapabilities` 的 `maxDispatchGroupCount` / `maxComputeSharedMemory` | ✅ 2026-11-19 修复。组数上限原先误用单组线程数常量（1024 / 1024 / 64），`dispatch` 会误拒合法的大组数调用；现为 65535。groupshared 上限改为 32 KB。见 §13.8。ComputeApp `K15 large dispatch`（31250 组 + 超限拒绝）D3D11 下通过 |
+| **P1 - 修复缺陷** | `writeBuffer` 支持 `StructuredBuffer` | ✅ 2026-11-19 修复，改用 `getD3DResource`，原先会断言后空指针 `Map`。见 §17.6。ComputeApp `K16 dynamic structured writeBuffer` D3D11 下通过 |
+| **P2 - 功能补齐** | `copyBuffer` 支持 `StructuredBuffer` | ✅ 2026-11-19 补齐。见 §17.5 |
 
 ### 待办
 
 | 优先级 | 接口 | 原因 |
 |--------|------|------|
 | **P2 - 功能补齐** | Cubemap 的带缩放 blit | 全屏四边形路径需要一个 cube 采样 shader，当前只支持整资源/区域直接拷贝 |
-| **⏸ 暂缓** | Compute `dispatch` + UAV、Instanced / Indirect Draw | RHI 层接口缺口，与 UAV、结构化缓冲合并立项，见 Plan §8 |
+
+---
+
+## 映射修复记录（2026-11-19）
+
+在对照 GL4 后端做差距 review（见 `GL4-Renderer-Backend-todo.md` 附录 E）时，发现 D3D11 后端有几处枚举映射与状态传递错误。GL4 / GLES3 对应的映射本来就是正确的，问题只在 D3D11 侧，已直接修复。
+
+### 修复内容
+
+| 位置 | 引擎枚举 / 字段 | 修复前 | 修复后 | 影响 |
+|------|----------------|--------|--------|------|
+| `T3DD3D11Mapping.cpp` `get(CompareFunction)` | `kGreaterEqual` | `D3D11_COMPARISON_NOT_EQUAL` | `D3D11_COMPARISON_GREATER_EQUAL` | 深度测试、模板测试与比较采样器用 `>=` 时结果错误（例如反向 Z 的深度测试） |
+| `T3DD3D11Mapping.cpp` `get(StencilOp)` | `kInc`（饱和 +1） | `D3D11_STENCIL_OP_INVERT` | `D3D11_STENCIL_OP_INCR_SAT` | 原来是按位取反，完全不是自增 |
+| 同上 | `kIncWrap`（回绕 +1） | `D3D11_STENCIL_OP_INCR_SAT` | `D3D11_STENCIL_OP_INCR` | 饱和与回绕写反 |
+| 同上 | `kDec`（饱和 -1） | `D3D11_STENCIL_OP_DECR` | `D3D11_STENCIL_OP_DECR_SAT` | 饱和与回绕写反 |
+| 同上 | `kDecWrap`（回绕 -1） | `D3D11_STENCIL_OP_DECR_SAT` | `D3D11_STENCIL_OP_DECR` | 饱和与回绕写反 |
+| `T3DD3D11Mapping.cpp` `get(TextureAddressMode)` | `kMirrorOnce` | 没有 case，落到默认的 `WRAP` | `D3D11_TEXTURE_ADDRESS_MIRROR_ONCE` | 寻址模式错误 |
+| `T3DD3D11Context.cpp` `setDepthStencilState` | `DepthStencilDesc::StencilRef` | `OMSetDepthStencilState(state, 1)`，写死为 1 | `createDepthStencilState` 把 `StencilRef` 记到 `D3D11DepthStencilState::StencilRef`（`T3DD3D11RenderState.h`），绑定时传入 | 所有依赖 ref 值的模板用法（`kReplace` 写入、`kEqual` 比较）都只能用 1 |
+
+D3D11 中带 `_SAT` 的是饱和版本（到达上下限后保持不变），不带的是回绕版本，与 GL 的 `GL_INCR` / `GL_INCR_WRAP` 命名方向相反，原映射正好写反。
+
+`StencilRef` 在主线程创建状态对象时直接写入，没有放进 RHI 命令队列：它是纯 CPU 数据，`setDepthStencilState` 的 lambda 在 RHI 线程读取时一定已经写好，与 GL4 附录 D.1.2 的处理方式一致。
+
+### 受影响的调用方
+
+- **RmlUi 嵌套裁剪**（`Plugins/RmlUi/Source/T3DRmlRenderInterface.cpp:663`、`742`）：裁剪区域用 `kInc` 逐层递增模板值，再用 `kEqual` + 逐层递增的 ref 做测试。修复前 D3D11 上 `kInc` 是按位取反、ref 又固定为 1，嵌套超过一层的裁剪结果是错的，修复后应与 GL4 一致。
+- **ShaderCrossCompiler**（`Tools/ShaderCrossCompiler/Source/T3DShaderCross.cpp:900-944`）：shaderlab 的 `kFuncGEqual`、`kStencilOpIncrSat`、`kStencilOpDecrSat`、`kStencilOpIncrWrap`、`kStencilOpDecrWrap` 会转换成上述引擎枚举，修复前在 D3D11 上全部生效错误。
+
+### 验证状态
+
+- `D3D11Renderer`（VS2019，Debug x64）编译通过。
+- 尚未跑运行时用例。建议在 D3D11 下目测 RmlUi 示例的嵌套裁剪，并补一个 ComputeApp 图形用例：分别用 `kInc` / `kIncWrap` 在模板值 255 上绘制、用 `kGreaterEqual` 做深度测试，读回验证结果。
