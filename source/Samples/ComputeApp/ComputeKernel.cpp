@@ -126,6 +126,53 @@ ShaderPtr ComputeKernel::attachDummyPass(ShaderVariant *variant, const char *nam
     return shader;
 }
 
+ShaderVariantPtr ComputeKernel::compileGraphics(const char *name, SHADER_STAGE stage,
+    const ComputeShaderSource &source, ShaderPtr &dummyShader)
+{
+    dummyShader = nullptr;
+
+    const char *code = nullptr;
+    size_t codeSize = 0;
+    if (!pickSource(source, code, codeSize))
+    {
+        APP_LOG_DEBUG("[kernel] no embedded source for shader [%s] on this backend !", name);
+        return nullptr;
+    }
+
+    RHIRendererPtr renderer = T3D_AGENT.getActiveRHIRenderer();
+
+    ShaderKeyword keyword;
+    keyword.addKeyword("");
+    keyword.generate();
+
+    ShaderVariantPtr variant = ShaderVariant::create(std::move(keyword), code, codeSize);
+    if (variant == nullptr)
+    {
+        APP_LOG_DEBUG("[kernel] failed to create shader variant for [%s] !", name);
+        return nullptr;
+    }
+
+    variant->setShaderStage(stage);
+    variant->setLanguage(renderer->getShadingLanguage());
+
+    dummyShader = attachDummyPass(variant.get(), name);
+    if (dummyShader == nullptr)
+    {
+        APP_LOG_DEBUG("[kernel] failed to attach dummy pass for [%s] !", name);
+        return nullptr;
+    }
+
+    const TResult ret = variant->compile();
+    if (T3D_FAILED(ret))
+    {
+        APP_LOG_DEBUG("[kernel] failed to compile [%s] ! ERROR [%d]", name, ret);
+        dummyShader = nullptr;
+        return nullptr;
+    }
+
+    return variant;
+}
+
 ComputeKernelPtr ComputeKernel::create(const char *name, const ComputeShaderSource &source,
     uint32_t fallbackGroupX, uint32_t fallbackGroupY, uint32_t fallbackGroupZ)
 {

@@ -933,6 +933,504 @@ namespace
         StructuredBufferPtr mOutput;
         ReadbackHandle      mHandle {};
     };
+
+
+    // ---- 图形回归用例（K11～K13）：验证 GL4 后端行为级修复，判定同样靠 readback ----
+
+    /// 读回像素的粗分类。只用黑 / 白 / 绿三种颜色，RGBA 与 BGRA 两种字节序下结论相同。
+    enum class PixelClass : char { kBlack = 'K', kWhite = 'W', kGreen = 'G', kOther = '?' };
+
+    PixelClass classifyPixel(const uint8_t *p)
+    {
+        auto hi = [](uint8_t v) { return v >= 250; };
+        auto lo = [](uint8_t v) { return v <= 5; };
+        if (hi(p[0]) && hi(p[1]) && hi(p[2])) return PixelClass::kWhite;
+        if (lo(p[0]) && lo(p[1]) && lo(p[2])) return PixelClass::kBlack;
+        if (lo(p[0]) && hi(p[1]) && lo(p[2])) return PixelClass::kGreen;
+        return PixelClass::kOther;
+    }
+
+    /// 纹理读回的行距按 DataSize / height 推算，不假设各后端都紧密排列
+    const uint8_t *pixelAt(const Buffer &data, uint32_t width, uint32_t height, uint32_t x, uint32_t y)
+    {
+        const size_t pitch = data.DataSize / height;
+        if (pitch < size_t(width) * 4)
+        {
+            return nullptr;
+        }
+        return data.Data + y * pitch + x * 4;
+    }
+
+    RenderTexturePtr createColorRT(const char *name, uint32_t width, uint32_t height,
+        PixelFormat format, uint32_t msaaCount, uint32_t cpuAccess)
+    {
+        return T3D_TEXTURE_MGR.createRenderTexture(name, width, height, format,
+            1, msaaCount, 0, false, cpuAccess);
+    }
+
+    // createRenderTexture 建出的 RT 要调用方自己 unload，否则引擎退出时 unloadAllResources 会报 invalid state
+    void releaseColorRT(RenderTexturePtr &tex, RenderTargetPtr &rt)
+    {
+        rt = nullptr;
+        if (tex != nullptr)
+        {
+            T3D_TEXTURE_MGR.unload(tex);
+            tex = nullptr;
+        }
+    }
+
+    ReadbackHandle mapColorRT(RenderTexture *tex)
+    {
+        ReadbackRegion region;
+        region.size = Vector3(Real(tex->getWidth()), Real(tex->getHeight()), Real(1));
+        return T3D_AGENT.getActiveRHIContext()->map(tex->getPixelBuffer(), region);
+    }
+
+    TResult unmapColorRT(RenderTexture *tex, ReadbackHandle &handle, Buffer &data)
+    {
+        TResult ret = tex->getPixelBuffer()->unmap(handle, data);
+        handle = ReadbackHandle::invalid();
+        if (T3D_FAILED(ret))
+        {
+            return ret;
+        }
+        const size_t expected = size_t(tex->getWidth()) * tex->getHeight() * 4;
+        if (data.Data == nullptr || data.DataSize < expected)
+        {
+            data.release();
+            return T3D_ERR_FAIL;
+        }
+        return T3D_OK;
+    }
+
+    /**
+     * \brief 画全屏三角形的最小管线：只读位置的 VS、纯绿与纯白两个 PS，关闭深度测试与剔除
+     * \remarks VS 不用任何矩阵，NDC 直出，所以与 GL 画到 FBO 时的投影 Y 翻转无关。
+     */
+    class FullscreenDraw
+    {
+    public:
+        TResult setup()
+        {
+            mVS = ComputeKernel::compileGraphics("FullscreenVS", SHADER_STAGE::kVertex,
+                fullscreenVSSource(), mDummyVS);
+            mGreenPS = ComputeKernel::compileGraphics("SolidGreenPS", SHADER_STAGE::kPixel,
+                solidGreenPSSource(), mDummyGreen);
+            mWhitePS = ComputeKernel::compileGraphics("SolidWhitePS", SHADER_STAGE::kPixel,
+                solidWhitePSSource(), mDummyWhite);
+            if (mVS == nullptr || mGreenPS == nullptr || mWhitePS == nullptr)
+            {
+                return T3D_ERR_FAIL;
+            }
+
+            VertexAttributes attribs;
+            attribs.push_back(VertexAttribute(0, 0, VertexAttribute::Type::E_VAT_FLOAT3,
+                VertexAttribute::Semantic::E_VAS_POSITION, 0));
+            mDecl = T3D_RENDER_BUFFER_MGR.addVertexDeclaration(attribs, mVS.get());
+
+            // 一个盖住整个 NDC 的大三角形
+            const float verts[9] = { -1.0f, -1.0f, 0.0f,  3.0f, -1.0f, 0.0f,  -1.0f, 3.0f, 0.0f };
+            Buffer vb = allocBytes(sizeof(verts));
+            memcpy(vb.Data, verts, sizeof(verts));
+            mVB = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(sizeof(float) * 3, 3, vb,
+                MemoryType::kBoth, Usage::kImmutable, kCPUNone);
+            vb.release();
+
+            RasterizerDesc raster;
+            raster.CullMode = CullingMode::kNone;
+            mRasterizer = T3D_RENDER_STATE_MGR.loadRasterizerState(raster);
+
+            DepthStencilDesc depth;
+            depth.DepthTestEnable = false;
+            depth.DepthWriteEnable = false;
+            mDepthState = T3D_RENDER_STATE_MGR.loadDepthStencilState(depth);
+
+            BlendDesc blend;
+            mBlendState = T3D_RENDER_STATE_MGR.loadBlendState(blend);
+
+            return (mDecl && mVB && mRasterizer && mDepthState && mBlendState) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        /// 绑定除 VS / PS 之外的全部管线状态。光栅化状态里 scissor 关闭，之后的清屏不受裁剪影响
+        void bindStates(RHIContext *ctx)
+        {
+            ctx->setRasterizerState(mRasterizer.get());
+            ctx->setDepthStencilState(mDepthState.get());
+            ctx->setBlendState(mBlendState.get());
+            ctx->setPrimitiveType(PrimitiveType::kTriangleList);
+            ctx->setVertexDeclaration(mDecl.get());
+
+            VertexBuffers vbs;
+            vbs.push_back(mVB);
+            VertexStrides strides;
+            strides.push_back(sizeof(float) * 3);
+            VertexOffsets offsets;
+            offsets.push_back(0);
+            ctx->setVertexBuffers(0, vbs, strides, offsets);
+        }
+
+        TResult draw(RHIContext *ctx) { return ctx->render(3, 0); }
+
+        ShaderVariant *vs() const { return mVS.get(); }
+        ShaderVariant *greenPS() const { return mGreenPS.get(); }
+        ShaderVariant *whitePS() const { return mWhitePS.get(); }
+
+    private:
+        ShaderVariantPtr        mVS;
+        ShaderVariantPtr        mGreenPS;
+        ShaderVariantPtr        mWhitePS;
+        ShaderPtr               mDummyVS;
+        ShaderPtr               mDummyGreen;
+        ShaderPtr               mDummyWhite;
+        VertexDeclarationPtr    mDecl;
+        VertexBufferPtr         mVB;
+        RasterizerStatePtr      mRasterizer;
+        DepthStencilStatePtr    mDepthState;
+        BlendStatePtr           mBlendState;
+    };
+
+    const Viewport kFullViewport {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
+
+
+    /**
+     * \brief MSAA 源缩放 blit：4x MSAA 的 64x64 白色 RT 整张 blit 到 32x32 的单采样 RT
+     * \remarks GL 规定多重采样读 FBO 的 blit 源 / 目标矩形必须一致，缩放会 GL_INVALID_OPERATION，
+     *          目标保持清屏黑色。修复后后端先 resolve 到同尺寸的 resolve FBO 再缩放（D.3.1）。
+     */
+    class CaseMsaaScaledBlit : public ComputeCase
+    {
+    public:
+        ~CaseMsaaScaledBlit() override
+        {
+            releaseColorRT(mSrc, mSrcRT);
+            releaseColorRT(mDst, mDstRT);
+        }
+
+        static const uint32_t kSrcSize = 64;
+        static const uint32_t kDstSize = 32;
+
+        const char *getName() const override { return "K11 MSAA scaled blit"; }
+        uint32_t getRequiredCaps() const override { return kNeedReadback; }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            mSrc = createColorRT("K11-MSAA-Src", kSrcSize, kSrcSize, PixelFormat::E_PF_R8G8B8A8, 4, kCPUNone);
+            mDst = createColorRT("K11-Dst", kDstSize, kDstSize, PixelFormat::E_PF_R8G8B8A8, 1, kCPURead);
+            if (mSrc == nullptr || mDst == nullptr) return T3D_ERR_FAIL;
+            mSrcRT = RenderTarget::create(mSrc);
+            mDstRT = RenderTarget::create(mDst);
+            return (mSrcRT && mDstRT) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+
+            ctx->setRenderTarget(mDstRT.get());
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+
+            ctx->setRenderTarget(mSrcRT.get());
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::WHITE);
+
+            TResult ret = ctx->blit(mSrcRT.get(), mDstRT.get());
+            if (T3D_SUCCEEDED(ret))
+            {
+                mHandle = mapColorRT(mDst.get());
+                ret = mHandle.isValid() ? T3D_OK : T3D_ERR_FAIL;
+            }
+            ctx->reset();
+            return ret;
+        }
+
+        TResult verify() override
+        {
+            Buffer data;
+            TResult ret = unmapColorRT(mDst.get(), mHandle, data);
+            if (T3D_FAILED(ret)) return ret;
+
+            uint32_t bad = 0;
+            PixelClass firstBad = PixelClass::kWhite;
+            for (uint32_t y = 0; y < kDstSize; ++y)
+            {
+                for (uint32_t x = 0; x < kDstSize; ++x)
+                {
+                    const uint8_t *p = pixelAt(data, kDstSize, kDstSize, x, y);
+                    const PixelClass c = (p != nullptr) ? classifyPixel(p) : PixelClass::kOther;
+                    if (c != PixelClass::kWhite)
+                    {
+                        if (bad == 0) firstBad = c;
+                        ++bad;
+                    }
+                }
+            }
+            data.release();
+
+            if (bad != 0)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : %u / %u pixels not white, first got '%c' "
+                    "('K' means the blit did not happen)", getName(), bad, kDstSize * kDstSize, char(firstBad));
+                return T3D_ERR_FAIL;
+            }
+            return T3D_OK;
+        }
+
+    private:
+        RenderTexturePtr    mSrc;
+        RenderTexturePtr    mDst;
+        RenderTargetPtr     mSrcRT;
+        RenderTargetPtr     mDstRT;
+        ReadbackHandle      mHandle {};
+    };
+
+
+    /**
+     * \brief 着色器设置顺序与 Program 缓存：64x8 的 RT 按 4 条竖带分别绘制
+     * \remarks 竖带 0：先设 PS 再设 VS（绿）。竖带 1：只换 PS（白），走新组合。
+     *          竖带 2：绑回绿色 PS 后 setVertexShader(nullptr) 再重设 VS，PS 必须保留，
+     *          命中竖带 0 的缓存组合（绿）；旧实现会删掉整个 Program，只剩 VS，输出未定义。
+     *          竖带 3：不绘制，保持清屏黑色，确认视口限制了绘制范围。
+     */
+    class CaseShaderBindOrder : public ComputeCase
+    {
+    public:
+        ~CaseShaderBindOrder() override
+        {
+            releaseColorRT(mTex, mRT);
+        }
+
+        static const uint32_t kWidth = 64;
+        static const uint32_t kHeight = 8;
+        static const uint32_t kStripes = 4;
+
+        const char *getName() const override { return "K12 shader bind order"; }
+        uint32_t getRequiredCaps() const override { return kNeedReadback; }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            if (T3D_FAILED(mDraw.setup())) return T3D_ERR_FAIL;
+            mTex = createColorRT("K12-Target", kWidth, kHeight, PixelFormat::E_PF_R8G8B8A8, 1, kCPURead);
+            if (mTex == nullptr) return T3D_ERR_FAIL;
+            mRT = RenderTarget::create(mTex);
+            return mRT != nullptr ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+
+            ctx->setRenderTarget(mRT.get());
+            mDraw.bindStates(ctx);
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+            ctx->beginPass();
+
+            TResult ret = T3D_OK;
+            do
+            {
+                ctx->setPixelShader(mDraw.greenPS());
+                ctx->setVertexShader(mDraw.vs());
+                ctx->setViewport(stripe(0));
+                ret = mDraw.draw(ctx);
+                if (T3D_FAILED(ret)) break;
+
+                ctx->setPixelShader(mDraw.whitePS());
+                ctx->setViewport(stripe(1));
+                ret = mDraw.draw(ctx);
+                if (T3D_FAILED(ret)) break;
+
+                ctx->setPixelShader(mDraw.greenPS());
+                ctx->setVertexShader(nullptr);
+                ctx->setVertexShader(mDraw.vs());
+                ctx->setViewport(stripe(2));
+                ret = mDraw.draw(ctx);
+            } while (false);
+
+            ctx->endPass();
+
+            if (T3D_SUCCEEDED(ret))
+            {
+                mHandle = mapColorRT(mTex.get());
+                ret = mHandle.isValid() ? T3D_OK : T3D_ERR_FAIL;
+            }
+            ctx->reset();
+            return ret;
+        }
+
+        TResult verify() override
+        {
+            Buffer data;
+            TResult ret = unmapColorRT(mTex.get(), mHandle, data);
+            if (T3D_FAILED(ret)) return ret;
+
+            const PixelClass expected[kStripes] =
+            {
+                PixelClass::kGreen, PixelClass::kWhite, PixelClass::kGreen, PixelClass::kBlack
+            };
+            const uint32_t stripeW = kWidth / kStripes;
+
+            uint32_t bad = 0;
+            char got[kStripes + 1] = {};
+            for (uint32_t s = 0; s < kStripes; ++s)
+            {
+                // 只看竖带内部，避开相邻竖带的边界像素
+                const uint32_t x0 = s * stripeW + 2;
+                const uint32_t x1 = (s + 1) * stripeW - 2;
+                got[s] = '?';
+                for (uint32_t y = 0; y < kHeight; ++y)
+                {
+                    for (uint32_t x = x0; x < x1; ++x)
+                    {
+                        const uint8_t *p = pixelAt(data, kWidth, kHeight, x, y);
+                        const PixelClass c = (p != nullptr) ? classifyPixel(p) : PixelClass::kOther;
+                        if (x == x0 && y == 0) got[s] = char(c);
+                        if (c != expected[s]) ++bad;
+                    }
+                }
+            }
+            data.release();
+
+            if (bad != 0)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : stripes got \"%s\" expected \"GWGK\" (%u pixels mismatch)",
+                    getName(), got, bad);
+                return T3D_ERR_FAIL;
+            }
+            return T3D_OK;
+        }
+
+    private:
+        static Viewport stripe(uint32_t index)
+        {
+            const Real w = Real(1) / Real(kStripes);
+            return Viewport {w * Real(index), 0.0f, w, 1.0f, 0.0f, 1.0f};
+        }
+
+        FullscreenDraw      mDraw;
+        RenderTexturePtr    mTex;
+        RenderTargetPtr     mRT;
+        ReadbackHandle      mHandle {};
+    };
+
+
+    /**
+     * \brief 非全屏视口直接画到窗口：视口取左上 1/4，画白色，再把窗口 blit 到 RT 读回
+     * \remarks Viewport::Top 是左上原点的比例，窗口（默认 FBO）是左下原点，GL 需要换算。
+     *          旧实现直接用 Top * height，白块会落到左下角（D.1.3）。
+     *          用例会在窗口上清屏并绘制，自检那一帧画面会闪一下，属正常现象。
+     */
+    class CaseWindowViewport : public ComputeCase
+    {
+    public:
+        ~CaseWindowViewport() override
+        {
+            releaseColorRT(mCapture, mCaptureRT);
+        }
+
+        const char *getName() const override { return "K13 window viewport"; }
+        uint32_t getRequiredCaps() const override { return kNeedReadback; }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            if (T3D_FAILED(mDraw.setup())) return T3D_ERR_FAIL;
+
+            RenderWindowPtr rw = T3D_AGENT.getDefaultRenderWindow();
+            if (rw == nullptr) return T3D_ERR_FAIL;
+            mWindowRT = RenderTarget::create(rw);
+
+            // 与相机离屏 RT 同格式（T3DCamera.cpp 按 32 位色深选 B8G8R8A8），窗口 blit 过来不需要格式转换
+            mWidth = rw->getDescriptor().Width;
+            mHeight = rw->getDescriptor().Height;
+            mCapture = createColorRT("K13-Capture", mWidth, mHeight, PixelFormat::E_PF_B8G8R8A8, 1, kCPURead);
+            if (mWindowRT == nullptr || mCapture == nullptr) return T3D_ERR_FAIL;
+            mCaptureRT = RenderTarget::create(mCapture);
+            return mCaptureRT != nullptr ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+
+            ctx->setRenderTarget(mWindowRT.get());
+            mDraw.bindStates(ctx);
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+            ctx->beginPass();
+
+            ctx->setVertexShader(mDraw.vs());
+            ctx->setPixelShader(mDraw.whitePS());
+            ctx->setViewport(Viewport {0.0f, 0.0f, 0.5f, 0.5f, 0.0f, 1.0f});
+            TResult ret = mDraw.draw(ctx);
+
+            ctx->endPass();
+
+            if (T3D_SUCCEEDED(ret))
+            {
+                ret = ctx->blit(mWindowRT.get(), mCaptureRT.get());
+            }
+            if (T3D_SUCCEEDED(ret))
+            {
+                mHandle = mapColorRT(mCapture.get());
+                ret = mHandle.isValid() ? T3D_OK : T3D_ERR_FAIL;
+            }
+            ctx->reset();
+            return ret;
+        }
+
+        TResult verify() override
+        {
+            Buffer data;
+            TResult ret = unmapColorRT(mCapture.get(), mHandle, data);
+            if (T3D_FAILED(ret)) return ret;
+
+            // 四个象限中心各取一个 3x3 小块；读回纹理 row 0 是画面顶部
+            struct Probe { uint32_t x; uint32_t y; PixelClass expect; const char *name; };
+            const Probe probes[4] =
+            {
+                { mWidth / 4,     mHeight / 4,     PixelClass::kWhite, "top-left"     },
+                { mWidth * 3 / 4, mHeight / 4,     PixelClass::kBlack, "top-right"    },
+                { mWidth / 4,     mHeight * 3 / 4, PixelClass::kBlack, "bottom-left"  },
+                { mWidth * 3 / 4, mHeight * 3 / 4, PixelClass::kBlack, "bottom-right" },
+            };
+
+            uint32_t bad = 0;
+            for (const Probe &probe : probes)
+            {
+                PixelClass got = PixelClass::kOther;
+                bool ok = true;
+                for (uint32_t dy = 0; dy < 3; ++dy)
+                {
+                    for (uint32_t dx = 0; dx < 3; ++dx)
+                    {
+                        const uint8_t *p = pixelAt(data, mWidth, mHeight, probe.x + dx - 1, probe.y + dy - 1);
+                        got = (p != nullptr) ? classifyPixel(p) : PixelClass::kOther;
+                        ok = ok && (got == probe.expect);
+                    }
+                }
+                if (!ok)
+                {
+                    APP_LOG_DEBUG("[%s] FAILED : %s quadrant got '%c' expected '%c'",
+                        getName(), probe.name, char(got), char(probe.expect));
+                    ++bad;
+                }
+            }
+            data.release();
+            return (bad == 0) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+    private:
+        FullscreenDraw      mDraw;
+        RenderTargetPtr     mWindowRT;
+        RenderTexturePtr    mCapture;
+        RenderTargetPtr     mCaptureRT;
+        uint32_t            mWidth {0};
+        uint32_t            mHeight {0};
+        ReadbackHandle      mHandle {};
+    };
 }
 
 
@@ -948,6 +1446,9 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseDispatchIndirect());
     cases.emplace_back(new CaseCopyCount());
     cases.emplace_back(new CaseVertexBufferSRV());
+    cases.emplace_back(new CaseMsaaScaledBlit());
+    cases.emplace_back(new CaseShaderBindOrder());
+    cases.emplace_back(new CaseWindowViewport());
 }
 
 uint32_t currentBackendBit()

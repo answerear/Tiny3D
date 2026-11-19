@@ -44,6 +44,9 @@ ComputeShaderSource particleCullSource();
 ComputeShaderSource particleDrawVSSource();
 ComputeShaderSource particleDrawCpuVSSource();
 ComputeShaderSource particleDrawPSSource();
+ComputeShaderSource fullscreenVSSource();
+ComputeShaderSource solidGreenPSSource();
+ComputeShaderSource solidWhitePSSource();
 
 
 #endif  /*__COMPUTE_SHADER_SOURCES_H__*/

@@ -84,6 +84,17 @@ public:
     static Tiny3D::ShaderPtr attachDummyPass(Tiny3D::ShaderVariant *variant, const char *name);
 
     /**
+     * \brief 按当前 active 后端挑源码，编译一个图形阶段（VS / PS）的独立变体
+     * \param [in] name : 变体名，只用于日志与 dummy Pass 的 shader 名
+     * \param [in] stage : 着色器阶段
+     * \param [in] source : 四语言嵌入源码
+     * \param [out] dummyShader : 挂在变体上的 dummy Shader，调用方必须持有到变体释放
+     * \return 成功返回已编译的变体；挑不到源码或编译失败时返回 nullptr
+     */
+    static Tiny3D::ShaderVariantPtr compileGraphics(const char *name, Tiny3D::SHADER_STAGE stage,
+        const ComputeShaderSource &source, Tiny3D::ShaderPtr &dummyShader);
+
+    /**
      * \brief 把「线程总数」换算成「线程组数」并派发，不足一组向上取整
      * \param [in] threadsX : X 维线程总数
      * \param [in] threadsY : Y 维线程总数

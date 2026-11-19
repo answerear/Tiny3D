@@ -810,3 +810,87 @@ void main()
 )";
     return make(hlsl, gl, gles);
 }
+
+ComputeShaderSource fullscreenVSSource()
+{
+    static const char *hlsl = R"(
+struct VSIn { float3 position : POSITION; };
+struct VertexOutput { float4 position : SV_POSITION; };
+VertexOutput main(VSIn input)
+{
+    VertexOutput o;
+    o.position = float4(input.position, 1.0f);
+    return o;
+}
+)";
+    static const char *gl = R"(
+#version 430
+layout(location = 0) in vec3 inPosition;
+void main()
+{
+    gl_Position = vec4(inPosition, 1.0);
+}
+)";
+    static const char *gles = R"(#version 310 es
+layout(location = 0) in vec3 inPosition;
+void main()
+{
+    gl_Position = vec4(inPosition, 1.0);
+}
+)";
+    return make(hlsl, gl, gles);
+}
+
+ComputeShaderSource solidGreenPSSource()
+{
+    static const char *hlsl = R"(
+float4 main(float4 position : SV_POSITION) : SV_TARGET
+{
+    return float4(0.0f, 1.0f, 0.0f, 1.0f);
+}
+)";
+    static const char *gl = R"(
+#version 430
+out vec4 fragColor;
+void main()
+{
+    fragColor = vec4(0.0, 1.0, 0.0, 1.0);
+}
+)";
+    static const char *gles = R"(#version 310 es
+precision mediump float;
+out vec4 fragColor;
+void main()
+{
+    fragColor = vec4(0.0, 1.0, 0.0, 1.0);
+}
+)";
+    return make(hlsl, gl, gles);
+}
+
+ComputeShaderSource solidWhitePSSource()
+{
+    static const char *hlsl = R"(
+float4 main(float4 position : SV_POSITION) : SV_TARGET
+{
+    return float4(1.0f, 1.0f, 1.0f, 1.0f);
+}
+)";
+    static const char *gl = R"(
+#version 430
+out vec4 fragColor;
+void main()
+{
+    fragColor = vec4(1.0, 1.0, 1.0, 1.0);
+}
+)";
+    static const char *gles = R"(#version 310 es
+precision mediump float;
+out vec4 fragColor;
+void main()
+{
+    fragColor = vec4(1.0, 1.0, 1.0, 1.0);
+}
+)";
+    return make(hlsl, gl, gles);
+}
