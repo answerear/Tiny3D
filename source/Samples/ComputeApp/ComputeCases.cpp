@@ -471,22 +471,40 @@ namespace
     };
 
 
+    /**
+     * \brief compute 把 (x, y, 128, 255) 写进 256x256 的 RGBA8 纹理 UAV 后读回
+     * \remarks renderTexture 为 true 时（K21）纹理改走 createRenderTexture 创建，
+     *          校验 RT 带 kGPUUnorderedAccess 时能作为 UAV（E.1.6）。
+     */
     class CaseTextureWrite : public ComputeCase
     {
     public:
         static const uint32_t kSize = 256;
 
-        const char *getName() const override { return "K5 texture UAV"; }
+        explicit CaseTextureWrite(bool renderTexture = false) : mRenderTexture(renderTexture) {}
+
+        const char *getName() const override { return mRenderTexture ? "K21 render texture UAV" : "K5 texture UAV"; }
         uint32_t getRequiredCaps() const override
         {
             return kNeedCompute | kNeedUnorderedAccess | kNeedReadback;
         }
-        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4 | kBackendGLES3; }
+        uint32_t getBackendMask() const override
+        {
+            return mRenderTexture ? (kBackendD3D11 | kBackendGL4) : (kBackendD3D11 | kBackendGL4 | kBackendGLES3);
+        }
 
         TResult setup() override
         {
             mKernel = ComputeKernel::create("ComputeTextureWrite", textureWriteSource(), 8, 8, 1);
             if (mKernel == nullptr) return T3D_ERR_FAIL;
+
+            if (mRenderTexture)
+            {
+                // PixelBuffer 只保存描述的指针，缓存里的对象可能活得比本用例久，描述用静态存储
+                static PixelBuffer2DDesc sDesc = makeRenderTextureDesc();
+                mTex = T3D_RENDER_BUFFER_MGR.loadRenderTexture(&sDesc, MemoryType::kVRAM, Usage::kStatic, kCPURead);
+                return (mTex != nullptr && mTex->getRHIResource() != nullptr) ? T3D_OK : T3D_ERR_FAIL;
+            }
 
             PixelBuffer2DDesc *desc = T3D_NEW PixelBuffer2DDesc();
             desc->width = kSize;
@@ -555,6 +573,20 @@ namespace
         }
 
     private:
+        static PixelBuffer2DDesc makeRenderTextureDesc()
+        {
+            PixelBuffer2DDesc desc;
+            desc.width = kSize;
+            desc.height = kSize;
+            desc.mipmaps = 1;
+            desc.arraySize = 1;
+            desc.format = PixelFormat::E_PF_R8G8B8A8;
+            desc.gpuAccess = kGPUUnorderedAccess;
+            desc.shaderReadable = true;
+            return desc;
+        }
+
+        bool                mRenderTexture {false};
         ComputeKernelPtr    mKernel;
         PixelBuffer2DPtr    mTex;
         ReadbackHandle      mHandle {};
@@ -2765,6 +2797,7 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseCrossStageTextures());
     cases.emplace_back(new CaseWindowExternalDepth());
     cases.emplace_back(new CaseMsaaTexture());
+    cases.emplace_back(new CaseTextureWrite(true));
 }
 
 uint32_t currentBackendBit()
