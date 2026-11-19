@@ -513,7 +513,7 @@ namespace Tiny3D
             d3dFunc = D3D11_COMPARISON_NOT_EQUAL;
             break;
         case CompareFunction::kGreaterEqual:
-            d3dFunc = D3D11_COMPARISON_NOT_EQUAL;
+            d3dFunc = D3D11_COMPARISON_GREATER_EQUAL;
             break;
         case CompareFunction::kGreater:
             d3dFunc = D3D11_COMPARISON_GREATER;
@@ -541,16 +541,16 @@ namespace Tiny3D
             d3dOp = D3D11_STENCIL_OP_REPLACE;
             break;
         case StencilOp::kInc:   /**< 如果模板值不是最大值就将模板值+1 */
-            d3dOp = D3D11_STENCIL_OP_INVERT;
-            break;
-        case StencilOp::kIncWrap:   /**< 与 INCR 一样将模板值+1，如果模板值已经是最大值则设为0 */
             d3dOp = D3D11_STENCIL_OP_INCR_SAT;
             break;
+        case StencilOp::kIncWrap:   /**< 与 INCR 一样将模板值+1，如果模板值已经是最大值则设为0 */
+            d3dOp = D3D11_STENCIL_OP_INCR;
+            break;
         case StencilOp::kDec:   /**< 如果模板值不是最小值就将模板值-1 */
-            d3dOp = D3D11_STENCIL_OP_DECR;
+            d3dOp = D3D11_STENCIL_OP_DECR_SAT;
             break;
         case StencilOp::kDecWrap:   /**< 与 DECR 一样将模板值-1，如果模板值已经是最小值则设为最大值 */
-            d3dOp = D3D11_STENCIL_OP_DECR_SAT;
+            d3dOp = D3D11_STENCIL_OP_DECR;
             break;
         case StencilOp::kInvert:    /**< 把模板值按位取反 */
             d3dOp = D3D11_STENCIL_OP_INVERT;
@@ -623,6 +623,9 @@ namespace Tiny3D
             break;
         case TextureAddressMode::kBorder:
             d3dMode = D3D11_TEXTURE_ADDRESS_BORDER;
+            break;
+        case TextureAddressMode::kMirrorOnce:
+            d3dMode = D3D11_TEXTURE_ADDRESS_MIRROR_ONCE;
             break;
         }
 

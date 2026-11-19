@@ -71,6 +71,9 @@ namespace Tiny3D
         void *getNativeObject() const override;
         
         ID3D11DepthStencilState *D3DDepthStencilState {nullptr};
+
+        /// D3D11 的 stencil ref 不属于状态对象，绑定时随 OMSetDepthStencilState 传入
+        UINT                    StencilRef {0};
         
     protected:
         D3D11DepthStencilState() = default;

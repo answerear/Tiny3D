@@ -1646,6 +1646,8 @@ namespace Tiny3D
         d3dDesc.BackFace.StencilFailOp = D3D11Mapping::get(desc.BackFace.StencilFailOp);
         d3dDesc.BackFace.StencilPassOp = D3D11Mapping::get(desc.BackFace.StencilPassOp);
 
+        d3dState->StencilRef = desc.StencilRef;
+
         auto lambda = [this](const D3D11_DEPTH_STENCIL_DESC &d3dDesc, const D3D11DepthStencilStatePtr &d3dState)
         {
             TResult ret = T3D_OK;
@@ -1797,7 +1799,7 @@ namespace Tiny3D
     {
         auto lambda = [this](const D3D11DepthStencilStatePtr &d3dState)
         {
-            mD3DDeviceContext->OMSetDepthStencilState(d3dState->D3DDepthStencilState, 1);
+            mD3DDeviceContext->OMSetDepthStencilState(d3dState->D3DDepthStencilState, d3dState->StencilRef);
             return T3D_OK;
         };
         return ENQUEUE_UNIQUE_COMMAND(lambda, smart_pointer_cast<D3D11DepthStencilState>(state->getRHIState()));
