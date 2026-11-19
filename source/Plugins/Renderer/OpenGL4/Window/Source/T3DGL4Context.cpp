@@ -2145,6 +2145,26 @@ namespace Tiny3D
 
     RHIPixelBuffer2DPtr GL4Context::createPixelBuffer2D(PixelBuffer2D *buffer)
     {
+        const auto &srcDesc = buffer->getDescriptor();
+        if (srcDesc.sampleDesc.Count > 1)
+        {
+            if (srcDesc.mipmaps > 1)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "createPixelBuffer2D : MSAA texture cannot have mipmaps [%u] !", srcDesc.mipmaps);
+                return nullptr;
+            }
+            if (buffer->getBuffer().Data != nullptr && buffer->getBuffer().DataSize > 0)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "createPixelBuffer2D : MSAA texture cannot have initial data !");
+                return nullptr;
+            }
+            if ((buffer->getGPUAccess() & kGPUUnorderedAccess) != 0)
+            {
+                T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "createPixelBuffer2D : MSAA texture cannot have "
+                    "unordered access, ignore kGPUUnorderedAccess !");
+            }
+        }
+
         GL4PixelBuffer2DPtr glBuffer = GL4PixelBuffer2D::create();
 
         auto lambda = [this](const GL4PixelBuffer2DPtr &glBuffer, const PixelBuffer2DPtr &buffer)
@@ -2156,6 +2176,7 @@ namespace Tiny3D
                 const auto &desc = buffer->getDescriptor();
                 const uint32_t mipLevels = std::max<uint32_t>(1, desc.mipmaps);
                 const uint32_t arraySize = std::max<uint32_t>(1, desc.arraySize);
+                const uint32_t sampleCount = std::max<uint32_t>(1, desc.sampleDesc.Count);
                 const bool isArray = (arraySize > 1);
                 const GLenum target = isArray ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D;
                 const uint32_t bpp = GL4Mapping::getBytesPerPixel(desc.format);
@@ -2165,6 +2186,42 @@ namespace Tiny3D
                 glBuffer->GLInternalFormat = internalFmt;
                 glBuffer->GLTarget = target;
                 glBuffer->GLHasStencil = GL4Mapping::hasStencil(desc.format);
+
+                if (sampleCount > 1)
+                {
+                    const GLenum msTarget = isArray ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_MULTISAMPLE;
+
+                    // GL_SAMPLES 按降序返回该格式支持的采样数，第一个就是上限
+                    GLint maxSamples = 0;
+                    glGetInternalformativ(msTarget, internalFmt, GL_SAMPLES, 1, &maxSamples);
+                    if (static_cast<GLint>(sampleCount) > maxSamples)
+                    {
+                        T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "createPixelBuffer2D : format [%d] supports at most %d samples, "
+                            "requested %u !", (int32_t)desc.format, maxSamples, sampleCount);
+                        ret = T3D_ERR_INVALID_PARAM;
+                        break;
+                    }
+
+                    glBuffer->GLTarget = msTarget;
+                    glBuffer->GLMSAACount = sampleCount;
+
+                    glGenTextures(1, &glBuffer->GLTexture);
+                    glBindTexture(msTarget, glBuffer->GLTexture);
+                    if (isArray)
+                    {
+                        glTexStorage3DMultisample(msTarget, static_cast<GLsizei>(sampleCount), internalFmt,
+                            desc.width, desc.height, arraySize, GL_TRUE);
+                    }
+                    else
+                    {
+                        glTexStorage2DMultisample(msTarget, static_cast<GLsizei>(sampleCount), internalFmt,
+                            desc.width, desc.height, GL_TRUE);
+                    }
+                    glBindTexture(msTarget, 0);
+
+                    GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createPixelBuffer2D(MSAA)");
+                    break;
+                }
 
                 glGenTextures(1, &glBuffer->GLTexture);
                 glBindTexture(target, glBuffer->GLTexture);
@@ -5140,11 +5197,6 @@ namespace Tiny3D
                                     texHandle = glPB->GLResolveTex;
                                     texTarget = GL_TEXTURE_2D;
                                 }
-                                else if (glPB->GLMSAACount > 1)
-                                {
-                                    texHandle = glPB->GLTexture;
-                                    texTarget = GL_TEXTURE_2D_MULTISAMPLE;
-                                }
                                 else
                                 {
                                     texHandle = glPB->GLTexture;
@@ -5633,6 +5685,7 @@ namespace Tiny3D
                 glBindTexture(GL_TEXTURE_2D, 0);
                 glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
                 glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+                glBindTexture(GL_TEXTURE_2D_MULTISAMPLE_ARRAY, 0);
                 glBindTexture(GL_TEXTURE_3D, 0);
                 glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
                 glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, 0);
@@ -5662,7 +5715,8 @@ namespace Tiny3D
             glFramebufferTexture1D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_1D, ep.texture, 0);
             break;
         case GL_TEXTURE_2D:
-            glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, ep.texture, 0);
+        case GL_TEXTURE_2D_MULTISAMPLE:
+            glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, ep.target, ep.texture, 0);
             break;
         case GL_TEXTURE_CUBE_MAP:
             glFramebufferTexture2D(GL_FRAMEBUFFER, attachment,
@@ -5670,6 +5724,7 @@ namespace Tiny3D
             break;
         case GL_TEXTURE_1D_ARRAY:
         case GL_TEXTURE_2D_ARRAY:
+        case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
         case GL_TEXTURE_3D:
         case GL_TEXTURE_CUBE_MAP_ARRAY:
             glFramebufferTextureLayer(GL_FRAMEBUFFER, attachment, ep.texture, 0, layer);
