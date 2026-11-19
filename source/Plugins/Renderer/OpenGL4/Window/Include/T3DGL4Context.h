@@ -186,9 +186,8 @@ namespace Tiny3D
         void bindPendingUniformBlocks(GLuint program);
         void setupSamplerBindings(GLuint program);
 
-        /// 解开 program 上与 shader 同阶段的旧 shader，避免同一阶段挂两个对象
-        void detachShaderStage(GLuint program, GLuint shader);
-        void detachShaderStageByType(GLuint program, GLenum stageType);
+        /// 链接 program，成功后建立 uniform block 绑定与 sampler 绑定并记录 block 名单
+        TResult linkProgram(GLuint program, const char *tag);
 
         /// 解开所有常用纹理单元上的 texture / sampler，避免同一张纹理既被采样
         /// 又当 FBO 附件，以及上一 pass 留下的 comparison sampler 影响下一 pass。
@@ -278,11 +277,38 @@ namespace Tiny3D
         TResult finishReadback(ReadbackHandle handle, Buffer &dst);
 
     protected:
-        /// 当前激活的 graphics GL Program
+        /// graphics 管线的 shader 阶段下标，同时作为 program 缓存键的分量顺序
+        enum GraphicsStage : uint32_t
+        {
+            kStageVS = 0,
+            kStageHS,
+            kStageDS,
+            kStageGS,
+            kStagePS,
+            kStageCount
+        };
+
+        using GraphicsProgramKey = std::array<GLuint, kStageCount>;
+
+        static uint32_t getGraphicsStageIndex(GLenum stageType);
+
+        /// 当前激活的 graphics GL Program（归 mGraphicsProgramCache 所有，不能单独删除）
         GLuint  mCurrentProgram {0};
-        /// 当前激活的 compute GL Program（与 graphics 分离）
+        /// 当前各阶段 shader 句柄，draw 前据此查找 program
+        GraphicsProgramKey mStageShaders {};
+        /// shader 组合 -> 已链接的 program，链接失败记为 0 以免每帧重复链接。
+        /// 缓存里的 program 从不 detach shader，所以 shader 被删除后句柄名仍被占用，
+        /// 不会被新 shader 复用，句柄可以安全地当作键。
+        TMap<GraphicsProgramKey, GLuint> mGraphicsProgramCache;
+        /// 当前 shader 组合链接失败，draw 直接跳过
+        bool    mProgramLinkFailed {false};
+        /// 当前激活的 compute GL Program（归 mComputeProgramCache 所有）
         GLuint  mCurrentComputeProgram {0};
+        GLuint  mCurrentComputeShader {0};
+        TMap<GLuint, GLuint> mComputeProgramCache;
         bool    mComputeProgramDirty {false};
+        /// program -> 按 block 下标排列的 cbuffer 名（binding point 即下标）
+        TMap<GLuint, TArray<String>> mProgramUBONames;
         /// 当前图元类型
         GLenum  mPrimitiveType {GL_TRIANGLES};
         /// 当前索引类型
@@ -305,7 +331,7 @@ namespace Tiny3D
         /// 所以换 program 或换 UBO 都必须重绑，只有两者都没变才能跳过。
         GLuint   mUBOBoundProgram {0};
         uint32_t mUBOBoundRevision {0};
-        /// program 是否需要重新 link（setVertexShader/setPixelShader 后置 true，link 后置 false）
+        /// shader 组合是否变化（set*Shader 换了句柄后置 true，draw 前查缓存后置 false）
         bool    mProgramDirty {false};
 
         /// 当前是否渲染到 FBO（非 backbuffer），用于 Y 翻转判断

@@ -71,8 +71,19 @@ namespace Tiny3D
 
         makeDummyCurrent();
 
-        GL_SAFE_DELETE_PROGRAM(mCurrentProgram);
-        GL_SAFE_DELETE_PROGRAM(mCurrentComputeProgram);
+        for (auto &pair : mGraphicsProgramCache)
+        {
+            GL_SAFE_DELETE_PROGRAM(pair.second);
+        }
+        mGraphicsProgramCache.clear();
+        for (auto &pair : mComputeProgramCache)
+        {
+            GL_SAFE_DELETE_PROGRAM(pair.second);
+        }
+        mComputeProgramCache.clear();
+        mProgramUBONames.clear();
+        mCurrentProgram = 0;
+        mCurrentComputeProgram = 0;
         GL_SAFE_DELETE_FBO(mScratchReadFBO);
         GL_SAFE_DELETE_FBO(mScratchDrawFBO);
         GL_SAFE_DELETE_FBO(mDepthOnlyFBO);
@@ -725,7 +736,8 @@ namespace Tiny3D
             // 无引擎 RenderTarget 绑定（如 ImGui 子 viewport 渲染到默认 FBO），
             // 将比例值传入 lambda，在 RHI 线程中通过 GL API 查询当前 viewport 尺寸。
             // 这样无论同步还是异步模式都能正确工作。
-            auto lambda = [this](Viewport vp)
+            const bool renderingToFBO = mRenderingToFBO;
+            auto lambda = [this](Viewport vp, bool renderingToFBO)
             {
                 TResult ret = T3D_OK;
                 do
@@ -741,7 +753,9 @@ namespace Tiny3D
                         break;
                     }
                     GLint x = static_cast<GLint>(vp.Left * w);
-                    GLint y = static_cast<GLint>(vp.Top * h);
+                    GLint y = renderingToFBO
+                        ? static_cast<GLint>(vp.Top * h)
+                        : static_cast<GLint>((1 - vp.Top - vp.Height) * h);
                     GLsizei gw = static_cast<GLsizei>(vp.Width * w);
                     GLsizei gh = static_cast<GLsizei>(vp.Height * h);
                     glViewport(x, y, gw, gh);
@@ -750,11 +764,15 @@ namespace Tiny3D
                 } while (false);
                 return ret;
             };
-            return ENQUEUE_UNIQUE_COMMAND(lambda, viewport);
+            return ENQUEUE_UNIQUE_COMMAND(lambda, viewport, renderingToFBO);
         }
 
+        // Viewport::Top 是左上原点的比例。画到 FBO 时投影已翻转 Y，行号与之一致；
+        // 画到窗口（默认 FBO，左下原点）时要换算成 GL 的下边界，与 setScissorRect 保持一致。
         GLint x = static_cast<GLint>(viewport.Left * width);
-        GLint y = static_cast<GLint>(viewport.Top * height);
+        GLint y = mRenderingToFBO
+            ? static_cast<GLint>(viewport.Top * height)
+            : static_cast<GLint>((1 - viewport.Top - viewport.Height) * height);
         GLsizei w = static_cast<GLsizei>(viewport.Width * width);
         GLsizei h = static_cast<GLsizei>(viewport.Height * height);
         const GLdouble minDepth = static_cast<GLdouble>(viewport.MinDepth);
@@ -1027,22 +1045,11 @@ namespace Tiny3D
             dst.colorMask[3] = (src.ColorMask & kWriteMaskAlpha) ? GL_TRUE : GL_FALSE;
         }
 
-        auto lambda = [this](const GL4BlendStatePtr &glState, GL4BlendStateData d)
+        // data 是纯 CPU 数据，set*State 在主线程读取它，必须在主线程写入；
+        // 若入队到 RHI 线程，同帧先创建后使用会读到默认零值。
+        if (glState != nullptr)
         {
-            TResult ret = T3D_OK;
-
-            do
-            {
-                glState->data = d;
-            } while (false);
-
-            return ret;
-        };
-
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glState, d);
-        if (T3D_FAILED(ret))
-        {
-            glState = nullptr;
+            glState->data = d;
         }
 
         return glState;
@@ -1074,22 +1081,9 @@ namespace Tiny3D
         d.backStencilPass = GL4Mapping::get(desc.BackFace.StencilPassOp);
         d.backStencilFunc = GL4Mapping::get(desc.BackFace.StencilFunc);
 
-        auto lambda = [this](const GL4DepthStencilStatePtr &glState, GL4DepthStencilStateData d)
+        if (glState != nullptr)
         {
-            TResult ret = T3D_OK;
-
-            do
-            {
-                glState->data = d;
-            } while (false);
-
-            return ret;
-        };
-
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glState, d);
-        if (T3D_FAILED(ret))
-        {
-            glState = nullptr;
+            glState->data = d;
         }
 
         return glState;
@@ -1115,22 +1109,9 @@ namespace Tiny3D
         d.slopeScaledDepthBias = static_cast<GLfloat>(desc.SlopeScaledDepthBias);
         d.multisampleEnabled = desc.MultisampleEnable;
 
-        auto lambda = [this](const GL4RasterizerStatePtr &glState, GL4RasterizerStateData d)
+        if (glState != nullptr)
         {
-            TResult ret = T3D_OK;
-
-            do
-            {
-                glState->data = d;
-            } while (false);
-
-            return ret;
-        };
-
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, glState, d);
-        if (T3D_FAILED(ret))
-        {
-            glState = nullptr;
+            glState->data = d;
         }
 
         return glState;
@@ -1154,8 +1135,8 @@ namespace Tiny3D
         GLfloat minLOD = desc.MinLOD;
         GLfloat maxLOD = (desc.MaxLOD > 1000.0f) ? 1000.0f : desc.MaxLOD;
         GLfloat borderColor[4] = {
-            desc.BorderColor.blue(), desc.BorderColor.green(),
-            desc.BorderColor.red(), desc.BorderColor.alpha()
+            desc.BorderColor.red(), desc.BorderColor.green(),
+            desc.BorderColor.blue(), desc.BorderColor.alpha()
         };
         bool isComparison = desc.IsComparison;
         GLenum compareFunc = GL4Mapping::get(desc.CompareFunc);
@@ -1391,10 +1372,11 @@ namespace Tiny3D
                 else
                     glDisable(GL_SCISSOR_TEST);
 
+                // DepthClipEnable 为 true 表示做近/远平面裁剪，GL_DEPTH_CLAMP 打开则恰好关掉裁剪
                 if (d.depthClipEnabled)
-                    glEnable(GL_DEPTH_CLAMP);
-                else
                     glDisable(GL_DEPTH_CLAMP);
+                else
+                    glEnable(GL_DEPTH_CLAMP);
 
                 if (d.depthBias != 0.0f || d.slopeScaledDepthBias != 0.0f)
                 {
@@ -2444,48 +2426,7 @@ namespace Tiny3D
 
     TResult GL4Context::setVertexShader(ShaderVariant *shader)
     {
-        if (shader == nullptr)
-        {
-            auto lambda = [this]()
-            {
-                mCurrentVSVariant = nullptr;
-                if (mCurrentProgram != 0)
-                {
-                    GL_SAFE_DELETE_PROGRAM(mCurrentProgram);
-                }
-                mProgramDirty = false;
-                return T3D_OK;
-            };
-            return ENQUEUE_UNIQUE_COMMAND(lambda);
-        }
-
-        auto lambda = [this](const ShaderVariantPtr &variant)
-        {
-            TResult ret = T3D_OK;
-
-            do
-            {
-                mCurrentVSVariant = variant;
-
-                const GLuint shaderHandle = getGLShaderHandle(variant.get());
-
-                // 这里不能删掉重建 program：调用方允许先绑 PS 再绑 VS，
-                // 重建会把已经 attach 的 PS 丢掉，link 出一个只有 VS 的 program，
-                // 几何照常光栅化但 fragment 输出未定义，画面表现为全黑。
-                if (mCurrentProgram == 0)
-                {
-                    mCurrentProgram = glCreateProgram();
-                }
-                detachShaderStage(mCurrentProgram, shaderHandle);
-                glAttachShader(mCurrentProgram, shaderHandle);
-                mProgramDirty = true;
-                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setVertexShader");
-            } while (false);
-
-            return ret;
-        };
-
-        return ENQUEUE_UNIQUE_COMMAND(lambda, ShaderVariantPtr(shader));
+        return attachGraphicsShader(shader, mCurrentVSVariant, GL_VERTEX_SHADER);
     }
 
     //--------------------------------------------------------------------------
@@ -2780,11 +2721,8 @@ namespace Tiny3D
             auto lambda = [this]()
             {
                 mCurrentCSVariant = nullptr;
-                if (mCurrentComputeProgram != 0)
-                {
-                    glUseProgram(0);
-                    GL_SAFE_DELETE_PROGRAM(mCurrentComputeProgram);
-                }
+                mCurrentComputeShader = 0;
+                mCurrentComputeProgram = 0;
                 mComputeProgramDirty = false;
                 return T3D_OK;
             };
@@ -2793,25 +2731,15 @@ namespace Tiny3D
 
         auto lambda = [this](const ShaderVariantPtr &variant)
         {
-            TResult ret = T3D_OK;
+            mCurrentCSVariant = variant;
 
-            do
+            const GLuint shaderHandle = getGLShaderHandle(variant.get());
+            if (shaderHandle != mCurrentComputeShader || mCurrentComputeProgram == 0)
             {
-                mCurrentCSVariant = variant;
-
-                const GLuint shaderHandle = getGLShaderHandle(variant.get());
-
-                if (mCurrentComputeProgram != 0)
-                {
-                    GL_SAFE_DELETE_PROGRAM(mCurrentComputeProgram);
-                }
-                mCurrentComputeProgram = glCreateProgram();
-                glAttachShader(mCurrentComputeProgram, shaderHandle);
+                mCurrentComputeShader = shaderHandle;
                 mComputeProgramDirty = true;
-                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setComputeShader");
-            } while (false);
-
-            return ret;
+            }
+            return T3D_OK;
         };
 
         return ENQUEUE_UNIQUE_COMMAND(lambda, ShaderVariantPtr(shader));
@@ -2855,36 +2783,121 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    uint32_t GL4Context::getGraphicsStageIndex(GLenum stageType)
+    {
+        switch (stageType)
+        {
+        case GL_VERTEX_SHADER:          return kStageVS;
+        case GL_TESS_CONTROL_SHADER:    return kStageHS;
+        case GL_TESS_EVALUATION_SHADER: return kStageDS;
+        case GL_GEOMETRY_SHADER:        return kStageGS;
+        case GL_FRAGMENT_SHADER:        return kStagePS;
+        default:                        return kStageCount;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Context::linkProgram(GLuint program, const char *tag)
+    {
+        glLinkProgram(program);
+
+        GLint linked = 0;
+        glGetProgramiv(program, GL_LINK_STATUS, &linked);
+        if (!linked)
+        {
+            GLint logLen = 0;
+            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLen);
+            if (logLen > 0)
+            {
+                TArray<char> log(logLen + 1, 0);
+                glGetProgramInfoLog(program, logLen, nullptr, log.data());
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "%s program link error: %s", tag, log.data());
+            }
+            return T3D_ERR_GL4_LINK_PROGRAM;
+        }
+
+        // uniform block 绑定和 sampler uniform 都存在 program 对象里，链接后设一次即可
+        GLint numBlocks = 0;
+        glGetProgramiv(program, GL_ACTIVE_UNIFORM_BLOCKS, &numBlocks);
+        TArray<String> &names = mProgramUBONames[program];
+        names.clear();
+        names.reserve(numBlocks);
+        for (GLint i = 0; i < numBlocks; ++i)
+        {
+            char blockName[256] = {};
+            GLsizei nameLen = 0;
+            glGetActiveUniformBlockName(program, i, sizeof(blockName), &nameLen, blockName);
+
+            String cbufferName(blockName);
+            if (StringUtil::startsWith(cbufferName, "type_"))
+            {
+                cbufferName = cbufferName.substr(5);
+            }
+            names.push_back(cbufferName);
+
+            glUniformBlockBinding(program, i, static_cast<GLuint>(i));
+        }
+
+        glUseProgram(program);
+        setupSamplerBindings(program);
+
+        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::linkProgram");
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult GL4Context::ensureProgramLinked()
     {
-        if (mCurrentProgram == 0)
-            return T3D_OK;
-
         if (mProgramDirty)
         {
-            glLinkProgram(mCurrentProgram);
+            mProgramDirty = false;
+            mProgramLinkFailed = false;
+            mCurrentProgram = 0;
 
-            GLint linked = 0;
-            glGetProgramiv(mCurrentProgram, GL_LINK_STATUS, &linked);
-            if (!linked)
+            bool hasShader = false;
+            for (GLuint handle : mStageShaders)
             {
-                GLint logLen = 0;
-                glGetProgramiv(mCurrentProgram, GL_INFO_LOG_LENGTH, &logLen);
-                if (logLen > 0)
-                {
-                    TArray<char> log(logLen + 1, 0);
-                    glGetProgramInfoLog(mCurrentProgram, logLen, nullptr, log.data());
-                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Program link error: %s", log.data());
-                }
-                return T3D_ERR_GL4_LINK_PROGRAM;
+                hasShader = hasShader || (handle != 0);
             }
 
-            mProgramDirty = false;
-            mUBOBoundProgram = 0;
+            if (hasShader)
+            {
+                auto it = mGraphicsProgramCache.find(mStageShaders);
+                if (it != mGraphicsProgramCache.end())
+                {
+                    mCurrentProgram = it->second;
+                    mProgramLinkFailed = (it->second == 0);
+                }
+                else
+                {
+                    GLuint program = glCreateProgram();
+                    for (GLuint handle : mStageShaders)
+                    {
+                        if (handle != 0)
+                        {
+                            glAttachShader(program, handle);
+                        }
+                    }
 
-            glUseProgram(mCurrentProgram);
-            setupSamplerBindings(mCurrentProgram);
+                    if (T3D_FAILED(linkProgram(program, "Graphics")))
+                    {
+                        mProgramUBONames.erase(program);
+                        GL_SAFE_DELETE_PROGRAM(program);
+                        mProgramLinkFailed = true;
+                    }
+                    mGraphicsProgramCache[mStageShaders] = program;
+                    mCurrentProgram = program;
+                }
+            }
         }
+
+        if (mProgramLinkFailed)
+            return T3D_ERR_GL4_LINK_PROGRAM;
+
+        if (mCurrentProgram == 0)
+            return T3D_OK;
 
         // 即使 program 没变也要走一遍：中间若夹了 dispatch，compute program 会把
         // 同一批 UNIFORM_BUFFER binding point 抢走，不重绑就会读到 compute 的 CB。
@@ -2899,38 +2912,37 @@ namespace Tiny3D
 
     TResult GL4Context::ensureComputeProgramLinked()
     {
-        if (mCurrentComputeProgram == 0)
-        {
-            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "ensureComputeProgramLinked: no compute program bound !");
-            return T3D_ERR_GL4_LINK_PROGRAM;
-        }
-
         if (mComputeProgramDirty)
         {
-            glLinkProgram(mCurrentComputeProgram);
-
-            GLint linked = 0;
-            glGetProgramiv(mCurrentComputeProgram, GL_LINK_STATUS, &linked);
-            if (!linked)
-            {
-                GLint logLen = 0;
-                glGetProgramiv(mCurrentComputeProgram, GL_INFO_LOG_LENGTH, &logLen);
-                if (logLen > 0)
-                {
-                    TArray<char> log(logLen + 1, 0);
-                    glGetProgramInfoLog(mCurrentComputeProgram, logLen, nullptr, log.data());
-                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Compute program link error: %s", log.data());
-                }
-                return T3D_ERR_GL4_LINK_PROGRAM;
-            }
-
             mComputeProgramDirty = false;
-            // 重新链接会重置 program 侧的 uniform block 绑定，缓存作废
-            mUBOBoundProgram = 0;
+            mCurrentComputeProgram = 0;
 
-            glUseProgram(mCurrentComputeProgram);
-            // sampler uniform 的值存在 program 对象里，链接后设一次即可
-            setupSamplerBindings(mCurrentComputeProgram);
+            if (mCurrentComputeShader != 0)
+            {
+                auto it = mComputeProgramCache.find(mCurrentComputeShader);
+                if (it != mComputeProgramCache.end())
+                {
+                    mCurrentComputeProgram = it->second;
+                }
+                else
+                {
+                    GLuint program = glCreateProgram();
+                    glAttachShader(program, mCurrentComputeShader);
+                    if (T3D_FAILED(linkProgram(program, "Compute")))
+                    {
+                        mProgramUBONames.erase(program);
+                        GL_SAFE_DELETE_PROGRAM(program);
+                    }
+                    mComputeProgramCache[mCurrentComputeShader] = program;
+                    mCurrentComputeProgram = program;
+                }
+            }
+        }
+
+        if (mCurrentComputeProgram == 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "ensureComputeProgramLinked: no valid compute program bound !");
+            return T3D_ERR_GL4_LINK_PROGRAM;
         }
 
         glUseProgram(mCurrentComputeProgram);
@@ -3600,7 +3612,9 @@ namespace Tiny3D
                 }
                 mBoundCSImages.clear();
 
-                GL_SAFE_DELETE_PROGRAM(mCurrentComputeProgram);
+                // program 归缓存所有，这里只解除当前引用
+                mCurrentComputeProgram = 0;
+                mCurrentComputeShader = 0;
                 mComputeProgramDirty = false;
 
                 glUseProgram(0);
@@ -3610,12 +3624,14 @@ namespace Tiny3D
                 unbindTextureUnits();
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-                GL_SAFE_DELETE_PROGRAM(mCurrentProgram);
+                mCurrentProgram = 0;
+                mStageShaders.fill(0);
                 mPendingUBOs.clear();
                 mPendingUBORevision = 0;
                 mUBOBoundProgram = 0;
                 mUBOBoundRevision = 0;
                 mProgramDirty = false;
+                mProgramLinkFailed = false;
                 mCurrentVAO = 0;
 
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::reset");
@@ -3651,12 +3667,24 @@ namespace Tiny3D
             return ret;
         }
 
-        auto lambda = [this](BlitEndpoint srcEp, BlitEndpoint dstEp, Vector3 srcOffset, Vector3 size, Vector3 dstOffset)
+        // 上面那次解析只做参数校验：GL 句柄由 RHI 线程创建资源时才写入，主线程读到的可能还是 0，
+        // 所以在 RHI 线程里重新解析一次再 blit
+        auto lambda = [this](const RenderTargetPtr &src, const RenderTargetPtr &dst, Vector3 srcOffset, Vector3 size, Vector3 dstOffset)
         {
+            BlitEndpoint srcEp {}, dstEp {};
+            TResult ret = resolveBlitEndpoint(src.get(), true, srcEp);
+            if (T3D_SUCCEEDED(ret))
+            {
+                ret = resolveBlitEndpoint(dst.get(), false, dstEp);
+            }
+            if (T3D_FAILED(ret))
+            {
+                return ret;
+            }
             return doBlit(srcEp, dstEp, srcOffset, size, dstOffset);
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, srcEp, dstEp, srcOffset, size, dstOffset);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, RenderTargetPtr(src), RenderTargetPtr(dst), srcOffset, size, dstOffset);
     }
 
     //--------------------------------------------------------------------------
@@ -3681,12 +3709,24 @@ namespace Tiny3D
             return ret;
         }
 
-        auto lambda = [this](BlitEndpoint srcEp, BlitEndpoint dstEp, Vector3 srcOffset, Vector3 size, Vector3 dstOffset)
+        // 上面那次解析只做参数校验：GL 句柄由 RHI 线程创建资源时才写入，主线程读到的可能还是 0，
+        // 所以在 RHI 线程里重新解析一次再 blit
+        auto lambda = [this](const TexturePtr &src, const RenderTargetPtr &dst, Vector3 srcOffset, Vector3 size, Vector3 dstOffset)
         {
+            BlitEndpoint srcEp {}, dstEp {};
+            TResult ret = resolveBlitEndpoint(src.get(), true, srcEp);
+            if (T3D_SUCCEEDED(ret))
+            {
+                ret = resolveBlitEndpoint(dst.get(), false, dstEp);
+            }
+            if (T3D_FAILED(ret))
+            {
+                return ret;
+            }
             return doBlit(srcEp, dstEp, srcOffset, size, dstOffset);
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, srcEp, dstEp, srcOffset, size, dstOffset);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, TexturePtr(src), RenderTargetPtr(dst), srcOffset, size, dstOffset);
     }
 
     //--------------------------------------------------------------------------
@@ -3711,12 +3751,24 @@ namespace Tiny3D
             return ret;
         }
 
-        auto lambda = [this](BlitEndpoint srcEp, BlitEndpoint dstEp, Vector3 srcOffset, Vector3 size, Vector3 dstOffset)
+        // 上面那次解析只做参数校验：GL 句柄由 RHI 线程创建资源时才写入，主线程读到的可能还是 0，
+        // 所以在 RHI 线程里重新解析一次再 blit
+        auto lambda = [this](const RenderTargetPtr &src, const TexturePtr &dst, Vector3 srcOffset, Vector3 size, Vector3 dstOffset)
         {
+            BlitEndpoint srcEp {}, dstEp {};
+            TResult ret = resolveBlitEndpoint(src.get(), true, srcEp);
+            if (T3D_SUCCEEDED(ret))
+            {
+                ret = resolveBlitEndpoint(dst.get(), false, dstEp);
+            }
+            if (T3D_FAILED(ret))
+            {
+                return ret;
+            }
             return doBlit(srcEp, dstEp, srcOffset, size, dstOffset);
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, srcEp, dstEp, srcOffset, size, dstOffset);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, RenderTargetPtr(src), TexturePtr(dst), srcOffset, size, dstOffset);
     }
 
     //--------------------------------------------------------------------------
@@ -3741,12 +3793,24 @@ namespace Tiny3D
             return ret;
         }
 
-        auto lambda = [this](BlitEndpoint srcEp, BlitEndpoint dstEp, Vector3 srcOffset, Vector3 size, Vector3 dstOffset)
+        // 上面那次解析只做参数校验：GL 句柄由 RHI 线程创建资源时才写入，主线程读到的可能还是 0，
+        // 所以在 RHI 线程里重新解析一次再 blit
+        auto lambda = [this](const TexturePtr &src, const TexturePtr &dst, Vector3 srcOffset, Vector3 size, Vector3 dstOffset)
         {
+            BlitEndpoint srcEp {}, dstEp {};
+            TResult ret = resolveBlitEndpoint(src.get(), true, srcEp);
+            if (T3D_SUCCEEDED(ret))
+            {
+                ret = resolveBlitEndpoint(dst.get(), false, dstEp);
+            }
+            if (T3D_FAILED(ret))
+            {
+                return ret;
+            }
             return doBlit(srcEp, dstEp, srcOffset, size, dstOffset);
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, srcEp, dstEp, srcOffset, size, dstOffset);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, TexturePtr(src), TexturePtr(dst), srcOffset, size, dstOffset);
     }
 
     //--------------------------------------------------------------------------
@@ -3947,12 +4011,15 @@ namespace Tiny3D
                     {
                         if (glPB->GLResolveTex != 0 && glPB->GLFBO != 0 && glPB->GLResolveFBO != 0)
                         {
+                            // map 在 onRender 中间调用，之后还有 draw，必须恢复当前渲染目标
+                            GLint prevFBO = 0;
+                            glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFBO);
                             glBindFramebuffer(GL_READ_FRAMEBUFFER, glPB->GLFBO);
                             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glPB->GLResolveFBO);
                             glBlitFramebuffer(0, 0, (GLint)desc.width, (GLint)desc.height,
                                 0, 0, (GLint)desc.width, (GLint)desc.height,
                                 GL_COLOR_BUFFER_BIT, GL_NEAREST);
-                            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                            glBindFramebuffer(GL_FRAMEBUFFER, static_cast<GLuint>(prevFBO));
                             tex = glPB->GLResolveTex;
                         }
                         else
@@ -4306,7 +4373,7 @@ namespace Tiny3D
                     const bool uploadFullChain = (mipLevels > 1 && ownedBuffer.DataSize >= singleSliceFullChain * arraySize);
                     const uint32_t uploadMips = uploadFullChain ? mipLevels : 1;
 
-                    glBindTexture(glTarget, glTex);
+                    // 用 DSA 上传，不经过 bind 点，避免把当前纹理单元上已绑定的纹理换成 0
                     size_t offset = 0;
 
                     for (uint32_t slice = 0; slice < arraySize; ++slice)
@@ -4325,34 +4392,31 @@ namespace Tiny3D
                             const uint8_t *srcPtr = ownedBuffer.Data + offset;
                             if (glTarget == GL_TEXTURE_1D)
                             {
-                                glTexSubImage1D(GL_TEXTURE_1D, level, 0, mipW, pixelFmt, pixelType, srcPtr);
+                                glTextureSubImage1D(glTex, level, 0, mipW, pixelFmt, pixelType, srcPtr);
                             }
                             else if (glTarget == GL_TEXTURE_1D_ARRAY)
                             {
-                                glTexSubImage2D(GL_TEXTURE_1D_ARRAY, level, 0, slice, mipW, 1, pixelFmt, pixelType, srcPtr);
+                                glTextureSubImage2D(glTex, level, 0, slice, mipW, 1, pixelFmt, pixelType, srcPtr);
                             }
                             else if (glTarget == GL_TEXTURE_2D)
                             {
-                                glTexSubImage2D(GL_TEXTURE_2D, level, 0, 0, mipW, mipH, pixelFmt, pixelType, srcPtr);
+                                glTextureSubImage2D(glTex, level, 0, 0, mipW, mipH, pixelFmt, pixelType, srcPtr);
                             }
-                            else if (glTarget == GL_TEXTURE_2D_ARRAY || glTarget == GL_TEXTURE_CUBE_MAP_ARRAY)
+                            else if (glTarget == GL_TEXTURE_2D_ARRAY || glTarget == GL_TEXTURE_CUBE_MAP_ARRAY
+                                || glTarget == GL_TEXTURE_CUBE_MAP)
                             {
-                                glTexSubImage3D(glTarget, level, 0, 0, slice, mipW, mipH, 1, pixelFmt, pixelType, srcPtr);
+                                // DSA 下 cubemap 的 6 个面按 layer 访问，zoffset 即 face 下标
+                                glTextureSubImage3D(glTex, level, 0, 0, slice, mipW, mipH, 1, pixelFmt, pixelType, srcPtr);
                             }
                             else if (glTarget == GL_TEXTURE_3D)
                             {
-                                glTexSubImage3D(GL_TEXTURE_3D, level, 0, 0, 0, mipW, mipH, mipD, pixelFmt, pixelType, srcPtr);
-                            }
-                            else if (glTarget == GL_TEXTURE_CUBE_MAP)
-                            {
-                                glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + slice, level, 0, 0, mipW, mipH, pixelFmt, pixelType, srcPtr);
+                                glTextureSubImage3D(glTex, level, 0, 0, 0, mipW, mipH, mipD, pixelFmt, pixelType, srcPtr);
                             }
 
                             offset += levelSize;
                         }
                     }
 
-                    glBindTexture(glTarget, 0);
                     GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::writeBuffer(texture)");
                 }
 
@@ -4416,9 +4480,7 @@ namespace Tiny3D
                         GL4StructuredBuffer *glSB = static_cast<GL4StructuredBuffer*>(rhiResPtr.get());
                         if (glSB->Kind == StructuredBufferKind::kTyped && glSB->GLTextureBuffer != 0)
                         {
-                            glBindTexture(GL_TEXTURE_BUFFER, glSB->GLTextureBuffer);
-                            glTexBuffer(GL_TEXTURE_BUFFER, glSB->GLInternalFormat, glSB->GLBuffer);
-                            glBindTexture(GL_TEXTURE_BUFFER, 0);
+                            glTextureBuffer(glSB->GLTextureBuffer, glSB->GLInternalFormat, glSB->GLBuffer);
                         }
                     }
                 }
@@ -4483,34 +4545,26 @@ namespace Tiny3D
         mUBOBoundProgram = program;
         mUBOBoundRevision = mPendingUBORevision;
 
-        GLint numBlocks = 0;
-        glGetProgramiv(program, GL_ACTIVE_UNIFORM_BLOCKS, &numBlocks);
-
-        for (GLint i = 0; i < numBlocks; ++i)
+        auto itNames = mProgramUBONames.find(program);
+        if (itNames == mProgramUBONames.end())
         {
-            char blockName[256] = {};
-            GLsizei nameLen = 0;
-            glGetActiveUniformBlockName(program, i, sizeof(blockName), &nameLen, blockName);
+            return;
+        }
 
-            String cbufferName(blockName);
-            if (StringUtil::startsWith(cbufferName, "type_"))
-            {
-                cbufferName = cbufferName.substr(5);
-            }
-
-            GLuint bindingPoint = static_cast<GLuint>(i);
-            glUniformBlockBinding(program, i, bindingPoint);
-
+        // block i 在 linkProgram 里已经固定绑到 binding point i
+        const TArray<String> &names = itNames->second;
+        for (size_t i = 0; i < names.size(); ++i)
+        {
+            const String &cbufferName = names[i];
             auto it = mPendingUBOs.find(cbufferName);
             if (it != mPendingUBOs.end())
             {
-                glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, it->second);
+                glBindBufferBase(GL_UNIFORM_BUFFER, static_cast<GLuint>(i), it->second);
             }
             else
             {
                 T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
-                    "No pending UBO for uniform block '%s' (cbuffer name '%s')",
-                    blockName, cbufferName.c_str());
+                    "No pending UBO for cbuffer '%s'", cbufferName.c_str());
             }
         }
 
@@ -4852,103 +4906,24 @@ namespace Tiny3D
     TResult GL4Context::attachGraphicsShader(ShaderVariant *shader, ShaderVariantPtr &currentVariant, GLenum stageType)
     {
         ShaderVariantPtr *slot = &currentVariant;
+        const uint32_t stage = getGraphicsStageIndex(stageType);
 
-        if (shader == nullptr)
+        // 只记录各阶段的 shader 句柄，program 推迟到 draw 时按组合查缓存，
+        // 这样调用方可以按任意顺序设置各阶段（比如先 PS 后 VS）
+        auto lambda = [this, stage](const ShaderVariantPtr &variant, ShaderVariantPtr *slot)
         {
-            auto lambda = [this, slot, stageType]()
+            *slot = variant;
+
+            const GLuint shaderHandle = getGLShaderHandle(variant.get());
+            if (stage < kStageCount && mStageShaders[stage] != shaderHandle)
             {
-                *slot = nullptr;
-                if (mCurrentProgram != 0)
-                {
-                    detachShaderStageByType(mCurrentProgram, stageType);
-                    mProgramDirty = true;
-                    GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::attachGraphicsShader(detach)");
-                }
-                return T3D_OK;
-            };
-            return ENQUEUE_UNIQUE_COMMAND(lambda);
-        }
-
-        auto lambda = [this, stageType](const ShaderVariantPtr &variant, ShaderVariantPtr *slot)
-        {
-            TResult ret = T3D_OK;
-
-            do
-            {
-                *slot = variant;
-
-                const GLuint shaderHandle = getGLShaderHandle(variant.get());
-                if (shaderHandle == 0)
-                {
-                    if (mCurrentProgram != 0)
-                    {
-                        detachShaderStageByType(mCurrentProgram, stageType);
-                        mProgramDirty = true;
-                    }
-                    break;
-                }
-
-                if (mCurrentProgram == 0)
-                {
-                    mCurrentProgram = glCreateProgram();
-                }
-                detachShaderStage(mCurrentProgram, shaderHandle);
-                glAttachShader(mCurrentProgram, shaderHandle);
+                mStageShaders[stage] = shaderHandle;
                 mProgramDirty = true;
-                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::attachGraphicsShader");
-            } while (false);
-
-            return ret;
+            }
+            return T3D_OK;
         };
 
         return ENQUEUE_UNIQUE_COMMAND(lambda, ShaderVariantPtr(shader), slot);
-    }
-
-    //--------------------------------------------------------------------------
-
-    void GL4Context::detachShaderStage(GLuint program, GLuint shader)
-    {
-        // program 对象跨材质复用，同一个阶段挂上第二个 shader 会被 GL 以
-        // GL_INVALID_OPERATION 拒掉，链接时用的还是上一个，画面自然不对。
-        // 切材质（比如从场景着色器切到后处理着色器）每帧都会走到这里。
-        GLint stage = 0;
-        glGetShaderiv(shader, GL_SHADER_TYPE, &stage);
-        detachShaderStageByType(program, static_cast<GLenum>(stage));
-    }
-
-    //--------------------------------------------------------------------------
-
-    void GL4Context::detachShaderStageByType(GLuint program, GLenum stageType)
-    {
-        if (program == 0 || stageType == 0)
-        {
-            return;
-        }
-
-        GLint count = 0;
-        glGetProgramiv(program, GL_ATTACHED_SHADERS, &count);
-        if (count <= 0)
-        {
-            return;
-        }
-
-        TArray<GLuint> attached(count, 0);
-        glGetAttachedShaders(program, count, nullptr, attached.data());
-
-        for (GLuint attachedShader : attached)
-        {
-            if (attachedShader == 0)
-            {
-                continue;
-            }
-
-            GLint attachedStage = 0;
-            glGetShaderiv(attachedShader, GL_SHADER_TYPE, &attachedStage);
-            if (static_cast<GLenum>(attachedStage) == stageType)
-            {
-                glDetachShader(program, attachedShader);
-            }
-        }
     }
 
     //--------------------------------------------------------------------------
@@ -5410,12 +5385,6 @@ namespace Tiny3D
             GLuint readFBO = src.fbo;
             GLuint drawFBO = dst.fbo;
 
-            // MSAA 源直接 resolve 到目标，不要先写入 GLResolveTex 再拷一次。
-            if (src.sampleCount > 1 && src.fbo != 0)
-            {
-                readFBO = src.fbo;
-            }
-
             if (src.needsScratchFbo)
             {
                 if (mScratchReadFBO == 0)
@@ -5475,7 +5444,26 @@ namespace Tiny3D
             }
 
             const bool isScaled = (copySrcW != copyDstW || copySrcH != copyDstH);
-            const GLenum filter = (!src.isDepth && src.sampleCount == 1 && dst.sampleCount == 1 && isScaled)
+
+            // MSAA 源一般直接 resolve 到目标；但 GL 要求此时源/目标矩形完全一致、格式相同，
+            // 缩放或与窗口之间的 Y 翻转都会 GL_INVALID_OPERATION。这种情况先整张 resolve
+            // 到 GLResolveFBO，再把它当单采样源走普通 blit。
+            uint32_t srcSampleCount = src.sampleCount;
+            if (src.sampleCount > 1 && !src.isDepth && src.fbo != 0 && src.resolveFbo != 0
+                && (isScaled || dst.isWindow || src.internalFormat != dst.internalFormat))
+            {
+                glBindFramebuffer(GL_READ_FRAMEBUFFER, src.fbo);
+                glReadBuffer(GL_COLOR_ATTACHMENT0);
+                glBindFramebuffer(GL_DRAW_FRAMEBUFFER, src.resolveFbo);
+                glDrawBuffer(GL_COLOR_ATTACHMENT0);
+                glBlitFramebuffer(0, 0, static_cast<GLint>(src.width), static_cast<GLint>(src.height),
+                    0, 0, static_cast<GLint>(src.width), static_cast<GLint>(src.height),
+                    GL_COLOR_BUFFER_BIT, GL_NEAREST);
+                readFBO = src.resolveFbo;
+                srcSampleCount = 1;
+            }
+
+            const GLenum filter = (!src.isDepth && srcSampleCount == 1 && dst.sampleCount == 1 && isScaled)
                 ? GL_LINEAR
                 : GL_NEAREST;
 
