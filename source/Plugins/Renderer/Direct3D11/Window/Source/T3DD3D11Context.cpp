@@ -2696,6 +2696,21 @@ namespace Tiny3D
 
         const uint32_t mipLevels = std::max<uint32_t>(1, desc.mipmaps);
         const uint32_t arraySize = std::max<uint32_t>(1, desc.arraySize);
+        const uint32_t sampleCount = std::max<uint32_t>(1, desc.sampleDesc.Count);
+
+        if (sampleCount > 1)
+        {
+            if (mipLevels > 1)
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "createPixelBuffer2D : MSAA texture cannot have mipmaps [%u] !", mipLevels);
+                return nullptr;
+            }
+            if (desc.buffer.Data != nullptr && desc.buffer.DataSize > 0)
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "createPixelBuffer2D : MSAA texture cannot have initial data !");
+                return nullptr;
+            }
+        }
 
         TArray<D3D11_SUBRESOURCE_DATA> subresources;
         if (T3D_FAILED(buildSubresourceData(desc.buffer.Data, desc.buffer.DataSize, desc.format, desc.width, desc.height, 1, mipLevels, arraySize, subresources)))
@@ -2717,7 +2732,7 @@ namespace Tiny3D
         D3D11_TEXTURE2D_DESC d3dDesc = D3D11Mapping::get(desc);
         d3dDesc.MipLevels = mipLevels;
         d3dDesc.ArraySize = arraySize;
-        d3dDesc.SampleDesc.Count = std::max<uint32_t>(1, desc.sampleDesc.Count);
+        d3dDesc.SampleDesc.Count = sampleCount;
         d3dDesc.Usage = d3dUsage;
         d3dDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
         d3dDesc.CPUAccessFlags = d3dAccess;
@@ -2737,7 +2752,17 @@ namespace Tiny3D
         D3D11_SHADER_RESOURCE_VIEW_DESC d3dSRVDesc;
         memset(&d3dSRVDesc, 0, sizeof(d3dSRVDesc));
         d3dSRVDesc.Format = d3dDesc.Format;
-        if (arraySize > 1)
+        if (sampleCount > 1 && arraySize > 1)
+        {
+            d3dSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY;
+            d3dSRVDesc.Texture2DMSArray.FirstArraySlice = 0;
+            d3dSRVDesc.Texture2DMSArray.ArraySize = arraySize;
+        }
+        else if (sampleCount > 1)
+        {
+            d3dSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
+        }
+        else if (arraySize > 1)
         {
             d3dSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
             d3dSRVDesc.Texture2DArray.MostDetailedMip = 0;
