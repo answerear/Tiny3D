@@ -162,10 +162,20 @@ ShaderVariantPtr ComputeKernel::compileGraphics(const char *name, SHADER_STAGE s
         return nullptr;
     }
 
-    const TResult ret = variant->compile();
+    TResult ret = variant->compile();
     if (T3D_FAILED(ret))
     {
         APP_LOG_DEBUG("[kernel] failed to compile [%s] ! ERROR [%d]", name, ret);
+        dummyShader = nullptr;
+        return nullptr;
+    }
+
+    // GL 后端按反射出的纹理名与阶段内 slot 给 sampler uniform 分配纹理单元，
+    // 不反射就只能按 uniform 顺序回退分配，VS 的采样器会落到 PS 的单元上
+    ret = variant->reflect();
+    if (T3D_FAILED(ret))
+    {
+        APP_LOG_DEBUG("[kernel] failed to reflect [%s] ! ERROR [%d]", name, ret);
         dummyShader = nullptr;
         return nullptr;
     }

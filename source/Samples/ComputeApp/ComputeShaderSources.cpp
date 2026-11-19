@@ -989,10 +989,10 @@ ComputeShaderSource sampleOutsidePSSource()
     // UV 落在 [0,1] 之外，Border 寻址下只会取到 BorderColor
     static const char *hlsl = R"(
 Texture2D srcTex : register(t0);
-SamplerState srcSampler : register(s0);
+SamplerState samplersrcTex : register(s0);
 float4 main(float4 position : SV_POSITION) : SV_TARGET
 {
-    return srcTex.SampleLevel(srcSampler, float2(1.5f, 1.5f), 0.0f);
+    return srcTex.SampleLevel(samplersrcTex, float2(1.5f, 1.5f), 0.0f);
 }
 )";
     static const char *gl = R"(
@@ -1020,10 +1020,10 @@ ComputeShaderSource sampleCenterPSSource()
 {
     static const char *hlsl = R"(
 Texture2D srcTex : register(t0);
-SamplerState srcSampler : register(s0);
+SamplerState samplersrcTex : register(s0);
 float4 main(float4 position : SV_POSITION) : SV_TARGET
 {
-    return srcTex.SampleLevel(srcSampler, float2(0.5f, 0.5f), 0.0f);
+    return srcTex.SampleLevel(samplersrcTex, float2(0.5f, 0.5f), 0.0f);
 }
 )";
     static const char *gl = R"(
