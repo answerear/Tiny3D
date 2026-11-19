@@ -192,13 +192,15 @@ namespace Tiny3D
 
         if (hasFullCompute)
         {
-            mCapabilities.maxDispatchGroupCount[0] = D3D11_CS_THREAD_GROUP_MAX_X;
-            mCapabilities.maxDispatchGroupCount[1] = D3D11_CS_THREAD_GROUP_MAX_Y;
-            mCapabilities.maxDispatchGroupCount[2] = D3D11_CS_THREAD_GROUP_MAX_Z;
+            // 派发组数与单组线程数是两套上限，THREAD_GROUP_MAX_* 只约束后者
+            mCapabilities.maxDispatchGroupCount[0] = D3D11_CS_DISPATCH_MAX_THREAD_GROUPS_PER_DIMENSION;
+            mCapabilities.maxDispatchGroupCount[1] = D3D11_CS_DISPATCH_MAX_THREAD_GROUPS_PER_DIMENSION;
+            mCapabilities.maxDispatchGroupCount[2] = D3D11_CS_DISPATCH_MAX_THREAD_GROUPS_PER_DIMENSION;
             mCapabilities.maxComputeGroupSize[0] = D3D11_CS_THREAD_GROUP_MAX_X;
             mCapabilities.maxComputeGroupSize[1] = D3D11_CS_THREAD_GROUP_MAX_Y;
             mCapabilities.maxComputeGroupSize[2] = D3D11_CS_THREAD_GROUP_MAX_Z;
-            mCapabilities.maxComputeSharedMemory = D3D11_CS_THREAD_LOCAL_TEMP_REGISTER_POOL;
+            // TGSM 按 32 位寄存器计数，换算成字节
+            mCapabilities.maxComputeSharedMemory = D3D11_CS_TGSM_REGISTER_COUNT * sizeof(uint32_t);
             // D3D11.0 只有 8 个 UAV 槽，D3D11.1 才放宽到 64
             mCapabilities.maxUnorderedAccessSlots = (mFeatureLevel >= D3D_FEATURE_LEVEL_11_1)
                 ? D3D11_1_UAV_SLOT_COUNT : D3D11_PS_CS_UAV_REGISTER_COUNT;
