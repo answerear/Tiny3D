@@ -779,6 +779,14 @@ namespace Tiny3D
             glPixelBuffer->GLHasStencil = hasStencil;
             glPixelBuffer->GLAttachedColorCount = 1;
 
+            bool wantsUAV = (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0;
+            if (wantsUAV && (!isColorRT || msaaCount > 1))
+            {
+                T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "%s render texture cannot have "
+                    "unordered access, ignore kGPUUnorderedAccess !", isColorRT ? "MSAA" : "Depth");
+                wantsUAV = false;
+            }
+
             if (isColorRT)
             {
                 if (msaaCount > 1)
@@ -840,8 +848,16 @@ namespace Tiny3D
                 {
                     glGenTextures(1, &glPixelBuffer->GLTexture);
                     glBindTexture(GL_TEXTURE_2D, glPixelBuffer->GLTexture);
-                    glTexImage2D(GL_TEXTURE_2D, 0, internalFmt,
-                        width, height, 0, pixelFmt, pixelType, nullptr);
+                    if (wantsUAV)
+                    {
+                        // 与 createPixelBuffer2D 的 UAV 分支一致，用不可变存储供 glBindImageTexture 使用
+                        glTexStorage2D(GL_TEXTURE_2D, 1, internalFmt, width, height);
+                    }
+                    else
+                    {
+                        glTexImage2D(GL_TEXTURE_2D, 0, internalFmt,
+                            width, height, 0, pixelFmt, pixelType, nullptr);
+                    }
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                     // RT 只有 mip 0，不封顶的话 MIPMAP 类过滤会因 mip 链不完整恒采到黑
@@ -3775,6 +3791,8 @@ namespace Tiny3D
             glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT
                 | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT
                 | GL_TEXTURE_FETCH_BARRIER_BIT
+                | GL_TEXTURE_UPDATE_BARRIER_BIT
+                | GL_FRAMEBUFFER_BARRIER_BIT
                 | GL_ATOMIC_COUNTER_BARRIER_BIT
                 | GL_COMMAND_BARRIER_BIT
                 | GL_BUFFER_UPDATE_BARRIER_BIT
