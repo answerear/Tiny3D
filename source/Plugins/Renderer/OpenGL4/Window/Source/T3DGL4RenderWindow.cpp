@@ -352,6 +352,43 @@ namespace Tiny3D
                 }
             }
 
+            // 垂直同步：交换间隔作用于当前上下文绑定的窗口，扩展不存在时保持驱动默认
+            {
+                const int interval = desc.IsVsync ? 1 : 0;
+                bool vsyncApplied = false;
+#if defined(T3D_OS_WINDOWS)
+                typedef BOOL (WINAPI *PFN_wglSwapIntervalEXT)(int);
+                auto wglSwapInterval = (PFN_wglSwapIntervalEXT)wglGetProcAddress("wglSwapIntervalEXT");
+                if (wglSwapInterval != nullptr)
+                {
+                    vsyncApplied = (wglSwapInterval(interval) != FALSE);
+                }
+#elif defined(T3D_OS_LINUX)
+                typedef void (*PFN_glXSwapIntervalEXT)(Display *, GLXDrawable, int);
+                typedef int (*PFN_glXSwapIntervalMESA)(unsigned int);
+                auto glXSwapIntervalExt = (PFN_glXSwapIntervalEXT)glXGetProcAddress(
+                    (const GLubyte *)"glXSwapIntervalEXT");
+                if (glXSwapIntervalExt != nullptr)
+                {
+                    glXSwapIntervalExt(GLDisplay, GLWindow, interval);
+                    vsyncApplied = true;
+                }
+                else
+                {
+                    auto glXSwapIntervalMesa = (PFN_glXSwapIntervalMESA)glXGetProcAddress(
+                        (const GLubyte *)"glXSwapIntervalMESA");
+                    if (glXSwapIntervalMesa != nullptr)
+                    {
+                        vsyncApplied = (glXSwapIntervalMesa((unsigned int)interval) == 0);
+                    }
+                }
+#endif
+                if (!vsyncApplied)
+                {
+                    T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "Swap interval extension unavailable, vsync setting (%d) ignored.", interval);
+                }
+            }
+
             T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "GL4RenderWindow created: %ux%u", mWidth, mHeight);
 
             // 默认帧缓冲
