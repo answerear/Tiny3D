@@ -233,8 +233,9 @@ namespace Tiny3D
         case PixelFormat::E_PF_D24_UNORM_S8_UINT:
             return GL_UNSIGNED_INT_24_8;
         case PixelFormat::E_PF_D32_FLOAT:
-        case PixelFormat::E_PF_D32_FLOAT_S8X24_UINT:
             return GL_FLOAT;
+        case PixelFormat::E_PF_D32_FLOAT_S8X24_UINT:
+            return GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
         case PixelFormat::E_PF_D16_UNORM:
             return GL_UNSIGNED_SHORT;
         default: break;
