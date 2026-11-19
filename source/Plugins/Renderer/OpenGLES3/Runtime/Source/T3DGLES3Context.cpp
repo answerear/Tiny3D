@@ -813,7 +813,8 @@ namespace Tiny3D
         }
         else
         {
-            auto lambda = [this](Viewport vp)
+            const bool renderingToFBO = mRenderingToFBO;
+            auto lambda = [this](Viewport vp, bool renderingToFBO)
             {
                 TResult ret = T3D_OK;
                 do
@@ -829,7 +830,9 @@ namespace Tiny3D
                         break;
                     }
                     GLint x = static_cast<GLint>(vp.Left * w);
-                    GLint y = static_cast<GLint>(vp.Top * h);
+                    GLint y = renderingToFBO
+                        ? static_cast<GLint>(vp.Top * h)
+                        : static_cast<GLint>((1 - vp.Top - vp.Height) * h);
                     GLsizei gw = static_cast<GLsizei>(vp.Width * w);
                     GLsizei gh = static_cast<GLsizei>(vp.Height * h);
                     glViewport(x, y, gw, gh);
@@ -837,11 +840,15 @@ namespace Tiny3D
                 } while (false);
                 return ret;
             };
-            return ENQUEUE_UNIQUE_COMMAND(lambda, viewport);
+            return ENQUEUE_UNIQUE_COMMAND(lambda, viewport, renderingToFBO);
         }
 
+        // Viewport::Top 是左上原点的比例。画到 FBO 时投影已翻转 Y，行号与之一致；
+        // 画到窗口（默认 FBO，左下原点）时要换算成 GL 的下边界，与 setScissorRect 保持一致。
         GLint x = static_cast<GLint>(viewport.Left * width);
-        GLint y = static_cast<GLint>(viewport.Top * height);
+        GLint y = mRenderingToFBO
+            ? static_cast<GLint>(viewport.Top * height)
+            : static_cast<GLint>((1 - viewport.Top - viewport.Height) * height);
         GLsizei w = static_cast<GLsizei>(viewport.Width * width);
         GLsizei h = static_cast<GLsizei>(viewport.Height * height);
 
@@ -3394,12 +3401,24 @@ namespace Tiny3D
             return ret;
         }
 
-        auto lambda = [this](BlitEndpoint srcEp, BlitEndpoint dstEp, Vector3 srcOffset, Vector3 size, Vector3 dstOffset)
+        // 上面那次解析只做参数校验：GL 句柄由 RHI 线程创建资源时才写入，主线程读到的可能还是 0，
+        // 所以在 RHI 线程里重新解析一次再 blit
+        auto lambda = [this](const RenderTargetPtr &src, const RenderTargetPtr &dst, Vector3 srcOffset, Vector3 size, Vector3 dstOffset)
         {
+            BlitEndpoint srcEp {}, dstEp {};
+            TResult ret = resolveBlitEndpoint(src.get(), true, srcEp);
+            if (T3D_SUCCEEDED(ret))
+            {
+                ret = resolveBlitEndpoint(dst.get(), false, dstEp);
+            }
+            if (T3D_FAILED(ret))
+            {
+                return ret;
+            }
             return doBlit(srcEp, dstEp, srcOffset, size, dstOffset);
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, srcEp, dstEp, srcOffset, size, dstOffset);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, RenderTargetPtr(src), RenderTargetPtr(dst), srcOffset, size, dstOffset);
     }
 
     //--------------------------------------------------------------------------
@@ -3424,12 +3443,24 @@ namespace Tiny3D
             return ret;
         }
 
-        auto lambda = [this](BlitEndpoint srcEp, BlitEndpoint dstEp, Vector3 srcOffset, Vector3 size, Vector3 dstOffset)
+        // 上面那次解析只做参数校验：GL 句柄由 RHI 线程创建资源时才写入，主线程读到的可能还是 0，
+        // 所以在 RHI 线程里重新解析一次再 blit
+        auto lambda = [this](const TexturePtr &src, const RenderTargetPtr &dst, Vector3 srcOffset, Vector3 size, Vector3 dstOffset)
         {
+            BlitEndpoint srcEp {}, dstEp {};
+            TResult ret = resolveBlitEndpoint(src.get(), true, srcEp);
+            if (T3D_SUCCEEDED(ret))
+            {
+                ret = resolveBlitEndpoint(dst.get(), false, dstEp);
+            }
+            if (T3D_FAILED(ret))
+            {
+                return ret;
+            }
             return doBlit(srcEp, dstEp, srcOffset, size, dstOffset);
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, srcEp, dstEp, srcOffset, size, dstOffset);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, TexturePtr(src), RenderTargetPtr(dst), srcOffset, size, dstOffset);
     }
 
     //--------------------------------------------------------------------------
@@ -3454,12 +3485,24 @@ namespace Tiny3D
             return ret;
         }
 
-        auto lambda = [this](BlitEndpoint srcEp, BlitEndpoint dstEp, Vector3 srcOffset, Vector3 size, Vector3 dstOffset)
+        // 上面那次解析只做参数校验：GL 句柄由 RHI 线程创建资源时才写入，主线程读到的可能还是 0，
+        // 所以在 RHI 线程里重新解析一次再 blit
+        auto lambda = [this](const RenderTargetPtr &src, const TexturePtr &dst, Vector3 srcOffset, Vector3 size, Vector3 dstOffset)
         {
+            BlitEndpoint srcEp {}, dstEp {};
+            TResult ret = resolveBlitEndpoint(src.get(), true, srcEp);
+            if (T3D_SUCCEEDED(ret))
+            {
+                ret = resolveBlitEndpoint(dst.get(), false, dstEp);
+            }
+            if (T3D_FAILED(ret))
+            {
+                return ret;
+            }
             return doBlit(srcEp, dstEp, srcOffset, size, dstOffset);
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, srcEp, dstEp, srcOffset, size, dstOffset);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, RenderTargetPtr(src), TexturePtr(dst), srcOffset, size, dstOffset);
     }
 
     //--------------------------------------------------------------------------
@@ -3484,12 +3527,24 @@ namespace Tiny3D
             return ret;
         }
 
-        auto lambda = [this](BlitEndpoint srcEp, BlitEndpoint dstEp, Vector3 srcOffset, Vector3 size, Vector3 dstOffset)
+        // 上面那次解析只做参数校验：GL 句柄由 RHI 线程创建资源时才写入，主线程读到的可能还是 0，
+        // 所以在 RHI 线程里重新解析一次再 blit
+        auto lambda = [this](const TexturePtr &src, const TexturePtr &dst, Vector3 srcOffset, Vector3 size, Vector3 dstOffset)
         {
+            BlitEndpoint srcEp {}, dstEp {};
+            TResult ret = resolveBlitEndpoint(src.get(), true, srcEp);
+            if (T3D_SUCCEEDED(ret))
+            {
+                ret = resolveBlitEndpoint(dst.get(), false, dstEp);
+            }
+            if (T3D_FAILED(ret))
+            {
+                return ret;
+            }
             return doBlit(srcEp, dstEp, srcOffset, size, dstOffset);
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, srcEp, dstEp, srcOffset, size, dstOffset);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, TexturePtr(src), TexturePtr(dst), srcOffset, size, dstOffset);
     }
 
     //--------------------------------------------------------------------------
