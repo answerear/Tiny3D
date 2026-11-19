@@ -1052,7 +1052,7 @@
 | **参数** | `x` / `y` — 矩形左上角像素坐标；`width` / `height` — 矩形宽高 |
 | **返回值** | `T3D_OK` |
 | **实现位置** | T3DGL4Context.cpp:782 |
-| **备注** | 须配合 `RasterizerDesc::ScissorEnable = true` 才生效；与 `setViewport` 相互独立。注意 `setViewport` 渲染到窗口时**没有**做同样的 Y 翻转，两者不一致，见附录 D.1.3 |
+| **备注** | 须配合 `RasterizerDesc::ScissorEnable = true` 才生效；与 `setViewport` 相互独立。`setViewport` 渲染到窗口时原先没有做同样的 Y 翻转，已于附录 D.1.3 修复 |
 
 ### A.4.2 getDepthRemapMatrix
 
@@ -1134,7 +1134,7 @@
 | **签名** | `ReadbackHandle map(RenderBuffer *src, size_t offset, size_t size)`<br>`ReadbackHandle map(RenderBuffer *src, const ReadbackRegion &region)`<br>`TResult unmap(ReadbackHandle handle, Buffer &dst)` |
 | **实现位置** | T3DGL4Context.cpp:3829（线性缓冲 `map`）、T3DGL4Context.cpp:3887（纹理 `map`）、T3DGL4Context.cpp:4108（`unmap`）、T3DGL4Context.cpp:5529-5647（`allocReadbackRequest` / `finishReadback`） |
 | **功能** | 1) `allocReadbackRequest` 强制校验 `kCPURead` 标志与资源类型匹配；<br>2) 线性缓冲 `map`：使用 DSA `glCreateBuffers` + `glNamedBufferData(GL_STREAM_READ)` + `glCopyNamedBufferSubData` 录制拷贝；<br>3) 纹理 `map`：支持 1D / 1D Array / 2D / 2D Array / 3D / Cube / Cube Array，MSAA 2D 源先 `glBlitFramebuffer` resolve 到 `GLResolveTex`，再绑定 `GL_PIXEL_PACK_BUFFER` 调用 `glGetTextureSubImage` 录制子区域读取；<br>4) `unmap`：同步 RHI 线程（`syncRHIThread`），校验 `CopyRecorded` 时序，调用 `glMapNamedBuffer(GL_READ_ONLY)` 拷出紧凑数据后销毁 Staging 缓冲 |
-| **注意** | 深度/模板与压缩格式返回 `T3D_ERR_GL4_UNSUPPORTED_OPERATION`。MSAA resolve 之后把 `GL_FRAMEBUFFER` 绑回了 0 而没有恢复原 FBO，会冲掉当前渲染目标，见附录 D.1.6 |
+| **注意** | 深度/模板与压缩格式返回 `T3D_ERR_GL4_UNSUPPORTED_OPERATION`。MSAA resolve 之后原先把 `GL_FRAMEBUFFER` 绑回 0 而不恢复原 FBO，已于附录 D.1.6 修复 |
 
 ---
 
@@ -1146,13 +1146,13 @@
 |---------|-------------|-----------------|
 | §1.1 `setViewProjectionTransform` | 使用 `glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE)` 并通过 `conversionMat` 将 Z 重映射到 `[0,1]` | ✅ **已改为保持 OpenGL 原生 `[-1,1]` NDC 深度**（不调用 `glClipControl`，T3DGL4Context.cpp:148-174），仅在 `mRenderingToFBO` 时翻转投影矩阵 Y 轴；光空间深度 `[0,1]` 映射改由 `getDepthRemapMatrix()`（T3DGL4ContextBase.cpp:67）提供 |
 | §2.4 `resetRenderTarget` | 仅调用 `glBindFramebuffer(GL_FRAMEBUFFER, 0)` | ✅ **已补齐重置 `mRenderingToFBO = false`**（T3DGL4Context.cpp:398-416），避免后续 `setRasterizerState` 残留上一个 FBO 的正反面翻转状态 |
-| §3.1 `setViewport` | 按归一化比例计算视口 | ⚠️ **渲染到窗口时未做 Y 翻转**（T3DGL4Context.cpp:756-757），非全屏视口会上下错位，见附录 D.1.3 |
+| §3.1 `setViewport` | 按归一化比例计算视口 | ✅ 渲染到窗口时原先未做 Y 翻转，非全屏视口会上下错位，已于附录 D.1.3 修复 |
 | §4.1~4.3 `clearColor` / `clearDepth` / `clearDepthStencil` | 直接调 `glClear*` | ✅ **已引入 `ClearMaskGuard`**（T3DGL4Context.cpp:846-900），临时禁用 Scissor 并开启写掩码，防止被前一个 Pass 的 `ColorMask=0` 或 `DepthWrite=false` 拦截 |
-| §5.1 / §5.5 `createBlendState` / `setBlendState` | 仅读取 `RenderTargetStates[0]`，不支持独立 RT 混合 | ✅ **已支持 `IndependentBlendEnable`**（T3DGL4Context.cpp:1002-1049、1238-1301），按 `glEnablei` / `glBlendFuncSeparateiARB` / `glBlendEquationSeparateiARB` / `glColorMaski` 逐 RT 配置。⚠️ 但 `createBlendState` / `createDepthStencilState` / `createRasterizerState` 仍把 `glState->data` 的写入放进 RHI 命令队列，存在竞态，见附录 D.1.2 |
-| §5.4 `createSamplerState` | ✅ 设置 Wrap/Filter/.../BorderColor 等全部参数 | ⚠️ **BorderColor 的 R/B 分量被交换**（T3DGL4Context.cpp:1156-1159 写成 `{blue, green, red, alpha}`），见附录 D.1.4 |
-| §5.7 `setRasterizerState` | ✅ 调用 `glPolygonMode` + `glCullFace` + ... + DepthClamp | ⚠️ **`DepthClipEnable` 与 `GL_DEPTH_CLAMP` 的映射是反的**（T3DGL4Context.cpp:1394-1397），默认状态下关闭了近/远平面裁剪，见附录 D.1.1 |
+| §5.1 / §5.5 `createBlendState` / `setBlendState` | 仅读取 `RenderTargetStates[0]`，不支持独立 RT 混合 | ✅ **已支持 `IndependentBlendEnable`**（T3DGL4Context.cpp:1002-1049、1238-1301），按 `glEnablei` / `glBlendFuncSeparateiARB` / `glBlendEquationSeparateiARB` / `glColorMaski` 逐 RT 配置。三个 `create*State` 把 `glState->data` 写入放进 RHI 命令队列的竞态已于附录 D.1.2 修复 |
+| §5.4 `createSamplerState` | ✅ 设置 Wrap/Filter/.../BorderColor 等全部参数 | ✅ BorderColor 的 R/B 分量原先被交换，已于附录 D.1.4 修复 |
+| §5.7 `setRasterizerState` | ✅ 调用 `glPolygonMode` + `glCullFace` + ... + DepthClamp | ✅ `DepthClipEnable` 与 `GL_DEPTH_CLAMP` 的映射原先是反的，已于附录 D.1.1 修复。⚠️ `DepthBiasClamp` 与 `AntialiasedLineEnable` 仍未处理，见附录 E.2.3 |
 | §7.7 `createPixelBuffer2D` | `glGenTextures` + `glTexImage2D` + `glGenerateMipmap` | ⚠️ **2D 纹理不调用 `glGenerateMipmap`**（T3DGL4Context.cpp:1854-2022），只上传调用方提供的 mip 级别；`mipmaps > 1` 但只给了 mip 0 数据时 `MAX_LEVEL` 被设为 0。1D / 3D 同理，只有 Cubemap 会自动生成，见附录 D.4.3 |
-| §8.2 `setVertexShader` | ⚠️ 缺 `nullptr` 检查，传入 null 会崩溃 | ✅ **已修复崩溃**（T3DGL4Context.cpp:2445-2489），非空时改用 `detachShaderStage` 避免冲掉先绑定的 PS。⚠️ 但 `nullptr` 分支会删除整个 Program，与其他阶段只摘除自身的语义不一致，见附录 D.1.7 |
+| §8.2 `setVertexShader` | ⚠️ 缺 `nullptr` 检查，传入 null 会崩溃 | ✅ **已修复崩溃**；`nullptr` 分支原先会删除整个 Program，已于附录 D.1.7 / D.2.1 改为只清空本阶段句柄 |
 | §10 / §11 Hull & Domain Shader（10 个接口） | 🔇 按设计为空（返回空对象 / `T3D_OK`） | ✅ **已全部真实现**（T3DGL4Context.cpp:2590-2668），使用 `GL_TESS_CONTROL_SHADER` / `GL_TESS_EVALUATION_SHADER` 编译，通过 `attachGraphicsShader` 挂载 |
 | §12.2 `setGeometryShader` | 💬 实现代码被注释禁用 | ✅ **已启用**（T3DGL4Context.cpp:2726-2729），委托 `attachGraphicsShader(shader, mCurrentGSVariant, GL_GEOMETRY_SHADER)` |
 | §13 Compute Shader（5 个接口） | 🔇 按设计为空 | ✅ **已全部真实现**（T3DGL4Context.cpp:2752-2833），独立维护 `mCurrentComputeProgram` 与 `ensureComputeProgramLinked()` |
@@ -1189,6 +1189,8 @@
 > **2026-11-18 源码实测统计（含附录 D 行为级 review 修正）**：按 `T3DRHIContext.h` 当前全部 **97 个虚接口**统计 `GL4Context`（Window 变体）：
 > - 按**接口覆盖**（均已重写并具备核心路径）：**97 / 97 = 100%**
 > - 按**细节与边界完整度**：**93 ✅ + 0 ⚠️ + 4 🔇 = 97**。附录 D 的行为级 review 一度把 9 个接口改回 ⚠️，同日已全部修复（见 D.6）。另有非 `RHIContext` 接口 `GL4Renderer::getEditorInfo` 未实现（见附录 C.1.1）
+>
+> **2026-11-19 更正**：上面的统计只反映「接口是否有真实实现」。对照 D3D11 的实际行为逐项核对后，仍有 7 个会产生错误结果的缺口和一批次要差距，详见**附录 E**。按行为口径，`setRenderTarget`、`createRenderTexture`、`createPixelBuffer2D`、`setCSUnorderedAccessBuffers`、`set*PixelBuffers` / `set*Samplers`（跨阶段）应视为 ⚠️。
 
 | 状态 | 数量 | 接口明细 |
 |------|------|----------|
@@ -1381,17 +1383,17 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | 编号 | 接口 | 状态 | 实现位置 | 实现补齐说明 | 优先级 |
 |:----:|------|:----:|----------|--------------|:------:|
 | C.2.1 | `setVertexBuffers` | ✅ 已完成 | `T3DGL4Context.cpp` | 1) 叠加 `offsets[i]` 与 `attrib.getOffset()`（与 D3D11 语义一致）；<br>2) 循环内对 `buffers[i]` 与 `getRHIResource()` 做判空，同时保持 `mPendingVertexDecl` 至下一次 `setVertexDeclaration` / `reset()` | **P0** |
-| C.2.2 | `setPixelShader` / `setHullShader` / `setDomainShader` / `setGeometryShader` | ✅ 已完成 | `T3DGL4Context.cpp` | 统一走 `attachGraphicsShader(..., stageType)`；传入 `nullptr` 时调用 `detachShaderStageByType` 从 `mCurrentProgram` 摘除对应阶段并置 `mProgramDirty = true` | **P0** |
+| C.2.2 | `setPixelShader` / `setHullShader` / `setDomainShader` / `setGeometryShader` | ✅ 已完成 | `T3DGL4Context.cpp` | 统一走 `attachGraphicsShader(..., stageType)`；传入 `nullptr` 时只清空 `mStageShaders` 中对应阶段的句柄并置 `mProgramDirty = true`，draw 前按新组合查 Program 缓存（`detachShaderStageByType` 已随 D.2.1 删除） | **P0** |
 | C.2.3 | `setRenderTarget` | ✅ 已完成 | `T3DGL4Context.cpp` | 1) `renderTarget == nullptr` 转调 `resetRenderTarget()`；<br>2) MRT 支持 MSAA 目标，切回较少 RT 时清理残留 `GL_COLOR_ATTACHMENT` 并始终刷新 `glDrawBuffers`，且无外部深度时恢复 `GLDepthRBO`；<br>3) Depth-only FBO 改为成员 `mDepthOnlyFBO` 并在 `~GL4Context()` 释放，支持 MSAA 与无模板深度格式 | **P1** |
-| C.2.4 | `setRasterizerState` | ✅ 已完成 | `T3DGL4Context.cpp` | 根据 `d.multisampleEnabled` 调用 `glEnable/glDisable(GL_MULTISAMPLE)`。⚠️ 另有 DepthClamp 映射反向问题，见附录 D.1.1 | **P2** |
-| C.2.5 | `setViewport` | ✅ 已完成 | `T3DGL4Context.cpp` | 主路径与 fallback 路径均透传 `glDepthRange(vp.MinDepth, vp.MaxDepth)`。⚠️ 另有窗口目标 Y 未翻转问题，见附录 D.1.3 | **P3** |
+| C.2.4 | `setRasterizerState` | ✅ 已完成 | `T3DGL4Context.cpp` | 根据 `d.multisampleEnabled` 调用 `glEnable/glDisable(GL_MULTISAMPLE)`。DepthClamp 映射反向问题已于附录 D.1.1 修复 | **P2** |
+| C.2.5 | `setViewport` | ✅ 已完成 | `T3DGL4Context.cpp` | 主路径与 fallback 路径均透传 `glDepthRange(vp.MinDepth, vp.MaxDepth)`。窗口目标 Y 未翻转问题已于附录 D.1.3 修复 | **P3** |
 
 ### C.2.2 纹理资源创建与数据传输 / 读回
 
 | 编号 | 接口 | 状态 | 实现位置 | 实现补齐说明 | 优先级 |
 |:----:|------|:----:|----------|--------------|:------:|
-| C.2.6 | `writeBuffer` | ✅ 已完成 | `T3DGL4Context.cpp` | 1) 纹理分支已完整支持 `1D`/`1D_ARRAY`/`2D`/`2D_ARRAY`/`3D`/`CUBE`/`CUBE_ARRAY`（拒绝 MSAA）；<br>2) 支持单层 mip 0 及完整多级/多层链上传，设 `GL_UNPACK_ALIGNMENT = 1`；<br>3) 增加 `renderBuffer`/`buffer.Data`/`DataSize == 0`/`Usage::kImmutable` 与线性缓冲越界检查。⚠️ 纹理分支结束时 `glBindTexture(target, 0)` 会解绑当前活动纹理单元，且不支持压缩格式，见附录 D.2.2 / D.4.2 | **P1** |
-| C.2.7 | `map(RenderBuffer*, const ReadbackRegion&)` | ✅ 已完成 | `T3DGL4Context.cpp` | 1) 支持 `1D`/`1D_ARRAY`/`2D`（含 MSAA resolve）/`2D_ARRAY`/`3D`/`CUBE`/`CUBE_ARRAY`；<br>2) 正确处理 `region.arraySlice` 与边界校验；<br>3) 显式拦截深度模板格式（`isDepthFormat`）并设 `GL_PACK_ALIGNMENT = 1`。⚠️ MSAA resolve 后未恢复原 FBO，见附录 D.1.6 | **P1** |
+| C.2.6 | `writeBuffer` | ✅ 已完成 | `T3DGL4Context.cpp` | 1) 纹理分支已完整支持 `1D`/`1D_ARRAY`/`2D`/`2D_ARRAY`/`3D`/`CUBE`/`CUBE_ARRAY`（拒绝 MSAA）；<br>2) 支持单层 mip 0 及完整多级/多层链上传，设 `GL_UNPACK_ALIGNMENT = 1`；<br>3) 增加 `renderBuffer`/`buffer.Data`/`DataSize == 0`/`Usage::kImmutable` 与线性缓冲越界检查。纹理分支解绑活动纹理单元的问题已于附录 D.2.2 改用 DSA 修复；压缩格式暂不支持，见附录 D.4.2 | **P1** |
+| C.2.7 | `map(RenderBuffer*, const ReadbackRegion&)` | ✅ 已完成 | `T3DGL4Context.cpp` | 1) 支持 `1D`/`1D_ARRAY`/`2D`（含 MSAA resolve）/`2D_ARRAY`/`3D`/`CUBE`/`CUBE_ARRAY`；<br>2) 正确处理 `region.arraySlice` 与边界校验；<br>3) 显式拦截深度模板格式（`isDepthFormat`）并设 `GL_PACK_ALIGNMENT = 1`。MSAA resolve 后未恢复原 FBO 的问题已于附录 D.1.6 修复 | **P1** |
 | C.2.8 | `blit`（四个重载） | ✅ 已完成 | `T3DGL4Context.cpp` | 1) `resolveBlitEndpoint` 支持 `1D`/`2D`/`2D_ARRAY`/`3D`/`CUBE`/`CUBE_ARRAY`/`RENDER_TEXTURE`，校验 `kImmutable` 目标与深度/颜色匹配；<br>2) 支持同格式 1:1 走 `glCopyImageSubData`、异格式/跨层走 `attachScratchFBO`（含 1D/Layer/Depth/Stencil）；<br>3) 支持 `size == ZERO` 缩放与彩色缩放 `GL_LINEAR` 过滤，异常路径亦恢复 `prevFBO` | **P2** |
 | C.2.9 | `createPixelBuffer1D` / `createPixelBuffer3D` | ✅ 已完成 | `T3DGL4Context.cpp` | 完整支持 `desc.mipmaps` 多级分配/上传与 `BASE_LEVEL`/`MAX_LEVEL`（1D 同时支持 `arraySize` 与 UAV `glTexStorage*`），设 `GL_UNPACK_ALIGNMENT = 1` | **P2** |
 | C.2.10 | `createPixelBufferCubemap` | ✅ 已完成 | `T3DGL4Context.cpp` | `GL4PixelBufferCubemap` 记录 `GLInternalFormat` 与 `GLTarget`；支持 `CubemapArray`、UAV `glTexStorage2D/3D`、预生成多级 mip 上传与按需 `glGenerateMipmap` | **P2** |
@@ -1427,7 +1429,8 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | **P2** | C.1.2 / C.1.3 / C.2.4 / C.2.8~C.2.11 | 纹理数组、`ShaderResourceParams` 反射、3D/Cube Blit、Mipmap、Sampler/Uniform 类型、MSAA 状态 | ✅ 已完成 |
 | **P2** | C.1.1 | `GL4Renderer::getEditorInfo`（需编辑器侧同步新增 GL4 对接结构，属于 ❌ 未实现项） | ❌ 待编辑器侧接入 |
 | **P3** | C.2.5 / C.3.2 | `setViewport` 深度范围、`GL4ConsoleContext` 桩对象统一 | ✅ 已完成 |
-| — | 附录 D | 2026-11-18 行为级 review 新发现的语义错误、竞态与性能问题 | ❌ 待修复，见附录 D.5 |
+| — | 附录 D | 2026-11-18 行为级 review 新发现的语义错误、竞态与性能问题 | ✅ 已处理，见附录 D.6 |
+| — | 附录 E | 2026-11-19 对照 D3D11 的差距 review 新发现的问题 | ❌ 待修复，见附录 E.5 |
 
 ---
 ---
@@ -1653,4 +1656,138 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 
 - 这四个用例只在 D3D11 与 GL4 上运行，GLES3 不在掩码内。
 - 远平面裁剪（D.1.1）仍需在 RmlUi 和普通场景中目测确认。
+
+---
+---
+
+# 附录 E：对照 D3D11 的差距 review（2026-11-19）
+
+> 附录 A～D 回答的是「接口有没有实现、实现有没有语义错误」。本附录以 `D3D11Context`（Window 版）为行为基线，逐模块对比同名接口内部的行为，列出 **D3D11 能做而 GL4 做不到、或结果与 D3D11 不一致**的地方。两个后端 override 的 `RHIContext` 接口集合完全相同（97 个），所以这里的差距全部出在函数内部。
+>
+> 行号基于 2026-11-19 的源码（`T3DGL4Context.cpp` 5638 行，提交 `cdebf4a8`）。
+>
+> 同一轮 review 发现的 D3D11 映射错误（`kGreaterEqual`、四个模板自增/自减操作、`StencilRef` 写死为 1、缺 `kMirrorOnce`）与 GL 无关，已直接在 D3D11 后端修复，不在本附录跟踪。GL4 这几处的映射本来就是正确的。
+
+## E.1 会产生错误结果的缺口
+
+### E.1.1 资源析构在主线程调用 `glDelete*`
+
+| 项目 | 内容 |
+|------|------|
+| **严重度** | 高 |
+| **位置** | `Window/Source/T3DGL4RenderBuffer.cpp:36-73` 等全部 `~GL4*` 析构；删除宏 `Window/Include/T3DGL4Prerequisites.h:46-62`；context 转移 `T3DGL4Context.cpp:209-211` |
+| **问题** | Runtime 与 Editor 默认开启 RHI 线程（`Core/Runtime/CMakeLists.txt:31`、`Core/Editor/CMakeLists.txt:30` 定义 `T3D_ENABLE_RHI_THREAD=1`）。`createRenderWindow` 会让主线程 `wglMakeCurrent(nullptr, nullptr)`，把 context 交给 RHI 线程。引擎在主线程执行 `mRHIResource = nullptr`（如 `T3DVertexBuffer.cpp:70`、`T3DPixelBuffer.cpp:119`），最后一个引用在主线程释放时，析构函数会在**没有 current context** 的线程上调用 `glDeleteBuffers` / `glDeleteTextures` / `glDeleteFramebuffers`。结果是对象泄漏（显存持续增长），部分驱动上直接崩溃。命令 lambda 捕获的智能指针让最后一个引用可能落在任意一个线程，问题时有时无 |
+| **D3D11** | COM `Release` 可以跨线程调用，不受影响 |
+| **修复建议** | 析构时不直接删除，而是把 GL 句柄（类型 + 名称）投递到 RHI 线程执行删除，例如在 `GL4Context` 维护一个延迟删除队列，在 `swapBackBuffer` 或每条命令执行前清空；RHI 线程未启用时保持直接删除。Program 缓存中引用的 shader 句柄删除时机需一并考虑 |
+| **验证** | 反复创建/销毁纹理与缓冲，观察显存与 `glIsBuffer` / `glIsTexture` |
+
+### E.1.2 D32FS8 深度渲染纹理创建失败
+
+| 项目 | 内容 |
+|------|------|
+| **严重度** | 高（使用该格式时必现） |
+| **位置** | `Base/Source/T3DGL4Mapping.cpp:80-82`；调用点 `T3DGL4Context.cpp:467`、`579` |
+| **问题** | `getPixelType(E_PF_D32_FLOAT_S8X24_UINT)` 返回 `GL_FLOAT`。非 MSAA 深度 RT 会调用 `glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, w, h, 0, GL_DEPTH_STENCIL, GL_FLOAT, nullptr)`，而 `GL_DEPTH_STENCIL` 格式只接受 `GL_UNSIGNED_INT_24_8` 或 `GL_FLOAT_32_UNSIGNED_INT_24_8_REV`，驱动报 `GL_INVALID_OPERATION`，纹理没有存储，FBO 不完整。MSAA 路径走 `glTexImage2DMultisample` 不需要 type，不受影响 |
+| **D3D11** | `DXGI_FORMAT_D32_FLOAT_S8X24_UINT` 映射正确 |
+| **修复建议** | `E_PF_D32_FLOAT_S8X24_UINT` 单独返回 `GL_FLOAT_32_UNSIGNED_INT_24_8_REV`；GLES3 的 Mapping 一并核对 |
+
+### E.1.3 各 shader 阶段共用纹理单元，VS 与 PS 同时采样会冲突
+
+| 项目 | 内容 |
+|------|------|
+| **严重度** | 中（VS 采样纹理时必现，如顶点动画贴图、地形高度图） |
+| **位置** | 反射 `Base/Source/T3DGL4ContextBase.cpp:943`、`976-977`；绑定 `T3DGL4Context.cpp:4783`（`bindPixelBuffers`）、`4816`（`bindSamplers`）；`setupSamplerBindings` 的 `findSlot`（4599-4621） |
+| **问题** | 每个 ShaderVariant 的采样器序号都从 0 开始，`texBinding` 与 `samplerBinding` 取同一个值。`set{VS,PS,GS,HS,DS,CS}PixelBuffers` / `Samplers` 全部绑到全局的 `GL_TEXTURE0 + slot` / `glBindSampler(slot)`，GL 的纹理单元又是所有阶段共享的，于是 VS 的 t0 与 PS 的 t0 落到同一个 unit，后绑的覆盖先绑的。`findSlot` 先查 PS 再查 VS，VS 的 sampler uniform 也会指到 PS 的 unit |
+| **D3D11** | 每个阶段的 t# / s# 是独立的编号空间 |
+| **修复建议** | 在反射阶段按 program 统一分配 unit：链接时把各阶段的 sampler 依次排开（如 PS 从 0 开始，VS 接在 PS 之后），并记录「阶段 + 原 slot → unit」的映射；`bindPixelBuffers` / `bindSamplers` 增加阶段参数，按映射换算 unit。另一种做法是按阶段划分固定区间（如每阶段 16 个 unit），需要 `GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS` 足够大 |
+
+### E.1.4 窗口渲染目标忽略外部深度
+
+| 项目 | 内容 |
+|------|------|
+| **严重度** | 中 |
+| **位置** | `T3DGL4Context.cpp:284-288` |
+| **问题** | `E_RT_WINDOW` 分支只执行 `glBindFramebuffer(GL_FRAMEBUFFER, 0)`，不读 `renderTarget->getDepthStencil()`。默认 framebuffer 不能挂外部附件，所以挂了外部深度的窗口目标在 GL4 上仍然使用窗口自带的深度 |
+| **D3D11** | 外挂的 DepthStencil 优先，没有时才退回窗口自带的 DSV（`T3DD3D11Context.cpp:1250-1253`） |
+| **修复建议** | 带外部深度时，改为渲染到一个与窗口同尺寸的中间 FBO（颜色附件 + 外部深度），`swapBackBuffer` 前 blit 到 FBO 0；或在 RHI 层明确禁止该用法并在 GL4 上报错，而不是静默忽略 |
+
+### E.1.5 非 RT 的 MSAA 纹理被静默降为 1x
+
+| 项目 | 内容 |
+|------|------|
+| **严重度** | 中 |
+| **位置** | `createPixelBuffer2D`（`T3DGL4Context.cpp:1836-2003`），整个文件只有 `buildRenderTextureResources`（459 行）读取 `sampleDesc` |
+| **问题** | `createPixelBuffer2D` 从不读取 `desc.sampleDesc`，总是创建 `GL_TEXTURE_2D` / `GL_TEXTURE_2D_ARRAY` |
+| **D3D11** | `SampleDesc.Count = max(1, desc.sampleDesc.Count)`（`T3DD3D11Context.cpp:2716`） |
+| **修复建议** | `sampleDesc.Count > 1` 时走 `glTexStorage2DMultisample`（数组用 `glTexStorage3DMultisample`），`GLTarget` 设为 `GL_TEXTURE_2D_MULTISAMPLE(_ARRAY)`，并拒绝初始数据上传与 UAV |
+
+### E.1.6 RenderTexture 不能作为 UAV
+
+| 项目 | 内容 |
+|------|------|
+| **严重度** | 中（compute 写 RT 的后处理路径不可用） |
+| **位置** | `buildRenderTextureResources`（`T3DGL4Context.cpp:450-614`） |
+| **问题** | 颜色 RT 用 `glTexImage2D` 创建可变存储，且不记录可用于 `glBindImageTexture` 的格式；没有 `kGPUUnorderedAccess` 分支。普通 `createPixelBuffer*` 在 1709、1870、2037、2164 行有该分支，RT 路径没有 |
+| **D3D11** | MSAA=1 时给 RT 加 `D3D11_BIND_UNORDERED_ACCESS` 并创建 UAV（`T3DD3D11Context.cpp:638-649`） |
+| **修复建议** | 非 MSAA 颜色 RT 带 `kGPUUnorderedAccess` 时改用 `glTexStorage2D` 并写入 `GLInternalFormat`；`getGLImageInfo` 已支持 `GL4PixelBuffer2D`，补齐创建侧即可 |
+
+### E.1.7 UAV 槽位不做越界检查
+
+| 项目 | 内容 |
+|------|------|
+| **严重度** | 中低 |
+| **位置** | `setCSUnorderedAccessBuffers`（`T3DGL4Context.cpp:3200`）；能力位 `Base/Source/T3DGL4ContextBase.cpp:123` |
+| **问题** | `T3DRHIContext.h:610-611` 约定槽位越界返回 `T3D_ERR_INVALID_PARAM`。GL4 只把 `GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS` 填进 `maxUnorderedAccessSlots`，绑定时从不检查，越界后由驱动报 `GL_INVALID_VALUE`，函数仍返回 `T3D_OK` |
+| **D3D11** | `startSlot + size > D3D11_1_UAV_SLOT_COUNT` 时报错返回 |
+| **修复建议** | 入口按 `maxUnorderedAccessSlots`（SSBO）与 `GL_MAX_IMAGE_UNITS`（image）校验，越界返回 `T3D_ERR_INVALID_PARAM` |
+
+---
+
+## E.2 次要差距
+
+| 编号 | 项 | 位置 | 说明与修复建议 | 优先级 |
+|:----:|----|------|----------------|:------:|
+| E.2.1 | 常量缓冲忽略 `startSlot`，`nullptr` 不解绑 | `stageConstantBuffers`（`T3DGL4Context.cpp:4687-4719`，`nullptr` 分支 4697-4700）；`bindPendingUniformBlocks`（4536-4572） | 所有阶段的 CB 按 cbuffer 名放进同一个 `mPendingUBOs`，`startSlot` 不起作用。GLSL 中同名 uniform block 在一个 program 内本来就是同一个 block，跨阶段同名覆盖通常无害。但传入 `nullptr` 时直接跳过，旧 UBO 一直留在表里，无法解绑。建议 `nullptr` 时按槽位找到对应名字并移除，或在接口注释中写明 GL 按名绑定、`startSlot` 无效 | P2 |
+| E.2.2 | 一张纹理配两个采样器时第二个丢失 | 反射 `T3DGL4ContextBase.cpp:950-977`；`setupSamplerBindings`（`T3DGL4Context.cpp:4583-4596`） | SPIRV-Cross 为「纹理 A + 采样器 S1」与「纹理 A + 采样器 S2」生成两个 combined sampler，反射按纹理名 `A` 建键，后者覆盖前者；`setupSamplerBindings` 把两个 uniform 指到同一个 unit，而一个 unit 只能绑一个 sampler object。建议以「纹理名 + 采样器名」为键，各分配一个 unit | P3 |
+| E.2.3 | `DepthBiasClamp`、`AntialiasedLineEnable` 未处理 | `createRasterizerState`（`T3DGL4Context.cpp:1094-1120`）；`GL4RasterizerStateData`（`T3DGL4RenderState.h`） | D3D11 两个字段都使用（`T3DD3D11Context.cpp:1692`、`1697`）。GL4 不存也不用。前者可用 `glPolygonOffsetClamp`（GL 4.6 / `ARB_polygon_offset_clamp`，需按扩展判断），后者对应 `GL_LINE_SMOOTH` | P2 |
+| E.2.4 | 反射没有 ByteAddress / Append / Consume 种类 | `reflectShaderAllBindings`（`T3DGL4ContextBase.cpp:1015-1038`） | D3D11 能反射出 `kByteAddressSRV/UAV`、`kAppendUAV`、`kConsumeUAV`；GL4 只有 `kStructuredSRV/UAV`（加 `hasCounter`）、`kTypedSRV/UAV`、`kTextureUAV`。目前只有 ComputeApp 依赖这些 Kind。GLSL 没有直接对应的语义，若上层要跨后端使用，需要约定从命名或 counter 推断 | P3 |
+| E.2.5 | 顶点格式不校验 VS 输入 | `createVertexDeclaration`（`T3DGL4Context.cpp:1409-1428`） | D3D11 的 `CreateInputLayout` 需要 VS 字节码，属性不匹配时创建失败；GL4 只创建 VAO，不匹配时静默画错。可在 Program 链接后用 `glGetProgramResource(GL_PROGRAM_INPUT)` 对照 VertexDeclaration，Debug 构建下打警告 | P3 |
+| E.2.6 | 创建资源时缺少参数校验 | `createVertexBuffer` / `createIndexBuffer` / `createPixelBuffer*`；`GL4Mapping::getBufferUsage`（`T3DGL4Mapping.cpp:309-318`） | D3D11 会拒绝非法的 Usage / CPUAccess 组合与宽高为 0 的纹理（`T3DD3D11Context.cpp:2561-2593` 等）；GL4 不读 `getCPUAccessMode()`，也不校验尺寸，非法描述只会在驱动层报错。另外 `getInternalFormat` 遇到未知格式回落为 `GL_RGBA8`，建议改为报错 | P2 |
+| E.2.7 | 读回没有 staging 池 | `map`（`T3DGL4Context.cpp:3893`、`3951`）、`finishReadback`（5577） | 每次 `map` 新建 staging buffer，`unmap` 后删除。D3D11 有 `acquireStagingBuffer/Texture` 复用池。只影响频繁读回时的分配开销 | P3 |
+| E.2.8 | 窗口深度格式固定、忽略 MSAA Quality | `T3DGL4RenderWindow.cpp:128-129`、`159-160` | 像素格式写死 24 位深度 + 8 位模板，D3D11 按 `DepthStencilFormat` 创建；MSAA 只用 Count。属于 WGL 像素格式的限制，可通过 E.1.4 的中间 FBO 方案一并解决 | P3 |
+| E.2.9 | SRV / UAV 共用 SSBO 绑定点的约定没有写进 RHI 接口 | `T3DRHIContext.h` `setCSStructuredBuffers` / `setCSUnorderedAccessBuffers` 注释 | 附录 D.3.2 的结论是「调用方把 UAV 槽号排在 SRV 之后」，但这条约定只体现在 `ComputeCases.cpp:46-50` 的 `uavSlot()`。建议写进接口注释，避免新的 compute 调用方踩坑 | P3 |
+
+---
+
+## E.3 插件外围
+
+| 编号 | 项 | 位置 | 说明 | 优先级 |
+|:----:|----|------|------|:------:|
+| E.3.1 | 编辑器与启动器绑定 D3D11 | `GL4Renderer::getEditorInfo`（`T3DGL4Renderer.cpp`，TODO）；`EditorApp.cpp:387`；`LauncherApp.cpp:44`、`327`；`PlayerApp.cpp:124-129` | 与附录 C.1.1 / D.4.4 为同一项，这里补充现状：默认的 `ImGuiTiny3D` 路径（`USE_DX_IMGUI` 未开启）不依赖 `getEditorInfo`，Editor 只要把 `EditorApp.cpp:387` 改为 `OPENGL4` 即可在 GL4 上运行；Launcher 固定加载 `ImGuiDX11` 并使用 `EditorInfoDX11`，Player 固定使用 D3D11，这两处需要改成按配置选择渲染器 | P2 |
+| E.3.2 | 没有 GL 调试输出 | `T3DGL4RenderWindow.cpp:191`；`GL_CHECK_ERROR`（`T3DGL4PrerequisitesBase.h:96-113`） | Debug 构建设置了 `WGL_CONTEXT_DEBUG_BIT_ARB`，但没有调用 `glDebugMessageCallback`，这个标志没有实际作用。D3D11 有 debug layer 与 `ReportLiveDeviceObjects`。建议 Debug 构建下启用 `GL_DEBUG_OUTPUT_SYNCHRONOUS` 并把消息转到日志；可顺带用 `glObjectLabel` 给资源命名 | P3 |
+| E.3.3 | Linux 没有请求 Core 4.5 上下文 | `T3DGL4RenderWindow.cpp:310` | Linux 用旧的 `glXCreateContext`，拿到的上下文版本与剖面由驱动决定，也没有 debug 标志；Windows 走 `wglCreateContextAttribsARB` 请求 Core 4.5。建议改用 `glXCreateContextAttribsARB` 与 Windows 对齐 | P3 |
+
+---
+
+## E.4 已知且维持现状的差异（不重复跟踪）
+
+- 颜色 RT 自带 D24S8 深度 RBO，与 D3D11「颜色 RT 不带深度」不一致：见附录 D.2.3，保留现状。
+- 压缩纹理：见附录 D.4.2，引擎尚无压缩格式。
+- `glBlitFramebuffer` 不能在整数与浮点格式之间转换，D3D11 有全屏四边形 blit 兜底。引擎当前没有整数颜色格式，暂不影响。
+
+---
+
+## E.5 修复优先级
+
+| 优先级 | 编号 | 项 | 改动量 |
+|:------:|:----:|----|:------:|
+| **P0** | E.1.1 | 资源析构改为投递到 RHI 线程删除 | 中 |
+| **P0** | E.1.2 | D32FS8 的 `getPixelType` 改为 `GL_FLOAT_32_UNSIGNED_INT_24_8_REV` | 1 行 |
+| **P1** | E.1.3 | 纹理单元按 program 统一分配，消除跨阶段冲突 | 中 |
+| **P1** | E.1.4 | 窗口目标支持外部深度（中间 FBO）或显式报错 | 中 |
+| **P1** | E.1.5 | `createPixelBuffer2D` 支持 MSAA | 小 |
+| **P1** | E.1.7 | UAV 槽位越界检查 | 小 |
+| **P2** | E.1.6 | RenderTexture 支持 UAV | 小 |
+| **P2** | E.2.1 / E.2.3 / E.2.6 / E.3.1 | CB 解绑、DepthBiasClamp 与抗锯齿线、创建参数校验、编辑器与启动器的渲染器选择 | 小～中 |
+| **P3** | E.2.2 / E.2.4 / E.2.5 / E.2.7 / E.2.8 / E.2.9 / E.3.2 / E.3.3 | 其余次要项 | 视需求 |
 
