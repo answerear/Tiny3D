@@ -53,7 +53,7 @@ namespace Tiny3D
 
     GL4RenderWindow::~GL4RenderWindow()
     {
-        GL_SAFE_DELETE_RBO(GLDepthRBO);
+        releaseGLObjects({{GLObjectType::kRenderbuffer, GLDepthRBO}});
 
 #if defined(T3D_OS_WINDOWS)
         if (GLContext != nullptr)

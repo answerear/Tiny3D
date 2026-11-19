@@ -60,6 +60,10 @@ namespace Tiny3D
 
     GL4Context::~GL4Context()
     {
+        // 下面释放成员引用会触发资源析构，必须先有 current context，
+        // 否则 releaseGLObjects 会回头经 GL4Renderer 取正在析构的本对象
+        makeDummyCurrent();
+
         mCurrentRenderTarget = nullptr;
         mPendingVertexDecl = nullptr;
         mCurrentVSVariant = nullptr;
@@ -68,8 +72,6 @@ namespace Tiny3D
         mCurrentDSVariant = nullptr;
         mCurrentGSVariant = nullptr;
         mCurrentCSVariant = nullptr;
-
-        makeDummyCurrent();
 
         for (auto &pair : mGraphicsProgramCache)
         {
@@ -5623,7 +5625,8 @@ namespace Tiny3D
             ret = request.CopyResult;
         }
 
-        GL_SAFE_DELETE_BUFFER(request.Staging);
+        releaseGLObjects({{GLObjectType::kBuffer, request.Staging}});
+        request.Staging = 0;
         mPendingReadbacks.erase(itr);
 
         if (T3D_FAILED(ret))

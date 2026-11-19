@@ -54,7 +54,7 @@ namespace Tiny3D
 
     GL4SamplerState::~GL4SamplerState()
     {
-        GL_SAFE_DELETE_SAMPLER(GLSampler);
+        releaseGLObjects({{GLObjectType::kSampler, GLSampler}});
     }
 
     void *GL4SamplerState::getNativeObject() const

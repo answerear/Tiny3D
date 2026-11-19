@@ -5,10 +5,105 @@
  ******************************************************************************/
 
 #include "T3DGL4RenderBuffer.h"
+#include "T3DGL4Renderer.h"
+#include "T3DGL4ContextBase.h"
 
 
 namespace Tiny3D
 {
+    //--------------------------------------------------------------------------
+
+    namespace
+    {
+        bool hasCurrentGLContext()
+        {
+#if defined(T3D_OS_WINDOWS)
+            return wglGetCurrentContext() != nullptr;
+#elif defined(T3D_OS_LINUX)
+            return glXGetCurrentContext() != nullptr;
+#else
+            return true;
+#endif
+        }
+
+        void deleteGLObjects(const TArray<GLObjectName> &objects)
+        {
+            for (const GLObjectName &obj : objects)
+            {
+                GLuint name = obj.name;
+                switch (obj.type)
+                {
+                case GLObjectType::kBuffer:         glDeleteBuffers(1, &name);          break;
+                case GLObjectType::kTexture:        glDeleteTextures(1, &name);         break;
+                case GLObjectType::kVertexArray:    glDeleteVertexArrays(1, &name);     break;
+                case GLObjectType::kSampler:        glDeleteSamplers(1, &name);         break;
+                case GLObjectType::kFramebuffer:    glDeleteFramebuffers(1, &name);     break;
+                case GLObjectType::kRenderbuffer:   glDeleteRenderbuffers(1, &name);    break;
+                case GLObjectType::kShader:         glDeleteShader(name);               break;
+                case GLObjectType::kProgram:        glDeleteProgram(name);              break;
+                }
+            }
+        }
+    }
+
+    void releaseGLObjects(std::initializer_list<GLObjectName> objects)
+    {
+        TArray<GLObjectName> names;
+        names.reserve(objects.size());
+        for (const GLObjectName &obj : objects)
+        {
+            if (obj.name != 0)
+            {
+                names.push_back(obj);
+            }
+        }
+
+        if (names.empty())
+        {
+            return;
+        }
+
+        if (hasCurrentGLContext())
+        {
+            deleteGLObjects(names);
+            return;
+        }
+
+        RHIThread *rhiThread = RHIThread::getInstancePtr();
+        if (rhiThread != nullptr && rhiThread->isRunning())
+        {
+            auto lambda = [](const TArray<GLObjectName> &names)
+            {
+                deleteGLObjects(names);
+                return T3D_OK;
+            };
+
+            rhiThread->enqueue_unique_command(lambda, std::move(names));
+            return;
+        }
+
+        // RHI 线程已停止时 context 还留在已退出的 RHI 线程上，主线程只能借 dummy context
+        GL4Renderer *renderer = GL4Renderer::getInstancePtr();
+        if (renderer != nullptr)
+        {
+            RHIContextPtr ctx = renderer->getContext();
+            if (ctx != nullptr)
+            {
+                static_cast<GL4ContextBase *>(ctx.get())->makeDummyCurrent();
+            }
+        }
+
+        if (hasCurrentGLContext())
+        {
+            deleteGLObjects(names);
+        }
+        else
+        {
+            T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "releaseGLObjects : no GL context available, %u GL objects leaked !",
+                (uint32_t)names.size());
+        }
+    }
+
     //--------------------------------------------------------------------------
 
     GL4VertexDeclarationPtr GL4VertexDeclaration::create()
@@ -18,7 +113,7 @@ namespace Tiny3D
 
     GL4VertexDeclaration::~GL4VertexDeclaration()
     {
-        GL_SAFE_DELETE_VAO(GLVAO);
+        releaseGLObjects({{GLObjectType::kVertexArray, GLVAO}});
     }
 
     void *GL4VertexDeclaration::getNativeObject() const
@@ -35,7 +130,7 @@ namespace Tiny3D
 
     GL4VertexBuffer::~GL4VertexBuffer()
     {
-        GL_SAFE_DELETE_BUFFER(GLBuffer);
+        releaseGLObjects({{GLObjectType::kBuffer, GLBuffer}});
     }
 
     void *GL4VertexBuffer::getNativeObject() const
@@ -52,7 +147,7 @@ namespace Tiny3D
 
     GL4IndexBuffer::~GL4IndexBuffer()
     {
-        GL_SAFE_DELETE_BUFFER(GLBuffer);
+        releaseGLObjects({{GLObjectType::kBuffer, GLBuffer}});
     }
 
     void *GL4IndexBuffer::getNativeObject() const
@@ -69,7 +164,7 @@ namespace Tiny3D
 
     GL4ConstantBuffer::~GL4ConstantBuffer()
     {
-        GL_SAFE_DELETE_BUFFER(GLBuffer);
+        releaseGLObjects({{GLObjectType::kBuffer, GLBuffer}});
     }
 
     void *GL4ConstantBuffer::getNativeObject() const
@@ -86,7 +181,7 @@ namespace Tiny3D
 
     GL4PixelBuffer1D::~GL4PixelBuffer1D()
     {
-        GL_SAFE_DELETE_TEXTURE(GLTexture);
+        releaseGLObjects({{GLObjectType::kTexture, GLTexture}});
     }
 
     void *GL4PixelBuffer1D::getNativeObject() const
@@ -103,11 +198,13 @@ namespace Tiny3D
 
     GL4PixelBuffer2D::~GL4PixelBuffer2D()
     {
-        GL_SAFE_DELETE_FBO(GLResolveFBO);
-        GL_SAFE_DELETE_TEXTURE(GLResolveTex);
-        GL_SAFE_DELETE_RBO(GLDepthRBO);
-        GL_SAFE_DELETE_FBO(GLFBO);
-        GL_SAFE_DELETE_TEXTURE(GLTexture);
+        releaseGLObjects({
+            {GLObjectType::kFramebuffer, GLResolveFBO},
+            {GLObjectType::kTexture, GLResolveTex},
+            {GLObjectType::kRenderbuffer, GLDepthRBO},
+            {GLObjectType::kFramebuffer, GLFBO},
+            {GLObjectType::kTexture, GLTexture},
+        });
     }
 
     void *GL4PixelBuffer2D::getNativeObject() const
@@ -124,7 +221,7 @@ namespace Tiny3D
 
     GL4PixelBuffer3D::~GL4PixelBuffer3D()
     {
-        GL_SAFE_DELETE_TEXTURE(GLTexture);
+        releaseGLObjects({{GLObjectType::kTexture, GLTexture}});
     }
 
     void *GL4PixelBuffer3D::getNativeObject() const
@@ -141,7 +238,7 @@ namespace Tiny3D
 
     GL4PixelBufferCubemap::~GL4PixelBufferCubemap()
     {
-        GL_SAFE_DELETE_TEXTURE(GLTexture);
+        releaseGLObjects({{GLObjectType::kTexture, GLTexture}});
     }
 
     void *GL4PixelBufferCubemap::getNativeObject() const
@@ -158,9 +255,11 @@ namespace Tiny3D
 
     GL4StructuredBuffer::~GL4StructuredBuffer()
     {
-        GL_SAFE_DELETE_TEXTURE(GLTextureBuffer);
-        GL_SAFE_DELETE_BUFFER(GLCounterBuffer);
-        GL_SAFE_DELETE_BUFFER(GLBuffer);
+        releaseGLObjects({
+            {GLObjectType::kTexture, GLTextureBuffer},
+            {GLObjectType::kBuffer, GLCounterBuffer},
+            {GLObjectType::kBuffer, GLBuffer},
+        });
     }
 
     void *GL4StructuredBuffer::getNativeObject() const

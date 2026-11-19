@@ -62,6 +62,38 @@ namespace Tiny3D
         if ((p) != 0) { glDeleteRenderbuffers(1, &(p)); (p) = 0; }
 
     //-------------------------------------------------------------------------
+    // 跨线程释放 GL 对象
+    //-------------------------------------------------------------------------
+
+    enum class GLObjectType : uint8_t
+    {
+        kBuffer = 0,
+        kTexture,
+        kVertexArray,
+        kSampler,
+        kFramebuffer,
+        kRenderbuffer,
+        kShader,
+        kProgram,
+    };
+
+    struct GLObjectName
+    {
+        GLObjectType    type;
+        GLuint          name;
+    };
+
+    /**
+     * \brief 释放一组 GL 对象，名字为 0 的项会被忽略
+     * \remarks 开启 RHI 线程后 GL context 归 RHI 线程所有，主线程上没有 current context，
+     *  而 RHI 资源的最后一个引用往往在主线程释放。当前线程有 context 时立即删除；
+     *  否则作为一条命令投递到 RHI 线程，排在所有已入队命令之后执行；
+     *  RHI 线程已停止时借 dummy context 在当前线程删除。
+     *  RHI 资源的析构函数必须走这里，不能直接调用 GL_SAFE_DELETE_*。
+     */
+    void releaseGLObjects(std::initializer_list<GLObjectName> objects);
+
+    //-------------------------------------------------------------------------
     // 前置声明
     //-------------------------------------------------------------------------
 

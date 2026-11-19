@@ -18,7 +18,7 @@ namespace Tiny3D
 
     GL4VertexShader::~GL4VertexShader()
     {
-        GL_SAFE_DELETE_SHADER(GLShaderHandle);
+        releaseGLObjects({{GLObjectType::kShader, GLShaderHandle}});
     }
 
     void *GL4VertexShader::getNativeObject() const
@@ -35,7 +35,7 @@ namespace Tiny3D
 
     GL4PixelShader::~GL4PixelShader()
     {
-        GL_SAFE_DELETE_SHADER(GLShaderHandle);
+        releaseGLObjects({{GLObjectType::kShader, GLShaderHandle}});
     }
 
     void *GL4PixelShader::getNativeObject() const
@@ -52,7 +52,7 @@ namespace Tiny3D
 
     GL4HullShader::~GL4HullShader()
     {
-        GL_SAFE_DELETE_SHADER(GLShaderHandle);
+        releaseGLObjects({{GLObjectType::kShader, GLShaderHandle}});
     }
 
     void *GL4HullShader::getNativeObject() const
@@ -69,7 +69,7 @@ namespace Tiny3D
 
     GL4DomainShader::~GL4DomainShader()
     {
-        GL_SAFE_DELETE_SHADER(GLShaderHandle);
+        releaseGLObjects({{GLObjectType::kShader, GLShaderHandle}});
     }
 
     void *GL4DomainShader::getNativeObject() const
@@ -86,7 +86,7 @@ namespace Tiny3D
 
     GL4GeometryShader::~GL4GeometryShader()
     {
-        GL_SAFE_DELETE_SHADER(GLShaderHandle);
+        releaseGLObjects({{GLObjectType::kShader, GLShaderHandle}});
     }
 
     void *GL4GeometryShader::getNativeObject() const
@@ -103,7 +103,7 @@ namespace Tiny3D
 
     GL4ComputeShader::~GL4ComputeShader()
     {
-        GL_SAFE_DELETE_SHADER(GLShaderHandle);
+        releaseGLObjects({{GLObjectType::kShader, GLShaderHandle}});
     }
 
     void *GL4ComputeShader::getNativeObject() const
