@@ -25,6 +25,7 @@
 
 #include "T3DGL4Renderer.h"
 #include "T3DGL4Context.h"
+#include "T3DGL4Error.h"
 
 
 namespace Tiny3D
@@ -59,6 +60,12 @@ namespace Tiny3D
         do
         {
             mContext = GL4Context::create();
+            if (mContext == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Create GL4 context failed !");
+                ret = T3D_ERR_GL4_CREATE_CONTEXT;
+                break;
+            }
         } while (false);
 
         return ret;
