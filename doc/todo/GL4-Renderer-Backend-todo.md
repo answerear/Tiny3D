@@ -1735,6 +1735,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | **问题** | 颜色 RT 用 `glTexImage2D` 创建可变存储，且不记录可用于 `glBindImageTexture` 的格式；没有 `kGPUUnorderedAccess` 分支。普通 `createPixelBuffer*` 在 1709、1870、2037、2164 行有该分支，RT 路径没有 |
 | **D3D11** | MSAA=1 时给 RT 加 `D3D11_BIND_UNORDERED_ACCESS` 并创建 UAV（`T3DD3D11Context.cpp:638-649`） |
 | **修复建议** | 非 MSAA 颜色 RT 带 `kGPUUnorderedAccess` 时改用 `glTexStorage2D` 并写入 `GLInternalFormat`；`getGLImageInfo` 已支持 `GL4PixelBuffer2D`，补齐创建侧即可 |
+| **状态** | ✅ 已修复（2026-11-19）。<br>**结论修正**：「不能作为 UAV」的判断不成立。`buildRenderTextureResources` 本来就写入了 `GLInternalFormat`，`setCSUnorderedAccessBuffers` → `getGLImageInfo` 对非 MSAA 的 RT 也会返回纹理句柄；GL 规范只要求被 `glBindImageTexture` 绑定的纹理是完整的，并不要求不可变存储，而 RT 已设置 `MAX_LEVEL = 0`。新增的 K21 在修复前的 GL4 上同样通过（20/20），实际缺的只是创建侧与其他纹理路径不一致，以及 barrier 位不全。<br>**创建**：非 MSAA 颜色 RT 带 `kGPUUnorderedAccess` 时改用 `glTexStorage2D(levels = 1)` 建不可变存储，与 `createPixelBuffer*` 的 UAV 分支一致；MSAA 颜色 RT 或深度 RT 带该标志时打 warning 并忽略，与 D3D11 一致（D3D11 对深度 RT 不报警告，GL4 多报一条）。<br>**barrier**：`uavBarrier` 补上 `GL_FRAMEBUFFER_BARRIER_BIT`（compute 写完后作为 FBO 附件渲染、blit 或 `glReadPixels`）与 `GL_TEXTURE_UPDATE_BARRIER_BIT`（`glGetTextureSubImage` 读回）。原来缺这两位，按规范 image store 的结果对这些操作不保证可见，RTX 5060 上没有表现出来。<br>**回归用例**：`ComputeApp` 新增 K21 `render texture UAV`（D3D11 与 GL4），复用 K5 的 kernel，纹理改用 `RenderBufferManager::loadRenderTexture` 创建（走后端 `createRenderTexture`），compute 写入 (x, y, 128, 255) 后读回逐像素校验。D3D11 与 GL4 均 20/20 通过。<br>**遗留限制**：引擎层的 `RenderTexture` / `TextureManager::createRenderTexture` 没有传入 `gpuAccess` 的参数，带 UAV 的 RT 目前只能通过 `loadRenderTexture` 直接拿 PixelBuffer2D，无法用来构造 `RenderTarget`，所以「compute 写完再当渲染目标画」的组合还没有用例覆盖。GLES3 未处理 |
 
 ### E.1.7 UAV 槽位不做越界检查
 
@@ -1802,7 +1803,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | **P1** | E.1.4 | 窗口目标支持外部深度（中间 FBO）（✅ 已修复） | 中 |
 | **P1** | E.1.5 | `createPixelBuffer2D` 支持 MSAA（✅ 已修复） | 小 |
 | **P1** | E.1.7 | UAV 槽位越界检查 | 小 |
-| **P2** | E.1.6 | RenderTexture 支持 UAV | 小 |
+| **P2** | E.1.6 | RenderTexture 支持 UAV（✅ 已修复） | 小 |
 | **P2** | E.2.1 / E.2.3 / E.2.6 / E.3.1 | CB 解绑、DepthBiasClamp 与抗锯齿线、创建参数校验、编辑器与启动器的渲染器选择 | 小～中 |
 | **P3** | E.2.2 / E.2.4 / E.2.5 / E.2.7 / E.2.8 / E.2.9 / E.3.2 / E.3.3 | 其余次要项 | 视需求 |
 
