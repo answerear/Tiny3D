@@ -935,6 +935,226 @@ namespace
     };
 
 
+    /**
+     * \brief 大组数派发：200 万个元素按 64 线程一组，一次派发 31250 个组
+     * \remarks 线程组数量上限与单组线程数上限是两回事。D3D11 曾把前者填成 1024，
+     *          超过 1024 组的合法派发会被 dispatch 拒绝。另外检查组数刚好超出
+     *          maxDispatchGroupCount 时 dispatch 必须拒绝，证明上限确实生效。
+     */
+    class CaseLargeDispatch : public ComputeCase
+    {
+    public:
+        static const uint32_t kElemCount = 2000000;
+
+        const char *getName() const override { return "K15 large dispatch"; }
+        uint32_t getRequiredCaps() const override
+        {
+            return kNeedCompute | kNeedUnorderedAccess | kNeedStructuredBuffer | kNeedReadback;
+        }
+        uint32_t getBackendMask() const override { return kBackendAll; }
+
+        TResult setup() override
+        {
+            mKernel = ComputeKernel::create("ComputeLinearWrite", linearWriteSource(), 64);
+            if (mKernel == nullptr) return T3D_ERR_FAIL;
+
+            uint32_t gx = 0, gy = 0, gz = 0;
+            mKernel->getGroupSize(gx, gy, gz);
+            if (gx == 0 || (kElemCount % gx) != 0 || kElemCount / gx <= 1024)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : numthreads.x=%u does not yield more than 1024 whole groups",
+                    getName(), gx);
+                return T3D_ERR_FAIL;
+            }
+
+            mOutput = loadSB(StructuredBufferKind::kStructured, sizeof(uint32_t), kElemCount,
+                kGPUUnorderedAccess | kGPUShaderResource, kCPURead);
+            return mOutput != nullptr ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+
+            // 超限检查放在绑定 shader 之前：万一后端漏了校验，也不会真的派发出去
+            const uint32_t maxX = ctx->getCapabilities().maxDispatchGroupCount[0];
+            if (maxX != UINT32_MAX && T3D_SUCCEEDED(ctx->dispatch(maxX + 1, 1, 1)))
+            {
+                APP_LOG_DEBUG("[%s] FAILED : dispatch(%u, 1, 1) exceeds maxDispatchGroupCount but was accepted",
+                    getName(), maxX + 1);
+                return T3D_ERR_FAIL;
+            }
+
+            TResult ret = ctx->setComputeShader(mKernel->getVariant());
+            if (T3D_FAILED(ret)) return ret;
+
+            UnorderedAccessBuffers uavs;
+            uavs.push_back(mOutput);
+            ret = ctx->setCSUnorderedAccessBuffers(uavSlot(0, 0), uavs);
+            if (T3D_FAILED(ret)) return ret;
+
+            ret = mKernel->dispatchThreads(kElemCount);
+            if (T3D_FAILED(ret))
+            {
+                APP_LOG_DEBUG("[%s] FAILED : dispatch of %u threads rejected, maxDispatchGroupCount.x=%u",
+                    getName(), kElemCount, maxX);
+                ctx->setComputeShader(nullptr);
+                return ret;
+            }
+
+            ctx->uavBarrier(uavs);
+            ctx->setComputeShader(nullptr);
+            return mapWhole(mOutput.get(), mHandle);
+        }
+
+        TResult verify() override
+        {
+            Buffer data;
+            TResult ret = unmapCheckSize(mOutput.get(), mHandle, data, sizeof(uint32_t) * kElemCount);
+            if (T3D_FAILED(ret)) return ret;
+
+            const uint32_t *out = reinterpret_cast<const uint32_t *>(data.Data);
+            uint32_t mismatches = 0;
+            uint32_t first = 0, got = 0;
+            for (uint32_t i = 0; i < kElemCount; ++i)
+            {
+                if (out[i] != i * 2)
+                {
+                    if (mismatches == 0) { first = i; got = out[i]; }
+                    ++mismatches;
+                }
+            }
+            data.release();
+            if (mismatches != 0)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : %u mismatches, first [%u] got %u expected %u",
+                    getName(), mismatches, first, got, first * 2);
+                return T3D_ERR_FAIL;
+            }
+            return T3D_OK;
+        }
+
+    private:
+        ComputeKernelPtr    mKernel;
+        StructuredBufferPtr mOutput;
+        ReadbackHandle      mHandle {};
+    };
+
+
+    /**
+     * \brief CPU 写入的动态结构化缓冲：writeBuffer 填数据，compute 读 SRV 后写到 UAV
+     * \remarks 先写一遍垃圾数据，再用 discard 方式写正确数据，结果必须是第二次的内容。
+     *          D3D11 的 writeBuffer 曾漏掉 StructuredBuffer，走到断言后拿空指针 Map。
+     */
+    class CaseDynamicStructuredWrite : public ComputeCase
+    {
+    public:
+        static const uint32_t kElemCount = 256;
+
+        const char *getName() const override { return "K16 dynamic structured writeBuffer"; }
+        uint32_t getRequiredCaps() const override
+        {
+            return kNeedCompute | kNeedUnorderedAccess | kNeedStructuredBuffer | kNeedReadback;
+        }
+        uint32_t getBackendMask() const override { return kBackendAll; }
+
+        TResult setup() override
+        {
+            mKernel = ComputeKernel::create("ComputeStructuredRead", structuredReadSource(), 64);
+            if (mKernel == nullptr) return T3D_ERR_FAIL;
+
+            StructuredBufferDesc desc;
+            desc.kind = StructuredBufferKind::kStructured;
+            desc.elementSize = sizeof(uint32_t);
+            desc.elementCount = kElemCount;
+            mInput = T3D_RENDER_BUFFER_MGR.loadStructuredBuffer(
+                desc, MemoryType::kVRAM, Usage::kDynamic, kCPUWrite, kGPUShaderResource);
+
+            mOutput = loadSB(StructuredBufferKind::kStructured, sizeof(uint32_t), kElemCount,
+                kGPUUnorderedAccess | kGPUShaderResource, kCPURead);
+            return (mInput && mOutput) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+
+            Buffer data = allocBytes(sizeof(uint32_t) * kElemCount);
+            uint32_t *v = reinterpret_cast<uint32_t *>(data.Data);
+            for (uint32_t i = 0; i < kElemCount; ++i) v[i] = 0xDEADBEEFu;
+            TResult ret = ctx->writeBuffer(mInput.get(), data, true);
+            if (T3D_SUCCEEDED(ret))
+            {
+                for (uint32_t i = 0; i < kElemCount; ++i) v[i] = i * 7u + 3u;
+                ret = ctx->writeBuffer(mInput.get(), data, true);
+            }
+            data.release();
+            if (T3D_FAILED(ret))
+            {
+                APP_LOG_DEBUG("[%s] FAILED : writeBuffer on dynamic structured buffer returned %d", getName(), ret);
+                return ret;
+            }
+
+            ret = ctx->setComputeShader(mKernel->getVariant());
+            if (T3D_FAILED(ret)) return ret;
+
+            ShaderResourceBuffers srvs;
+            srvs.push_back(mInput);
+            ret = ctx->setCSStructuredBuffers(0, srvs);
+            if (T3D_FAILED(ret)) return ret;
+
+            UnorderedAccessBuffers uavs;
+            uavs.push_back(mOutput);
+            ret = ctx->setCSUnorderedAccessBuffers(uavSlot(1, 0), uavs);
+            if (T3D_FAILED(ret)) return ret;
+
+            ret = mKernel->dispatchThreads(kElemCount);
+            if (T3D_FAILED(ret)) return ret;
+
+            ctx->uavBarrier(uavs);
+            ShaderResourceBuffers emptySrvs(1, nullptr);
+            ctx->setCSStructuredBuffers(0, emptySrvs);
+            ctx->setComputeShader(nullptr);
+            return mapWhole(mOutput.get(), mHandle);
+        }
+
+        TResult verify() override
+        {
+            Buffer data;
+            TResult ret = unmapCheckSize(mOutput.get(), mHandle, data, sizeof(uint32_t) * kElemCount);
+            if (T3D_FAILED(ret)) return ret;
+
+            const uint32_t *out = reinterpret_cast<const uint32_t *>(data.Data);
+            uint32_t mismatches = 0;
+            uint32_t first = 0, got = 0, expectFirst = 0;
+            for (uint32_t i = 0; i < kElemCount; ++i)
+            {
+                const uint32_t expect = (i * 7u + 3u) ^ 0x5A5A5A5Au;
+                if (out[i] != expect)
+                {
+                    if (mismatches == 0) { first = i; got = out[i]; expectFirst = expect; }
+                    ++mismatches;
+                }
+            }
+            data.release();
+            if (mismatches != 0)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : %u mismatches, first [%u] got 0x%08X expected 0x%08X "
+                    "(0xDEADBEEF ^ 0x5A5A5A5A = 0x84F7E4B5 means the second write was lost)",
+                    getName(), mismatches, first, got, expectFirst);
+                return T3D_ERR_FAIL;
+            }
+            return T3D_OK;
+        }
+
+    private:
+        ComputeKernelPtr    mKernel;
+        StructuredBufferPtr mInput;
+        StructuredBufferPtr mOutput;
+        ReadbackHandle      mHandle {};
+    };
+
+
     // ---- 图形回归用例（K11～K14）：验证 GL4 后端行为级修复，判定同样靠 readback ----
 
     /// 读回像素的粗分类。只用黑 / 白 / 绿三种颜色，RGBA 与 BGRA 两种字节序下结论相同。
@@ -1661,6 +1881,8 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseShaderBindOrder());
     cases.emplace_back(new CaseWindowViewport());
     cases.emplace_back(new CaseSamplerBorderColor());
+    cases.emplace_back(new CaseLargeDispatch());
+    cases.emplace_back(new CaseDynamicStructuredWrite());
 }
 
 uint32_t currentBackendBit()

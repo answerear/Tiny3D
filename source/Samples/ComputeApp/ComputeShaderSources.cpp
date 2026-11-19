@@ -463,6 +463,41 @@ void main()
     return make(hlsl, gl, gles);
 }
 
+ComputeShaderSource structuredReadSource()
+{
+    static const char *hlsl = R"(
+StructuredBuffer<uint> gInput : register(t0);
+RWStructuredBuffer<uint> gOutput : register(u0);
+[numthreads(64, 1, 1)]
+void main(uint3 id : SV_DispatchThreadID)
+{
+    gOutput[id.x] = gInput[id.x] ^ 0x5A5A5A5Au;
+}
+)";
+    static const char *gl = R"(
+#version 430
+layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+layout(std430, binding = 0) readonly buffer gInput { uint data[]; } gInputBuf;
+layout(std430, binding = 1) buffer gOutput { uint data[]; } gOutputBuf;
+void main()
+{
+    uint i = gl_GlobalInvocationID.x;
+    gOutputBuf.data[i] = gInputBuf.data[i] ^ 0x5A5A5A5Au;
+}
+)";
+    static const char *gles = R"(#version 310 es
+layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+layout(std430, binding = 0) readonly buffer gInput { uint data[]; } gInputBuf;
+layout(std430, binding = 1) buffer gOutput { uint data[]; } gOutputBuf;
+void main()
+{
+    uint i = gl_GlobalInvocationID.x;
+    gOutputBuf.data[i] = gInputBuf.data[i] ^ 0x5A5A5A5Au;
+}
+)";
+    return make(hlsl, gl, gles);
+}
+
 ComputeShaderSource particleUpdateSource()
 {
     static const char *hlsl = R"(
