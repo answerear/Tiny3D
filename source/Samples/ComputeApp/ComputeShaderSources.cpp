@@ -1046,3 +1046,84 @@ void main()
 )";
     return make(hlsl, gl, gles);
 }
+
+ComputeShaderSource sampleTextureVSSource()
+{
+    // 全屏三角形 VS，额外在 VS 里采样 t0 / s0 的中心并传给 PS
+    static const char *hlsl = R"(
+Texture2D vsTex : register(t0);
+SamplerState samplervsTex : register(s0);
+struct VSIn { float3 position : POSITION; };
+struct VertexOutput
+{
+    float4 position : SV_POSITION;
+    float4 vsColor : TEXCOORD0;
+};
+VertexOutput main(VSIn input)
+{
+    VertexOutput o;
+    o.position = float4(input.position, 1.0f);
+    o.vsColor = vsTex.SampleLevel(samplervsTex, float2(0.5f, 0.5f), 0.0f);
+    return o;
+}
+)";
+    static const char *gl = R"(
+#version 430
+layout(location = 0) in vec3 inPosition;
+layout(binding = 0) uniform sampler2D vsTex;
+layout(location = 0) out vec4 vsColor;
+void main()
+{
+    gl_Position = vec4(inPosition, 1.0);
+    vsColor = textureLod(vsTex, vec2(0.5, 0.5), 0.0);
+}
+)";
+    static const char *gles = R"(#version 310 es
+layout(location = 0) in vec3 inPosition;
+uniform highp sampler2D vsTex;
+layout(location = 0) out vec4 vsColor;
+void main()
+{
+    gl_Position = vec4(inPosition, 1.0);
+    vsColor = textureLod(vsTex, vec2(0.5, 0.5), 0.0);
+}
+)";
+    return make(hlsl, gl, gles);
+}
+
+ComputeShaderSource combineStageTexturesPSSource()
+{
+    // R 取 PS 自己 t0 的红通道，G 取 VS 传来的绿通道
+    static const char *hlsl = R"(
+Texture2D psTex : register(t0);
+SamplerState samplerpsTex : register(s0);
+float4 main(float4 position : SV_POSITION, float4 vsColor : TEXCOORD0) : SV_TARGET
+{
+    float4 c = psTex.SampleLevel(samplerpsTex, float2(0.5f, 0.5f), 0.0f);
+    return float4(c.r, vsColor.g, 0.0f, 1.0f);
+}
+)";
+    static const char *gl = R"(
+#version 430
+layout(binding = 0) uniform sampler2D psTex;
+layout(location = 0) in vec4 vsColor;
+out vec4 fragColor;
+void main()
+{
+    vec4 c = textureLod(psTex, vec2(0.5, 0.5), 0.0);
+    fragColor = vec4(c.r, vsColor.g, 0.0, 1.0);
+}
+)";
+    static const char *gles = R"(#version 310 es
+precision mediump float;
+uniform highp sampler2D psTex;
+layout(location = 0) in vec4 vsColor;
+out vec4 fragColor;
+void main()
+{
+    vec4 c = textureLod(psTex, vec2(0.5, 0.5), 0.0);
+    fragColor = vec4(c.r, vsColor.g, 0.0, 1.0);
+}
+)";
+    return make(hlsl, gl, gles);
+}

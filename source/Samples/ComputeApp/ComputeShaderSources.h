@@ -52,6 +52,8 @@ ComputeShaderSource solidRedPSSource();
 ComputeShaderSource solidBluePSSource();
 ComputeShaderSource sampleOutsidePSSource();
 ComputeShaderSource sampleCenterPSSource();
+ComputeShaderSource sampleTextureVSSource();
+ComputeShaderSource combineStageTexturesPSSource();
 
 
 #endif  /*__COMPUTE_SHADER_SOURCES_H__*/

@@ -2209,6 +2209,189 @@ namespace
         SamplerStatePtr         mSampler;
         std::vector<Group>      mGroups;
     };
+
+
+    /**
+     * \brief VS 与 PS 同时采样：两个阶段各在自己的 t0 / s0 上绑一张不同的纹理
+     * \remarks VS 的 t0 清成绿，PS 的 t0 清成红，PS 输出 (PS 纹理的 R, VS 纹理的 G, 0)，两张都读对才是黄色。
+     *          竖带 0 先绑 VS 再绑 PS，竖带 1 反过来。GL 的纹理单元由各阶段共享，后端曾把各阶段的
+     *          t# 直接当作纹理单元号，后绑的覆盖先绑的，竖带 0 读回红、竖带 1 读回绿（E.1.3）。
+     */
+    class CaseCrossStageTextures : public ComputeCase
+    {
+    public:
+        ~CaseCrossStageTextures() override
+        {
+            releaseColorRT(mVSTex, mVSRT);
+            releaseColorRT(mPSTex, mPSRT);
+            releaseColorRT(mDstTex, mDstRT);
+        }
+
+        static const uint32_t kWidth = 32;
+        static const uint32_t kHeight = 8;
+        static const uint32_t kStripes = 2;
+
+        const char *getName() const override { return "K18 cross stage textures"; }
+        uint32_t getRequiredCaps() const override { return kNeedReadback; }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            if (T3D_FAILED(mDraw.setup())) return T3D_ERR_FAIL;
+
+            mSampleVS = ComputeKernel::compileGraphics("SampleTextureVS", SHADER_STAGE::kVertex,
+                sampleTextureVSSource(), mDummyVS);
+            mCombinePS = ComputeKernel::compileGraphics("CombineStageTexturesPS", SHADER_STAGE::kPixel,
+                combineStageTexturesPSSource(), mDummyPS);
+            if (mSampleVS == nullptr || mCombinePS == nullptr) return T3D_ERR_FAIL;
+
+            SamplerDesc desc;
+            desc.MinFilter = FilterOptions::kPoint;
+            desc.MagFilter = FilterOptions::kPoint;
+            desc.MipFilter = FilterOptions::kPoint;
+            mSampler = T3D_RENDER_STATE_MGR.loadSamplerState(desc);
+
+            mVSTex = createColorRT("K18-VS", 4, 4, PixelFormat::E_PF_R8G8B8A8, 1, kCPUNone, true);
+            mPSTex = createColorRT("K18-PS", 4, 4, PixelFormat::E_PF_R8G8B8A8, 1, kCPUNone, true);
+            mDstTex = createColorRT("K18-Dst", kWidth, kHeight, PixelFormat::E_PF_R8G8B8A8, 1, kCPURead);
+            if (mSampler == nullptr || mVSTex == nullptr || mPSTex == nullptr || mDstTex == nullptr)
+            {
+                return T3D_ERR_FAIL;
+            }
+            mVSRT = RenderTarget::create(mVSTex);
+            mPSRT = RenderTarget::create(mPSTex);
+            mDstRT = RenderTarget::create(mDstTex);
+            return (mVSRT && mPSRT && mDstRT) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+
+            ctx->setRenderTarget(mVSRT.get());
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::GREEN);
+
+            ctx->setRenderTarget(mPSRT.get());
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::RED);
+
+            ctx->setRenderTarget(mDstRT.get());
+            mDraw.bindStates(ctx);
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+            ctx->beginPass();
+
+            PixelBuffers vsTextures;
+            vsTextures.push_back(mVSTex->getPixelBuffer());
+            PixelBuffers psTextures;
+            psTextures.push_back(mPSTex->getPixelBuffer());
+            Samplers samplers;
+            samplers.push_back(mSampler);
+
+            ctx->setVertexShader(mSampleVS.get());
+            ctx->setPixelShader(mCombinePS.get());
+
+            TResult ret = T3D_OK;
+            for (uint32_t s = 0; s < kStripes && T3D_SUCCEEDED(ret); ++s)
+            {
+                if (s == 0)
+                {
+                    ctx->setVSPixelBuffers(0, vsTextures);
+                    ctx->setVSSamplers(0, samplers);
+                    ctx->setPSPixelBuffers(0, psTextures);
+                    ctx->setPSSamplers(0, samplers);
+                }
+                else
+                {
+                    ctx->setPSPixelBuffers(0, psTextures);
+                    ctx->setPSSamplers(0, samplers);
+                    ctx->setVSPixelBuffers(0, vsTextures);
+                    ctx->setVSSamplers(0, samplers);
+                }
+                ctx->setViewport(stripe(s));
+                ret = mDraw.draw(ctx);
+            }
+
+            ctx->endPass();
+
+            if (T3D_SUCCEEDED(ret))
+            {
+                mHandle = mapColorRT(mDstTex.get());
+                ret = mHandle.isValid() ? T3D_OK : T3D_ERR_FAIL;
+            }
+            ctx->reset();
+            return ret;
+        }
+
+        TResult verify() override
+        {
+            Buffer data;
+            TResult ret = unmapColorRT(mDstTex.get(), mHandle, data);
+            if (T3D_FAILED(ret)) return ret;
+
+            const char *names[kStripes] = { "VS bound first", "PS bound first" };
+            const uint32_t stripeW = kWidth / kStripes;
+            uint32_t bad = 0;
+            for (uint32_t s = 0; s < kStripes; ++s)
+            {
+                const uint32_t x0 = s * stripeW + 2;
+                const uint32_t x1 = (s + 1) * stripeW - 2;
+                bool reported = false;
+                for (uint32_t y = 0; y < kHeight; ++y)
+                {
+                    for (uint32_t x = x0; x < x1; ++x)
+                    {
+                        const uint8_t *p = pixelAt(data, kWidth, kHeight, x, y);
+                        if (p != nullptr && isYellow(p)) continue;
+
+                        ++bad;
+                        if (!reported)
+                        {
+                            reported = true;
+                            if (p == nullptr)
+                            {
+                                APP_LOG_DEBUG("[%s] FAILED : %s stripe, readback row pitch too small", getName(), names[s]);
+                            }
+                            else
+                            {
+                                APP_LOG_DEBUG("[%s] FAILED : %s stripe got %02X%02X%02X at (%u, %u) expected FFFF00 "
+                                    "(R from PS texture, G from VS texture)", getName(), names[s], p[0], p[1], p[2], x, y);
+                            }
+                        }
+                    }
+                }
+            }
+            data.release();
+            return (bad == 0) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+    private:
+        static Viewport stripe(uint32_t index)
+        {
+            const Real w = Real(1) / Real(kStripes);
+            return Viewport {w * Real(index), 0.0f, w, 1.0f, 0.0f, 1.0f};
+        }
+
+        static bool isYellow(const uint8_t *p)
+        {
+            return p[0] >= 250 && p[1] >= 250 && p[2] <= 5;
+        }
+
+        FullscreenDraw      mDraw;
+        ShaderVariantPtr    mSampleVS;
+        ShaderVariantPtr    mCombinePS;
+        ShaderPtr           mDummyVS;
+        ShaderPtr           mDummyPS;
+        SamplerStatePtr     mSampler;
+        RenderTexturePtr    mVSTex;
+        RenderTargetPtr     mVSRT;
+        RenderTexturePtr    mPSTex;
+        RenderTargetPtr     mPSRT;
+        RenderTexturePtr    mDstTex;
+        RenderTargetPtr     mDstRT;
+        ReadbackHandle      mHandle {};
+    };
 }
 
 
@@ -2231,6 +2414,7 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseLargeDispatch());
     cases.emplace_back(new CaseDynamicStructuredWrite());
     cases.emplace_back(new CaseDepthStencilFormats());
+    cases.emplace_back(new CaseCrossStageTextures());
 }
 
 uint32_t currentBackendBit()
