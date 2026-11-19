@@ -47,6 +47,10 @@ ComputeShaderSource particleDrawPSSource();
 ComputeShaderSource fullscreenVSSource();
 ComputeShaderSource solidGreenPSSource();
 ComputeShaderSource solidWhitePSSource();
+ComputeShaderSource solidRedPSSource();
+ComputeShaderSource solidBluePSSource();
+ComputeShaderSource sampleOutsidePSSource();
+ComputeShaderSource sampleCenterPSSource();
 
 
 #endif  /*__COMPUTE_SHADER_SOURCES_H__*/

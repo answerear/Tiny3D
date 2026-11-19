@@ -894,3 +894,120 @@ void main()
 )";
     return make(hlsl, gl, gles);
 }
+
+ComputeShaderSource solidRedPSSource()
+{
+    static const char *hlsl = R"(
+float4 main(float4 position : SV_POSITION) : SV_TARGET
+{
+    return float4(1.0f, 0.0f, 0.0f, 1.0f);
+}
+)";
+    static const char *gl = R"(
+#version 430
+out vec4 fragColor;
+void main()
+{
+    fragColor = vec4(1.0, 0.0, 0.0, 1.0);
+}
+)";
+    static const char *gles = R"(#version 310 es
+precision mediump float;
+out vec4 fragColor;
+void main()
+{
+    fragColor = vec4(1.0, 0.0, 0.0, 1.0);
+}
+)";
+    return make(hlsl, gl, gles);
+}
+
+ComputeShaderSource solidBluePSSource()
+{
+    static const char *hlsl = R"(
+float4 main(float4 position : SV_POSITION) : SV_TARGET
+{
+    return float4(0.0f, 0.0f, 1.0f, 1.0f);
+}
+)";
+    static const char *gl = R"(
+#version 430
+out vec4 fragColor;
+void main()
+{
+    fragColor = vec4(0.0, 0.0, 1.0, 1.0);
+}
+)";
+    static const char *gles = R"(#version 310 es
+precision mediump float;
+out vec4 fragColor;
+void main()
+{
+    fragColor = vec4(0.0, 0.0, 1.0, 1.0);
+}
+)";
+    return make(hlsl, gl, gles);
+}
+
+ComputeShaderSource sampleOutsidePSSource()
+{
+    // UV 落在 [0,1] 之外，Border 寻址下只会取到 BorderColor
+    static const char *hlsl = R"(
+Texture2D srcTex : register(t0);
+SamplerState srcSampler : register(s0);
+float4 main(float4 position : SV_POSITION) : SV_TARGET
+{
+    return srcTex.SampleLevel(srcSampler, float2(1.5f, 1.5f), 0.0f);
+}
+)";
+    static const char *gl = R"(
+#version 430
+layout(binding = 0) uniform sampler2D srcTex;
+out vec4 fragColor;
+void main()
+{
+    fragColor = textureLod(srcTex, vec2(1.5, 1.5), 0.0);
+}
+)";
+    static const char *gles = R"(#version 310 es
+precision mediump float;
+uniform highp sampler2D srcTex;
+out vec4 fragColor;
+void main()
+{
+    fragColor = textureLod(srcTex, vec2(1.5, 1.5), 0.0);
+}
+)";
+    return make(hlsl, gl, gles);
+}
+
+ComputeShaderSource sampleCenterPSSource()
+{
+    static const char *hlsl = R"(
+Texture2D srcTex : register(t0);
+SamplerState srcSampler : register(s0);
+float4 main(float4 position : SV_POSITION) : SV_TARGET
+{
+    return srcTex.SampleLevel(srcSampler, float2(0.5f, 0.5f), 0.0f);
+}
+)";
+    static const char *gl = R"(
+#version 430
+layout(binding = 0) uniform sampler2D srcTex;
+out vec4 fragColor;
+void main()
+{
+    fragColor = textureLod(srcTex, vec2(0.5, 0.5), 0.0);
+}
+)";
+    static const char *gles = R"(#version 310 es
+precision mediump float;
+uniform highp sampler2D srcTex;
+out vec4 fragColor;
+void main()
+{
+    fragColor = textureLod(srcTex, vec2(0.5, 0.5), 0.0);
+}
+)";
+    return make(hlsl, gl, gles);
+}

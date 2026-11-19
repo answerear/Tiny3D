@@ -935,7 +935,7 @@ namespace
     };
 
 
-    // ---- 图形回归用例（K11～K13）：验证 GL4 后端行为级修复，判定同样靠 readback ----
+    // ---- 图形回归用例（K11～K14）：验证 GL4 后端行为级修复，判定同样靠 readback ----
 
     /// 读回像素的粗分类。只用黑 / 白 / 绿三种颜色，RGBA 与 BGRA 两种字节序下结论相同。
     enum class PixelClass : char { kBlack = 'K', kWhite = 'W', kGreen = 'G', kOther = '?' };
@@ -962,10 +962,10 @@ namespace
     }
 
     RenderTexturePtr createColorRT(const char *name, uint32_t width, uint32_t height,
-        PixelFormat format, uint32_t msaaCount, uint32_t cpuAccess)
+        PixelFormat format, uint32_t msaaCount, uint32_t cpuAccess, bool shaderReadable = false)
     {
         return T3D_TEXTURE_MGR.createRenderTexture(name, width, height, format,
-            1, msaaCount, 0, false, cpuAccess);
+            1, msaaCount, 0, shaderReadable, cpuAccess);
     }
 
     // createRenderTexture 建出的 RT 要调用方自己 unload，否则引擎退出时 unloadAllResources 会报 invalid state
@@ -1431,6 +1431,217 @@ namespace
         uint32_t            mHeight {0};
         ReadbackHandle      mHandle {};
     };
+
+
+    /**
+     * \brief 采样器 BorderColor 的通道顺序：BorderColor 设为纯红，在纹理范围外采样
+     * \remarks 64x8 的 RT 分 4 条竖带：Border 采样、纯红对照、纯蓝对照、纹理中心采样（源纹理清成绿色）。
+     *          Border 竖带的读回字节必须与纯红对照一致；R/B 被交换时会与纯蓝对照一致（D.1.4）。
+     *          与对照竖带比字节，不依赖 RT 的字节序。中心采样为绿，确认纹理与采样器确实绑上了。
+     */
+    class CaseSamplerBorderColor : public ComputeCase
+    {
+    public:
+        ~CaseSamplerBorderColor() override
+        {
+            releaseColorRT(mSrcTex, mSrcRT);
+            releaseColorRT(mDstTex, mDstRT);
+        }
+
+        static const uint32_t kWidth = 64;
+        static const uint32_t kHeight = 8;
+        static const uint32_t kStripes = 4;
+
+        const char *getName() const override { return "K14 sampler border color"; }
+        uint32_t getRequiredCaps() const override { return kNeedReadback; }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            if (T3D_FAILED(mDraw.setup())) return T3D_ERR_FAIL;
+
+            mOutsidePS = ComputeKernel::compileGraphics("SampleOutsidePS", SHADER_STAGE::kPixel,
+                sampleOutsidePSSource(), mDummyOutside);
+            mCenterPS = ComputeKernel::compileGraphics("SampleCenterPS", SHADER_STAGE::kPixel,
+                sampleCenterPSSource(), mDummyCenter);
+            mRedPS = ComputeKernel::compileGraphics("SolidRedPS", SHADER_STAGE::kPixel,
+                solidRedPSSource(), mDummyRed);
+            mBluePS = ComputeKernel::compileGraphics("SolidBluePS", SHADER_STAGE::kPixel,
+                solidBluePSSource(), mDummyBlue);
+            if (mOutsidePS == nullptr || mCenterPS == nullptr || mRedPS == nullptr || mBluePS == nullptr)
+            {
+                return T3D_ERR_FAIL;
+            }
+
+            SamplerDesc desc;
+            desc.MinFilter = FilterOptions::kPoint;
+            desc.MagFilter = FilterOptions::kPoint;
+            desc.MipFilter = FilterOptions::kPoint;
+            desc.AddressU = TextureAddressMode::kBorder;
+            desc.AddressV = TextureAddressMode::kBorder;
+            desc.AddressW = TextureAddressMode::kBorder;
+            desc.BorderColor = ColorRGBA(1.0f, 0.0f, 0.0f, 1.0f);
+            mSampler = T3D_RENDER_STATE_MGR.loadSamplerState(desc);
+
+            mSrcTex = createColorRT("K14-Src", 4, 4, PixelFormat::E_PF_R8G8B8A8, 1, kCPUNone, true);
+            mDstTex = createColorRT("K14-Dst", kWidth, kHeight, PixelFormat::E_PF_R8G8B8A8, 1, kCPURead);
+            if (mSampler == nullptr || mSrcTex == nullptr || mDstTex == nullptr) return T3D_ERR_FAIL;
+            mSrcRT = RenderTarget::create(mSrcTex);
+            mDstRT = RenderTarget::create(mDstTex);
+            return (mSrcRT && mDstRT) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+
+            ctx->setRenderTarget(mSrcRT.get());
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::GREEN);
+
+            ctx->setRenderTarget(mDstRT.get());
+            mDraw.bindStates(ctx);
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+            ctx->beginPass();
+
+            PixelBuffers textures;
+            textures.push_back(mSrcTex->getPixelBuffer());
+            Samplers samplers;
+            samplers.push_back(mSampler);
+
+            ShaderVariant *const stripePS[kStripes] = { mOutsidePS.get(), mRedPS.get(), mBluePS.get(), mCenterPS.get() };
+            TResult ret = T3D_OK;
+            ctx->setVertexShader(mDraw.vs());
+            for (uint32_t s = 0; s < kStripes && T3D_SUCCEEDED(ret); ++s)
+            {
+                ctx->setPixelShader(stripePS[s]);
+                ctx->setPSPixelBuffers(0, textures);
+                ctx->setPSSamplers(0, samplers);
+                ctx->setViewport(stripe(s));
+                ret = mDraw.draw(ctx);
+            }
+
+            ctx->endPass();
+
+            if (T3D_SUCCEEDED(ret))
+            {
+                mHandle = mapColorRT(mDstTex.get());
+                ret = mHandle.isValid() ? T3D_OK : T3D_ERR_FAIL;
+            }
+            ctx->reset();
+            return ret;
+        }
+
+        TResult verify() override
+        {
+            Buffer data;
+            TResult ret = unmapColorRT(mDstTex.get(), mHandle, data);
+            if (T3D_FAILED(ret)) return ret;
+
+            enum { kOutside = 0, kRed, kBlue, kCenter };
+            const char *names[kStripes] = { "border", "red control", "blue control", "center" };
+            const uint32_t stripeW = kWidth / kStripes;
+
+            // 每条竖带取内部第一个像素作代表，再要求竖带内部所有像素与之一致
+            uint8_t rep[kStripes][4] = {};
+            bool uniform = true;
+            for (uint32_t s = 0; s < kStripes; ++s)
+            {
+                const uint32_t x0 = s * stripeW + 2;
+                const uint32_t x1 = (s + 1) * stripeW - 2;
+                const uint8_t *first = pixelAt(data, kWidth, kHeight, x0, 0);
+                if (first == nullptr)
+                {
+                    data.release();
+                    return T3D_ERR_FAIL;
+                }
+                memcpy(rep[s], first, 4);
+                for (uint32_t y = 0; y < kHeight; ++y)
+                {
+                    for (uint32_t x = x0; x < x1; ++x)
+                    {
+                        if (!samePixel(pixelAt(data, kWidth, kHeight, x, y), rep[s]))
+                        {
+                            if (uniform)
+                            {
+                                APP_LOG_DEBUG("[%s] FAILED : %s stripe is not uniform at (%u, %u)", getName(), names[s], x, y);
+                            }
+                            uniform = false;
+                        }
+                    }
+                }
+            }
+            data.release();
+            if (!uniform) return T3D_ERR_FAIL;
+
+            if (samePixel(rep[kRed], rep[kBlue]))
+            {
+                APP_LOG_DEBUG("[%s] FAILED : red and blue controls read back identical %s", getName(), hex(rep[kRed]).c_str());
+                return T3D_ERR_FAIL;
+            }
+            if (classifyPixel(rep[kCenter]) != PixelClass::kGreen)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : center sample got %s expected green, texture or sampler not bound",
+                    getName(), hex(rep[kCenter]).c_str());
+                return T3D_ERR_FAIL;
+            }
+            if (samePixel(rep[kOutside], rep[kRed]))
+            {
+                return T3D_OK;
+            }
+            if (samePixel(rep[kOutside], rep[kBlue]))
+            {
+                APP_LOG_DEBUG("[%s] FAILED : border sample matches the blue control, BorderColor R/B are swapped", getName());
+            }
+            else
+            {
+                APP_LOG_DEBUG("[%s] FAILED : border sample got %s, red control %s, blue control %s", getName(),
+                    hex(rep[kOutside]).c_str(), hex(rep[kRed]).c_str(), hex(rep[kBlue]).c_str());
+            }
+            return T3D_ERR_FAIL;
+        }
+
+    private:
+        static Viewport stripe(uint32_t index)
+        {
+            const Real w = Real(1) / Real(kStripes);
+            return Viewport {w * Real(index), 0.0f, w, 1.0f, 0.0f, 1.0f};
+        }
+
+        static bool samePixel(const uint8_t *a, const uint8_t *b)
+        {
+            if (a == nullptr || b == nullptr) return false;
+            for (int i = 0; i < 4; ++i)
+            {
+                if (std::abs(int(a[i]) - int(b[i])) > 2) return false;
+            }
+            return true;
+        }
+
+        static String hex(const uint8_t *p)
+        {
+            char buf[16] = {};
+            snprintf(buf, sizeof(buf), "%02X%02X%02X%02X", p[0], p[1], p[2], p[3]);
+            return String(buf);
+        }
+
+        FullscreenDraw      mDraw;
+        ShaderVariantPtr    mOutsidePS;
+        ShaderVariantPtr    mCenterPS;
+        ShaderVariantPtr    mRedPS;
+        ShaderVariantPtr    mBluePS;
+        ShaderPtr           mDummyOutside;
+        ShaderPtr           mDummyCenter;
+        ShaderPtr           mDummyRed;
+        ShaderPtr           mDummyBlue;
+        SamplerStatePtr     mSampler;
+        RenderTexturePtr    mSrcTex;
+        RenderTargetPtr     mSrcRT;
+        RenderTexturePtr    mDstTex;
+        RenderTargetPtr     mDstRT;
+        ReadbackHandle      mHandle {};
+    };
 }
 
 
@@ -1449,6 +1660,7 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseMsaaScaledBlit());
     cases.emplace_back(new CaseShaderBindOrder());
     cases.emplace_back(new CaseWindowViewport());
+    cases.emplace_back(new CaseSamplerBorderColor());
 }
 
 uint32_t currentBackendBit()
