@@ -583,6 +583,8 @@ namespace Tiny3D
                     GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "Depth: glTexImage2D");
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                    // 同颜色 RT：sampler object 带 MIPMAP 类过滤时，不封顶会因 mip 链不完整恒采到 0
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
                 }
