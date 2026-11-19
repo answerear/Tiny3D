@@ -1691,7 +1691,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | **问题** | `getPixelType(E_PF_D32_FLOAT_S8X24_UINT)` 返回 `GL_FLOAT`。非 MSAA 深度 RT 会调用 `glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, w, h, 0, GL_DEPTH_STENCIL, GL_FLOAT, nullptr)`，而 `GL_DEPTH_STENCIL` 格式只接受 `GL_UNSIGNED_INT_24_8` 或 `GL_FLOAT_32_UNSIGNED_INT_24_8_REV`，驱动报 `GL_INVALID_OPERATION`，纹理没有存储，FBO 不完整。MSAA 路径走 `glTexImage2DMultisample` 不需要 type，不受影响 |
 | **D3D11** | `DXGI_FORMAT_D32_FLOAT_S8X24_UINT` 映射正确 |
 | **修复建议** | `E_PF_D32_FLOAT_S8X24_UINT` 单独返回 `GL_FLOAT_32_UNSIGNED_INT_24_8_REV`；GLES3 的 Mapping 一并核对 |
-| **状态** | ✅ 已修复（2026-11-19）。`GL4Mapping::getPixelType` 与 `GLES3Mapping::getPixelType`（GLES3 有同样的错误）都改为返回 `GL_FLOAT_32_UNSIGNED_INT_24_8_REV`。该 type 每像素 8 字节，与 `getBytesPerPixel` 一致，`writeBuffer` 的数据量校验不受影响；`map(region)` 本来就拒绝深度格式。GL4 已做 `cl /Zs` 语法检查，未跑运行时验证 |
+| **状态** | ✅ 已修复（2026-11-19）。`GL4Mapping::getPixelType` 与 `GLES3Mapping::getPixelType`（GLES3 有同样的错误）都改为返回 `GL_FLOAT_32_UNSIGNED_INT_24_8_REV`。该 type 每像素 8 字节，与 `getBytesPerPixel` 一致，`writeBuffer` 的数据量校验不受影响；`map(region)` 本来就拒绝深度格式。GL4 已做 `cl /Zs` 语法检查，未跑运行时验证。<br>**回归用例**：`ComputeApp` 新增 K17 `depth stencil formats`（D3D11 与 GL4），D24S8 / D32F / D32FS8 / D16 各测 `shaderReadable` 为 false / true，以颜色读回校验深度测试、模板测试与深度纹理采样。<br>**D3D11 同类问题**：`createRenderTexture` 中 D32FS8 + `shaderReadable` 的资源格式误用了视图格式 `DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS`，无法与 `D3D11_BIND_DEPTH_STENCIL` 搭配，已改为 `DXGI_FORMAT_R32G8X24_TYPELESS`（SRV 仍用 `R32_FLOAT_X8X24_TYPELESS`） |
 
 ### E.1.3 各 shader 阶段共用纹理单元，VS 与 PS 同时采样会冲突
 
@@ -1742,6 +1742,16 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | **问题** | `T3DRHIContext.h:610-611` 约定槽位越界返回 `T3D_ERR_INVALID_PARAM`。GL4 只把 `GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS` 填进 `maxUnorderedAccessSlots`，绑定时从不检查，越界后由驱动报 `GL_INVALID_VALUE`，函数仍返回 `T3D_OK` |
 | **D3D11** | `startSlot + size > D3D11_1_UAV_SLOT_COUNT` 时报错返回 |
 | **修复建议** | 入口按 `maxUnorderedAccessSlots`（SSBO）与 `GL_MAX_IMAGE_UNITS`（image）校验，越界返回 `T3D_ERR_INVALID_PARAM` |
+
+### E.1.8 深度 RT 作为纹理采样恒为 0
+
+| 项目 | 内容 |
+|------|------|
+| **严重度** | 中（用带 mip 过滤的采样器读深度纹理时必现，如 SSAO、软粒子、深度可视化） |
+| **位置** | `buildRenderTextureResources` 的非 MSAA 深度分支（`T3DGL4Context.cpp`） |
+| **问题** | 深度纹理没有设置 `GL_TEXTURE_MAX_LEVEL`，默认 1000 而只有 mip 0。sampler object 会覆盖纹理自身的 `GL_NEAREST`，引擎的 `kPoint` + `MipFilter = kPoint` 映射为 `GL_NEAREST_MIPMAP_NEAREST`，纹理因 mip 链不完整而采样恒返回 0。颜色 RT 早已设置 `MAX_LEVEL = 0`，深度 RT 漏了。由 ComputeApp K17 发现：4 种深度格式 `shaderReadable` 的组读回 R 全为 0，而深度/模板测试的竖带全部通过 |
+| **D3D11** | 深度 SRV 只有一级 mip，不受影响 |
+| **状态** | ✅ 已修复（2026-11-19），深度分支补 `glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0)`。GLES3 用 `glTexStorage2D(levels = 1)` 建不可变纹理，不受影响 |
 
 ---
 
