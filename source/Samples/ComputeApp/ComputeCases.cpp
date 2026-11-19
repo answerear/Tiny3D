@@ -2574,6 +2574,172 @@ namespace
         RenderTargetPtr     mDstRT;
         ReadbackHandle      mHandle {};
     };
+
+
+    /**
+     * \brief 非 RT 的 MSAA 纹理：4x 的 Texture2DMS 与 3 层 Texture2DMSArray，在 PS 里查询维度
+     * \remarks 纹理不带初始数据，PS 只用 GetDimensions / textureSize + textureSamples 把
+     *          (采样数, 宽, 高, 层数) 编码进颜色，两条竖带分别对应单张与数组。
+     *          GL4 曾忽略非 RT 纹理的 sampleDesc，建成单采样纹理，sampler2DMS 读到的采样数为 0；
+     *          D3D11 曾给 MSAA 纹理建 TEXTURE2D 维度的 SRV，创建失败（E.1.5）。
+     */
+    class CaseMsaaTexture : public ComputeCase
+    {
+    public:
+        ~CaseMsaaTexture() override
+        {
+            releaseColorRT(mDstTex, mDstRT);
+        }
+
+        static const uint32_t kWidth = 32;
+        static const uint32_t kHeight = 8;
+        static const uint32_t kStripes = 2;
+        static const uint32_t kTexWidth = 16;
+        static const uint32_t kTexHeight = 8;
+        static const uint32_t kSamples = 4;
+        static const uint32_t kLayers = 3;
+
+        const char *getName() const override { return "K20 MSAA texture"; }
+        uint32_t getRequiredCaps() const override { return kNeedReadback; }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            if (T3D_FAILED(mDraw.setup())) return T3D_ERR_FAIL;
+
+            mInfoPS = ComputeKernel::compileGraphics("MsaaTextureInfoPS", SHADER_STAGE::kPixel,
+                msaaTextureInfoPSSource(), mDummyInfo);
+            mArrayInfoPS = ComputeKernel::compileGraphics("MsaaArrayTextureInfoPS", SHADER_STAGE::kPixel,
+                msaaArrayTextureInfoPSSource(), mDummyArrayInfo);
+            if (mInfoPS == nullptr || mArrayInfoPS == nullptr) return T3D_ERR_FAIL;
+
+            // PixelBuffer 只保存描述的指针，缓存里的对象可能活得比本用例久，描述用静态存储
+            static PixelBuffer2DDesc sDesc = makeDesc(1);
+            static PixelBuffer2DDesc sArrayDesc = makeDesc(kLayers);
+            mTex = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&sDesc, MemoryType::kVRAM, Usage::kStatic, kCPUNone);
+            mArrayTex = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&sArrayDesc, MemoryType::kVRAM, Usage::kStatic, kCPUNone);
+            if (mTex == nullptr || mTex->getRHIResource() == nullptr
+                || mArrayTex == nullptr || mArrayTex->getRHIResource() == nullptr)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : cannot create %ux MSAA texture", getName(), kSamples);
+                return T3D_ERR_FAIL;
+            }
+
+            mDstTex = createColorRT("K20-Dst", kWidth, kHeight, PixelFormat::E_PF_R8G8B8A8, 1, kCPURead);
+            if (mDstTex == nullptr) return T3D_ERR_FAIL;
+            mDstRT = RenderTarget::create(mDstTex);
+            return mDstRT ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+
+            ctx->setRenderTarget(mDstRT.get());
+            mDraw.bindStates(ctx);
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+            ctx->beginPass();
+            ctx->setVertexShader(mDraw.vs());
+
+            ShaderVariant *const stripePS[kStripes] = { mInfoPS.get(), mArrayInfoPS.get() };
+            PixelBuffer2D *const stripeTex[kStripes] = { mTex.get(), mArrayTex.get() };
+            TResult ret = T3D_OK;
+            for (uint32_t s = 0; s < kStripes && T3D_SUCCEEDED(ret); ++s)
+            {
+                PixelBuffers textures;
+                textures.push_back(PixelBufferPtr(stripeTex[s]));
+                ctx->setPixelShader(stripePS[s]);
+                ctx->setPSPixelBuffers(0, textures);
+                ctx->setViewport(stripe(s));
+                ret = mDraw.draw(ctx);
+            }
+
+            ctx->endPass();
+
+            if (T3D_SUCCEEDED(ret))
+            {
+                mHandle = mapColorRT(mDstTex.get());
+                ret = mHandle.isValid() ? T3D_OK : T3D_ERR_FAIL;
+            }
+            ctx->reset();
+            return ret;
+        }
+
+        TResult verify() override
+        {
+            Buffer data;
+            TResult ret = unmapColorRT(mDstTex.get(), mHandle, data);
+            if (T3D_FAILED(ret)) return ret;
+
+            const char *names[kStripes] = { "Texture2DMS", "Texture2DMSArray" };
+            const uint32_t expectedLayers[kStripes] = { 0, kLayers };
+            const uint32_t stripeW = kWidth / kStripes;
+            uint32_t bad = 0;
+            for (uint32_t s = 0; s < kStripes; ++s)
+            {
+                // 每条竖带取中心一个像素即可，整条竖带输出的是同一个常量
+                const uint8_t *p = pixelAt(data, kWidth, kHeight, s * stripeW + stripeW / 2, kHeight / 2);
+                if (p == nullptr)
+                {
+                    APP_LOG_DEBUG("[%s] FAILED : readback row pitch too small", getName());
+                    ++bad;
+                    break;
+                }
+
+                const uint32_t samples = decode(p[0], 8);
+                const uint32_t w = decode(p[1], 64);
+                const uint32_t h = decode(p[2], 64);
+                const uint32_t layers = (expectedLayers[s] != 0) ? decode(p[3], 8) : 0;
+                if (samples != kSamples || w != kTexWidth || h != kTexHeight || layers != expectedLayers[s])
+                {
+                    ++bad;
+                    APP_LOG_DEBUG("[%s] FAILED : %s got samples=%u size=%ux%u layers=%u, expected samples=%u size=%ux%u layers=%u",
+                        getName(), names[s], samples, w, h, layers, kSamples, kTexWidth, kTexHeight, expectedLayers[s]);
+                }
+            }
+            data.release();
+            return (bad == 0) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+    private:
+        static PixelBuffer2DDesc makeDesc(uint32_t arraySize)
+        {
+            PixelBuffer2DDesc desc;
+            desc.width = kTexWidth;
+            desc.height = kTexHeight;
+            desc.mipmaps = 1;
+            desc.arraySize = arraySize;
+            desc.format = PixelFormat::E_PF_R8G8B8A8;
+            desc.sampleDesc.Count = kSamples;
+            desc.sampleDesc.Quality = 0;
+            desc.gpuAccess = kGPUShaderResource;
+            return desc;
+        }
+
+        static Viewport stripe(uint32_t index)
+        {
+            const Real w = Real(1) / Real(kStripes);
+            return Viewport {w * Real(index), 0.0f, w, 1.0f, 0.0f, 1.0f};
+        }
+
+        /// 着色器把整数除以 scale 写进 UNORM8，这里还原回整数
+        static uint32_t decode(uint8_t v, uint32_t scale)
+        {
+            return static_cast<uint32_t>(std::lround(double(v) * double(scale) / 255.0));
+        }
+
+        FullscreenDraw      mDraw;
+        ShaderVariantPtr    mInfoPS;
+        ShaderVariantPtr    mArrayInfoPS;
+        ShaderPtr           mDummyInfo;
+        ShaderPtr           mDummyArrayInfo;
+        PixelBuffer2DPtr    mTex;
+        PixelBuffer2DPtr    mArrayTex;
+        RenderTexturePtr    mDstTex;
+        RenderTargetPtr     mDstRT;
+        ReadbackHandle      mHandle {};
+    };
 }
 
 
@@ -2598,6 +2764,7 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseDepthStencilFormats());
     cases.emplace_back(new CaseCrossStageTextures());
     cases.emplace_back(new CaseWindowExternalDepth());
+    cases.emplace_back(new CaseMsaaTexture());
 }
 
 uint32_t currentBackendBit()

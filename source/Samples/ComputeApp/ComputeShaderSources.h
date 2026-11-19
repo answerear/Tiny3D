@@ -54,6 +54,8 @@ ComputeShaderSource sampleOutsidePSSource();
 ComputeShaderSource sampleCenterPSSource();
 ComputeShaderSource sampleTextureVSSource();
 ComputeShaderSource combineStageTexturesPSSource();
+ComputeShaderSource msaaTextureInfoPSSource();
+ComputeShaderSource msaaArrayTextureInfoPSSource();
 
 
 #endif  /*__COMPUTE_SHADER_SOURCES_H__*/

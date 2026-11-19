@@ -1127,3 +1127,56 @@ void main()
 )";
     return make(hlsl, gl, gles);
 }
+
+ComputeShaderSource msaaTextureInfoPSSource()
+{
+    // 输出 t0 的 (采样数 / 8, 宽 / 64, 高 / 64, 1)。纹理没有内容，只查询维度
+    static const char *hlsl = R"(
+Texture2DMS<float4> msTex : register(t0);
+float4 main(float4 position : SV_POSITION) : SV_TARGET
+{
+    uint w, h, samples;
+    msTex.GetDimensions(w, h, samples);
+    return float4(samples / 8.0f, w / 64.0f, h / 64.0f, 1.0f);
+}
+)";
+    // textureSamples 需要 GLSL 4.50
+    static const char *gl = R"(
+#version 450
+layout(binding = 0) uniform sampler2DMS msTex;
+out vec4 fragColor;
+void main()
+{
+    ivec2 size = textureSize(msTex);
+    int samples = textureSamples(msTex);
+    fragColor = vec4(float(samples) / 8.0, float(size.x) / 64.0, float(size.y) / 64.0, 1.0);
+}
+)";
+    return make(hlsl, gl, nullptr);
+}
+
+ComputeShaderSource msaaArrayTextureInfoPSSource()
+{
+    // 输出 t0 的 (采样数 / 8, 宽 / 64, 高 / 64, 层数 / 8)
+    static const char *hlsl = R"(
+Texture2DMSArray<float4> msTex : register(t0);
+float4 main(float4 position : SV_POSITION) : SV_TARGET
+{
+    uint w, h, layers, samples;
+    msTex.GetDimensions(w, h, layers, samples);
+    return float4(samples / 8.0f, w / 64.0f, h / 64.0f, layers / 8.0f);
+}
+)";
+    static const char *gl = R"(
+#version 450
+layout(binding = 0) uniform sampler2DMSArray msTex;
+out vec4 fragColor;
+void main()
+{
+    ivec3 size = textureSize(msTex);
+    int samples = textureSamples(msTex);
+    fragColor = vec4(float(samples) / 8.0, float(size.x) / 64.0, float(size.y) / 64.0, float(size.z) / 8.0);
+}
+)";
+    return make(hlsl, gl, nullptr);
+}
