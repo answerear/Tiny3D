@@ -4207,13 +4207,14 @@ namespace Tiny3D
             const RHIResource::ResourceType type = resource->getResourceType();
             return type == RHIResource::ResourceType::kVertexBuffer
                 || type == RHIResource::ResourceType::kIndexBuffer
-                || type == RHIResource::ResourceType::kConstantBuffer;
+                || type == RHIResource::ResourceType::kConstantBuffer
+                || type == RHIResource::ResourceType::kStructuredBuffer;
         };
 
         if (!isLinearBuffer(src->getRHIResource()) || !isLinearBuffer(dst->getRHIResource()))
         {
             // 纹理类资源请走 blit，那边才有格式/采样数的兼容性判断
-            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "copyBuffer : only vertex / index / constant buffer are supported !");
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "copyBuffer : only vertex / index / constant / structured buffer are supported !");
             return T3D_ERR_D3D11_UNSUPPORTED_OPERATION;
         }
 
