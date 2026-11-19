@@ -1741,9 +1741,9 @@ namespace Tiny3D
         d3dDesc.MipLODBias = desc.MipLODBias;
         d3dDesc.MaxAnisotropy = desc.MaxAnisotropy;
         d3dDesc.ComparisonFunc = D3D11Mapping::get(desc.CompareFunc);
-        d3dDesc.BorderColor[0] = desc.BorderColor.blue();
+        d3dDesc.BorderColor[0] = desc.BorderColor.red();
         d3dDesc.BorderColor[1] = desc.BorderColor.green();
-        d3dDesc.BorderColor[2] = desc.BorderColor.red();
+        d3dDesc.BorderColor[2] = desc.BorderColor.blue();
         d3dDesc.BorderColor[3] = desc.BorderColor.alpha();
         d3dDesc.MinLOD = desc.MinLOD;
         d3dDesc.MaxLOD = desc.MaxLOD;
