@@ -1641,7 +1641,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | D.4.3 | ✔️ 与 D3D11 一致 | 无改动 |
 | D.4.4 | ⏸ 暂不处理 | 需编辑器侧接入 |
 
-**回归验证**：`ComputeApp` 新增三个图形自检用例，与 K1～K9 一起在 OpenGL 4 与 Direct3D11 下均为 12 passed, 0 failed。
+**回归验证**：`ComputeApp` 新增四个图形自检用例，与 K1～K9 一起在 OpenGL 4 与 Direct3D11 下均为 13 passed, 0 failed。
 
 | 用例 | 覆盖 | 做法 |
 |------|------|------|
@@ -1649,7 +1649,8 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | K11 MSAA scaled blit | D.3.1 | 64×64 4x MSAA RT 清白，`blit` 到 32×32 单采样 RT，读回要求全白 |
 | K12 shader bind order | D.2.1、D.1.7 | 64×8 RT 按 1/4 宽视口分四条：先 PS 后 VS（绿）、只换 PS（白）、`setVertexShader(nullptr)` 后再设 VS（绿）、不画（黑），读回要求 `GWGK` |
 | K13 window viewport | D.1.3 | 窗口清黑后以视口 `{0, 0, 0.5, 0.5}` 画白，`blit` 到同尺寸 RT 读回，要求只有左上象限为白 |
+| K14 sampler border color | D.1.4 | Border 寻址、BorderColor 纯红，在 UV (1.5, 1.5) 采样，读回字节须与纯红对照竖带一致；与纯蓝对照一致即判为 R/B 交换。把 D3D11 改回旧写法时该用例实测失败 |
 
-- 这三个用例只在 D3D11 与 GL4 上运行，GLES3 不在掩码内。
+- 这四个用例只在 D3D11 与 GL4 上运行，GLES3 不在掩码内。
 - 远平面裁剪（D.1.1）仍需在 RmlUi 和普通场景中目测确认。
 
