@@ -1862,6 +1862,353 @@ namespace
         RenderTargetPtr     mDstRT;
         ReadbackHandle      mHandle {};
     };
+
+
+    /**
+     * \brief 深度/模板 RT：四种深度格式各测 shaderReadable = false / true，共 8 组
+     * \remarks 每组 64x8 的颜色 RT 外挂该格式的深度 RT，深度清成 0.5，全程不写深度，分 4 条竖带：
+     *          竖带 0：深度 0.75 画白，LESS 不通过（黑）。竖带 1：深度 0.25 画绿，通过（绿）。
+     *          竖带 2：关深度测试，模板 EQUAL 清屏值画绿（绿）。竖带 3：模板 EQUAL 另一个值画白（黑）。
+     *          无模板的格式不画竖带 2、3。shaderReadable 的组再把深度纹理采样到 4x4 的颜色 RT，R 应约为 128。
+     *          深度 RT 没建出存储时 FBO / DSV 无效，竖带 1 读回不是绿：GL 的 D32FS8 曾因像素类型映射错误
+     *          创建失败（E.1.2），D3D11 的 D32FS8 + shaderReadable 曾用视图格式建资源而失败。
+     */
+    class CaseDepthStencilFormats : public ComputeCase
+    {
+    public:
+        ~CaseDepthStencilFormats() override
+        {
+            for (Group &g : mGroups)
+            {
+                RenderTargetPtr none;
+                releaseColorRT(g.color, g.rt);
+                releaseColorRT(g.depth, none);
+                releaseColorRT(g.sample, g.sampleRT);
+            }
+        }
+
+        static const uint32_t kWidth = 64;
+        static const uint32_t kHeight = 8;
+        static const uint32_t kStripes = 4;
+        static const uint32_t kSampleSize = 4;
+        static const uint32_t kStencilClear = 3;
+
+        const char *getName() const override { return "K17 depth stencil formats"; }
+        uint32_t getRequiredCaps() const override { return kNeedReadback; }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            if (T3D_FAILED(mDraw.setup())) return T3D_ERR_FAIL;
+
+            mSamplePS = ComputeKernel::compileGraphics("SampleDepthPS", SHADER_STAGE::kPixel,
+                sampleCenterPSSource(), mDummySample);
+            if (mSamplePS == nullptr) return T3D_ERR_FAIL;
+
+            // GL 的 NDC 深度是 [-1, 1]，经 glDepthRange(0, 1) 映射到窗口深度；D3D 直接取 z
+            mNearVB = createFullscreenVB(ndcZ(0.25f));
+            mFarVB = createFullscreenVB(ndcZ(0.75f));
+
+            DepthStencilDesc less;
+            less.DepthWriteEnable = false;
+            less.DepthFunc = CompareFunction::kLess;
+            mDepthLess = T3D_RENDER_STATE_MGR.loadDepthStencilState(less);
+            mStencilPass = loadStencilEqual(kStencilClear);
+            mStencilFail = loadStencilEqual(kStencilClear + 2);
+
+            SamplerDesc sampler;
+            sampler.MinFilter = FilterOptions::kPoint;
+            sampler.MagFilter = FilterOptions::kPoint;
+            sampler.MipFilter = FilterOptions::kPoint;
+            mSampler = T3D_RENDER_STATE_MGR.loadSamplerState(sampler);
+
+            if (!mNearVB || !mFarVB || !mDepthLess || !mStencilPass || !mStencilFail || !mSampler)
+            {
+                return T3D_ERR_FAIL;
+            }
+
+            struct FormatInfo { PixelFormat format; bool hasStencil; const char *name; };
+            const FormatInfo formats[] =
+            {
+                { PixelFormat::E_PF_D24_UNORM_S8_UINT,    true,  "D24S8"  },
+                { PixelFormat::E_PF_D32_FLOAT,            false, "D32F"   },
+                { PixelFormat::E_PF_D32_FLOAT_S8X24_UINT, true,  "D32FS8" },
+                { PixelFormat::E_PF_D16_UNORM,            false, "D16"    },
+            };
+
+            for (const FormatInfo &f : formats)
+            {
+                for (bool readable : { false, true })
+                {
+                    Group g;
+                    g.format = f.format;
+                    g.hasStencil = f.hasStencil;
+                    g.readable = readable;
+                    g.label = String(f.name) + (readable ? " readable" : "");
+
+                    const String prefix = "K17-" + String(f.name) + (readable ? "-R" : "");
+                    g.color = createColorRT((prefix + "-Color").c_str(), kWidth, kHeight,
+                        PixelFormat::E_PF_R8G8B8A8, 1, kCPURead);
+                    g.depth = T3D_TEXTURE_MGR.createRenderTexture(prefix + "-Depth", kWidth, kHeight,
+                        f.format, 1, 1, 0, readable, kCPUNone);
+                    if (g.color == nullptr || g.depth == nullptr)
+                    {
+                        APP_LOG_DEBUG("[%s] FAILED : %s create render texture failed", getName(), g.label.c_str());
+                        mGroups.push_back(std::move(g));
+                        return T3D_ERR_FAIL;
+                    }
+                    g.rt = RenderTarget::create(g.color, g.depth);
+
+                    if (readable)
+                    {
+                        g.sample = createColorRT((prefix + "-Sample").c_str(), kSampleSize, kSampleSize,
+                            PixelFormat::E_PF_R8G8B8A8, 1, kCPURead);
+                        if (g.sample == nullptr)
+                        {
+                            mGroups.push_back(std::move(g));
+                            return T3D_ERR_FAIL;
+                        }
+                        g.sampleRT = RenderTarget::create(g.sample);
+                    }
+
+                    const bool ok = g.rt != nullptr && (!readable || g.sampleRT != nullptr);
+                    mGroups.push_back(std::move(g));
+                    if (!ok) return T3D_ERR_FAIL;
+                }
+            }
+
+            return T3D_OK;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+
+            TResult ret = T3D_OK;
+            for (Group &g : mGroups)
+            {
+                TResult r = recordGroup(ctx, g);
+                if (T3D_FAILED(r))
+                {
+                    APP_LOG_DEBUG("[%s] FAILED : %s record failed", getName(), g.label.c_str());
+                    if (T3D_SUCCEEDED(ret)) ret = r;
+                }
+            }
+            ctx->reset();
+            return ret;
+        }
+
+        TResult verify() override
+        {
+            // 每组的 readback 都要 unmap，不能在第一处失败就返回
+            uint32_t bad = 0;
+            for (Group &g : mGroups)
+            {
+                if (!verifyStripes(g)) ++bad;
+                if (g.readable && !verifySample(g)) ++bad;
+            }
+            return (bad == 0) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+    private:
+        struct Group
+        {
+            PixelFormat         format {PixelFormat::E_PF_UNKNOWN};
+            bool                hasStencil {false};
+            bool                readable {false};
+            String              label;
+            RenderTexturePtr    color;
+            RenderTexturePtr    depth;
+            RenderTargetPtr     rt;
+            RenderTexturePtr    sample;
+            RenderTargetPtr     sampleRT;
+            ReadbackHandle      colorHandle {};
+            ReadbackHandle      sampleHandle {};
+        };
+
+        static float ndcZ(float depth)
+        {
+            return isGLFamily() ? depth * 2.0f - 1.0f : depth;
+        }
+
+        static VertexBufferPtr createFullscreenVB(float z)
+        {
+            const float verts[9] = { -1.0f, -1.0f, z,  3.0f, -1.0f, z,  -1.0f, 3.0f, z };
+            Buffer vb = allocBytes(sizeof(verts));
+            memcpy(vb.Data, verts, sizeof(verts));
+            VertexBufferPtr buffer = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(sizeof(float) * 3, 3, vb,
+                MemoryType::kBoth, Usage::kImmutable, kCPUNone);
+            vb.release();
+            return buffer;
+        }
+
+        static DepthStencilStatePtr loadStencilEqual(uint32_t ref)
+        {
+            DepthStencilDesc desc;
+            desc.DepthTestEnable = false;
+            desc.DepthWriteEnable = false;
+            desc.StencilEnable = true;
+            desc.StencilRef = ref;
+            desc.FrontFace.StencilFunc = CompareFunction::kEqual;
+            desc.BackFace.StencilFunc = CompareFunction::kEqual;
+            return T3D_RENDER_STATE_MGR.loadDepthStencilState(desc);
+        }
+
+        static Viewport stripe(uint32_t index)
+        {
+            const Real w = Real(1) / Real(kStripes);
+            return Viewport {w * Real(index), 0.0f, w, 1.0f, 0.0f, 1.0f};
+        }
+
+        TResult drawStripe(RHIContext *ctx, uint32_t index, DepthStencilState *state,
+            VertexBuffer *vb, ShaderVariant *ps)
+        {
+            VertexBuffers vbs;
+            vbs.push_back(VertexBufferPtr(vb));
+            VertexStrides strides;
+            strides.push_back(sizeof(float) * 3);
+            VertexOffsets offsets;
+            offsets.push_back(0);
+
+            ctx->setDepthStencilState(state);
+            ctx->setVertexBuffers(0, vbs, strides, offsets);
+            ctx->setPixelShader(ps);
+            ctx->setViewport(stripe(index));
+            return mDraw.draw(ctx);
+        }
+
+        TResult recordGroup(RHIContext *ctx, Group &g)
+        {
+            ctx->setRenderTarget(g.rt.get());
+            mDraw.bindStates(ctx);
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+            if (g.hasStencil)
+            {
+                ctx->clearDepthStencil(0.5f, kStencilClear);
+            }
+            else
+            {
+                ctx->clearDepth(0.5f);
+            }
+            ctx->beginPass();
+            ctx->setVertexShader(mDraw.vs());
+
+            TResult ret = T3D_OK;
+            do
+            {
+                ret = drawStripe(ctx, 0, mDepthLess.get(), mFarVB.get(), mDraw.whitePS());
+                if (T3D_FAILED(ret)) break;
+                ret = drawStripe(ctx, 1, mDepthLess.get(), mNearVB.get(), mDraw.greenPS());
+                if (T3D_FAILED(ret)) break;
+                if (g.hasStencil)
+                {
+                    ret = drawStripe(ctx, 2, mStencilPass.get(), mNearVB.get(), mDraw.greenPS());
+                    if (T3D_FAILED(ret)) break;
+                    ret = drawStripe(ctx, 3, mStencilFail.get(), mNearVB.get(), mDraw.whitePS());
+                }
+            } while (false);
+            ctx->endPass();
+            if (T3D_FAILED(ret)) return ret;
+
+            g.colorHandle = mapColorRT(g.color.get());
+            if (!g.colorHandle.isValid()) return T3D_ERR_FAIL;
+
+            if (!g.readable) return T3D_OK;
+
+            // 换到不带该深度的 RT 再采样，避免同一张深度纹理既是附件又是 SRV
+            ctx->setRenderTarget(g.sampleRT.get());
+            mDraw.bindStates(ctx);
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+            ctx->beginPass();
+
+            PixelBuffers textures;
+            textures.push_back(g.depth->getPixelBuffer());
+            Samplers samplers;
+            samplers.push_back(mSampler);
+            ctx->setVertexShader(mDraw.vs());
+            ctx->setPixelShader(mSamplePS.get());
+            ctx->setPSPixelBuffers(0, textures);
+            ctx->setPSSamplers(0, samplers);
+            ret = mDraw.draw(ctx);
+            ctx->endPass();
+            if (T3D_FAILED(ret)) return ret;
+
+            g.sampleHandle = mapColorRT(g.sample.get());
+            return g.sampleHandle.isValid() ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        bool verifyStripes(Group &g)
+        {
+            if (!g.colorHandle.isValid()) return false;
+
+            Buffer data;
+            if (T3D_FAILED(unmapColorRT(g.color.get(), g.colorHandle, data))) return false;
+
+            const char *expected = g.hasStencil ? "KGGK" : "KGKK";
+            const uint32_t stripeW = kWidth / kStripes;
+            char got[kStripes + 1] = {};
+            uint32_t bad = 0;
+            for (uint32_t s = 0; s < kStripes; ++s)
+            {
+                // 只看竖带内部，避开相邻竖带的边界像素
+                const uint32_t x0 = s * stripeW + 2;
+                const uint32_t x1 = (s + 1) * stripeW - 2;
+                got[s] = '?';
+                for (uint32_t y = 0; y < kHeight; ++y)
+                {
+                    for (uint32_t x = x0; x < x1; ++x)
+                    {
+                        const uint8_t *p = pixelAt(data, kWidth, kHeight, x, y);
+                        const PixelClass c = (p != nullptr) ? classifyPixel(p) : PixelClass::kOther;
+                        if (x == x0 && y == 0) got[s] = char(c);
+                        if (char(c) != expected[s]) ++bad;
+                    }
+                }
+            }
+            data.release();
+
+            if (bad != 0)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : %s stripes got \"%s\" expected \"%s\" (%u pixels mismatch)",
+                    getName(), g.label.c_str(), got, expected, bad);
+                return false;
+            }
+            return true;
+        }
+
+        bool verifySample(Group &g)
+        {
+            if (!g.sampleHandle.isValid()) return false;
+
+            Buffer data;
+            if (T3D_FAILED(unmapColorRT(g.sample.get(), g.sampleHandle, data))) return false;
+
+            const uint8_t *p = pixelAt(data, kSampleSize, kSampleSize, kSampleSize / 2, kSampleSize / 2);
+            const int red = (p != nullptr) ? int(p[0]) : -1;
+            data.release();
+
+            if (std::abs(red - 128) > 4)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : %s sampled depth R = %d expected about 128 (depth 0.5)",
+                    getName(), g.label.c_str(), red);
+                return false;
+            }
+            return true;
+        }
+
+        FullscreenDraw          mDraw;
+        ShaderVariantPtr        mSamplePS;
+        ShaderPtr               mDummySample;
+        VertexBufferPtr         mNearVB;
+        VertexBufferPtr         mFarVB;
+        DepthStencilStatePtr    mDepthLess;
+        DepthStencilStatePtr    mStencilPass;
+        DepthStencilStatePtr    mStencilFail;
+        SamplerStatePtr         mSampler;
+        std::vector<Group>      mGroups;
+    };
 }
 
 
@@ -1883,6 +2230,7 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseSamplerBorderColor());
     cases.emplace_back(new CaseLargeDispatch());
     cases.emplace_back(new CaseDynamicStructuredWrite());
+    cases.emplace_back(new CaseDepthStencilFormats());
 }
 
 uint32_t currentBackendBit()
