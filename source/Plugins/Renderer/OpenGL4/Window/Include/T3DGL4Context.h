@@ -231,6 +231,20 @@ namespace Tiny3D
         void releaseRenderTextureResources(GL4PixelBuffer2D *pb);
         TResult buildRenderTextureResources(PixelBuffer2D *buffer, GL4PixelBuffer2D *pb);
 
+        /// 窗口目标挂外部深度时的前置校验（默认帧缓冲不能挂外部附件，只能改画到中间 FBO）
+        TResult checkWindowDepthStencil(RenderTarget *renderTarget) const;
+
+        /// 以下 window proxy 相关函数只在 RHI 线程调用。
+        /// 把窗口目标改画到中间 FBO（颜色 + 外部深度），首次切入时把窗口内容拷进来
+        TResult bindWindowProxy(GL4RenderWindow *window, uint32_t width, uint32_t height, GL4PixelBuffer2D *depth);
+        /// 按窗口尺寸与采样数（重）建中间 FBO 的颜色附件，MSAA 时另建单采样的中转纹理
+        TResult ensureWindowProxyColor(uint32_t width, uint32_t height, uint32_t samples);
+        /// 在中间 FBO 与窗口 backbuffer 之间翻转 Y 整张拷贝，不改变当前 FBO 绑定。
+        /// MSAA 缓冲之间的 blit 要求矩形一致、不能翻转，所以 MSAA 时先 resolve 到中转纹理再翻转
+        void copyWindowProxy(bool toWindow);
+        /// 把中间 FBO 的内容拷回窗口并停用中间 FBO
+        void releaseWindowProxy();
+
         GLuint getGLBufferHandle(RenderBuffer *buffer) const;
         bool getGLImageInfo(RenderBuffer *buffer, GLuint &outTex, GLenum &outFormat, GLboolean &outLayered) const;
         TResult validateIndirectArgs(RenderBuffer *argsBuffer, size_t argsOffset, size_t argsSize);
@@ -252,13 +266,18 @@ namespace Tiny3D
             bool        isDepth {false};
             bool        hasStencil {false};
             bool        needsScratchFbo {false};
+            /// isWindow 时所属的窗口
+            GL4RenderWindow *window {nullptr};
         };
 
         void attachScratchFBO(GLuint fbo, const BlitEndpoint &ep, GLint layer);
         TResult resolveBlitEndpoint(Texture *tex, bool asSource, BlitEndpoint &out);
         TResult resolveBlitEndpoint(RenderTarget *rt, bool asSource, BlitEndpoint &out);
-        TResult doBlit(const BlitEndpoint &src, const BlitEndpoint &dst,
+        TResult doBlit(const BlitEndpoint &srcIn, const BlitEndpoint &dstIn,
             const Vector3 &srcOffset, const Vector3 &size, const Vector3 &dstOffset);
+
+        /// blit 端点是当前画到中间 FBO 的窗口时，改指向中间 FBO（只在 RHI 线程调用）
+        void redirectToWindowProxy(BlitEndpoint &ep) const;
 
         struct ReadbackRequest
         {
@@ -362,6 +381,18 @@ namespace Tiny3D
         GLuint  mScratchDrawFBO {0};
         /// depth-only RenderTarget 用的 FBO
         GLuint  mDepthOnlyFBO {0};
+
+        /// 窗口目标挂外部深度时代替默认帧缓冲的中间 FBO，以下成员只在 RHI 线程访问
+        GLuint  mWindowProxyFBO {0};
+        GLuint  mWindowProxyColor {0};
+        /// MSAA 时与 backbuffer 互拷用的单采样中转 FBO / 纹理
+        GLuint  mWindowProxyResolveFBO {0};
+        GLuint  mWindowProxyResolveTex {0};
+        uint32_t mWindowProxyWidth {0};
+        uint32_t mWindowProxyHeight {0};
+        uint32_t mWindowProxySamples {1};
+        /// 正在画到中间 FBO 的窗口；非空时该窗口的最新内容在中间 FBO 里，尚未拷回 backbuffer
+        GL4RenderWindow *mWindowProxyOwner {nullptr};
 
         uint32_t mNextReadbackIndex {0};
         uint32_t mReadbackGeneration {1};

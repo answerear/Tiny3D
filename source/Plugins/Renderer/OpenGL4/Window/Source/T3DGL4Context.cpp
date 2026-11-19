@@ -89,6 +89,11 @@ namespace Tiny3D
         GL_SAFE_DELETE_FBO(mScratchReadFBO);
         GL_SAFE_DELETE_FBO(mScratchDrawFBO);
         GL_SAFE_DELETE_FBO(mDepthOnlyFBO);
+        GL_SAFE_DELETE_FBO(mWindowProxyFBO);
+        GL_SAFE_DELETE_TEXTURE(mWindowProxyColor);
+        GL_SAFE_DELETE_FBO(mWindowProxyResolveFBO);
+        GL_SAFE_DELETE_TEXTURE(mWindowProxyResolveTex);
+        mWindowProxyOwner = nullptr;
         GL_SAFE_DELETE_VAO(mCurrentVAO);
 
         for (auto &pair : mPendingReadbacks)
@@ -115,6 +120,12 @@ namespace Tiny3D
 
             do
             {
+                // 中间 FBO 保持生效：present 之后的 draw 仍按外部深度画，下一次 present 再拷回
+                if (mWindowProxyOwner == renderWindow.get())
+                {
+                    copyWindowProxy(true);
+                }
+
 #if defined(T3D_OS_WINDOWS)
                 if (!::SwapBuffers(renderWindow->GLDeviceContext))
                 {
@@ -140,12 +151,18 @@ namespace Tiny3D
         rw->mWidth = w;
         rw->mHeight = h;
 
-        auto lambda = [this](uint32_t w, uint32_t h)
+        auto lambda = [this](const GL4RenderWindowPtr &rw, uint32_t w, uint32_t h)
         {
             TResult ret = T3D_OK;
 
             do
             {
+                // 改尺寸后 backbuffer 内容本就失效，中间 FBO 直接按新尺寸重建颜色附件
+                if (mWindowProxyOwner == rw.get())
+                {
+                    ret = ensureWindowProxyColor(w, h, mWindowProxySamples);
+                }
+
                 glViewport(0, 0, (GLsizei)w, (GLsizei)h);
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::resizeRenderWindow");
             } while (false);
@@ -153,7 +170,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, w, h);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, GL4RenderWindowPtr(rw), w, h);
     }
 
     //--------------------------------------------------------------------------
@@ -270,9 +287,28 @@ namespace Tiny3D
             return resetRenderTarget();
         }
 
+        const bool isWindow = (renderTarget->getType() == RenderTarget::Type::E_RT_WINDOW);
+        const bool useWindowProxy = isWindow && renderTarget->getDepthStencil() != nullptr;
+
         TResult ret = T3D_OK;
 
-        auto lambda = [this](RenderTargetPtr renderTarget)
+        if (useWindowProxy)
+        {
+            ret = checkWindowDepthStencil(renderTarget);
+            if (T3D_FAILED(ret))
+            {
+                return ret;
+            }
+        }
+
+        uint32_t windowWidth = 0, windowHeight = 0;
+        if (isWindow)
+        {
+            windowWidth = renderTarget->getRenderWindow()->getDescriptor().Width;
+            windowHeight = renderTarget->getRenderWindow()->getDescriptor().Height;
+        }
+
+        auto lambda = [this](RenderTargetPtr renderTarget, uint32_t windowWidth, uint32_t windowHeight)
         {
             TResult ret = T3D_OK;
 
@@ -281,11 +317,36 @@ namespace Tiny3D
                 // 入口处清空残留 GL error
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget: ENTRY (stale error from outside)");
 
+                const bool isWindow = (renderTarget->getType() == RenderTarget::Type::E_RT_WINDOW);
+                if (!isWindow || renderTarget->getDepthStencil() == nullptr)
+                {
+                    releaseWindowProxy();
+                }
+
                 switch (renderTarget->getType())
                 {
                 case RenderTarget::Type::E_RT_WINDOW:
                     {
-                        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                        if (renderTarget->getDepthStencil() == nullptr)
+                        {
+                            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                            break;
+                        }
+
+                        GL4RenderWindow *glWindow = static_cast<GL4RenderWindow *>(
+                            renderTarget->getRenderWindow()->getRHIRenderWindow());
+                        GL4PixelBuffer2D *glDS = static_cast<GL4PixelBuffer2D *>(
+                            renderTarget->getDepthStencil()->getPixelBuffer()->getRHIResource().get());
+                        if (glDS == nullptr || glDS->GLTexture == 0)
+                        {
+                            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget : depth stencil of window target has no GL texture !");
+                            releaseWindowProxy();
+                            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                            ret = T3D_ERR_INVALID_POINTER;
+                            break;
+                        }
+
+                        ret = bindWindowProxy(glWindow, windowWidth, windowHeight, glDS);
                     }
                     break;
                 case RenderTarget::Type::E_RT_TEXTURE:
@@ -395,15 +456,259 @@ namespace Tiny3D
             return ret;
         };
 
-        ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderTargetPtr(renderTarget));
+        ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderTargetPtr(renderTarget), windowWidth, windowHeight);
 
         if (T3D_SUCCEEDED(ret))
         {
             mCurrentRenderTarget = renderTarget;
-            mRenderingToFBO = (renderTarget->getType() == RenderTarget::Type::E_RT_TEXTURE);
+            // 中间 FBO 与纹理目标一样按上原点布局，投影同样要翻转 Y，外部深度才能与纹理目标共用
+            mRenderingToFBO = !isWindow || useWindowProxy;
         }
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Context::checkWindowDepthStencil(RenderTarget *renderTarget) const
+    {
+        GL4RenderWindow *glWindow = static_cast<GL4RenderWindow *>(
+            renderTarget->getRenderWindow()->getRHIRenderWindow());
+        RenderTexturePtr depthStencil = renderTarget->getDepthStencil();
+        PixelBuffer2D *pixelBuffer = static_cast<PixelBuffer2D *>(depthStencil->getPixelBuffer());
+        if (glWindow == nullptr || pixelBuffer == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget : window target or its depth stencil has no resource !");
+            return T3D_ERR_INVALID_POINTER;
+        }
+
+        const auto &dsDesc = pixelBuffer->getDescriptor();
+        const auto &wndDesc = renderTarget->getRenderWindow()->getDescriptor();
+
+        if (!GL4Mapping::isDepthFormat(dsDesc.format))
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget : depth stencil of window target is not a depth format !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        // 与 D3D11 一样，深度的采样数必须与窗口一致
+        const uint32_t dsSamples = std::max<uint32_t>(dsDesc.sampleDesc.Count, 1);
+        if (dsSamples != glWindow->mMSAACount)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER,
+                "setRenderTarget : depth stencil sample count %u does not match window %u !",
+                dsSamples, glWindow->mMSAACount);
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        const uint32_t wndWidth = static_cast<uint32_t>(wndDesc.Width);
+        const uint32_t wndHeight = static_cast<uint32_t>(wndDesc.Height);
+        if (dsDesc.width < wndWidth || dsDesc.height < wndHeight)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER,
+                "setRenderTarget : depth stencil [%u x %u] is smaller than window [%u x %u] !",
+                dsDesc.width, dsDesc.height, wndWidth, wndHeight);
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Context::ensureWindowProxyColor(uint32_t width, uint32_t height, uint32_t samples)
+    {
+        if (mWindowProxyFBO == 0)
+        {
+            glGenFramebuffers(1, &mWindowProxyFBO);
+        }
+
+        if (mWindowProxyColor == 0 || mWindowProxyWidth != width || mWindowProxyHeight != height
+            || mWindowProxySamples != samples)
+        {
+            const GLsizei w = static_cast<GLsizei>(width);
+            const GLsizei h = static_cast<GLsizei>(height);
+
+            GL_SAFE_DELETE_TEXTURE(mWindowProxyColor);
+            GL_SAFE_DELETE_TEXTURE(mWindowProxyResolveTex);
+            GL_SAFE_DELETE_FBO(mWindowProxyResolveFBO);
+
+            const GLenum colorTarget = (samples > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+            glGenTextures(1, &mWindowProxyColor);
+            glBindTexture(colorTarget, mWindowProxyColor);
+            if (samples > 1)
+            {
+                glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, static_cast<GLsizei>(samples), GL_RGBA8, w, h, GL_TRUE);
+            }
+            else
+            {
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+            }
+            glBindTexture(colorTarget, 0);
+
+            glBindFramebuffer(GL_FRAMEBUFFER, mWindowProxyFBO);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorTarget, mWindowProxyColor, 0);
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
+            glReadBuffer(GL_COLOR_ATTACHMENT0);
+
+            if (samples > 1)
+            {
+                glGenTextures(1, &mWindowProxyResolveTex);
+                glBindTexture(GL_TEXTURE_2D, mWindowProxyResolveTex);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+                glBindTexture(GL_TEXTURE_2D, 0);
+
+                glGenFramebuffers(1, &mWindowProxyResolveFBO);
+                glBindFramebuffer(GL_FRAMEBUFFER, mWindowProxyResolveFBO);
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mWindowProxyResolveTex, 0);
+                glDrawBuffer(GL_COLOR_ATTACHMENT0);
+                glReadBuffer(GL_COLOR_ATTACHMENT0);
+            }
+
+            mWindowProxyWidth = width;
+            mWindowProxyHeight = height;
+            mWindowProxySamples = samples;
+        }
+
+        glBindFramebuffer(GL_FRAMEBUFFER, mWindowProxyFBO);
+
+        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::ensureWindowProxyColor");
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Context::bindWindowProxy(GL4RenderWindow *window, uint32_t width, uint32_t height, GL4PixelBuffer2D *depth)
+    {
+        if (mWindowProxyOwner != window)
+        {
+            releaseWindowProxy();
+        }
+
+        TResult ret = ensureWindowProxyColor(width, height, std::max<uint32_t>(window->mMSAACount, 1));
+        if (T3D_FAILED(ret))
+        {
+            return ret;
+        }
+
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
+        const GLenum dsTarget = (depth->GLMSAACount > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+        const GLenum dsAttachment = depth->GLHasStencil ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
+        glFramebufferTexture2D(GL_FRAMEBUFFER, dsAttachment, dsTarget, depth->GLTexture, 0);
+
+        const GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        if (status != GL_FRAMEBUFFER_COMPLETE)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Window proxy FBO is not complete ! status=0x%04X", status);
+            releaseWindowProxy();
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            return T3D_ERR_GL4_CREATE_FBO;
+        }
+
+        // 同一窗口连续绑定时中间 FBO 里已经是最新内容，不再拷入
+        if (mWindowProxyOwner != window)
+        {
+            mWindowProxyOwner = window;
+            copyWindowProxy(false);
+        }
+
+        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::bindWindowProxy");
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::copyWindowProxy(bool toWindow)
+    {
+        // glBlitFramebuffer 受 scissor 约束，整张拷贝前要关掉
+        const GLboolean scissorEnabled = glIsEnabled(GL_SCISSOR_TEST);
+        if (scissorEnabled)
+        {
+            glDisable(GL_SCISSOR_TEST);
+        }
+
+        GLint prevReadFBO = 0, prevDrawFBO = 0;
+        glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &prevReadFBO);
+        glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &prevDrawFBO);
+
+        const GLint w = static_cast<GLint>(mWindowProxyWidth);
+        const GLint h = static_cast<GLint>(mWindowProxyHeight);
+
+        auto blit = [w, h](GLuint readFBO, GLuint drawFBO, bool flipY)
+        {
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, readFBO);
+            glReadBuffer(readFBO == 0 ? GL_BACK : GL_COLOR_ATTACHMENT0);
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, drawFBO);
+            glDrawBuffer(drawFBO == 0 ? GL_BACK : GL_COLOR_ATTACHMENT0);
+            glBlitFramebuffer(0, 0, w, h, 0, flipY ? h : 0, w, flipY ? 0 : h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        };
+
+        // 中间 FBO 是上原点布局，backbuffer 是下原点布局。
+        // MSAA 读源只能同矩形 resolve，翻转放在单采样中转纹理那一步；单采样源写 MSAA 目标时每个样本取同一值
+        const GLuint from = toWindow ? mWindowProxyFBO : 0;
+        const GLuint to = toWindow ? 0 : mWindowProxyFBO;
+        if (mWindowProxySamples > 1)
+        {
+            blit(from, mWindowProxyResolveFBO, false);
+            blit(mWindowProxyResolveFBO, to, true);
+        }
+        else
+        {
+            blit(from, to, true);
+        }
+
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, static_cast<GLuint>(prevReadFBO));
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, static_cast<GLuint>(prevDrawFBO));
+
+        if (scissorEnabled)
+        {
+            glEnable(GL_SCISSOR_TEST);
+        }
+
+        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::copyWindowProxy");
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::releaseWindowProxy()
+    {
+        if (mWindowProxyOwner == nullptr)
+        {
+            return;
+        }
+
+        copyWindowProxy(true);
+        mWindowProxyOwner = nullptr;
+
+        // 摘掉外部深度，避免中间 FBO 一直引用已不再使用的深度纹理
+        GLint prevFBO = 0;
+        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFBO);
+        glBindFramebuffer(GL_FRAMEBUFFER, mWindowProxyFBO);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, static_cast<GLuint>(prevFBO));
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::redirectToWindowProxy(BlitEndpoint &ep) const
+    {
+        if (!ep.isWindow || ep.window == nullptr || ep.window != mWindowProxyOwner)
+        {
+            return;
+        }
+
+        ep.fbo = mWindowProxyFBO;
+        ep.texture = mWindowProxyColor;
+        ep.target = (mWindowProxySamples > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+        ep.internalFormat = GL_RGBA8;
+        ep.resolveFbo = mWindowProxyResolveFBO;
+        ep.resolveTex = mWindowProxyResolveTex;
+        ep.width = mWindowProxyWidth;
+        ep.height = mWindowProxyHeight;
+        ep.sampleCount = mWindowProxySamples;
+        ep.isWindow = false;
     }
 
     //--------------------------------------------------------------------------
@@ -419,6 +724,7 @@ namespace Tiny3D
 
             do
             {
+                releaseWindowProxy();
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
             } while (false);
 
@@ -3626,6 +3932,7 @@ namespace Tiny3D
                 glBindBuffer(GL_ARRAY_BUFFER, 0);
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                 unbindTextureUnits();
+                releaseWindowProxy();
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
                 mCurrentProgram = 0;
@@ -5292,6 +5599,7 @@ namespace Tiny3D
             out.isDepth = false;
             out.hasStencil = false;
             out.needsScratchFbo = false;
+            out.window = static_cast<GL4RenderWindow *>(rt->getRenderWindow()->getRHIRenderWindow());
             return T3D_OK;
         }
 
@@ -5384,10 +5692,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GL4Context::doBlit(const BlitEndpoint &src, const BlitEndpoint &dst,
+    TResult GL4Context::doBlit(const BlitEndpoint &srcIn, const BlitEndpoint &dstIn,
         const Vector3 &srcOffset, const Vector3 &size, const Vector3 &dstOffset)
     {
         TResult ret = T3D_OK;
+
+        BlitEndpoint src = srcIn;
+        BlitEndpoint dst = dstIn;
+        redirectToWindowProxy(src);
+        redirectToWindowProxy(dst);
 
         // 池化临时 RT 上一帧可能还绑在某个 texture unit 上，这里先摘干净，
         // 避免同一张纹理既挂在 unit 上又当 FBO 附件写。
