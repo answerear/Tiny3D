@@ -1191,6 +1191,8 @@
 > - 按**细节与边界完整度**：**93 ✅ + 0 ⚠️ + 4 🔇 = 97**。附录 D 的行为级 review 一度把 9 个接口改回 ⚠️，同日已全部修复（见 D.6）。另有非 `RHIContext` 接口 `GL4Renderer::getEditorInfo` 未实现（见附录 C.1.1）
 >
 > **2026-11-19 更正**：上面的统计只反映「接口是否有真实实现」。对照 D3D11 的实际行为逐项核对后，仍有 7 个会产生错误结果的缺口和一批次要差距，详见**附录 E**。按行为口径，`setRenderTarget`、`createRenderTexture`、`createPixelBuffer2D`、`setCSUnorderedAccessBuffers`、`set*PixelBuffers` / `set*Samplers`（跨阶段）应视为 ⚠️。
+>
+> **2026-11-20 补充**：之后又由 ComputeApp K17 发现第 8 个缺口（E.1.8，深度 RT 作为纹理采样恒为 0，同样落在 `createRenderTexture`）。E.1.1～E.1.8 均已修复，上述接口按行为口径恢复为 ✅；附录 E.2 / E.3 的次要差距仍待处理。
 
 | 状态 | 数量 | 接口明细 |
 |------|------|----------|
@@ -1430,7 +1432,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | **P2** | C.1.1 | `GL4Renderer::getEditorInfo`（需编辑器侧同步新增 GL4 对接结构，属于 ❌ 未实现项） | ❌ 待编辑器侧接入 |
 | **P3** | C.2.5 / C.3.2 | `setViewport` 深度范围、`GL4ConsoleContext` 桩对象统一 | ✅ 已完成 |
 | — | 附录 D | 2026-11-18 行为级 review 新发现的语义错误、竞态与性能问题 | ✅ 已处理，见附录 D.6 |
-| — | 附录 E | 2026-11-19 对照 D3D11 的差距 review 新发现的问题 | ❌ 待修复，见附录 E.5 |
+| — | 附录 E | 2026-11-19 对照 D3D11 的差距 review 新发现的问题 | ⚠️ E.1.1～E.1.8 已修复，E.2 / E.3 待修复，见附录 E.5 |
 
 ---
 ---
@@ -1753,10 +1755,11 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | 项目 | 内容 |
 |------|------|
 | **严重度** | 中（用带 mip 过滤的采样器读深度纹理时必现，如 SSAO、软粒子、深度可视化） |
-| **位置** | `buildRenderTextureResources` 的非 MSAA 深度分支（`T3DGL4Context.cpp`） |
+| **位置** | `buildRenderTextureResources` 的非 MSAA 深度分支（`T3DGL4Context.cpp:902-912`，行号基于 2026-11-20 源码） |
 | **问题** | 深度纹理没有设置 `GL_TEXTURE_MAX_LEVEL`，默认 1000 而只有 mip 0。sampler object 会覆盖纹理自身的 `GL_NEAREST`，引擎的 `kPoint` + `MipFilter = kPoint` 映射为 `GL_NEAREST_MIPMAP_NEAREST`，纹理因 mip 链不完整而采样恒返回 0。颜色 RT 早已设置 `MAX_LEVEL = 0`，深度 RT 漏了。由 ComputeApp K17 发现：4 种深度格式 `shaderReadable` 的组读回 R 全为 0，而深度/模板测试的竖带全部通过 |
 | **D3D11** | 深度 SRV 只有一级 mip，不受影响 |
-| **状态** | ✅ 已修复（2026-11-19），深度分支补 `glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0)`。GLES3 用 `glTexStorage2D(levels = 1)` 建不可变纹理，不受影响 |
+| **修复建议** | 非 MSAA 深度分支补 `GL_TEXTURE_MAX_LEVEL = 0`，与颜色 RT 一致 |
+| **状态** | ✅ 已修复（2026-11-19），深度分支补 `glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0)`。<br>**同类路径核对**（2026-11-20）：GL4 中只有 mip 0 的 RT 纹理均已封顶，包括非 MSAA 颜色 RT、MSAA 颜色 RT 的 resolve 纹理、深度 RT 以及 E.1.4 的窗口中间 FBO 颜色附件；MSAA 深度 RT 是多重采样纹理，不参与 mip 过滤；`createPixelBuffer*` 按实际上传或分配的层数设置 `MAX_LEVEL`；`GL4ConsoleContext::createRenderTexture` 只返回桩对象。GLES3 用 `glTexStorage2D(levels = 1)` 建不可变纹理，不受影响。<br>**验证**：ComputeApp K17 `depth stencil formats` 的 `shaderReadable` 组（D24S8 / D32F / D32FS8 / D16）读回深度值正确；后续 K18～K23 的回归中 GL4 均为全部用例通过，K17 包含在内 |
 
 ---
 
@@ -1764,7 +1767,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 
 | 编号 | 项 | 位置 | 说明与修复建议 | 优先级 |
 |:----:|----|------|----------------|:------:|
-| E.2.1 | 常量缓冲忽略 `startSlot`，`nullptr` 不解绑 | `stageConstantBuffers`（`T3DGL4Context.cpp:4687-4719`，`nullptr` 分支 4697-4700）；`bindPendingUniformBlocks`（4536-4572） | 所有阶段的 CB 按 cbuffer 名放进同一个 `mPendingUBOs`，`startSlot` 不起作用。GLSL 中同名 uniform block 在一个 program 内本来就是同一个 block，跨阶段同名覆盖通常无害。但传入 `nullptr` 时直接跳过，旧 UBO 一直留在表里，无法解绑。建议 `nullptr` 时按槽位找到对应名字并移除，或在接口注释中写明 GL 按名绑定、`startSlot` 无效 | P2 |
+| E.2.1 | 常量缓冲忽略 `startSlot`，`nullptr` 不解绑 | `stageConstantBuffers`（`T3DGL4Context.cpp:4687-4719`，`nullptr` 分支 4697-4700）；`bindPendingUniformBlocks`（4536-4572） | 所有阶段的 CB 按 cbuffer 名放进同一个 `mPendingUBOs`，`startSlot` 不起作用。GLSL 中同名 uniform block 在一个 program 内本来就是同一个 block，跨阶段同名覆盖通常无害。但传入 `nullptr` 时直接跳过，旧 UBO 一直留在表里，无法解绑。建议 `nullptr` 时按槽位找到对应名字并移除，或在接口注释中写明 GL 按名绑定、`startSlot` 无效<br>**✅ 已修复（2026-11-20）**，两条建议都采纳了。<br>**为什么仍按名字绑定**：GL4 反射给 cbuffer 的 binding 是 glslang 的 block 下标，不是 HLSL 的 `register(b#)`，按槽位去对 program 里的 block 并不可靠。<br>**槽位表**：`mPendingUBOs` 改为每阶段一张「槽位 → cbuffer 名 + UBO」表，`stageConstantBuffers` 增加阶段与 `startSlot` 参数。传入 `nullptr`（或 RHI 资源为空）时移除该槽位；同一阶段只保留同名 CB 最后设置的那个槽位；起始槽位加数量溢出 32 位时返回 `T3D_ERR_INVALID_PARAM`。<br>**绑定**：`bindPendingUniformBlocks` 增加 `isCompute` 参数。compute program 只查 CS 的表；graphics program 只查当前挂了 shader 的 PS / VS / GS / HS / DS 的表，按这个顺序取第一个同名的，因此以 PS 为准，与 sampler 一致。多个阶段给同名 cbuffer 设置了不同的缓冲时打 warning。找不到同名 CB 时绑定 0 并打 warning，不再沿用上一个 program 留在 binding point 上的 UBO。graphics 与 compute 原先共用一张表，CS 的 cbuffer 可能用到 VS / PS 设置的同名缓冲，现在两者分开。<br>**D3D11 同步修改**：`setConstantBuffers` 遇到 `nullptr` 会解引用空指针，现改为传空缓冲，即解绑该槽位；起始槽位加数量超过 `D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT`（14）时返回 `T3D_ERR_INVALID_PARAM`，原先越界的调用由运行时丢弃，没有任何报错。<br>**接口注释**：`T3DRHIContext.h` 中 6 个 `set*ConstantBuffers` 的注释写明 `nullptr` 表示解绑、各阶段槽位相互独立，以及 GL 按 cbuffer 名绑定，要求 `ConstantBuffer` 的名字与 shader 中的 cbuffer 名一致。<br>**回归用例**：`ComputeApp` 新增 K24 `constant buffer slots`（D3D11 与 GL4）。CS 的 b0 / b1 与 PS 的 b0 使用同名 cbuffer（`CBSlotA` / `CBSlotB`），检查三部分：一是返回码，起点 `UINT32_MAX` 期望返回 `T3D_ERR_INVALID_PARAM`，槽 13 上绑定、用 `nullptr` 解绑期望返回 `T3D_OK`；二是 graphics，PS b0 设绿色后 CS 再以 [0, 2) 设同名 CB，左竖带期望仍为绿，PS b0 先用 `nullptr` 解绑再设白色，右竖带期望为白；三是 compute，PS 的同名 CB 都在 CS 之后设置，再以起点 1 单独替换 CS 的 b1，期望读回 b0 = (1, 2, 3, 4)、b1 = (9, 10, 11, 12)。临时换回修复前的 GL4 后三处都失败：起点 `UINT32_MAX` 返回 `T3D_OK`，左竖带读回白色（CS 的值截断），CS 的 b0 读回 PS 的 (1, 1, 1, 1)。修复后 D3D11 与 GL4 均 23/23 通过。修复前的 D3D11 遇到 `nullptr` 会在 RHI 线程崩溃，这一点只按代码确认，没有实际复现。<br>**遗留**：GLES3 未处理 | ✅ |
 | E.2.2 | 一张纹理配两个采样器时第二个丢失 | 反射 `T3DGL4ContextBase.cpp:950-977`；`setupSamplerBindings`（`T3DGL4Context.cpp:4583-4596`） | SPIRV-Cross 为「纹理 A + 采样器 S1」与「纹理 A + 采样器 S2」生成两个 combined sampler，反射按纹理名 `A` 建键，后者覆盖前者；`setupSamplerBindings` 把两个 uniform 指到同一个 unit，而一个 unit 只能绑一个 sampler object。建议以「纹理名 + 采样器名」为键，各分配一个 unit | P3 |
 | E.2.3 | `DepthBiasClamp`、`AntialiasedLineEnable` 未处理 | `createRasterizerState`（`T3DGL4Context.cpp:1094-1120`）；`GL4RasterizerStateData`（`T3DGL4RenderState.h`） | D3D11 两个字段都使用（`T3DD3D11Context.cpp:1692`、`1697`）。GL4 不存也不用。前者可用 `glPolygonOffsetClamp`（GL 4.6 / `ARB_polygon_offset_clamp`，需按扩展判断），后者对应 `GL_LINE_SMOOTH` | P2 |
 | E.2.4 | 反射没有 ByteAddress / Append / Consume 种类 | `reflectShaderAllBindings`（`T3DGL4ContextBase.cpp:1015-1038`） | D3D11 能反射出 `kByteAddressSRV/UAV`、`kAppendUAV`、`kConsumeUAV`；GL4 只有 `kStructuredSRV/UAV`（加 `hasCounter`）、`kTypedSRV/UAV`、`kTextureUAV`。目前只有 ComputeApp 依赖这些 Kind。GLSL 没有直接对应的语义，若上层要跨后端使用，需要约定从命名或 counter 推断 | P3 |
@@ -1804,7 +1807,9 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | **P1** | E.1.4 | 窗口目标支持外部深度（中间 FBO）（✅ 已修复） | 中 |
 | **P1** | E.1.5 | `createPixelBuffer2D` 支持 MSAA（✅ 已修复） | 小 |
 | **P1** | E.1.7 | UAV 槽位越界检查（✅ 已修复） | 小 |
+| **P1** | E.1.8 | 深度 RT 补 `GL_TEXTURE_MAX_LEVEL = 0`，修复采样恒为 0（✅ 已修复） | 1 行 |
 | **P2** | E.1.6 | RenderTexture 支持 UAV（✅ 已修复） | 小 |
-| **P2** | E.2.1 / E.2.3 / E.2.6 / E.3.1 | CB 解绑、DepthBiasClamp 与抗锯齿线、创建参数校验、编辑器与启动器的渲染器选择 | 小～中 |
+| **P2** | E.2.1 | CB 按阶段与槽位记录，`nullptr` 解绑（✅ 已修复） | 小 |
+| **P2** | E.2.3 / E.2.6 / E.3.1 | DepthBiasClamp 与抗锯齿线、创建参数校验、编辑器与启动器的渲染器选择 | 小～中 |
 | **P3** | E.2.2 / E.2.4 / E.2.5 / E.2.7 / E.2.8 / E.2.9 / E.3.2 / E.3.3 | 其余次要项 | 视需求 |
 
