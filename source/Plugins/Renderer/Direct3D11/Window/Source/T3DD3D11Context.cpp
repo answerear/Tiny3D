@@ -5658,13 +5658,24 @@ namespace Tiny3D
 
     TResult D3D11Context::setConstantBuffers(SetConstantBuffers setConstantBuffers, uint32_t startSlot, const ConstantBuffers &buffers)
     {
+        if (static_cast<uint64_t>(startSlot) + buffers.size() > D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "setConstantBuffers : slots [%u, %llu) exceed %u constant buffer slots !",
+                startSlot, static_cast<unsigned long long>(startSlot) + buffers.size(),
+                D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT);
+            return T3D_ERR_INVALID_PARAM;
+        }
+
         auto lambda = [this](SetConstantBuffers setConstantBuffers, uint32_t startSlot, const ConstantBuffers &buffers)
         {
-            TArray<ID3D11Buffer*> cbuffers(buffers.size());
+            TArray<ID3D11Buffer*> cbuffers(buffers.size(), nullptr);
             for (uint32_t i = 0; i < buffers.size(); ++i)
             {
                 const auto &cb = buffers[i];
-                cbuffers[i] = smart_pointer_cast<D3D11ConstantBuffer>(cb->getRHIResource())->D3DBuffer;
+                if (cb != nullptr && cb->getRHIResource() != nullptr)
+                {
+                    cbuffers[i] = smart_pointer_cast<D3D11ConstantBuffer>(cb->getRHIResource())->D3DBuffer;
+                }
             }
 
             (mD3DDeviceContext->*setConstantBuffers)(startSlot, (UINT)cbuffers.size(), cbuffers.data());
