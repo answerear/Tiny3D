@@ -28,7 +28,7 @@ disable-model-invocation: true
 2. **文档是假说，代码是真相**。`doc/Tiny3D-Architecture.md` 与 `doc/todo/` 可能过时（例如已删的后端、已改的类名）。与实现冲突时以实现为准，并在对照表里标出来。
 3. **禁止臆造**。不得凭类名、目录名补生命周期、线程模型、错误码或插件约定。看不清就写「待证实」。
 4. **新设计必须长在现状上**。每个新增类型/接口都要写清：复用谁、避开谁、为什么不另起炉灶。没有文件级依据的方案不算完成。
-5. **只写 markdown，不改源码**。允许创建或更新的文件仅限 `doc/todo/**/*.md`。禁止改 `source/`、CMake、插件、资源、测试，以及 `doc/todo` 以外的任何路径。接口草案用「建议实现」标注，不当成已落地代码。落地实现走 `general-manager` → `code-implementer`，本 skill 不写业务代码。
+5. **只写 markdown，不改源码**。允许创建或更新的文件仅限 `doc/todo/**/*.md`。禁止改 `source/`、CMake、插件、资源、测试，以及 `doc/todo` 以外的任何路径。接口草案用「建议实现」标注，不当成已落地代码。落地实现走 `general-manager` → 对应领域的实现 agent（`editor-implementer` / `render-implementer` / `core-implementer` / `platform-implementer` / `tools-implementer`，Sample 验证由 `samples-implementer`），本 skill 不写业务代码。
 
 ## 工作流
 

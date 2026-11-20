@@ -1,7 +1,7 @@
 ---
 name: general-manager
 description: >-
-  评审 Tiny3D 架构设计是否对齐目标，通过后才委派 code-implementer 落地。
+  评审 Tiny3D 架构设计是否对齐目标，通过后按领域委派实现 agent 落地。
   在用户点名本 skill、或要求总经理 / 设计评审 / 过关再实现 / 按设计落地时使用。
 disable-model-invocation: true
 ---
@@ -16,7 +16,9 @@ disable-model-invocation: true
 目标确认 → 有设计？→ engine-architecture（若无）
        → 对照目标 + 抽查代码评审
        → 驳回：退回改设计
-       → 通过 / 有条件通过：写评审 → code-implementer
+       → 通过 / 有条件通过：写评审 → 按领域拆交接单 → 对应实现 agent
+       → 引擎侧 / 工具回报 Sample 验证需求 → samples-implementer 验证
+       → 验证发现问题：转回对应领域修复 → 复验
 ```
 
 下游角色：
@@ -24,7 +26,14 @@ disable-model-invocation: true
 | Agent | 何时 Task |
 |-------|-----------|
 | `engine-architecture` | 没有设计稿，或评审驳回需要改方案 |
-| `code-implementer` | 已有「通过」或「有条件通过」 |
+| `editor-implementer` | 已批准，且范围涉及 `source/Editor/**`（TinyEditor、TinyLauncher、TinyImGui、ImGuiImpl） |
+| `render-implementer` | 已批准，且范围涉及 `source/Plugins/Renderer`、Core 的 `Render` / `RHI` / `Material` |
+| `core-implementer` | 已批准，且范围涉及 Core 其余模块、`Framework`、`System`、`Utils`、`Log`、`Math`、`Plugins/Archive`、`ImageCodec`、`RmlUi` |
+| `platform-implementer` | 已批准，且范围涉及 `source/Platform` |
+| `tools-implementer` | 已批准，且范围涉及 `source/Tools` |
+| `samples-implementer` | 只在 core / render / platform / tools 实现 agent 回报了「Sample 验证需求」，且功能或工具产物已落地时 |
+
+不属于以上任何领域的路径：先问用户归属，不要擅自指派。
 
 禁止用 `generalPurpose` 绕过评审去写实现。
 
@@ -71,9 +80,11 @@ disable-model-invocation: true
 
 **Task `engine-architecture`**：给主题、用户目标、已有文档路径、以及「请按驳回原因改设计，只写 `doc/todo`」。
 
-**Task `code-implementer`**：把 Agent 里的「落地交接」整段贴进 prompt，并写明设计文档路径。不要让它自己扩 scope。
+**Task 实现 agent**：每个领域一张「落地交接」，整段贴进 prompt，并写明设计文档路径。范围只含该领域的文件；跨领域设计按依赖顺序（通常系统层 → 引擎核心 → 渲染 → 工具 / 编辑器）委派，无依赖的可并行。不要让它自己扩 scope。
 
-实现子代理回报后：核对是否超出「本期范围」或「明确不改」。越界则记在总经理结论里，不要自己再改一坨代码去圆。
+实现子代理回报后：核对是否超出「本期范围」「明确不改」或越出自己的领域路径。越界则记在总经理结论里，不要自己再改一坨代码去圆。回报里的「跨领域依赖」在已批准范围内则补交接单给对应领域，否则停下来等用户。
+
+**Task `samples-implementer`**：把引擎侧或工具回报里的「Sample 验证需求」整理成「Sample 交接」（格式见 agent 文件），写明来源设计文档和需求提出方；工具类需求要带上工具用法与产物路径。同一设计里多个领域都提了需求时（如工具产出新格式、core 负责加载），能合并到一个示例就合并。Sample 回报「发现的问题」时，在已批准范围内转回对应领域修复后复验，同一问题最多往返一轮，仍不过则停下来等用户。
 
 ## 质量检查
 
