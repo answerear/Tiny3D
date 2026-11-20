@@ -187,7 +187,7 @@ namespace  Tiny3D
 
     RenderResource::Type SamplerState::getType() const
     {
-        return Type::kBlendState;
+        return Type::kSamplerState;
     }
 
     //--------------------------------------------------------------------------

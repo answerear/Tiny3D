@@ -50,7 +50,7 @@ namespace  Tiny3D
 
     RenderResource::Type RasterizerState::getType() const
     {
-        return Type::kBlendState;
+        return Type::kRasterizerState;
     }
 
     //--------------------------------------------------------------------------

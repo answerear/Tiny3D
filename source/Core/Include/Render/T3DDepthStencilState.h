@@ -117,7 +117,7 @@ namespace Tiny3D
         
         /**
          * \brief 返回渲染资源类型标识
-         * \return Type::kBlendState
+         * \return Type::kDepthStencilState
          */
         Type getType() const override;
 

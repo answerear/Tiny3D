@@ -50,7 +50,7 @@ namespace  Tiny3D
 
     RenderResource::Type DepthStencilState::getType() const
     {
-        return Type::kBlendState;
+        return Type::kDepthStencilState;
     }
 
     //--------------------------------------------------------------------------
