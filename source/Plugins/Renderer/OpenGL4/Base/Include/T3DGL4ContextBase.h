@@ -93,6 +93,26 @@ namespace Tiny3D
         /// 解析带寄存器号的 "T3D_Combined_..." 名字，格式不符时返回 false 且不改 result
         static bool parseRegisterCombinedName(const String &uniformName, CombinedSamplerName &result);
 
+        /// 存储缓冲块名拆出的原名与种类
+        struct BufferBlockName
+        {
+            /// HLSL 中的资源名
+            String name;
+            /// 绑定形态，isCounter 为 true 时无意义
+            ShaderResourceParam::Kind kind {ShaderResourceParam::Kind::kStructuredSRV};
+            /// 是否为 name 的隐藏计数器块
+            bool isCounter {false};
+        };
+
+        /**
+         * \brief 解析存储缓冲块名
+         * \remarks GLSL 的 SSBO 不区分 StructuredBuffer、ByteAddressBuffer、Append、Consume，
+         *          HLSLCross 把种类与原名写进块名："T3D_Buffer_<种类>l<原名长度><原名>"，
+         *          种类为 sb / rwsb / bab / rwbab / asb / csb，cnt 表示 <原名> 的隐藏计数器。
+         *          手写 GLSL 与旧资源不带这个格式，返回 false 且不改 result
+         */
+        static bool parseBufferBlockName(const String &blockName, BufferBlockName &result);
+
         struct GlslangUniformInfo
         {
             String name;        // e.g. "Tiny3DPerDraw.tiny3d_ObjectToWorld"

@@ -1033,29 +1033,67 @@ namespace Tiny3D
                 }
             }
 
+            // HLSLCross 生成的计数器是单独的 SSBO 块，不作为资源上报，只给对应的缓冲置 hasCounter
+            TSet<String> counterOwners;
             for (const auto &block : data.bufferBlocks)
             {
-                bool hasCounter = false;
-                for (int acBinding : data.atomicCounterBindings)
+                BufferBlockName parsed;
+                if (parseBufferBlockName(block.name, parsed) && parsed.isCounter)
                 {
-                    if (acBinding == block.binding)
+                    counterOwners.insert(parsed.name);
+                }
+            }
+
+            for (const auto &block : data.bufferBlocks)
+            {
+                String name = block.name;
+                ShaderResourceParam::Kind kind = block.isReadOnly
+                    ? ShaderResourceParam::Kind::kStructuredSRV
+                    : ShaderResourceParam::Kind::kStructuredUAV;
+                uint32_t elementStride = block.elementStride;
+                bool hasCounter = false;
+
+                BufferBlockName parsed;
+                if (parseBufferBlockName(block.name, parsed))
+                {
+                    if (parsed.isCounter)
                     {
-                        hasCounter = true;
-                        break;
+                        continue;
+                    }
+
+                    name = parsed.name;
+                    kind = parsed.kind;
+                    hasCounter = (kind == ShaderResourceParam::Kind::kAppendUAV)
+                        || (kind == ShaderResourceParam::Kind::kConsumeUAV)
+                        || (counterOwners.count(name) > 0);
+                }
+                else
+                {
+                    // 手写 GLSL：没有种类信息，只能按 readonly 区分 SRV / UAV，计数器写成与缓冲同 binding 的 atomic_uint
+                    for (int acBinding : data.atomicCounterBindings)
+                    {
+                        if (acBinding == block.binding)
+                        {
+                            hasCounter = true;
+                            break;
+                        }
                     }
                 }
 
-                const ShaderResourceParam::Kind kind = block.isReadOnly
-                    ? ShaderResourceParam::Kind::kStructuredSRV
-                    : ShaderResourceParam::Kind::kStructuredUAV;
+                // 与 D3D11 反射一致，字节地址缓冲的元素字节数为 0
+                if (kind == ShaderResourceParam::Kind::kByteAddressSRV || kind == ShaderResourceParam::Kind::kByteAddressUAV)
+                {
+                    elementStride = 0;
+                }
+
                 const uint32_t binding = (block.binding >= 0) ? static_cast<uint32_t>(block.binding) : 0u;
                 ShaderResourceParamPtr param = ShaderResourceParam::create(
-                    block.name, kind, binding, block.elementStride, hasCounter);
-                resourceParams.emplace(block.name, param);
+                    name, kind, binding, elementStride, hasCounter);
+                resourceParams.emplace(name, param);
 
                 T3D_LOG_DEBUG(LOG_TAG_GL4CONTEXTBASE,
-                    "Shader reflection - buffer block: %s, kind: %u, binding: %u, stride: %u, counter: %d",
-                    block.name.c_str(), static_cast<uint32_t>(kind), binding, block.elementStride, hasCounter ? 1 : 0);
+                    "Shader reflection - buffer block: %s -> %s, kind: %u, binding: %u, stride: %u, counter: %d",
+                    block.name.c_str(), name.c_str(), static_cast<uint32_t>(kind), binding, elementStride, hasCounter ? 1 : 0);
             }
 
             shader->setShaderResourceParams(resourceParams);
@@ -1166,6 +1204,79 @@ namespace Tiny3D
             // D3D11 反射不接受这种采样器名，这里保持整名作键
             result.samplerKey = samplerName;
         }
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool GL4ContextBase::parseBufferBlockName(const String &blockName, BufferBlockName &result)
+    {
+        static const String kPrefix = "T3D_Buffer_";
+
+        struct KindTag
+        {
+            const char *tag;
+            ShaderResourceParam::Kind kind;
+            bool isCounter;
+        };
+
+        static const KindTag kTags[] =
+        {
+            { "sb",     ShaderResourceParam::Kind::kStructuredSRV,  false },
+            { "rwsb",   ShaderResourceParam::Kind::kStructuredUAV,  false },
+            { "bab",    ShaderResourceParam::Kind::kByteAddressSRV, false },
+            { "rwbab",  ShaderResourceParam::Kind::kByteAddressUAV, false },
+            { "asb",    ShaderResourceParam::Kind::kAppendUAV,      false },
+            { "csb",    ShaderResourceParam::Kind::kConsumeUAV,     false },
+            { "cnt",    ShaderResourceParam::Kind::kStructuredUAV,  true  },
+        };
+
+        if (!StringUtil::startsWith(blockName, kPrefix, false))
+        {
+            return false;
+        }
+
+        const String::size_type tagEnd = blockName.find('l', kPrefix.size());
+        if (tagEnd == String::npos)
+        {
+            return false;
+        }
+
+        const String tag = blockName.substr(kPrefix.size(), tagEnd - kPrefix.size());
+        const KindTag *kindTag = nullptr;
+        for (const KindTag &t : kTags)
+        {
+            if (tag == t.tag)
+            {
+                kindTag = &t;
+                break;
+            }
+        }
+        if (kindTag == nullptr)
+        {
+            return false;
+        }
+
+        String::size_type pos = tagEnd + 1;
+        uint64_t nameLen = 0;
+        const String::size_type digitsStart = pos;
+        while (pos < blockName.size() && blockName[pos] >= '0' && blockName[pos] <= '9')
+        {
+            nameLen = nameLen * 10 + static_cast<uint64_t>(blockName[pos] - '0');
+            if (nameLen > blockName.size())
+            {
+                return false;
+            }
+            ++pos;
+        }
+        if (pos == digitsStart || nameLen == 0 || pos + nameLen != blockName.size())
+        {
+            return false;
+        }
+
+        result.name = blockName.substr(pos);
+        result.kind = kindTag->kind;
+        result.isCounter = kindTag->isCounter;
         return true;
     }
 
