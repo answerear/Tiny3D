@@ -229,13 +229,14 @@ namespace Tiny3D
             }
 
             // 顺序不能反：先建 dummy sampler，再合并
+            uint32_t dummySampler = 0;
             if (buildDummySampler)
             {
-                const uint32_t sampler = compiler->build_dummy_sampler_for_combined_images();
-                if (sampler != 0)
+                dummySampler = compiler->build_dummy_sampler_for_combined_images();
+                if (dummySampler != 0)
                 {
-                    compiler->set_decoration(sampler, spv::DecorationDescriptorSet, 0);
-                    compiler->set_decoration(sampler, spv::DecorationBinding, 0);
+                    compiler->set_decoration(dummySampler, spv::DecorationDescriptorSet, 0);
+                    compiler->set_decoration(dummySampler, spv::DecorationBinding, 0);
                 }
             }
 
@@ -243,11 +244,31 @@ namespace Tiny3D
             {
                 compiler->build_combined_image_samplers();
 
-                // 引擎运行期按这个名字找 uniform，改了要同步改 GL 后端
+                // 合并后的 sampler2D 不带 binding，HLSL 的 t# / s# 只能经名字带到运行期：
+                //   T3D_Combined_t<t#>s<s#|x>l<纹理名长度><纹理名><采样器名>
+                // x 表示没有采样器（只做 texelFetch）。纹理名前不能放 '_'：纹理名可能以 '_' 开头，
+                // SPIRV-Cross 会把连续的 "__" 合并掉。引擎运行期按这个格式解析，改了要同步改 GL4 / GLES3 后端
                 for (const auto &remap : compiler->get_combined_image_samplers())
                 {
-                    compiler->set_name(remap.combined_id, "SPIRV_Cross_Combined"
-                        + compiler->get_name(remap.image_id) + compiler->get_name(remap.sampler_id));
+                    const String texName = compiler->get_name(remap.image_id);
+                    const String samplerName = (remap.sampler_id == dummySampler)
+                        ? String() : compiler->get_name(remap.sampler_id);
+
+                    String name;
+                    if (compiler->has_decoration(remap.image_id, spv::DecorationBinding)
+                        && (samplerName.empty() || compiler->has_decoration(remap.sampler_id, spv::DecorationBinding)))
+                    {
+                        name = "T3D_Combined_t"
+                            + std::to_string(compiler->get_decoration(remap.image_id, spv::DecorationBinding))
+                            + "s" + (samplerName.empty() ? String("x")
+                                : std::to_string(compiler->get_decoration(remap.sampler_id, spv::DecorationBinding)))
+                            + "l" + std::to_string(texName.size()) + texName + samplerName;
+                    }
+                    else
+                    {
+                        name = "SPIRV_Cross_Combined" + texName + compiler->get_name(remap.sampler_id);
+                    }
+                    compiler->set_name(remap.combined_id, name);
                 }
             }
 
