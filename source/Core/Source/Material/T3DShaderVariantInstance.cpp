@@ -30,6 +30,7 @@
 #include "Render/T3DConstantBuffer.h"
 #include "Render/T3DPixelBuffer.h"
 #include "Render/T3DRenderResourceManager.h"
+#include "Render/T3DSamplerState.h"
 #include "Resource/T3DTexture.h"
 #include "Resource/T3DTextureManager.h"
 
@@ -98,67 +99,93 @@ namespace Tiny3D
 
         T3D_ASSERT(mConstantBuffers.size() == mConstBuffers.size());
 
-        // 以防万一 sampler start index 不是 0 开始，先找出最小的 index ，作为 start index
-        uint32_t startIdx = std::numeric_limits<uint32_t>::max();
-        uint32_t maxIdx = std::numeric_limits<uint32_t>::min();
-        TMap<uint32_t, ShaderSamplerParamPtr> samplers;
+        // 纹理槽位与采样器槽位相互独立：只用 Load 的纹理没有采样器，独立采样器没有同名纹理，
+        // 两张表分开建，不能用一个槽位同时索引两者
+        TMap<uint32_t, ShaderSamplerParam*> texParams;
+        TMap<uint32_t, ShaderSamplerParam*> samplerParams;
         for (const auto &item : mShaderVariant->getShaderSamplerParams())
         {
-            uint32_t index = item.second->getSamplerBinding();
-            samplers.emplace(index, item.second);
-            startIdx = std::min(startIdx, index);
-            maxIdx = std::max(maxIdx, index);
-        }
-
-        // 记录 samplers 起始索引
-        mSamplerStartSlot = startIdx;
-        uint32_t samplerCount = maxIdx - startIdx + 1;
-
-        // 建立 sampler LUT
-        uint32_t texCount = 0;
-        for (const auto &item : samplers)
-        {
-            TexLUTItem itemLUT;
-            itemLUT.samplerIndex = item.first;
-            itemLUT.textureIndex = texCount++;
-            mTexturesLUT.emplace(item.second->getName(), itemLUT);
-        }
-
-        // 以防万一 texture start index 不是 0 开始，先找出最小的 index ，作为 start index
-        startIdx = std::numeric_limits<uint32_t>::max();
-        maxIdx = std::numeric_limits<uint32_t>::min();
-        samplers.clear();
-        for (const auto &item : mShaderVariant->getShaderSamplerParams())
-        {
-            uint32_t index = item.second->getTexBinding();
-            samplers.emplace(index, item.second);
-            startIdx = std::min(startIdx, index);
-            maxIdx = std::max(maxIdx, index);
-        }
-
-        // 记录 pixel buffers 起始索引
-        mPixelBufferStartSlot = startIdx;
-        uint32_t pbCount = maxIdx - startIdx + 1;
-
-        // 建立 pixel buffer LUT
-        for (const auto &item : samplers)
-        {
-            const auto itr = mTexturesLUT.find(item.second->getName());
-            T3D_ASSERT(itr != mTexturesLUT.end());
-            itr->second.pixelBufferIndex = item.first;
-        }
-
-        // 预分配纹理、纹理采样器、像素缓冲对象大小
-        if (texCount > 0)
-        {
-            mTextures.resize(texCount, nullptr);
-            if (samplerCount > 0)
+            ShaderSamplerParam *param = item.second.get();
+            if (param->hasTexture())
             {
-                mSamplers.resize(samplerCount, nullptr);
+                const auto result = texParams.emplace(param->getTexBinding(), param);
+                if (!result.second)
+                {
+                    T3D_LOG_WARNING(LOG_TAG_RENDER, "Texture '%s' at slot %u conflicts with texture '%s', ignored !",
+                        param->getName().c_str(), param->getTexBinding(), result.first->second->getName().c_str());
+                }
             }
-            if (pbCount > 0)
+            if (param->hasSampler())
             {
-                mPixelBuffers.resize(pbCount, nullptr);
+                const auto result = samplerParams.emplace(param->getSamplerBinding(), param);
+                if (!result.second)
+                {
+                    T3D_LOG_WARNING(LOG_TAG_RENDER, "Sampler '%s' at slot %u conflicts with sampler '%s', ignored !",
+                        param->getName().c_str(), param->getSamplerBinding(), result.first->second->getName().c_str());
+                }
+            }
+        }
+
+        // 槽位不一定从 0 开始，数组从最小槽位排到最大槽位
+        if (!samplerParams.empty())
+        {
+            mSamplerStartSlot = samplerParams.begin()->first;
+            mSamplers.resize(samplerParams.rbegin()->first - mSamplerStartSlot + 1, nullptr);
+
+            // 纹理自带的采样器在纹理设置之前先用默认采样器；独立采样器（没有同名纹理）按名字推断，
+            // 推断不出时用默认采样器。不能留空：GL 的 sampler object 为 0 时用纹理对象自身的采样参数，默认要求完整的 mip 链
+            SamplerStatePtr defaultSampler = T3D_RENDER_STATE_MGR.loadSamplerState(SamplerDesc());
+            for (const auto &item : samplerParams)
+            {
+                const ShaderSamplerParam *param = item.second;
+                SamplerStatePtr sampler = defaultSampler;
+
+                const auto itrTex = param->hasTexture() ? texParams.find(param->getTexBinding()) : texParams.end();
+                const bool ownedByTexture = (itrTex != texParams.end() && itrTex->second == param);
+                if (!ownedByTexture)
+                {
+                    SamplerDesc desc;
+                    if (SamplerState::inferDescFromName(param->getName(), desc))
+                    {
+                        sampler = T3D_RENDER_STATE_MGR.loadSamplerState(desc);
+                    }
+                    else
+                    {
+                        T3D_LOG_DEBUG(LOG_TAG_RENDER, "Sampler '%s' has no texture and no filter/address keyword in its name, use default (linear, wrap) !",
+                            param->getName().c_str());
+                    }
+                }
+
+                mSamplers[item.first - mSamplerStartSlot] = sampler;
+            }
+        }
+
+        if (!texParams.empty())
+        {
+            mPixelBufferStartSlot = texParams.begin()->first;
+            mPixelBuffers.resize(texParams.rbegin()->first - mPixelBufferStartSlot + 1, nullptr);
+            mTextures.resize(texParams.size(), nullptr);
+
+            uint32_t texCount = 0;
+            for (const auto &item : texParams)
+            {
+                const ShaderSamplerParam *param = item.second;
+
+                TexLUTItem itemLUT;
+                itemLUT.pixelBufferIndex = item.first;
+                itemLUT.textureIndex = texCount++;
+
+                // 纹理自带的采样器（sampler<纹理名>）跟随纹理的 SamplerState
+                if (param->hasSampler())
+                {
+                    const auto itr = samplerParams.find(param->getSamplerBinding());
+                    if (itr != samplerParams.end() && itr->second == param)
+                    {
+                        itemLUT.samplerIndex = param->getSamplerBinding();
+                    }
+                }
+
+                mTexturesLUT.emplace(param->getName(), itemLUT);
             }
         }
     }
@@ -320,9 +347,12 @@ namespace Tiny3D
                 index = itr->second.pixelBufferIndex - mPixelBufferStartSlot;
                 mPixelBuffers[index] = texture->getPixelBuffer();
             
-                // 设置纹理采样器
-                index = itr->second.samplerIndex - mSamplerStartSlot;
-                mSamplers[index] = texture->getSamplerState();
+                // 设置纹理自带的采样器
+                if (itr->second.samplerIndex != UINT32_MAX)
+                {
+                    index = itr->second.samplerIndex - mSamplerStartSlot;
+                    mSamplers[index] = texture->getSamplerState();
+                }
             }
         }
     }

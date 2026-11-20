@@ -88,6 +88,26 @@ namespace Tiny3D
         /// 设置纹理绑定点
         TPROPERTY(RTTRFuncName="TexBinding", RTTRFuncType="setter")
         void setTexBinding(uint32_t binding) { mTexBinding = binding; }
+
+        /**
+         * \brief shader 是否声明了这个名字的纹理
+         * \remarks 只用 Load 的纹理没有采样器；独立采样器（不是 sampler<纹理名>）没有同名纹理。
+         *          由后端反射设置，不序列化，加载时 reflectSamplerBindings 会按当前后端重新设置；
+         *          不报告该信息的后端保持默认值 true
+         */
+        bool hasTexture() const { return mHasTexture; }
+
+        /// shader 是否声明了这个名字的采样器（D3D11 约定为 sampler<名字>）
+        bool hasSampler() const { return mHasSampler; }
+
+        /// 设置 shader 是否声明了同名纹理
+        void setHasTexture(bool value) { mHasTexture = value; }
+
+        /// 设置 shader 是否声明了对应的采样器
+        void setHasSampler(bool value) { mHasSampler = value; }
+
+        /// 反射开始前清除两个标志，由反射按实际找到的纹理与采样器重新设置
+        void clearUsage() { mHasTexture = false; mHasSampler = false; }
         
     private:
         /// 默认构造，供 clone 与 RTTR 使用
@@ -115,6 +135,10 @@ namespace Tiny3D
         uint32_t        mTexBinding {0};
         /// 采样器绑定点
         uint32_t        mSamplerBinding {0};
+        /// shader 是否声明了同名纹理
+        bool            mHasTexture {true};
+        /// shader 是否声明了对应的采样器
+        bool            mHasSampler {true};
     };
 
     /**

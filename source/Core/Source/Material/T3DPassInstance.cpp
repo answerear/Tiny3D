@@ -279,12 +279,14 @@ namespace Tiny3D
                 return T3D_ERR_INVALID_PARAM;
             }
 
+            // 只用 Load 的 shader 有纹理没有采样器，两者分开判断
             if (!shader->getSamplers().empty())
             {
-                uint32_t startSlot = shader->getSamplerStartSlot();
-                (ctx->*setSamplerState)(startSlot, shader->getSamplers());
-                startSlot = shader->getPixelBufferStartSlot();
-                (ctx->*setPixelBuffer)(startSlot, shader->getPixelBuffers());
+                (ctx->*setSamplerState)(shader->getSamplerStartSlot(), shader->getSamplers());
+            }
+            if (!shader->getPixelBuffers().empty())
+            {
+                (ctx->*setPixelBuffer)(shader->getPixelBufferStartSlot(), shader->getPixelBuffers());
             }
             return T3D_OK;
         }

@@ -484,9 +484,14 @@ namespace Tiny3D
                             mConstantValues.emplace(constValue->getName(), constValue);
                         }
 
-                        // 添加纹理采样器
+                        // 添加纹理采样器。独立采样器没有可设置的纹理，不作为材质参数
                         for (const auto &param : variant->getShaderSamplerParams())
                         {
+                            if (!param.second->hasTexture())
+                            {
+                                continue;
+                            }
+
                             ShaderSamplerValuePtr samplerValue = ShaderSamplerValue::create(param.first);
                             mSamplerValues.emplace(samplerValue->getName(), samplerValue);
                         }

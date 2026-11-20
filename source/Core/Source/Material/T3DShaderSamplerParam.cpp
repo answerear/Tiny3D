@@ -62,6 +62,8 @@ namespace Tiny3D
         sampler->mTexType = mTexType;
         sampler->mTexBinding = mTexBinding;
         sampler->mSamplerBinding = mSamplerBinding;
+        sampler->mHasTexture = mHasTexture;
+        sampler->mHasSampler = mHasSampler;
         return sampler;
     }
 

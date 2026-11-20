@@ -107,6 +107,21 @@ namespace Tiny3D
          * \return 新创建的 SamplerState 指针
          */
         static SamplerStatePtr create(const SamplerDesc &desc, uint32_t hash = 0);
+
+        /**
+         * \brief 从独立采样器的名字推断采样器描述（与 Unity 的内联采样器写法相同）
+         * \remarks 名字按 '_' 和大小写边界拆成单词后不区分大小写匹配，其余单词忽略：
+         *          - 过滤：point（全部点采样）、linear / bilinear（mip 用点采样）、trilinear（全部线性）
+         *          - 寻址：repeat / wrap、clamp、mirror、mirror + once、border。后面紧跟 u、v、w 组成的单词
+         *            （如 ClampU、RepeatUV）时只作用于这些轴，否则作用于全部轴
+         *          - compare：启用比较采样，比较函数为 LessEqual
+         *          例如 "LinearClamp"、"point_repeat"、"LinearClampU_RepeatV"、"LinearClampCompare"。
+         *          没写的项保持 desc 原值。
+         * \param [in] name : 采样器名，可带或不带 "sampler" 前缀
+         * \param [in, out] desc : 输出的采样器描述
+         * \return 至少识别出一个关键字时返回 true
+         */
+        static bool inferDescFromName(const String &name, SamplerDesc &desc);
         
         /**
          * \brief 返回渲染资源类型标识

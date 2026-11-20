@@ -414,7 +414,8 @@ namespace Tiny3D
         /// 纹理 LUT 条目，记录采样器/像素缓冲/纹理数组索引
         struct TexLUTItem
         {
-            uint32_t samplerIndex {0};
+            /// 纹理自带采样器的槽位；纹理没有自带采样器（只用 Load，或采样时用独立采样器）时为 UINT32_MAX
+            uint32_t samplerIndex {UINT32_MAX};
             uint32_t pixelBufferIndex {0};
             uint32_t textureIndex {0};
         };
