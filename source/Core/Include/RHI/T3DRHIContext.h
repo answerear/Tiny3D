@@ -353,8 +353,10 @@ namespace Tiny3D
         /**
          * \brief 设置 vs 的常量缓冲区
          * \param [in] startSlot : 常量缓冲区的插槽，对应 shader 中常量寄存器索引
-         * \param [in] buffers : 常量缓冲区对象数组
-         * \return 调用成功返回 T3D_OK
+         * \param [in] buffers : 常量缓冲区对象数组，元素为 nullptr 表示解绑该插槽
+         * \return 调用成功返回 T3D_OK，插槽范围越界返回 T3D_ERR_INVALID_PARAM
+         * \note 各 shader 阶段的插槽相互独立。GL 后端按 cbuffer 名把缓冲对到 uniform block 上，
+         *       插槽只用于覆盖与解绑，因此 ConstantBuffer 的名字必须与 shader 中的 cbuffer 名一致
          */
         virtual TResult setVSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) = 0;
 
@@ -403,8 +405,10 @@ namespace Tiny3D
         /**
          * \brief 设置 ps 的常量缓冲区
          * \param [in] startSlot : 常量缓冲区的插槽，对应 shader 中常量寄存器索引
-         * \param [in] buffers : 常量缓冲区对象数组
-         * \return 调用成功返回 T3D_OK
+         * \param [in] buffers : 常量缓冲区对象数组，元素为 nullptr 表示解绑该插槽
+         * \return 调用成功返回 T3D_OK，插槽范围越界返回 T3D_ERR_INVALID_PARAM
+         * \note 各 shader 阶段的插槽相互独立。GL 后端按 cbuffer 名把缓冲对到 uniform block 上，
+         *       插槽只用于覆盖与解绑，因此 ConstantBuffer 的名字必须与 shader 中的 cbuffer 名一致
          */
         virtual TResult setPSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) = 0;
 
@@ -452,8 +456,10 @@ namespace Tiny3D
         /**
          * \brief 设置 hs 的常量缓冲区
          * \param [in] startSlot : 常量缓冲区的插槽，对应 shader 中常量寄存器索引
-         * \param [in] buffers : 常量缓冲区对象数组
-         * \return 调用成功返回 T3D_OK
+         * \param [in] buffers : 常量缓冲区对象数组，元素为 nullptr 表示解绑该插槽
+         * \return 调用成功返回 T3D_OK，插槽范围越界返回 T3D_ERR_INVALID_PARAM
+         * \note 各 shader 阶段的插槽相互独立。GL 后端按 cbuffer 名把缓冲对到 uniform block 上，
+         *       插槽只用于覆盖与解绑，因此 ConstantBuffer 的名字必须与 shader 中的 cbuffer 名一致
          */
         virtual TResult setHSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) = 0;
 
@@ -490,8 +496,10 @@ namespace Tiny3D
         /**
          * \brief 设置 ds 的常量缓冲区
          * \param [in] startSlot : 常量缓冲区的插槽，对应 shader 中常量寄存器索引
-         * \param [in] buffers : 常量缓冲区对象数组
-         * \return 调用成功返回 T3D_OK
+         * \param [in] buffers : 常量缓冲区对象数组，元素为 nullptr 表示解绑该插槽
+         * \return 调用成功返回 T3D_OK，插槽范围越界返回 T3D_ERR_INVALID_PARAM
+         * \note 各 shader 阶段的插槽相互独立。GL 后端按 cbuffer 名把缓冲对到 uniform block 上，
+         *       插槽只用于覆盖与解绑，因此 ConstantBuffer 的名字必须与 shader 中的 cbuffer 名一致
          */
         virtual TResult setDSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) = 0;
 
@@ -528,8 +536,10 @@ namespace Tiny3D
         /**
          * \brief 设置 gs 的常量缓冲区
          * \param [in] startSlot : 常量缓冲区的插槽，对应 shader 中常量寄存器索引
-         * \param [in] buffers : 常量缓冲区对象数组
-         * \return 调用成功返回 T3D_OK
+         * \param [in] buffers : 常量缓冲区对象数组，元素为 nullptr 表示解绑该插槽
+         * \return 调用成功返回 T3D_OK，插槽范围越界返回 T3D_ERR_INVALID_PARAM
+         * \note 各 shader 阶段的插槽相互独立。GL 后端按 cbuffer 名把缓冲对到 uniform block 上，
+         *       插槽只用于覆盖与解绑，因此 ConstantBuffer 的名字必须与 shader 中的 cbuffer 名一致
          */
         virtual TResult setGSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) = 0;
 
@@ -566,8 +576,10 @@ namespace Tiny3D
         /**
          * \brief 设置 cs 的常量缓冲区
          * \param [in] startSlot : 常量缓冲区的插槽，对应 shader 中常量寄存器索引
-         * \param [in] buffers : 常量缓冲区对象数组
-         * \return 调用成功返回 T3D_OK
+         * \param [in] buffers : 常量缓冲区对象数组，元素为 nullptr 表示解绑该插槽
+         * \return 调用成功返回 T3D_OK，插槽范围越界返回 T3D_ERR_INVALID_PARAM
+         * \note 各 shader 阶段的插槽相互独立。GL 后端按 cbuffer 名把缓冲对到 uniform block 上，
+         *       插槽只用于覆盖与解绑，因此 ConstantBuffer 的名字必须与 shader 中的 cbuffer 名一致
          */
         virtual TResult setCSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) = 0;
 
