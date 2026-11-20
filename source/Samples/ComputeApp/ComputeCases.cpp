@@ -2772,6 +2772,155 @@ namespace
         RenderTargetPtr     mDstRT;
         ReadbackHandle      mHandle {};
     };
+
+
+    /**
+     * \brief 引擎层 RenderTexture 带 kGPUUnorderedAccess，交替作为渲染目标与 compute UAV
+     * \remarks 用 TextureManager::createRenderTexture 的 gpuAccess 参数建 32x32 的 RT，resize 到 64x64
+     *          （后端重建资源时要保留 UAV），再依次：作为渲染目标清白；作为 UAV 由 compute 把
+     *          (x, y, 128, 255) 写进上半部分的行；再作为渲染目标在左半屏画绿。
+     *          期望左半绿、右上为 compute 图案、右下保持白色，覆盖 RT → UAV → RT 两个方向的切换（E.1.6）。
+     */
+    class CaseRenderTextureUAVTarget : public ComputeCase
+    {
+    public:
+        ~CaseRenderTextureUAVTarget() override
+        {
+            releaseColorRT(mTex, mRT);
+        }
+
+        static const uint32_t kInitSize = 32;
+        static const uint32_t kSize = 64;
+        static const uint32_t kHalf = kSize / 2;
+
+        const char *getName() const override { return "K22 render texture UAV as render target"; }
+        uint32_t getRequiredCaps() const override
+        {
+            return kNeedCompute | kNeedUnorderedAccess | kNeedReadback;
+        }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            if (T3D_FAILED(mDraw.setup())) return T3D_ERR_FAIL;
+
+            mKernel = ComputeKernel::create("ComputeTextureWrite", textureWriteSource(), 8, 8, 1);
+            if (mKernel == nullptr) return T3D_ERR_FAIL;
+
+            mTex = T3D_TEXTURE_MGR.createRenderTexture("K22-RT", kInitSize, kInitSize, PixelFormat::E_PF_R8G8B8A8,
+                1, 1, 0, false, kCPURead, kGPUUnorderedAccess);
+            if (mTex == nullptr || mTex->getPixelBuffer() == nullptr) return T3D_ERR_FAIL;
+            if ((mTex->getPixelBuffer()->getGPUAccess() & kGPUUnorderedAccess) == 0)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : render texture lost kGPUUnorderedAccess", getName());
+                return T3D_ERR_FAIL;
+            }
+
+            if (T3D_FAILED(mTex->resize(kSize, kSize))) return T3D_ERR_FAIL;
+
+            mRT = RenderTarget::create(mTex);
+            return mRT ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+
+            ctx->setRenderTarget(mRT.get());
+            mDraw.bindStates(ctx);
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::WHITE);
+            // D3D11 不允许同一资源同时作为 RTV 与 CS UAV 绑定
+            ctx->resetRenderTarget();
+
+            TResult ret = ctx->setComputeShader(mKernel->getVariant());
+            if (T3D_FAILED(ret)) return ret;
+            UnorderedAccessBuffers uavs;
+            uavs.push_back(RenderBufferPtr(mTex->getPixelBuffer()));
+            ret = ctx->setCSUnorderedAccessBuffers(0, uavs);
+            if (T3D_FAILED(ret)) return ret;
+            ret = mKernel->dispatchThreads(kSize, kHalf);
+            if (T3D_FAILED(ret)) return ret;
+            ctx->uavBarrier(uavs);
+            UnorderedAccessBuffers unbind;
+            unbind.push_back(nullptr);
+            ctx->setCSUnorderedAccessBuffers(0, unbind);
+            ctx->setComputeShader(nullptr);
+
+            ctx->setRenderTarget(mRT.get());
+            mDraw.bindStates(ctx);
+            ctx->setViewport(Viewport {0.0f, 0.0f, 0.5f, 1.0f, 0.0f, 1.0f});
+            ctx->beginPass();
+            ctx->setVertexShader(mDraw.vs());
+            ctx->setPixelShader(mDraw.greenPS());
+            ret = mDraw.draw(ctx);
+            ctx->endPass();
+
+            if (T3D_SUCCEEDED(ret))
+            {
+                mHandle = mapColorRT(mTex.get());
+                ret = mHandle.isValid() ? T3D_OK : T3D_ERR_FAIL;
+            }
+            ctx->reset();
+            return ret;
+        }
+
+        TResult verify() override
+        {
+            Buffer data;
+            TResult ret = unmapColorRT(mTex.get(), mHandle, data);
+            if (T3D_FAILED(ret)) return ret;
+
+            uint32_t badGreen = 0, badPattern = 0, badWhite = 0;
+            for (uint32_t y = 0; y < kSize; ++y)
+            {
+                for (uint32_t x = 0; x < kSize; ++x)
+                {
+                    const uint8_t *p = pixelAt(data, kSize, kSize, x, y);
+                    if (p == nullptr)
+                    {
+                        APP_LOG_DEBUG("[%s] FAILED : readback row pitch too small", getName());
+                        data.release();
+                        return T3D_ERR_FAIL;
+                    }
+
+                    if (x < kHalf)
+                    {
+                        badGreen += (classifyPixel(p) != PixelClass::kGreen) ? 1 : 0;
+                    }
+                    else if (y < kHalf)
+                    {
+                        const bool match = p[0] == uint8_t(x) && p[1] == uint8_t(y) && p[2] == 128 && p[3] == 255;
+                        badPattern += match ? 0 : 1;
+                    }
+                    else
+                    {
+                        badWhite += (classifyPixel(p) != PixelClass::kWhite) ? 1 : 0;
+                    }
+                }
+            }
+
+            const uint8_t *tl = pixelAt(data, kSize, kSize, kHalf / 2, kHalf / 2);
+            const uint8_t *tr = pixelAt(data, kSize, kSize, kHalf + kHalf / 2, kHalf / 2);
+            const uint8_t *br = pixelAt(data, kSize, kSize, kHalf + kHalf / 2, kHalf + kHalf / 2);
+            if (badGreen + badPattern + badWhite != 0)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : mismatched green=%u pattern=%u white=%u, "
+                    "samples left=(%u,%u,%u,%u) top-right=(%u,%u,%u,%u) bottom-right=(%u,%u,%u,%u)",
+                    getName(), badGreen, badPattern, badWhite,
+                    tl[0], tl[1], tl[2], tl[3], tr[0], tr[1], tr[2], tr[3], br[0], br[1], br[2], br[3]);
+            }
+            data.release();
+            return (badGreen + badPattern + badWhite == 0) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+    private:
+        FullscreenDraw      mDraw;
+        ComputeKernelPtr    mKernel;
+        RenderTexturePtr    mTex;
+        RenderTargetPtr     mRT;
+        ReadbackHandle      mHandle {};
+    };
 }
 
 
@@ -2798,6 +2947,7 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseWindowExternalDepth());
     cases.emplace_back(new CaseMsaaTexture());
     cases.emplace_back(new CaseTextureWrite(true));
+    cases.emplace_back(new CaseRenderTextureUAVTarget());
 }
 
 uint32_t currentBackendBit()
