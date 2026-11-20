@@ -212,6 +212,11 @@ namespace Tiny3D
 
             ShaderResourceParams resourceParams;
 
+            for (auto &item : samplerParams)
+            {
+                item.second->clearUsage();
+            }
+
             // bindDesc.NumSamples 在结构化缓冲上返回的是 structure byte stride，
             // 字段名与实际语义不符，是 D3D11 反射 API 的历史包袱
             auto addResourceParam = [&resourceParams](const D3D11_SHADER_INPUT_BIND_DESC &bindDesc,
@@ -278,6 +283,7 @@ namespace Tiny3D
                         if (itr == samplerParams.end())
                         {
                             param = ShaderSamplerParam::create(name);
+                            param->clearUsage();
                             samplerParams.emplace(name, param);
                         }
                         else
@@ -289,6 +295,7 @@ namespace Tiny3D
 
                         param->setTexBinding(bindDesc.BindPoint);
                         param->setTextureType(D3D11Mapping::get(bindDesc.Dimension));
+                        param->setHasTexture(true);
 
                         T3D_LOG_DEBUG(LOG_TAG_D3D11CONTEXTBASE, "Shader reflection - Name:%s, texture binding point : %d, texture type : %d", param->getName().c_str(), param->getTexBinding(), param->getTextureType());
                     }
@@ -311,6 +318,7 @@ namespace Tiny3D
                         if (itr == samplerParams.end())
                         {
                             param = ShaderSamplerParam::create(key);
+                            param->clearUsage();
                             samplerParams.emplace(key, param);
                         }
                         else
@@ -321,6 +329,7 @@ namespace Tiny3D
                         T3D_ASSERT(param != nullptr);
 
                         param->setSamplerBinding(bindDesc.BindPoint);
+                        param->setHasSampler(true);
 
                         T3D_LOG_DEBUG(LOG_TAG_D3D11CONTEXTBASE, "Shader reflection - Name:%s, sampler binding point : %d", param->getName().c_str(), param->getSamplerBinding());
                     }
@@ -431,6 +440,11 @@ namespace Tiny3D
                 break;
             }
 
+            for (auto &item : samplerParams)
+            {
+                item.second->clearUsage();
+            }
+
             // 只回填已有的 sampler 参数，不新建 —— 新建是 reflectShaderAllBindings 的职责
             for (UINT i = 0; i < shaderDesc.BoundResources; ++i)
             {
@@ -444,6 +458,7 @@ namespace Tiny3D
                     {
                         itr->second->setTexBinding(bindDesc.BindPoint);
                         itr->second->setTextureType(D3D11Mapping::get(bindDesc.Dimension));
+                        itr->second->setHasTexture(true);
                     }
                 }
                 else if (bindDesc.Type == D3D_SIT_SAMPLER)
@@ -455,6 +470,7 @@ namespace Tiny3D
                         if (itr != samplerParams.end())
                         {
                             itr->second->setSamplerBinding(bindDesc.BindPoint);
+                            itr->second->setHasSampler(true);
                         }
                     }
                 }
