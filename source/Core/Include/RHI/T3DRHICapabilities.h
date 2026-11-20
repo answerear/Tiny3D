@@ -73,6 +73,12 @@ namespace Tiny3D
         uint32_t    maxComputeSharedMemory {0};
         /// 可同时绑定的 UAV 槽位数
         uint32_t    maxUnorderedAccessSlots {0};
+        /// 纹理 UAV 与 Typed 结构化缓冲 UAV 可用的槽位数，槽号须小于该值；
+        /// 不超过 maxUnorderedAccessSlots（GL 受 image unit 数限制，可能更小）
+        uint32_t    maxImageUnorderedAccessSlots {0};
+        /// 带计数器或 Append/Consume 的结构化缓冲 UAV 可用的槽位数，槽号须小于该值；
+        /// 不超过 maxUnorderedAccessSlots（GL 受 atomic counter 绑定点数限制，可能更小）
+        uint32_t    maxCounterUnorderedAccessSlots {0};
     };
 }
 
