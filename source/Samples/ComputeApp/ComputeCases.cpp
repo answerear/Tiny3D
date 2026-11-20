@@ -3039,6 +3039,246 @@ namespace
         PixelBuffer2DPtr    mTexture;
         uint32_t            mFailures {0};
     };
+
+
+    /**
+     * \brief K24：常量缓冲按阶段与槽位绑定，nullptr 解绑（E.2.1）
+     * \remarks CS 的 b0 / b1 与 PS 的 b0 用同名 cbuffer（CBSlotA / CBSlotB），GL 只能按名字把 UBO 对到 block 上。
+     *          1. 返回码：起点 UINT32_MAX 应返回 T3D_ERR_INVALID_PARAM；槽 13 上绑定、用 nullptr 解绑应返回 T3D_OK。
+     *          2. graphics：PS b0 设绿色后，CS 再以 [0, 2) 设同名的 CBSlotA，左竖带期望仍为绿；
+     *             PS b0 先用 nullptr 解绑再设白色，右竖带期望为白。
+     *          3. compute：PS 的同名 CB 都在 CS 之后设置，再以起点 1 单独替换 CS 的 b1，
+     *             期望读回 b0 = (1, 2, 3, 4)、b1 = (9, 10, 11, 12)。
+     *          修复前 GL4 把所有阶段的 CB 按名字放进同一张表，后设置的覆盖先设置的：左竖带读到 CS 的值
+     *          (1, 2, 3, 4) 截断成白色，compute 的 b0 读到 PS 的白色；D3D11 遇到 nullptr 解引用空指针崩溃。
+     */
+    class CaseConstantBufferSlots : public ComputeCase
+    {
+    public:
+        ~CaseConstantBufferSlots() override
+        {
+            releaseColorRT(mTex, mRT);
+        }
+
+        static const uint32_t kWidth = 32;
+        static const uint32_t kHeight = 8;
+        static const uint32_t kStripes = 2;
+
+        const char *getName() const override { return "K24 constant buffer slots"; }
+        uint32_t getRequiredCaps() const override
+        {
+            return kNeedCompute | kNeedUnorderedAccess | kNeedStructuredBuffer | kNeedReadback;
+        }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            if (T3D_FAILED(mDraw.setup())) return T3D_ERR_FAIL;
+
+            mKernel = ComputeKernel::create("ComputeCBSlots", cbSlotsCSSource(), 64);
+            mColorPS = ComputeKernel::compileGraphics("CBSlotColorPS", SHADER_STAGE::kPixel,
+                cbSlotColorPSSource(), mDummyPS);
+            if (mKernel == nullptr || mColorPS == nullptr) return T3D_ERR_FAIL;
+
+            mPSGreen = loadCB("CBSlotA", 0.0f, 1.0f, 0.0f, 1.0f);
+            mPSWhite = loadCB("CBSlotA", 1.0f, 1.0f, 1.0f, 1.0f);
+            mCSA = loadCB("CBSlotA", 1.0f, 2.0f, 3.0f, 4.0f);
+            mCSB = loadCB("CBSlotB", 5.0f, 6.0f, 7.0f, 8.0f);
+            mCSB2 = loadCB("CBSlotB", 9.0f, 10.0f, 11.0f, 12.0f);
+
+            mOutput = loadSB(StructuredBufferKind::kStructured, sizeof(float) * 4, 2,
+                kGPUUnorderedAccess | kGPUShaderResource, kCPURead);
+            mTex = createColorRT("K24-Dst", kWidth, kHeight, PixelFormat::E_PF_R8G8B8A8, 1, kCPURead);
+            if (!mPSGreen || !mPSWhite || !mCSA || !mCSB || !mCSB2 || !mOutput || !mTex)
+            {
+                return T3D_ERR_FAIL;
+            }
+            mRT = RenderTarget::create(mTex);
+            return mRT ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+            mFailures = 0;
+
+            ConstantBuffers unbind;
+            unbind.push_back(nullptr);
+
+            expect(ctx->setCSConstantBuffers(UINT32_MAX, list(mCSB)), T3D_ERR_INVALID_PARAM, "CS start = UINT32_MAX");
+            expect(ctx->setCSConstantBuffers(13, list(mCSB)), T3D_OK, "CS bind at slot 13");
+            expect(ctx->setCSConstantBuffers(13, unbind), T3D_OK, "CS unbind at slot 13");
+
+            ctx->setRenderTarget(mRT.get());
+            mDraw.bindStates(ctx);
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+            ctx->beginPass();
+
+            ctx->setVertexShader(mDraw.vs());
+            ctx->setPixelShader(mColorPS.get());
+
+            TResult ret = T3D_OK;
+
+            expect(ctx->setPSConstantBuffers(0, list(mPSGreen)), T3D_OK, "PS bind green");
+            ConstantBuffers csBuffers;
+            csBuffers.push_back(mCSA);
+            csBuffers.push_back(mCSB);
+            expect(ctx->setCSConstantBuffers(0, csBuffers), T3D_OK, "CS bind [0, 2)");
+            ctx->setViewport(stripe(0));
+            ret = mDraw.draw(ctx);
+
+            if (T3D_SUCCEEDED(ret))
+            {
+                expect(ctx->setPSConstantBuffers(0, unbind), T3D_OK, "PS unbind slot 0");
+                expect(ctx->setPSConstantBuffers(0, list(mPSWhite)), T3D_OK, "PS bind white");
+                ctx->setViewport(stripe(1));
+                ret = mDraw.draw(ctx);
+            }
+
+            ctx->endPass();
+
+            if (T3D_SUCCEEDED(ret))
+            {
+                expect(ctx->setCSConstantBuffers(1, list(mCSB2)), T3D_OK, "CS replace slot 1");
+                ret = ctx->setComputeShader(mKernel->getVariant());
+            }
+
+            UnorderedAccessBuffers uavs;
+            uavs.push_back(mOutput);
+            if (T3D_SUCCEEDED(ret))
+            {
+                ret = ctx->setCSUnorderedAccessBuffers(uavSlot(0, 0), uavs);
+            }
+            if (T3D_SUCCEEDED(ret))
+            {
+                ret = mKernel->dispatchThreads(2);
+            }
+            if (T3D_SUCCEEDED(ret))
+            {
+                ctx->uavBarrier(uavs);
+                ctx->setComputeShader(nullptr);
+
+                mRTHandle = mapColorRT(mTex.get());
+                ret = mapWhole(mOutput.get(), mSBHandle);
+                if (T3D_SUCCEEDED(ret) && !mRTHandle.isValid())
+                {
+                    ret = T3D_ERR_FAIL;
+                }
+            }
+            ctx->reset();
+            return ret;
+        }
+
+        TResult verify() override
+        {
+            Buffer pixels;
+            TResult ret = unmapColorRT(mTex.get(), mRTHandle, pixels);
+            if (T3D_FAILED(ret)) return ret;
+
+            const char *names[kStripes] = { "PS green after CS same name", "PS white after nullptr unbind" };
+            const PixelClass expected[kStripes] = { PixelClass::kGreen, PixelClass::kWhite };
+            const uint32_t stripeW = kWidth / kStripes;
+            for (uint32_t s = 0; s < kStripes; ++s)
+            {
+                bool reported = false;
+                for (uint32_t y = 0; y < kHeight && !reported; ++y)
+                {
+                    for (uint32_t x = s * stripeW + 2; x < (s + 1) * stripeW - 2; ++x)
+                    {
+                        const uint8_t *p = pixelAt(pixels, kWidth, kHeight, x, y);
+                        if (p != nullptr && classifyPixel(p) == expected[s]) continue;
+
+                        ++mFailures;
+                        reported = true;
+                        if (p == nullptr)
+                        {
+                            APP_LOG_DEBUG("[%s] FAILED : %s stripe, readback row pitch too small", getName(), names[s]);
+                        }
+                        else
+                        {
+                            APP_LOG_DEBUG("[%s] FAILED : %s stripe got %02X%02X%02X at (%u, %u) expected %c",
+                                getName(), names[s], p[0], p[1], p[2], x, y, (char)expected[s]);
+                        }
+                        break;
+                    }
+                }
+            }
+            pixels.release();
+
+            Buffer data;
+            ret = unmapCheckSize(mOutput.get(), mSBHandle, data, sizeof(float) * 4 * 2);
+            if (T3D_FAILED(ret)) return ret;
+
+            const float *out = reinterpret_cast<const float *>(data.Data);
+            const float expectCS[2][4] = { { 1, 2, 3, 4 }, { 9, 10, 11, 12 } };
+            const char *slots[2] = { "b0", "b1" };
+            for (uint32_t i = 0; i < 2; ++i)
+            {
+                const float *v = out + i * 4;
+                if (v[0] != expectCS[i][0] || v[1] != expectCS[i][1] || v[2] != expectCS[i][2] || v[3] != expectCS[i][3])
+                {
+                    APP_LOG_DEBUG("[%s] FAILED : CS %s got (%g, %g, %g, %g) expected (%g, %g, %g, %g)",
+                        getName(), slots[i], v[0], v[1], v[2], v[3],
+                        expectCS[i][0], expectCS[i][1], expectCS[i][2], expectCS[i][3]);
+                    ++mFailures;
+                }
+            }
+            data.release();
+
+            return mFailures == 0 ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+    private:
+        static Viewport stripe(uint32_t index)
+        {
+            const Real w = Real(1) / Real(kStripes);
+            return Viewport {w * Real(index), 0.0f, w, 1.0f, 0.0f, 1.0f};
+        }
+
+        static ConstantBufferPtr loadCB(const char *name, float x, float y, float z, float w)
+        {
+            const float value[4] = { x, y, z, w };
+            Buffer cb = allocBytes(sizeof(value));
+            memcpy(cb.Data, value, sizeof(value));
+            ConstantBufferPtr buffer = T3D_RENDER_BUFFER_MGR.loadConstantBuffer(name, 0, cb,
+                MemoryType::kBoth, Usage::kDynamic, kCPUWrite);
+            cb.release();
+            return buffer;
+        }
+
+        static ConstantBuffers list(const ConstantBufferPtr &buffer)
+        {
+            ConstantBuffers buffers;
+            buffers.push_back(buffer);
+            return buffers;
+        }
+
+        void expect(TResult got, TResult expected, const char *what)
+        {
+            if (got != expected)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : %s returned %d, expected %d", getName(), what, (int)got, (int)expected);
+                ++mFailures;
+            }
+        }
+
+        FullscreenDraw      mDraw;
+        ComputeKernelPtr    mKernel;
+        ShaderVariantPtr    mColorPS;
+        ShaderPtr           mDummyPS;
+        ConstantBufferPtr   mPSGreen;
+        ConstantBufferPtr   mPSWhite;
+        ConstantBufferPtr   mCSA;
+        ConstantBufferPtr   mCSB;
+        ConstantBufferPtr   mCSB2;
+        StructuredBufferPtr mOutput;
+        RenderTexturePtr    mTex;
+        RenderTargetPtr     mRT;
+        ReadbackHandle      mRTHandle {};
+        ReadbackHandle      mSBHandle {};
+        uint32_t            mFailures {0};
+    };
 }
 
 
@@ -3067,6 +3307,7 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseTextureWrite(true));
     cases.emplace_back(new CaseRenderTextureUAVTarget());
     cases.emplace_back(new CaseUAVSlotRange());
+    cases.emplace_back(new CaseConstantBufferSlots());
 }
 
 uint32_t currentBackendBit()

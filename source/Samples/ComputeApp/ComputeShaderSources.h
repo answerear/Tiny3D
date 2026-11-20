@@ -56,6 +56,8 @@ ComputeShaderSource sampleTextureVSSource();
 ComputeShaderSource combineStageTexturesPSSource();
 ComputeShaderSource msaaTextureInfoPSSource();
 ComputeShaderSource msaaArrayTextureInfoPSSource();
+ComputeShaderSource cbSlotsCSSource();
+ComputeShaderSource cbSlotColorPSSource();
 
 
 #endif  /*__COMPUTE_SHADER_SOURCES_H__*/

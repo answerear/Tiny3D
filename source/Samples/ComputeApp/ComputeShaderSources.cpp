@@ -1180,3 +1180,68 @@ void main()
 )";
     return make(hlsl, gl, nullptr);
 }
+
+ComputeShaderSource cbSlotsCSSource()
+{
+    // 元素 0 写 b0（CBSlotA）的值，元素 1 写 b1（CBSlotB）的值
+    static const char *hlsl = R"(
+cbuffer type_CBSlotA : register(b0)
+{
+    float4 CBSlotA_gValueA;
+};
+cbuffer type_CBSlotB : register(b1)
+{
+    float4 CBSlotB_gValueB;
+};
+RWStructuredBuffer<float4> gOutput : register(u0);
+[numthreads(64, 1, 1)]
+void main(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x == 0)
+        gOutput[0] = CBSlotA_gValueA;
+    else if (id.x == 1)
+        gOutput[1] = CBSlotB_gValueB;
+}
+)";
+    static const char *gl = R"(
+#version 430
+layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+layout(std140, binding = 0) uniform CBSlotA { vec4 gValueA; };
+layout(std140, binding = 1) uniform CBSlotB { vec4 gValueB; };
+layout(std430, binding = 0) buffer gOutput { vec4 data[]; } gOutputBuf;
+void main()
+{
+    uint i = gl_GlobalInvocationID.x;
+    if (i == 0u)
+        gOutputBuf.data[0] = gValueA;
+    else if (i == 1u)
+        gOutputBuf.data[1] = gValueB;
+}
+)";
+    return make(hlsl, gl, nullptr);
+}
+
+ComputeShaderSource cbSlotColorPSSource()
+{
+    // 直接输出 b0（CBSlotA）的值，cbuffer 与 cbSlotsCSSource 的 b0 同名
+    static const char *hlsl = R"(
+cbuffer type_CBSlotA : register(b0)
+{
+    float4 CBSlotA_gValueA;
+};
+float4 main(float4 position : SV_POSITION) : SV_TARGET
+{
+    return CBSlotA_gValueA;
+}
+)";
+    static const char *gl = R"(
+#version 430
+layout(std140, binding = 0) uniform CBSlotA { vec4 gValueA; };
+out vec4 fragColor;
+void main()
+{
+    fragColor = gValueA;
+}
+)";
+    return make(hlsl, gl, nullptr);
+}
