@@ -70,6 +70,81 @@ namespace Tiny3D
             default:                    return spv::ExecutionModelVertex;
             }
         }
+
+        // GLSL 的 SSBO 不区分 StructuredBuffer / ByteAddressBuffer / Append / Consume，DXC 只把种类写在块类型名上，
+        // 而同一种类的缓冲共用一个块类型，SPIRV-Cross 只有第一个块用类型名声明，其余退化成变量名，种类随之丢失。
+        // 这里把种类与原名写进变量名，并清掉块类型名，让每个块都以变量名声明：
+        //   T3D_Buffer_<种类>l<原名长度><原名>
+        // 种类为 sb / rwsb / bab / rwbab / asb / csb，cnt 表示 <原名> 的隐藏计数器。
+        // 引擎运行期按这个格式解析，改了要同步改 GL4 后端
+        void renameStorageBuffers(spirv_cross::Compiler &compiler)
+        {
+            struct BufferKind
+            {
+                const char *typeName;
+                bool        isPrefix;
+                const char *tag;
+            };
+
+            static const BufferKind kKinds[] =
+            {
+                { "type_StructuredBuffer_",         true,   "sb"    },
+                { "type_RWStructuredBuffer_",       true,   "rwsb"  },
+                { "type_ByteAddressBuffer",         false,  "bab"   },
+                { "type_RWByteAddressBuffer",       false,  "rwbab" },
+                { "type_AppendStructuredBuffer_",   true,   "asb"   },
+                { "type_ConsumeStructuredBuffer_",  true,   "csb"   },
+                { "type_ACSBuffer_counter",         false,  "cnt"   },
+            };
+
+            static const String kCounterPrefix = "counter_var_";
+
+            TSet<uint32_t> blockTypes;
+            const spirv_cross::ShaderResources resources = compiler.get_shader_resources();
+
+            for (const auto &res : resources.storage_buffers)
+            {
+                const String typeName = compiler.get_name(res.base_type_id);
+
+                const BufferKind *kind = nullptr;
+                for (const BufferKind &k : kKinds)
+                {
+                    if (k.isPrefix ? (typeName.compare(0, ::strlen(k.typeName), k.typeName) == 0) : (typeName == k.typeName))
+                    {
+                        kind = &k;
+                        break;
+                    }
+                }
+
+                if (kind == nullptr)
+                {
+                    continue;
+                }
+
+                String name = compiler.get_name(res.id);
+                if (::strcmp(kind->tag, "cnt") == 0)
+                {
+                    if (name.compare(0, kCounterPrefix.size(), kCounterPrefix) != 0)
+                    {
+                        continue;
+                    }
+                    name = name.substr(kCounterPrefix.size());
+                }
+
+                if (name.empty())
+                {
+                    continue;
+                }
+
+                compiler.set_name(res.id, "T3D_Buffer_" + String(kind->tag) + "l" + std::to_string(name.size()) + name);
+                blockTypes.insert(compiler.get_type(res.base_type_id).self);
+            }
+
+            for (uint32_t id : blockTypes)
+            {
+                compiler.set_name(id, "");
+            }
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -270,6 +345,11 @@ namespace Tiny3D
                     }
                     compiler->set_name(remap.combined_id, name);
                 }
+            }
+
+            if (target.language == HLSLTarget::kGlsl || target.language == HLSLTarget::kEssl)
+            {
+                renameStorageBuffers(*compiler);
             }
 
             if (target.language == HLSLTarget::kHlsl)
