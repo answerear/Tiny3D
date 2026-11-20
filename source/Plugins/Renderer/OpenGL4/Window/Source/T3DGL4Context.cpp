@@ -2816,7 +2816,7 @@ namespace Tiny3D
 
     TResult GL4Context::setVSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
-        return stageConstantBuffers(buffers);
+        return stageConstantBuffers(kTexStageVS, startSlot, buffers);
     }
 
     TResult GL4Context::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
@@ -2894,7 +2894,7 @@ namespace Tiny3D
 
     TResult GL4Context::setPSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
-        return stageConstantBuffers(buffers);
+        return stageConstantBuffers(kTexStagePS, startSlot, buffers);
     }
 
     TResult GL4Context::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
@@ -2936,7 +2936,7 @@ namespace Tiny3D
 
     TResult GL4Context::setHSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
-        return stageConstantBuffers(buffers);
+        return stageConstantBuffers(kTexStageHS, startSlot, buffers);
     }
 
     TResult GL4Context::setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
@@ -2978,7 +2978,7 @@ namespace Tiny3D
 
     TResult GL4Context::setDSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
-        return stageConstantBuffers(buffers);
+        return stageConstantBuffers(kTexStageDS, startSlot, buffers);
     }
 
     TResult GL4Context::setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
@@ -3056,7 +3056,7 @@ namespace Tiny3D
 
     TResult GL4Context::setGSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
-        return stageConstantBuffers(buffers);
+        return stageConstantBuffers(kTexStageGS, startSlot, buffers);
     }
 
     TResult GL4Context::setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
@@ -3130,7 +3130,7 @@ namespace Tiny3D
 
     TResult GL4Context::setCSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers)
     {
-        return stageConstantBuffers(buffers);
+        return stageConstantBuffers(kTexStageCS, startSlot, buffers);
     }
 
     TResult GL4Context::setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
@@ -3285,7 +3285,7 @@ namespace Tiny3D
         // 即使 program 没变也要走一遍：中间若夹了 dispatch，compute program 会把
         // 同一批 UNIFORM_BUFFER binding point 抢走，不重绑就会读到 compute 的 CB。
         glUseProgram(mCurrentProgram);
-        bindPendingUniformBlocks(mCurrentProgram);
+        bindPendingUniformBlocks(mCurrentProgram, false);
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::ensureProgramLinked");
         return T3D_OK;
@@ -3329,7 +3329,7 @@ namespace Tiny3D
         }
 
         glUseProgram(mCurrentComputeProgram);
-        bindPendingUniformBlocks(mCurrentComputeProgram);
+        bindPendingUniformBlocks(mCurrentComputeProgram, true);
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::ensureComputeProgramLinked");
         return T3D_OK;
@@ -4076,7 +4076,10 @@ namespace Tiny3D
 
                 mCurrentProgram = 0;
                 mStageShaders.fill(0);
-                mPendingUBOs.clear();
+                for (auto &slots : mPendingUBOs)
+                {
+                    slots.clear();
+                }
                 mPendingUBORevision = 0;
                 mUBOBoundProgram = 0;
                 mUBOBoundRevision = 0;
@@ -4983,7 +4986,7 @@ namespace Tiny3D
     // Helper methods for resource binding (OpenGL unified binding)
     //--------------------------------------------------------------------------
 
-    void GL4Context::bindPendingUniformBlocks(GLuint program)
+    void GL4Context::bindPendingUniformBlocks(GLuint program, bool isCompute)
     {
         // program 和 UBO 集合都没变就没什么可做的。每次 draw / dispatch 都重跑一遍
         // glGetActiveUniformBlockName 既费时又会刷屏，而 binding point 上的绑定还在。
@@ -5001,18 +5004,74 @@ namespace Tiny3D
             return;
         }
 
+        // compute program 只看 CS 设置的 CB，graphics program 只看当前挂了 shader 的图形阶段。
+        // 同名 cbuffer 在一个 program 里只有一个 block，多个阶段都设置了时以 PS 为准（与 sampler 一致）。
+        struct StageVariant
+        {
+            TextureUnitStage    stage;
+            ShaderVariant       *variant;
+        };
+        const StageVariant graphicsStages[] = {
+            { kTexStagePS, mCurrentPSVariant.get() },
+            { kTexStageVS, mCurrentVSVariant.get() },
+            { kTexStageGS, mCurrentGSVariant.get() },
+            { kTexStageHS, mCurrentHSVariant.get() },
+            { kTexStageDS, mCurrentDSVariant.get() },
+        };
+        const StageVariant computeStages[] = {
+            { kTexStageCS, mCurrentCSVariant.get() },
+        };
+        const StageVariant *stages = isCompute ? computeStages : graphicsStages;
+        const size_t stageCount = isCompute ? std::size(computeStages) : std::size(graphicsStages);
+
         // block i 在 linkProgram 里已经固定绑到 binding point i
         const TArray<String> &names = itNames->second;
         for (size_t i = 0; i < names.size(); ++i)
         {
             const String &cbufferName = names[i];
-            auto it = mPendingUBOs.find(cbufferName);
-            if (it != mPendingUBOs.end())
+            const PendingUBO *found = nullptr;
+            uint32_t foundStage = 0;
+            uint32_t foundSlot = 0;
+            for (size_t s = 0; s < stageCount; ++s)
             {
-                glBindBufferBase(GL_UNIFORM_BUFFER, static_cast<GLuint>(i), it->second);
+                if (stages[s].variant == nullptr)
+                {
+                    continue;
+                }
+
+                const uint32_t stage = static_cast<uint32_t>(stages[s].stage);
+                for (const auto &item : mPendingUBOs[stage])
+                {
+                    if (item.second.name != cbufferName)
+                    {
+                        continue;
+                    }
+
+                    if (found == nullptr)
+                    {
+                        found = &item.second;
+                        foundStage = stage;
+                        foundSlot = item.first;
+                    }
+                    else if (item.second.ubo != found->ubo)
+                    {
+                        T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
+                            "cbuffer '%s' is set to different buffers by stage %u slot %u and stage %u slot %u, "
+                            "GL links it as one block; use the former",
+                            cbufferName.c_str(), foundStage, foundSlot, stage, item.first);
+                    }
+                    break;
+                }
+            }
+
+            if (found != nullptr)
+            {
+                glBindBufferBase(GL_UNIFORM_BUFFER, static_cast<GLuint>(i), found->ubo);
             }
             else
             {
+                // 与 D3D11 槽位为空时一致，不留上一个 program 的 UBO
+                glBindBufferBase(GL_UNIFORM_BUFFER, static_cast<GLuint>(i), 0);
                 T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
                     "No pending UBO for cbuffer '%s'", cbufferName.c_str());
             }
@@ -5183,38 +5242,65 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GL4Context::stageConstantBuffers(const ConstantBuffers &buffers)
+    TResult GL4Context::stageConstantBuffers(TextureUnitStage stage, uint32_t startSlot, const ConstantBuffers &buffers)
     {
-        auto lambda = [this](const ConstantBuffers &buffers)
+        if (static_cast<uint64_t>(startSlot) + buffers.size() > std::numeric_limits<uint32_t>::max())
         {
-            TResult ret = T3D_OK;
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "stageConstantBuffers : slot range overflows, startSlot=%u, count=%u !",
+                startSlot, static_cast<uint32_t>(buffers.size()));
+            return T3D_ERR_INVALID_PARAM;
+        }
 
-            do
+        auto lambda = [this](TextureUnitStage stage, uint32_t startSlot, const ConstantBuffers &buffers)
+        {
+            TMap<uint32_t, PendingUBO> &slots = mPendingUBOs[stage];
+            bool changed = false;
+
+            for (uint32_t i = 0; i < buffers.size(); ++i)
             {
-                for (uint32_t i = 0; i < buffers.size(); ++i)
+                const uint32_t slot = startSlot + i;
+
+                if (buffers[i] == nullptr || buffers[i]->getRHIResource() == nullptr)
                 {
-                    if (buffers[i] == nullptr || buffers[i]->getRHIResource() == nullptr)
+                    changed |= (slots.erase(slot) > 0);
+                    continue;
+                }
+
+                const String &name = buffers[i]->getName();
+                const GLuint ubo = static_cast<GL4ConstantBuffer*>(
+                    buffers[i]->getRHIResource().get())->GLBuffer;
+
+                // GL 按 cbuffer 名绑定，同一阶段的同名 CB 只保留最后设置的槽位
+                for (auto itr = slots.begin(); itr != slots.end(); )
+                {
+                    if (itr->first != slot && itr->second.name == name)
                     {
-                        continue;
+                        itr = slots.erase(itr);
+                        changed = true;
                     }
-
-                    const String &name = buffers[i]->getName();
-                    const GLuint ubo = static_cast<GL4ConstantBuffer*>(
-                        buffers[i]->getRHIResource().get())->GLBuffer;
-
-                    auto itr = mPendingUBOs.find(name);
-                    if (itr == mPendingUBOs.end() || itr->second != ubo)
+                    else
                     {
-                        mPendingUBOs[name] = ubo;
-                        ++mPendingUBORevision;
+                        ++itr;
                     }
                 }
-            } while (false);
 
-            return ret;
+                auto itr = slots.find(slot);
+                if (itr == slots.end() || itr->second.name != name || itr->second.ubo != ubo)
+                {
+                    slots[slot] = PendingUBO{name, ubo};
+                    changed = true;
+                }
+            }
+
+            if (changed)
+            {
+                ++mPendingUBORevision;
+            }
+
+            return T3D_OK;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, buffers);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, stage, startSlot, buffers);
     }
 
     //--------------------------------------------------------------------------

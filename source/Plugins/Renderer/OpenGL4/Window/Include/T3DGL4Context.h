@@ -178,7 +178,7 @@ namespace Tiny3D
         GL4Context();
         ~GL4Context() override;
 
-        TResult stageConstantBuffers(const ConstantBuffers &buffers);
+        TResult stageConstantBuffers(TextureUnitStage stage, uint32_t startSlot, const ConstantBuffers &buffers);
         TResult bindPixelBuffers(TextureUnitStage stage, uint32_t startSlot, const PixelBuffers &buffers);
         TResult bindSamplers(TextureUnitStage stage, uint32_t startSlot, const Samplers &samplers);
         TResult bindStructuredBuffers(TextureUnitStage stage, uint32_t startSlot, const ShaderResourceBuffers &buffers);
@@ -189,7 +189,7 @@ namespace Tiny3D
         /// 阶段内 slot -> GL 纹理单元号，并记下该阶段用到的最高单元供 unbindTextureUnits 解绑
         GLuint toTextureUnit(TextureUnitStage stage, uint32_t slot);
 
-        void bindPendingUniformBlocks(GLuint program);
+        void bindPendingUniformBlocks(GLuint program, bool isCompute);
         void setupSamplerBindings(GLuint program, bool isCompute);
 
         /// 链接 program，成功后建立 uniform block 绑定与 sampler 绑定并记录 block 名单
@@ -346,9 +346,16 @@ namespace Tiny3D
         GLuint  mCurrentVAO {0};
         /// 延迟配置顶点属性用的 VertexDeclaration 缓存
         VertexDeclarationPtr mPendingVertexDecl {nullptr};
-        /// 延迟绑定 UBO：cbuffer 名 -> GL buffer handle（render() link 后统一绑定）
-        TMap<String, GLuint> mPendingUBOs;
-        /// mPendingUBOs 的修订号，每次 stageConstantBuffers 递增
+        struct PendingUBO
+        {
+            String  name;
+            GLuint  ubo {0};
+        };
+        /// 延迟绑定 UBO：各阶段 CB 槽位 -> cbuffer 名与 GL buffer handle。
+        /// GL 只能按 cbuffer 名把 UBO 对到 program 的 block 上，槽位用于覆盖与解绑；
+        /// draw / dispatch 前 link 后按 block 名在本管线的各阶段里查找并统一绑定
+        TMap<uint32_t, PendingUBO> mPendingUBOs[kTexStageCount];
+        /// mPendingUBOs 的修订号，内容有变化时递增
         uint32_t mPendingUBORevision {0};
         /// 上一次真正执行 UBO 绑定时的 program 与修订号。
         /// glBindBufferBase(GL_UNIFORM_BUFFER) 是 context 状态而非 program 状态，
