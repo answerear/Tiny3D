@@ -209,6 +209,10 @@
                                               }
                                             }
                                           },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
+                                            "RTTI_Value": []
+                                          },
                                           "ShaderSamplerParams": {
                                             "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": [
@@ -244,6 +248,18 @@
                                           "Stage": {
                                             "RTTI_Type": "Tiny3D::SHADER_STAGE",
                                             "RTTI_Value": "kPixel"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
                                           }
                                         }
                                       }
@@ -260,7 +276,7 @@
                                             "RTTI_Type": "Tiny3D::Buffer",
                                             "RTTI_Value": {
                                               "RTTI_Type": "std::string",
-                                              "RTTI_Value": "I3ZlcnNpb24gNDAwCiNleHRlbnNpb24gR0xfQVJCX3NlcGFyYXRlX3NoYWRlcl9vYmplY3RzIDogcmVxdWlyZQoKdW5pZm9ybSBzYW1wbGVyMkQgU1BJUlZfQ3Jvc3NfQ29tYmluZWRfTWFpblRleHNhbXBsZXJfTWFpblRleDsKCmxheW91dChsb2NhdGlvbiA9IDApIGluIHZlYzIgaW5fdmFyX1RFWENPT1JEMDsKbGF5b3V0KGxvY2F0aW9uID0gMCkgb3V0IHZlYzQgb3V0X3Zhcl9TVl9UYXJnZXQ7Cgp2b2lkIG1haW4oKQp7CiAgICBvdXRfdmFyX1NWX1RhcmdldCA9IHRleHR1cmUoU1BJUlZfQ3Jvc3NfQ29tYmluZWRfTWFpblRleHNhbXBsZXJfTWFpblRleCwgaW5fdmFyX1RFWENPT1JEMCk7Cn0KCg=="
+                                              "RTTI_Value": "I3ZlcnNpb24gNDAwCiNleHRlbnNpb24gR0xfQVJCX3NlcGFyYXRlX3NoYWRlcl9vYmplY3RzIDogcmVxdWlyZQoKdW5pZm9ybSBzYW1wbGVyMkQgVDNEX0NvbWJpbmVkX3QwczBsOF9NYWluVGV4c2FtcGxlcl9NYWluVGV4OwoKbGF5b3V0KGxvY2F0aW9uID0gMCkgaW4gdmVjMiBpbl92YXJfVEVYQ09PUkQwOwpsYXlvdXQobG9jYXRpb24gPSAwKSBvdXQgdmVjNCBvdXRfdmFyX1NWX1RhcmdldDsKCnZvaWQgbWFpbigpCnsKICAgIG91dF92YXJfU1ZfVGFyZ2V0ID0gdGV4dHVyZShUM0RfQ29tYmluZWRfdDBzMGw4X01haW5UZXhzYW1wbGVyX01haW5UZXgsIGluX3Zhcl9URVhDT09SRDApOwp9Cgo="
                                             }
                                           },
                                           "Language": {
@@ -284,6 +300,10 @@
                                               }
                                             }
                                           },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
+                                            "RTTI_Value": []
+                                          },
                                           "ShaderSamplerParams": {
                                             "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": [
@@ -319,6 +339,18 @@
                                           "Stage": {
                                             "RTTI_Type": "Tiny3D::SHADER_STAGE",
                                             "RTTI_Value": "kPixel"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
                                           }
                                         }
                                       }
@@ -335,7 +367,7 @@
                                             "RTTI_Type": "Tiny3D::Buffer",
                                             "RTTI_Value": {
                                               "RTTI_Type": "std::string",
-                                              "RTTI_Value": "I3ZlcnNpb24gMzEwIGVzCnByZWNpc2lvbiBtZWRpdW1wIGZsb2F0OwpwcmVjaXNpb24gaGlnaHAgaW50OwoKdW5pZm9ybSBoaWdocCBzYW1wbGVyMkQgU1BJUlZfQ3Jvc3NfQ29tYmluZWRfTWFpblRleHNhbXBsZXJfTWFpblRleDsKCmxheW91dChsb2NhdGlvbiA9IDApIGluIGhpZ2hwIHZlYzIgaW5fdmFyX1RFWENPT1JEMDsKbGF5b3V0KGxvY2F0aW9uID0gMCkgb3V0IGhpZ2hwIHZlYzQgb3V0X3Zhcl9TVl9UYXJnZXQ7Cgp2b2lkIG1haW4oKQp7CiAgICBvdXRfdmFyX1NWX1RhcmdldCA9IHRleHR1cmUoU1BJUlZfQ3Jvc3NfQ29tYmluZWRfTWFpblRleHNhbXBsZXJfTWFpblRleCwgaW5fdmFyX1RFWENPT1JEMCk7Cn0KCg=="
+                                              "RTTI_Value": "I3ZlcnNpb24gMzEwIGVzCnByZWNpc2lvbiBtZWRpdW1wIGZsb2F0OwpwcmVjaXNpb24gaGlnaHAgaW50OwoKdW5pZm9ybSBoaWdocCBzYW1wbGVyMkQgVDNEX0NvbWJpbmVkX3QwczBsOF9NYWluVGV4c2FtcGxlcl9NYWluVGV4OwoKbGF5b3V0KGxvY2F0aW9uID0gMCkgaW4gaGlnaHAgdmVjMiBpbl92YXJfVEVYQ09PUkQwOwpsYXlvdXQobG9jYXRpb24gPSAwKSBvdXQgaGlnaHAgdmVjNCBvdXRfdmFyX1NWX1RhcmdldDsKCnZvaWQgbWFpbigpCnsKICAgIG91dF92YXJfU1ZfVGFyZ2V0ID0gdGV4dHVyZShUM0RfQ29tYmluZWRfdDBzMGw4X01haW5UZXhzYW1wbGVyX01haW5UZXgsIGluX3Zhcl9URVhDT09SRDApOwp9Cgo="
                                             }
                                           },
                                           "Language": {
@@ -359,6 +391,10 @@
                                               }
                                             }
                                           },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
+                                            "RTTI_Value": []
+                                          },
                                           "ShaderSamplerParams": {
                                             "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": [
@@ -394,6 +430,18 @@
                                           "Stage": {
                                             "RTTI_Type": "Tiny3D::SHADER_STAGE",
                                             "RTTI_Value": "kPixel"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
                                           }
                                         }
                                       }
@@ -410,7 +458,7 @@
                                             "RTTI_Type": "Tiny3D::Buffer",
                                             "RTTI_Value": {
                                               "RTTI_Type": "std::string",
-                                              "RTTI_Value": "AwIjBwAAAQAAAA4AGgAAAAAAAAARAAIAAQAAAA4AAwAAAAAAAQAAAA8ACAAEAAAAAQAAAGZyYWcAAAAAAgAAAAMAAAAEAAAAEAADAAEAAAAHAAAAAwADAAUAAABYAgAABQAGAAUAAAB0eXBlLjJkLmltYWdlAAAABQAFAAYAAABfTWFpblRleAAAAAAFAAYABwAAAHR5cGUuc2FtcGxlcgAAAAAFAAcACAAAAHNhbXBsZXJfX01haW5UZXgAAAAABQAHAAMAAABpbi52YXIuVEVYQ09PUkQwAAAAAAUABwAEAAAAb3V0LnZhci5TVl9UYXJnZXQAAAAFAAQAAQAAAGZyYWcAAAAABQAHAAkAAAB0eXBlLnNhbXBsZWQuaW1hZ2UAAEcABAACAAAACwAAAA8AAABHAAQAAwAAAB4AAAAAAAAARwAEAAQAAAAeAAAAAAAAAEcABAAGAAAAIgAAAAAAAABHAAQABgAAACEAAAAAAAAARwAEAAgAAAAiAAAAAAAAAEcABAAIAAAAIQAAAAAAAAAWAAMACgAAACAAAAAXAAQACwAAAAoAAAAEAAAAGQAJAAUAAAAKAAAAAQAAAAIAAAAAAAAAAAAAAAEAAAAAAAAAIAAEAAwAAAAAAAAABQAAABoAAgAHAAAAIAAEAA0AAAAAAAAABwAAACAABAAOAAAAAQAAAAsAAAAXAAQADwAAAAoAAAACAAAAIAAEABAAAAABAAAADwAAACAABAARAAAAAwAAAAsAAAATAAIAEgAAACEAAwATAAAAEgAAABsAAwAJAAAABQAAADsABAAMAAAABgAAAAAAAAA7AAQADQAAAAgAAAAAAAAAOwAEAA4AAAACAAAAAQAAADsABAAQAAAAAwAAAAEAAAA7AAQAEQAAAAQAAAADAAAANgAFABIAAAABAAAAAAAAABMAAAD4AAIAFAAAAD0ABAAPAAAAFQAAAAMAAAA9AAQABQAAABYAAAAGAAAAPQAEAAcAAAAXAAAACAAAAFYABQAJAAAAGAAAABYAAAAXAAAAVwAGAAsAAAAZAAAAGAAAABUAAAAAAAAAPgADAAQAAAAZAAAA/QABADgAAQA="
+                                              "RTTI_Value": "AwIjBwAAAQAAAA4AGAAAAAAAAAARAAIAAQAAAA4AAwAAAAAAAQAAAA8ABwAEAAAAAQAAAGZyYWcAAAAAAgAAAAMAAAAQAAMAAQAAAAcAAAADAAMABQAAAFgCAAAFAAYABAAAAHR5cGUuMmQuaW1hZ2UAAAAFAAUABQAAAF9NYWluVGV4AAAAAAUABgAGAAAAdHlwZS5zYW1wbGVyAAAAAAUABwAHAAAAc2FtcGxlcl9fTWFpblRleAAAAAAFAAcAAgAAAGluLnZhci5URVhDT09SRDAAAAAABQAHAAMAAABvdXQudmFyLlNWX1RhcmdldAAAAAUABAABAAAAZnJhZwAAAAAFAAcACAAAAHR5cGUuc2FtcGxlZC5pbWFnZQAARwAEAAIAAAAeAAAAAAAAAEcABAADAAAAHgAAAAAAAABHAAQABQAAACIAAAAAAAAARwAEAAUAAAAhAAAAAAAAAEcABAAHAAAAIgAAAAAAAABHAAQABwAAACEAAAAAAAAAFgADAAkAAAAgAAAAFwAEAAoAAAAJAAAABAAAABkACQAEAAAACQAAAAEAAAACAAAAAAAAAAAAAAABAAAAAAAAACAABAALAAAAAAAAAAQAAAAaAAIABgAAACAABAAMAAAAAAAAAAYAAAAXAAQADQAAAAkAAAACAAAAIAAEAA4AAAABAAAADQAAACAABAAPAAAAAwAAAAoAAAATAAIAEAAAACEAAwARAAAAEAAAABsAAwAIAAAABAAAADsABAALAAAABQAAAAAAAAA7AAQADAAAAAcAAAAAAAAAOwAEAA4AAAACAAAAAQAAADsABAAPAAAAAwAAAAMAAAA2AAUAEAAAAAEAAAAAAAAAEQAAAPgAAgASAAAAPQAEAA0AAAATAAAAAgAAAD0ABAAEAAAAFAAAAAUAAAA9AAQABgAAABUAAAAHAAAAVgAFAAgAAAAWAAAAFAAAABUAAABXAAYACgAAABcAAAAWAAAAEwAAAAAAAAA+AAMAAwAAABcAAAD9AAEAOAABAA=="
                                             }
                                           },
                                           "Language": {
@@ -434,6 +482,10 @@
                                               }
                                             }
                                           },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
+                                            "RTTI_Value": []
+                                          },
                                           "ShaderSamplerParams": {
                                             "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": [
@@ -469,6 +521,18 @@
                                           "Stage": {
                                             "RTTI_Type": "Tiny3D::SHADER_STAGE",
                                             "RTTI_Value": "kPixel"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
                                           }
                                         }
                                       }
@@ -1209,6 +1273,10 @@
                                               }
                                             }
                                           },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
+                                            "RTTI_Value": []
+                                          },
                                           "ShaderSamplerParams": {
                                             "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": []
@@ -1216,6 +1284,18 @@
                                           "Stage": {
                                             "RTTI_Type": "Tiny3D::SHADER_STAGE",
                                             "RTTI_Value": "kVertex"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
                                           }
                                         }
                                       }
@@ -1432,6 +1512,10 @@
                                               }
                                             }
                                           },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
+                                            "RTTI_Value": []
+                                          },
                                           "ShaderSamplerParams": {
                                             "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": []
@@ -1439,6 +1523,18 @@
                                           "Stage": {
                                             "RTTI_Type": "Tiny3D::SHADER_STAGE",
                                             "RTTI_Value": "kVertex"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
                                           }
                                         }
                                       }
@@ -1655,6 +1751,10 @@
                                               }
                                             }
                                           },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
+                                            "RTTI_Value": []
+                                          },
                                           "ShaderSamplerParams": {
                                             "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": []
@@ -1662,6 +1762,18 @@
                                           "Stage": {
                                             "RTTI_Type": "Tiny3D::SHADER_STAGE",
                                             "RTTI_Value": "kVertex"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
                                           }
                                         }
                                       }
@@ -1878,6 +1990,10 @@
                                               }
                                             }
                                           },
+                                          "ShaderResourceParams": {
+                                            "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderResourceParam>>",
+                                            "RTTI_Value": []
+                                          },
                                           "ShaderSamplerParams": {
                                             "RTTI_Type": "std::unordered_map<std::basic_string<char>, Tiny3D::SmartPtr<Tiny3D::ShaderSamplerParam>>",
                                             "RTTI_Value": []
@@ -1885,6 +2001,18 @@
                                           "Stage": {
                                             "RTTI_Type": "Tiny3D::SHADER_STAGE",
                                             "RTTI_Value": "kVertex"
+                                          },
+                                          "ThreadGroupSizeX": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeY": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
+                                          },
+                                          "ThreadGroupSizeZ": {
+                                            "RTTI_Type": "unsignedint",
+                                            "RTTI_Value": 0
                                           }
                                         }
                                       }

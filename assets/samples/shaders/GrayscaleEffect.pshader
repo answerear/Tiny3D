@@ -15,7 +15,8 @@ struct PS_INPUT
 
 float4 frag(PS_INPUT input) : SV_Target
 {
-    float4 color = SAMPLE(_MainTex, input.uv);
+    // Read by pixel position, independent of how the backend orients the render target UVs (sampling by uv breaks on GL4).
+    float4 color = _MainTex.Load(int3(input.position.xy, 0));
     float gray = dot(color.rgb, float3(0.299f, 0.587f, 0.114f));
     return float4(gray, gray, gray, color.a);
 }
