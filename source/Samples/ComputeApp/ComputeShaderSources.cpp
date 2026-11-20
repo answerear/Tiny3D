@@ -1424,3 +1424,121 @@ void main()
 )";
     return make(hlsl, gl, nullptr);
 }
+
+ComputeShaderSource bufferKindsSource()
+{
+    // 只反射不派发。覆盖全部缓冲种类，两个 ByteAddressBuffer 同类型，gCounted 用了 IncrementCounter。
+    // GL 版是 scc -t glsl 的原样输出，块名里带种类与原名，计数器是单独的块
+    static const char *hlsl = R"(
+struct Item { float4 value; };
+StructuredBuffer<float4> gStructuredSRV : register(t0);
+ByteAddressBuffer gByteSRV : register(t1);
+ByteAddressBuffer gByteSRV2 : register(t2);
+RWStructuredBuffer<uint> gStructuredUAV : register(u0);
+RWByteAddressBuffer gByteUAV : register(u1);
+RWStructuredBuffer<uint> gCounted : register(u2);
+AppendStructuredBuffer<Item> gAppend : register(u3);
+ConsumeStructuredBuffer<Item> gConsume : register(u4);
+[numthreads(1, 1, 1)]
+void main(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x == 0)
+    {
+        uint v = gStructuredUAV[0] + gByteSRV.Load(0) + gByteSRV2.Load(0) + (uint)gStructuredSRV[0].x;
+        gStructuredUAV[0] = v;
+        gByteUAV.Store(0, v);
+        uint idx = gCounted.IncrementCounter();
+        gCounted[idx] = v;
+        Item item = gConsume.Consume();
+        gAppend.Append(item);
+    }
+}
+)";
+    static const char *gl = R"(#version 450
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+struct Item
+{
+    vec4 value;
+};
+
+layout(binding = 0, std430) readonly buffer T3D_Buffer_sbl14gStructuredSRV
+{
+    vec4 _m0[];
+} T3D_Buffer_sbl14gStructuredSRV_1;
+
+layout(binding = 1, std430) readonly buffer T3D_Buffer_babl8gByteSRV
+{
+    uint _m0[];
+} T3D_Buffer_babl8gByteSRV_1;
+
+layout(binding = 2, std430) readonly buffer T3D_Buffer_babl9gByteSRV2
+{
+    uint _m0[];
+} T3D_Buffer_babl9gByteSRV2_1;
+
+layout(binding = 0, std430) buffer T3D_Buffer_rwsbl14gStructuredUAV
+{
+    uint _m0[];
+} T3D_Buffer_rwsbl14gStructuredUAV_1;
+
+layout(binding = 1, std430) buffer T3D_Buffer_rwbabl8gByteUAV
+{
+    uint _m0[];
+} T3D_Buffer_rwbabl8gByteUAV_1;
+
+layout(binding = 7, std430) buffer T3D_Buffer_cntl8gCounted
+{
+    int counter;
+} T3D_Buffer_cntl8gCounted_1;
+
+layout(binding = 2, std430) buffer T3D_Buffer_rwsbl8gCounted
+{
+    uint _m0[];
+} T3D_Buffer_rwsbl8gCounted_1;
+
+layout(binding = 5, std430) buffer T3D_Buffer_cntl7gAppend
+{
+    int counter;
+} T3D_Buffer_cntl7gAppend_1;
+
+layout(binding = 3, std430) buffer T3D_Buffer_asbl7gAppend
+{
+    Item _m0[];
+} T3D_Buffer_asbl7gAppend_1;
+
+layout(binding = 6, std430) buffer T3D_Buffer_cntl8gConsume
+{
+    int counter;
+} T3D_Buffer_cntl8gConsume_1;
+
+layout(binding = 4, std430) buffer T3D_Buffer_csbl8gConsume
+{
+    Item _m0[];
+} T3D_Buffer_csbl8gConsume_1;
+
+void src_CSMain(uvec3 id)
+{
+    if (id.x == 0u)
+    {
+        uint v = ((T3D_Buffer_rwsbl14gStructuredUAV_1._m0[0u] + T3D_Buffer_babl8gByteSRV_1._m0[0u >> 2u]) + T3D_Buffer_babl9gByteSRV2_1._m0[0u >> 2u]) + uint(T3D_Buffer_sbl14gStructuredSRV_1._m0[0u].x);
+        T3D_Buffer_rwsbl14gStructuredUAV_1._m0[0u] = v;
+        T3D_Buffer_rwbabl8gByteUAV_1._m0[0u >> 2u] = v;
+        int _90 = atomicAdd(T3D_Buffer_cntl8gCounted_1.counter, 1);
+        uint idx = uint(_90);
+        T3D_Buffer_rwsbl8gCounted_1._m0[idx] = v;
+        int _97 = atomicAdd(T3D_Buffer_cntl8gConsume_1.counter, -1);
+        Item item = Item(T3D_Buffer_csbl8gConsume_1._m0[_97 - 1].value);
+        int _105 = atomicAdd(T3D_Buffer_cntl7gAppend_1.counter, 1);
+        T3D_Buffer_asbl7gAppend_1._m0[_105] = Item(item.value);
+    }
+}
+
+void main()
+{
+    uvec3 param_var_id = gl_GlobalInvocationID;
+    src_CSMain(param_var_id);
+}
+)";
+    return make(hlsl, gl, nullptr);
+}

@@ -62,6 +62,7 @@ ComputeShaderSource twoSamplersPSSource();
 ComputeShaderSource registerOrderPSSource();
 ComputeShaderSource inlineSamplerPSSource();
 ComputeShaderSource textureArrayPSSource();
+ComputeShaderSource bufferKindsSource();
 
 
 #endif  /*__COMPUTE_SHADER_SOURCES_H__*/

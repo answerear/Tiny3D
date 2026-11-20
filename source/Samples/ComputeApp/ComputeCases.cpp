@@ -4177,6 +4177,96 @@ namespace
         RenderTargetPtr         mRT;
         ReadbackHandle          mHandle {};
     };
+
+
+    /**
+     * \brief K30：缓冲种类的反射（E.2.4）
+     * \remarks 只反射不派发。按名字逐个检查种类、绑定、元素字节数与 hasCounter，两个后端期望相同；
+     *          GL 版的计数器块不应作为资源出现。GL4 曾只能反射出 Structured SRV / UAV，
+     *          ByteAddress、Append、Consume 全部错判，scc 生成的块名也不是 HLSL 的资源名。
+     */
+    class CaseBufferKinds : public ComputeCase
+    {
+    public:
+        const char *getName() const override { return "K30 buffer kinds reflect"; }
+        uint32_t getRequiredCaps() const override { return kNeedCompute; }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            mKernel = ComputeKernel::create("ComputeBufferKinds", bufferKindsSource(), 1, 1, 1);
+            return mKernel != nullptr ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override { return T3D_OK; }
+
+        TResult verify() override
+        {
+            using Kind = ShaderResourceParam::Kind;
+
+            struct Expected
+            {
+                const char *name;
+                Kind        kind;
+                uint32_t    binding;
+                uint32_t    stride;
+                bool        hasCounter;
+            };
+
+            static const Expected kExpected[] =
+            {
+                { "gStructuredSRV", Kind::kStructuredSRV,  0, 16, false },
+                { "gByteSRV",       Kind::kByteAddressSRV, 1, 0,  false },
+                { "gByteSRV2",      Kind::kByteAddressSRV, 2, 0,  false },
+                { "gStructuredUAV", Kind::kStructuredUAV,  0, 4,  false },
+                { "gByteUAV",       Kind::kByteAddressUAV, 1, 0,  false },
+                { "gCounted",       Kind::kStructuredUAV,  2, 4,  true  },
+                { "gAppend",        Kind::kAppendUAV,      3, 16, true  },
+                { "gConsume",       Kind::kConsumeUAV,     4, 16, true  },
+            };
+
+            const ShaderResourceParams &params = mKernel->getVariant()->getShaderResourceParams();
+
+            uint32_t bad = 0;
+            for (const Expected &e : kExpected)
+            {
+                auto it = params.find(e.name);
+                if (it == params.end() || it->second == nullptr)
+                {
+                    APP_LOG_DEBUG("[%s] FAILED : '%s' not reflected", getName(), e.name);
+                    ++bad;
+                    continue;
+                }
+
+                const ShaderResourceParam *p = it->second.get();
+                if (p->getKind() != e.kind || p->getBinding() != e.binding
+                    || p->getElementStride() != e.stride || p->hasCounter() != e.hasCounter)
+                {
+                    APP_LOG_DEBUG("[%s] FAILED : '%s' got kind %u binding %u stride %u counter %d, expected %u / %u / %u / %d",
+                        getName(), e.name, static_cast<uint32_t>(p->getKind()), p->getBinding(),
+                        p->getElementStride(), p->hasCounter() ? 1 : 0,
+                        static_cast<uint32_t>(e.kind), e.binding, e.stride, e.hasCounter ? 1 : 0);
+                    ++bad;
+                }
+            }
+
+            if (params.size() != std::size(kExpected))
+            {
+                for (const auto &kv : params)
+                {
+                    APP_LOG_DEBUG("[%s] reflected '%s'", getName(), kv.first.c_str());
+                }
+                APP_LOG_DEBUG("[%s] FAILED : %zu resources reflected, expected %zu",
+                    getName(), params.size(), std::size(kExpected));
+                ++bad;
+            }
+
+            return bad == 0 ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+    private:
+        ComputeKernelPtr mKernel;
+    };
 }
 
 
@@ -4211,6 +4301,7 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseInlineSampler());
     cases.emplace_back(new CaseTextureArray());
     cases.emplace_back(new CaseDepthBiasClamp());
+    cases.emplace_back(new CaseBufferKinds());
 }
 
 uint32_t currentBackendBit()
