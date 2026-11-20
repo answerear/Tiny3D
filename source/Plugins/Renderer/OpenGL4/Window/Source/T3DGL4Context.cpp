@@ -72,6 +72,11 @@ namespace Tiny3D
         mCurrentDSVariant = nullptr;
         mCurrentGSVariant = nullptr;
         mCurrentCSVariant = nullptr;
+        for (uint32_t stage = 0; stage < kTexStageCount; ++stage)
+        {
+            mStageTextures[stage].clear();
+            mStageSamplers[stage].clear();
+        }
 
         for (auto &pair : mGraphicsProgramCache)
         {
@@ -84,6 +89,7 @@ namespace Tiny3D
         }
         mComputeProgramCache.clear();
         mProgramUBONames.clear();
+        mProgramSamplerUnits.clear();
         mCurrentProgram = 0;
         mCurrentComputeProgram = 0;
         GL_SAFE_DELETE_FBO(mScratchReadFBO);
@@ -3267,6 +3273,7 @@ namespace Tiny3D
                     if (T3D_FAILED(linkProgram(program, "Graphics", false)))
                     {
                         mProgramUBONames.erase(program);
+                        mProgramSamplerUnits.erase(program);
                         GL_SAFE_DELETE_PROGRAM(program);
                         mProgramLinkFailed = true;
                     }
@@ -3286,6 +3293,7 @@ namespace Tiny3D
         // 同一批 UNIFORM_BUFFER binding point 抢走，不重绑就会读到 compute 的 CB。
         glUseProgram(mCurrentProgram);
         bindPendingUniformBlocks(mCurrentProgram, false);
+        bindPendingTextures(mCurrentProgram);
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::ensureProgramLinked");
         return T3D_OK;
@@ -3314,6 +3322,7 @@ namespace Tiny3D
                     if (T3D_FAILED(linkProgram(program, "Compute", true)))
                     {
                         mProgramUBONames.erase(program);
+                        mProgramSamplerUnits.erase(program);
                         GL_SAFE_DELETE_PROGRAM(program);
                     }
                     mComputeProgramCache[mCurrentComputeShader] = program;
@@ -3330,6 +3339,7 @@ namespace Tiny3D
 
         glUseProgram(mCurrentComputeProgram);
         bindPendingUniformBlocks(mCurrentComputeProgram, true);
+        bindPendingTextures(mCurrentComputeProgram);
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::ensureComputeProgramLinked");
         return T3D_OK;
@@ -4071,6 +4081,11 @@ namespace Tiny3D
                 glBindBuffer(GL_ARRAY_BUFFER, 0);
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                 unbindTextureUnits();
+                for (uint32_t stage = 0; stage < kTexStageCount; ++stage)
+                {
+                    mStageTextures[stage].clear();
+                    mStageSamplers[stage].clear();
+                }
                 releaseWindowProxy();
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -5082,27 +5097,112 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    /// sampler uniform 类型 -> 该类型读取的纹理 target
+    static GLenum samplerTypeToTarget(GLenum samplerType)
+    {
+        switch (samplerType)
+        {
+        case GL_SAMPLER_1D:
+        case GL_SAMPLER_1D_SHADOW:
+        case GL_INT_SAMPLER_1D:
+        case GL_UNSIGNED_INT_SAMPLER_1D:
+            return GL_TEXTURE_1D;
+        case GL_SAMPLER_1D_ARRAY:
+        case GL_SAMPLER_1D_ARRAY_SHADOW:
+        case GL_INT_SAMPLER_1D_ARRAY:
+        case GL_UNSIGNED_INT_SAMPLER_1D_ARRAY:
+            return GL_TEXTURE_1D_ARRAY;
+        case GL_SAMPLER_2D_ARRAY:
+        case GL_SAMPLER_2D_ARRAY_SHADOW:
+        case GL_INT_SAMPLER_2D_ARRAY:
+        case GL_UNSIGNED_INT_SAMPLER_2D_ARRAY:
+            return GL_TEXTURE_2D_ARRAY;
+        case GL_SAMPLER_2D_MULTISAMPLE:
+        case GL_INT_SAMPLER_2D_MULTISAMPLE:
+        case GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE:
+            return GL_TEXTURE_2D_MULTISAMPLE;
+        case GL_SAMPLER_2D_MULTISAMPLE_ARRAY:
+        case GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY:
+        case GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY:
+            return GL_TEXTURE_2D_MULTISAMPLE_ARRAY;
+        case GL_SAMPLER_3D:
+        case GL_INT_SAMPLER_3D:
+        case GL_UNSIGNED_INT_SAMPLER_3D:
+            return GL_TEXTURE_3D;
+        case GL_SAMPLER_CUBE:
+        case GL_SAMPLER_CUBE_SHADOW:
+        case GL_INT_SAMPLER_CUBE:
+        case GL_UNSIGNED_INT_SAMPLER_CUBE:
+            return GL_TEXTURE_CUBE_MAP;
+        case GL_SAMPLER_CUBE_MAP_ARRAY_ARB:
+        case GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW_ARB:
+        case GL_INT_SAMPLER_CUBE_MAP_ARRAY_ARB:
+        case GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY_ARB:
+            return GL_TEXTURE_CUBE_MAP_ARRAY;
+        default:
+            return GL_TEXTURE_2D;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    /// 像素缓冲 -> 用于采样的 GL 纹理与 target，MSAA 纹理有 resolve 纹理时采样 resolve 结果
+    static bool getGLTextureBinding(PixelBuffer *buffer, GLuint &outHandle, GLenum &outTarget)
+    {
+        if (buffer == nullptr || buffer->getRHIResource() == nullptr)
+        {
+            return false;
+        }
+
+        switch (buffer->getRHIResource()->getResourceType())
+        {
+        case RHIResource::ResourceType::kPixelBuffer1D:
+            {
+                GL4PixelBuffer1D *glPB = static_cast<GL4PixelBuffer1D*>(buffer->getRHIResource().get());
+                outHandle = glPB->GLTexture;
+                outTarget = glPB->GLTarget;
+            }
+            return true;
+        case RHIResource::ResourceType::kPixelBuffer2D:
+            {
+                GL4PixelBuffer2D *glPB = static_cast<GL4PixelBuffer2D*>(buffer->getRHIResource().get());
+                if (glPB->GLMSAACount > 1 && glPB->GLResolveTex != 0)
+                {
+                    outHandle = glPB->GLResolveTex;
+                    outTarget = GL_TEXTURE_2D;
+                }
+                else
+                {
+                    outHandle = glPB->GLTexture;
+                    outTarget = glPB->GLTarget;
+                }
+            }
+            return true;
+        case RHIResource::ResourceType::kPixelBuffer3D:
+            outHandle = static_cast<GL4PixelBuffer3D*>(buffer->getRHIResource().get())->GLTexture;
+            outTarget = GL_TEXTURE_3D;
+            return true;
+        case RHIResource::ResourceType::kPixelBufferCubemap:
+            {
+                GL4PixelBufferCubemap *glPB = static_cast<GL4PixelBufferCubemap*>(buffer->getRHIResource().get());
+                outHandle = glPB->GLTexture;
+                outTarget = glPB->GLTarget;
+            }
+            return true;
+        default:
+            return false;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     void GL4Context::setupSamplerBindings(GLuint program, bool isCompute)
     {
         GLint numUniforms = 0;
         glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &numUniforms);
 
-        // 解析 SPIRV-Cross 组合采样器名称，提取纹理名称
-        // 格式: "SPIRV_Cross_Combined<texName>sampler<texName>" -> "<texName>"
-        auto parseSpirvName = [](const String &uniformName) -> String
-        {
-            const String kSpirvPrefix = "SPIRV_Cross_Combined";
-            if (StringUtil::startsWith(uniformName, kSpirvPrefix, false))
-            {
-                String remainder = uniformName.substr(kSpirvPrefix.size());
-                String::size_type samplerPos = remainder.find("sampler");
-                if (samplerPos != String::npos && samplerPos > 0)
-                {
-                    return remainder.substr(0, samplerPos);
-                }
-            }
-            return uniformName;
-        };
+        TArray<SamplerUnit> &samplerUnits = mProgramSamplerUnits[program];
+        samplerUnits.clear();
 
         struct StageVariant
         {
@@ -5126,12 +5226,11 @@ namespace Tiny3D
         const StageVariant *stages = isCompute ? computeStages : graphicsStages;
         const size_t stageCount = isCompute ? std::size(computeStages) : std::size(graphicsStages);
 
-        // 按名称在各阶段的反射结果里查阶段内 slot，返回第一个命中的阶段，未命中返回 false。
-        // GL 的 sampler uniform 值是 texture unit 号，语义上对应 texBinding；
-        // GL4 反射把 texBinding / samplerBinding 赋成同一个序号，两者等价。
-        auto findSlot = [stages, stageCount](const String &texName, bool isSamplerBuf,
-            TextureUnitStage &outStage, uint32_t &outSlot, uint32_t &outHitCount) -> bool
+        // 按名称在各阶段的反射结果里查找，返回第一个命中的阶段，未命中返回 nullptr
+        auto findStage = [stages, stageCount](const String &name, bool isSamplerBuf,
+            TextureUnitStage &outStage, uint32_t &outHitCount) -> ShaderVariant*
         {
+            ShaderVariant *hit = nullptr;
             outHitCount = 0;
             for (size_t s = 0; s < stageCount; ++s)
             {
@@ -5141,43 +5240,32 @@ namespace Tiny3D
                     continue;
                 }
 
-                bool found = false;
-                uint32_t slot = 0;
-                if (isSamplerBuf)
-                {
-                    const auto &resParams = variant->getShaderResourceParams();
-                    const auto itr = resParams.find(texName);
-                    if (itr != resParams.end())
-                    {
-                        found = true;
-                        slot = itr->second->getBinding();
-                    }
-                }
-                else
-                {
-                    const auto &params = variant->getShaderSamplerParams();
-                    const auto itr = params.find(texName);
-                    if (itr != params.end())
-                    {
-                        found = true;
-                        slot = itr->second->getTexBinding();
-                    }
-                }
-
+                const bool found = isSamplerBuf
+                    ? (variant->getShaderResourceParams().count(name) > 0)
+                    : (variant->getShaderSamplerParams().count(name) > 0);
                 if (found)
                 {
                     if (outHitCount == 0)
                     {
                         outStage = stages[s].stage;
-                        outSlot = slot;
+                        hit = variant;
                     }
                     ++outHitCount;
                 }
             }
-            return outHitCount > 0;
+            return hit;
         };
 
-        GLint fallbackTexUnit = 0;
+        struct PendingSampler
+        {
+            GLint       loc;
+            String      name;
+            GLenum      type;
+        };
+        TArray<PendingSampler> pendingSamplers;
+        TSet<GLuint> reservedUnits;
+
+        // samplerBuffer 由 bindStructuredBuffers 直接绑在「阶段起点 + 槽位」上，先占住这些单元
         for (GLint i = 0; i < numUniforms; ++i)
         {
             char name[256] = {};
@@ -5187,57 +5275,168 @@ namespace Tiny3D
             glGetActiveUniform(program, i, sizeof(name), &nameLen, &uniformSize, &uniformType, name);
 
             TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
-            bool isSampler = GL4ContextBase::mapSamplerGLType(uniformType, texType);
-            bool isSamplerBuf = !isSampler && GL4ContextBase::isSamplerBufferGLType(uniformType);
-
-            if (isSampler || isSamplerBuf)
+            const bool isSampler = GL4ContextBase::mapSamplerGLType(uniformType, texType);
+            const bool isSamplerBuf = !isSampler && GL4ContextBase::isSamplerBufferGLType(uniformType);
+            if (!isSampler && !isSamplerBuf)
             {
-                GLint loc = glGetUniformLocation(program, name);
-                if (loc >= 0)
+                continue;
+            }
+
+            const GLint loc = glGetUniformLocation(program, name);
+            if (loc < 0)
+            {
+                continue;
+            }
+
+            if (isSampler)
+            {
+                pendingSamplers.push_back(PendingSampler{loc, String(name), uniformType});
+                continue;
+            }
+
+            TextureUnitStage stage = kTexStagePS;
+            uint32_t hitCount = 0;
+            ShaderVariant *variant = findStage(name, true, stage, hitCount);
+            if (variant == nullptr)
+            {
+                T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
+                    "setupSamplerBindings: could not find slot for samplerBuffer='%s'", name);
+                continue;
+            }
+
+            const uint32_t slot = variant->getShaderResourceParams().at(name)->getBinding();
+            if (slot >= mTexUnitCount[stage])
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER,
+                    "setupSamplerBindings: samplerBuffer='%s' slot %u exceeds %u texture units of stage %u",
+                    name, slot, mTexUnitCount[stage], static_cast<uint32_t>(stage));
+                continue;
+            }
+
+            const GLuint unit = mTexUnitBase[stage] + slot;
+            reservedUnits.insert(unit);
+            glUniform1i(loc, static_cast<GLint>(unit));
+        }
+
+        // 每个 sampler uniform（即每一对纹理 + 采样器）各占本阶段的一个单元，跳过 samplerBuffer 的单元。
+        // 同一张纹理配两个采样器时有两个 uniform、两个单元，draw 时两个单元都绑这张纹理。
+        uint32_t nextUnit[kTexStageCount] = {};
+        uint32_t fallbackSlot = 0;
+        for (const PendingSampler &ps : pendingSamplers)
+        {
+            const CombinedSamplerName parsed = parseCombinedSamplerName(ps.name);
+
+            SamplerUnit su;
+            su.target = samplerTypeToTarget(ps.type);
+
+            uint32_t hitCount = 0;
+            ShaderVariant *variant = findStage(parsed.texName, false, su.stage, hitCount);
+            if (variant != nullptr)
+            {
+                const ShaderSamplerParams &params = variant->getShaderSamplerParams();
+                su.texSlot = params.at(parsed.texName)->getTexBinding();
+
+                if (!parsed.samplerKey.empty())
                 {
-                    String texName = parseSpirvName(String(name));
-                    TextureUnitStage stage = kTexStagePS;
-                    uint32_t slot = 0;
-                    uint32_t hitCount = 0;
-
-                    GLint texUnit;
-                    if (findSlot(texName, isSamplerBuf, stage, slot, hitCount))
+                    const auto itr = params.find(parsed.samplerKey);
+                    if (itr != params.end())
                     {
-                        if (slot >= mTexUnitCount[stage])
-                        {
-                            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER,
-                                "setupSamplerBindings: sampler='%s' slot %u exceeds %u texture units of stage %u",
-                                name, slot, mTexUnitCount[stage], static_cast<uint32_t>(stage));
-                            fallbackTexUnit++;
-                            continue;
-                        }
-
-                        if (hitCount > 1)
-                        {
-                            T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
-                                "setupSamplerBindings: sampler='%s' is used by %u stages, GL links it as one uniform; "
-                                "it reads the texture bound to stage %u slot %u",
-                                name, hitCount, static_cast<uint32_t>(stage), slot);
-                        }
-
-                        texUnit = static_cast<GLint>(mTexUnitBase[stage] + slot);
+                        su.samplerSlot = itr->second->getSamplerBinding();
                     }
                     else
                     {
-                        // 查找失败，回退到递增分配（不应该发生）
-                        texUnit = fallbackTexUnit;
                         T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
-                            "setupSamplerBindings: could not find slot for sampler='%s' texName='%s', fallback texUnit=%d",
-                            name, texName.c_str(), texUnit);
+                            "setupSamplerBindings: sampler='%s' has no reflected sampler '%s', it samples without a sampler object",
+                            ps.name.c_str(), parsed.samplerKey.c_str());
                     }
+                }
 
-                    glUniform1i(loc, texUnit);
-                    T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "setupSamplerBindings: sampler='%s' texName='%s' loc=%d texUnit=%d",
-                        name, texName.c_str(), loc, texUnit);
-                    fallbackTexUnit++;
+                if (hitCount > 1)
+                {
+                    T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
+                        "setupSamplerBindings: sampler='%s' is used by %u stages, GL links it as one uniform; "
+                        "it reads the texture bound to stage %u slot %u",
+                        ps.name.c_str(), hitCount, static_cast<uint32_t>(su.stage), su.texSlot);
                 }
             }
+            else
+            {
+                // 没有反射结果（不应该发生），按 uniform 顺序把纹理与采样器放在同一个槽位
+                su.stage = isCompute ? kTexStageCS : kTexStagePS;
+                su.texSlot = fallbackSlot;
+                su.samplerSlot = fallbackSlot;
+                ++fallbackSlot;
+                T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
+                    "setupSamplerBindings: could not find slot for sampler='%s' texName='%s', fallback slot=%u",
+                    ps.name.c_str(), parsed.texName.c_str(), su.texSlot);
+            }
+
+            uint32_t &next = nextUnit[su.stage];
+            while (next < mTexUnitCount[su.stage] && reservedUnits.count(mTexUnitBase[su.stage] + next) > 0)
+            {
+                ++next;
+            }
+            if (next >= mTexUnitCount[su.stage])
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER,
+                    "setupSamplerBindings: sampler='%s' exceeds %u texture units of stage %u",
+                    ps.name.c_str(), mTexUnitCount[su.stage], static_cast<uint32_t>(su.stage));
+                continue;
+            }
+
+            su.unit = mTexUnitBase[su.stage] + next;
+            ++next;
+
+            glUniform1i(ps.loc, static_cast<GLint>(su.unit));
+            samplerUnits.push_back(su);
+
+            T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER,
+                "setupSamplerBindings: sampler='%s' -> stage %u t%u s%d, texUnit=%u",
+                ps.name.c_str(), static_cast<uint32_t>(su.stage), su.texSlot,
+                su.samplerSlot == UINT32_MAX ? -1 : static_cast<int32_t>(su.samplerSlot), su.unit);
         }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::bindPendingTextures(GLuint program)
+    {
+        const auto itr = mProgramSamplerUnits.find(program);
+        if (itr == mProgramSamplerUnits.end() || itr->second.empty())
+        {
+            return;
+        }
+
+        // 每次 draw 都重绑：创建、上传纹理时会占用 GL_TEXTURE0 上的绑定，不能假设单元上的内容没变
+        for (const SamplerUnit &su : itr->second)
+        {
+            GLuint texHandle = 0;
+            GLenum texTarget = su.target;
+            const PixelBuffers &textures = mStageTextures[su.stage];
+            if (su.texSlot < textures.size())
+            {
+                getGLTextureBinding(textures[su.texSlot].get(), texHandle, texTarget);
+            }
+
+            GLuint samplerHandle = 0;
+            const Samplers &samplers = mStageSamplers[su.stage];
+            if (su.samplerSlot < samplers.size() && samplers[su.samplerSlot] != nullptr
+                && samplers[su.samplerSlot]->getRHIState() != nullptr)
+            {
+                samplerHandle = static_cast<GL4SamplerState*>(samplers[su.samplerSlot]->getRHIState().get())->GLSampler;
+            }
+
+            glActiveTexture(GL_TEXTURE0 + su.unit);
+            glBindTexture(texTarget, texHandle);
+            // handle==0 也要绑：sampler object 是全局状态，不显式解绑就会
+            // 把上一 pass 的采样参数（比如 comparison 模式）留给下一 pass。
+            glBindSampler(su.unit, samplerHandle);
+
+            mTexUnitUsed[su.stage] = std::max(mTexUnitUsed[su.stage], su.unit - mTexUnitBase[su.stage] + 1);
+        }
+        glActiveTexture(GL_TEXTURE0);
+
+        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::bindPendingTextures");
     }
 
     //--------------------------------------------------------------------------
@@ -5337,65 +5536,16 @@ namespace Tiny3D
 
         auto lambda = [this](TextureUnitStage stage, uint32_t startSlot, const PixelBuffers &buffers)
         {
-            TResult ret = T3D_OK;
-
-            do
+            PixelBuffers &textures = mStageTextures[stage];
+            if (textures.size() < startSlot + buffers.size())
             {
-                for (uint32_t i = 0; i < buffers.size(); ++i)
-                {
-                    GLuint texHandle = 0;
-                    GLenum texTarget = GL_TEXTURE_2D;
-
-                    if (buffers[i] != nullptr && buffers[i]->getRHIResource() != nullptr)
-                    {
-                        switch (buffers[i]->getRHIResource()->getResourceType())
-                        {
-                        case RHIResource::ResourceType::kPixelBuffer1D:
-                            {
-                                GL4PixelBuffer1D *glPB = static_cast<GL4PixelBuffer1D*>(buffers[i]->getRHIResource().get());
-                                texHandle = glPB->GLTexture;
-                                texTarget = glPB->GLTarget;
-                            }
-                            break;
-                        case RHIResource::ResourceType::kPixelBuffer2D:
-                            {
-                                GL4PixelBuffer2D *glPB = static_cast<GL4PixelBuffer2D*>(buffers[i]->getRHIResource().get());
-                                if (glPB->GLMSAACount > 1 && glPB->GLResolveTex != 0)
-                                {
-                                    texHandle = glPB->GLResolveTex;
-                                    texTarget = GL_TEXTURE_2D;
-                                }
-                                else
-                                {
-                                    texHandle = glPB->GLTexture;
-                                    texTarget = glPB->GLTarget;
-                                }
-                            }
-                            break;
-                        case RHIResource::ResourceType::kPixelBuffer3D:
-                            texHandle = static_cast<GL4PixelBuffer3D*>(buffers[i]->getRHIResource().get())->GLTexture;
-                            texTarget = GL_TEXTURE_3D;
-                            break;
-                        case RHIResource::ResourceType::kPixelBufferCubemap:
-                            {
-                                GL4PixelBufferCubemap *glPB = static_cast<GL4PixelBufferCubemap*>(buffers[i]->getRHIResource().get());
-                                texHandle = glPB->GLTexture;
-                                texTarget = glPB->GLTarget;
-                            }
-                            break;
-                        default:
-                            break;
-                        }
-                    }
-
-                    glActiveTexture(GL_TEXTURE0 + toTextureUnit(stage, startSlot + i));
-                    glBindTexture(texTarget, texHandle);
-                }
-                glActiveTexture(GL_TEXTURE0);
-                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::bindPixelBuffers");
-            } while (false);
-
-            return ret;
+                textures.resize(startSlot + buffers.size());
+            }
+            for (uint32_t i = 0; i < buffers.size(); ++i)
+            {
+                textures[startSlot + i] = buffers[i];
+            }
+            return T3D_OK;
         };
 
         return ENQUEUE_UNIQUE_COMMAND(lambda, stage, startSlot, buffers);
@@ -5413,26 +5563,16 @@ namespace Tiny3D
 
         auto lambda = [this](TextureUnitStage stage, uint32_t startSlot, const Samplers &samplers)
         {
-            TResult ret = T3D_OK;
-
-            do
+            Samplers &bound = mStageSamplers[stage];
+            if (bound.size() < startSlot + samplers.size())
             {
-                for (uint32_t i = 0; i < samplers.size(); ++i)
-                {
-                    GLuint handle = 0;
-                    if (samplers[i] != nullptr && samplers[i]->getRHIState() != nullptr)
-                    {
-                        handle = static_cast<GL4SamplerState*>(samplers[i]->getRHIState().get())->GLSampler;
-                    }
-
-                    // handle==0 也要绑：sampler object 是全局状态，不显式解绑就会
-                    // 把上一 pass 的采样参数（比如 comparison 模式）留给下一 pass。
-                    glBindSampler(toTextureUnit(stage, startSlot + i), handle);
-                }
-                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::bindSamplers");
-            } while (false);
-
-            return ret;
+                bound.resize(startSlot + samplers.size());
+            }
+            for (uint32_t i = 0; i < samplers.size(); ++i)
+            {
+                bound[startSlot + i] = samplers[i];
+            }
+            return T3D_OK;
         };
 
         return ENQUEUE_UNIQUE_COMMAND(lambda, stage, startSlot, samplers);

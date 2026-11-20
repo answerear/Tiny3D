@@ -192,6 +192,9 @@ namespace Tiny3D
         void bindPendingUniformBlocks(GLuint program, bool isCompute);
         void setupSamplerBindings(GLuint program, bool isCompute);
 
+        /// draw / dispatch 前按 program 的 sampler uniform 表，把各阶段槽位上的纹理与采样器绑到对应单元
+        void bindPendingTextures(GLuint program);
+
         /// 链接 program，成功后建立 uniform block 绑定与 sampler 绑定并记录 block 名单
         TResult linkProgram(GLuint program, const char *tag, bool isCompute);
 
@@ -379,6 +382,27 @@ namespace Tiny3D
 
         /// 各阶段绑定过的 slot 上界（不含），unbindTextureUnits 只解绑这些单元
         uint32_t mTexUnitUsed[kTexStageCount] {};
+
+        /// 各阶段 t# / s# 上设置的纹理与采样器，只在 RHI 线程访问。
+        /// D3D11 的纹理与采样器槽位相互独立，同一张纹理可以配多个采样器，而 GL 的一个纹理单元
+        /// 只有一个 sampler object，所以 set*PixelBuffers / set*Samplers 只记录，draw / dispatch 时
+        /// 再按当前 program 的 mProgramSamplerUnits 绑定。持有引用与 D3D11 一致，绑定期间资源不会被释放
+        PixelBuffers mStageTextures[kTexStageCount];
+        Samplers mStageSamplers[kTexStageCount];
+
+        /// 一个 sampler uniform 占用的纹理单元，以及它读取的纹理槽位与采样器槽位
+        struct SamplerUnit
+        {
+            TextureUnitStage    stage {kTexStagePS};
+            uint32_t            texSlot {0};
+            /// 没有采样器（只做 texelFetch）时为 UINT32_MAX
+            uint32_t            samplerSlot {UINT32_MAX};
+            GLuint              unit {0};
+            /// 纹理槽位为空时按 sampler 类型解绑的 target
+            GLenum              target {GL_TEXTURE_2D};
+        };
+        /// program -> sampler uniform 表，链接时由 setupSamplerBindings 建立
+        TMap<GLuint, TArray<SamplerUnit>> mProgramSamplerUnits;
 
         /// 当前绑定的 CS Image Unit 槽位 -> GL 纹理对象（供 uavBarrier 解绑）
         TMap<uint32_t, GLuint> mBoundCSImages;

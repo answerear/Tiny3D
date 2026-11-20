@@ -64,6 +64,35 @@ namespace Tiny3D
         static bool isSamplerBufferGLType(GLenum glDefineType);
         static bool isImageGLType(GLenum glDefineType, bool &outIsBuffer);
 
+        /// sampler uniform 名拆出的纹理与采样器
+        struct CombinedSamplerName
+        {
+            /// 纹理名，即纹理所在 ShaderSamplerParam 的键
+            String texName;
+            /// 采样器所在 ShaderSamplerParam 的键（与 D3D11 一致，采样器名去掉 "sampler" 前缀）；
+            /// 为空表示只做 texelFetch、没有采样器（SPIRV-Cross 的 dummy sampler）
+            String samplerKey;
+            /// 名字里带的 HLSL t# 寄存器号，没有时为 UINT32_MAX
+            uint32_t texSlot {UINT32_MAX};
+            /// 名字里带的 HLSL s# 寄存器号，没有或没有采样器时为 UINT32_MAX
+            uint32_t samplerSlot {UINT32_MAX};
+        };
+
+        /**
+         * \brief 拆解 sampler uniform 名
+         * \remarks HLSLCross 把 HLSL 的纹理 + 采样器合并成
+         *          "T3D_Combined_t<t#>s<s#|x>l<纹理名长度><纹理名><采样器名>"，x 表示没有采样器，
+         *          纹理名与寄存器号都能直接读出。
+         *          旧资源是 "SPIRV_Cross_Combined<纹理名><采样器名>"，不带寄存器号，采样器名按 D3D11 约定以
+         *          "sampler" 开头。纹理名里也可能有 "sampler"，所以优先按 "<T>sampler<T>"（纹理自带的采样器）
+         *          拆分，其次取第一个 "sampler"。
+         *          手写 GLSL 的 sampler 没有前缀，纹理与采样器同名。
+         */
+        static CombinedSamplerName parseCombinedSamplerName(const String &uniformName);
+
+        /// 解析带寄存器号的 "T3D_Combined_..." 名字，格式不符时返回 false 且不改 result
+        static bool parseRegisterCombinedName(const String &uniformName, CombinedSamplerName &result);
+
         struct GlslangUniformInfo
         {
             String name;        // e.g. "Tiny3DPerDraw.tiny3d_ObjectToWorld"
@@ -100,6 +129,16 @@ namespace Tiny3D
         };
 
         TResult glslangCompileAndReflect(ShaderVariant *shader);
+
+        /**
+         * \brief 按 D3D11 的编号方式给 sampler uniform 分配纹理与采样器槽位
+         * \remarks 名字带寄存器号时直接使用，与 D3D11 的 t# / s# 一致。旧名字不带寄存器号，
+         *          纹理按纹理名、采样器按采样器键各自去重，按首次出现的顺序取未被占用的最小槽位，
+         *          同一张纹理配多个采样器时纹理只占一个槽位。纹理槽位写入纹理名对应参数的 texBinding，
+         *          采样器槽位写入采样器键对应参数的 samplerBinding。
+         * \param [in] createMissing : 为 true 时新建缺少的参数，否则只回填已有参数
+         */
+        static void assignSamplerBindings(const GlslangReflectionData &data, ShaderSamplerParams &samplerParams, bool createMissing);
 
         TMap<ShaderVariant*, GlslangReflectionData> mReflectionCache;
         bool mGlslangInitialized {false};

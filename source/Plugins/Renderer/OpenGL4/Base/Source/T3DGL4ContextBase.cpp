@@ -992,7 +992,8 @@ namespace Tiny3D
 
             // 按 GL 类型识别采样器。glslang 的 uniform.index 语义随版本变化，
             // 用它反推 standalone / block 成员不可靠，直接看类型。
-            uint32_t samplerIndex = 0;
+            assignSamplerBindings(data, samplerParams, true);
+
             ShaderResourceParams resourceParams;
 
             for (const auto &uniform : data.uniforms)
@@ -1000,38 +1001,6 @@ namespace Tiny3D
                 TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
                 if (mapSamplerGLType(static_cast<GLenum>(uniform.glDefineType), texType))
                 {
-                    String name = uniform.name;
-
-                    const String kSpirvPrefix = "SPIRV_Cross_Combined";
-                    if (StringUtil::startsWith(name, kSpirvPrefix, false))
-                    {
-                        String remainder = name.substr(kSpirvPrefix.size());
-                        String::size_type samplerPos = remainder.find("sampler");
-                        if (samplerPos != String::npos && samplerPos > 0)
-                        {
-                            name = remainder.substr(0, samplerPos);
-                        }
-                    }
-
-                    ShaderSamplerParamPtr param;
-                    const auto it = samplerParams.find(name);
-                    if (it == samplerParams.end())
-                    {
-                        param = ShaderSamplerParam::create(name);
-                        samplerParams.emplace(name, param);
-                    }
-                    else
-                    {
-                        param = it->second;
-                    }
-
-                    param->setTexBinding(samplerIndex);
-                    param->setSamplerBinding(samplerIndex);
-                    param->setTextureType(texType);
-
-                    T3D_LOG_DEBUG(LOG_TAG_GL4CONTEXTBASE, "Shader reflection - sampler: %s -> %s, binding: %d, type: %d",
-                        uniform.name.c_str(), name.c_str(), samplerIndex, texType);
-                    samplerIndex++;
                     continue;
                 }
 
@@ -1112,42 +1081,265 @@ namespace Tiny3D
                 break;
             }
 
-            const GlslangReflectionData &data = itr->second;
-
-            uint32_t samplerIndex = 0;
-            for (const auto &uniform : data.uniforms)
-            {
-                TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
-                if (mapSamplerGLType(static_cast<GLenum>(uniform.glDefineType), texType))
-                {
-                    String name = uniform.name;
-
-                    const String kSpirvPrefix = "SPIRV_Cross_Combined";
-                    if (StringUtil::startsWith(name, kSpirvPrefix, false))
-                    {
-                        String remainder = name.substr(kSpirvPrefix.size());
-                        String::size_type samplerPos = remainder.find("sampler");
-                        if (samplerPos != String::npos && samplerPos > 0)
-                        {
-                            name = remainder.substr(0, samplerPos);
-                        }
-                    }
-
-                    auto it = samplerParams.find(name);
-                    if (it != samplerParams.end())
-                    {
-                        it->second->setTexBinding(samplerIndex);
-                        it->second->setSamplerBinding(samplerIndex);
-                        it->second->setTextureType(texType);
-                    }
-
-                    samplerIndex++;
-                }
-            }
+            // 只回填已有的 sampler 参数，不新建 —— 新建是 reflectShaderAllBindings 的职责
+            assignSamplerBindings(itr->second, samplerParams, false);
 
         } while (false);
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool GL4ContextBase::parseRegisterCombinedName(const String &uniformName, CombinedSamplerName &result)
+    {
+        static const String kPrefix = "T3D_Combined_t";
+        static const String kSamplerPrefix = "sampler";
+
+        if (!StringUtil::startsWith(uniformName, kPrefix, false))
+        {
+            return false;
+        }
+
+        String::size_type pos = kPrefix.size();
+        auto readNumber = [&uniformName, &pos](uint32_t &value) -> bool
+        {
+            const String::size_type start = pos;
+            uint64_t v = 0;
+            while (pos < uniformName.size() && uniformName[pos] >= '0' && uniformName[pos] <= '9')
+            {
+                v = v * 10 + static_cast<uint64_t>(uniformName[pos] - '0');
+                if (v >= UINT32_MAX)
+                {
+                    return false;
+                }
+                ++pos;
+            }
+            value = static_cast<uint32_t>(v);
+            return pos > start;
+        };
+        auto expect = [&uniformName, &pos](char c) -> bool
+        {
+            if (pos < uniformName.size() && uniformName[pos] == c)
+            {
+                ++pos;
+                return true;
+            }
+            return false;
+        };
+
+        uint32_t texSlot = 0;
+        uint32_t samplerSlot = UINT32_MAX;
+        uint32_t texNameLen = 0;
+        if (!readNumber(texSlot) || !expect('s'))
+        {
+            return false;
+        }
+        if (!expect('x') && !readNumber(samplerSlot))
+        {
+            return false;
+        }
+        if (!expect('l') || !readNumber(texNameLen) || texNameLen == 0 || pos + texNameLen > uniformName.size())
+        {
+            return false;
+        }
+
+        const String samplerName = uniformName.substr(pos + texNameLen);
+        if ((samplerSlot == UINT32_MAX) != samplerName.empty())
+        {
+            return false;
+        }
+
+        result.texName = uniformName.substr(pos, texNameLen);
+        result.texSlot = texSlot;
+        result.samplerSlot = samplerSlot;
+        if (samplerName.empty())
+        {
+            result.samplerKey.clear();
+        }
+        else if (samplerName.size() > kSamplerPrefix.size() && StringUtil::startsWith(samplerName, kSamplerPrefix, false))
+        {
+            result.samplerKey = samplerName.substr(kSamplerPrefix.size());
+        }
+        else
+        {
+            // D3D11 反射不接受这种采样器名，这里保持整名作键
+            result.samplerKey = samplerName;
+        }
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    GL4ContextBase::CombinedSamplerName GL4ContextBase::parseCombinedSamplerName(const String &uniformName)
+    {
+        static const String kCombinedPrefix = "SPIRV_Cross_Combined";
+        static const String kSamplerPrefix = "sampler";
+        static const String kDummySampler = "SPIRV_Cross_DummySampler";
+
+        CombinedSamplerName result;
+        result.texName = uniformName;
+        result.samplerKey = uniformName;
+
+        if (parseRegisterCombinedName(uniformName, result))
+        {
+            return result;
+        }
+
+        if (!StringUtil::startsWith(uniformName, kCombinedPrefix, false))
+        {
+            return result;
+        }
+
+        const String rest = uniformName.substr(kCombinedPrefix.size());
+
+        if (rest.size() > kDummySampler.size() && StringUtil::endsWith(rest, kDummySampler, false))
+        {
+            result.texName = rest.substr(0, rest.size() - kDummySampler.size());
+            result.samplerKey.clear();
+            return result;
+        }
+
+        String::size_type split = String::npos;
+        for (String::size_type pos = rest.find(kSamplerPrefix, 1); pos != String::npos;
+            pos = rest.find(kSamplerPrefix, pos + 1))
+        {
+            if (rest.compare(pos + kSamplerPrefix.size(), String::npos, rest, 0, pos) == 0)
+            {
+                split = pos;
+                break;
+            }
+        }
+        if (split == String::npos)
+        {
+            split = rest.find(kSamplerPrefix, 1);
+        }
+
+        // 采样器名不以 "sampler" 开头时拆不开，D3D11 反射同样不接受这种命名，保持整名
+        if (split != String::npos && split + kSamplerPrefix.size() < rest.size())
+        {
+            result.texName = rest.substr(0, split);
+            result.samplerKey = rest.substr(split + kSamplerPrefix.size());
+        }
+
+        return result;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4ContextBase::assignSamplerBindings(const GlslangReflectionData &data, ShaderSamplerParams &samplerParams, bool createMissing)
+    {
+        auto findParam = [&samplerParams, createMissing](const String &name) -> ShaderSamplerParam*
+        {
+            const auto it = samplerParams.find(name);
+            if (it != samplerParams.end())
+            {
+                return it->second.get();
+            }
+            if (!createMissing)
+            {
+                return nullptr;
+            }
+            ShaderSamplerParamPtr param = ShaderSamplerParam::create(name);
+            param->clearUsage();
+            samplerParams.emplace(name, param);
+            return param.get();
+        };
+
+        struct SlotTable
+        {
+            TMap<String, uint32_t> slots;
+            TSet<uint32_t> used;
+
+            void reserve(const String &name, uint32_t slot)
+            {
+                if (slots.emplace(name, slot).second)
+                {
+                    used.insert(slot);
+                }
+            }
+
+            uint32_t slotOf(const String &name)
+            {
+                const auto it = slots.find(name);
+                if (it != slots.end())
+                {
+                    return it->second;
+                }
+                uint32_t slot = 0;
+                while (used.count(slot) > 0)
+                {
+                    ++slot;
+                }
+                slots.emplace(name, slot);
+                used.insert(slot);
+                return slot;
+            }
+        };
+
+        SlotTable texSlots;
+        SlotTable samplerSlots;
+        TArray<std::pair<const GlslangUniformInfo*, CombinedSamplerName>> samplers;
+
+        for (auto &item : samplerParams)
+        {
+            item.second->clearUsage();
+        }
+
+        // 先登记名字里带的寄存器号，不带寄存器号的旧名字再按顺序取剩下的槽位，避免两者撞号
+        for (const auto &uniform : data.uniforms)
+        {
+            TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
+            if (!mapSamplerGLType(static_cast<GLenum>(uniform.glDefineType), texType))
+            {
+                continue;
+            }
+
+            samplers.emplace_back(&uniform, parseCombinedSamplerName(uniform.name));
+            const CombinedSamplerName &parsed = samplers.back().second;
+            if (parsed.texSlot != UINT32_MAX)
+            {
+                texSlots.reserve(parsed.texName, parsed.texSlot);
+            }
+            if (parsed.samplerSlot != UINT32_MAX)
+            {
+                samplerSlots.reserve(parsed.samplerKey, parsed.samplerSlot);
+            }
+        }
+
+        for (const auto &item : samplers)
+        {
+            const GlslangUniformInfo &uniform = *item.first;
+            const CombinedSamplerName &parsed = item.second;
+
+            TEXTURE_TYPE texType = TEXTURE_TYPE::TT_2D;
+            mapSamplerGLType(static_cast<GLenum>(uniform.glDefineType), texType);
+
+            const uint32_t texSlot = texSlots.slotOf(parsed.texName);
+            ShaderSamplerParam *texParam = findParam(parsed.texName);
+            if (texParam != nullptr)
+            {
+                texParam->setTexBinding(texSlot);
+                texParam->setTextureType(texType);
+                texParam->setHasTexture(true);
+            }
+
+            int32_t samplerSlot = -1;
+            if (!parsed.samplerKey.empty())
+            {
+                samplerSlot = static_cast<int32_t>(samplerSlots.slotOf(parsed.samplerKey));
+                ShaderSamplerParam *samplerParam = findParam(parsed.samplerKey);
+                if (samplerParam != nullptr)
+                {
+                    samplerParam->setSamplerBinding(static_cast<uint32_t>(samplerSlot));
+                    samplerParam->setHasSampler(true);
+                }
+            }
+
+            T3D_LOG_DEBUG(LOG_TAG_GL4CONTEXTBASE,
+                "Shader reflection - sampler: %s -> texture '%s' t%u, sampler '%s' s%d, type: %d",
+                uniform.name.c_str(), parsed.texName.c_str(), texSlot, parsed.samplerKey.c_str(), samplerSlot, texType);
+        }
     }
 
     //--------------------------------------------------------------------------
