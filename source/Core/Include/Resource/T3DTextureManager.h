@@ -58,9 +58,11 @@ namespace Tiny3D
          * \param [in] MSAAQuality : MSAA 质量等级，默认 0
          * \param [in] shaderReadable : 是否允许着色器读取，默认 false
          * \param [in] accMode : CPU 访问许可，传 kCPURead 才允许 Texture::map 读回
+         * \param [in] gpuAccess : GPU 侧附加访问权限（GPUAccessFlags 组合），传 kGPUUnorderedAccess 才能绑定为 UAV
          * \return 成功返回 RenderTexture 智能指针，失败返回 nullptr
+         * \note kGPUUnorderedAccess 只对非 MSAA 的颜色格式生效，MSAA 或深度格式后端打 warning 并忽略
          */
-        RenderTexturePtr createRenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps = 1, uint32_t MSAACount = 1, uint32_t MSAAQuality = 0, bool shaderReadable = false, uint32_t accMode = kCPUNone);
+        RenderTexturePtr createRenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps = 1, uint32_t MSAACount = 1, uint32_t MSAAQuality = 0, bool shaderReadable = false, uint32_t accMode = kCPUNone, uint32_t gpuAccess = kGPUNone);
 
         /**
          * \brief 创建 1D 纹理

@@ -34,17 +34,17 @@ namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
-    RenderTexturePtr RenderTexture::create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable, uint32_t accMode)
+    RenderTexturePtr RenderTexture::create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable, uint32_t accMode, uint32_t gpuAccess)
     {
-        return T3D_NEW RenderTexture(name, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable, accMode);
+        return T3D_NEW RenderTexture(name, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable, accMode, gpuAccess);
     }
     
     //--------------------------------------------------------------------------
     
-    RenderTexture::RenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable, uint32_t accMode)
+    RenderTexture::RenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable, uint32_t accMode, uint32_t gpuAccess)
         : Texture2D(name, width, height, format, mipmaps, MSAACount, MSAAQuality, Buffer{}, shaderReadable, accMode)
     {
-
+        mDesc.gpuAccess = gpuAccess;
     }
 
     //--------------------------------------------------------------------------
@@ -100,7 +100,7 @@ namespace Tiny3D
 
     ResourcePtr RenderTexture::clone() const
     {
-        RenderTexturePtr texture = create(getName(), mDesc.width, mDesc.height, mDesc.format, mDesc.mipmaps, mDesc.sampleDesc.Count, mDesc.sampleDesc.Quality, mDesc.shaderReadable, mCPUAccessMode);
+        RenderTexturePtr texture = create(getName(), mDesc.width, mDesc.height, mDesc.format, mDesc.mipmaps, mDesc.sampleDesc.Count, mDesc.sampleDesc.Quality, mDesc.shaderReadable, mCPUAccessMode, mDesc.gpuAccess);
         texture->cloneProperties(this);
         return texture;
     }

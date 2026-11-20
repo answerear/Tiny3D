@@ -42,10 +42,10 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    RenderTexturePtr TextureManager::createRenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable, uint32_t accMode)
+    RenderTexturePtr TextureManager::createRenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, bool shaderReadable, uint32_t accMode, uint32_t gpuAccess)
     {
-        return smart_pointer_cast<RenderTexture>(createResource(name, 9,
-            TEXTURE_TYPE::TT_RENDER_TEXTURE, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable, accMode));
+        return smart_pointer_cast<RenderTexture>(createResource(name, 10,
+            TEXTURE_TYPE::TT_RENDER_TEXTURE, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable, accMode, gpuAccess));
     }
 
     //--------------------------------------------------------------------------
@@ -314,7 +314,7 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_RENDER_TEXTURE:
             {
-                T3D_ASSERT(argc == 9);
+                T3D_ASSERT(argc == 10);
                 uint32_t width = va_arg(args, uint32_t);
                 uint32_t height = va_arg(args, uint32_t);
                 PixelFormat format = va_arg(args, PixelFormat);
@@ -323,7 +323,8 @@ namespace Tiny3D
                 uint32_t MSAAQuality = va_arg(args, uint32_t);
                 bool shaderReadable = static_cast<bool>(va_arg(args, int));
                 uint32_t accMode = va_arg(args, uint32_t);
-                texture = RenderTexture::create(name, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable, accMode);
+                uint32_t gpuAccess = va_arg(args, uint32_t);
+                texture = RenderTexture::create(name, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable, accMode, gpuAccess);
             }
             break;
         }
