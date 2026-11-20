@@ -3594,8 +3594,22 @@ namespace Tiny3D
             return T3D_ERR_INVALID_PARAM;
         }
 
+        // 槽位范围按 SSBO 上限（maxUnorderedAccessSlots）校验，image 与计数器只对实际用到它们的槽校验
+        const uint32_t maxSlots = mCapabilities.maxUnorderedAccessSlots;
+        const uint32_t maxImageUnits = mCapabilities.maxImageUnorderedAccessSlots;
+        const uint32_t maxCounterBindings = mCapabilities.maxCounterUnorderedAccessSlots;
+
+        if ((uint64_t)startSlot + buffers.size() > maxSlots)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "setCSUnorderedAccessBuffers : slot range [%u, %llu) "
+                "exceeds the %u available UAV slots !", startSlot,
+                (unsigned long long)((uint64_t)startSlot + buffers.size()), maxSlots);
+            return T3D_ERR_INVALID_PARAM;
+        }
+
         for (uint32_t i = 0; i < buffers.size(); ++i)
         {
+            const uint32_t slot = startSlot + i;
             RenderBuffer *rb = buffers[i].get();
             if (rb == nullptr)
             {
@@ -3605,14 +3619,66 @@ namespace Tiny3D
             if ((rb->getGPUAccess() & kGPUUnorderedAccess) == 0)
             {
                 T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "setCSUnorderedAccessBuffers : resource at slot [%u] "
-                    "was not created with kGPUUnorderedAccess !", startSlot + i);
+                    "was not created with kGPUUnorderedAccess !", slot);
+                return T3D_ERR_INVALID_PARAM;
+            }
+
+            bool usesImage = false;
+            bool usesCounter = false;
+            switch (rb->getType())
+            {
+            case RenderResource::Type::kPixelBuffer1D:
+            case RenderResource::Type::kPixelBuffer2D:
+            case RenderResource::Type::kPixelBuffer3D:
+            case RenderResource::Type::kPixelBufferCubemap:
+                usesImage = true;
+                break;
+            case RenderResource::Type::kStructuredBuffer:
+                {
+                    const StructuredBuffer *sb = static_cast<const StructuredBuffer*>(rb);
+                    usesImage = (sb->getDescriptor().kind == StructuredBufferKind::kTyped);
+                    usesCounter = sb->hasUAVCounter();
+                }
+                break;
+            default:
+                break;
+            }
+
+            if (usesImage && slot >= maxImageUnits)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "setCSUnorderedAccessBuffers : image resource at slot [%u] "
+                    "exceeds the %u available image units !", slot, maxImageUnits);
+                return T3D_ERR_INVALID_PARAM;
+            }
+
+            if (usesCounter && slot >= maxCounterBindings)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "setCSUnorderedAccessBuffers : counter buffer at slot [%u] "
+                    "exceeds the %u available atomic counter bindings !", slot, maxCounterBindings);
                 return T3D_ERR_INVALID_PARAM;
             }
         }
 
-        auto lambda = [this](uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts)
+        auto lambda = [this, maxImageUnits, maxCounterBindings](uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts)
         {
             TResult ret = T3D_OK;
+
+            auto unbindImage = [this, maxImageUnits](uint32_t slot)
+            {
+                if (slot < maxImageUnits)
+                {
+                    glBindImageTexture(slot, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
+                }
+                mBoundCSImages.erase(slot);
+            };
+
+            auto unbindCounter = [maxCounterBindings](uint32_t slot)
+            {
+                if (slot < maxCounterBindings)
+                {
+                    glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, slot, 0);
+                }
+            };
 
             do
             {
@@ -3624,9 +3690,8 @@ namespace Tiny3D
                     if (rb == nullptr || rb->getRHIResource() == nullptr)
                     {
                         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, 0);
-                        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, slot, 0);
-                        glBindImageTexture(slot, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
-                        mBoundCSImages.erase(slot);
+                        unbindCounter(slot);
+                        unbindImage(slot);
                         continue;
                     }
 
@@ -3645,7 +3710,7 @@ namespace Tiny3D
                         }
 
                         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, 0);
-                        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, slot, 0);
+                        unbindCounter(slot);
                         glBindImageTexture(slot, imgTex, 0, imgLayered, 0, GL_READ_WRITE, imgFmt);
                         mBoundCSImages[slot] = imgTex;
                         continue;
@@ -3662,8 +3727,7 @@ namespace Tiny3D
                         hasCounter = glSB->HasCounter;
                     }
 
-                    glBindImageTexture(slot, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
-                    mBoundCSImages.erase(slot);
+                    unbindImage(slot);
                     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 
                     if (hasCounter && counter != 0)
@@ -3677,7 +3741,7 @@ namespace Tiny3D
                     }
                     else
                     {
-                        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, slot, 0);
+                        unbindCounter(slot);
                     }
                 }
 

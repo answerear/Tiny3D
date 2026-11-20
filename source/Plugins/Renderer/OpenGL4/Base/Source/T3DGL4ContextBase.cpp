@@ -133,6 +133,15 @@ namespace Tiny3D
             glGetIntegerv(GL_MAX_IMAGE_UNITS, &mGLSLangLimits.imageUnits);
         }
 
+        // 一个 UAV 槽同时对应 SSBO 绑定点、image unit 与 atomic counter 绑定点，
+        // 纹理 / Typed 缓冲与带计数器的缓冲还要受后两者的上限约束
+        {
+            const uint32_t imageUnits = mGLSLangLimits.imageUnits > 0 ? (uint32_t)mGLSLangLimits.imageUnits : 0u;
+            const uint32_t counterBindings = mGLSLangLimits.atomicCounterBindings > 0 ? (uint32_t)mGLSLangLimits.atomicCounterBindings : 0u;
+            mCapabilities.maxImageUnorderedAccessSlots = std::min(imageUnits, mCapabilities.maxUnorderedAccessSlots);
+            mCapabilities.maxCounterUnorderedAccessSlots = std::min(counterBindings, mCapabilities.maxUnorderedAccessSlots);
+        }
+
         // 纹理单元按阶段分区：PS 拿满片元阶段上限，其余阶段平分剩下的单元，
         // 再各自受本阶段上限约束。总数不超过 GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS，
         // 它同时也是 glActiveTexture 能用的单元总数。
