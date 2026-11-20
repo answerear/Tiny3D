@@ -1245,3 +1245,132 @@ void main()
 )";
     return make(hlsl, gl, nullptr);
 }
+
+ComputeShaderSource twoSamplersPSSource()
+{
+    // 同一张纹理 t0 分别用 s0、s1 在 u = 0.375 处采样，R 取 s0 的结果，G 取 s1 的结果。
+    // GL 版写成两个合并采样器，用旧版 HLSLCross 不带寄存器号的名字，覆盖旧资源按顺序编号的路径
+    static const char *hlsl = R"(
+Texture2D srcTex : register(t0);
+SamplerState samplersrcTex : register(s0);
+SamplerState samplerSecond : register(s1);
+float4 main(float4 position : SV_POSITION) : SV_TARGET
+{
+    float a = srcTex.SampleLevel(samplersrcTex, float2(0.375f, 0.5f), 0.0f).r;
+    float b = srcTex.SampleLevel(samplerSecond, float2(0.375f, 0.5f), 0.0f).r;
+    return float4(a, b, 0.0f, 1.0f);
+}
+)";
+    static const char *gl = R"(
+#version 430
+uniform sampler2D SPIRV_Cross_CombinedsrcTexsamplersrcTex;
+uniform sampler2D SPIRV_Cross_CombinedsrcTexsamplerSecond;
+out vec4 fragColor;
+void main()
+{
+    float a = textureLod(SPIRV_Cross_CombinedsrcTexsamplersrcTex, vec2(0.375, 0.5), 0.0).r;
+    float b = textureLod(SPIRV_Cross_CombinedsrcTexsamplerSecond, vec2(0.375, 0.5), 0.0).r;
+    fragColor = vec4(a, b, 0.0, 1.0);
+}
+)";
+    return make(hlsl, gl, nullptr);
+}
+
+ComputeShaderSource inlineSamplerPSSource()
+{
+    // t0 配自带的 samplertex 与独立的 samplerPointClamp，t1 只做 Load。
+    // R、G 用 samplerPointClamp 分别在 u = 0.375、1.25 处采样，B 是 t1 的 (0, 0)，A 用 samplertex 在 u = 0.375 处采样。
+    // GL 版是 scc -t glsl 的原样输出
+    static const char *hlsl = R"(
+Texture2D tex : register(t0);
+Texture2D dataTex : register(t1);
+SamplerState samplertex : register(s0);
+SamplerState samplerPointClamp : register(s1);
+float4 main(float4 position : SV_POSITION) : SV_TARGET
+{
+    float r = tex.SampleLevel(samplerPointClamp, float2(0.375f, 0.5f), 0.0f).r;
+    float g = tex.SampleLevel(samplerPointClamp, float2(1.25f, 0.5f), 0.0f).r;
+    float b = dataTex.Load(int3(0, 0, 0)).r;
+    float a = tex.SampleLevel(samplertex, float2(0.375f, 0.5f), 0.0f).r;
+    return float4(r, g, b, a);
+}
+)";
+    static const char *gl = R"(#version 400
+#extension GL_ARB_separate_shader_objects : require
+
+struct PS_INPUT
+{
+    vec4 position;
+};
+
+uniform sampler2D T3D_Combined_t0s1l3texsamplerPointClamp;
+uniform sampler2D T3D_Combined_t1sxl7dataTex;
+uniform sampler2D T3D_Combined_t0s0l3texsamplertex;
+
+layout(location = 0) out vec4 out_var_SV_Target;
+
+vec4 src_frag(PS_INPUT _input)
+{
+    float r = textureLod(T3D_Combined_t0s1l3texsamplerPointClamp, vec2(0.375, 0.5), 0.0).x;
+    float g = textureLod(T3D_Combined_t0s1l3texsamplerPointClamp, vec2(1.25, 0.5), 0.0).x;
+    float b = texelFetch(T3D_Combined_t1sxl7dataTex, ivec3(0).xy, ivec3(0).z).x;
+    float a = textureLod(T3D_Combined_t0s0l3texsamplertex, vec2(0.375, 0.5), 0.0).x;
+    return vec4(r, g, b, a);
+}
+
+void main()
+{
+    PS_INPUT param_var_input;
+    out_var_SV_Target = src_frag(param_var_input);
+}
+)";
+    return make(hlsl, gl, nullptr);
+}
+
+ComputeShaderSource registerOrderPSSource()
+{
+    // 寄存器的声明顺序、使用顺序都与编号相反：先用 t1 / s1，再用 t0 / s0，最后对 t0 做 Load。
+    // GL 版是 scc -t glsl 的原样输出，合并采样器名里带 HLSL 寄存器号
+    static const char *hlsl = R"(
+Texture2D texA : register(t1);
+Texture2D texB : register(t0);
+SamplerState samplerLinear : register(s1);
+SamplerState samplerPoint : register(s0);
+float4 main(float4 position : SV_POSITION) : SV_TARGET
+{
+    float a = texA.SampleLevel(samplerLinear, float2(0.375f, 0.5f), 0.0f).r;
+    float b = texB.SampleLevel(samplerPoint, float2(0.375f, 0.5f), 0.0f).r;
+    float c = texB.Load(int3(1, 0, 0)).r;
+    return float4(a, b, c, 1.0f);
+}
+)";
+    static const char *gl = R"(#version 400
+#extension GL_ARB_separate_shader_objects : require
+
+struct PS_INPUT
+{
+    vec4 position;
+};
+
+uniform sampler2D T3D_Combined_t1s1l4texAsamplerLinear;
+uniform sampler2D T3D_Combined_t0s0l4texBsamplerPoint;
+uniform sampler2D T3D_Combined_t0sxl4texB;
+
+layout(location = 0) out vec4 out_var_SV_Target;
+
+vec4 src_frag(PS_INPUT _input)
+{
+    float a = textureLod(T3D_Combined_t1s1l4texAsamplerLinear, vec2(0.375, 0.5), 0.0).x;
+    float b = textureLod(T3D_Combined_t0s0l4texBsamplerPoint, vec2(0.375, 0.5), 0.0).x;
+    float c = texelFetch(T3D_Combined_t0sxl4texB, ivec3(1, 0, 0).xy, ivec3(1, 0, 0).z).x;
+    return vec4(a, b, c, 1.0);
+}
+
+void main()
+{
+    PS_INPUT param_var_input;
+    out_var_SV_Target = src_frag(param_var_input);
+}
+)";
+    return make(hlsl, gl, nullptr);
+}

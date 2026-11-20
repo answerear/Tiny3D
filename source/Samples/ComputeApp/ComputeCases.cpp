@@ -27,6 +27,8 @@
 #include "ComputeShaderSources.h"
 #include "../Common/SampleApp.h"
 
+#include <Material/T3DShaderVariantInstance.h>
+
 #include <cstring>
 #include <cmath>
 #include <cstddef>
@@ -3279,6 +3281,577 @@ namespace
         ReadbackHandle      mSBHandle {};
         uint32_t            mFailures {0};
     };
+
+
+    /**
+     * \brief K25：同一张纹理配两个采样器（E.2.2）
+     * \remarks 2x1 的纹理左黑右白，PS 用 s0、s1 两个采样器在 u = 0.375 处采样 t0，R 取 s0、G 取 s1。
+     *          点采样落在左边的黑色纹素上得 0，线性采样在两个纹素中心之间按 0.25 插值得约 64。
+     *          竖带 0 绑 [点, 线性]，期望 (0, 64)；竖带 1 绑 [线性, 点]，期望 (64, 0)，确认采样器按槽位对应而不是按顺序。
+     *          GL 只有合并采样器，一个纹理单元只能挂一个 sampler object。修复前 GL4 的反射按纹理名建参数，
+     *          两个合并采样器写同一个参数，纹理槽位被后者改成 1，两个 uniform 都指到没有绑纹理的单元，两条竖带均读回 (0, 0)。
+     */
+    class CaseTwoSamplersOneTexture : public ComputeCase
+    {
+    public:
+        ~CaseTwoSamplersOneTexture() override
+        {
+            releaseColorRT(mSrcTex, mSrcRT);
+            releaseColorRT(mDstTex, mDstRT);
+        }
+
+        static const uint32_t kWidth = 32;
+        static const uint32_t kHeight = 8;
+        static const uint32_t kStripes = 2;
+
+        const char *getName() const override { return "K25 two samplers one texture"; }
+        uint32_t getRequiredCaps() const override { return kNeedReadback; }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            if (T3D_FAILED(mDraw.setup())) return T3D_ERR_FAIL;
+
+            mSamplePS = ComputeKernel::compileGraphics("TwoSamplersPS", SHADER_STAGE::kPixel,
+                twoSamplersPSSource(), mDummyPS);
+            if (mSamplePS == nullptr) return T3D_ERR_FAIL;
+
+            SamplerDesc desc;
+            desc.AddressU = TextureAddressMode::kClamp;
+            desc.AddressV = TextureAddressMode::kClamp;
+            desc.AddressW = TextureAddressMode::kClamp;
+            desc.MipFilter = FilterOptions::kPoint;
+            desc.MinFilter = FilterOptions::kPoint;
+            desc.MagFilter = FilterOptions::kPoint;
+            mPoint = T3D_RENDER_STATE_MGR.loadSamplerState(desc);
+            desc.MinFilter = FilterOptions::kLinear;
+            desc.MagFilter = FilterOptions::kLinear;
+            mLinear = T3D_RENDER_STATE_MGR.loadSamplerState(desc);
+
+            mSrcTex = createColorRT("K25-Src", 2, 1, PixelFormat::E_PF_R8G8B8A8, 1, kCPUNone, true);
+            mDstTex = createColorRT("K25-Dst", kWidth, kHeight, PixelFormat::E_PF_R8G8B8A8, 1, kCPURead);
+            if (mPoint == nullptr || mLinear == nullptr || mSrcTex == nullptr || mDstTex == nullptr)
+            {
+                return T3D_ERR_FAIL;
+            }
+            mSrcRT = RenderTarget::create(mSrcTex);
+            mDstRT = RenderTarget::create(mDstTex);
+            return (mSrcRT && mDstRT) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+
+            // 源纹理：清黑后在右半边画白，得到左黑右白两个纹素
+            ctx->setRenderTarget(mSrcRT.get());
+            mDraw.bindStates(ctx);
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+            ctx->setVertexShader(mDraw.vs());
+            ctx->setPixelShader(mDraw.whitePS());
+            ctx->setViewport(Viewport {0.5f, 0.0f, 0.5f, 1.0f, 0.0f, 1.0f});
+            TResult ret = mDraw.draw(ctx);
+
+            ctx->setRenderTarget(mDstRT.get());
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+            ctx->beginPass();
+
+            PixelBuffers textures;
+            textures.push_back(mSrcTex->getPixelBuffer());
+            ctx->setPixelShader(mSamplePS.get());
+            ctx->setPSPixelBuffers(0, textures);
+
+            for (uint32_t s = 0; s < kStripes && T3D_SUCCEEDED(ret); ++s)
+            {
+                Samplers samplers;
+                samplers.push_back(s == 0 ? mPoint : mLinear);
+                samplers.push_back(s == 0 ? mLinear : mPoint);
+                ctx->setPSSamplers(0, samplers);
+                ctx->setViewport(stripe(s));
+                ret = mDraw.draw(ctx);
+            }
+
+            ctx->endPass();
+
+            if (T3D_SUCCEEDED(ret))
+            {
+                mHandle = mapColorRT(mDstTex.get());
+                ret = mHandle.isValid() ? T3D_OK : T3D_ERR_FAIL;
+            }
+            ctx->reset();
+            return ret;
+        }
+
+        TResult verify() override
+        {
+            Buffer data;
+            TResult ret = unmapColorRT(mDstTex.get(), mHandle, data);
+            if (T3D_FAILED(ret)) return ret;
+
+            const char *names[kStripes] = { "[point, linear]", "[linear, point]" };
+            const int expected[kStripes][2] = { { 0, 64 }, { 64, 0 } };
+            const uint32_t stripeW = kWidth / kStripes;
+            uint32_t bad = 0;
+            for (uint32_t s = 0; s < kStripes; ++s)
+            {
+                bool reported = false;
+                for (uint32_t y = 0; y < kHeight; ++y)
+                {
+                    for (uint32_t x = s * stripeW + 2; x < (s + 1) * stripeW - 2; ++x)
+                    {
+                        const uint8_t *p = pixelAt(data, kWidth, kHeight, x, y);
+                        if (p != nullptr && std::abs(int(p[0]) - expected[s][0]) <= 8
+                            && std::abs(int(p[1]) - expected[s][1]) <= 8)
+                        {
+                            continue;
+                        }
+
+                        ++bad;
+                        if (!reported)
+                        {
+                            reported = true;
+                            if (p == nullptr)
+                            {
+                                APP_LOG_DEBUG("[%s] FAILED : %s stripe, readback row pitch too small", getName(), names[s]);
+                            }
+                            else
+                            {
+                                APP_LOG_DEBUG("[%s] FAILED : samplers %s got (R %d, G %d) at (%u, %u) expected about (%d, %d)",
+                                    getName(), names[s], int(p[0]), int(p[1]), x, y, expected[s][0], expected[s][1]);
+                            }
+                        }
+                    }
+                }
+            }
+            data.release();
+
+            return bad == 0 ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+    private:
+        static Viewport stripe(uint32_t index)
+        {
+            const Real w = Real(1) / Real(kStripes);
+            return Viewport {w * Real(index), 0.0f, w, 1.0f, 0.0f, 1.0f};
+        }
+
+        FullscreenDraw      mDraw;
+        ShaderVariantPtr    mSamplePS;
+        ShaderPtr           mDummyPS;
+        SamplerStatePtr     mPoint;
+        SamplerStatePtr     mLinear;
+        RenderTexturePtr    mSrcTex;
+        RenderTargetPtr     mSrcRT;
+        RenderTexturePtr    mDstTex;
+        RenderTargetPtr     mDstRT;
+        ReadbackHandle      mHandle {};
+    };
+
+
+    /**
+     * \brief K26：槽位按 HLSL 寄存器号编号，与声明和使用的顺序无关
+     * \remarks t0 左黑右白、t1 左白右黑，s0 点采样、s1 线性，都是 2x1、Clamp。PS 先用 t1 + s1，再用 t0 + s0，
+     *          最后对 t0 做 Load(1, 0)，三个结果写到 R、G、B，调用方按寄存器号绑定。
+     *          期望 R = t1 线性采样 u = 0.375 ≈ 191，G = t0 点采样 = 0，B = t0 的右纹素 = 255。
+     *          GL 版是 scc 的原样输出。按 glslang 首次出现的顺序编号时 texA 落到 t0、samplerLinear 落到 s0，读回约 (0, 191, 0)。
+     */
+    class CaseRegisterOrder : public ComputeCase
+    {
+    public:
+        ~CaseRegisterOrder() override
+        {
+            releaseColorRT(mTex0, mRT0);
+            releaseColorRT(mTex1, mRT1);
+            releaseColorRT(mDstTex, mDstRT);
+        }
+
+        static const uint32_t kWidth = 16;
+        static const uint32_t kHeight = 8;
+
+        const char *getName() const override { return "K26 slots follow HLSL registers"; }
+        uint32_t getRequiredCaps() const override { return kNeedReadback; }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            if (T3D_FAILED(mDraw.setup())) return T3D_ERR_FAIL;
+
+            mSamplePS = ComputeKernel::compileGraphics("RegisterOrderPS", SHADER_STAGE::kPixel,
+                registerOrderPSSource(), mDummyPS);
+            if (mSamplePS == nullptr) return T3D_ERR_FAIL;
+
+            SamplerDesc desc;
+            desc.AddressU = TextureAddressMode::kClamp;
+            desc.AddressV = TextureAddressMode::kClamp;
+            desc.AddressW = TextureAddressMode::kClamp;
+            desc.MipFilter = FilterOptions::kPoint;
+            desc.MinFilter = FilterOptions::kPoint;
+            desc.MagFilter = FilterOptions::kPoint;
+            mPoint = T3D_RENDER_STATE_MGR.loadSamplerState(desc);
+            desc.MinFilter = FilterOptions::kLinear;
+            desc.MagFilter = FilterOptions::kLinear;
+            mLinear = T3D_RENDER_STATE_MGR.loadSamplerState(desc);
+
+            mTex0 = createColorRT("K26-T0", 2, 1, PixelFormat::E_PF_R8G8B8A8, 1, kCPUNone, true);
+            mTex1 = createColorRT("K26-T1", 2, 1, PixelFormat::E_PF_R8G8B8A8, 1, kCPUNone, true);
+            mDstTex = createColorRT("K26-Dst", kWidth, kHeight, PixelFormat::E_PF_R8G8B8A8, 1, kCPURead);
+            if (mPoint == nullptr || mLinear == nullptr || mTex0 == nullptr || mTex1 == nullptr || mDstTex == nullptr)
+            {
+                return T3D_ERR_FAIL;
+            }
+            mRT0 = RenderTarget::create(mTex0);
+            mRT1 = RenderTarget::create(mTex1);
+            mDstRT = RenderTarget::create(mDstTex);
+            return (mRT0 && mRT1 && mDstRT) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+
+            // t0 右半边白，t1 左半边白
+            TResult ret = fillHalfWhite(ctx, mRT0.get(), 0.5f);
+            if (T3D_SUCCEEDED(ret))
+            {
+                ret = fillHalfWhite(ctx, mRT1.get(), 0.0f);
+            }
+
+            ctx->setRenderTarget(mDstRT.get());
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+            ctx->beginPass();
+
+            PixelBuffers textures;
+            textures.push_back(mTex0->getPixelBuffer());
+            textures.push_back(mTex1->getPixelBuffer());
+            Samplers samplers;
+            samplers.push_back(mPoint);
+            samplers.push_back(mLinear);
+
+            ctx->setVertexShader(mDraw.vs());
+            ctx->setPixelShader(mSamplePS.get());
+            ctx->setPSPixelBuffers(0, textures);
+            ctx->setPSSamplers(0, samplers);
+            if (T3D_SUCCEEDED(ret))
+            {
+                ret = mDraw.draw(ctx);
+            }
+
+            ctx->endPass();
+
+            if (T3D_SUCCEEDED(ret))
+            {
+                mHandle = mapColorRT(mDstTex.get());
+                ret = mHandle.isValid() ? T3D_OK : T3D_ERR_FAIL;
+            }
+            ctx->reset();
+            return ret;
+        }
+
+        TResult verify() override
+        {
+            Buffer data;
+            TResult ret = unmapColorRT(mDstTex.get(), mHandle, data);
+            if (T3D_FAILED(ret)) return ret;
+
+            const int expected[3] = { 191, 0, 255 };
+            uint32_t bad = 0;
+            for (uint32_t y = 0; y < kHeight; ++y)
+            {
+                for (uint32_t x = 0; x < kWidth; ++x)
+                {
+                    const uint8_t *p = pixelAt(data, kWidth, kHeight, x, y);
+                    if (p != nullptr && std::abs(int(p[0]) - expected[0]) <= 8
+                        && std::abs(int(p[1]) - expected[1]) <= 8 && std::abs(int(p[2]) - expected[2]) <= 8)
+                    {
+                        continue;
+                    }
+
+                    if (bad++ == 0)
+                    {
+                        if (p == nullptr)
+                        {
+                            APP_LOG_DEBUG("[%s] FAILED : readback row pitch too small", getName());
+                        }
+                        else
+                        {
+                            APP_LOG_DEBUG("[%s] FAILED : got (R %d, G %d, B %d) at (%u, %u) expected about (%d, %d, %d)",
+                                getName(), int(p[0]), int(p[1]), int(p[2]), x, y, expected[0], expected[1], expected[2]);
+                        }
+                    }
+                }
+            }
+            data.release();
+
+            return bad == 0 ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+    private:
+        TResult fillHalfWhite(RHIContext *ctx, RenderTarget *rt, Real left)
+        {
+            ctx->setRenderTarget(rt);
+            mDraw.bindStates(ctx);
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+            ctx->setVertexShader(mDraw.vs());
+            ctx->setPixelShader(mDraw.whitePS());
+            ctx->setViewport(Viewport {left, 0.0f, 0.5f, 1.0f, 0.0f, 1.0f});
+            return mDraw.draw(ctx);
+        }
+
+        FullscreenDraw      mDraw;
+        ShaderVariantPtr    mSamplePS;
+        ShaderPtr           mDummyPS;
+        SamplerStatePtr     mPoint;
+        SamplerStatePtr     mLinear;
+        RenderTexturePtr    mTex0;
+        RenderTargetPtr     mRT0;
+        RenderTexturePtr    mTex1;
+        RenderTargetPtr     mRT1;
+        RenderTexturePtr    mDstTex;
+        RenderTargetPtr     mDstRT;
+        ReadbackHandle      mHandle {};
+    };
+
+
+    /**
+     * \brief K27：材质路径中的独立采样器按名字推断，只做 Load 的纹理也有槽位
+     * \remarks PS 有 t0 + 自带的 samplertex（s0）、独立的 samplerPointClamp（s1）、只做 Load 的 t1。
+     *          用 ShaderVariantInstance 建纹理表与采样器表，按 PassInstance::bindSamplers 的方式把采样器表交给 RHI。
+     *          t0 左黑右白、t1 左白右黑。期望 R = 点采样 u = 0.375 → 0，G = Clamp 下 u = 1.25 → 255，
+     *          B = t1 的 (0, 0) → 255，A = samplertex 在纹理设置前的默认采样器（线性）u = 0.375 → 约 64。
+     *          独立采样器若仍用默认的线性 + Wrap，读回约 (64, 0, 255, 64)。
+     *          另外直接检查两张表的起点与大小、s1 的描述，以及 SamplerState::inferDescFromName 的几种写法。
+     */
+    class CaseInlineSampler : public ComputeCase
+    {
+    public:
+        ~CaseInlineSampler() override
+        {
+            mInstance = nullptr;
+            releaseColorRT(mTex0, mRT0);
+            releaseColorRT(mTex1, mRT1);
+            releaseColorRT(mDstTex, mDstRT);
+        }
+
+        static const uint32_t kWidth = 16;
+        static const uint32_t kHeight = 8;
+
+        const char *getName() const override { return "K27 inline sampler by name"; }
+        uint32_t getRequiredCaps() const override { return kNeedReadback; }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            if (T3D_FAILED(mDraw.setup())) return T3D_ERR_FAIL;
+
+            mSamplePS = ComputeKernel::compileGraphics("InlineSamplerPS", SHADER_STAGE::kPixel,
+                inlineSamplerPSSource(), mDummyPS);
+            if (mSamplePS == nullptr) return T3D_ERR_FAIL;
+
+            mInstance = ShaderVariantInstance::create(nullptr, mSamplePS);
+            mTex0 = createColorRT("K27-T0", 2, 1, PixelFormat::E_PF_R8G8B8A8, 1, kCPUNone, true);
+            mTex1 = createColorRT("K27-T1", 2, 1, PixelFormat::E_PF_R8G8B8A8, 1, kCPUNone, true);
+            mDstTex = createColorRT("K27-Dst", kWidth, kHeight, PixelFormat::E_PF_R8G8B8A8, 1, kCPURead);
+            if (mInstance == nullptr || mTex0 == nullptr || mTex1 == nullptr || mDstTex == nullptr)
+            {
+                return T3D_ERR_FAIL;
+            }
+            mRT0 = RenderTarget::create(mTex0);
+            mRT1 = RenderTarget::create(mTex1);
+            mDstRT = RenderTarget::create(mDstTex);
+            return (mRT0 && mRT1 && mDstRT) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            mTableErrors = checkTables();
+
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+
+            TResult ret = fillHalfWhite(ctx, mRT0.get(), 0.5f);
+            if (T3D_SUCCEEDED(ret))
+            {
+                ret = fillHalfWhite(ctx, mRT1.get(), 0.0f);
+            }
+
+            ctx->setRenderTarget(mDstRT.get());
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+            ctx->beginPass();
+
+            PixelBuffers textures;
+            textures.push_back(mTex0->getPixelBuffer());
+            textures.push_back(mTex1->getPixelBuffer());
+
+            ctx->setVertexShader(mDraw.vs());
+            ctx->setPixelShader(mSamplePS.get());
+            ctx->setPSPixelBuffers(mInstance->getPixelBufferStartSlot(), textures);
+            if (!mInstance->getSamplers().empty())
+            {
+                ctx->setPSSamplers(mInstance->getSamplerStartSlot(), mInstance->getSamplers());
+            }
+            if (T3D_SUCCEEDED(ret))
+            {
+                ret = mDraw.draw(ctx);
+            }
+
+            ctx->endPass();
+
+            if (T3D_SUCCEEDED(ret))
+            {
+                mHandle = mapColorRT(mDstTex.get());
+                ret = mHandle.isValid() ? T3D_OK : T3D_ERR_FAIL;
+            }
+            ctx->reset();
+            return ret;
+        }
+
+        TResult verify() override
+        {
+            Buffer data;
+            TResult ret = unmapColorRT(mDstTex.get(), mHandle, data);
+            if (T3D_FAILED(ret)) return ret;
+
+            const int expected[4] = { 0, 255, 255, 64 };
+            uint32_t bad = 0;
+            for (uint32_t y = 0; y < kHeight; ++y)
+            {
+                for (uint32_t x = 0; x < kWidth; ++x)
+                {
+                    const uint8_t *p = pixelAt(data, kWidth, kHeight, x, y);
+                    bool ok = (p != nullptr);
+                    for (int c = 0; ok && c < 4; ++c)
+                    {
+                        ok = std::abs(int(p[c]) - expected[c]) <= 8;
+                    }
+                    if (ok) continue;
+
+                    if (bad++ == 0)
+                    {
+                        if (p == nullptr)
+                        {
+                            APP_LOG_DEBUG("[%s] FAILED : readback row pitch too small", getName());
+                        }
+                        else
+                        {
+                            APP_LOG_DEBUG("[%s] FAILED : got (%d, %d, %d, %d) at (%u, %u) expected about (%d, %d, %d, %d)",
+                                getName(), int(p[0]), int(p[1]), int(p[2]), int(p[3]), x, y,
+                                expected[0], expected[1], expected[2], expected[3]);
+                        }
+                    }
+                }
+            }
+            data.release();
+
+            const uint32_t nameErrors = checkNames();
+            return (bad == 0 && mTableErrors == 0 && nameErrors == 0) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+    private:
+        uint32_t checkTables() const
+        {
+            uint32_t errors = 0;
+            auto expect = [this, &errors](bool cond, const char *what)
+            {
+                if (!cond)
+                {
+                    ++errors;
+                    APP_LOG_DEBUG("[%s] FAILED : %s", getName(), what);
+                }
+            };
+
+            auto usage = [this](const char *name, bool texture, bool sampler)
+            {
+                const ShaderSamplerParams &params = mSamplePS->getShaderSamplerParams();
+                const auto itr = params.find(name);
+                return itr != params.end() && itr->second->hasTexture() == texture && itr->second->hasSampler() == sampler;
+            };
+            expect(usage("tex", true, true), "'tex' should have both a texture and a sampler");
+            expect(usage("dataTex", true, false), "'dataTex' should be a texture without sampler");
+            expect(usage("PointClamp", false, true), "'PointClamp' should be a sampler without texture");
+
+            expect(mInstance->getPixelBufferStartSlot() == 0 && mInstance->getPixelBuffers().size() == 2,
+                "texture table should cover t0..t1 (the Load-only texture included)");
+            expect(mInstance->getSamplerStartSlot() == 0 && mInstance->getSamplers().size() == 2,
+                "sampler table should cover s0..s1");
+            if (mInstance->getSamplers().size() == 2 && mInstance->getSamplers()[1] != nullptr)
+            {
+                const SamplerDesc &desc = mInstance->getSamplers()[1]->getStateDesc();
+                expect(desc.MinFilter == FilterOptions::kPoint && desc.MagFilter == FilterOptions::kPoint
+                    && desc.AddressU == TextureAddressMode::kClamp && desc.AddressV == TextureAddressMode::kClamp,
+                    "s1 (samplerPointClamp) should be point + clamp");
+            }
+            else
+            {
+                expect(false, "s1 has no sampler state");
+            }
+            return errors;
+        }
+
+        uint32_t checkNames() const
+        {
+            uint32_t errors = 0;
+            auto expect = [this, &errors](bool cond, const char *name)
+            {
+                if (!cond)
+                {
+                    ++errors;
+                    APP_LOG_DEBUG("[%s] FAILED : inferDescFromName(\"%s\") gives a wrong desc", getName(), name);
+                }
+            };
+
+            SamplerDesc d;
+            expect(SamplerState::inferDescFromName("samplerLinearClampU_RepeatV", d)
+                && d.MinFilter == FilterOptions::kLinear && d.MipFilter == FilterOptions::kPoint
+                && d.AddressU == TextureAddressMode::kClamp && d.AddressV == TextureAddressMode::kWrap,
+                "samplerLinearClampU_RepeatV");
+
+            d = SamplerDesc();
+            expect(SamplerState::inferDescFromName("point_mirror_once", d)
+                && d.MinFilter == FilterOptions::kPoint && d.AddressU == TextureAddressMode::kMirrorOnce
+                && d.AddressW == TextureAddressMode::kMirrorOnce,
+                "point_mirror_once");
+
+            d = SamplerDesc();
+            expect(SamplerState::inferDescFromName("TrilinearBorderUVCompare", d)
+                && d.MipFilter == FilterOptions::kLinear && d.AddressU == TextureAddressMode::kBorder
+                && d.AddressV == TextureAddressMode::kBorder && d.AddressW == TextureAddressMode::kWrap
+                && d.IsComparison && d.CompareFunc == CompareFunction::kLessEqual,
+                "TrilinearBorderUVCompare");
+
+            d = SamplerDesc();
+            expect(!SamplerState::inferDescFromName("samplerShadowMap", d), "samplerShadowMap");
+            return errors;
+        }
+
+        TResult fillHalfWhite(RHIContext *ctx, RenderTarget *rt, Real left)
+        {
+            ctx->setRenderTarget(rt);
+            mDraw.bindStates(ctx);
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+            ctx->setVertexShader(mDraw.vs());
+            ctx->setPixelShader(mDraw.whitePS());
+            ctx->setViewport(Viewport {left, 0.0f, 0.5f, 1.0f, 0.0f, 1.0f});
+            return mDraw.draw(ctx);
+        }
+
+        FullscreenDraw              mDraw;
+        ShaderVariantPtr            mSamplePS;
+        ShaderPtr                   mDummyPS;
+        ShaderVariantInstancePtr    mInstance;
+        RenderTexturePtr            mTex0;
+        RenderTargetPtr             mRT0;
+        RenderTexturePtr            mTex1;
+        RenderTargetPtr             mRT1;
+        RenderTexturePtr            mDstTex;
+        RenderTargetPtr             mDstRT;
+        ReadbackHandle              mHandle {};
+        uint32_t                    mTableErrors {0};
+    };
 }
 
 
@@ -3308,6 +3881,9 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseRenderTextureUAVTarget());
     cases.emplace_back(new CaseUAVSlotRange());
     cases.emplace_back(new CaseConstantBufferSlots());
+    cases.emplace_back(new CaseTwoSamplersOneTexture());
+    cases.emplace_back(new CaseRegisterOrder());
+    cases.emplace_back(new CaseInlineSampler());
 }
 
 uint32_t currentBackendBit()

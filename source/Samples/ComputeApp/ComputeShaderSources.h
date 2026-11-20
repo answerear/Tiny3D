@@ -58,6 +58,9 @@ ComputeShaderSource msaaTextureInfoPSSource();
 ComputeShaderSource msaaArrayTextureInfoPSSource();
 ComputeShaderSource cbSlotsCSSource();
 ComputeShaderSource cbSlotColorPSSource();
+ComputeShaderSource twoSamplersPSSource();
+ComputeShaderSource registerOrderPSSource();
+ComputeShaderSource inlineSamplerPSSource();
 
 
 #endif  /*__COMPUTE_SHADER_SOURCES_H__*/
