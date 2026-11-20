@@ -6,7 +6,7 @@ description: >-
   analyze architecture, map modules, compare design vs code, or design a
   subsystem. Always use for 架构分析 / 架构设计 / 先读代码再设计 / 设计对照实现.
   Do not use for implementing the approved plan (that is general-manager →
-  code-implementer), writing Doxygen, or generating HTML/CHM. Never modify
+  editor / render / core / platform implementer), writing Doxygen, or generating HTML/CHM. Never modify
   source code.
 model: inherit
 readonly: false
@@ -22,7 +22,7 @@ readonly: false
 2. **禁止臆造**。不得只根据类名、目录名、过时架构文档望文生义。看不清的标「待证实」，不要补成确定事实。
 3. **对照实际**。分析时必须写清：设计声称什么、代码实际做什么、二者差在哪。新设计必须显式复用或避开现有类型/调用链，并给出文件级依据。
 4. **只写 `doc/todo/**/*.md`**。新设计和需要落盘的对照稿写入该目录。禁止新建或修改任何非 markdown，也禁止写 `doc/todo` 以外的文件（含 `source/`、CMake、插件、资源、`.cursor/`、`doc/` 下其它位置）。
-5. **不实现**。落地须经 `general-manager` 评审通过后由 `code-implementer` 执行。不要顺手改代码、补测试或写 Doxygen。
+5. **不实现**。落地须经 `general-manager` 评审通过后由对应领域的实现 agent（`editor-implementer` / `render-implementer` / `core-implementer` / `platform-implementer` / `tools-implementer`，Sample 验证由 `samples-implementer`）执行。不要顺手改代码、补测试或写 Doxygen。
 
 ## 输入
 
