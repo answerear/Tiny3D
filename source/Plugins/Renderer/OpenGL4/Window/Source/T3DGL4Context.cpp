@@ -1438,8 +1438,10 @@ namespace Tiny3D
         d.scissorEnabled = desc.ScissorEnable;
         d.depthClipEnabled = desc.DepthClipEnable;
         d.depthBias = static_cast<GLfloat>(desc.DepthBias);
+        d.depthBiasClamp = static_cast<GLfloat>(desc.DepthBiasClamp);
         d.slopeScaledDepthBias = static_cast<GLfloat>(desc.SlopeScaledDepthBias);
         d.multisampleEnabled = desc.MultisampleEnable;
+        d.antialiasedLineEnabled = desc.AntialiasedLineEnable;
 
         if (glState != nullptr)
         {
@@ -1714,7 +1716,30 @@ namespace Tiny3D
                 {
                     glEnable(GL_POLYGON_OFFSET_FILL);
                     glEnable(GL_POLYGON_OFFSET_LINE);
-                    glPolygonOffset(d.slopeScaledDepthBias, d.depthBias);
+                    // clamp 为 0 表示不钳制，与 D3D11 的 DepthBiasClamp 语义一致
+                    if (d.depthBiasClamp == 0.0f)
+                    {
+                        glPolygonOffset(d.slopeScaledDepthBias, d.depthBias);
+                    }
+                    else if (glPolygonOffsetClamp != nullptr)
+                    {
+                        glPolygonOffsetClamp(d.slopeScaledDepthBias, d.depthBias, d.depthBiasClamp);
+                    }
+                    else if (glPolygonOffsetClampEXT != nullptr)
+                    {
+                        glPolygonOffsetClampEXT(d.slopeScaledDepthBias, d.depthBias, d.depthBiasClamp);
+                    }
+                    else
+                    {
+                        static bool warned = false;
+                        if (!warned)
+                        {
+                            warned = true;
+                            T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
+                                "GL_ARB_polygon_offset_clamp / GL_EXT_polygon_offset_clamp not supported, DepthBiasClamp ignored !");
+                        }
+                        glPolygonOffset(d.slopeScaledDepthBias, d.depthBias);
+                    }
                 }
                 else
                 {
@@ -1726,6 +1751,13 @@ namespace Tiny3D
                     glEnable(GL_MULTISAMPLE);
                 else
                     glDisable(GL_MULTISAMPLE);
+
+                // D3D11 只在 MultisampleEnable 为 false 时才按 AntialiasedLineEnable 做 alpha 抗锯齿线；
+                // GL 开启多重采样时同样忽略 GL_LINE_SMOOTH，这里显式按 D3D11 的组合关闭
+                if (d.antialiasedLineEnabled && !d.multisampleEnabled)
+                    glEnable(GL_LINE_SMOOTH);
+                else
+                    glDisable(GL_LINE_SMOOTH);
 
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setRasterizerState");
             } while (false);
