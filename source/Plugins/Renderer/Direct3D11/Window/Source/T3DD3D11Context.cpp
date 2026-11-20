@@ -204,6 +204,8 @@ namespace Tiny3D
             // D3D11.0 只有 8 个 UAV 槽，D3D11.1 才放宽到 64
             mCapabilities.maxUnorderedAccessSlots = (mFeatureLevel >= D3D_FEATURE_LEVEL_11_1)
                 ? D3D11_1_UAV_SLOT_COUNT : D3D11_PS_CS_UAV_REGISTER_COUNT;
+            mCapabilities.maxImageUnorderedAccessSlots = mCapabilities.maxUnorderedAccessSlots;
+            mCapabilities.maxCounterUnorderedAccessSlots = mCapabilities.maxUnorderedAccessSlots;
         }
     }
 
@@ -3602,11 +3604,12 @@ namespace Tiny3D
             return T3D_ERR_INVALID_PARAM;
         }
 
-        if (startSlot + buffers.size() > D3D11_1_UAV_SLOT_COUNT)
+        const uint32_t maxSlots = mCapabilities.maxUnorderedAccessSlots;
+        if ((uint64_t)startSlot + buffers.size() > maxSlots)
         {
-            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "setCSUnorderedAccessBuffers : slot range [%u, %zu) "
-                "exceeds the %d available UAV slots !", startSlot, startSlot + buffers.size(),
-                D3D11_1_UAV_SLOT_COUNT);
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "setCSUnorderedAccessBuffers : slot range [%u, %llu) "
+                "exceeds the %u available UAV slots !", startSlot,
+                (unsigned long long)((uint64_t)startSlot + buffers.size()), maxSlots);
             return T3D_ERR_INVALID_PARAM;
         }
 
