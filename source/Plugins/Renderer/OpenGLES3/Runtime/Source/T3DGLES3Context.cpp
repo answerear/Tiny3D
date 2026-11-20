@@ -4049,21 +4049,6 @@ namespace Tiny3D
         GLint numUniforms = 0;
         glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &numUniforms);
 
-        auto parseSpirvName = [](const String &uniformName) -> String
-        {
-            const String kSpirvPrefix = "SPIRV_Cross_Combined";
-            if (StringUtil::startsWith(uniformName, kSpirvPrefix, false))
-            {
-                String remainder = uniformName.substr(kSpirvPrefix.size());
-                String::size_type samplerPos = remainder.find("sampler");
-                if (samplerPos != String::npos && samplerPos > 0)
-                {
-                    return remainder.substr(0, samplerPos);
-                }
-            }
-            return uniformName;
-        };
-
         // GLES3 用 SPIRV-Cross 合并采样器(sampler2D)，纹理/采样器对象/uniform 必须位于同一个
         // GL 纹理单元。纹理由 bindPixelBuffers 绑在 texBinding 单元，所以 sampler uniform 也必须
         // 指向 texBinding，而不是 HLSL 的 s# 寄存器(samplerBinding)。
@@ -4144,7 +4129,7 @@ namespace Tiny3D
                 GLint loc = glGetUniformLocation(program, name);
                 if (loc >= 0)
                 {
-                    String texName = parseSpirvName(String(name));
+                    String texName = stripCombinedSamplerName(String(name));
                     int32_t slot = findSlot(texName);
 
                     GLint texUnit;

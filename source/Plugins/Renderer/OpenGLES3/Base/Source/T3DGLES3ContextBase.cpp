@@ -359,6 +359,11 @@ namespace Tiny3D
                 }
             }
 
+            for (auto &item : samplerParams)
+            {
+                item.second->clearUsage();
+            }
+
             uint32_t samplerIndex = 0;
             for (const auto &uniform : data.uniforms)
             {
@@ -404,6 +409,8 @@ namespace Tiny3D
                     param->setTexBinding(samplerIndex);
                     param->setSamplerBinding(samplerIndex);
                     param->setTextureType(texType);
+                    param->setHasTexture(true);
+                    param->setHasSampler(true);
 
                     samplerIndex++;
                 }
@@ -418,6 +425,29 @@ namespace Tiny3D
 
     String GLES3ContextBase::stripCombinedSamplerName(const String &name)
     {
+        // HLSLCross 的新格式：T3D_Combined_t<t#>s<s#|x>l<纹理名长度><纹理名><采样器名>。
+        // GLES3 仍按合并采样器顺序编号，只取纹理名，寄存器号不用
+        const String kRegisterPrefix = "T3D_Combined_t";
+        if (StringUtil::startsWith(name, kRegisterPrefix, false))
+        {
+            const String::size_type lenPos = name.find('l', kRegisterPrefix.size());
+            if (lenPos != String::npos)
+            {
+                String::size_type pos = lenPos + 1;
+                size_t len = 0;
+                while (pos < name.size() && name[pos] >= '0' && name[pos] <= '9' && len <= name.size())
+                {
+                    len = len * 10 + static_cast<size_t>(name[pos] - '0');
+                    ++pos;
+                }
+                if (pos > lenPos + 1 && len > 0 && pos + len <= name.size())
+                {
+                    return name.substr(pos, len);
+                }
+            }
+            return name;
+        }
+
         const String kSpirvPrefix = "SPIRV_Cross_Combined";
         if (StringUtil::startsWith(name, kSpirvPrefix, false))
         {
@@ -448,6 +478,11 @@ namespace Tiny3D
             }
 
             const GlslangReflectionData &data = itr->second;
+
+            for (auto &item : samplerParams)
+            {
+                item.second->clearUsage();
+            }
 
             uint32_t samplerIndex = 0;
             for (const auto &uniform : data.uniforms)
@@ -482,6 +517,8 @@ namespace Tiny3D
                         it->second->setTexBinding(samplerIndex);
                         it->second->setSamplerBinding(samplerIndex);
                         it->second->setTextureType(texType);
+                        it->second->setHasTexture(true);
+                        it->second->setHasSampler(true);
                     }
 
                     samplerIndex++;
