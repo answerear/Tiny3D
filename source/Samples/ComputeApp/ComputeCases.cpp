@@ -2921,6 +2921,124 @@ namespace
         RenderTargetPtr     mRT;
         ReadbackHandle      mHandle {};
     };
+
+
+    /**
+     * \brief K23：UAV 槽位越界检查（E.1.7）
+     * \remarks 槽位上限取 caps.maxUnorderedAccessSlots（记为 N）。起点为 N、[N-1, N+1) 两个槽、
+     *          起点为 UINT32_MAX（加法溢出）三种越界调用都应返回 T3D_ERR_INVALID_PARAM；
+     *          在最后一个合法槽 N-1 上绑定、解绑结构化缓冲应返回 T3D_OK，确认检查没有收得过紧。
+     *          纹理与带计数器的结构化缓冲分别按 maxImageUnorderedAccessSlots（I）与
+     *          maxCounterUnorderedAccessSlots（C）再测一遍：槽 I-1 / C-1 应成功；I / C 小于 N 时，
+     *          槽 I / C 虽在 N 以内也应被拒绝（GL4 上 image unit 与 atomic counter 绑定点比 SSBO 少）。
+     *          修复前 GL4 对越界调用一律返回 T3D_OK，由驱动报 GL_INVALID_VALUE。
+     */
+    class CaseUAVSlotRange : public ComputeCase
+    {
+    public:
+        const char *getName() const override { return "K23 UAV slot range"; }
+        uint32_t getRequiredCaps() const override
+        {
+            return kNeedCompute | kNeedUnorderedAccess | kNeedStructuredBuffer | kNeedAppendConsume;
+        }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            mBuffer = loadSB(StructuredBufferKind::kStructured, sizeof(uint32_t), 64,
+                kGPUUnorderedAccess, kCPUNone);
+            mCounterBuffer = loadSB(StructuredBufferKind::kStructured, sizeof(uint32_t), 64,
+                kGPUUnorderedAccess, kCPUNone, Buffer(), PixelFormat::E_PF_UNKNOWN, true);
+
+            // PixelBuffer 只保存描述的指针，缓存里的对象可能活得比本用例久，描述用静态存储
+            static PixelBuffer2DDesc sDesc = []()
+            {
+                PixelBuffer2DDesc desc;
+                desc.width = 4;
+                desc.height = 4;
+                desc.mipmaps = 1;
+                desc.arraySize = 1;
+                desc.format = PixelFormat::E_PF_R8G8B8A8;
+                desc.gpuAccess = kGPUUnorderedAccess;
+                return desc;
+            }();
+            mTexture = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&sDesc, MemoryType::kVRAM, Usage::kStatic, kCPUNone);
+
+            return (mBuffer != nullptr && mCounterBuffer != nullptr && mTexture != nullptr) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+            const RHICapabilities &caps = ctx->getCapabilities();
+            const uint32_t maxSlots = caps.maxUnorderedAccessSlots;
+            const uint32_t maxImage = caps.maxImageUnorderedAccessSlots;
+            const uint32_t maxCounter = caps.maxCounterUnorderedAccessSlots;
+            if (maxSlots == 0 || maxImage == 0 || maxCounter == 0 || maxImage > maxSlots || maxCounter > maxSlots)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : invalid caps, slots=%u image=%u counter=%u",
+                    getName(), maxSlots, maxImage, maxCounter);
+                return T3D_ERR_FAIL;
+            }
+
+            UnorderedAccessBuffers one;
+            one.push_back(nullptr);
+            UnorderedAccessBuffers two;
+            two.push_back(nullptr);
+            two.push_back(nullptr);
+
+            mFailures = 0;
+            expect(ctx->setCSUnorderedAccessBuffers(maxSlots, one), T3D_ERR_INVALID_PARAM, "start = N");
+            expect(ctx->setCSUnorderedAccessBuffers(maxSlots - 1, two), T3D_ERR_INVALID_PARAM, "[N-1, N+1)");
+            expect(ctx->setCSUnorderedAccessBuffers(UINT32_MAX, one), T3D_ERR_INVALID_PARAM, "start = UINT32_MAX");
+
+            checkLimit(ctx, mBuffer, maxSlots, maxSlots, "buffer");
+            checkLimit(ctx, mTexture, maxImage, maxSlots, "texture");
+            checkLimit(ctx, mCounterBuffer, maxCounter, maxSlots, "counter buffer");
+            return T3D_OK;
+        }
+
+        TResult verify() override
+        {
+            return mFailures == 0 ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+    private:
+        void expect(TResult got, TResult expected, const char *what)
+        {
+            if (got != expected)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : %s returned %d, expected %d", getName(), what, (int)got, (int)expected);
+                ++mFailures;
+            }
+        }
+
+        /// 槽 limit-1 上绑定、解绑应成功；limit 小于 N 时，槽 limit 应被拒绝
+        void checkLimit(RHIContext *ctx, const RenderBufferPtr &resource, uint32_t limit, uint32_t maxSlots, const char *what)
+        {
+            UnorderedAccessBuffers bound;
+            bound.push_back(resource);
+            UnorderedAccessBuffers unbind;
+            unbind.push_back(nullptr);
+
+            char label[96];
+            snprintf(label, sizeof(label), "%s bind at slot %u", what, limit - 1);
+            expect(ctx->setCSUnorderedAccessBuffers(limit - 1, bound), T3D_OK, label);
+            snprintf(label, sizeof(label), "%s unbind at slot %u", what, limit - 1);
+            expect(ctx->setCSUnorderedAccessBuffers(limit - 1, unbind), T3D_OK, label);
+
+            if (limit < maxSlots)
+            {
+                snprintf(label, sizeof(label), "%s bind at slot %u", what, limit);
+                expect(ctx->setCSUnorderedAccessBuffers(limit, bound), T3D_ERR_INVALID_PARAM, label);
+            }
+        }
+
+        StructuredBufferPtr mBuffer;
+        StructuredBufferPtr mCounterBuffer;
+        PixelBuffer2DPtr    mTexture;
+        uint32_t            mFailures {0};
+    };
 }
 
 
@@ -2948,6 +3066,7 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseMsaaTexture());
     cases.emplace_back(new CaseTextureWrite(true));
     cases.emplace_back(new CaseRenderTextureUAVTarget());
+    cases.emplace_back(new CaseUAVSlotRange());
 }
 
 uint32_t currentBackendBit()

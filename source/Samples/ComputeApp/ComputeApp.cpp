@@ -293,6 +293,8 @@ void ComputeApp::logCapabilities()
         caps.maxComputeGroupSize[0], caps.maxComputeGroupSize[1], caps.maxComputeGroupSize[2]);
     APP_LOG_DEBUG("[K0] maxComputeSharedMemory=%u bytes  maxUnorderedAccessSlots=%u",
         caps.maxComputeSharedMemory, caps.maxUnorderedAccessSlots);
+    APP_LOG_DEBUG("[K0] maxImageUnorderedAccessSlots=%u  maxCounterUnorderedAccessSlots=%u",
+        caps.maxImageUnorderedAccessSlots, caps.maxCounterUnorderedAccessSlots);
 
     // RHICapabilities 里没有顶点阶段结构化缓冲这一位，而它是本 Sample 在移动端上最
     // 关键的一个能力（ES 3.1 的 GL_MAX_VERTEX_SHADER_STORAGE_BLOCKS 下限就是 0）。
