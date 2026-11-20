@@ -61,6 +61,7 @@ ComputeShaderSource cbSlotColorPSSource();
 ComputeShaderSource twoSamplersPSSource();
 ComputeShaderSource registerOrderPSSource();
 ComputeShaderSource inlineSamplerPSSource();
+ComputeShaderSource textureArrayPSSource();
 
 
 #endif  /*__COMPUTE_SHADER_SOURCES_H__*/

@@ -3852,6 +3852,186 @@ namespace
         ReadbackHandle              mHandle {};
         uint32_t                    mTableErrors {0};
     };
+
+
+    /**
+     * \brief K28：Texture2DArray 与 Texture2D 混用时的槽位与采样器
+     * \remarks t1 是 2 层 2x1 的纹理数组，第 0 层左白右黑、第 1 层左黑右白；t0 是 2x1 的 RT，左黑右白。
+     *          s0 点采样、s1 线性，都是 Clamp，声明顺序与寄存器号相反。
+     *          期望 R = 第 1 层线性采样 u = 0.375 ≈ 64（读错层约 191，用错采样器为 0），
+     *          G = 第 0 层点采样 u = 0.375 = 255（读错层为 0），B = Load 第 1 层右纹素 = 255，
+     *          A = t0 线性采样 u = 0.625 ≈ 191（用错采样器为 255，纹理没绑上为 0）。
+     *          GL 版是 scc 的原样输出，三个 sampler2DArray uniform 指向同一个纹理槽位、不同的采样器。
+     */
+    class CaseTextureArray : public ComputeCase
+    {
+    public:
+        ~CaseTextureArray() override
+        {
+            releaseColorRT(mPlainTex, mPlainRT);
+            releaseColorRT(mDstTex, mDstRT);
+        }
+
+        static const uint32_t kWidth = 16;
+        static const uint32_t kHeight = 8;
+
+        const char *getName() const override { return "K28 texture array slots"; }
+        uint32_t getRequiredCaps() const override { return kNeedReadback; }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            if (T3D_FAILED(mDraw.setup())) return T3D_ERR_FAIL;
+
+            mSamplePS = ComputeKernel::compileGraphics("TextureArrayPS", SHADER_STAGE::kPixel,
+                textureArrayPSSource(), mDummyPS);
+            if (mSamplePS == nullptr) return T3D_ERR_FAIL;
+
+            SamplerDesc desc;
+            desc.AddressU = TextureAddressMode::kClamp;
+            desc.AddressV = TextureAddressMode::kClamp;
+            desc.AddressW = TextureAddressMode::kClamp;
+            desc.MipFilter = FilterOptions::kPoint;
+            desc.MinFilter = FilterOptions::kPoint;
+            desc.MagFilter = FilterOptions::kPoint;
+            mPoint = T3D_RENDER_STATE_MGR.loadSamplerState(desc);
+            desc.MinFilter = FilterOptions::kLinear;
+            desc.MagFilter = FilterOptions::kLinear;
+            mLinear = T3D_RENDER_STATE_MGR.loadSamplerState(desc);
+
+            // PixelBuffer 只保存描述的指针，描述不能放在栈上；初始数据由 RenderBuffer 接管并在析构时释放，
+            // 必须从堆上分配，且每个 PixelBuffer 各用一份
+            static const uint8_t kLayers[2][2][4] =
+            {
+                { { 255, 255, 255, 255 }, {   0,   0,   0, 255 } },
+                { {   0,   0,   0, 255 }, { 255, 255, 255, 255 } },
+            };
+            PixelBuffer2DDesc *arrayDesc = T3D_NEW PixelBuffer2DDesc();
+            arrayDesc->width = 2;
+            arrayDesc->height = 1;
+            arrayDesc->mipmaps = 1;
+            arrayDesc->arraySize = 2;
+            arrayDesc->format = PixelFormat::E_PF_R8G8B8A8;
+            arrayDesc->shaderReadable = true;
+            arrayDesc->buffer = allocBytes(sizeof(kLayers));
+            memcpy(arrayDesc->buffer.Data, kLayers, sizeof(kLayers));
+            mArrayTex = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(arrayDesc, MemoryType::kVRAM, Usage::kStatic, kCPUNone);
+            if (mArrayTex == nullptr || mArrayTex->getRHIResource() == nullptr)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : cannot create texture array", getName());
+                return T3D_ERR_FAIL;
+            }
+
+            mPlainTex = createColorRT("K28-Plain", 2, 1, PixelFormat::E_PF_R8G8B8A8, 1, kCPUNone, true);
+            mDstTex = createColorRT("K28-Dst", kWidth, kHeight, PixelFormat::E_PF_R8G8B8A8, 1, kCPURead);
+            if (mPoint == nullptr || mLinear == nullptr || mPlainTex == nullptr || mDstTex == nullptr)
+            {
+                return T3D_ERR_FAIL;
+            }
+            mPlainRT = RenderTarget::create(mPlainTex);
+            mDstRT = RenderTarget::create(mDstTex);
+            return (mPlainRT && mDstRT) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+
+            // t0 右半边白
+            ctx->setRenderTarget(mPlainRT.get());
+            mDraw.bindStates(ctx);
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+            ctx->setVertexShader(mDraw.vs());
+            ctx->setPixelShader(mDraw.whitePS());
+            ctx->setViewport(Viewport {0.5f, 0.0f, 0.5f, 1.0f, 0.0f, 1.0f});
+            TResult ret = mDraw.draw(ctx);
+
+            ctx->setRenderTarget(mDstRT.get());
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+            ctx->beginPass();
+
+            PixelBuffers textures;
+            textures.push_back(mPlainTex->getPixelBuffer());
+            textures.push_back(mArrayTex);
+            Samplers samplers;
+            samplers.push_back(mPoint);
+            samplers.push_back(mLinear);
+
+            ctx->setVertexShader(mDraw.vs());
+            ctx->setPixelShader(mSamplePS.get());
+            ctx->setPSPixelBuffers(0, textures);
+            ctx->setPSSamplers(0, samplers);
+            if (T3D_SUCCEEDED(ret))
+            {
+                ret = mDraw.draw(ctx);
+            }
+
+            ctx->endPass();
+
+            if (T3D_SUCCEEDED(ret))
+            {
+                mHandle = mapColorRT(mDstTex.get());
+                ret = mHandle.isValid() ? T3D_OK : T3D_ERR_FAIL;
+            }
+            ctx->reset();
+            return ret;
+        }
+
+        TResult verify() override
+        {
+            Buffer data;
+            TResult ret = unmapColorRT(mDstTex.get(), mHandle, data);
+            if (T3D_FAILED(ret)) return ret;
+
+            const int expected[4] = { 64, 255, 255, 191 };
+            uint32_t bad = 0;
+            for (uint32_t y = 0; y < kHeight; ++y)
+            {
+                for (uint32_t x = 0; x < kWidth; ++x)
+                {
+                    const uint8_t *p = pixelAt(data, kWidth, kHeight, x, y);
+                    bool ok = (p != nullptr);
+                    for (int c = 0; ok && c < 4; ++c)
+                    {
+                        ok = std::abs(int(p[c]) - expected[c]) <= 8;
+                    }
+                    if (ok) continue;
+
+                    if (bad++ == 0)
+                    {
+                        if (p == nullptr)
+                        {
+                            APP_LOG_DEBUG("[%s] FAILED : readback row pitch too small", getName());
+                        }
+                        else
+                        {
+                            APP_LOG_DEBUG("[%s] FAILED : got (%d, %d, %d, %d) at (%u, %u) expected about (%d, %d, %d, %d)",
+                                getName(), int(p[0]), int(p[1]), int(p[2]), int(p[3]), x, y,
+                                expected[0], expected[1], expected[2], expected[3]);
+                        }
+                    }
+                }
+            }
+            data.release();
+
+            return bad == 0 ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+    private:
+        FullscreenDraw      mDraw;
+        ShaderVariantPtr    mSamplePS;
+        ShaderPtr           mDummyPS;
+        SamplerStatePtr     mPoint;
+        SamplerStatePtr     mLinear;
+        PixelBuffer2DPtr    mArrayTex;
+        RenderTexturePtr    mPlainTex;
+        RenderTargetPtr     mPlainRT;
+        RenderTexturePtr    mDstTex;
+        RenderTargetPtr     mDstRT;
+        ReadbackHandle      mHandle {};
+    };
 }
 
 
@@ -3884,6 +4064,7 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseTwoSamplersOneTexture());
     cases.emplace_back(new CaseRegisterOrder());
     cases.emplace_back(new CaseInlineSampler());
+    cases.emplace_back(new CaseTextureArray());
 }
 
 uint32_t currentBackendBit()
