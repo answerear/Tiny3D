@@ -31,8 +31,8 @@
 
 /**
  * \brief 桌面键盘命令源
- * \remarks 键位与改造前的 ComputeApp::pollKeys 一字不差：R 重跑全部、1-8 单跑、
- *          C 切 CPU / GPU、V 开关剔除、P 暂停积分。
+ * \remarks R 重跑全部、C 切 CPU / GPU、V 开关剔除、P 暂停积分；
+ *          单跑用例按注册顺序依次用 1-9、A-Z，字母部分跳过 C / P / R / V。
  *
  *          热键不响应先查输入法：中文输入法开着时按键被 IME 截走，SDL 收不到
  *          scancode，getKeyDown 自然一直是 false。
@@ -42,6 +42,9 @@ class KeyboardCommandSource : public IComputeCommandSource
 public:
     bool poll(ComputeCommand &cmd) override;
     const char *usage() const override;
+
+    /// 第 index 个用例的单跑键（'1'-'9'、'A'-'Z'），超出可用键数时返回 '\0'
+    static char caseKeyLabel(size_t index);
 
 private:
     /// getKeyDown 在 endFrame 前一直为 true，while (poll) 同帧只能吐一条

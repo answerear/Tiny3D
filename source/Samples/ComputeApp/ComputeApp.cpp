@@ -68,6 +68,21 @@ TResult ComputeApp::applicationDidFinishLaunching(int32_t argc, char *argv[])
         APP_LOG_DEBUG("%s", src->usage());
     }
 
+#if !defined(T3D_OS_ANDROID) && !defined(T3D_OS_IOS)
+    for (size_t i = 0; i < mCases.size(); ++i)
+    {
+        const char key = KeyboardCommandSource::caseKeyLabel(i);
+        if (key != '\0')
+        {
+            APP_LOG_DEBUG("[ComputeApp]   key %c : %s", key, mCases[i]->getName());
+        }
+        else
+        {
+            APP_LOG_DEBUG("[ComputeApp]   (no key) : %s", mCases[i]->getName());
+        }
+    }
+#endif
+
     return T3D_OK;
 }
 
@@ -155,7 +170,7 @@ void ComputeApp::requestSelfTest(int32_t onlyIndex)
     }
     else
     {
-        APP_LOG_DEBUG("[ComputeApp] re-running case index %d ...", onlyIndex);
+        APP_LOG_DEBUG("[ComputeApp] re-running case index %d [%s] ...", onlyIndex, mCases[onlyIndex]->getName());
     }
 }
 
@@ -180,15 +195,17 @@ void ComputeApp::onRender()
     {
         for (size_t i = 0; i < mCases.size(); ++i)
         {
+            // 单跑时其他用例保留上一次的结果
+            if (mSelfTestOnly >= 0 && int32_t(i) != mSelfTestOnly)
+            {
+                continue;
+            }
+
             CaseStatus &status = mStatus[i];
             status.recordOk = false;
             status.passed = false;
 
             if (!status.runnable || !status.setupOk)
-            {
-                continue;
-            }
-            if (mSelfTestOnly >= 0 && int32_t(i) != mSelfTestOnly)
             {
                 continue;
             }
@@ -237,8 +254,8 @@ void ComputeApp::onPostRender()
         }
 
         mSelfTestPending = false;
+        reportSelfTest(mSelfTestOnly);
         mSelfTestOnly = -1;
-        reportSelfTest();
         return;
     }
 
@@ -329,7 +346,7 @@ void ComputeApp::setupSelfTest()
     }
 }
 
-void ComputeApp::reportSelfTest()
+void ComputeApp::reportSelfTest(int32_t onlyIndex)
 {
     uint32_t passed = 0;
     uint32_t failed = 0;
@@ -339,6 +356,11 @@ void ComputeApp::reportSelfTest()
 
     for (size_t i = 0; i < mCases.size(); ++i)
     {
+        if (onlyIndex >= 0 && int32_t(i) != onlyIndex)
+        {
+            continue;
+        }
+
         const CaseStatus &status = mStatus[i];
         const char *name = mCases[i]->getName();
 
@@ -360,7 +382,7 @@ void ComputeApp::reportSelfTest()
     }
 
     APP_LOG_DEBUG("---- %u passed, %u failed, %u skipped ----", passed, failed, skipped);
-    if (failed == 0)
+    if (failed == 0 && onlyIndex < 0)
     {
         APP_LOG_DEBUG("[ComputeApp] all runnable self-test cases passed");
     }

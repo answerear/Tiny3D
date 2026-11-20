@@ -28,6 +28,39 @@
 using namespace Tiny3D;
 
 
+namespace
+{
+    struct CaseKey
+    {
+        ScanCode    code;
+        char        label;
+    };
+
+    /// 用例按注册顺序依次对应 1-9、A-Z；C / P / R / V 已是功能键，字母部分跳过它们
+    const CaseKey kCaseKeys[] =
+    {
+        { APP_SCANCODE_1, '1' }, { APP_SCANCODE_2, '2' }, { APP_SCANCODE_3, '3' },
+        { APP_SCANCODE_4, '4' }, { APP_SCANCODE_5, '5' }, { APP_SCANCODE_6, '6' },
+        { APP_SCANCODE_7, '7' }, { APP_SCANCODE_8, '8' }, { APP_SCANCODE_9, '9' },
+        { APP_SCANCODE_A, 'A' }, { APP_SCANCODE_B, 'B' }, { APP_SCANCODE_D, 'D' },
+        { APP_SCANCODE_E, 'E' }, { APP_SCANCODE_F, 'F' }, { APP_SCANCODE_G, 'G' },
+        { APP_SCANCODE_H, 'H' }, { APP_SCANCODE_I, 'I' }, { APP_SCANCODE_J, 'J' },
+        { APP_SCANCODE_K, 'K' }, { APP_SCANCODE_L, 'L' }, { APP_SCANCODE_M, 'M' },
+        { APP_SCANCODE_N, 'N' }, { APP_SCANCODE_O, 'O' }, { APP_SCANCODE_Q, 'Q' },
+        { APP_SCANCODE_S, 'S' }, { APP_SCANCODE_T, 'T' }, { APP_SCANCODE_U, 'U' },
+        { APP_SCANCODE_W, 'W' }, { APP_SCANCODE_X, 'X' }, { APP_SCANCODE_Y, 'Y' },
+        { APP_SCANCODE_Z, 'Z' },
+    };
+
+    const int32_t kCaseKeyCount = int32_t(sizeof(kCaseKeys) / sizeof(kCaseKeys[0]));
+}
+
+
+char KeyboardCommandSource::caseKeyLabel(size_t index)
+{
+    return (index < size_t(kCaseKeyCount)) ? kCaseKeys[index].label : '\0';
+}
+
 bool KeyboardCommandSource::poll(ComputeCommand &cmd)
 {
     cmd = ComputeCommand{};
@@ -42,13 +75,6 @@ bool KeyboardCommandSource::poll(ComputeCommand &cmd)
     {
         return false;
     }
-
-    static const ScanCode kDigitKeys[9] =
-    {
-        APP_SCANCODE_1, APP_SCANCODE_2, APP_SCANCODE_3, APP_SCANCODE_4,
-        APP_SCANCODE_5, APP_SCANCODE_6, APP_SCANCODE_7, APP_SCANCODE_8,
-        APP_SCANCODE_9
-    };
 
     if (T3D_INPUT.getKeyDown(APP_SCANCODE_R))
     {
@@ -68,9 +94,9 @@ bool KeyboardCommandSource::poll(ComputeCommand &cmd)
     }
     else
     {
-        for (int32_t i = 0; i < 9; ++i)
+        for (int32_t i = 0; i < kCaseKeyCount; ++i)
         {
-            if (T3D_INPUT.getKeyDown(kDigitKeys[i]))
+            if (T3D_INPUT.getKeyDown(kCaseKeys[i].code))
             {
                 cmd.type = ComputeCommandType::kRetestOne;
                 cmd.value = i;
@@ -90,5 +116,5 @@ bool KeyboardCommandSource::poll(ComputeCommand &cmd)
 
 const char *KeyboardCommandSource::usage() const
 {
-    return "[ComputeApp] keys: R retest, 1-9 single case, C CPU/GPU, V cull+indirect, P pause";
+    return "[ComputeApp] keys: R retest, 1-9 / A-Z (except C P R V) single case, C CPU/GPU, V cull+indirect, P pause";
 }

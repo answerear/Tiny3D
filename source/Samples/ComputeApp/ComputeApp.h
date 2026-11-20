@@ -72,8 +72,8 @@ protected:
     /// 建用例、按能力位与后端掩码判定可跑性、跑 setup
     void setupSelfTest();
 
-    /// 把每个用例的结论汇总打一遍
-    void reportSelfTest();
+    /// 把用例的结论汇总打一遍；onlyIndex >= 0 时只报告单跑的那一个
+    void reportSelfTest(int32_t onlyIndex = -1);
 
     /// 依次抽干每个命令源的队列，交给 dispatchCommand 执行
     void pollCommands();
