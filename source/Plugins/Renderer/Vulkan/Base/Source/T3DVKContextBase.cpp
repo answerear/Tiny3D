@@ -272,6 +272,11 @@ namespace Tiny3D
                 break;
             }
 
+            for (auto &item : samplerParams)
+            {
+                item.second->clearUsage();
+            }
+
             for (uint32_t i = 0; i < bindingCount; ++i)
             {
                 SpvReflectDescriptorBinding *binding = bindings[i];
@@ -346,6 +351,7 @@ namespace Tiny3D
                         if (itr == samplerParams.end())
                         {
                             param = ShaderSamplerParam::create(name);
+                            param->clearUsage();
                             samplerParams.emplace(name, param);
                         }
                         else
@@ -391,11 +397,13 @@ namespace Tiny3D
                         }
 
                         param->setTextureType(texType);
+                        param->setHasTexture(true);
 
                         // For combined image sampler, also set the sampler binding
                         if (binding->descriptor_type == SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
                         {
                             param->setSamplerBinding(binding->binding);
+                            param->setHasSampler(true);
                         }
 
                         T3D_LOG_DEBUG(LOG_TAG_VKCONTEXTBASE,
@@ -423,6 +431,7 @@ namespace Tiny3D
                         if (itr == samplerParams.end())
                         {
                             param = ShaderSamplerParam::create(key);
+                            param->clearUsage();
                             samplerParams.emplace(key, param);
                         }
                         else
@@ -433,6 +442,7 @@ namespace Tiny3D
                         T3D_ASSERT(param != nullptr);
 
                         param->setSamplerBinding(binding->binding);
+                        param->setHasSampler(true);
 
                         T3D_LOG_DEBUG(LOG_TAG_VKCONTEXTBASE,
                             "Shader reflection - Name:%s, sampler binding "
