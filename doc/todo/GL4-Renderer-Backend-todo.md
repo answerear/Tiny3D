@@ -1746,6 +1746,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | **问题** | `T3DRHIContext.h:610-611` 约定槽位越界返回 `T3D_ERR_INVALID_PARAM`。GL4 只把 `GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS` 填进 `maxUnorderedAccessSlots`，绑定时从不检查，越界后由驱动报 `GL_INVALID_VALUE`，函数仍返回 `T3D_OK` |
 | **D3D11** | `startSlot + size > D3D11_1_UAV_SLOT_COUNT` 时报错返回 |
 | **修复建议** | 入口按 `maxUnorderedAccessSlots`（SSBO）与 `GL_MAX_IMAGE_UNITS`（image）校验，越界返回 `T3D_ERR_INVALID_PARAM` |
+| **状态** | ✅ 已修复（2026-11-20）。<br>**校验**（主线程入队前，失败返回 `T3D_ERR_INVALID_PARAM`）：一个 UAV 槽同时对应 SSBO 绑定点、image unit 与 atomic counter 绑定点，三者上限不同，按实际用到的分别检查。槽位范围 `[startSlot, startSlot + size)` 不得超过 `maxUnorderedAccessSlots`（按 64 位计算，避免 `startSlot` 很大时加法溢出）；像素缓冲与 `kTyped` 结构化缓冲走 image，槽号还须小于 `GL_MAX_IMAGE_UNITS`；带计数器或 Append/Consume 的结构化缓冲，槽号还须小于 `GL_MAX_ATOMIC_COUNTER_BUFFER_BINDINGS`。资源类型与计数器标志都从引擎层的 `RenderBuffer` / `StructuredBufferDesc` 读取，不依赖 RHI 线程上才创建的底层资源。<br>**能力位**：`RHICapabilities` 新增 `maxImageUnorderedAccessSlots` 与 `maxCounterUnorderedAccessSlots`，上层可以查到纹理 / Typed 缓冲 UAV 与带计数器缓冲 UAV 各自可用的槽位数。GL4 在 `fillCapabilities` 中取 `GL_MAX_IMAGE_UNITS` / `GL_MAX_ATOMIC_COUNTER_BUFFER_BINDINGS` 与 `maxUnorderedAccessSlots` 的较小值，`setCSUnorderedAccessBuffers` 按这两个字段校验；D3D11 没有额外限制，两者都等于 `maxUnorderedAccessSlots`。RTX 5060 上 GL4 为 16 / 8 / 8，D3D11 为 64 / 64 / 64。Vulkan 不支持 UAV，GLES3 留待后续，两者暂保持默认值 0。<br>**没有按修复建议把整个范围卡到 image 上限**：image unit 往往比 SSBO 绑定点少，统一卡到最小值会让纯 SSBO 的 UAV 少掉一批可用槽位。<br>**绑定**：原实现对每个槽无条件解绑 image 与 atomic counter，槽号超过对应上限时驱动报 `GL_INVALID_VALUE`。现在只在槽号低于对应上限时才调用 `glBindImageTexture(…, 0, …)` / `glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, …, 0)`，超出的槽本来就不可能绑过这两类资源。<br>**回归用例**：`ComputeApp` 新增 K23 `UAV slot range`（D3D11 与 GL4），记 N = `maxUnorderedAccessSlots`：起点为 N、范围 [N-1, N+1)、起点为 `UINT32_MAX` 三种调用期望返回 `T3D_ERR_INVALID_PARAM`；在 N-1 上绑定、解绑结构化缓冲期望返回 `T3D_OK`，确认检查没有收得过紧。纹理 UAV 与带计数器的结构化缓冲再按各自的上限 I / C 各测一遍：槽 I-1 / C-1 上绑定、解绑期望成功；I / C 小于 N 时，槽 I / C 虽在 N 以内也期望被拒绝。GL4 上 I = C = 8 < N = 16，这两条拒绝分支实际被执行；D3D11 上三者相等，只测成功分支。两个后端均 22/22 通过。<br>**D3D11 同步修改**：越界检查原先按常量 `D3D11_1_UAV_SLOT_COUNT`（64）判断，Feature Level 11.0 下 `maxUnorderedAccessSlots` 只有 8，槽 8～63 会通过检查后由运行时报错。现改为按 `mCapabilities.maxUnorderedAccessSlots` 校验，并同样按 64 位计算范围上界。<br>**遗留**：GLES3 的 `setCSUnorderedAccessBuffers` 同样不做越界检查，也没有填写两个新能力字段，留待单独处理 |
 
 ### E.1.8 深度 RT 作为纹理采样恒为 0
 
@@ -1802,7 +1803,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 | **P1** | E.1.3 | 纹理单元按阶段分区，消除跨阶段冲突（✅ 已修复） | 中 |
 | **P1** | E.1.4 | 窗口目标支持外部深度（中间 FBO）（✅ 已修复） | 中 |
 | **P1** | E.1.5 | `createPixelBuffer2D` 支持 MSAA（✅ 已修复） | 小 |
-| **P1** | E.1.7 | UAV 槽位越界检查 | 小 |
+| **P1** | E.1.7 | UAV 槽位越界检查（✅ 已修复） | 小 |
 | **P2** | E.1.6 | RenderTexture 支持 UAV（✅ 已修复） | 小 |
 | **P2** | E.2.1 / E.2.3 / E.2.6 / E.3.1 | CB 解绑、DepthBiasClamp 与抗锯齿线、创建参数校验、编辑器与启动器的渲染器选择 | 小～中 |
 | **P3** | E.2.2 / E.2.4 / E.2.5 / E.2.7 / E.2.8 / E.2.9 / E.3.2 / E.3.3 | 其余次要项 | 视需求 |
