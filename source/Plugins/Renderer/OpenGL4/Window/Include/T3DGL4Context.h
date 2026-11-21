@@ -204,6 +204,18 @@ namespace Tiny3D
         /// 记录 SSBO 绑定点 slot 上的缓冲（手写 GLSL 的块按绑定点查这张表）
         void setLegacyStorageBuffer(uint32_t slot, const RenderBufferPtr &buffer);
 
+        /// 链接后记录 graphics program 的 VS 输入与输入签名，建立 mProgramVertexInputs
+        void setupVertexInputs(GLuint program);
+
+        /// draw 前按当前 program 的 VS 输入配置当前 VAO 的 attribute 指针。
+        /// D3D11 按语义把输入布局对到 VS 输入，GL 只按 location 读取，所以 HLSLCross 生成的 VS
+        /// 按语义查 location；手写 GLSL 拿不到语义，属性下标即 location
+        void applyVertexLayout(GLuint program);
+
+        /// draw 前对照当前顶点声明与 program 的 VS 输入，不匹配时打 warning（Debug 构建）。
+        /// 每个顶点声明对每个 program 只校验一次
+        void validateVertexInputs(GLuint program);
+
         /// 链接 program，成功后建立 uniform block 绑定与 sampler 绑定并记录 block 名单
         TResult linkProgram(GLuint program, const char *tag, bool isCompute);
 
@@ -344,8 +356,17 @@ namespace Tiny3D
         GLuint  mCurrentComputeShader {0};
         TMap<GLuint, GLuint> mComputeProgramCache;
         bool    mComputeProgramDirty {false};
-        /// program -> 按 block 下标排列的 cbuffer 名（binding point 即下标）
-        TMap<GLuint, TArray<String>> mProgramUBONames;
+        struct ProgramUBO
+        {
+            /// cbuffer 名
+            String      name;
+            /// 引用该 block 的阶段，按 TextureUnitStage 置位
+            uint32_t    stageMask {0};
+            /// 已报过多个阶段绑了不同 buffer 的警告
+            bool        conflictWarned {false};
+        };
+        /// program -> 按 block 下标排列的 cbuffer（binding point 即下标）
+        TMap<GLuint, TArray<ProgramUBO>> mProgramUBONames;
         /// 当前图元类型
         GLenum  mPrimitiveType {GL_TRIANGLES};
         /// 当前索引类型
@@ -356,8 +377,49 @@ namespace Tiny3D
         RenderTargetPtr mCurrentRenderTarget {nullptr};
         /// 当前绑定的 VAO
         GLuint  mCurrentVAO {0};
-        /// 延迟配置顶点属性用的 VertexDeclaration 缓存
-        VertexDeclarationPtr mPendingVertexDecl {nullptr};
+        /// 当前绑定的顶点声明，只在 RHI 线程访问
+        GL4VertexDeclarationPtr mCurrentVertexDecl {nullptr};
+
+        /// 一个 slot 上设置的顶点缓冲
+        struct VertexBufferBinding
+        {
+            VertexBufferPtr buffer {nullptr};
+            uint32_t        stride {0};
+            uint32_t        offset {0};
+        };
+        /// 各 slot 上设置的顶点缓冲，只在 RHI 线程访问。与 D3D11 一样独立于顶点声明，
+        /// set*VertexBuffers 只记录，draw 时再按当前声明与 program 配置 VAO
+        TArray<VertexBufferBinding> mVertexBufferBindings;
+        /// mVertexBufferBindings 的修订号，内容有变化时递增
+        uint32_t mVertexBufferRevision {1};
+
+        /// program 的一个 VS 输入（不含 gl_ 内建变量）
+        struct VertexInput
+        {
+            String  name;
+            /// HLSLCross 生成的输入名为 in_var_<语义>，hasSemantic 为 true 时以下两项有效（语义名为大写）
+            bool        hasSemantic {false};
+            String      semanticName;
+            uint32_t    semanticIndex {0};
+            GLint   location {0};
+            /// 占用的 location 数，矩阵按列数、数组按元素数累计，对应依次递增的语义序号
+            GLint   locationCount {1};
+            GLenum  type {GL_FLOAT};
+        };
+        struct ProgramVertexInputs
+        {
+            TArray<VertexInput> inputs;
+            /// 有任一输入带语义时按语义映射 location，否则属性下标即 location
+            bool        bySemantic {false};
+            /// 输入签名，相同的签名对同一个声明得到相同的 location 映射，从 1 开始
+            uint32_t    signature {0};
+        };
+        /// graphics program -> VS 输入表，链接时由 setupVertexInputs 建立
+        TMap<GLuint, ProgramVertexInputs> mProgramVertexInputs;
+        /// VS 输入签名的规范串 -> 签名号
+        TMap<String, uint32_t> mVertexInputSignatures;
+        /// GL_MAX_VERTEX_ATTRIBS，首次配置 VAO 时查询
+        GLint   mMaxVertexAttribs {0};
         struct PendingUBO
         {
             String  name;

@@ -45,6 +45,8 @@ namespace Tiny3D
         static GLenum getVertexAttribType(VertexAttribute::Type type);
         static GLboolean getVertexAttribNormalized(VertexAttribute::Type type);
         static bool isIntegerAttrib(VertexAttribute::Type type);
+        /// 与 D3D11 输入布局一致的 HLSL 语义名（不含序号）
+        static const char *getVertexSemanticName(VertexAttribute::Semantic semantic);
     };
 }
 

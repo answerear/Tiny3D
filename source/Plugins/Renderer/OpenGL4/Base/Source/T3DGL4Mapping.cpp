@@ -462,4 +462,24 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    const char *GL4Mapping::getVertexSemanticName(VertexAttribute::Semantic semantic)
+    {
+        switch (semantic)
+        {
+        case VertexAttribute::Semantic::E_VAS_POSITION:     return "POSITION";
+        case VertexAttribute::Semantic::E_VAS_BLENDWEIGHT:  return "BLENDWEIGHT";
+        case VertexAttribute::Semantic::E_VAS_BLENDINDICES: return "BLENDINDICES";
+        case VertexAttribute::Semantic::E_VAS_NORMAL:       return "NORMAL";
+        case VertexAttribute::Semantic::E_VAS_DIFFUSE:
+        case VertexAttribute::Semantic::E_VAS_SPECULAR:     return "COLOR";
+        case VertexAttribute::Semantic::E_VAS_TEXCOORD:     return "TEXCOORD";
+        case VertexAttribute::Semantic::E_VAS_TANGENT:      return "TANGENT";
+        case VertexAttribute::Semantic::E_VAS_BINORMAL:     return "BINORMAL";
+        default: break;
+        }
+        return "";
+    }
+
+    //--------------------------------------------------------------------------
 }

@@ -21,6 +21,32 @@ namespace Tiny3D
         void *getNativeObject() const override;
 
         GLuint GLVAO {0};
+
+        /// 声明中的一个属性
+        struct Attribute
+        {
+            /// HLSL 语义名（不含序号），与 D3D11 输入布局一致
+            String      semanticName;
+            uint32_t    semanticIndex {0};
+            uint32_t    slot {0};
+            uint32_t    offset {0};
+            VertexAttribute::Type type {VertexAttribute::Type::E_VAT_FLOAT4};
+            bool        perInstance {false};
+            uint32_t    instanceStepRate {0};
+        };
+        /// 创建时从 VertexDeclaration 拷贝，draw 时据此配置 VAO
+        TArray<Attribute> Attributes;
+
+        /// 以下成员只在 RHI 线程访问。
+        /// 各属性当前映射到的 attribute location，VS 不读取的属性为 -1
+        TArray<GLint> AttribLocations;
+        /// 当前在 VAO 上启用的 location，换布局时先全部关闭
+        TArray<GLuint> EnabledLocations;
+        /// VAO 当前按哪个 VS 输入签名、哪个版本的顶点缓冲表配置，两者都没变时 draw 不用重设
+        uint32_t AppliedSignature {0};
+        uint32_t AppliedBufferRevision {0};
+        /// 已与本声明对照过 VS 输入的 program，每对只校验一次
+        TSet<GLuint> ValidatedPrograms;
     protected:
         GL4VertexDeclaration() = default;
     };

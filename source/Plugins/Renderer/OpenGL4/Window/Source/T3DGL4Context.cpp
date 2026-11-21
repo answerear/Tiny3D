@@ -35,6 +35,14 @@
 #include <glslang/Public/ShaderLang.h>
 #include <glslang/Public/ResourceLimits.h>
 
+// GL 4.0 tessellation 常量，glad 按 3.3 core 生成时没有
+#ifndef GL_UNIFORM_BLOCK_REFERENCED_BY_TESS_CONTROL_SHADER
+#define GL_UNIFORM_BLOCK_REFERENCED_BY_TESS_CONTROL_SHADER 0x84F0
+#endif
+#ifndef GL_UNIFORM_BLOCK_REFERENCED_BY_TESS_EVALUATION_SHADER
+#define GL_UNIFORM_BLOCK_REFERENCED_BY_TESS_EVALUATION_SHADER 0x84F1
+#endif
+
 
 namespace Tiny3D
 {
@@ -65,7 +73,8 @@ namespace Tiny3D
         makeDummyCurrent();
 
         mCurrentRenderTarget = nullptr;
-        mPendingVertexDecl = nullptr;
+        mCurrentVertexDecl = nullptr;
+        mVertexBufferBindings.clear();
         mCurrentVSVariant = nullptr;
         mCurrentPSVariant = nullptr;
         mCurrentHSVariant = nullptr;
@@ -94,6 +103,7 @@ namespace Tiny3D
         mProgramUBONames.clear();
         mProgramSamplerUnits.clear();
         mProgramStorageBlocks.clear();
+        mProgramVertexInputs.clear();
         mCurrentProgram = 0;
         mCurrentComputeProgram = 0;
         GL_SAFE_DELETE_FBO(mScratchReadFBO);
@@ -1778,6 +1788,20 @@ namespace Tiny3D
     {
         GL4VertexDeclarationPtr glDecl = GL4VertexDeclaration::create();
 
+        glDecl->Attributes.reserve(decl->getAttributeCount());
+        for (const VertexAttribute &attrib : decl->getAttributes())
+        {
+            GL4VertexDeclaration::Attribute info;
+            info.semanticName = GL4Mapping::getVertexSemanticName(attrib.getSemantic());
+            info.semanticIndex = attrib.getSemanticIndex();
+            info.slot = attrib.getSlot();
+            info.offset = attrib.getOffset();
+            info.type = attrib.getType();
+            info.perInstance = (attrib.getInputRate() == VertexAttribute::InputRate::kPerInstance);
+            info.instanceStepRate = attrib.getInstanceStepRate();
+            glDecl->Attributes.push_back(info);
+        }
+
         auto lambda = [this](const GL4VertexDeclarationPtr &glDecl)
         {
             TResult ret = T3D_OK;
@@ -1802,10 +1826,10 @@ namespace Tiny3D
     {
         if (decl == nullptr || decl->getRHIResource() == nullptr)
         {
-            mPendingVertexDecl = nullptr;
             auto lambda = [this]()
             {
                 mCurrentVAO = 0;
+                mCurrentVertexDecl = nullptr;
                 glBindVertexArray(0);
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setVertexDeclaration(null)");
                 return T3D_OK;
@@ -1814,7 +1838,6 @@ namespace Tiny3D
         }
 
         GL4VertexDeclarationPtr glDecl = static_cast<GL4VertexDeclaration*>(decl->getRHIResource().get());
-        mPendingVertexDecl = decl;
 
         auto lambda = [this](const GL4VertexDeclarationPtr &glDecl)
         {
@@ -1824,6 +1847,7 @@ namespace Tiny3D
             {
                 GLuint vao = glDecl->GLVAO;
                 mCurrentVAO = vao;
+                mCurrentVertexDecl = glDecl;
                 glBindVertexArray(vao);
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setVertexDeclaration");
             } while (false);
@@ -1870,70 +1894,36 @@ namespace Tiny3D
 
     TResult GL4Context::setVertexBuffers(uint32_t startSlot, const VertexBuffers &buffers, const VertexStrides &strides, const VertexOffsets &offsets)
     {
-        VertexDeclarationPtr pendingDecl = mPendingVertexDecl;
-
-        auto lambda = [this](uint32_t startSlot, const VertexBuffers &buffers, const VertexStrides &strides, const VertexOffsets &offsets, const VertexDeclarationPtr &pendingDecl)
+        // 与 D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT 一致
+        constexpr uint64_t kMaxVertexBufferSlots = 32;
+        if (static_cast<uint64_t>(startSlot) + buffers.size() > kMaxVertexBufferSlots)
         {
-            TResult ret = T3D_OK;
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "setVertexBuffers: slots [%u, %llu) exceed %llu vertex buffer slots !",
+                startSlot, static_cast<unsigned long long>(startSlot) + buffers.size(),
+                static_cast<unsigned long long>(kMaxVertexBufferSlots));
+            return T3D_ERR_INVALID_PARAM;
+        }
 
-            do
+        auto lambda = [this](uint32_t startSlot, const VertexBuffers &buffers, const VertexStrides &strides, const VertexOffsets &offsets)
+        {
+            const size_t endSlot = startSlot + buffers.size();
+            if (mVertexBufferBindings.size() < endSlot)
             {
-                for (uint32_t i = 0; i < buffers.size(); ++i)
-                {
-                    if (buffers[i] == nullptr || buffers[i]->getRHIResource() == nullptr)
-                    {
-                        continue;
-                    }
+                mVertexBufferBindings.resize(endSlot);
+            }
 
-                    GL4VertexBuffer *glVB = static_cast<GL4VertexBuffer*>(buffers[i]->getRHIResource().get());
-                    glBindBuffer(GL_ARRAY_BUFFER, glVB->GLBuffer);
-
-                    if (pendingDecl != nullptr)
-                    {
-                        const GLsizei stride = (i < strides.size()) ? static_cast<GLsizei>(strides[i]) : 0;
-                        const uintptr_t baseOffset = (i < offsets.size()) ? static_cast<uintptr_t>(offsets[i]) : 0;
-
-                        for (uint32_t j = 0; j < pendingDecl->getAttributeCount(); ++j)
-                        {
-                            const VertexAttribute &attrib = pendingDecl->getAttributes()[j];
-                            if (attrib.getSlot() != startSlot + i)
-                                continue;
-
-                            GLint size = GL4Mapping::getVertexAttribSize(attrib.getType());
-                            GLenum type = GL4Mapping::getVertexAttribType(attrib.getType());
-                            GLboolean normalized = GL4Mapping::getVertexAttribNormalized(attrib.getType());
-                            const void *pointer = reinterpret_cast<const void*>(baseOffset + static_cast<uintptr_t>(attrib.getOffset()));
-
-                            glEnableVertexAttribArray(j);
-                            if (GL4Mapping::isIntegerAttrib(attrib.getType()))
-                            {
-                                glVertexAttribIPointer(j, size, type, stride, pointer);
-                            }
-                            else
-                            {
-                                glVertexAttribPointer(j, size, type, normalized, stride, pointer);
-                            }
-
-                            if (attrib.getInputRate() == VertexAttribute::InputRate::kPerInstance)
-                            {
-                                const uint32_t stepRate = attrib.getInstanceStepRate();
-                                glVertexAttribDivisor(j, (GLuint)(stepRate > 0 ? stepRate : 1));
-                            }
-                            else
-                            {
-                                glVertexAttribDivisor(j, 0);
-                            }
-                        }
-                    }
-                }
-
-                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setVertexBuffers");
-            } while (false);
-
-            return ret;
+            for (size_t i = 0; i < buffers.size(); ++i)
+            {
+                VertexBufferBinding &binding = mVertexBufferBindings[startSlot + i];
+                binding.buffer = buffers[i];
+                binding.stride = (i < strides.size()) ? strides[i] : 0;
+                binding.offset = (i < offsets.size()) ? offsets[i] : 0;
+            }
+            ++mVertexBufferRevision;
+            return T3D_OK;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, buffers, strides, offsets, pendingDecl);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, buffers, strides, offsets);
     }
 
     //--------------------------------------------------------------------------
@@ -3245,21 +3235,46 @@ namespace Tiny3D
         // uniform block 绑定和 sampler uniform 都存在 program 对象里，链接后设一次即可
         GLint numBlocks = 0;
         glGetProgramiv(program, GL_ACTIVE_UNIFORM_BLOCKS, &numBlocks);
-        TArray<String> &names = mProgramUBONames[program];
-        names.clear();
-        names.reserve(numBlocks);
+        TArray<ProgramUBO> &blocks = mProgramUBONames[program];
+        blocks.clear();
+        blocks.reserve(numBlocks);
         for (GLint i = 0; i < numBlocks; ++i)
         {
             char blockName[256] = {};
             GLsizei nameLen = 0;
             glGetActiveUniformBlockName(program, i, sizeof(blockName), &nameLen, blockName);
 
-            String cbufferName(blockName);
-            if (StringUtil::startsWith(cbufferName, "type_"))
+            ProgramUBO block;
+            block.name = blockName;
+            if (StringUtil::startsWith(block.name, "type_"))
             {
-                cbufferName = cbufferName.substr(5);
+                block.name = block.name.substr(5);
             }
-            names.push_back(cbufferName);
+
+            // 只认真正读这个 block 的阶段：其他阶段槽位上残留的同名 CB（比如上一个 PS 留下的）
+            // D3D11 下不会被读到，GL 这里也不能让它顶掉本阶段的 CB
+            const struct { GLenum query; TextureUnitStage stage; } refs[] = {
+                { GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER, kTexStageVS },
+                { GL_UNIFORM_BLOCK_REFERENCED_BY_TESS_CONTROL_SHADER, kTexStageHS },
+                { GL_UNIFORM_BLOCK_REFERENCED_BY_TESS_EVALUATION_SHADER, kTexStageDS },
+                { GL_UNIFORM_BLOCK_REFERENCED_BY_GEOMETRY_SHADER, kTexStageGS },
+                { GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER, kTexStagePS },
+                { GL_UNIFORM_BLOCK_REFERENCED_BY_COMPUTE_SHADER, kTexStageCS },
+            };
+            for (const auto &ref : refs)
+            {
+                if ((ref.stage == kTexStageCS) != isCompute)
+                {
+                    continue;
+                }
+                GLint referenced = GL_FALSE;
+                glGetActiveUniformBlockiv(program, static_cast<GLuint>(i), ref.query, &referenced);
+                if (referenced != GL_FALSE)
+                {
+                    block.stageMask |= 1u << static_cast<uint32_t>(ref.stage);
+                }
+            }
+            blocks.push_back(std::move(block));
 
             glUniformBlockBinding(program, i, static_cast<GLuint>(i));
         }
@@ -3267,6 +3282,10 @@ namespace Tiny3D
         glUseProgram(program);
         setupSamplerBindings(program, isCompute);
         setupStorageBlockBindings(program, isCompute);
+        if (!isCompute)
+        {
+            setupVertexInputs(program);
+        }
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::linkProgram");
         return T3D_OK;
@@ -3312,6 +3331,7 @@ namespace Tiny3D
                         mProgramUBONames.erase(program);
                         mProgramSamplerUnits.erase(program);
                         mProgramStorageBlocks.erase(program);
+                        mProgramVertexInputs.erase(program);
                         GL_SAFE_DELETE_PROGRAM(program);
                         mProgramLinkFailed = true;
                     }
@@ -3333,6 +3353,10 @@ namespace Tiny3D
         bindPendingUniformBlocks(mCurrentProgram, false);
         bindPendingTextures(mCurrentProgram);
         bindPendingStorageBuffers(mCurrentProgram);
+        applyVertexLayout(mCurrentProgram);
+#if defined(T3D_DEBUG)
+        validateVertexInputs(mCurrentProgram);
+#endif
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::ensureProgramLinked");
         return T3D_OK;
@@ -4098,7 +4122,6 @@ namespace Tiny3D
     TResult GL4Context::reset()
     {
         mCurrentRenderTarget = nullptr;
-        mPendingVertexDecl = nullptr;
         mRenderingToFBO = false;
         mProjectionFlipped = false;
 
@@ -4158,6 +4181,9 @@ namespace Tiny3D
                 mProgramDirty = false;
                 mProgramLinkFailed = false;
                 mCurrentVAO = 0;
+                mCurrentVertexDecl = nullptr;
+                mVertexBufferBindings.clear();
+                ++mVertexBufferRevision;
 
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::reset");
             } while (false);
@@ -5076,7 +5102,7 @@ namespace Tiny3D
             return;
         }
 
-        // compute program 只看 CS 设置的 CB，graphics program 只看当前挂了 shader 的图形阶段。
+        // compute program 只看 CS 设置的 CB，graphics program 只看当前挂了 shader 且读这个 block 的图形阶段。
         // 同名 cbuffer 在一个 program 里只有一个 block，多个阶段都设置了时以 PS 为准（与 sampler 一致）。
         struct StageVariant
         {
@@ -5097,21 +5123,21 @@ namespace Tiny3D
         const size_t stageCount = isCompute ? std::size(computeStages) : std::size(graphicsStages);
 
         // block i 在 linkProgram 里已经固定绑到 binding point i
-        const TArray<String> &names = itNames->second;
-        for (size_t i = 0; i < names.size(); ++i)
+        TArray<ProgramUBO> &blocks = itNames->second;
+        for (size_t i = 0; i < blocks.size(); ++i)
         {
-            const String &cbufferName = names[i];
+            const String &cbufferName = blocks[i].name;
             const PendingUBO *found = nullptr;
             uint32_t foundStage = 0;
             uint32_t foundSlot = 0;
             for (size_t s = 0; s < stageCount; ++s)
             {
-                if (stages[s].variant == nullptr)
+                const uint32_t stage = static_cast<uint32_t>(stages[s].stage);
+                if (stages[s].variant == nullptr || (blocks[i].stageMask & (1u << stage)) == 0)
                 {
                     continue;
                 }
 
-                const uint32_t stage = static_cast<uint32_t>(stages[s].stage);
                 for (const auto &item : mPendingUBOs[stage])
                 {
                     if (item.second.name != cbufferName)
@@ -5125,8 +5151,10 @@ namespace Tiny3D
                         foundStage = stage;
                         foundSlot = item.first;
                     }
-                    else if (item.second.ubo != found->ubo)
+                    else if (item.second.ubo != found->ubo && !blocks[i].conflictWarned)
                     {
+                        // 每个 program 的每个 block 只报一次，否则每次 draw 都会刷屏
+                        blocks[i].conflictWarned = true;
                         T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
                             "cbuffer '%s' is set to different buffers by stage %u slot %u and stage %u slot %u, "
                             "GL links it as one block; use the former",
@@ -5613,6 +5641,403 @@ namespace Tiny3D
             block.isCounter = parsed.name.isCounter;
             glShaderStorageBlockBinding(program, parsed.index, block.binding);
             blocks.push_back(block);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    enum class VertexInputKind : uint32_t
+    {
+        kFloat,
+        kInteger,
+        kDouble,
+    };
+
+    /// 返回 VS 输入的分量类型，outColumns 为一个元素占用的 location 数（矩阵按列）
+    static VertexInputKind getVertexInputKind(GLenum type, GLint &outColumns)
+    {
+        outColumns = 1;
+        switch (type)
+        {
+        case GL_FLOAT_MAT2:
+        case GL_FLOAT_MAT2x3:
+        case GL_FLOAT_MAT2x4:
+            outColumns = 2;
+            return VertexInputKind::kFloat;
+        case GL_FLOAT_MAT3:
+        case GL_FLOAT_MAT3x2:
+        case GL_FLOAT_MAT3x4:
+            outColumns = 3;
+            return VertexInputKind::kFloat;
+        case GL_FLOAT_MAT4:
+        case GL_FLOAT_MAT4x2:
+        case GL_FLOAT_MAT4x3:
+            outColumns = 4;
+            return VertexInputKind::kFloat;
+        case GL_INT:
+        case GL_INT_VEC2:
+        case GL_INT_VEC3:
+        case GL_INT_VEC4:
+        case GL_UNSIGNED_INT:
+        case GL_UNSIGNED_INT_VEC2:
+        case GL_UNSIGNED_INT_VEC3:
+        case GL_UNSIGNED_INT_VEC4:
+            return VertexInputKind::kInteger;
+        case GL_DOUBLE:
+        case GL_DOUBLE_VEC2:
+        case GL_DOUBLE_VEC3:
+        case GL_DOUBLE_VEC4:
+            return VertexInputKind::kDouble;
+        case GL_DOUBLE_MAT2:
+        case GL_DOUBLE_MAT2x3:
+        case GL_DOUBLE_MAT2x4:
+            outColumns = 2;
+            return VertexInputKind::kDouble;
+        case GL_DOUBLE_MAT3:
+        case GL_DOUBLE_MAT3x2:
+        case GL_DOUBLE_MAT3x4:
+            outColumns = 3;
+            return VertexInputKind::kDouble;
+        case GL_DOUBLE_MAT4:
+        case GL_DOUBLE_MAT4x2:
+        case GL_DOUBLE_MAT4x3:
+            outColumns = 4;
+            return VertexInputKind::kDouble;
+        default:
+            break;
+        }
+        return VertexInputKind::kFloat;
+    }
+
+    /// 把 "TEXCOORD0" 拆成大写的语义名与序号，没有序号时为 0
+    static void splitVertexSemantic(const String &semantic, String &outName, uint32_t &outIndex)
+    {
+        size_t digits = semantic.size();
+        while (digits > 0 && std::isdigit(static_cast<unsigned char>(semantic[digits - 1])))
+        {
+            --digits;
+        }
+
+        outName = semantic.substr(0, digits);
+        for (char &c : outName)
+        {
+            c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+        }
+        outIndex = (digits < semantic.size())
+            ? static_cast<uint32_t>(std::strtoul(semantic.c_str() + digits, nullptr, 10)) : 0;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::setupVertexInputs(GLuint program)
+    {
+        static const String kSemanticPrefix = "in_var_";
+
+        ProgramVertexInputs &programInputs = mProgramVertexInputs[program];
+        TArray<VertexInput> &inputs = programInputs.inputs;
+        inputs.clear();
+        programInputs.bySemantic = false;
+
+        GLint numInputs = 0;
+        glGetProgramInterfaceiv(program, GL_PROGRAM_INPUT, GL_ACTIVE_RESOURCES, &numInputs);
+        for (GLint i = 0; i < numInputs; ++i)
+        {
+            const GLenum props[] = { GL_LOCATION, GL_TYPE, GL_ARRAY_SIZE };
+            GLint values[3] = { -1, GL_FLOAT, 1 };
+            glGetProgramResourceiv(program, GL_PROGRAM_INPUT, static_cast<GLuint>(i), 3, props, 3, nullptr, values);
+            // gl_VertexID / gl_InstanceID 等内建变量没有 location
+            if (values[0] < 0)
+            {
+                continue;
+            }
+
+            char name[256] = {};
+            glGetProgramResourceName(program, GL_PROGRAM_INPUT, static_cast<GLuint>(i), sizeof(name), nullptr, name);
+
+            VertexInput input;
+            input.name = name;
+            input.location = values[0];
+            input.type = static_cast<GLenum>(values[1]);
+            GLint columns = 1;
+            getVertexInputKind(input.type, columns);
+            input.locationCount = columns * std::max(values[2], 1);
+            // HLSLCross 生成的 GLSL 以 in_var_<语义> 命名 VS 输入；手写 GLSL 拿不到语义
+            input.hasSemantic = StringUtil::startsWith(input.name, kSemanticPrefix);
+            if (input.hasSemantic)
+            {
+                splitVertexSemantic(input.name.substr(kSemanticPrefix.size()), input.semanticName, input.semanticIndex);
+                programInputs.bySemantic = true;
+            }
+            inputs.push_back(input);
+        }
+
+        std::sort(inputs.begin(), inputs.end(),
+            [](const VertexInput &a, const VertexInput &b) { return a.location < b.location; });
+
+        // 按下标映射时 location 与 VS 输入无关，所有这类 program 共用一个签名
+        String key = "I";
+        if (programInputs.bySemantic)
+        {
+            std::stringstream ss;
+            ss << "S";
+            for (const VertexInput &input : inputs)
+            {
+                if (input.hasSemantic)
+                {
+                    ss << ";" << input.semanticName << ":" << input.semanticIndex << ":" << input.location
+                        << ":" << input.locationCount;
+                }
+            }
+            key = ss.str();
+        }
+
+        auto itr = mVertexInputSignatures.find(key);
+        if (itr == mVertexInputSignatures.end())
+        {
+            const uint32_t signature = static_cast<uint32_t>(mVertexInputSignatures.size()) + 1;
+            itr = mVertexInputSignatures.emplace(key, signature).first;
+        }
+        programInputs.signature = itr->second;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::applyVertexLayout(GLuint program)
+    {
+        GL4VertexDeclaration *decl = mCurrentVertexDecl.get();
+        if (decl == nullptr)
+        {
+            return;
+        }
+
+        auto itr = mProgramVertexInputs.find(program);
+        const ProgramVertexInputs *programInputs = (itr != mProgramVertexInputs.end()) ? &itr->second : nullptr;
+        const uint32_t signature = (programInputs != nullptr) ? programInputs->signature : 0;
+        if (decl->AppliedBufferRevision == mVertexBufferRevision && decl->AppliedSignature == signature
+            && signature != 0)
+        {
+            return;
+        }
+
+        if (mMaxVertexAttribs == 0)
+        {
+            glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &mMaxVertexAttribs);
+        }
+
+        for (GLuint location : decl->EnabledLocations)
+        {
+            glDisableVertexAttribArray(location);
+        }
+        decl->EnabledLocations.clear();
+
+        const TArray<GL4VertexDeclaration::Attribute> &attributes = decl->Attributes;
+        decl->AttribLocations.assign(attributes.size(), -1);
+
+        for (size_t a = 0; a < attributes.size(); ++a)
+        {
+            const GL4VertexDeclaration::Attribute &attrib = attributes[a];
+
+            GLint location = -1;
+            if (programInputs != nullptr && programInputs->bySemantic)
+            {
+                // 矩阵与数组输入的每个 location 对应依次递增的语义序号，与 HLSL 一致
+                for (const VertexInput &input : programInputs->inputs)
+                {
+                    if (input.hasSemantic && input.semanticName == attrib.semanticName
+                        && attrib.semanticIndex >= input.semanticIndex
+                        && attrib.semanticIndex < input.semanticIndex + static_cast<uint32_t>(input.locationCount))
+                    {
+                        location = input.location + static_cast<GLint>(attrib.semanticIndex - input.semanticIndex);
+                        break;
+                    }
+                }
+            }
+            else if (static_cast<GLint>(a) < mMaxVertexAttribs)
+            {
+                location = static_cast<GLint>(a);
+            }
+
+            // VS 不读取的属性不启用，与 D3D11 忽略输入布局里多余的元素一致
+            if (location < 0)
+            {
+                continue;
+            }
+            decl->AttribLocations[a] = location;
+
+            if (attrib.slot >= mVertexBufferBindings.size())
+            {
+                continue;
+            }
+            const VertexBufferBinding &binding = mVertexBufferBindings[attrib.slot];
+            if (binding.buffer == nullptr || binding.buffer->getRHIResource() == nullptr)
+            {
+                continue;
+            }
+
+            GL4VertexBuffer *glVB = static_cast<GL4VertexBuffer*>(binding.buffer->getRHIResource().get());
+            glBindBuffer(GL_ARRAY_BUFFER, glVB->GLBuffer);
+
+            const GLuint loc = static_cast<GLuint>(location);
+            const GLint size = GL4Mapping::getVertexAttribSize(attrib.type);
+            const GLenum type = GL4Mapping::getVertexAttribType(attrib.type);
+            const GLsizei stride = static_cast<GLsizei>(binding.stride);
+            const void *pointer = reinterpret_cast<const void*>(
+                static_cast<uintptr_t>(binding.offset) + static_cast<uintptr_t>(attrib.offset));
+
+            glEnableVertexAttribArray(loc);
+            decl->EnabledLocations.push_back(loc);
+            if (GL4Mapping::isIntegerAttrib(attrib.type))
+            {
+                glVertexAttribIPointer(loc, size, type, stride, pointer);
+            }
+            else
+            {
+                glVertexAttribPointer(loc, size, type, GL4Mapping::getVertexAttribNormalized(attrib.type), stride, pointer);
+            }
+
+            if (attrib.perInstance)
+            {
+                glVertexAttribDivisor(loc, static_cast<GLuint>(attrib.instanceStepRate > 0 ? attrib.instanceStepRate : 1));
+            }
+            else
+            {
+                glVertexAttribDivisor(loc, 0);
+            }
+        }
+
+        decl->AppliedBufferRevision = mVertexBufferRevision;
+        decl->AppliedSignature = signature;
+
+        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::applyVertexLayout");
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::validateVertexInputs(GLuint program)
+    {
+        // 没有绑定 VAO 时 core profile 的 draw 本身就会报 GL_INVALID_OPERATION
+        GL4VertexDeclaration *decl = mCurrentVertexDecl.get();
+        if (decl == nullptr)
+        {
+            return;
+        }
+
+        auto itr = mProgramVertexInputs.find(program);
+        if (itr == mProgramVertexInputs.end() || itr->second.inputs.empty())
+        {
+            return;
+        }
+
+        if (!decl->ValidatedPrograms.insert(program).second)
+        {
+            return;
+        }
+
+        const ProgramVertexInputs &programInputs = itr->second;
+        const TArray<GL4VertexDeclaration::Attribute> &attributes = decl->Attributes;
+        uint32_t mismatches = 0;
+
+        for (const VertexInput &input : programInputs.inputs)
+        {
+            GLint columns = 1;
+            const VertexInputKind kind = getVertexInputKind(input.type, columns);
+
+            if (kind == VertexInputKind::kDouble)
+            {
+                T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
+                    "Vertex input mismatch: VS input '%s' is a double type, vertex attributes are always fed as "
+                    "float or integer (glVertexAttribLPointer is not used)",
+                    input.name.c_str());
+                ++mismatches;
+            }
+
+            for (GLint i = 0; i < input.locationCount; ++i)
+            {
+                const GLint location = input.location + i;
+
+                size_t attribIndex = attributes.size();
+                for (size_t a = 0; a < decl->AttribLocations.size(); ++a)
+                {
+                    if (decl->AttribLocations[a] == location)
+                    {
+                        attribIndex = a;
+                        break;
+                    }
+                }
+
+                if (attribIndex == attributes.size())
+                {
+                    if (input.hasSemantic)
+                    {
+                        T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
+                            "Vertex input mismatch: VS input '%s' needs %s%u, but the vertex declaration has no such "
+                            "attribute, the input reads (0, 0, 0, 1)",
+                            input.name.c_str(), input.semanticName.c_str(), input.semanticIndex + static_cast<uint32_t>(i));
+                    }
+                    else
+                    {
+                        T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
+                            "Vertex input mismatch: VS input '%s' reads location %d, but the vertex declaration has only "
+                            "%u attributes, the input reads (0, 0, 0, 1)",
+                            input.name.c_str(), location, static_cast<uint32_t>(attributes.size()));
+                    }
+                    ++mismatches;
+                    continue;
+                }
+
+                const GL4VertexDeclaration::Attribute &attrib = attributes[attribIndex];
+
+                GLint enabled = GL_FALSE;
+                glGetVertexAttribiv(static_cast<GLuint>(location), GL_VERTEX_ATTRIB_ARRAY_ENABLED, &enabled);
+                if (!enabled)
+                {
+                    T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
+                        "Vertex input mismatch: VS input '%s' reads attribute %s%u on slot %u, "
+                        "but no vertex buffer has been set on that slot",
+                        input.name.c_str(), attrib.semanticName.c_str(), attrib.semanticIndex, attrib.slot);
+                    ++mismatches;
+                }
+
+                const bool attribInteger = GL4Mapping::isIntegerAttrib(attrib.type);
+                if (kind != VertexInputKind::kDouble && (kind == VertexInputKind::kInteger) != attribInteger)
+                {
+                    T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
+                        "Vertex input mismatch: VS input '%s' is %s, but attribute %s%u is %s, "
+                        "the values read are undefined",
+                        input.name.c_str(),
+                        kind == VertexInputKind::kInteger ? "integer" : "float",
+                        attrib.semanticName.c_str(), attrib.semanticIndex,
+                        attribInteger ? "integer" : "float");
+                    ++mismatches;
+                }
+            }
+        }
+
+        if (mismatches > 0)
+        {
+            std::stringstream ss;
+            ss << "Vertex input mismatch: declaration [";
+            for (size_t i = 0; i < attributes.size(); ++i)
+            {
+                ss << (i > 0 ? ", " : "") << attributes[i].semanticName << attributes[i].semanticIndex
+                    << "@slot" << attributes[i].slot << "->";
+                const GLint location = (i < decl->AttribLocations.size()) ? decl->AttribLocations[i] : -1;
+                if (location >= 0)
+                {
+                    ss << location;
+                }
+                else
+                {
+                    ss << "unused";
+                }
+            }
+            ss << "], VS inputs [";
+            for (size_t i = 0; i < programInputs.inputs.size(); ++i)
+            {
+                ss << (i > 0 ? ", " : "") << programInputs.inputs[i].location << ":" << programInputs.inputs[i].name;
+            }
+            ss << "]";
+            T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "%s", ss.str().c_str());
         }
     }
 
