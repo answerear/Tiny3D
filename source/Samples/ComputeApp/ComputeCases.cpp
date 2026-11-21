@@ -29,6 +29,7 @@
 
 #include <Material/T3DShaderVariantInstance.h>
 
+#include <algorithm>
 #include <cstring>
 #include <cmath>
 #include <cstddef>
@@ -4267,6 +4268,208 @@ namespace
     private:
         ComputeKernelPtr mKernel;
     };
+
+
+    /**
+     * \brief K31：scc 生成的 compute shader 按 HLSL 寄存器号绑定 SRV / UAV 与计数器（E.2.4 遗留）
+     * \remarks 256 个线程：gOutput[i] = gInput[i] ^ 0x5A5A5A5A；偶数线程 Append(i)；
+     *          每个线程 Consume 一个值 c，再 IncrementCounter 写入 c + 1。gConsume 初始为 1000 + k，计数 256。
+     *          两个后端都按 HLSL 寄存器号设置槽位（不走 uavSlot），期望 Append 计数 128、Consume 计数 0、
+     *          IncrementCounter 计数 256，内容按集合校验。
+     *          GL 版是 scc 原样输出，t0 与 u0 的 SSBO binding 都是 0，计数器是 DXC 另行分配 binding 的 SSBO。
+     *          GL4 曾直接把槽位当 SSBO 绑定点、把计数器绑成 atomic counter，gInput 被 gOutput 覆盖，三个计数器都读写不到
+     */
+    class CaseBufferCounters : public ComputeCase
+    {
+    public:
+        static const uint32_t kElemCount = 256;
+
+        const char *getName() const override { return "K31 scc buffer slots and counters"; }
+        uint32_t getRequiredCaps() const override
+        {
+            return kNeedCompute | kNeedUnorderedAccess | kNeedStructuredBuffer
+                | kNeedAppendConsume | kNeedReadback;
+        }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            mKernel = ComputeKernel::create("ComputeBufferCounters", bufferCountersSource(), 64);
+            if (mKernel == nullptr) return T3D_ERR_FAIL;
+
+            Buffer input = allocBytes(sizeof(uint32_t) * kElemCount);
+            Buffer consume = allocBytes(sizeof(uint32_t) * kElemCount);
+            uint32_t *in = reinterpret_cast<uint32_t *>(input.Data);
+            uint32_t *co = reinterpret_cast<uint32_t *>(consume.Data);
+            for (uint32_t i = 0; i < kElemCount; ++i)
+            {
+                in[i] = i * 3u + 1u;
+                co[i] = 1000u + i;
+            }
+
+            mInput = loadSB(StructuredBufferKind::kStructured, 4, kElemCount, kGPUShaderResource, kCPUNone, input);
+            mOutput = loadSB(StructuredBufferKind::kStructured, 4, kElemCount, kGPUUnorderedAccess, kCPURead);
+            mAppend = loadAppendConsume(kCPURead, Buffer());
+            mConsume = loadAppendConsume(kCPUNone, consume);
+            mCounted = loadSB(StructuredBufferKind::kStructured, 4, kElemCount, kGPUUnorderedAccess, kCPURead,
+                Buffer(), PixelFormat::E_PF_UNKNOWN, true);
+            mCounts = loadSB(StructuredBufferKind::kByteAddress, 4, 3, kGPUIndirectArgs | kGPUShaderResource, kCPURead);
+
+            input.Data = nullptr;
+            input.DataSize = 0;
+            consume.Data = nullptr;
+            consume.DataSize = 0;
+            return (mInput && mOutput && mAppend && mConsume && mCounted && mCounts) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+            TResult ret = ctx->setComputeShader(mKernel->getVariant());
+            if (T3D_FAILED(ret)) return ret;
+
+            ShaderResourceBuffers srvs; srvs.push_back(mInput);
+            ret = ctx->setCSStructuredBuffers(0, srvs);
+            if (T3D_FAILED(ret)) return ret;
+
+            UnorderedAccessBuffers uavs;
+            uavs.push_back(mOutput);
+            uavs.push_back(mAppend);
+            uavs.push_back(mConsume);
+            uavs.push_back(mCounted);
+            UAVInitialCounts counts;
+            counts.push_back(kKeepUAVCounter);
+            counts.push_back(0);
+            counts.push_back(kElemCount);
+            counts.push_back(0);
+            ret = ctx->setCSUnorderedAccessBuffers(0, uavs, counts);
+            if (T3D_FAILED(ret)) return ret;
+
+            ret = mKernel->dispatchThreads(kElemCount);
+            if (T3D_FAILED(ret)) return ret;
+            ctx->uavBarrier(uavs);
+
+            ret = ctx->copyStructureCount(mCounts.get(), 0, mAppend.get());
+            if (T3D_SUCCEEDED(ret)) ret = ctx->copyStructureCount(mCounts.get(), 4, mConsume.get());
+            if (T3D_SUCCEEDED(ret)) ret = ctx->copyStructureCount(mCounts.get(), 8, mCounted.get());
+            if (T3D_FAILED(ret)) return ret;
+
+            UnorderedAccessBuffers none(uavs.size());
+            ctx->setCSUnorderedAccessBuffers(0, none);
+            ShaderResourceBuffers noSrv(1);
+            ctx->setCSStructuredBuffers(0, noSrv);
+            ctx->setComputeShader(nullptr);
+
+            ret = mapWhole(mOutput.get(), mOutputHandle);
+            if (T3D_SUCCEEDED(ret)) ret = mapWhole(mAppend.get(), mAppendHandle);
+            if (T3D_SUCCEEDED(ret)) ret = mapWhole(mCounted.get(), mCountedHandle);
+            if (T3D_SUCCEEDED(ret)) ret = mapWhole(mCounts.get(), mCountsHandle);
+            return ret;
+        }
+
+        TResult verify() override
+        {
+            const size_t bytes = sizeof(uint32_t) * kElemCount;
+            Buffer output, append, counted, counts;
+            TResult ret = unmapCheckSize(mOutput.get(), mOutputHandle, output, bytes);
+            if (T3D_SUCCEEDED(ret)) ret = unmapCheckSize(mAppend.get(), mAppendHandle, append, bytes);
+            if (T3D_SUCCEEDED(ret)) ret = unmapCheckSize(mCounted.get(), mCountedHandle, counted, bytes);
+            if (T3D_SUCCEEDED(ret)) ret = unmapCheckSize(mCounts.get(), mCountsHandle, counts, sizeof(uint32_t) * 3);
+
+            if (T3D_SUCCEEDED(ret))
+            {
+                ret = check(reinterpret_cast<const uint32_t *>(output.Data),
+                    reinterpret_cast<const uint32_t *>(append.Data),
+                    reinterpret_cast<const uint32_t *>(counted.Data),
+                    reinterpret_cast<const uint32_t *>(counts.Data));
+            }
+
+            output.release();
+            append.release();
+            counted.release();
+            counts.release();
+            return ret;
+        }
+
+    private:
+        static StructuredBufferPtr loadAppendConsume(uint32_t cpuAccess, const Buffer &init)
+        {
+            StructuredBufferDesc desc;
+            desc.kind = StructuredBufferKind::kStructured;
+            desc.elementSize = sizeof(uint32_t);
+            desc.elementCount = kElemCount;
+            desc.isAppendConsume = true;
+            desc.buffer = init;
+            return T3D_RENDER_BUFFER_MGR.loadStructuredBuffer(
+                desc, MemoryType::kVRAM, Usage::kStatic, cpuAccess, kGPUUnorderedAccess);
+        }
+
+        TResult check(const uint32_t *output, const uint32_t *append, const uint32_t *counted, const uint32_t *counts) const
+        {
+            uint32_t bad = 0;
+            for (uint32_t i = 0; i < kElemCount; ++i)
+            {
+                const uint32_t expected = (i * 3u + 1u) ^ 0x5A5A5A5Au;
+                if (output[i] != expected)
+                {
+                    if (bad < 4)
+                    {
+                        APP_LOG_DEBUG("[%s] FAILED : output[%u]=0x%08X expected 0x%08X", getName(), i, output[i], expected);
+                    }
+                    ++bad;
+                }
+            }
+
+            const uint32_t appendCount = counts[0];
+            const uint32_t consumeCount = counts[1];
+            const uint32_t countedCount = counts[2];
+            if (appendCount != kElemCount / 2 || consumeCount != 0 || countedCount != kElemCount)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : counters append=%u consume=%u counted=%u, expected %u / 0 / %u",
+                    getName(), appendCount, consumeCount, countedCount, kElemCount / 2, kElemCount);
+                ++bad;
+            }
+
+            // 顺序由线程调度决定，按集合比对
+            std::vector<uint32_t> got(append, append + kElemCount / 2);
+            std::sort(got.begin(), got.end());
+            for (uint32_t k = 0; k < kElemCount / 2; ++k)
+            {
+                if (got[k] != k * 2u)
+                {
+                    APP_LOG_DEBUG("[%s] FAILED : sorted append[%u]=%u expected %u", getName(), k, got[k], k * 2u);
+                    ++bad;
+                    break;
+                }
+            }
+
+            got.assign(counted, counted + kElemCount);
+            std::sort(got.begin(), got.end());
+            for (uint32_t k = 0; k < kElemCount; ++k)
+            {
+                if (got[k] != 1001u + k)
+                {
+                    APP_LOG_DEBUG("[%s] FAILED : sorted counted[%u]=%u expected %u", getName(), k, got[k], 1001u + k);
+                    ++bad;
+                    break;
+                }
+            }
+
+            return bad == 0 ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        ComputeKernelPtr    mKernel;
+        StructuredBufferPtr mInput;
+        StructuredBufferPtr mOutput;
+        StructuredBufferPtr mAppend;
+        StructuredBufferPtr mConsume;
+        StructuredBufferPtr mCounted;
+        StructuredBufferPtr mCounts;
+        ReadbackHandle      mOutputHandle {};
+        ReadbackHandle      mAppendHandle {};
+        ReadbackHandle      mCountedHandle {};
+        ReadbackHandle      mCountsHandle {};
+    };
 }
 
 
@@ -4302,6 +4505,7 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseTextureArray());
     cases.emplace_back(new CaseDepthBiasClamp());
     cases.emplace_back(new CaseBufferKinds());
+    cases.emplace_back(new CaseBufferCounters());
 }
 
 uint32_t currentBackendBit()

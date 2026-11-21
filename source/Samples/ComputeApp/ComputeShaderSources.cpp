@@ -1542,3 +1542,95 @@ void main()
 )";
     return make(hlsl, gl, nullptr);
 }
+
+ComputeShaderSource bufferCountersSource()
+{
+    // t0 与 u0 同号，Append / Consume / IncrementCounter 各用一个计数器。
+    // GL 版是 scc -t glsl 的原样输出：gInput 与 gOutput 的 binding 都是 0，三个计数器块的 binding 由 DXC 另行分配
+    static const char *hlsl = R"(
+StructuredBuffer<uint> gInput : register(t0);
+RWStructuredBuffer<uint> gOutput : register(u0);
+AppendStructuredBuffer<uint> gAppend : register(u1);
+ConsumeStructuredBuffer<uint> gConsume : register(u2);
+RWStructuredBuffer<uint> gCounted : register(u3);
+[numthreads(64, 1, 1)]
+void main(uint3 id : SV_DispatchThreadID)
+{
+    uint i = id.x;
+    gOutput[i] = gInput[i] ^ 0x5A5A5A5Au;
+    if ((i & 1u) == 0u)
+    {
+        gAppend.Append(i);
+    }
+    uint c = gConsume.Consume();
+    uint idx = gCounted.IncrementCounter();
+    gCounted[idx] = c + 1u;
+}
+)";
+    static const char *gl = R"(#version 450
+layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+
+layout(binding = 0, std430) readonly buffer T3D_Buffer_sbl6gInput
+{
+    uint _m0[];
+} T3D_Buffer_sbl6gInput_1;
+
+layout(binding = 0, std430) buffer T3D_Buffer_rwsbl7gOutput
+{
+    uint _m0[];
+} T3D_Buffer_rwsbl7gOutput_1;
+
+layout(binding = 4, std430) buffer T3D_Buffer_cntl7gAppend
+{
+    int counter;
+} T3D_Buffer_cntl7gAppend_1;
+
+layout(binding = 1, std430) buffer T3D_Buffer_asbl7gAppend
+{
+    uint _m0[];
+} T3D_Buffer_asbl7gAppend_1;
+
+layout(binding = 5, std430) buffer T3D_Buffer_cntl8gConsume
+{
+    int counter;
+} T3D_Buffer_cntl8gConsume_1;
+
+layout(binding = 2, std430) buffer T3D_Buffer_csbl8gConsume
+{
+    uint _m0[];
+} T3D_Buffer_csbl8gConsume_1;
+
+layout(binding = 6, std430) buffer T3D_Buffer_cntl8gCounted
+{
+    int counter;
+} T3D_Buffer_cntl8gCounted_1;
+
+layout(binding = 3, std430) buffer T3D_Buffer_rwsbl8gCounted
+{
+    uint _m0[];
+} T3D_Buffer_rwsbl8gCounted_1;
+
+void src_CSMain(uvec3 id)
+{
+    uint i = id.x;
+    T3D_Buffer_rwsbl7gOutput_1._m0[i] = T3D_Buffer_sbl6gInput_1._m0[i] ^ 1515870810u;
+    if ((i & 1u) == 0u)
+    {
+        int _63 = atomicAdd(T3D_Buffer_cntl7gAppend_1.counter, 1);
+        T3D_Buffer_asbl7gAppend_1._m0[_63] = i;
+    }
+    int _67 = atomicAdd(T3D_Buffer_cntl8gConsume_1.counter, -1);
+    uint c = T3D_Buffer_csbl8gConsume_1._m0[_67 - 1];
+    int _72 = atomicAdd(T3D_Buffer_cntl8gCounted_1.counter, 1);
+    uint idx = uint(_72);
+    T3D_Buffer_rwsbl8gCounted_1._m0[idx] = c + 1u;
+}
+
+void main()
+{
+    uvec3 param_var_id = gl_GlobalInvocationID;
+    src_CSMain(param_var_id);
+}
+)";
+    return make(hlsl, gl, nullptr);
+}
