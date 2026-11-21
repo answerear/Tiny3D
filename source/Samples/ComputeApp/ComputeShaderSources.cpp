@@ -1634,3 +1634,156 @@ void main()
 )";
     return make(hlsl, gl, nullptr);
 }
+
+ComputeShaderSource semanticPositionColorVSSource()
+{
+    // GL 版是 scc -t glsl 的原样输出：POSITION 在 location 0，COLOR0 在 location 1
+    static const char *hlsl = R"(
+struct VSIn
+{
+    float3 position : POSITION;
+    float4 color : COLOR0;
+};
+struct VSOut
+{
+    float4 position : SV_POSITION;
+    float4 color : COLOR0;
+};
+VSOut main(VSIn input)
+{
+    VSOut o;
+    o.position = float4(input.position, 1.0f);
+    o.color = input.color;
+    return o;
+}
+)";
+    static const char *gl = R"(#version 450
+
+out gl_PerVertex
+{
+    vec4 gl_Position;
+};
+
+struct VSIn
+{
+    vec3 position;
+    vec4 color;
+};
+
+struct VSOut
+{
+    vec4 position;
+    vec4 color;
+};
+
+layout(location = 0) in vec3 in_var_POSITION;
+layout(location = 1) in vec4 in_var_COLOR0;
+layout(location = 0) out vec4 out_var_COLOR0;
+
+VSOut src_VSMain(VSIn _input)
+{
+    VSOut o;
+    o.position = vec4(_input.position, 1.0);
+    o.color = _input.color;
+    return o;
+}
+
+void main()
+{
+    VSIn param_var_input = VSIn(in_var_POSITION, in_var_COLOR0);
+    VSOut _26 = src_VSMain(param_var_input);
+    gl_Position = _26.position;
+    out_var_COLOR0 = _26.color;
+}
+)";
+    return make(hlsl, gl, nullptr);
+}
+
+ComputeShaderSource semanticPositionOnlyVSSource()
+{
+    // 只读 POSITION，输出常量绿色。输入签名是上面那个 VS 的前缀，D3D11 允许复用同一个输入布局
+    static const char *hlsl = R"(
+struct VSIn
+{
+    float3 position : POSITION;
+};
+struct VSOut
+{
+    float4 position : SV_POSITION;
+    float4 color : COLOR0;
+};
+VSOut main(VSIn input)
+{
+    VSOut o;
+    o.position = float4(input.position, 1.0f);
+    o.color = float4(0.0f, 1.0f, 0.0f, 1.0f);
+    return o;
+}
+)";
+    static const char *gl = R"(#version 450
+
+out gl_PerVertex
+{
+    vec4 gl_Position;
+};
+
+struct VSIn
+{
+    vec3 position;
+};
+
+struct VSOut
+{
+    vec4 position;
+    vec4 color;
+};
+
+layout(location = 0) in vec3 in_var_POSITION;
+layout(location = 0) out vec4 out_var_COLOR0;
+
+VSOut src_VSMain(VSIn _input)
+{
+    VSOut o;
+    o.position = vec4(_input.position, 1.0);
+    o.color = vec4(0.0, 1.0, 0.0, 1.0);
+    return o;
+}
+
+void main()
+{
+    VSIn param_var_input = VSIn(in_var_POSITION);
+    VSOut _25 = src_VSMain(param_var_input);
+    gl_Position = _25.position;
+    out_var_COLOR0 = _25.color;
+}
+)";
+    return make(hlsl, gl, nullptr);
+}
+
+ComputeShaderSource vertexColorPSSource()
+{
+    static const char *hlsl = R"(
+float4 main(float4 position : SV_POSITION, float4 color : COLOR0) : SV_TARGET
+{
+    return color;
+}
+)";
+    static const char *gl = R"(#version 450
+
+layout(location = 0) in vec4 in_var_COLOR0;
+layout(location = 0) out vec4 out_var_SV_TARGET;
+
+vec4 src_PSMain(vec4 position, vec4 color)
+{
+    return color;
+}
+
+void main()
+{
+    vec4 param_var_color = in_var_COLOR0;
+    vec4 param_var_position;
+    out_var_SV_TARGET = src_PSMain(param_var_position, param_var_color);
+}
+)";
+    return make(hlsl, gl, nullptr);
+}

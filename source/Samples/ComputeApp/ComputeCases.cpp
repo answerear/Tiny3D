@@ -4470,6 +4470,161 @@ namespace
         ReadbackHandle      mCountedHandle {};
         ReadbackHandle      mCountsHandle {};
     };
+
+
+    /**
+     * \brief K32：顶点属性按语义对到 VS 输入（E.2.5）
+     * \remarks 交错顶点为 POSITION(float3) + TEXCOORD0(float2) + COLOR0(float4)，顶点色为绿。
+     *          声明按 COLOR0、TEXCOORD0、POSITION 的顺序排列，TEXCOORD0 是 VS 不读的多余属性。
+     *          同一个声明画 3 条竖带，依次配 VS1（输入 POSITION、COLOR0，输出顶点色）、VS2（只读 POSITION，
+     *          输出常量绿）、VS1，覆盖 GL4 换输入签名后重设 VAO、再切回来重新启用 COLOR0。GL 版都是 scc 的原样输出。
+     *          D3D11 的输入布局按创建时关联的 VS 的签名把语义对到寄存器，VS2 的签名是 VS1 的前缀，可以复用；
+     *          输入顺序与 VS1 不同的 VS 在 D3D11 上也会读错，不在本用例范围内。
+     *          GL4 曾把属性下标当作 location，VS 读到的位置都是 COLOR0 这个常量，三角形退化，读回 "KKK"。
+     */
+    class CaseVertexSemantics : public ComputeCase
+    {
+    public:
+        ~CaseVertexSemantics() override
+        {
+            releaseColorRT(mTex, mRT);
+        }
+
+        static const uint32_t kWidth = 24;
+        static const uint32_t kHeight = 8;
+        static const uint32_t kStripes = 3;
+        static const uint32_t kFloatsPerVertex = 9;
+
+        const char *getName() const override { return "K32 vertex attributes by semantic"; }
+        uint32_t getRequiredCaps() const override { return kNeedReadback; }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            if (T3D_FAILED(mDraw.setup())) return T3D_ERR_FAIL;
+
+            mVS[0] = ComputeKernel::compileGraphics("SemanticPositionColorVS", SHADER_STAGE::kVertex,
+                semanticPositionColorVSSource(), mDummyVS[0]);
+            mVS[1] = ComputeKernel::compileGraphics("SemanticPositionOnlyVS", SHADER_STAGE::kVertex,
+                semanticPositionOnlyVSSource(), mDummyVS[1]);
+            mPS = ComputeKernel::compileGraphics("VertexColorPS", SHADER_STAGE::kPixel,
+                vertexColorPSSource(), mDummyPS);
+            if (mVS[0] == nullptr || mVS[1] == nullptr || mPS == nullptr) return T3D_ERR_FAIL;
+
+            VertexAttributes attribs;
+            attribs.push_back(VertexAttribute(0, sizeof(float) * 5, VertexAttribute::Type::E_VAT_FLOAT4,
+                VertexAttribute::Semantic::E_VAS_DIFFUSE, 0));
+            attribs.push_back(VertexAttribute(0, sizeof(float) * 3, VertexAttribute::Type::E_VAT_FLOAT2,
+                VertexAttribute::Semantic::E_VAS_TEXCOORD, 0));
+            attribs.push_back(VertexAttribute(0, 0, VertexAttribute::Type::E_VAT_FLOAT3,
+                VertexAttribute::Semantic::E_VAS_POSITION, 0));
+            mDecl = T3D_RENDER_BUFFER_MGR.addVertexDeclaration(attribs, mVS[0].get());
+
+            const float verts[3 * kFloatsPerVertex] = {
+                -1.0f, -1.0f, 0.0f,   0.5f, 0.5f,   0.0f, 1.0f, 0.0f, 1.0f,
+                 3.0f, -1.0f, 0.0f,   0.5f, 0.5f,   0.0f, 1.0f, 0.0f, 1.0f,
+                -1.0f,  3.0f, 0.0f,   0.5f, 0.5f,   0.0f, 1.0f, 0.0f, 1.0f,
+            };
+            Buffer vb = allocBytes(sizeof(verts));
+            memcpy(vb.Data, verts, sizeof(verts));
+            mVB = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(sizeof(float) * kFloatsPerVertex, 3, vb,
+                MemoryType::kBoth, Usage::kImmutable, kCPUNone);
+            vb.release();
+
+            mTex = createColorRT("K32-Color", kWidth, kHeight, PixelFormat::E_PF_R8G8B8A8, 1, kCPURead);
+            if (mDecl == nullptr || mVB == nullptr || mTex == nullptr) return T3D_ERR_FAIL;
+            mRT = RenderTarget::create(mTex);
+            return mRT ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+
+            ctx->setRenderTarget(mRT.get());
+            mDraw.bindStates(ctx);
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+            ctx->beginPass();
+
+            ctx->setVertexDeclaration(mDecl.get());
+            VertexBuffers vbs;
+            vbs.push_back(mVB);
+            VertexStrides strides;
+            strides.push_back(sizeof(float) * kFloatsPerVertex);
+            VertexOffsets offsets;
+            offsets.push_back(0);
+            ctx->setVertexBuffers(0, vbs, strides, offsets);
+            ctx->setPixelShader(mPS.get());
+
+            TResult ret = T3D_OK;
+            const Real w = Real(1) / Real(kStripes);
+            for (uint32_t s = 0; s < kStripes && T3D_SUCCEEDED(ret); ++s)
+            {
+                ctx->setVertexShader(mVS[s == 1 ? 1 : 0].get());
+                ctx->setViewport(Viewport {w * Real(s), 0.0f, w, 1.0f, 0.0f, 1.0f});
+                ret = ctx->render(3, 0);
+            }
+            ctx->endPass();
+
+            if (T3D_SUCCEEDED(ret))
+            {
+                mHandle = mapColorRT(mTex.get());
+                ret = mHandle.isValid() ? T3D_OK : T3D_ERR_FAIL;
+            }
+            ctx->reset();
+            return ret;
+        }
+
+        TResult verify() override
+        {
+            Buffer data;
+            TResult ret = unmapColorRT(mTex.get(), mHandle, data);
+            if (T3D_FAILED(ret)) return ret;
+
+            const char *expected = "GGG";
+            const uint32_t stripeW = kWidth / kStripes;
+            char got[kStripes + 1] = {};
+            uint32_t bad = 0;
+            for (uint32_t s = 0; s < kStripes; ++s)
+            {
+                const uint32_t x0 = s * stripeW + 1;
+                const uint32_t x1 = (s + 1) * stripeW - 1;
+                got[s] = '?';
+                for (uint32_t y = 0; y < kHeight; ++y)
+                {
+                    for (uint32_t x = x0; x < x1; ++x)
+                    {
+                        const uint8_t *p = pixelAt(data, kWidth, kHeight, x, y);
+                        const PixelClass c = (p != nullptr) ? classifyPixel(p) : PixelClass::kOther;
+                        if (x == x0 && y == 0) got[s] = char(c);
+                        if (char(c) != expected[s]) ++bad;
+                    }
+                }
+            }
+            data.release();
+
+            if (bad != 0)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : stripes got \"%s\" expected \"%s\" (%u pixels mismatch)",
+                    getName(), got, expected, bad);
+                return T3D_ERR_FAIL;
+            }
+            return T3D_OK;
+        }
+
+    private:
+        FullscreenDraw          mDraw;
+        ShaderVariantPtr        mVS[2];
+        ShaderVariantPtr        mPS;
+        ShaderPtr               mDummyVS[2];
+        ShaderPtr               mDummyPS;
+        VertexDeclarationPtr    mDecl;
+        VertexBufferPtr         mVB;
+        RenderTexturePtr        mTex;
+        RenderTargetPtr         mRT;
+        ReadbackHandle          mHandle {};
+    };
 }
 
 
@@ -4506,6 +4661,7 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseDepthBiasClamp());
     cases.emplace_back(new CaseBufferKinds());
     cases.emplace_back(new CaseBufferCounters());
+    cases.emplace_back(new CaseVertexSemantics());
 }
 
 uint32_t currentBackendBit()

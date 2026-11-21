@@ -64,6 +64,9 @@ ComputeShaderSource inlineSamplerPSSource();
 ComputeShaderSource textureArrayPSSource();
 ComputeShaderSource bufferKindsSource();
 ComputeShaderSource bufferCountersSource();
+ComputeShaderSource semanticPositionColorVSSource();
+ComputeShaderSource semanticPositionOnlyVSSource();
+ComputeShaderSource vertexColorPSSource();
 
 
 #endif  /*__COMPUTE_SHADER_SOURCES_H__*/
