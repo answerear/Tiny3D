@@ -76,7 +76,10 @@ namespace Tiny3D
         {
             mStageTextures[stage].clear();
             mStageSamplers[stage].clear();
+            mStageSRVs[stage].clear();
         }
+        mCSUAVs.clear();
+        mLegacySSBOs.clear();
 
         for (auto &pair : mGraphicsProgramCache)
         {
@@ -90,6 +93,7 @@ namespace Tiny3D
         mComputeProgramCache.clear();
         mProgramUBONames.clear();
         mProgramSamplerUnits.clear();
+        mProgramStorageBlocks.clear();
         mCurrentProgram = 0;
         mCurrentComputeProgram = 0;
         GL_SAFE_DELETE_FBO(mScratchReadFBO);
@@ -3262,6 +3266,7 @@ namespace Tiny3D
 
         glUseProgram(program);
         setupSamplerBindings(program, isCompute);
+        setupStorageBlockBindings(program, isCompute);
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::linkProgram");
         return T3D_OK;
@@ -3306,6 +3311,7 @@ namespace Tiny3D
                     {
                         mProgramUBONames.erase(program);
                         mProgramSamplerUnits.erase(program);
+                        mProgramStorageBlocks.erase(program);
                         GL_SAFE_DELETE_PROGRAM(program);
                         mProgramLinkFailed = true;
                     }
@@ -3326,6 +3332,7 @@ namespace Tiny3D
         glUseProgram(mCurrentProgram);
         bindPendingUniformBlocks(mCurrentProgram, false);
         bindPendingTextures(mCurrentProgram);
+        bindPendingStorageBuffers(mCurrentProgram);
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::ensureProgramLinked");
         return T3D_OK;
@@ -3355,6 +3362,7 @@ namespace Tiny3D
                     {
                         mProgramUBONames.erase(program);
                         mProgramSamplerUnits.erase(program);
+                        mProgramStorageBlocks.erase(program);
                         GL_SAFE_DELETE_PROGRAM(program);
                     }
                     mComputeProgramCache[mCurrentComputeShader] = program;
@@ -3372,6 +3380,7 @@ namespace Tiny3D
         glUseProgram(mCurrentComputeProgram);
         bindPendingUniformBlocks(mCurrentComputeProgram, true);
         bindPendingTextures(mCurrentComputeProgram);
+        bindPendingStorageBuffers(mCurrentComputeProgram);
 
         GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::ensureComputeProgramLinked");
         return T3D_OK;
@@ -3724,6 +3733,11 @@ namespace Tiny3D
 
             do
             {
+                if (mCSUAVs.size() < startSlot + buffers.size())
+                {
+                    mCSUAVs.resize(startSlot + buffers.size());
+                }
+
                 for (uint32_t i = 0; i < buffers.size(); ++i)
                 {
                     const uint32_t slot = startSlot + i;
@@ -3731,11 +3745,14 @@ namespace Tiny3D
 
                     if (rb == nullptr || rb->getRHIResource() == nullptr)
                     {
-                        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, 0);
+                        mCSUAVs[slot] = nullptr;
+                        setLegacyStorageBuffer(slot, nullptr);
                         unbindCounter(slot);
                         unbindImage(slot);
                         continue;
                     }
+
+                    mCSUAVs[slot] = buffers[i];
 
                     GLuint imgTex = 0;
                     GLenum imgFmt = GL_RGBA8;
@@ -3751,14 +3768,13 @@ namespace Tiny3D
                             break;
                         }
 
-                        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, 0);
+                        setLegacyStorageBuffer(slot, nullptr);
                         unbindCounter(slot);
                         glBindImageTexture(slot, imgTex, 0, imgLayered, 0, GL_READ_WRITE, imgFmt);
                         mBoundCSImages[slot] = imgTex;
                         continue;
                     }
 
-                    GLuint ssbo = getGLBufferHandle(rb);
                     GLuint counter = 0;
                     bool hasCounter = false;
 
@@ -3770,8 +3786,10 @@ namespace Tiny3D
                     }
 
                     unbindImage(slot);
-                    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
+                    setLegacyStorageBuffer(slot, buffers[i]);
 
+                    // 手写 GLSL 的计数器是与缓冲同 binding 的 atomic_uint；HLSLCross 生成的计数器是 SSBO 块，
+                    // draw / dispatch 时由 bindPendingStorageBuffers 绑定
                     if (hasCounter && counter != 0)
                     {
                         glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, slot, counter);
@@ -4117,7 +4135,14 @@ namespace Tiny3D
                 {
                     mStageTextures[stage].clear();
                     mStageSamplers[stage].clear();
+                    mStageSRVs[stage].clear();
                 }
+                mCSUAVs.clear();
+                for (uint32_t binding = 0; binding < mLegacySSBOs.size(); ++binding)
+                {
+                    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, 0);
+                }
+                mLegacySSBOs.clear();
                 releaseWindowProxy();
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -5473,6 +5498,189 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void GL4Context::setupStorageBlockBindings(GLuint program, bool isCompute)
+    {
+        TArray<StorageBlock> &blocks = mProgramStorageBlocks[program];
+        blocks.clear();
+
+        GLint numBlocks = 0;
+        glGetProgramInterfaceiv(program, GL_SHADER_STORAGE_BLOCK, GL_ACTIVE_RESOURCES, &numBlocks);
+        if (numBlocks <= 0)
+        {
+            return;
+        }
+
+        struct ParsedBlock
+        {
+            GLuint                          index;
+            GLint                           binding;
+            GL4ContextBase::BufferBlockName name;
+        };
+        TArray<ParsedBlock> parsedBlocks;
+        TMap<String, GLint> ownerBindings;
+        GLint maxLegacyBinding = -1;
+
+        for (GLint i = 0; i < numBlocks; ++i)
+        {
+            char name[256] = {};
+            GLsizei nameLen = 0;
+            glGetProgramResourceName(program, GL_SHADER_STORAGE_BLOCK, i, sizeof(name), &nameLen, name);
+
+            const GLenum prop = GL_BUFFER_BINDING;
+            GLint binding = 0;
+            glGetProgramResourceiv(program, GL_SHADER_STORAGE_BLOCK, i, 1, &prop, 1, nullptr, &binding);
+
+            ParsedBlock parsed {static_cast<GLuint>(i), binding, {}};
+            if (!GL4ContextBase::parseBufferBlockName(String(name), parsed.name))
+            {
+                // 手写 GLSL：保持 shader 里的 binding，按调用方约定的槽位读 mLegacySSBOs
+                StorageBlock block;
+                block.binding = static_cast<GLuint>(binding);
+                block.source = StorageBlock::Source::kLegacy;
+                block.slot = static_cast<uint32_t>(binding);
+                blocks.push_back(block);
+                maxLegacyBinding = std::max(maxLegacyBinding, binding);
+                continue;
+            }
+
+            if (!parsed.name.isCounter)
+            {
+                ownerBindings[parsed.name.name] = binding;
+            }
+            parsedBlocks.push_back(parsed);
+        }
+
+        // 只有 graphics program 的 SRV 需要确定阶段，以 PS 为准，与 sampler、cbuffer 一致
+        auto findSRVStage = [this](const String &name) -> TextureUnitStage
+        {
+            const std::pair<TextureUnitStage, ShaderVariant*> stages[] = {
+                { kTexStagePS, mCurrentPSVariant.get() },
+                { kTexStageVS, mCurrentVSVariant.get() },
+                { kTexStageGS, mCurrentGSVariant.get() },
+                { kTexStageHS, mCurrentHSVariant.get() },
+                { kTexStageDS, mCurrentDSVariant.get() },
+            };
+            for (const auto &s : stages)
+            {
+                if (s.second != nullptr && s.second->getShaderResourceParams().count(name) > 0)
+                {
+                    return s.first;
+                }
+            }
+            T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
+                "setupStorageBlockBindings: no stage reflects storage buffer '%s', assuming PS", name.c_str());
+            return kTexStagePS;
+        };
+
+        // DXC 的 binding 就是 HLSL 的 t# / u#，SRV 与 UAV 会撞到同一个绑定点，计数器的 binding 由 DXC 另行分配。
+        // 这里把 HLSLCross 生成的块全部改到手写块之后的绑定点上，槽位按 t# / u# 记录
+        GLuint nextBinding = static_cast<GLuint>(maxLegacyBinding + 1);
+        for (const ParsedBlock &parsed : parsedBlocks)
+        {
+            const bool isUAV = parsed.name.isCounter
+                || parsed.name.kind == ShaderResourceParam::Kind::kStructuredUAV
+                || parsed.name.kind == ShaderResourceParam::Kind::kByteAddressUAV
+                || parsed.name.kind == ShaderResourceParam::Kind::kAppendUAV
+                || parsed.name.kind == ShaderResourceParam::Kind::kConsumeUAV;
+
+            GLint slot = parsed.binding;
+            if (parsed.name.isCounter)
+            {
+                const auto owner = ownerBindings.find(parsed.name.name);
+                if (owner == ownerBindings.end())
+                {
+                    T3D_LOG_WARNING(LOG_TAG_GL4RENDERER,
+                        "setupStorageBlockBindings: counter of '%s' has no owner buffer block, ignored",
+                        parsed.name.name.c_str());
+                    continue;
+                }
+                slot = owner->second;
+            }
+
+            if (nextBinding >= mMaxStorageBufferBindings)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER,
+                    "setupStorageBlockBindings: storage buffer '%s' needs binding %u, exceeds %u bindings",
+                    parsed.name.name.c_str(), nextBinding, mMaxStorageBufferBindings);
+                continue;
+            }
+
+            StorageBlock block;
+            block.binding = nextBinding++;
+            block.source = isUAV ? StorageBlock::Source::kUAV : StorageBlock::Source::kSRV;
+            block.stage = isCompute ? kTexStageCS : (isUAV ? kTexStageCS : findSRVStage(parsed.name.name));
+            block.slot = static_cast<uint32_t>(std::max(slot, 0));
+            block.isCounter = parsed.name.isCounter;
+            glShaderStorageBlockBinding(program, parsed.index, block.binding);
+            blocks.push_back(block);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::bindPendingStorageBuffers(GLuint program)
+    {
+        const auto itr = mProgramStorageBlocks.find(program);
+        if (itr == mProgramStorageBlocks.end() || itr->second.empty())
+        {
+            return;
+        }
+
+        for (const StorageBlock &block : itr->second)
+        {
+            const TArray<RenderBufferPtr> *table = nullptr;
+            switch (block.source)
+            {
+            case StorageBlock::Source::kSRV:
+                table = &mStageSRVs[block.stage];
+                break;
+            case StorageBlock::Source::kUAV:
+                table = &mCSUAVs;
+                break;
+            case StorageBlock::Source::kLegacy:
+            default:
+                table = &mLegacySSBOs;
+                break;
+            }
+
+            RenderBuffer *rb = (block.slot < table->size()) ? (*table)[block.slot].get() : nullptr;
+            GLuint handle = 0;
+            if (rb != nullptr && rb->getRHIResource() != nullptr)
+            {
+                if (!block.isCounter)
+                {
+                    handle = getGLBufferHandle(rb);
+                }
+                else if (rb->getRHIResource()->getResourceType() == RHIResource::ResourceType::kStructuredBuffer)
+                {
+                    const GL4StructuredBuffer *glSB = static_cast<const GL4StructuredBuffer*>(rb->getRHIResource().get());
+                    handle = glSB->HasCounter ? glSB->GLCounterBuffer : 0;
+                }
+            }
+
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, block.binding, handle);
+        }
+
+        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::bindPendingStorageBuffers");
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::setLegacyStorageBuffer(uint32_t slot, const RenderBufferPtr &buffer)
+    {
+        if (slot >= mMaxStorageBufferBindings)
+        {
+            return;
+        }
+        if (mLegacySSBOs.size() <= slot)
+        {
+            mLegacySSBOs.resize(slot + 1);
+        }
+        mLegacySSBOs[slot] = buffer;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult GL4Context::stageConstantBuffers(TextureUnitStage stage, uint32_t startSlot, const ConstantBuffers &buffers)
     {
         if (static_cast<uint64_t>(startSlot) + buffers.size() > std::numeric_limits<uint32_t>::max())
@@ -5619,12 +5827,28 @@ namespace Tiny3D
             T3D_RHI_UNSUPPORTED(supportsStructuredBuffer);
         }
 
+        if ((uint64_t)startSlot + buffers.size() > mMaxStorageBufferBindings)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "bindStructuredBuffers : slot range [%u, %llu) exceeds the %u "
+                "available storage buffer bindings !", startSlot,
+                (unsigned long long)((uint64_t)startSlot + buffers.size()), mMaxStorageBufferBindings);
+            return T3D_ERR_INVALID_PARAM;
+        }
+
         auto lambda = [this](TextureUnitStage stage, uint32_t startSlot, const ShaderResourceBuffers &buffers)
         {
+            ShaderResourceBuffers &srvs = mStageSRVs[stage];
+            if (srvs.size() < startSlot + buffers.size())
+            {
+                srvs.resize(startSlot + buffers.size());
+            }
+
             for (uint32_t i = 0; i < buffers.size(); ++i)
             {
                 const uint32_t slot = startSlot + i;
                 RenderBuffer *rb = buffers[i].get();
+                srvs[slot] = buffers[i];
+
                 if (rb != nullptr && rb->getRHIResource() != nullptr
                     && rb->getRHIResource()->getResourceType() == RHIResource::ResourceType::kStructuredBuffer)
                 {
@@ -5636,15 +5860,14 @@ namespace Tiny3D
                         {
                             continue;
                         }
-                        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, 0);
+                        setLegacyStorageBuffer(slot, nullptr);
                         glActiveTexture(GL_TEXTURE0 + toTextureUnit(stage, slot));
                         glBindTexture(GL_TEXTURE_BUFFER, glSB->GLTextureBuffer);
                         continue;
                     }
                 }
 
-                const GLuint handle = getGLBufferHandle(rb);
-                glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, handle);
+                setLegacyStorageBuffer(slot, (rb != nullptr && rb->getRHIResource() != nullptr) ? buffers[i] : nullptr);
             }
             glActiveTexture(GL_TEXTURE0);
             GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::bindStructuredBuffers");

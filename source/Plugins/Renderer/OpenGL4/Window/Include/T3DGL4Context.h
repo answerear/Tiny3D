@@ -195,6 +195,15 @@ namespace Tiny3D
         /// draw / dispatch 前按 program 的 sampler uniform 表，把各阶段槽位上的纹理与采样器绑到对应单元
         void bindPendingTextures(GLuint program);
 
+        /// 链接后枚举 program 的 SSBO 块，建立 mProgramStorageBlocks；HLSLCross 生成的块重新分配绑定点
+        void setupStorageBlockBindings(GLuint program, bool isCompute);
+
+        /// draw / dispatch 前按 program 的 SSBO 块表，把各槽位上的缓冲（或其计数器）绑到对应绑定点
+        void bindPendingStorageBuffers(GLuint program);
+
+        /// 记录 SSBO 绑定点 slot 上的缓冲（手写 GLSL 的块按绑定点查这张表）
+        void setLegacyStorageBuffer(uint32_t slot, const RenderBufferPtr &buffer);
+
         /// 链接 program，成功后建立 uniform block 绑定与 sampler 绑定并记录 block 名单
         TResult linkProgram(GLuint program, const char *tag, bool isCompute);
 
@@ -403,6 +412,38 @@ namespace Tiny3D
         };
         /// program -> sampler uniform 表，链接时由 setupSamplerBindings 建立
         TMap<GLuint, TArray<SamplerUnit>> mProgramSamplerUnits;
+
+        /// 各阶段 t# 上设置的结构化缓冲与 CS 的 u# 上设置的 UAV，只在 RHI 线程访问。
+        /// D3D11 的 t# 与 u# 是两套编号，而 GL 只有一套 SSBO 绑定点，所以只记录，draw / dispatch 时
+        /// 再按当前 program 的 mProgramStorageBlocks 绑定
+        ShaderResourceBuffers mStageSRVs[kTexStageCount];
+        UnorderedAccessBuffers mCSUAVs;
+        /// 按 SSBO 绑定点记录的缓冲，SRV 与 UAV 写同一张表，后设置的覆盖先设置的。
+        /// 手写 GLSL 的块直接按自己的 binding 查这张表，调用方须把 UAV 槽号排在 SRV 之后（附录 D.3.2）
+        TArray<RenderBufferPtr> mLegacySSBOs;
+
+        /// program 中一个 SSBO 块的数据来源
+        struct StorageBlock
+        {
+            enum class Source : uint32_t
+            {
+                /// 手写 GLSL：按 binding 查 mLegacySSBOs
+                kLegacy,
+                /// HLSLCross 生成的 SRV：查 mStageSRVs[stage][slot]
+                kSRV,
+                /// HLSLCross 生成的 UAV：查 mCSUAVs[slot]
+                kUAV,
+            };
+
+            GLuint              binding {0};
+            Source              source {Source::kLegacy};
+            TextureUnitStage    stage {kTexStageCS};
+            uint32_t            slot {0};
+            /// 为 true 时绑定该槽位缓冲的隐藏计数器
+            bool                isCounter {false};
+        };
+        /// program -> SSBO 块表，链接时由 setupStorageBlockBindings 建立
+        TMap<GLuint, TArray<StorageBlock>> mProgramStorageBlocks;
 
         /// 当前绑定的 CS Image Unit 槽位 -> GL 纹理对象（供 uavBarrier 解绑）
         TMap<uint32_t, GLuint> mBoundCSImages;

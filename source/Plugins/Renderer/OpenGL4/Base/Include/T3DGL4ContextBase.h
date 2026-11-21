@@ -199,6 +199,9 @@ namespace Tiny3D
         uint32_t mTexUnitBase[kTexStageCount] {};
         uint32_t mTexUnitCount[kTexStageCount] {};
 
+        /// GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS，在 fillCapabilities() 里查询
+        uint32_t mMaxStorageBufferBindings {0};
+
 #if defined(T3D_OS_WINDOWS)
         HWND  mDummyHWND {nullptr};
         HDC   mDummyHDC {nullptr};

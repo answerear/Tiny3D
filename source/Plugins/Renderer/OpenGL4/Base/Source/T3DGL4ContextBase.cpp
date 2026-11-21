@@ -122,6 +122,10 @@ namespace Tiny3D
             glGetIntegerv(GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS, &storageBuffers);
             mCapabilities.maxUnorderedAccessSlots = (uint32_t)storageBuffers;
 
+            GLint storageBindings = 0;
+            glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &storageBindings);
+            mMaxStorageBufferBindings = storageBindings > 0 ? (uint32_t)storageBindings : 0u;
+
             glGetIntegerv(GL_MAX_COMPUTE_ATOMIC_COUNTERS, &mGLSLangLimits.computeAtomicCounters);
             glGetIntegerv(GL_MAX_COMPUTE_ATOMIC_COUNTER_BUFFERS, &mGLSLangLimits.computeAtomicCounterBuffers);
             glGetIntegerv(GL_MAX_COMBINED_SHADER_OUTPUT_RESOURCES, &mGLSLangLimits.combinedShaderOutputResources);
