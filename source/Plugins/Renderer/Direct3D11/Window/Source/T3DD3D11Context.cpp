@@ -550,8 +550,51 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
+    static bool checkCreateFormat(const char *func, PixelFormat format)
+    {
+        if (D3D11Mapping::get(format) == DXGI_FORMAT_UNKNOWN)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : unsupported pixel format [%u] !", func, (uint32_t)format);
+            return false;
+        }
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    static bool checkCreateBufferSize(const char *func, size_t bytes)
+    {
+        if (bytes == 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : buffer size must not be zero !", func);
+            return false;
+        }
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
     RHIPixelBuffer2DPtr D3D11Context::createRenderTexture(PixelBuffer2D *buffer)
     {
+        const auto &desc = buffer->getDescriptor();
+        if (desc.width == 0 || desc.height == 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "createRenderTexture : invalid size [%u x %u] !", desc.width, desc.height);
+            return nullptr;
+        }
+        if (!checkCreateFormat("createRenderTexture", desc.format))
+        {
+            return nullptr;
+        }
+
+        D3D11_USAGE d3dUsage;
+        uint32_t d3dAccess = 0;
+        if (T3D_FAILED(D3D11Mapping::get(buffer->getUsage(), buffer->getCPUAccessMode(), d3dUsage, d3dAccess)))
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "createRenderTexture : invalid usage [%d] / access mode [%u] !", buffer->getUsage(), buffer->getCPUAccessMode());
+            return nullptr;
+        }
+
         D3D11PixelBuffer2DPtr d3dPixelBuffer = D3D11PixelBuffer2D::create();
 
         auto lambda = [this](const PixelBuffer2DPtr &buffer, const D3D11PixelBuffer2DPtr &d3dPixelBuffer)
@@ -1906,6 +1949,11 @@ namespace Tiny3D
     
     RHIVertexBufferPtr D3D11Context::createVertexBuffer(VertexBuffer *buffer)
     {
+        if (!checkCreateBufferSize("createVertexBuffer", buffer->getBufferSize()))
+        {
+            return nullptr;
+        }
+
         D3D11VertexBufferPtr d3dBuffer = D3D11VertexBuffer::create();
 
         do
@@ -1917,6 +1965,7 @@ namespace Tiny3D
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to mapping usage & cpu access mode when create vertex buffer !");
+                d3dBuffer = nullptr;
                 break;
             }
             
@@ -2006,7 +2055,8 @@ namespace Tiny3D
             for (uint32_t i = 0; i < buffers.size(); ++i)
             {
                 const auto &vb = buffers[i];
-                vbuffers[i] = smart_pointer_cast<D3D11VertexBuffer>(vb->getRHIResource())->D3DBuffer;
+                vbuffers[i] = (vb != nullptr && vb->getRHIResource() != nullptr)
+                    ? smart_pointer_cast<D3D11VertexBuffer>(vb->getRHIResource())->D3DBuffer : nullptr;
             }
 
             mD3DDeviceContext->IASetVertexBuffers(startSlot, (UINT)buffers.size(), vbuffers.data(), strides.data(), offsets.data());
@@ -2021,6 +2071,11 @@ namespace Tiny3D
     
     RHIIndexBufferPtr D3D11Context::createIndexBuffer(IndexBuffer *buffer)
     {
+        if (!checkCreateBufferSize("createIndexBuffer", buffer->getBufferSize()))
+        {
+            return nullptr;
+        }
+
         D3D11IndexBufferPtr d3dBuffer = D3D11IndexBuffer::create();
 
         do
@@ -2032,6 +2087,7 @@ namespace Tiny3D
             if (T3D_FAILED(ret))
             {
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to mapping usage & cpu access mode when create index buffer !");
+                d3dBuffer = nullptr;
                 break;
             }
             
@@ -2111,12 +2167,17 @@ namespace Tiny3D
     
     TResult D3D11Context::setIndexBuffer(IndexBuffer *buffer)
     {
-        D3D11IndexBufferPtr d3dIndexBuffer = smart_pointer_cast<D3D11IndexBuffer>(buffer->getRHIResource());
-        DXGI_FORMAT d3dFormat = D3D11Mapping::get(buffer->getIndexType());
+        D3D11IndexBufferPtr d3dIndexBuffer;
+        DXGI_FORMAT d3dFormat = DXGI_FORMAT_R16_UINT;
+        if (buffer != nullptr && buffer->getRHIResource() != nullptr)
+        {
+            d3dIndexBuffer = smart_pointer_cast<D3D11IndexBuffer>(buffer->getRHIResource());
+            d3dFormat = D3D11Mapping::get(buffer->getIndexType());
+        }
         
         auto lambda = [this](DXGI_FORMAT d3dFormat, const D3D11IndexBufferPtr &d3dIndexBuffer)
         {
-            mD3DDeviceContext->IASetIndexBuffer(d3dIndexBuffer->D3DBuffer, d3dFormat, 0);
+            mD3DDeviceContext->IASetIndexBuffer(d3dIndexBuffer != nullptr ? d3dIndexBuffer->D3DBuffer : nullptr, d3dFormat, 0);
             return T3D_OK;
         };
         
@@ -2127,6 +2188,11 @@ namespace Tiny3D
     
     RHIConstantBufferPtr D3D11Context::createConstantBuffer(ConstantBuffer *buffer)
     {
+        if (!checkCreateBufferSize("createConstantBuffer", buffer->getBufferSize()))
+        {
+            return nullptr;
+        }
+
         D3D11ConstantBufferPtr d3dBuffer = D3D11ConstantBuffer::create();
 
         do
@@ -2137,7 +2203,8 @@ namespace Tiny3D
             TResult ret = D3D11Mapping::get(buffer->getUsage(), buffer->getCPUAccessMode(), d3dUsage, d3dAccess);
             if (T3D_FAILED(ret))
             {
-                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to mapping usage & cpu access mode when create index buffer !");
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to mapping usage & cpu access mode when create constant buffer !");
+                d3dBuffer = nullptr;
                 break;
             }
             
@@ -2208,6 +2275,12 @@ namespace Tiny3D
 
             const StructuredBufferDesc &desc = buffer->getDescriptor();
             const uint32_t gpuAccess = buffer->getGPUAccess();
+
+            if (desc.kind == StructuredBufferKind::kTyped && !checkCreateFormat("createStructuredBuffer", desc.format))
+            {
+                d3dBuffer = nullptr;
+                break;
+            }
 
             // D3D11 只允许 DEFAULT 资源建 UAV，DYNAMIC / IMMUTABLE / STAGING 一律 E_INVALIDARG
             if ((gpuAccess & kGPUUnorderedAccess) != 0 && d3dUsage != D3D11_USAGE_DEFAULT)
@@ -2569,6 +2642,10 @@ namespace Tiny3D
             T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "createPixelBuffer1D : invalid size [%u] !", desc.width);
             return nullptr;
         }
+        if (!checkCreateFormat("createPixelBuffer1D", desc.format))
+        {
+            return nullptr;
+        }
 
         D3D11_USAGE d3dUsage;
         uint32_t d3dAccess = 0;
@@ -2685,6 +2762,10 @@ namespace Tiny3D
         if (desc.width == 0 || desc.height == 0)
         {
             T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "createPixelBuffer2D : invalid size [%u x %u] !", desc.width, desc.height);
+            return nullptr;
+        }
+        if (!checkCreateFormat("createPixelBuffer2D", desc.format))
+        {
             return nullptr;
         }
 
@@ -2841,6 +2922,10 @@ namespace Tiny3D
             T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "createPixelBuffer3D : invalid size [%u x %u x %u] !", desc.width, desc.height, desc.depth);
             return nullptr;
         }
+        if (!checkCreateFormat("createPixelBuffer3D", desc.format))
+        {
+            return nullptr;
+        }
 
         D3D11_USAGE d3dUsage;
         uint32_t d3dAccess = 0;
@@ -2944,6 +3029,10 @@ namespace Tiny3D
         if (desc.width == 0 || desc.height == 0)
         {
             T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "createPixelBufferCubemap : invalid size [%u x %u] !", desc.width, desc.height);
+            return nullptr;
+        }
+        if (!checkCreateFormat("createPixelBufferCubemap", desc.format))
+        {
             return nullptr;
         }
 
