@@ -4638,6 +4638,9 @@ namespace
      *          3. 格式：2D 纹理 E_PF_UNKNOWN 两个后端都拒绝；E_PF_PALETTE8 在 D3D11 上没有对应的 DXGI 格式，
      *             期望拒绝，GL4 映射为 GL_R8，期望创建成功。
      *          4. 把被拒绝的 VB / IB 交给 setVertexBuffers / setIndexBuffer，期望按解绑处理，不崩溃。
+     *          5. 采样数：颜色 RT、深度 RT、2D 纹理与 2D 纹理数组请求 64x 期望拒绝，颜色 RT、深度 RT、2D 纹理 4x 期望成功。
+     *             修复前 D3D11 的 RT 在 RHI 线程上因 quality 下溢创建失败、2D 纹理在 RHI 线程上 CreateTexture2D 失败，
+     *             GL4 的 RT 不检查采样数，主线程都拿到非空对象。
      *          修复前 GL4 不读 CPUAccessMode、不查尺寸，未知格式回落为 GL_RGBA8，全部返回非空；
      *          D3D11 的 VB / IB / CB 校验失败时同样返回空壳对象，RT 的 Usage 校验与纹理格式错误在 RHI 线程上才暴露。
      */
@@ -4713,6 +4716,23 @@ namespace
             keep(mgr.loadPixelBuffer2D(&sTex2DPalette, MemoryType::kVRAM, Usage::kStatic, kCPUNone),
                 currentBackendBit() == kBackendGL4, "2D E_PF_PALETTE8");
 
+            // 采样数：两个后端都没有支持 64x 的格式，期望拒绝；4x 为对照组
+            static PixelBuffer2DDesc sRTColorMS4 = make2D(4, 4, PixelFormat::E_PF_R8G8B8A8, 1, 4);
+            static PixelBuffer2DDesc sRTColorMS64 = make2D(4, 4, PixelFormat::E_PF_R8G8B8A8, 1, 64);
+            static PixelBuffer2DDesc sRTDepthMS4 = make2D(4, 4, PixelFormat::E_PF_D24_UNORM_S8_UINT, 1, 4);
+            static PixelBuffer2DDesc sRTDepthMS64 = make2D(4, 4, PixelFormat::E_PF_D24_UNORM_S8_UINT, 1, 64);
+            static PixelBuffer2DDesc sTex2DMS4 = make2D(4, 4, PixelFormat::E_PF_R8G8B8A8, 1, 4);
+            static PixelBuffer2DDesc sTex2DMS64 = make2D(4, 4, PixelFormat::E_PF_R8G8B8A8, 1, 64);
+            static PixelBuffer2DDesc sTex2DArrayMS64 = make2D(4, 4, PixelFormat::E_PF_R8G8B8A8, 2, 64);
+
+            keep(mgr.loadRenderTexture(&sRTColorMS4, MemoryType::kVRAM, Usage::kStatic, kCPUNone), true, "color RT 4x MSAA");
+            keep(mgr.loadRenderTexture(&sRTColorMS64, MemoryType::kVRAM, Usage::kStatic, kCPUNone), false, "color RT 64x MSAA");
+            keep(mgr.loadRenderTexture(&sRTDepthMS4, MemoryType::kVRAM, Usage::kStatic, kCPUNone), true, "depth RT 4x MSAA");
+            keep(mgr.loadRenderTexture(&sRTDepthMS64, MemoryType::kVRAM, Usage::kStatic, kCPUNone), false, "depth RT 64x MSAA");
+            keep(mgr.loadPixelBuffer2D(&sTex2DMS4, MemoryType::kVRAM, Usage::kStatic, kCPUNone), true, "2D 4x MSAA");
+            keep(mgr.loadPixelBuffer2D(&sTex2DMS64, MemoryType::kVRAM, Usage::kStatic, kCPUNone), false, "2D 64x MSAA");
+            keep(mgr.loadPixelBuffer2D(&sTex2DArrayMS64, MemoryType::kVRAM, Usage::kStatic, kCPUNone), false, "2D array 64x MSAA");
+
             return T3D_OK;
         }
 
@@ -4744,7 +4764,8 @@ namespace
         }
 
     private:
-        static PixelBuffer2DDesc make2D(uint32_t width, uint32_t height, PixelFormat format, uint32_t arraySize = 1)
+        static PixelBuffer2DDesc make2D(uint32_t width, uint32_t height, PixelFormat format, uint32_t arraySize = 1,
+            uint32_t samples = 1)
         {
             PixelBuffer2DDesc desc;
             desc.width = width;
@@ -4752,6 +4773,7 @@ namespace
             desc.mipmaps = 1;
             desc.arraySize = arraySize;
             desc.format = format;
+            desc.sampleDesc.Count = samples;
             return desc;
         }
 
