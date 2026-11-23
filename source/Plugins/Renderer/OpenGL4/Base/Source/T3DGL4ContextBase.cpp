@@ -7,6 +7,7 @@
 
 #include "T3DGL4ContextBase.h"
 #include "T3DGL4Error.h"
+#include "T3DGL4Mapping.h"
 
 #include <glslang/Public/ShaderLang.h>
 #include <glslang/Public/ResourceLimits.h>
@@ -189,7 +190,77 @@ namespace Tiny3D
                 mTexUnitCount[kTexStageCS], mTexUnitBase[kTexStageCS]);
         }
 
+        // 各格式的 MSAA 上限；GL_SAMPLES 按降序返回，只取第一个就是上限。
+        // 驱动不支持 ARB_internalformat_query 时退回按颜色 / 深度区分的全局上限
+        {
+            auto queryLimit = [](GLenum pname) -> uint32_t
+            {
+                GLint value = 0;
+                glGetIntegerv(pname, &value);
+                return value > 0 ? static_cast<uint32_t>(value) : 0u;
+            };
+            auto querySamples = [](GLenum target, GLenum internalFmt) -> uint32_t
+            {
+                GLint count = 0;
+                glGetInternalformativ(target, internalFmt, GL_NUM_SAMPLE_COUNTS, 1, &count);
+                if (count <= 0)
+                {
+                    return 0u;
+                }
+                GLint samples = 0;
+                glGetInternalformativ(target, internalFmt, GL_SAMPLES, 1, &samples);
+                return samples > 0 ? static_cast<uint32_t>(samples) : 0u;
+            };
+
+            const bool hasQuery = (glad_glGetInternalformativ != nullptr);
+            const uint32_t maxColorSamples = queryLimit(GL_MAX_COLOR_TEXTURE_SAMPLES);
+            const uint32_t maxDepthSamples = queryLimit(GL_MAX_DEPTH_TEXTURE_SAMPLES);
+
+            for (uint32_t i = 0; i < kPixelFormatCount; ++i)
+            {
+                const PixelFormat format = static_cast<PixelFormat>(i);
+                const GLenum internalFmt = GL4Mapping::getInternalFormat(format);
+                if (internalFmt == GL_NONE)
+                {
+                    continue;
+                }
+
+                if (hasQuery)
+                {
+                    mMaxTextureSamples[i] = querySamples(GL_TEXTURE_2D_MULTISAMPLE, internalFmt);
+                    mMaxArrayTextureSamples[i] = querySamples(GL_TEXTURE_2D_MULTISAMPLE_ARRAY, internalFmt);
+                }
+                else
+                {
+                    const uint32_t limit = GL4Mapping::isDepthFormat(format) ? maxDepthSamples : maxColorSamples;
+                    mMaxTextureSamples[i] = limit;
+                    mMaxArrayTextureSamples[i] = limit;
+                }
+            }
+
+            mMaxDepthRBOSamples = hasQuery ? querySamples(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8) : queryLimit(GL_MAX_SAMPLES);
+
+            T3D_LOG_INFO(LOG_TAG_GL4CONTEXTBASE,
+                "MSAA limits: RGBA8=%u, D24S8=%u, D32F=%u, depth RBO=%u (internalformat query %s)",
+                mMaxTextureSamples[static_cast<uint32_t>(PixelFormat::E_PF_R8G8B8A8)],
+                mMaxTextureSamples[static_cast<uint32_t>(PixelFormat::E_PF_D24_UNORM_S8_UINT)],
+                mMaxTextureSamples[static_cast<uint32_t>(PixelFormat::E_PF_D32_FLOAT)],
+                mMaxDepthRBOSamples, hasQuery ? "available" : "unavailable");
+        }
+
         while (glGetError() != GL_NO_ERROR) {}
+    }
+
+    //--------------------------------------------------------------------------
+
+    uint32_t GL4ContextBase::getMaxTextureSamples(PixelFormat format, bool isArray) const
+    {
+        const uint32_t index = static_cast<uint32_t>(format);
+        if (index >= kPixelFormatCount)
+        {
+            return 0;
+        }
+        return isArray ? mMaxArrayTextureSamples[index] : mMaxTextureSamples[index];
     }
 
     //--------------------------------------------------------------------------

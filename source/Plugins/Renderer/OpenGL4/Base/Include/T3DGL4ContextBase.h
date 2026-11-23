@@ -48,6 +48,12 @@ namespace Tiny3D
         GLXContext getDummyGLXContext() const { return mDummyGLXContext; }
 #endif
 
+        /// 返回该格式多重采样纹理的最大采样数，0 表示不支持 MSAA；在 fillCapabilities() 里查好，任意线程可调用
+        uint32_t getMaxTextureSamples(PixelFormat format, bool isArray) const;
+
+        /// 颜色 RT 自带的 GL_DEPTH24_STENCIL8 renderbuffer 的最大采样数
+        uint32_t getMaxDepthRBOSamples() const { return mMaxDepthRBOSamples; }
+
     protected:
         GL4ContextBase();
 
@@ -201,6 +207,14 @@ namespace Tiny3D
 
         /// GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS，在 fillCapabilities() 里查询
         uint32_t mMaxStorageBufferBindings {0};
+
+        /// 各像素格式的 2D / 2D 数组多重采样纹理的最大采样数，按 PixelFormat 下标，0 表示不支持 MSAA。
+        /// 开启 RHI 线程后主线程没有 GL 上下文，创建资源时的采样数校验只能查这张表
+        static constexpr uint32_t kPixelFormatCount = static_cast<uint32_t>(PixelFormat::E_PF_D16_UNORM) + 1;
+        uint32_t mMaxTextureSamples[kPixelFormatCount] {};
+        uint32_t mMaxArrayTextureSamples[kPixelFormatCount] {};
+        /// 颜色 RT 自带的 GL_DEPTH24_STENCIL8 renderbuffer 的最大采样数
+        uint32_t mMaxDepthRBOSamples {0};
 
 #if defined(T3D_OS_WINDOWS)
         HWND  mDummyHWND {nullptr};

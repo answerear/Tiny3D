@@ -338,6 +338,31 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    /// 不支持时拒绝而不是降级，与 D3D11 一致；颜色 RT 还自带一个同采样数的 D24S8 renderbuffer，要一并满足
+    static bool checkCreateSamples(const char *func, const GL4ContextBase *ctx, PixelFormat format,
+        uint32_t sampleCount, bool isArray, bool withDepthRBO)
+    {
+        if (sampleCount <= 1)
+        {
+            return true;
+        }
+
+        uint32_t maxSamples = ctx->getMaxTextureSamples(format, isArray);
+        if (withDepthRBO)
+        {
+            maxSamples = std::min(maxSamples, ctx->getMaxDepthRBOSamples());
+        }
+        if (sampleCount > maxSamples)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "%s : format [%u] supports at most %u samples, requested %u !",
+                func, (uint32_t)format, maxSamples, sampleCount);
+            return false;
+        }
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
     /// GL 允许 0 字节的 glBufferData，但 D3D11 的 CreateBuffer 会失败，两边统一拒绝
     static bool checkCreateBufferSize(const char *func, size_t bytes)
     {
@@ -362,7 +387,9 @@ namespace Tiny3D
 
         // RT 自身的 MSAA / 深度 + UAV 组合在 buildRenderTextureResources 里按 D3D11 打 warning 后忽略
         if (!checkCreateFormat("createRenderTexture", desc.format)
-            || !checkCreateUsage("createRenderTexture", buffer, false))
+            || !checkCreateUsage("createRenderTexture", buffer, false)
+            || !checkCreateSamples("createRenderTexture", this, desc.format, desc.sampleDesc.Count,
+                false, !GL4Mapping::isDepthFormat(desc.format)))
         {
             return nullptr;
         }
@@ -871,6 +898,11 @@ namespace Tiny3D
 
             uint32_t msaaCount = desc.sampleDesc.Count;
             if (msaaCount < 1) msaaCount = 1;
+            if (!checkCreateSamples("buildRenderTextureResources", this, desc.format, msaaCount, false, isColorRT))
+            {
+                ret = T3D_ERR_INVALID_PARAM;
+                break;
+            }
             glPixelBuffer->GLMSAACount = msaaCount;
 
             const uint32_t width = desc.width;
@@ -2337,6 +2369,11 @@ namespace Tiny3D
                 T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "createPixelBuffer2D : MSAA texture cannot have "
                     "unordered access, ignore kGPUUnorderedAccess !");
             }
+            if (!checkCreateSamples("createPixelBuffer2D", this, srcDesc.format, srcDesc.sampleDesc.Count,
+                srcDesc.arraySize > 1, false))
+            {
+                return nullptr;
+            }
         }
 
         GL4PixelBuffer2DPtr glBuffer = GL4PixelBuffer2D::create();
@@ -2364,17 +2401,6 @@ namespace Tiny3D
                 if (sampleCount > 1)
                 {
                     const GLenum msTarget = isArray ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_MULTISAMPLE;
-
-                    // GL_SAMPLES 按降序返回该格式支持的采样数，第一个就是上限
-                    GLint maxSamples = 0;
-                    glGetInternalformativ(msTarget, internalFmt, GL_SAMPLES, 1, &maxSamples);
-                    if (static_cast<GLint>(sampleCount) > maxSamples)
-                    {
-                        T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "createPixelBuffer2D : format [%d] supports at most %d samples, "
-                            "requested %u !", (int32_t)desc.format, maxSamples, sampleCount);
-                        ret = T3D_ERR_INVALID_PARAM;
-                        break;
-                    }
 
                     glBuffer->GLTarget = msTarget;
                     glBuffer->GLMSAACount = sampleCount;
