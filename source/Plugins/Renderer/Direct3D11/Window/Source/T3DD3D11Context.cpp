@@ -455,8 +455,58 @@ namespace Tiny3D
     RHIRenderTargetPtr D3D11Context::createRenderWindow(RenderWindow *renderWindow)
     {
         D3D11RenderWindowPtr d3dRenderWindow = D3D11RenderWindow::create(renderWindow);
+        if (d3dRenderWindow == nullptr)
+        {
+            return nullptr;
+        }
 
-        auto lambda = [this](const RenderWindowPtr &pRenderWindow, const D3D11RenderWindowPtr &pD3DRenderWindow)
+        const DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM;
+        const RenderWindowDesc &wndDesc = renderWindow->getDescriptor();
+
+        // 采样数在主线程确定，RenderWindow::init 返回前就要把实际值回填到窗口描述；
+        // 设备未带 D3D11_CREATE_DEVICE_SINGLETHREADED，CheckMultisampleQualityLevels 可跨线程调用
+        UINT uMSAACount = 1;
+        UINT uMSAAQuality = 0;
+        if (wndDesc.MSAA.Count > 1)
+        {
+            // 请求的采样数不支持时逐级减半，与 GL4 一致；都不支持时退回 1x
+            HRESULT hr = S_OK;
+            UINT uNumQuality = 0;
+            for (uMSAACount = wndDesc.MSAA.Count; uMSAACount > 1; uMSAACount >>= 1)
+            {
+                hr = mD3DDevice->CheckMultisampleQualityLevels(format, uMSAACount, &uNumQuality);
+                if (FAILED(hr) || uNumQuality > 0)
+                {
+                    break;
+                }
+            }
+            if (FAILED(hr))
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Check multiple sample quality levels failed ! DX ERROR [%d]", hr);
+                return nullptr;
+            }
+
+            if (uMSAACount > 1)
+            {
+                uMSAAQuality = uNumQuality - 1;
+            }
+            else
+            {
+                uMSAACount = 1;
+            }
+
+            if (uMSAACount != wndDesc.MSAA.Count)
+            {
+                T3D_LOG_WARNING(LOG_TAG_D3D11RENDERER, "Window MSAA %ux requested, got %ux.", wndDesc.MSAA.Count, uMSAACount);
+            }
+        }
+
+        MultisamplerDesc actualMSAA;
+        actualMSAA.Count = uMSAACount;
+        actualMSAA.Quality = uMSAAQuality;
+        d3dRenderWindow->setMSAADesc(actualMSAA);
+
+        auto lambda = [this, format, uMSAACount, uMSAAQuality](const RenderWindowPtr &pRenderWindow, const D3D11RenderWindowPtr &pD3DRenderWindow)
         {
             TResult ret = T3D_OK;
             IDXGIDevice *pDXGIDevice = nullptr;
@@ -470,30 +520,6 @@ namespace Tiny3D
                 HRESULT hr = S_OK;
                 
                 const RenderWindowDesc &desc = pRenderWindow->getDescriptor();
-
-                // 获取支持的 MSAA
-                UINT uMSAACount = desc.MSAA.Count;
-                UINT uMSAAQuality = desc.MSAA.Quality;
-
-                DXGI_FORMAT format = DXGI_FORMAT_B8G8R8A8_UNORM;
-                
-                if (desc.MSAA.Count == 0)
-                {
-                    uMSAACount = 1;
-                    uMSAAQuality = 0;
-                }
-                else
-                {
-                    UINT uNumQuality = 0;
-                    hr = mD3DDevice->CheckMultisampleQualityLevels(format, uMSAACount, &uNumQuality);
-                    if (FAILED(hr))
-                    {
-                        T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Check multiple sample quality levels failed ! DX ERROR [%d]", hr);
-                        break;
-                    }
-
-                    uMSAAQuality = uNumQuality - 1;
-                }
 
                 // 创建 Swap Chain
                 SysWMInfo info;
@@ -608,6 +634,27 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    // 不支持时拒绝而不是降级：颜色与深度各自降级可能落到不同的采样数，组合起来仍不可用
+    static bool checkCreateSamples(const char *func, ID3D11Device *device, PixelFormat format, uint32_t sampleCount)
+    {
+        if (sampleCount <= 1)
+        {
+            return true;
+        }
+
+        UINT numQuality = 0;
+        const HRESULT hr = device->CheckMultisampleQualityLevels(D3D11Mapping::get(format), sampleCount, &numQuality);
+        if (FAILED(hr) || numQuality == 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : format [%u] does not support %ux MSAA ! DX ERROR [%d]",
+                func, (uint32_t)format, sampleCount, hr);
+            return false;
+        }
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
     RHIPixelBuffer2DPtr D3D11Context::createRenderTexture(PixelBuffer2D *buffer)
     {
         const auto &desc = buffer->getDescriptor();
@@ -616,7 +663,8 @@ namespace Tiny3D
             T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "createRenderTexture : invalid size [%u x %u] !", desc.width, desc.height);
             return nullptr;
         }
-        if (!checkCreateFormat("createRenderTexture", desc.format))
+        if (!checkCreateFormat("createRenderTexture", desc.format)
+            || !checkCreateSamples("createRenderTexture", mD3DDevice, desc.format, desc.sampleDesc.Count))
         {
             return nullptr;
         }
@@ -690,6 +738,13 @@ namespace Tiny3D
                 {
                     ret = T3D_ERR_D3D11_CHECK_MULTISAMPLE;
                     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Failed to check multiple sample quality levels ! DX ERROR [%d] Count=%u", hr, uMSAACount);
+                    break;
+                }
+                if (uNumQuality == 0)
+                {
+                    ret = T3D_ERR_D3D11_CHECK_MULTISAMPLE;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "buildRenderTextureResources : format [%u] does not support %ux MSAA !",
+                        (uint32_t)buffer->getDescriptor().format, uMSAACount);
                     break;
                 }
                 
@@ -2825,6 +2880,10 @@ namespace Tiny3D
             if (desc.buffer.Data != nullptr && desc.buffer.DataSize > 0)
             {
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "createPixelBuffer2D : MSAA texture cannot have initial data !");
+                return nullptr;
+            }
+            if (!checkCreateSamples("createPixelBuffer2D", mD3DDevice, desc.format, sampleCount))
+            {
                 return nullptr;
             }
         }

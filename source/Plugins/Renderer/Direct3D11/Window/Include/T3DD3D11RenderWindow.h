@@ -59,6 +59,9 @@ namespace Tiny3D
         TResult resize(uint32_t w, uint32_t h) override;
 
         void *getNativeObject() const override;
+
+        /// 由 D3D11Context::createRenderWindow 在主线程确定采样数后写入
+        void setMSAADesc(const MultisamplerDesc &desc) { mMSAA = desc; }
         
         /// The d 3D swap chain
         IDXGISwapChain          *D3DSwapChain {nullptr};
