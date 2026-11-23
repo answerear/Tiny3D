@@ -4625,6 +4625,190 @@ namespace
         RenderTargetPtr         mRT;
         ReadbackHandle          mHandle {};
     };
+
+
+    /**
+     * \brief K33：创建资源时的参数校验（E.2.6）
+     * \remarks 非法描述期望后端返回空的 RHI 资源，合法的对照组期望非空：
+     *          1. Usage / CPUAccessMode 组合：VB kDynamic + kCPURead、VB kImmutable + kCPUWrite、IB kCopy + kCPUNone、
+     *             CB kDynamic + kCPUReadWrite、2D 纹理 kDynamic + kCPURead、RT kImmutable + kCPUWrite；
+     *             对照组 VB kDynamic + kCPUWrite、IB kStatic + kCPURead、CB kDynamic + kCPUWrite。
+     *          2. 尺寸为 0：1D 宽 0、2D 高 0、3D 深 0、cubemap 宽 0、RT 宽 0，0 字节的 VB / IB / CB；
+     *             对照组 4x4 的 2D 纹理与 RT。
+     *          3. 格式：2D 纹理 E_PF_UNKNOWN 两个后端都拒绝；E_PF_PALETTE8 在 D3D11 上没有对应的 DXGI 格式，
+     *             期望拒绝，GL4 映射为 GL_R8，期望创建成功。
+     *          4. 把被拒绝的 VB / IB 交给 setVertexBuffers / setIndexBuffer，期望按解绑处理，不崩溃。
+     *          修复前 GL4 不读 CPUAccessMode、不查尺寸，未知格式回落为 GL_RGBA8，全部返回非空；
+     *          D3D11 的 VB / IB / CB 校验失败时同样返回空壳对象，RT 的 Usage 校验与纹理格式错误在 RHI 线程上才暴露。
+     */
+    class CaseCreateValidation : public ComputeCase
+    {
+    public:
+        const char *getName() const override { return "K33 create parameter validation"; }
+        uint32_t getRequiredCaps() const override { return 0; }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            mFailures = 0;
+
+            auto &mgr = T3D_RENDER_BUFFER_MGR;
+
+            mRejectedVB = checkVB(Usage::kDynamic, kCPURead, false, "VB kDynamic + kCPURead");
+            checkVB(Usage::kImmutable, kCPUWrite, false, "VB kImmutable + kCPUWrite");
+            checkVB(Usage::kDynamic, kCPUWrite, true, "VB kDynamic + kCPUWrite");
+
+            mRejectedIB = checkIB(Usage::kCopy, kCPUNone, false, "IB kCopy + kCPUNone");
+            checkIB(Usage::kStatic, kCPURead, true, "IB kStatic + kCPURead");
+
+            checkCB(Usage::kDynamic, kCPUReadWrite, false, "CB kDynamic + kCPUReadWrite");
+            checkCB(Usage::kDynamic, kCPUWrite, true, "CB kDynamic + kCPUWrite");
+
+            // 空 Buffer 的 Data 为空，kVRAM 下引擎接管的也是空指针
+            keep(mgr.loadVertexBuffer(sizeof(float) * 3, 0, Buffer(), MemoryType::kVRAM, Usage::kStatic, kCPUNone),
+                false, "VB 0 bytes");
+            keep(mgr.loadIndexBuffer(IndexType::E_IT_16BITS, 0, Buffer(), MemoryType::kVRAM, Usage::kStatic, kCPUNone),
+                false, "IB 0 bytes");
+            keep(mgr.loadConstantBuffer("K33CBEmpty", 0, Buffer(), MemoryType::kVRAM, Usage::kDynamic, kCPUWrite),
+                false, "CB 0 bytes");
+
+            // PixelBuffer 只保存描述的指针，缓存里的对象可能活得比本用例久，描述用静态存储
+            static PixelBuffer2DDesc sTex2D = make2D(4, 4, PixelFormat::E_PF_R8G8B8A8);
+            static PixelBuffer2DDesc sTex2DZero = make2D(4, 0, PixelFormat::E_PF_R8G8B8A8);
+            static PixelBuffer2DDesc sTex2DUnknown = make2D(4, 4, PixelFormat::E_PF_UNKNOWN);
+            static PixelBuffer2DDesc sTex2DPalette = make2D(4, 4, PixelFormat::E_PF_PALETTE8);
+            static PixelBuffer2DDesc sCubeZero = make2D(0, 0, PixelFormat::E_PF_R8G8B8A8, PixelBufferCubemap::FACE_COUNT);
+            static PixelBuffer2DDesc sRT = make2D(4, 4, PixelFormat::E_PF_R8G8B8A8);
+            static PixelBuffer2DDesc sRTZero = make2D(0, 4, PixelFormat::E_PF_R8G8B8A8);
+            static PixelBuffer1DDesc sTex1DZero = []()
+            {
+                PixelBuffer1DDesc desc;
+                desc.width = 0;
+                desc.mipmaps = 1;
+                desc.arraySize = 1;
+                desc.format = PixelFormat::E_PF_R8G8B8A8;
+                return desc;
+            }();
+            static PixelBuffer3DDesc sTex3DZero = []()
+            {
+                PixelBuffer3DDesc desc;
+                desc.width = 4;
+                desc.height = 4;
+                desc.depth = 0;
+                desc.format = PixelFormat::E_PF_R8G8B8A8;
+                return desc;
+            }();
+
+            keep(mgr.loadPixelBuffer2D(&sTex2D, MemoryType::kVRAM, Usage::kStatic, kCPUNone), true, "2D 4x4");
+            keep(mgr.loadPixelBuffer2D(&sTex2D, MemoryType::kVRAM, Usage::kDynamic, kCPURead), false, "2D kDynamic + kCPURead");
+            keep(mgr.loadPixelBuffer2D(&sTex2DZero, MemoryType::kVRAM, Usage::kStatic, kCPUNone), false, "2D 4x0");
+            keep(mgr.loadPixelBuffer1D(&sTex1DZero, MemoryType::kVRAM, Usage::kStatic, kCPUNone), false, "1D width 0");
+            keep(mgr.loadPixelBuffer3D(&sTex3DZero, MemoryType::kVRAM, Usage::kStatic, kCPUNone), false, "3D 4x4x0");
+            keep(mgr.loadPixelBufferCubemap(&sCubeZero, MemoryType::kVRAM, Usage::kStatic, kCPUNone), false, "cubemap 0x0");
+            keep(mgr.loadRenderTexture(&sRT, MemoryType::kVRAM, Usage::kStatic, kCPURead), true, "RT 4x4");
+            keep(mgr.loadRenderTexture(&sRT, MemoryType::kVRAM, Usage::kImmutable, kCPUWrite), false, "RT kImmutable + kCPUWrite");
+            keep(mgr.loadRenderTexture(&sRTZero, MemoryType::kVRAM, Usage::kStatic, kCPUNone), false, "RT 0x4");
+
+            keep(mgr.loadPixelBuffer2D(&sTex2DUnknown, MemoryType::kVRAM, Usage::kStatic, kCPUNone), false, "2D E_PF_UNKNOWN");
+            keep(mgr.loadPixelBuffer2D(&sTex2DPalette, MemoryType::kVRAM, Usage::kStatic, kCPUNone),
+                currentBackendBit() == kBackendGL4, "2D E_PF_PALETTE8");
+
+            return T3D_OK;
+        }
+
+        TResult record() override
+        {
+            if (mRejectedVB == nullptr || mRejectedIB == nullptr)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : rejected VB / IB engine objects are missing", getName());
+                ++mFailures;
+                return T3D_OK;
+            }
+
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+            VertexBuffers vbs;
+            vbs.push_back(mRejectedVB);
+            VertexStrides strides;
+            strides.push_back(sizeof(float) * 3);
+            VertexOffsets offsets;
+            offsets.push_back(0);
+            expect(ctx->setVertexBuffers(0, vbs, strides, offsets), "setVertexBuffers with rejected VB");
+            expect(ctx->setIndexBuffer(mRejectedIB.get()), "setIndexBuffer with rejected IB");
+            ctx->reset();
+            return T3D_OK;
+        }
+
+        TResult verify() override
+        {
+            return mFailures == 0 ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+    private:
+        static PixelBuffer2DDesc make2D(uint32_t width, uint32_t height, PixelFormat format, uint32_t arraySize = 1)
+        {
+            PixelBuffer2DDesc desc;
+            desc.width = width;
+            desc.height = height;
+            desc.mipmaps = 1;
+            desc.arraySize = arraySize;
+            desc.format = format;
+            return desc;
+        }
+
+        void keep(const RenderBufferPtr &buffer, bool expectCreated, const char *what)
+        {
+            const bool created = (buffer != nullptr && buffer->getRHIResource() != nullptr);
+            if (created != expectCreated)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : %s %s", getName(), what,
+                    expectCreated ? "was rejected, expected created" : "was created, expected rejected");
+                ++mFailures;
+            }
+            mBuffers.push_back(buffer);
+        }
+
+        void expect(TResult got, const char *what)
+        {
+            if (got != T3D_OK)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : %s returned %d, expected T3D_OK", getName(), what, (int)got);
+                ++mFailures;
+            }
+        }
+
+        VertexBufferPtr checkVB(Usage usage, uint32_t accMode, bool expectCreated, const char *what)
+        {
+            Buffer data = allocBytes(sizeof(float) * 3 * 3);
+            VertexBufferPtr vb = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(sizeof(float) * 3, 3, data,
+                MemoryType::kBoth, usage, accMode);
+            data.release();
+            keep(vb, expectCreated, what);
+            return vb;
+        }
+
+        IndexBufferPtr checkIB(Usage usage, uint32_t accMode, bool expectCreated, const char *what)
+        {
+            Buffer data = allocBytes(sizeof(uint16_t) * 3);
+            IndexBufferPtr ib = T3D_RENDER_BUFFER_MGR.loadIndexBuffer(IndexType::E_IT_16BITS, 3, data,
+                MemoryType::kBoth, usage, accMode);
+            data.release();
+            keep(ib, expectCreated, what);
+            return ib;
+        }
+
+        void checkCB(Usage usage, uint32_t accMode, bool expectCreated, const char *what)
+        {
+            Buffer data = allocBytes(16);
+            keep(T3D_RENDER_BUFFER_MGR.loadConstantBuffer("K33CB", 0, data, MemoryType::kBoth, usage, accMode),
+                expectCreated, what);
+            data.release();
+        }
+
+        std::vector<RenderBufferPtr>    mBuffers;
+        VertexBufferPtr                 mRejectedVB;
+        IndexBufferPtr                  mRejectedIB;
+        uint32_t                        mFailures {0};
+    };
 }
 
 
@@ -4662,6 +4846,7 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseBufferKinds());
     cases.emplace_back(new CaseBufferCounters());
     cases.emplace_back(new CaseVertexSemantics());
+    cases.emplace_back(new CaseCreateValidation());
 }
 
 uint32_t currentBackendBit()
