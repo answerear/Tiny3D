@@ -4809,6 +4809,296 @@ namespace
         IndexBufferPtr                  mRejectedIB;
         uint32_t                        mFailures {0};
     };
+
+
+    /**
+     * \brief K34：多个读回同时在途时 staging 互不覆盖（E.2.7）
+     * \remarks GL4 与 D3D11 的读回都从 staging 池租中转资源，map 时租、unmap 时还。
+     *          同一帧内发起 5 个读回：16 B、1000 B、16 KB 三个结构化缓冲各读整块，16 KB 那块再读
+     *          [4 KB, 4 KB + 400 B) 的部分区间，外加 compute（复用 K5 的 kernel）写满的 8x8 纹理；
+     *          unmap 按与 map 不同的顺序进行，逐个校验内容。若同时在途的请求租到同一块，后拷入的数据
+     *          会覆盖先拷入的。自检时全部用例在同一帧 map，首轮读回都是新建的 staging；复用发生在
+     *          按 R 重跑时，那时池里留有上一轮归还的条目。
+     */
+    class CaseReadbackStagingPool : public ComputeCase
+    {
+    public:
+        static const uint32_t kTexSize = 8;
+
+        const char *getName() const override { return "K34 readback staging pool"; }
+        uint32_t getRequiredCaps() const override
+        {
+            return kNeedCompute | kNeedUnorderedAccess | kNeedStructuredBuffer | kNeedReadback;
+        }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            mKernel = ComputeKernel::create("ComputeTextureWrite", textureWriteSource(), 8, 8, 1);
+            if (mKernel == nullptr) return T3D_ERR_FAIL;
+
+            const uint32_t counts[kBufferCount] = { 4, 250, 4096 };
+            for (uint32_t i = 0; i < kBufferCount; ++i)
+            {
+                mCounts[i] = counts[i];
+                Buffer init = allocBytes(sizeof(uint32_t) * counts[i]);
+                uint32_t *p = reinterpret_cast<uint32_t *>(init.Data);
+                for (uint32_t j = 0; j < counts[i]; ++j)
+                {
+                    p[j] = pattern(i, j);
+                }
+                mBuffers[i] = loadSB(StructuredBufferKind::kStructured, sizeof(uint32_t), counts[i],
+                    kGPUShaderResource, kCPURead, init);
+                // kVRAM 会接管 init.Data，这里只把指针摘掉以免 double-free
+                init.Data = nullptr;
+                init.DataSize = 0;
+                if (mBuffers[i] == nullptr) return T3D_ERR_FAIL;
+            }
+
+            static PixelBuffer2DDesc sDesc = []()
+            {
+                PixelBuffer2DDesc desc;
+                desc.width = kTexSize;
+                desc.height = kTexSize;
+                desc.mipmaps = 1;
+                desc.arraySize = 1;
+                desc.format = PixelFormat::E_PF_R8G8B8A8;
+                desc.gpuAccess = kGPUUnorderedAccess;
+                desc.shaderReadable = true;
+                return desc;
+            }();
+            mTex = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&sDesc, MemoryType::kVRAM, Usage::kStatic, kCPURead);
+            return mTex != nullptr ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+            TResult ret = ctx->setComputeShader(mKernel->getVariant());
+            if (T3D_FAILED(ret)) return ret;
+
+            UnorderedAccessBuffers uavs; uavs.push_back(mTex);
+            ret = ctx->setCSUnorderedAccessBuffers(0, uavs);
+            if (T3D_FAILED(ret)) return ret;
+            ret = mKernel->dispatchThreads(kTexSize, kTexSize);
+            if (T3D_FAILED(ret)) return ret;
+            ctx->uavBarrier(uavs);
+            ctx->setComputeShader(nullptr);
+
+            mHandles[0] = mBuffers[0]->map(0, 0);
+
+            ReadbackRegion region;
+            region.size = Vector3(Real(kTexSize), Real(kTexSize), Real(1));
+            mTexHandle = ctx->map(mTex.get(), region);
+
+            mHandles[1] = mBuffers[1]->map(0, 0);
+            mHandles[2] = mBuffers[2]->map(0, 0);
+            mPartialHandle = mBuffers[2]->map(kPartialOffset, kPartialSize);
+
+            if (!mHandles[0].isValid() || !mHandles[1].isValid() || !mHandles[2].isValid()
+                || !mTexHandle.isValid() || !mPartialHandle.isValid())
+            {
+                return T3D_ERR_FAIL;
+            }
+            return T3D_OK;
+        }
+
+        TResult verify() override
+        {
+            uint32_t failures = 0;
+
+            failures += verifyBuffer(2, mHandles[2], 0, mCounts[2]);
+            failures += verifyBuffer(0, mHandles[0], 0, mCounts[0]);
+            failures += verifyTexture();
+            failures += verifyBuffer(2, mPartialHandle, kPartialOffset / sizeof(uint32_t), kPartialSize / sizeof(uint32_t));
+            failures += verifyBuffer(1, mHandles[1], 0, mCounts[1]);
+
+            return failures == 0 ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+    private:
+        static const uint32_t kBufferCount = 3;
+        static const size_t kPartialOffset = 4096;
+        static const size_t kPartialSize = 400;
+
+        static uint32_t pattern(uint32_t buffer, uint32_t index)
+        {
+            return ((buffer + 1) << 24) | index;
+        }
+
+        uint32_t verifyBuffer(uint32_t buffer, ReadbackHandle &handle, uint32_t first, uint32_t count)
+        {
+            Buffer data;
+            TResult ret = unmapCheckSize(mBuffers[buffer].get(), handle, data, sizeof(uint32_t) * count);
+            if (T3D_FAILED(ret))
+            {
+                APP_LOG_DEBUG("[%s] FAILED : buffer %u [%u, +%u) unmap returned %d", getName(), buffer, first, count, (int)ret);
+                return 1;
+            }
+
+            const uint32_t *out = reinterpret_cast<const uint32_t *>(data.Data);
+            uint32_t mismatches = 0;
+            uint32_t bad = 0, got = 0;
+            for (uint32_t j = 0; j < count; ++j)
+            {
+                if (out[j] != pattern(buffer, first + j))
+                {
+                    if (mismatches == 0) { bad = j; got = out[j]; }
+                    ++mismatches;
+                }
+            }
+            data.release();
+
+            if (mismatches != 0)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : buffer %u [%u, +%u) %u mismatches, first [%u] got 0x%08x expected 0x%08x",
+                    getName(), buffer, first, count, mismatches, first + bad, got, pattern(buffer, first + bad));
+                return 1;
+            }
+            return 0;
+        }
+
+        uint32_t verifyTexture()
+        {
+            Buffer data;
+            TResult ret = mTex->unmap(mTexHandle, data);
+            mTexHandle = ReadbackHandle::invalid();
+            const size_t expected = size_t(kTexSize) * kTexSize * 4;
+            if (T3D_FAILED(ret) || data.Data == nullptr || data.DataSize < expected)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : texture unmap returned %d", getName(), (int)ret);
+                data.release();
+                return 1;
+            }
+
+            uint32_t bad = 0;
+            for (uint32_t y = 0; y < kTexSize; ++y)
+            {
+                for (uint32_t x = 0; x < kTexSize; ++x)
+                {
+                    const uint8_t *p = data.Data + (y * kTexSize + x) * 4;
+                    if (p[0] != uint8_t(x) || p[1] != uint8_t(y) || p[2] != 128 || p[3] != 255)
+                    {
+                        ++bad;
+                    }
+                }
+            }
+            data.release();
+
+            if (bad != 0)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : texture %u pixels mismatch", getName(), bad);
+                return 1;
+            }
+            return 0;
+        }
+
+        ComputeKernelPtr    mKernel;
+        StructuredBufferPtr mBuffers[kBufferCount];
+        uint32_t            mCounts[kBufferCount] {};
+        PixelBuffer2DPtr    mTex;
+        ReadbackHandle      mHandles[kBufferCount] {};
+        ReadbackHandle      mPartialHandle {};
+        ReadbackHandle      mTexHandle {};
+    };
+
+
+    /**
+     * \brief K35：超过入池上限的大读回（E.2.7 遗留 ②）
+     * \remarks 单次超过 16 MB 的读回不进 staging 池，按实际大小建一次性 staging，unmap 后立即释放。
+     *          同一帧内读回一块 18 MB 的结构化缓冲与一块 64 B 的小缓冲，逐元素校验。小缓冲走池，
+     *          确认两条路径同时在途时互不干扰。池的淘汰（闲置超时、总量上限）对外不可见，
+     *          由后端的 debug 日志确认。
+     */
+    class CaseLargeReadback : public ComputeCase
+    {
+    public:
+        static const uint32_t kLargeCount = 18u * 1024u * 1024u / sizeof(uint32_t);
+        static const uint32_t kSmallCount = 16;
+
+        const char *getName() const override { return "K35 large readback"; }
+        uint32_t getRequiredCaps() const override
+        {
+            return kNeedStructuredBuffer | kNeedReadback;
+        }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            mLarge = makeBuffer(kLargeCount, 0xA5000000u);
+            mSmall = makeBuffer(kSmallCount, 0x5A000000u);
+            return (mLarge != nullptr && mSmall != nullptr) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            mLargeHandle = mLarge->map(0, 0);
+            mSmallHandle = mSmall->map(0, 0);
+            return (mLargeHandle.isValid() && mSmallHandle.isValid()) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult verify() override
+        {
+            uint32_t failures = 0;
+            failures += check(mLarge.get(), mLargeHandle, kLargeCount, 0xA5000000u, "large");
+            failures += check(mSmall.get(), mSmallHandle, kSmallCount, 0x5A000000u, "small");
+            return failures == 0 ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+    private:
+        static StructuredBufferPtr makeBuffer(uint32_t count, uint32_t tag)
+        {
+            Buffer init = allocBytes(sizeof(uint32_t) * size_t(count));
+            uint32_t *p = reinterpret_cast<uint32_t *>(init.Data);
+            for (uint32_t i = 0; i < count; ++i)
+            {
+                p[i] = tag ^ i;
+            }
+            StructuredBufferPtr sb = loadSB(StructuredBufferKind::kStructured, sizeof(uint32_t), count,
+                kGPUShaderResource, kCPURead, init);
+            // kVRAM 会接管 init.Data，这里只把指针摘掉以免 double-free
+            init.Data = nullptr;
+            init.DataSize = 0;
+            return sb;
+        }
+
+        uint32_t check(RenderBuffer *buf, ReadbackHandle &handle, uint32_t count, uint32_t tag, const char *what)
+        {
+            Buffer data;
+            TResult ret = unmapCheckSize(buf, handle, data, sizeof(uint32_t) * size_t(count));
+            if (T3D_FAILED(ret))
+            {
+                APP_LOG_DEBUG("[%s] FAILED : %s unmap returned %d", getName(), what, (int)ret);
+                return 1;
+            }
+
+            const uint32_t *out = reinterpret_cast<const uint32_t *>(data.Data);
+            uint32_t mismatches = 0;
+            uint32_t bad = 0, got = 0;
+            for (uint32_t i = 0; i < count; ++i)
+            {
+                if (out[i] != (tag ^ i))
+                {
+                    if (mismatches == 0) { bad = i; got = out[i]; }
+                    ++mismatches;
+                }
+            }
+            data.release();
+
+            if (mismatches != 0)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : %s %u mismatches, first [%u] got 0x%08x expected 0x%08x",
+                    getName(), what, mismatches, bad, got, tag ^ bad);
+                return 1;
+            }
+            return 0;
+        }
+
+        StructuredBufferPtr mLarge;
+        StructuredBufferPtr mSmall;
+        ReadbackHandle      mLargeHandle {};
+        ReadbackHandle      mSmallHandle {};
+    };
 }
 
 
@@ -4847,6 +5137,8 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseBufferCounters());
     cases.emplace_back(new CaseVertexSemantics());
     cases.emplace_back(new CaseCreateValidation());
+    cases.emplace_back(new CaseReadbackStagingPool());
+    cases.emplace_back(new CaseLargeReadback());
 }
 
 uint32_t currentBackendBit()
