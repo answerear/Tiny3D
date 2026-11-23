@@ -28,6 +28,7 @@
 
 
 #include "RHI/T3DRHIRenderTarget.h"
+#include "Render/T3DMultisamplerDesc.h"
 
 
 namespace Tiny3D
@@ -58,12 +59,21 @@ namespace Tiny3D
          */
         virtual TResult resize(uint32_t w, uint32_t h) = 0;
 
+        /**
+         * \brief 返回窗口实际使用的 MSAA 参数
+         * \return 后端在 createRenderWindow 返回前写入；Count 为 0 表示后端没有提供，应沿用请求值
+         */
+        const MultisamplerDesc &getMSAADesc() const { return mMSAA; }
+
     protected:
         /// 受保护构造，由 RHIContext::createRenderWindow 及后端派生类创建
         RHIRenderWindow();
 
         /// 析构
         ~RHIRenderWindow() override;
+
+        /// 实际的 MSAA 参数，像素格式 / 交换链的采样数可能因不支持而低于请求值；Count 为 0 表示未知
+        MultisamplerDesc    mMSAA {};
     };
 }
 

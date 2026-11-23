@@ -160,6 +160,13 @@ namespace Tiny3D
                     "Create RHI render window failed !");
                 break;
             }
+
+            // 与尺寸一样回填实际的 MSAA，按窗口描述创建的 RT 与外挂深度才能与窗口一致
+            const MultisamplerDesc &actualMSAA = mRHIRenderWindow->getMSAADesc();
+            if (actualMSAA.Count > 0)
+            {
+                mDesc.MSAA = actualMSAA;
+            }
         } while (false);
         
         return ret;

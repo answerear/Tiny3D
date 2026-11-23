@@ -57,7 +57,7 @@ namespace Tiny3D
         /// 窗口色深
         TPROPERTY()
         int32_t ColorDepth {0};
-        /// MSAA 采样参数
+        /// MSAA 采样参数；init 成功后可能被后端实际使用的值覆盖（请求的采样数不支持时会降级）
         TPROPERTY()
         MultisamplerDesc    MSAA {};
         /// 窗口标题（init 时会追加当前 RHI 渲染器名称）

@@ -33,7 +33,7 @@ namespace Tiny3D
 
     RHIRenderWindow::RHIRenderWindow()
     {
-
+        mMSAA.Count = 0;
     }
 
     //--------------------------------------------------------------------------
