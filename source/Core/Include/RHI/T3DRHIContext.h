@@ -385,6 +385,7 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          * \note 结构化缓冲与像素缓冲共享同一组 t# 寄存器，插槽范围不要与
          *       setVSPixelBuffers 重叠，否则后绑定的一方会覆盖前者
+         * \note GL 后端的 SSBO 绑定点约定见 setCSUnorderedAccessBuffers
          */
         virtual TResult setVSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) = 0;
 
@@ -436,6 +437,7 @@ namespace Tiny3D
          *                       ByteAddressBuffer）；元素为 nullptr 表示解绑该槽
          * \return 调用成功返回 T3D_OK
          * \note 插槽范围不要与 setPSPixelBuffers 重叠
+         * \note GL 后端的 SSBO 绑定点约定见 setCSUnorderedAccessBuffers
          */
         virtual TResult setPSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) = 0;
         
@@ -607,6 +609,7 @@ namespace Tiny3D
          *                       ByteAddressBuffer）；元素为 nullptr 表示解绑该槽
          * \return 调用成功返回 T3D_OK
          * \note 插槽范围不要与 setCSPixelBuffers 重叠
+         * \note GL 后端的 SSBO 绑定点约定见 setCSUnorderedAccessBuffers
          */
         virtual TResult setCSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) = 0;
 
@@ -625,6 +628,12 @@ namespace Tiny3D
          *       否则 D3D11 会静默解除 SRV 绑定，其它后端行为未定义。
          * \note 纹理资源当前只提供 mip 0 的 UAV。需要逐 mip 写入（GPU 生成 mip 链、
          *       Hi-Z、体素化）时须先扩展后端的视图数组与本接口的 mip 参数。
+         * \note GL 后端的 SSBO 绑定点：scc 生成的 GLSL（块名带 T3D_Buffer_ 前缀）由后端在链接后
+         *       按 t# / u# 重新分配绑定点，SRV 与 UAV 的插槽直接取 HLSL 寄存器号即可。
+         *       手写 GLSL 的 SSBO 没有 t# / u# 之分，插槽就是 shader 中的 binding，
+         *       VS / PS / CS 的 set*StructuredBuffers 与本接口共用这一套编号，后设置的覆盖先设置的；
+         *       调用方须把 UAV 排在 SRV 之后（如 GL 下插槽取「SRV 个数 + u#」，D3D11 等后端仍取 u#），
+         *       shader 中的 binding 也按此编写。手写 GLSL 的计数器为与缓冲同 binding 的 atomic_uint。
          */
         virtual TResult setCSUnorderedAccessBuffers(uint32_t startSlot,
             const UnorderedAccessBuffers &buffers,
