@@ -325,6 +325,56 @@ namespace Tiny3D
         ReadbackHandle allocReadbackRequest(RenderBuffer *src, bool isTexture, ReadbackRequest *&outRequest);
         TResult finishReadback(ReadbackHandle handle, Buffer &dst);
 
+        /**
+         * \brief 读回中转缓冲池中的一块缓冲
+         * \remarks 缓冲读回与纹理读回（PIXEL_PACK）都用 GL buffer 中转，所以只有一种条目。
+         *       RHI 线程在 map 的拷贝命令里租借；主线程在 finishReadback 的
+         *       syncRHIThread 之后归还，此时 RHI 线程空闲，与 D3D11 的做法一致。
+         *       闲置条目由 trimStagingPool 在 RHI 线程上按超时与总量淘汰
+         */
+        struct StagingEntry
+        {
+            /// GL 缓冲名
+            GLuint      Buffer {0};
+            /// 缓冲容量（字节）
+            size_t      Capacity {0};
+            /// 是否已被某个未完成的请求占用
+            bool        InUse {false};
+            /// false 表示超过入池上限的一次性缓冲，归还时直接删除
+            bool        Pooled {true};
+            /// 最近一次归还的时间（steady clock 毫秒）
+            uint64_t    LastReleaseMs {0};
+        };
+
+        /**
+         * \brief 从池里租一块容量不小于 bytes 的 staging 缓冲，没有就新建
+         * \param [in] bytes : 需要的字节数
+         * \return 租到的缓冲名；创建失败返回 0
+         * \note 只能在 RHI 线程调用。取能装下的最小一块，容量超过需要的 kStagingMaxReuseRatio 倍时不复用；
+         *       新建时容量向上取到 2 的幂，便于不同大小的读回复用。超过 kStagingMaxPooledBytes 的请求
+         *       按实际大小建一次性缓冲，不进池
+         */
+        GLuint acquireStagingBuffer(size_t bytes);
+
+        /**
+         * \brief 归还 staging：入池的标记为闲置，一次性的直接删除
+         * \param [in] buffer : acquireStagingBuffer 租出去的缓冲，0 时不做任何事
+         */
+        void releaseStaging(GLuint buffer);
+
+        /**
+         * \brief 淘汰闲置的 staging：闲置超过 kStagingIdleTimeoutMs 的删除，闲置总量超过
+         *       kStagingMaxIdleBytes 时从最久没用的开始删除
+         * \note 只能在 RHI 线程（有 current context）调用，每次 present 时执行
+         */
+        void trimStagingPool();
+
+        /**
+         * \brief 删除池里所有 staging 缓冲
+         * \note 只能在有 current context 且 RHI 线程空闲时调用
+         */
+        void destroyStagingPool();
+
     protected:
         /// graphics 管线的 shader 阶段下标，同时作为 program 缓存键的分量顺序
         enum GraphicsStage : uint32_t
@@ -531,6 +581,7 @@ namespace Tiny3D
         uint32_t mNextReadbackIndex {0};
         uint32_t mReadbackGeneration {1};
         TMap<uint32_t, ReadbackRequest> mPendingReadbacks;
+        TArray<StagingEntry> mStagingPool;
 
         /// 主窗口 GL context 句柄（用于 multi-viewport 恢复）
 #if defined(T3D_OS_WINDOWS)

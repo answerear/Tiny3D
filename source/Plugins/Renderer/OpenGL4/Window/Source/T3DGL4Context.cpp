@@ -35,6 +35,8 @@
 #include <glslang/Public/ShaderLang.h>
 #include <glslang/Public/ResourceLimits.h>
 
+#include <chrono>
+
 // GL 4.0 tessellation 常量，glad 按 3.3 core 生成时没有
 #ifndef GL_UNIFORM_BLOCK_REFERENCED_BY_TESS_CONTROL_SHADER
 #define GL_UNIFORM_BLOCK_REFERENCED_BY_TESS_CONTROL_SHADER 0x84F0
@@ -46,6 +48,26 @@
 
 namespace Tiny3D
 {
+    namespace
+    {
+        /// 单次读回超过这个大小时用一次性 staging，不进池
+        const size_t kStagingMaxPooledBytes = 16u * 1024u * 1024u;
+        /// 池里的缓冲容量超过需要的这么多倍时不复用
+        const size_t kStagingMaxReuseRatio = 4;
+        /// 入池缓冲的最小容量
+        const size_t kStagingMinCapacity = 256;
+        /// 闲置超过这么久的 staging 在下一次 present 时删除
+        const uint64_t kStagingIdleTimeoutMs = 2000;
+        /// 闲置 staging 的总量上限，超过时从最久没用的开始删除
+        const size_t kStagingMaxIdleBytes = 32u * 1024u * 1024u;
+
+        uint64_t steadyMilliseconds()
+        {
+            return static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now().time_since_epoch()).count());
+        }
+    }
+
     //--------------------------------------------------------------------------
 
     GL4ContextPtr GL4Context::create()
@@ -116,11 +138,9 @@ namespace Tiny3D
         mWindowProxyOwner = nullptr;
         GL_SAFE_DELETE_VAO(mCurrentVAO);
 
-        for (auto &pair : mPendingReadbacks)
-        {
-            GL_SAFE_DELETE_BUFFER(pair.second.Staging);
-        }
+        // 未完成请求的 Staging 都是池里的条目，随池一起删除
         mPendingReadbacks.clear();
+        destroyStagingPool();
     }
 
     //--------------------------------------------------------------------------
@@ -158,6 +178,7 @@ namespace Tiny3D
 #endif
             } while (false);
 
+            trimStagingPool();
             return ret;
         };
 
@@ -4612,12 +4633,12 @@ namespace Tiny3D
                 return request->CopyResult;
             }
 
-            // 必须是 glCreateBuffers 而不是 glGenBuffers：后者只预留名字，缓冲对象
-            // 要等第一次 glBindBuffer 才真正存在，而 DSA 的 glNamedBufferData 要求
-            // 对象已存在，拿 glGenBuffers 的名字去调会得到 GL_INVALID_OPERATION，
-            // 于是 staging 建不出来，整条回读链路静默失败。
-            glCreateBuffers(1, &request->Staging);
-            glNamedBufferData(request->Staging, (GLsizeiptr)copySize, nullptr, GL_STREAM_READ);
+            request->Staging = acquireStagingBuffer(copySize);
+            if (request->Staging == 0)
+            {
+                request->CopyResult = T3D_ERR_GL4_CREATE_BUFFER;
+                return request->CopyResult;
+            }
             glCopyNamedBufferSubData(srcBuf, request->Staging, (GLintptr)offset, 0, (GLsizeiptr)copySize);
 
             request->TotalBytes = copySize;
@@ -4832,13 +4853,17 @@ namespace Tiny3D
                 glZOffset = static_cast<GLint>(offsetZ);
             }
 
+            request->Staging = acquireStagingBuffer(request->TotalBytes);
+            if (request->Staging == 0)
+            {
+                request->CopyResult = T3D_ERR_GL4_CREATE_BUFFER;
+                return request->CopyResult;
+            }
+
             GLint prevPackAlign = 4;
             glGetIntegerv(GL_PACK_ALIGNMENT, &prevPackAlign);
             glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
-            // 同上：glNamedBufferData 要求缓冲对象已存在，只能用 glCreateBuffers
-            glCreateBuffers(1, &request->Staging);
-            glNamedBufferData(request->Staging, (GLsizeiptr)request->TotalBytes, nullptr, GL_STREAM_READ);
             glBindBuffer(GL_PIXEL_PACK_BUFFER, request->Staging);
             glGetTextureSubImage(tex, (GLint)request->Region.mipLevel,
                 (GLint)offsetX, glYOffset, glZOffset,
@@ -7190,7 +7215,8 @@ namespace Tiny3D
         {
             auto lambda = [this](ReadbackRequest *request, Buffer *dst) -> TResult
             {
-                void *mapped = glMapNamedBuffer(request->Staging, GL_READ_ONLY);
+                // 池里的缓冲可能比本次读回大，只映射用到的部分
+                void *mapped = glMapNamedBufferRange(request->Staging, 0, (GLsizeiptr)request->TotalBytes, GL_MAP_READ_BIT);
                 if (mapped == nullptr)
                 {
                     T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "unmap : failed to map staging buffer !");
@@ -7213,7 +7239,8 @@ namespace Tiny3D
             ret = request.CopyResult;
         }
 
-        releaseGLObjects({{GLObjectType::kBuffer, request.Staging}});
+        // 上面的 syncRHIThread 之后 RHI 线程空闲，主线程可以直接改池子
+        releaseStaging(request.Staging);
         request.Staging = 0;
         mPendingReadbacks.erase(itr);
 
@@ -7223,6 +7250,161 @@ namespace Tiny3D
         }
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    GLuint GL4Context::acquireStagingBuffer(size_t bytes)
+    {
+        const bool pooled = (bytes <= kStagingMaxPooledBytes);
+
+        if (pooled)
+        {
+            const size_t maxCapacity = std::max(bytes * kStagingMaxReuseRatio, kStagingMinCapacity);
+            StagingEntry *best = nullptr;
+            for (auto &entry : mStagingPool)
+            {
+                if (!entry.InUse && entry.Pooled && entry.Capacity >= bytes && entry.Capacity <= maxCapacity
+                    && (best == nullptr || entry.Capacity < best->Capacity))
+                {
+                    best = &entry;
+                }
+            }
+
+            if (best != nullptr)
+            {
+                best->InUse = true;
+                return best->Buffer;
+            }
+        }
+
+        size_t capacity = bytes;
+        if (pooled)
+        {
+            capacity = kStagingMinCapacity;
+            while (capacity < bytes)
+            {
+                capacity <<= 1;
+            }
+        }
+
+        // 必须是 glCreateBuffers 而不是 glGenBuffers：后者只预留名字，缓冲对象
+        // 要等第一次 glBindBuffer 才真正存在，而 DSA 的 glNamedBufferData 要求
+        // 对象已存在，拿 glGenBuffers 的名字去调会得到 GL_INVALID_OPERATION，
+        // 于是 staging 建不出来，整条回读链路静默失败。
+        GLuint buffer = 0;
+        glCreateBuffers(1, &buffer);
+        if (buffer == 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "acquireStagingBuffer : failed to create staging buffer [%zu bytes] !", capacity);
+            return 0;
+        }
+
+        glNamedBufferData(buffer, (GLsizeiptr)capacity, nullptr, GL_STREAM_READ);
+
+        StagingEntry entry;
+        entry.Buffer = buffer;
+        entry.Capacity = capacity;
+        entry.InUse = true;
+        entry.Pooled = pooled;
+        mStagingPool.push_back(entry);
+
+        T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "staging pool : created %s buffer [%zu bytes] for [%zu bytes], %zu entries",
+            pooled ? "pooled" : "one-shot", capacity, bytes, mStagingPool.size());
+        return buffer;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::releaseStaging(GLuint buffer)
+    {
+        if (buffer == 0)
+        {
+            return;
+        }
+
+        for (auto itr = mStagingPool.begin(); itr != mStagingPool.end(); ++itr)
+        {
+            if (itr->Buffer != buffer)
+            {
+                continue;
+            }
+
+            if (itr->Pooled)
+            {
+                itr->InUse = false;
+                itr->LastReleaseMs = steadyMilliseconds();
+            }
+            else
+            {
+                // 主线程调用时没有 current context，交给 releaseGLObjects 投递到 RHI 线程删除
+                mStagingPool.erase(itr);
+                releaseGLObjects({{GLObjectType::kBuffer, buffer}});
+                T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "staging pool : released one-shot buffer, %zu entries", mStagingPool.size());
+            }
+            return;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::trimStagingPool()
+    {
+        if (mStagingPool.empty())
+        {
+            return;
+        }
+
+        const uint64_t now = steadyMilliseconds();
+        size_t idleBytes = 0;
+
+        for (auto itr = mStagingPool.begin(); itr != mStagingPool.end(); )
+        {
+            if (!itr->InUse && itr->Pooled)
+            {
+                if (now - itr->LastReleaseMs >= kStagingIdleTimeoutMs)
+                {
+                    T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "staging pool : evicted idle buffer [%zu bytes] after timeout, %zu entries",
+                        itr->Capacity, mStagingPool.size() - 1);
+                    GL_SAFE_DELETE_BUFFER(itr->Buffer);
+                    itr = mStagingPool.erase(itr);
+                    continue;
+                }
+                idleBytes += itr->Capacity;
+            }
+            ++itr;
+        }
+
+        while (idleBytes > kStagingMaxIdleBytes)
+        {
+            auto oldest = mStagingPool.end();
+            for (auto itr = mStagingPool.begin(); itr != mStagingPool.end(); ++itr)
+            {
+                if (!itr->InUse && itr->Pooled
+                    && (oldest == mStagingPool.end() || itr->LastReleaseMs < oldest->LastReleaseMs))
+                {
+                    oldest = itr;
+                }
+            }
+
+            idleBytes -= oldest->Capacity;
+            T3D_LOG_DEBUG(LOG_TAG_GL4RENDERER, "staging pool : evicted idle buffer [%zu bytes] over idle budget, %zu entries",
+                oldest->Capacity, mStagingPool.size() - 1);
+            GL_SAFE_DELETE_BUFFER(oldest->Buffer);
+            mStagingPool.erase(oldest);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::destroyStagingPool()
+    {
+        for (auto &entry : mStagingPool)
+        {
+            GL_SAFE_DELETE_BUFFER(entry.Buffer);
+        }
+
+        mStagingPool.clear();
     }
 
     //--------------------------------------------------------------------------
