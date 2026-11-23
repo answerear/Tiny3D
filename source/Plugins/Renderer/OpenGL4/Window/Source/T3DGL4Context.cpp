@@ -280,8 +280,72 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    /// 创建资源前在主线程校验 Usage / CPUAccessMode 组合，以及 UAV 是否落在 D3D11 的 DEFAULT 资源上
+    static bool checkCreateUsage(const char *func, const RenderBuffer *buffer, bool checkUAV)
+    {
+        const Usage usage = buffer->getUsage();
+        const uint32_t accessMode = buffer->getCPUAccessMode();
+
+        if (T3D_FAILED(GL4Mapping::checkUsage(usage, accessMode)))
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "%s : invalid usage [%u] / access mode [%u] !",
+                func, (uint32_t)usage, accessMode);
+            return false;
+        }
+
+        if (checkUAV && (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0
+            && !GL4Mapping::isDefaultUsage(usage, accessMode))
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "%s : unordered access requires Usage::kStatic !", func);
+            return false;
+        }
+
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    static bool checkCreateFormat(const char *func, PixelFormat format)
+    {
+        if (GL4Mapping::getInternalFormat(format) == GL_NONE)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "%s : unsupported pixel format [%u] !", func, (uint32_t)format);
+            return false;
+        }
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    /// GL 允许 0 字节的 glBufferData，但 D3D11 的 CreateBuffer 会失败，两边统一拒绝
+    static bool checkCreateBufferSize(const char *func, size_t bytes)
+    {
+        if (bytes == 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "%s : buffer size must not be zero !", func);
+            return false;
+        }
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
     RHIPixelBuffer2DPtr GL4Context::createRenderTexture(PixelBuffer2D *buffer)
     {
+        const auto &desc = buffer->getDescriptor();
+        if (desc.width == 0 || desc.height == 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "createRenderTexture : invalid size [%u x %u] !", desc.width, desc.height);
+            return nullptr;
+        }
+
+        // RT 自身的 MSAA / 深度 + UAV 组合在 buildRenderTextureResources 里按 D3D11 打 warning 后忽略
+        if (!checkCreateFormat("createRenderTexture", desc.format)
+            || !checkCreateUsage("createRenderTexture", buffer, false))
+        {
+            return nullptr;
+        }
+
         GL4PixelBuffer2DPtr glPixelBuffer = GL4PixelBuffer2D::create();
 
         auto lambda = [this](const PixelBuffer2DPtr &buffer, const GL4PixelBuffer2DPtr &glPixelBuffer)
@@ -1862,9 +1926,15 @@ namespace Tiny3D
 
     RHIVertexBufferPtr GL4Context::createVertexBuffer(VertexBuffer *buffer)
     {
+        if (!checkCreateBufferSize("createVertexBuffer", buffer->getBufferSize())
+            || !checkCreateUsage("createVertexBuffer", buffer, true))
+        {
+            return nullptr;
+        }
+
         GL4VertexBufferPtr glBuffer = GL4VertexBuffer::create();
 
-        GLenum usage = GL4Mapping::getBufferUsage(buffer->getUsage());
+        GLenum usage = GL4Mapping::getBufferUsage(buffer->getUsage(), buffer->getCPUAccessMode());
 
         auto lambda = [this](const GL4VertexBufferPtr &glBuffer, const VertexBufferPtr &buffer, GLenum usage)
         {
@@ -1930,9 +2000,15 @@ namespace Tiny3D
 
     RHIIndexBufferPtr GL4Context::createIndexBuffer(IndexBuffer *buffer)
     {
+        if (!checkCreateBufferSize("createIndexBuffer", buffer->getBufferSize())
+            || !checkCreateUsage("createIndexBuffer", buffer, true))
+        {
+            return nullptr;
+        }
+
         GL4IndexBufferPtr glBuffer = GL4IndexBuffer::create();
 
-        GLenum usage = GL4Mapping::getBufferUsage(buffer->getUsage());
+        GLenum usage = GL4Mapping::getBufferUsage(buffer->getUsage(), buffer->getCPUAccessMode());
 
         auto lambda = [this](const GL4IndexBufferPtr &glBuffer, const IndexBufferPtr &buffer, GLenum usage)
         {
@@ -2001,9 +2077,15 @@ namespace Tiny3D
 
     RHIConstantBufferPtr GL4Context::createConstantBuffer(ConstantBuffer *buffer)
     {
+        if (!checkCreateBufferSize("createConstantBuffer", buffer->getBufferSize())
+            || !checkCreateUsage("createConstantBuffer", buffer, false))
+        {
+            return nullptr;
+        }
+
         GL4ConstantBufferPtr glBuffer = GL4ConstantBuffer::create();
 
-        GLenum usage = GL4Mapping::getBufferUsage(buffer->getUsage());
+        GLenum usage = GL4Mapping::getBufferUsage(buffer->getUsage(), buffer->getCPUAccessMode());
 
         auto lambda = [this](const GL4ConstantBufferPtr &glBuffer, const ConstantBufferPtr &buffer, GLenum usage)
         {
@@ -2033,6 +2115,18 @@ namespace Tiny3D
 
     RHIPixelBuffer1DPtr GL4Context::createPixelBuffer1D(PixelBuffer1D *buffer)
     {
+        const auto &srcDesc = buffer->getDescriptor();
+        if (srcDesc.width == 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "createPixelBuffer1D : invalid size [%u] !", srcDesc.width);
+            return nullptr;
+        }
+        if (!checkCreateFormat("createPixelBuffer1D", srcDesc.format)
+            || !checkCreateUsage("createPixelBuffer1D", buffer, true))
+        {
+            return nullptr;
+        }
+
         GL4PixelBuffer1DPtr glBuffer = GL4PixelBuffer1D::create();
 
         auto lambda = [this](const GL4PixelBuffer1DPtr &glBuffer, const PixelBuffer1DPtr &buffer)
@@ -2194,6 +2288,17 @@ namespace Tiny3D
     RHIPixelBuffer2DPtr GL4Context::createPixelBuffer2D(PixelBuffer2D *buffer)
     {
         const auto &srcDesc = buffer->getDescriptor();
+        if (srcDesc.width == 0 || srcDesc.height == 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "createPixelBuffer2D : invalid size [%u x %u] !", srcDesc.width, srcDesc.height);
+            return nullptr;
+        }
+        if (!checkCreateFormat("createPixelBuffer2D", srcDesc.format)
+            || !checkCreateUsage("createPixelBuffer2D", buffer, true))
+        {
+            return nullptr;
+        }
+
         if (srcDesc.sampleDesc.Count > 1)
         {
             if (srcDesc.mipmaps > 1)
@@ -2422,6 +2527,19 @@ namespace Tiny3D
 
     RHIPixelBuffer3DPtr GL4Context::createPixelBuffer3D(PixelBuffer3D *buffer)
     {
+        const auto &srcDesc = buffer->getDescriptor();
+        if (srcDesc.width == 0 || srcDesc.height == 0 || srcDesc.depth == 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "createPixelBuffer3D : invalid size [%u x %u x %u] !",
+                srcDesc.width, srcDesc.height, srcDesc.depth);
+            return nullptr;
+        }
+        if (!checkCreateFormat("createPixelBuffer3D", srcDesc.format)
+            || !checkCreateUsage("createPixelBuffer3D", buffer, true))
+        {
+            return nullptr;
+        }
+
         GL4PixelBuffer3DPtr glBuffer = GL4PixelBuffer3D::create();
 
         auto lambda = [this](const GL4PixelBuffer3DPtr &glBuffer, const PixelBuffer3DPtr &buffer)
@@ -2533,6 +2651,18 @@ namespace Tiny3D
 
     RHIPixelBufferCubemapPtr GL4Context::createPixelBufferCubemap(PixelBufferCubemap *buffer)
     {
+        const auto &srcDesc = buffer->getDescriptor();
+        if (srcDesc.width == 0 || srcDesc.height == 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "createPixelBufferCubemap : invalid size [%u x %u] !", srcDesc.width, srcDesc.height);
+            return nullptr;
+        }
+        if (!checkCreateFormat("createPixelBufferCubemap", srcDesc.format)
+            || !checkCreateUsage("createPixelBufferCubemap", buffer, true))
+        {
+            return nullptr;
+        }
+
         GL4PixelBufferCubemapPtr glBuffer = GL4PixelBufferCubemap::create();
 
         auto lambda = [this](const GL4PixelBufferCubemapPtr &glBuffer, const PixelBufferCubemapPtr &buffer)
@@ -3580,12 +3710,18 @@ namespace Tiny3D
             return nullptr;
         }
 
-        GL4StructuredBufferPtr glBuffer = GL4StructuredBuffer::create();
         const StructuredBufferDesc &desc = buffer->getDescriptor();
-        const size_t byteWidth = buffer->getGPUSizeInBytes();
-        const GLenum usage = GL4Mapping::getBufferUsage(buffer->getUsage());
-        const bool hasCounter = desc.hasCounter || desc.isAppendConsume;
         const bool isTyped = (desc.kind == StructuredBufferKind::kTyped);
+        if ((isTyped && !checkCreateFormat("createStructuredBuffer", desc.format))
+            || !checkCreateUsage("createStructuredBuffer", buffer, true))
+        {
+            return nullptr;
+        }
+
+        GL4StructuredBufferPtr glBuffer = GL4StructuredBuffer::create();
+        const size_t byteWidth = buffer->getGPUSizeInBytes();
+        const GLenum usage = GL4Mapping::getBufferUsage(buffer->getUsage(), buffer->getCPUAccessMode());
+        const bool hasCounter = desc.hasCounter || desc.isAppendConsume;
         const GLenum typedFormat = isTyped ? GL4Mapping::getInternalFormat(desc.format) : GL_RGBA8;
 
         glBuffer->Kind = desc.kind;

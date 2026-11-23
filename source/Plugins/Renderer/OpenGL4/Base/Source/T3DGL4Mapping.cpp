@@ -52,7 +52,7 @@ namespace Tiny3D
         case PixelFormat::E_PF_D16_UNORM:                return GL_DEPTH_COMPONENT16;
         default: break;
         }
-        return GL_RGBA8;
+        return GL_NONE;
     }
 
     //--------------------------------------------------------------------------
@@ -307,14 +307,68 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    GLenum GL4Mapping::getBufferUsage(Usage usage)
+    TResult GL4Mapping::checkUsage(Usage usage, uint32_t accessMode)
+    {
+        TResult ret = T3D_OK;
+
+        switch (usage)
+        {
+        case Usage::kImmutable:
+            // kCPURead 只是读回许可，读回走内部 staging 中转
+            if ((accessMode & ~(uint32_t)kCPURead) != 0)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Usage is kImmutable, so access mode must be kCPUNone or kCPURead !");
+                ret = T3D_ERR_INVALID_PARAM;
+            }
+            break;
+        case Usage::kStatic:
+            break;
+        case Usage::kDynamic:
+            if (accessMode == kCPUNone)
+            {
+                T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "Usage is kDynamic, but CPU access mode is kCPUNone. Here suggests kStatic instead of kDynamic !");
+            }
+            else if (accessMode != kCPUWrite)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Usage is kDynamic, so access mode must be kCPUNone or kCPUWrite ! "
+                    "Use Usage::kStatic with kCPURead for readback instead !");
+                ret = T3D_ERR_INVALID_PARAM;
+            }
+            break;
+        case Usage::kCopy:
+            if ((accessMode & kCPUReadWrite) == 0)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Usage is kCopy, so access mode must contain kCPURead or kCPUWrite !");
+                ret = T3D_ERR_INVALID_PARAM;
+            }
+            break;
+        default:
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "Invalid usage [%u] !", (uint32_t)usage);
+            ret = T3D_ERR_INVALID_PARAM;
+            break;
+        }
+
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool GL4Mapping::isDefaultUsage(Usage usage, uint32_t accessMode)
+    {
+        return usage == Usage::kStatic
+            || (usage == Usage::kDynamic && accessMode == kCPUNone);
+    }
+
+    //--------------------------------------------------------------------------
+
+    GLenum GL4Mapping::getBufferUsage(Usage usage, uint32_t accessMode)
     {
         switch (usage)
         {
         case Usage::kStatic:    return GL_STATIC_DRAW;
         case Usage::kImmutable: return GL_STATIC_DRAW;
-        case Usage::kDynamic:   return GL_DYNAMIC_DRAW;
-        case Usage::kCopy:      return GL_STREAM_READ;
+        case Usage::kDynamic:   return (accessMode == kCPUNone) ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
+        case Usage::kCopy:      return (accessMode & kCPURead) != 0 ? GL_STREAM_READ : GL_STREAM_DRAW;
         }
         return GL_STATIC_DRAW;
     }

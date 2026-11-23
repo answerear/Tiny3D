@@ -17,6 +17,7 @@ namespace Tiny3D
     {
     public:
         static GLenum get(PixelFormat format);
+        /// 不支持的格式返回 GL_NONE
         static GLenum getInternalFormat(PixelFormat format);
         static GLenum getPixelType(PixelFormat format);
         static uint32_t getBytesPerPixel(PixelFormat format);
@@ -39,7 +40,11 @@ namespace Tiny3D
         static GLenum get(PrimitiveType primitive);
         static GLenum get(IndexType idxType);
 
-        static GLenum getBufferUsage(Usage usage);
+        /// Usage 与 CPUAccessMode 的组合规则与 D3D11Mapping::get 一致，非法组合返回 T3D_ERR_INVALID_PARAM
+        static TResult checkUsage(Usage usage, uint32_t accessMode);
+        /// 组合是否对应 D3D11_USAGE_DEFAULT，只有这类资源可以带 kGPUUnorderedAccess
+        static bool isDefaultUsage(Usage usage, uint32_t accessMode);
+        static GLenum getBufferUsage(Usage usage, uint32_t accessMode);
 
         static GLint getVertexAttribSize(VertexAttribute::Type type);
         static GLenum getVertexAttribType(VertexAttribute::Type type);
