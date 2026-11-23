@@ -100,6 +100,8 @@ namespace Tiny3D
             mWidth = desc.Width;
             mHeight = desc.Height;
 
+            const uint32_t requestedMSAA = std::max<uint32_t>(desc.MSAA.Count, 1);
+
 #if defined(T3D_OS_WINDOWS)
             GLDeviceContext = (HDC)info.hDC;
             if (GLDeviceContext == nullptr)
@@ -111,39 +113,43 @@ namespace Tiny3D
 
             {
                 int pixelFormat = 0;
-                bool msaaEnabled = false;
 
-                // 尝试使用 wglChoosePixelFormatARB 获取 MSAA 像素格式
+                // 尝试使用 wglChoosePixelFormatARB 获取 MSAA 像素格式，请求的采样数不支持时逐级减半
                 auto wglChoosePF = GL4_CONTEXT->getWglChoosePixelFormatARB();
-                uint32_t requestedMSAA = desc.MSAA.Count;
 
                 if (wglChoosePF != nullptr && requestedMSAA > 1)
                 {
-                    int attribs[] = {
-                        WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
-                        WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
-                        WGL_DOUBLE_BUFFER_ARB,  GL_TRUE,
-                        WGL_PIXEL_TYPE_ARB,     WGL_TYPE_RGBA_ARB,
-                        WGL_COLOR_BITS_ARB,     32,
-                        WGL_DEPTH_BITS_ARB,     24,
-                        WGL_STENCIL_BITS_ARB,   8,
-                        WGL_SAMPLE_BUFFERS_ARB, 1,
-                        WGL_SAMPLES_ARB,        (int)requestedMSAA,
-                        0
-                    };
+                    for (uint32_t samples = requestedMSAA; samples > 1 && pixelFormat == 0; samples >>= 1)
+                    {
+                        int attribs[] = {
+                            WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+                            WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+                            WGL_DOUBLE_BUFFER_ARB,  GL_TRUE,
+                            WGL_PIXEL_TYPE_ARB,     WGL_TYPE_RGBA_ARB,
+                            WGL_COLOR_BITS_ARB,     32,
+                            WGL_DEPTH_BITS_ARB,     24,
+                            WGL_STENCIL_BITS_ARB,   8,
+                            WGL_SAMPLE_BUFFERS_ARB, 1,
+                            WGL_SAMPLES_ARB,        (int)samples,
+                            0
+                        };
 
-                    UINT numFormats = 0;
-                    if (wglChoosePF(GLDeviceContext, attribs, nullptr, 1, &pixelFormat, &numFormats)
-                        && numFormats > 0 && pixelFormat != 0)
-                    {
-                        msaaEnabled = true;
-                        mMSAACount = requestedMSAA;
-                        T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "MSAA pixel format selected: %dx MSAA (format=%d)", requestedMSAA, pixelFormat);
+                        UINT numFormats = 0;
+                        if (wglChoosePF(GLDeviceContext, attribs, nullptr, 1, &pixelFormat, &numFormats)
+                            && numFormats > 0 && pixelFormat != 0)
+                        {
+                            T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "MSAA pixel format selected: %ux MSAA requested %ux (format=%d)",
+                                samples, requestedMSAA, pixelFormat);
+                        }
+                        else
+                        {
+                            pixelFormat = 0;
+                        }
                     }
-                    else
+
+                    if (pixelFormat == 0)
                     {
-                        T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "wglChoosePixelFormatARB failed for %dx MSAA, falling back to non-MSAA.", requestedMSAA);
-                        pixelFormat = 0;
+                        T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "wglChoosePixelFormatARB failed for %ux MSAA, falling back to non-MSAA.", requestedMSAA);
                     }
                 }
 
@@ -167,7 +173,6 @@ namespace Tiny3D
                         ret = false;
                         break;
                     }
-                    mMSAACount = 1;
                 }
 
                 PIXELFORMATDESCRIPTOR pfd = {};
@@ -249,22 +254,6 @@ namespace Tiny3D
 
             int screen = DefaultScreen(GLDisplay);
 
-            // 先尝试带 MSAA 的属性列表
-            uint32_t requestedMSAA = desc.MSAA.Count;
-            int attribsMSAA[] = {
-                GLX_RGBA,
-                GLX_RED_SIZE, 8,
-                GLX_GREEN_SIZE, 8,
-                GLX_BLUE_SIZE, 8,
-                GLX_ALPHA_SIZE, 8,
-                GLX_DEPTH_SIZE, 24,
-                GLX_STENCIL_SIZE, 8,
-                GLX_DOUBLEBUFFER,
-                GLX_SAMPLE_BUFFERS, 1,
-                GLX_SAMPLES, (int)requestedMSAA,
-                None
-            };
-
             int attribsFallback[] = {
                 GLX_RGBA,
                 GLX_RED_SIZE, 8,
@@ -279,24 +268,37 @@ namespace Tiny3D
 
             XVisualInfo *visualInfo = nullptr;
 
-            if (requestedMSAA > 1)
+            // 先尝试带 MSAA 的属性列表，请求的采样数不支持时逐级减半
+            for (uint32_t samples = requestedMSAA; samples > 1 && visualInfo == nullptr; samples >>= 1)
             {
+                int attribsMSAA[] = {
+                    GLX_RGBA,
+                    GLX_RED_SIZE, 8,
+                    GLX_GREEN_SIZE, 8,
+                    GLX_BLUE_SIZE, 8,
+                    GLX_ALPHA_SIZE, 8,
+                    GLX_DEPTH_SIZE, 24,
+                    GLX_STENCIL_SIZE, 8,
+                    GLX_DOUBLEBUFFER,
+                    GLX_SAMPLE_BUFFERS, 1,
+                    GLX_SAMPLES, (int)samples,
+                    None
+                };
+
                 visualInfo = glXChooseVisual(GLDisplay, screen, attribsMSAA);
                 if (visualInfo != nullptr)
                 {
-                    mMSAACount = requestedMSAA;
-                    T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "GLX MSAA visual selected: %dx MSAA", requestedMSAA);
-                }
-                else
-                {
-                    T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "glXChooseVisual failed for %dx MSAA, falling back to non-MSAA.", requestedMSAA);
+                    T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "GLX MSAA visual selected: %ux MSAA requested %ux", samples, requestedMSAA);
                 }
             }
 
             if (visualInfo == nullptr)
             {
+                if (requestedMSAA > 1)
+                {
+                    T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "glXChooseVisual failed for %ux MSAA, falling back to non-MSAA.", requestedMSAA);
+                }
                 visualInfo = glXChooseVisual(GLDisplay, screen, attribsFallback);
-                mMSAACount = 1;
             }
             if (visualInfo == nullptr)
             {
@@ -389,10 +391,48 @@ namespace Tiny3D
                 }
             }
 
-            T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "GL4RenderWindow created: %ux%u", mWidth, mHeight);
-
             // 默认帧缓冲
             GLDefaultFBO = 0;
+
+            // 像素格式的采样数与深度位数都按最低要求匹配，实际值以默认帧缓冲为准；
+            // 外挂深度的采样数校验与窗口中间 FBO 都依赖 mMSAACount 与 FBO 0 一致
+            {
+                glBindFramebuffer(GL_FRAMEBUFFER, GLDefaultFBO);
+
+                GLint samples = 0;
+                glGetIntegerv(GL_SAMPLES, &samples);
+                mMSAACount = static_cast<uint32_t>(std::max<GLint>(samples, 1));
+                mMSAA.Count = mMSAACount;
+                mMSAA.Quality = 0;
+
+                auto queryBits = [](GLenum attachment, GLenum pname) -> GLint
+                {
+                    GLint type = GL_NONE;
+                    glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, attachment,
+                        GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
+                    GLint bits = 0;
+                    if (type != GL_NONE)
+                    {
+                        glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, attachment, pname, &bits);
+                    }
+                    return bits;
+                };
+                const GLint depthBits = queryBits(GL_DEPTH, GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE);
+                const GLint stencilBits = queryBits(GL_STENCIL, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE);
+
+                if (mMSAACount != requestedMSAA)
+                {
+                    T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "Window MSAA %ux requested, got %ux.", requestedMSAA, mMSAACount);
+                }
+                if (depthBits != 24 || stencilBits != 8)
+                {
+                    T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "Window depth stencil D24S8 requested, got depth %d bits, stencil %d bits.",
+                        depthBits, stencilBits);
+                }
+
+                T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "GL4RenderWindow created: %ux%u, %ux MSAA, depth %d bits, stencil %d bits",
+                    mWidth, mHeight, mMSAACount, depthBits, stencilBits);
+            }
 
             // 初始化默认 GL 状态
             glEnable(GL_DEPTH_TEST);
