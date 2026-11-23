@@ -32,6 +32,8 @@
 #include "T3DD3D11Shader.h"
 #include "Kernel/T3DAgent.h"
 
+#include <chrono>
+
 
 namespace Tiny3D
 {
@@ -41,6 +43,37 @@ namespace Tiny3D
     #define TINY3D_CBUFFER_PER_DRAW_LEN     13
     #define TINY3D_CBUFFER_PER_FRAME        "Tiny3DPerFrame"
     #define TINY3D_CBUFFER_PER_FRAME_LEN    14
+
+    namespace
+    {
+        /// 单次读回超过这个大小时用一次性 staging，不进池
+        const size_t kStagingMaxPooledBytes = 16u * 1024u * 1024u;
+        /// 池里的缓冲容量超过需要的这么多倍时不复用（只对线性缓冲，纹理要求尺寸精确匹配）
+        const size_t kStagingMaxReuseRatio = 4;
+        /// 入池缓冲的最小容量
+        const size_t kStagingMinCapacity = 256;
+        /// 闲置超过这么久的 staging 在下一次 Present 时 Release
+        const uint64_t kStagingIdleTimeoutMs = 2000;
+        /// 闲置 staging 的总量上限，超过时从最久没用的开始 Release
+        const size_t kStagingMaxIdleBytes = 32u * 1024u * 1024u;
+
+        uint64_t steadyMilliseconds()
+        {
+            return static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now().time_since_epoch()).count());
+        }
+
+        const char *stagingKindName(uint32_t kind)
+        {
+            switch (kind)
+            {
+            case 0: return "buffer";
+            case 1: return "staging texture";
+            case 2: return "resolve texture";
+            default: return "unknown";
+            }
+        }
+    }
     
     //--------------------------------------------------------------------------
 
@@ -409,7 +442,8 @@ namespace Tiny3D
                     break;
                 }
             } while (false);
-            
+
+            trimStagingPool();
             return ret;
         };
         
@@ -4409,18 +4443,42 @@ namespace Tiny3D
 
     ID3D11Resource *D3D11Context::acquireStagingBuffer(uint32_t byteWidth)
     {
-        for (auto &entry : mStagingPool)
+        const bool pooled = (byteWidth <= kStagingMaxPooledBytes);
+
+        if (pooled)
         {
-            if (!entry.InUse && entry.Usage == StagingEntry::Kind::kBuffer && entry.ByteWidth >= byteWidth)
+            const size_t maxCapacity = std::max<size_t>(size_t(byteWidth) * kStagingMaxReuseRatio, kStagingMinCapacity);
+            StagingEntry *best = nullptr;
+            for (auto &entry : mStagingPool)
             {
-                entry.InUse = true;
-                return entry.Resource;
+                if (!entry.InUse && entry.Pooled && entry.Usage == StagingEntry::Kind::kBuffer
+                    && entry.ByteWidth >= byteWidth && entry.ByteWidth <= maxCapacity
+                    && (best == nullptr || entry.ByteWidth < best->ByteWidth))
+                {
+                    best = &entry;
+                }
+            }
+
+            if (best != nullptr)
+            {
+                best->InUse = true;
+                return best->Resource;
+            }
+        }
+
+        uint32_t capacity = byteWidth;
+        if (pooled)
+        {
+            capacity = static_cast<uint32_t>(kStagingMinCapacity);
+            while (capacity < byteWidth)
+            {
+                capacity <<= 1;
             }
         }
 
         D3D11_BUFFER_DESC desc;
         memset(&desc, 0, sizeof(desc));
-        desc.ByteWidth = byteWidth;
+        desc.ByteWidth = capacity;
         desc.Usage = D3D11_USAGE_STAGING;
         desc.BindFlags = 0;
         desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
@@ -4429,16 +4487,17 @@ namespace Tiny3D
         HRESULT hr = mD3DDevice->CreateBuffer(&desc, nullptr, &staging);
         if (FAILED(hr))
         {
-            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "acquireStagingBuffer : failed to create staging buffer [%u bytes] ! DX ERROR [%d]", byteWidth, hr);
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "acquireStagingBuffer : failed to create staging buffer [%u bytes] ! DX ERROR [%d]", capacity, hr);
             return nullptr;
         }
 
         StagingEntry entry;
         entry.Resource = staging;
         entry.Usage = StagingEntry::Kind::kBuffer;
-        entry.ByteWidth = byteWidth;
-        entry.InUse = true;
-        mStagingPool.push_back(entry);
+        entry.ByteWidth = capacity;
+        entry.Bytes = capacity;
+        entry.Pooled = pooled;
+        addStagingEntry(entry, byteWidth);
 
         return staging;
     }
@@ -4447,9 +4506,12 @@ namespace Tiny3D
 
     ID3D11Resource *D3D11Context::acquireStagingTexture(uint32_t dimension, DXGI_FORMAT format, uint32_t width, uint32_t height, uint32_t depth)
     {
+        const size_t bytes = size_t(width) * height * depth * D3D11Mapping::getBytesPerPixel(format);
+        const bool pooled = (bytes <= kStagingMaxPooledBytes);
+
         for (auto &entry : mStagingPool)
         {
-            if (!entry.InUse && entry.Usage == StagingEntry::Kind::kStagingTexture
+            if (pooled && !entry.InUse && entry.Pooled && entry.Usage == StagingEntry::Kind::kStagingTexture
                 && entry.Dimension == dimension && entry.Format == format
                 && entry.Width == width && entry.Height == height && entry.Depth == depth)
             {
@@ -4524,8 +4586,9 @@ namespace Tiny3D
         entry.Width = width;
         entry.Height = height;
         entry.Depth = depth;
-        entry.InUse = true;
-        mStagingPool.push_back(entry);
+        entry.Bytes = bytes;
+        entry.Pooled = pooled;
+        addStagingEntry(entry, bytes);
 
         return staging;
     }
@@ -4534,9 +4597,12 @@ namespace Tiny3D
 
     ID3D11Resource *D3D11Context::acquireResolveTexture(DXGI_FORMAT format, uint32_t width, uint32_t height)
     {
+        const size_t bytes = size_t(width) * height * D3D11Mapping::getBytesPerPixel(format);
+        const bool pooled = (bytes <= kStagingMaxPooledBytes);
+
         for (auto &entry : mStagingPool)
         {
-            if (!entry.InUse && entry.Usage == StagingEntry::Kind::kResolveTexture
+            if (pooled && !entry.InUse && entry.Pooled && entry.Usage == StagingEntry::Kind::kResolveTexture
                 && entry.Format == format && entry.Width == width && entry.Height == height)
             {
                 entry.InUse = true;
@@ -4570,10 +4636,23 @@ namespace Tiny3D
         entry.Width = width;
         entry.Height = height;
         entry.Depth = 1;
+        entry.Bytes = bytes;
+        entry.Pooled = pooled;
+        addStagingEntry(entry, bytes);
+
+        return tex;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void D3D11Context::addStagingEntry(StagingEntry &entry, size_t requestBytes)
+    {
         entry.InUse = true;
         mStagingPool.push_back(entry);
 
-        return tex;
+        T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "staging pool : created %s %s [%zu bytes] for [%zu bytes], %zu entries",
+            entry.Pooled ? "pooled" : "one-shot", stagingKindName(static_cast<uint32_t>(entry.Usage)),
+            entry.Bytes, requestBytes, mStagingPool.size());
     }
 
     //--------------------------------------------------------------------------
@@ -4585,13 +4664,74 @@ namespace Tiny3D
             return;
         }
 
-        for (auto &entry : mStagingPool)
+        for (auto itr = mStagingPool.begin(); itr != mStagingPool.end(); ++itr)
         {
-            if (entry.Resource == resource)
+            if (itr->Resource != resource)
             {
-                entry.InUse = false;
-                return;
+                continue;
             }
+
+            if (itr->Pooled)
+            {
+                itr->InUse = false;
+                itr->LastReleaseMs = steadyMilliseconds();
+            }
+            else
+            {
+                D3D_SAFE_RELEASE(itr->Resource)
+                mStagingPool.erase(itr);
+                T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "staging pool : released one-shot resource, %zu entries", mStagingPool.size());
+            }
+            return;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void D3D11Context::trimStagingPool()
+    {
+        if (mStagingPool.empty())
+        {
+            return;
+        }
+
+        const uint64_t now = steadyMilliseconds();
+        size_t idleBytes = 0;
+
+        for (auto itr = mStagingPool.begin(); itr != mStagingPool.end(); )
+        {
+            if (!itr->InUse && itr->Pooled)
+            {
+                if (now - itr->LastReleaseMs >= kStagingIdleTimeoutMs)
+                {
+                    T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "staging pool : evicted idle %s [%zu bytes] after timeout, %zu entries",
+                        stagingKindName(static_cast<uint32_t>(itr->Usage)), itr->Bytes, mStagingPool.size() - 1);
+                    D3D_SAFE_RELEASE(itr->Resource)
+                    itr = mStagingPool.erase(itr);
+                    continue;
+                }
+                idleBytes += itr->Bytes;
+            }
+            ++itr;
+        }
+
+        while (idleBytes > kStagingMaxIdleBytes)
+        {
+            auto oldest = mStagingPool.end();
+            for (auto itr = mStagingPool.begin(); itr != mStagingPool.end(); ++itr)
+            {
+                if (!itr->InUse && itr->Pooled
+                    && (oldest == mStagingPool.end() || itr->LastReleaseMs < oldest->LastReleaseMs))
+                {
+                    oldest = itr;
+                }
+            }
+
+            idleBytes -= oldest->Bytes;
+            T3D_LOG_DEBUG(LOG_TAG_D3D11RENDERER, "staging pool : evicted idle %s [%zu bytes] over idle budget, %zu entries",
+                stagingKindName(static_cast<uint32_t>(oldest->Usage)), oldest->Bytes, mStagingPool.size() - 1);
+            D3D_SAFE_RELEASE(oldest->Resource)
+            mStagingPool.erase(oldest);
         }
     }
 
@@ -5005,7 +5145,7 @@ namespace Tiny3D
                 }
                 else
                 {
-                    // staging 是按请求 size 建的独立缓冲，Map 起点就是 0
+                    // 数据从 staging 的偏移 0 开始存放；池里的缓冲可能比本次读回大，只拷 TotalBytes
                     memcpy(out, in, request->TotalBytes);
                 }
 

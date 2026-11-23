@@ -1012,7 +1012,9 @@ namespace Tiny3D
 
         /**
          * \brief 读回中转资源池中的一块资源
-         * \remarks 只在 RHI 线程上租借 / 归还，析构时在主线程 drain 之后统一 Release
+         * \remarks RHI 线程在 map 的拷贝命令里租借（Resolve 中转也在那里归还）；读回结果由主线程在
+         *          finishReadback 的 syncRHIThread 之后归还，此时 RHI 线程空闲。闲置条目由
+         *          trimStagingPool 在 RHI 线程上按超时与总量淘汰，析构时在主线程 drain 之后统一 Release
          */
         struct StagingEntry
         {
@@ -1038,15 +1040,22 @@ namespace Tiny3D
             uint32_t            Depth {0};
             /// 缓冲字节数
             uint32_t            ByteWidth {0};
+            /// 占用的字节数（纹理按宽 × 高 × 深 × 每像素字节数估算），用于闲置总量上限
+            size_t              Bytes {0};
             /// 是否已被某个未完成的请求占用
             bool                InUse {false};
+            /// false 表示超过入池上限的一次性资源，归还时直接 Release
+            bool                Pooled {true};
+            /// 最近一次归还的时间（steady clock 毫秒）
+            uint64_t            LastReleaseMs {0};
         };
 
         /**
          * \brief 从池里租一块能装下 byteWidth 的 staging 缓冲，没有就新建
          * \param [in] byteWidth : 需要的字节数
          * \return 租到的资源；创建失败返回 nullptr
-         * \note 只能在 RHI 线程调用
+         * \note 只能在 RHI 线程调用。取能装下的最小一块，容量超过需要的 kStagingMaxReuseRatio 倍时不复用；
+         *       新建时容量向上取到 2 的幂。超过 kStagingMaxPooledBytes 的请求按实际大小建一次性缓冲，不进池
          */
         ID3D11Resource *acquireStagingBuffer(uint32_t byteWidth);
 
@@ -1074,10 +1083,24 @@ namespace Tiny3D
         ID3D11Resource *acquireResolveTexture(DXGI_FORMAT format, uint32_t width, uint32_t height);
 
         /**
-         * \brief 把 staging 还回池子，供后续读回复用
+         * \brief 归还 staging：入池的标记为闲置，一次性的直接 Release
          * \param [in] resource : acquireStaging* 租出去的资源，nullptr 时不做任何事
          */
         void releaseStaging(ID3D11Resource *resource);
+
+        /**
+         * \brief 淘汰闲置的 staging：闲置超过 kStagingIdleTimeoutMs 的 Release，闲置总量超过
+         *        kStagingMaxIdleBytes 时从最久没用的开始 Release
+         * \note 只能在 RHI 线程调用，每次 Present 时执行
+         */
+        void trimStagingPool();
+
+        /**
+         * \brief 把新建的 staging 记进池子并打 debug 日志
+         * \param [in] entry : 已填好资源与描述的条目，InUse 由本函数置为 true
+         * \param [in] requestBytes : 本次请求需要的字节数，只用于日志
+         */
+        void addStagingEntry(StagingEntry &entry, size_t requestBytes);
 
         /**
          * \brief Release 池里所有 staging 资源
