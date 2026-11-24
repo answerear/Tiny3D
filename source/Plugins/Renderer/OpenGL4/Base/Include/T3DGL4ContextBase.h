@@ -35,6 +35,14 @@ namespace Tiny3D
         /// 将 dummy GL 上下文设为当前线程上下文（主窗口销毁后供资源清理使用）
         void makeDummyCurrent();
 
+        /**
+         * \brief 给当前线程的 GL 上下文开启 KHR_debug 输出，消息转到日志
+         * \remarks 调试回调与开关都是上下文状态，每个上下文创建并 current 后各调用一次。
+         *          只在 Debug 构建生效，Release 构建为空操作；驱动不支持 KHR_debug 时只打 warning。
+         * \param [in] contextName : 写进日志的上下文名，须为静态字符串，回调期间一直引用它
+         */
+        static void setupDebugOutput(const char *contextName);
+
         /// 获取 dummy GL 上下文（供 GL4RenderWindow 做 wglShareLists 共享）
 #if defined(T3D_OS_WINDOWS)
         HGLRC getDummyGLRC() const { return mDummyHGLRC; }

@@ -13,10 +13,165 @@
 #include <glslang/Public/ResourceLimits.h>
 #include <glslang/Include/Types.h>
 
+#if defined(T3D_DEBUG)
+    #include <mutex>
+#endif
+
 
 namespace Tiny3D
 {
     #define LOG_TAG_GL4CONTEXTBASE        "GL4ContextBase"
+
+#if defined(T3D_DEBUG)
+    namespace
+    {
+        /// 非错误消息（性能提示、未定义行为等）同一条最多打印的次数，之后不再打印
+        constexpr uint32_t kGLDebugMaxRepeats = 8;
+
+        const char *getGLDebugSourceName(GLenum source)
+        {
+            switch (source)
+            {
+            case GL_DEBUG_SOURCE_API:               return "API";
+            case GL_DEBUG_SOURCE_WINDOW_SYSTEM:     return "WindowSystem";
+            case GL_DEBUG_SOURCE_SHADER_COMPILER:   return "ShaderCompiler";
+            case GL_DEBUG_SOURCE_THIRD_PARTY:       return "ThirdParty";
+            case GL_DEBUG_SOURCE_APPLICATION:       return "Application";
+            default:                                return "Other";
+            }
+        }
+
+        const char *getGLDebugTypeName(GLenum type)
+        {
+            switch (type)
+            {
+            case GL_DEBUG_TYPE_ERROR:               return "Error";
+            case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "Deprecated";
+            case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  return "UndefinedBehavior";
+            case GL_DEBUG_TYPE_PORTABILITY:         return "Portability";
+            case GL_DEBUG_TYPE_PERFORMANCE:         return "Performance";
+            case GL_DEBUG_TYPE_MARKER:              return "Marker";
+            default:                                return "Other";
+            }
+        }
+
+        const char *getGLDebugSeverityName(GLenum severity)
+        {
+            switch (severity)
+            {
+            case GL_DEBUG_SEVERITY_HIGH:            return "High";
+            case GL_DEBUG_SEVERITY_MEDIUM:          return "Medium";
+            case GL_DEBUG_SEVERITY_LOW:             return "Low";
+            default:                                return "Notification";
+            }
+        }
+
+        /**
+         * \brief 是否为已知、符合接口约定的驱动提示，这类消息降为 info 且只打印一次
+         * \remarks NVIDIA 131154（Pixel transfer is synchronized with 3D rendering）：map 的
+         *          glGetTextureSubImage → PBO 紧跟在写这张纹理的渲染之后，拷贝只能与 3D 管线串行。
+         *          map / unmap 按约定只用于验证与截帧，unmap 本来就会阻塞等待 GPU。
+         */
+        bool isExpectedGLDebugMessage(GLenum source, GLenum type, GLuint id)
+        {
+            return source == GL_DEBUG_SOURCE_API && type == GL_DEBUG_TYPE_PERFORMANCE && id == 131154;
+        }
+
+        /// 返回这条消息是否还应打印；回调可能在主线程与 RHI 线程上触发，计数需要加锁
+        bool shouldLogGLDebugMessage(GLenum source, GLenum type, GLuint id, uint32_t maxRepeats, bool &isLastOne)
+        {
+            static std::mutex sMutex;
+            static TMap<uint64_t, uint32_t> sCounts;
+
+            const uint64_t key = (static_cast<uint64_t>(source & 0xFFFF) << 48)
+                | (static_cast<uint64_t>(type & 0xFFFF) << 32)
+                | static_cast<uint64_t>(id);
+
+            std::lock_guard<std::mutex> lock(sMutex);
+            uint32_t &count = sCounts[key];
+            if (count >= maxRepeats)
+            {
+                return false;
+            }
+            ++count;
+            isLastOne = (count == maxRepeats);
+            return true;
+        }
+
+        void APIENTRY onGLDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity,
+            GLsizei length, const GLchar *message, const void *userParam)
+        {
+            (void)length;
+            const char *contextName = (userParam != nullptr) ? static_cast<const char *>(userParam) : "unknown";
+            const bool isError = (type == GL_DEBUG_TYPE_ERROR || severity == GL_DEBUG_SEVERITY_HIGH);
+            const bool isExpected = !isError && isExpectedGLDebugMessage(source, type, id);
+
+            bool isLastOne = false;
+            if (!isError && !shouldLogGLDebugMessage(source, type, id, isExpected ? 1 : kGLDebugMaxRepeats, isLastOne))
+            {
+                return;
+            }
+
+            const char *suffix = isLastOne ? " (further occurrences suppressed)" : "";
+
+            if (isExpected)
+            {
+                T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "[GL debug][%s] %s/%s/%s id=%u (expected for readback): %s%s",
+                    contextName, getGLDebugSourceName(source), getGLDebugTypeName(type),
+                    getGLDebugSeverityName(severity), id, message, suffix);
+            }
+            else if (isError)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "[GL debug][%s] %s/%s/%s id=%u: %s",
+                    contextName, getGLDebugSourceName(source), getGLDebugTypeName(type),
+                    getGLDebugSeverityName(severity), id, message);
+            }
+            else if (severity == GL_DEBUG_SEVERITY_MEDIUM)
+            {
+                T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "[GL debug][%s] %s/%s/%s id=%u: %s%s",
+                    contextName, getGLDebugSourceName(source), getGLDebugTypeName(type),
+                    getGLDebugSeverityName(severity), id, message, suffix);
+            }
+            else
+            {
+                T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "[GL debug][%s] %s/%s/%s id=%u: %s%s",
+                    contextName, getGLDebugSourceName(source), getGLDebugTypeName(type),
+                    getGLDebugSeverityName(severity), id, message, suffix);
+            }
+        }
+    }
+#endif
+
+    //--------------------------------------------------------------------------
+
+    void GL4ContextBase::setupDebugOutput(const char *contextName)
+    {
+#if defined(T3D_DEBUG)
+        if (!GLAD_GL_KHR_debug || glDebugMessageCallback == nullptr || glDebugMessageControl == nullptr)
+        {
+            T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "KHR_debug is not available, GL debug output disabled for %s context.", contextName);
+            return;
+        }
+
+        GLint flags = 0;
+        glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+        const bool isDebugContext = (flags & GL_CONTEXT_FLAG_DEBUG_BIT) != 0;
+
+        // 非 debug 上下文默认关闭 GL_DEBUG_OUTPUT，驱动给出的消息也可能更少
+        glEnable(GL_DEBUG_OUTPUT);
+        // 同步模式下回调在出错的 GL 调用返回前触发，日志顺序与调用顺序一致，便于在回调里下断点
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(onGLDebugMessage, contextName);
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+        // NOTIFICATION 级别（如 NVIDIA 每个缓冲的显存位置说明、push / pop group）数量太多，关闭
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+
+        T3D_LOG_INFO(LOG_TAG_GL4RENDERER, "GL debug output enabled for %s context (debug context: %s).",
+            contextName, isDebugContext ? "yes" : "no");
+#else
+        (void)contextName;
+#endif
+    }
 
     //--------------------------------------------------------------------------
 
@@ -481,6 +636,8 @@ namespace Tiny3D
                 T3D_LOG_WARNING(LOG_TAG_GL4CONTEXTBASE, "wglCreateContextAttribsARB is NOT available, RenderDoc may not work.");
             }
 #endif
+
+            setupDebugOutput("dummy");
 
             T3D_LOG_INFO(LOG_TAG_GL4CONTEXTBASE, "OpenGL Vendor: %s", glGetString(GL_VENDOR));
             T3D_LOG_INFO(LOG_TAG_GL4CONTEXTBASE, "OpenGL Renderer: %s", glGetString(GL_RENDERER));

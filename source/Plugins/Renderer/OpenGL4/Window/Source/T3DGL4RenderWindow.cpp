@@ -354,6 +354,8 @@ namespace Tiny3D
                 }
             }
 
+            GL4ContextBase::setupDebugOutput("window");
+
             // 垂直同步：交换间隔作用于当前上下文绑定的窗口，扩展不存在时保持驱动默认
             {
                 const int interval = desc.IsVsync ? 1 : 0;
