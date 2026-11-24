@@ -114,7 +114,6 @@ namespace Tiny3D
         bool GLHasStencil {false};
         uint32_t GLAttachedColorCount {1};
         GLuint GLFBO {0};
-        GLuint GLDepthRBO {0};
         /// MSAA resolve 纹理（非多采样，用于 shader 读取）
         GLuint GLResolveTex {0};
         /// MSAA resolve FBO

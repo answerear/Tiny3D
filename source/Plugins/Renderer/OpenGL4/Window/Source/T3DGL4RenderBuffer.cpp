@@ -201,7 +201,6 @@ namespace Tiny3D
         releaseGLObjects({
             {GLObjectType::kFramebuffer, GLResolveFBO},
             {GLObjectType::kTexture, GLResolveTex},
-            {GLObjectType::kRenderbuffer, GLDepthRBO},
             {GLObjectType::kFramebuffer, GLFBO},
             {GLObjectType::kTexture, GLTexture},
         });
