@@ -1516,7 +1516,7 @@ namespace Tiny3D
     {
         GLES3VertexBufferPtr glBuffer = GLES3VertexBuffer::create();
 
-        GLenum usage = GLES3Mapping::getBufferUsage(buffer->getUsage());
+        GLenum usage = GLES3Mapping::getBufferUsage(buffer->getUsage(), buffer->getGPUAccess());
 
         auto lambda = [this](const GLES3VertexBufferPtr &glBuffer, const VertexBufferPtr &buffer, GLenum usage)
         {
@@ -1613,7 +1613,7 @@ namespace Tiny3D
     {
         GLES3IndexBufferPtr glBuffer = GLES3IndexBuffer::create();
 
-        GLenum usage = GLES3Mapping::getBufferUsage(buffer->getUsage());
+        GLenum usage = GLES3Mapping::getBufferUsage(buffer->getUsage(), buffer->getGPUAccess());
 
         auto lambda = [this](const GLES3IndexBufferPtr &glBuffer, const IndexBufferPtr &buffer, GLenum usage)
         {
@@ -1684,7 +1684,7 @@ namespace Tiny3D
     {
         GLES3ConstantBufferPtr glBuffer = GLES3ConstantBuffer::create();
 
-        GLenum usage = GLES3Mapping::getBufferUsage(buffer->getUsage());
+        GLenum usage = GLES3Mapping::getBufferUsage(buffer->getUsage(), buffer->getGPUAccess());
 
         auto lambda = [this](const GLES3ConstantBufferPtr &glBuffer, const ConstantBufferPtr &buffer, GLenum usage)
         {
@@ -2846,7 +2846,7 @@ namespace Tiny3D
         GLES3StructuredBufferPtr glBuffer = GLES3StructuredBuffer::create();
         const StructuredBufferDesc &desc = buffer->getDescriptor();
         const size_t byteWidth = buffer->getGPUSizeInBytes();
-        const GLenum usage = GLES3Mapping::getBufferUsage(buffer->getUsage());
+        const GLenum usage = GLES3Mapping::getBufferUsage(buffer->getUsage(), buffer->getGPUAccess());
         const bool hasCounter = desc.hasCounter || desc.isAppendConsume;
 
         glBuffer->ElementCount = desc.elementCount;
@@ -2871,7 +2871,7 @@ namespace Tiny3D
                     uint32_t zero = 0;
                     glGenBuffers(1, &glBuffer->GLCounterBuffer);
                     glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, glBuffer->GLCounterBuffer);
-                    glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(uint32_t), &zero, GL_DYNAMIC_DRAW);
+                    glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(uint32_t), &zero, GL_DYNAMIC_COPY);
                     glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
                 }
 

@@ -48,7 +48,8 @@ namespace Tiny3D
         static GLenum get(PrimitiveType primitive);
         static GLenum get(IndexType idxType);
 
-        static GLenum getBufferUsage(Usage usage);
+        /// GL 的 usage hint；带 kGPUUnorderedAccess 或 kGPUIndirectArgs 的缓冲由 GPU 写、GPU 读，返回 GL_DYNAMIC_COPY
+        static GLenum getBufferUsage(Usage usage, uint32_t gpuAccess);
 
         static GLint getVertexAttribSize(VertexAttribute::Type type);
         static GLenum getVertexAttribType(VertexAttribute::Type type);

@@ -413,8 +413,14 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    GLenum GLES3Mapping::getBufferUsage(Usage usage)
+    GLenum GLES3Mapping::getBufferUsage(Usage usage, uint32_t gpuAccess)
     {
+        // UAV 由 compute 写入；间接参数缓冲不带 UAV 时也由 GPU 写入（copyStructureCount）
+        if ((gpuAccess & (kGPUUnorderedAccess | kGPUIndirectArgs)) != 0)
+        {
+            return GL_DYNAMIC_COPY;
+        }
+
         switch (usage)
         {
         case Usage::kStatic:    return GL_STATIC_DRAW;
