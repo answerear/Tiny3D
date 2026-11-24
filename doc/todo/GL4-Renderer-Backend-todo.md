@@ -58,7 +58,7 @@
 | **签名** | `RHIPixelBuffer2DPtr createRenderTexture(PixelBuffer2D *buffer)` |
 | **功能** | 创建 RHI 渲染纹理。根据像素格式自动判断创建颜色 RT 或深度/模板 RT，支持 MSAA（额外创建 GLResolveTex + GLResolveFBO）和非 MSAA 两条路径。深度纹理支持 D24S8 和 D32FS8 格式 |
 | **参数** | `buffer` — 引擎像素缓冲区对象，包含宽高、像素格式、MSAA 描述等信息 |
-| **返回值** | 成功返回 `GL4PixelBuffer2DPtr`（内含 GLTexture/GLFBO/GLDepthRBO/GLResolveTex/GLResolveFBO），失败返回 `nullptr` |
+| **返回值** | 成功返回 `GL4PixelBuffer2DPtr`（内含 GLTexture/GLFBO/GLResolveTex/GLResolveFBO；颜色 RT 不带深度附件），失败返回 `nullptr` |
 | **实现位置** | T3DGL4Context.cpp:531 |
 
 ### 2.3 setRenderTarget
@@ -1115,7 +1115,7 @@
 | **状态** | ✅ 已完成 |
 | **签名** | `TResult resizeRenderTexture(RenderTexture *rt, uint32_t width, uint32_t height)`<br>`TResult resizeRenderTarget(RenderTarget *rt, uint32_t width, uint32_t height)` |
 | **实现位置** | T3DGL4Context.cpp:613（`resizeRenderTexture`）、T3DGL4Context.cpp:648（`resizeRenderTarget`） |
-| **功能** | `resizeRenderTexture` 校验非空与描述符尺寸一致性后，在 RHI 线程调用 `releaseRenderTextureResources` + `buildRenderTextureResources` 重建 `GLTexture` / `GLFBO` / `GLDepthRBO` / `GLResolveTex` / `GLResolveFBO`；`resizeRenderTarget` 对窗口类型转调 `resizeRenderWindow`，对纹理类型逐个重建所有颜色 RT 与 DepthStencil RT |
+| **功能** | `resizeRenderTexture` 校验非空与描述符尺寸一致性后，在 RHI 线程调用 `releaseRenderTextureResources` + `buildRenderTextureResources` 重建 `GLTexture` / `GLFBO` / `GLResolveTex` / `GLResolveFBO`；`resizeRenderTarget` 对窗口类型转调 `resizeRenderWindow`，对纹理类型逐个重建所有颜色 RT 与 DepthStencil RT |
 
 ### A.4.8 clearStencil（新增接口）
 
@@ -1233,7 +1233,7 @@
 | **P1** | `setGeometryShader` | 启用并统一走 `attachGraphicsShader(shader, mCurrentGSVariant)` | ✅ 已完成 |
 | **P1** | 四个 `blit` 重载 + `ZERO` 语义 + MSAA | 统一走 `resolveBlitEndpoint` + `doBlit`；`ZERO` 当整张；支持普通纹理 Scratch FBO 与 MSAA resolve | ✅ 已完成 |
 | **P1** | `copyBuffer` | 使用 `glCopyNamedBufferSubData` 实现，支持 `size == 0` 与 `StructuredBuffer` | ✅ 已完成 |
-| **P1** | `resizeRenderTexture` / `resizeRenderTarget` | 重建 `GLTexture` / `GLFBO` / `GLDepthRBO` / `GLResolveTex` / `GLResolveFBO` 全套附件 | ✅ 已完成 |
+| **P1** | `resizeRenderTexture` / `resizeRenderTarget` | 重建 `GLTexture` / `GLFBO` / `GLResolveTex` / `GLResolveFBO` 全套附件 | ✅ 已完成 |
 | **P1** | `resetRenderTarget` & `clearStencil` | `resetRenderTarget` 重置 `mRenderingToFBO`；新增 `clearStencil` 与 `ClearMaskGuard` | ✅ 已完成 |
 | **P1 (T3-1)** | **纹理 UAV 支持（`RWTexture2D` / `glBindImageTexture`）** | `GL4PixelBuffer1D/2D/3D` 与 `GLES3PixelBuffer1D/2D/3D` 记录 `GLInternalFormat` 并在 UAV 时走 `glTexStorage*`；`setCSUnorderedAccessBuffers` 支持 `glBindImageTexture`；`uavBarrier` 补 `GL_PIXEL_BUFFER_BARRIER_BIT` 并解绑 image unit；`ComputeApp` K5 验证通过 | ✅ 已完成 |
 | **P2** | Compute + SSBO + Indirect + Counter 一整套 | GL 4.3+ 真实现（含 `VertexBuffer`/`IndexBuffer` 作为 Raw SRV 绑定）；GL 4.0+ 支持 `supportsIndirectDraw` | ✅ 已完成 |
@@ -1386,7 +1386,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 |:----:|------|:----:|----------|--------------|:------:|
 | C.2.1 | `setVertexBuffers` | ✅ 已完成 | `T3DGL4Context.cpp` | 1) 叠加 `offsets[i]` 与 `attrib.getOffset()`（与 D3D11 语义一致）；<br>2) 循环内对 `buffers[i]` 与 `getRHIResource()` 做判空，同时保持 `mPendingVertexDecl` 至下一次 `setVertexDeclaration` / `reset()` | **P0** |
 | C.2.2 | `setPixelShader` / `setHullShader` / `setDomainShader` / `setGeometryShader` | ✅ 已完成 | `T3DGL4Context.cpp` | 统一走 `attachGraphicsShader(..., stageType)`；传入 `nullptr` 时只清空 `mStageShaders` 中对应阶段的句柄并置 `mProgramDirty = true`，draw 前按新组合查 Program 缓存（`detachShaderStageByType` 已随 D.2.1 删除） | **P0** |
-| C.2.3 | `setRenderTarget` | ✅ 已完成 | `T3DGL4Context.cpp` | 1) `renderTarget == nullptr` 转调 `resetRenderTarget()`；<br>2) MRT 支持 MSAA 目标，切回较少 RT 时清理残留 `GL_COLOR_ATTACHMENT` 并始终刷新 `glDrawBuffers`，且无外部深度时恢复 `GLDepthRBO`；<br>3) Depth-only FBO 改为成员 `mDepthOnlyFBO` 并在 `~GL4Context()` 释放，支持 MSAA 与无模板深度格式 | **P1** |
+| C.2.3 | `setRenderTarget` | ✅ 已完成 | `T3DGL4Context.cpp` | 1) `renderTarget == nullptr` 转调 `resetRenderTarget()`；<br>2) MRT 支持 MSAA 目标，切回较少 RT 时清理残留 `GL_COLOR_ATTACHMENT` 并始终刷新 `glDrawBuffers`，且无外部深度时卸载残留的深度附件；<br>3) Depth-only FBO 改为成员 `mDepthOnlyFBO` 并在 `~GL4Context()` 释放，支持 MSAA 与无模板深度格式 | **P1** |
 | C.2.4 | `setRasterizerState` | ✅ 已完成 | `T3DGL4Context.cpp` | 根据 `d.multisampleEnabled` 调用 `glEnable/glDisable(GL_MULTISAMPLE)`。DepthClamp 映射反向问题已于附录 D.1.1 修复 | **P2** |
 | C.2.5 | `setViewport` | ✅ 已完成 | `T3DGL4Context.cpp` | 主路径与 fallback 路径均透传 `glDepthRange(vp.MinDepth, vp.MaxDepth)`。窗口目标 Y 未翻转问题已于附录 D.1.3 修复 | **P3** |
 
@@ -1565,11 +1565,11 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 ### D.2.3 其他
 
 - `doBlit`（5321 行）开头调用 `unbindTextureUnits()`，清掉 16 个纹理单元的全部 target 与 sampler 绑定。依赖上层每次 draw 都重新绑定资源；若上层将来做状态缓存，会出现采样到空纹理的问题。
-- 每个颜色渲染纹理都会自带一个 D24S8 深度 RBO（`buildRenderTextureResources`，478-482、538-541 行），MRT 中第 1 个以后的纹理、以及会挂外部深度的 RT 也一样，浪费显存。
+- ~~每个颜色渲染纹理都会自带一个 D24S8 深度 RBO（`buildRenderTextureResources`，478-482、538-541 行），MRT 中第 1 个以后的纹理、以及会挂外部深度的 RT 也一样，浪费显存。~~ ✅ 已移除（2026-11-23），见 E.4。
 - `render(indexed)` / `renderIndexedInstanced` 每次 draw 都 `glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING)` 做安全检查，可改为由 `setIndexBuffer` 在 RHI 线程记录状态。
 - `uavBarrier` 始终使用全量 barrier 位，可按资源类型收窄。
 
-> **处理结论：以上四项暂不改动。** `unbindTextureUnits` 是为了防止池化的临时 RT 同时挂在纹理单元和 FBO 附件上形成反馈环，去掉有回归风险。隐式深度 RBO 被没有外挂深度的 RT 依赖，要去掉需要先在 RHI 层区分「需要深度」与「不需要深度」的 RT。EBO 检查与全量 barrier 开销很小，并且是安全兜底，等 profile 显示它们是热点再收窄。
+> **处理结论：隐式深度 RBO 已移除（见 E.4），其余三项暂不改动。** `unbindTextureUnits` 是为了防止池化的临时 RT 同时挂在纹理单元和 FBO 附件上形成反馈环，去掉有回归风险。隐式深度 RBO 原先认为被没有外挂深度的 RT 依赖，核查后上层需要深度的目标都已外挂深度纹理，「是否外挂深度」本身就区分了需要深度与不需要深度的 RT，与 D3D11 语义一致。EBO 检查与全量 barrier 开销很小，并且是安全兜底，等 profile 显示它们是热点再收窄。
 
 ---
 
@@ -1791,7 +1791,7 @@ glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, ssbo);
 
 ## E.4 已知且维持现状的差异（不重复跟踪）
 
-- 颜色 RT 自带 D24S8 深度 RBO，与 D3D11「颜色 RT 不带深度」不一致：见附录 D.2.3，保留现状。
+- ~~颜色 RT 自带 D24S8 深度 RBO，与 D3D11「颜色 RT 不带深度」不一致~~ **✅ 已修复（2026-11-23）**。GL4 与 GLES3 的 `buildRenderTextureResources` 不再给颜色 RT 建深度 RBO，`GL4PixelBuffer2D` / `GLES3PixelBuffer2D` 去掉 `GLDepthRBO` 字段（窗口自带的 `GLDepthRBO` 不变）。语义与 D3D11 一致：渲染目标没挂深度模板纹理就没有深度，深度测试与模板测试恒通过，`clearDepth*` 不起作用。上层需要深度的目标（相机、编辑器 Scene / Game 视图、阴影）都已显式挂深度纹理，后处理等不挂深度的目标原先会拿未初始化的 RBO 做深度测试。<br>**`setRenderTarget` 同步修改**：FBO 随颜色纹理复用，原先「无外部深度」分支只在 `GLDepthRBO != 0` 时卸下外部深度并挂回 RBO；现改为无条件对 `GL_DEPTH_STENCIL_ATTACHMENT` 挂 0，深度与模板两个挂点一起卸掉。GLES3 原先此分支什么都不做，上次挂的外部深度会一直残留，一并修复。<br>**回归用例**：ComputeApp 新增 K36 `color-only target has no depth`（D3D11 与 GL4）：同一张颜色纹理先配外部 D24S8 并把深度清成 0，再换成只有颜色的目标，以 LESS 在深度 0.5 处画绿，期望全绿。D3D11 与 GL4 均 35 项全部通过；临时去掉卸载深度那一行时 K36 读回全黑，用例能抓住残留深度。GLES3 只做了 Android arm64 编译，未跑运行时验证。
 - 压缩纹理：见附录 D.4.2，引擎尚无压缩格式。
 - `glBlitFramebuffer` 不能在整数与浮点格式之间转换，D3D11 有全屏四边形 blit 兜底。引擎当前没有整数颜色格式，暂不影响。
 
