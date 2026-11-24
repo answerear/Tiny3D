@@ -238,14 +238,12 @@ namespace Tiny3D
                 }
             }
 
-            mMaxDepthRBOSamples = hasQuery ? querySamples(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8) : queryLimit(GL_MAX_SAMPLES);
-
             T3D_LOG_INFO(LOG_TAG_GL4CONTEXTBASE,
-                "MSAA limits: RGBA8=%u, D24S8=%u, D32F=%u, depth RBO=%u (internalformat query %s)",
+                "MSAA limits: RGBA8=%u, D24S8=%u, D32F=%u (internalformat query %s)",
                 mMaxTextureSamples[static_cast<uint32_t>(PixelFormat::E_PF_R8G8B8A8)],
                 mMaxTextureSamples[static_cast<uint32_t>(PixelFormat::E_PF_D24_UNORM_S8_UINT)],
                 mMaxTextureSamples[static_cast<uint32_t>(PixelFormat::E_PF_D32_FLOAT)],
-                mMaxDepthRBOSamples, hasQuery ? "available" : "unavailable");
+                hasQuery ? "available" : "unavailable");
         }
 
         while (glGetError() != GL_NO_ERROR) {}

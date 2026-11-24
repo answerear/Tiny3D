@@ -338,20 +338,16 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    /// 不支持时拒绝而不是降级，与 D3D11 一致；颜色 RT 还自带一个同采样数的 D24S8 renderbuffer，要一并满足
+    /// 不支持时拒绝而不是降级，与 D3D11 一致
     static bool checkCreateSamples(const char *func, const GL4ContextBase *ctx, PixelFormat format,
-        uint32_t sampleCount, bool isArray, bool withDepthRBO)
+        uint32_t sampleCount, bool isArray)
     {
         if (sampleCount <= 1)
         {
             return true;
         }
 
-        uint32_t maxSamples = ctx->getMaxTextureSamples(format, isArray);
-        if (withDepthRBO)
-        {
-            maxSamples = std::min(maxSamples, ctx->getMaxDepthRBOSamples());
-        }
+        const uint32_t maxSamples = ctx->getMaxTextureSamples(format, isArray);
         if (sampleCount > maxSamples)
         {
             T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "%s : format [%u] supports at most %u samples, requested %u !",
@@ -388,8 +384,7 @@ namespace Tiny3D
         // RT 自身的 MSAA / 深度 + UAV 组合在 buildRenderTextureResources 里按 D3D11 打 warning 后忽略
         if (!checkCreateFormat("createRenderTexture", desc.format)
             || !checkCreateUsage("createRenderTexture", buffer, false)
-            || !checkCreateSamples("createRenderTexture", this, desc.format, desc.sampleDesc.Count,
-                false, !GL4Mapping::isDepthFormat(desc.format)))
+            || !checkCreateSamples("createRenderTexture", this, desc.format, desc.sampleDesc.Count, false))
         {
             return nullptr;
         }
@@ -889,7 +884,7 @@ namespace Tiny3D
 
             uint32_t msaaCount = desc.sampleDesc.Count;
             if (msaaCount < 1) msaaCount = 1;
-            if (!checkCreateSamples("buildRenderTextureResources", this, desc.format, msaaCount, false, isColorRT))
+            if (!checkCreateSamples("buildRenderTextureResources", this, desc.format, msaaCount, false))
             {
                 ret = T3D_ERR_INVALID_PARAM;
                 break;
@@ -2349,7 +2344,7 @@ namespace Tiny3D
                     "unordered access, ignore kGPUUnorderedAccess !");
             }
             if (!checkCreateSamples("createPixelBuffer2D", this, srcDesc.format, srcDesc.sampleDesc.Count,
-                srcDesc.arraySize > 1, false))
+                srcDesc.arraySize > 1))
             {
                 return nullptr;
             }
