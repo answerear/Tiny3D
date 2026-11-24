@@ -5121,6 +5121,126 @@ namespace
         ReadbackHandle      mLargeHandle {};
         ReadbackHandle      mSmallHandle {};
     };
+
+
+    /**
+     * \brief K36：不挂深度的颜色 RT 没有深度（E.4）
+     * \remarks 同一张颜色纹理先与外部 D24S8 组成目标，深度清成 0；再换成只有这张颜色纹理的目标，
+     *          以 LESS 在深度 0.5 处画绿。没有深度附件时深度测试恒通过，应全绿，与 D3D11 不绑 DSV 一致。
+     *          GL 的 FBO 随颜色纹理复用，若换目标时没卸掉上次的外部深度，会读回黑；
+     *          GL4 曾给每个颜色 RT 自带一个 D24S8 RBO，此时结果取决于 RBO 中未初始化的内容。
+     */
+    class CaseColorOnlyNoDepth : public ComputeCase
+    {
+    public:
+        ~CaseColorOnlyNoDepth() override
+        {
+            mColorRT = nullptr;
+            RenderTargetPtr none;
+            releaseColorRT(mColor, mDepthRT);
+            releaseColorRT(mDepth, none);
+        }
+
+        static const uint32_t kWidth = 16;
+        static const uint32_t kHeight = 8;
+
+        const char *getName() const override { return "K36 color-only target has no depth"; }
+        uint32_t getRequiredCaps() const override { return kNeedReadback; }
+        uint32_t getBackendMask() const override { return kBackendD3D11 | kBackendGL4; }
+
+        TResult setup() override
+        {
+            if (T3D_FAILED(mDraw.setup())) return T3D_ERR_FAIL;
+
+            mVB = createFullscreenVB(ndcZ(0.5f));
+
+            DepthStencilDesc less;
+            less.DepthWriteEnable = false;
+            less.DepthFunc = CompareFunction::kLess;
+            mDepthLess = T3D_RENDER_STATE_MGR.loadDepthStencilState(less);
+
+            mColor = createColorRT("K36-Color", kWidth, kHeight, PixelFormat::E_PF_R8G8B8A8, 1, kCPURead);
+            mDepth = T3D_TEXTURE_MGR.createRenderTexture("K36-Depth", kWidth, kHeight,
+                PixelFormat::E_PF_D24_UNORM_S8_UINT, 1, 1, 0, false, kCPUNone);
+            if (!mVB || !mDepthLess || mColor == nullptr || mDepth == nullptr)
+            {
+                return T3D_ERR_FAIL;
+            }
+            mDepthRT = RenderTarget::create(mColor, mDepth);
+            mColorRT = RenderTarget::create(mColor);
+            return (mDepthRT != nullptr && mColorRT != nullptr) ? T3D_OK : T3D_ERR_FAIL;
+        }
+
+        TResult record() override
+        {
+            RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+
+            ctx->setRenderTarget(mDepthRT.get());
+            mDraw.bindStates(ctx);
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+            ctx->clearDepthStencil(0.0f, 0);
+
+            ctx->setRenderTarget(mColorRT.get());
+            ctx->setViewport(kFullViewport);
+            ctx->clearColor(ColorRGB::BLACK);
+            ctx->beginPass();
+            ctx->setVertexShader(mDraw.vs());
+            ctx->setPixelShader(mDraw.greenPS());
+            ctx->setDepthStencilState(mDepthLess.get());
+            bindVertexBuffer(ctx, mVB.get());
+            TResult ret = mDraw.draw(ctx);
+            ctx->endPass();
+
+            if (T3D_SUCCEEDED(ret))
+            {
+                mHandle = mapColorRT(mColor.get());
+                ret = mHandle.isValid() ? T3D_OK : T3D_ERR_FAIL;
+            }
+            ctx->reset();
+            return ret;
+        }
+
+        TResult verify() override
+        {
+            Buffer data;
+            TResult ret = unmapColorRT(mColor.get(), mHandle, data);
+            if (T3D_FAILED(ret)) return ret;
+
+            uint32_t bad = 0;
+            char first = '?';
+            for (uint32_t y = 0; y < kHeight; ++y)
+            {
+                for (uint32_t x = 0; x < kWidth; ++x)
+                {
+                    const uint8_t *p = pixelAt(data, kWidth, kHeight, x, y);
+                    const PixelClass c = (p != nullptr) ? classifyPixel(p) : PixelClass::kOther;
+                    if (c != PixelClass::kGreen)
+                    {
+                        if (bad++ == 0) first = char(c);
+                    }
+                }
+            }
+            data.release();
+
+            if (bad != 0)
+            {
+                APP_LOG_DEBUG("[%s] FAILED : %u pixels not green, first got '%c'", getName(), bad, first);
+                return T3D_ERR_FAIL;
+            }
+            return T3D_OK;
+        }
+
+    private:
+        FullscreenDraw          mDraw;
+        VertexBufferPtr         mVB;
+        DepthStencilStatePtr    mDepthLess;
+        RenderTexturePtr        mColor;
+        RenderTexturePtr        mDepth;
+        RenderTargetPtr         mDepthRT;
+        RenderTargetPtr         mColorRT;
+        ReadbackHandle          mHandle {};
+    };
 }
 
 
@@ -5161,6 +5281,7 @@ void buildComputeCases(std::vector<ComputeCasePtr> &cases)
     cases.emplace_back(new CaseCreateValidation());
     cases.emplace_back(new CaseReadbackStagingPool());
     cases.emplace_back(new CaseLargeReadback());
+    cases.emplace_back(new CaseColorOnlyNoDepth());
 }
 
 uint32_t currentBackendBit()
