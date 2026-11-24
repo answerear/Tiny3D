@@ -44,7 +44,8 @@ namespace Tiny3D
         static TResult checkUsage(Usage usage, uint32_t accessMode);
         /// 组合是否对应 D3D11_USAGE_DEFAULT，只有这类资源可以带 kGPUUnorderedAccess
         static bool isDefaultUsage(Usage usage, uint32_t accessMode);
-        static GLenum getBufferUsage(Usage usage, uint32_t accessMode);
+        /// GL 的 usage hint；带 kGPUUnorderedAccess 或 kGPUIndirectArgs 的缓冲由 GPU 写、GPU 读，返回 GL_DYNAMIC_COPY
+        static GLenum getBufferUsage(Usage usage, uint32_t accessMode, uint32_t gpuAccess);
 
         static GLint getVertexAttribSize(VertexAttribute::Type type);
         static GLenum getVertexAttribType(VertexAttribute::Type type);

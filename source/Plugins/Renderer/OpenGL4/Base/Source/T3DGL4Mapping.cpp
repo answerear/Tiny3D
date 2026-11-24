@@ -361,8 +361,15 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    GLenum GL4Mapping::getBufferUsage(Usage usage, uint32_t accessMode)
+    GLenum GL4Mapping::getBufferUsage(Usage usage, uint32_t accessMode, uint32_t gpuAccess)
     {
+        // UAV 由 compute 写入；间接参数缓冲不带 UAV 时也由 GPU 写入（copyStructureCount）。
+        // kCPURead 的读回经 staging 拷贝，源缓冲本身不会被 CPU 映射，不需要 *_READ
+        if ((gpuAccess & (kGPUUnorderedAccess | kGPUIndirectArgs)) != 0)
+        {
+            return GL_DYNAMIC_COPY;
+        }
+
         switch (usage)
         {
         case Usage::kStatic:    return GL_STATIC_DRAW;
