@@ -4282,7 +4282,7 @@ namespace
     class CaseBufferCounters : public ComputeCase
     {
     public:
-        static const uint32_t kElemCount = 256;
+        static constexpr uint32_t kElemCount = 256;
 
         const char *getName() const override { return "K31 scc buffer slots and counters"; }
         uint32_t getRequiredCaps() const override
