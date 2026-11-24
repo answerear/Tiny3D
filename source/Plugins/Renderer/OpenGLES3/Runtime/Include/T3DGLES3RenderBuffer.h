@@ -100,7 +100,6 @@ namespace Tiny3D
         GLuint GLTexture {0};
         GLenum GLInternalFormat {GL_RGBA8};
         GLuint GLFBO {0};
-        GLuint GLDepthRBO {0};
         GLuint GLResolveTex {0};
         GLuint GLResolveFBO {0};
         uint32_t GLMSAACount {1};

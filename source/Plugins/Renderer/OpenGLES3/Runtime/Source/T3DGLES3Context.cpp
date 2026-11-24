@@ -357,7 +357,6 @@ namespace Tiny3D
 
         GL_SAFE_DELETE_FBO(pb->GLResolveFBO);
         GL_SAFE_DELETE_TEXTURE(pb->GLResolveTex);
-        GL_SAFE_DELETE_RBO(pb->GLDepthRBO);
         GL_SAFE_DELETE_FBO(pb->GLFBO);
         GL_SAFE_DELETE_TEXTURE(pb->GLTexture);
         pb->GLMSAACount = 1;
@@ -406,13 +405,6 @@ namespace Tiny3D
                     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                         GL_TEXTURE_2D_MULTISAMPLE, glPixelBuffer->GLTexture, 0);
 
-                    glGenRenderbuffers(1, &glPixelBuffer->GLDepthRBO);
-                    glBindRenderbuffer(GL_RENDERBUFFER, glPixelBuffer->GLDepthRBO);
-                    glRenderbufferStorageMultisample(GL_RENDERBUFFER, msaaCount,
-                        GL_DEPTH24_STENCIL8, width, height);
-                    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                        GL_RENDERBUFFER, glPixelBuffer->GLDepthRBO);
-
                     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
                     {
                         T3D_LOG_ERROR(LOG_TAG_GLES3RENDERER, "MSAA color render texture FBO is not complete !");
@@ -460,12 +452,6 @@ namespace Tiny3D
                     glBindFramebuffer(GL_FRAMEBUFFER, glPixelBuffer->GLFBO);
                     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                         GL_TEXTURE_2D, glPixelBuffer->GLTexture, 0);
-
-                    glGenRenderbuffers(1, &glPixelBuffer->GLDepthRBO);
-                    glBindRenderbuffer(GL_RENDERBUFFER, glPixelBuffer->GLDepthRBO);
-                    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-                    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                        GL_RENDERBUFFER, glPixelBuffer->GLDepthRBO);
 
                     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
                     {
@@ -569,13 +555,6 @@ namespace Tiny3D
 
                                 if (renderTarget->getDepthStencil() != nullptr)
                                 {
-                                    if (glPB->GLDepthRBO != 0)
-                                    {
-                                        glFramebufferRenderbuffer(GL_FRAMEBUFFER,
-                                            GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0);
-                                        GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "setRenderTarget: glFramebufferRenderbuffer(detach RBO)");
-                                    }
-
                                     GLES3PixelBuffer2D *glDS = static_cast<GLES3PixelBuffer2D*>(
                                         renderTarget->getDepthStencil()->getPixelBuffer()->getRHIResource().get());
                                     if (glDS != nullptr)
@@ -585,6 +564,13 @@ namespace Tiny3D
                                             dsTexTarget, glDS->GLTexture, 0);
                                         GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "setRenderTarget: glFramebufferTexture2D(depth texture)");
                                     }
+                                }
+                                else
+                                {
+                                    // FBO 随颜色纹理复用，必须卸掉上次挂的外部深度，与 D3D11 不绑 DSV 一致
+                                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                                        GL_TEXTURE_2D, 0, 0);
+                                    GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "setRenderTarget: detach depth stencil");
                                 }
 
                                 uint32_t numRT = renderTarget->getNumOfRenderTextures();
