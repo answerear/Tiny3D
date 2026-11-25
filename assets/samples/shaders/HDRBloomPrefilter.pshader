@@ -1,0 +1,37 @@
+#pragma fragment frag
+#pragma target 4.0
+
+// Half-resolution bright pass. Destination is floor(src / 2), so p + 1 never leaves the source.
+// Read by pixel position: sampling by uv breaks on GL4 render textures.
+Texture2D _MainTex;
+
+cbuffer HDRPostParams
+{
+	float4 hdr_PostParams;		// x - threshold, y - soft knee (fraction of threshold)
+	float4 hdr_TexelParams;	// xy - 1 / destination size
+}
+
+struct PS_INPUT
+{
+	float4 position : SV_POSITION;
+	float2 uv : TEXCOORD0;
+};
+
+float3 fetch(int2 p)
+{
+	return _MainTex.Load(int3(p, 0)).rgb;
+}
+
+float4 frag(PS_INPUT input) : SV_Target
+{
+	int2 p = int2(input.position.xy) * 2;
+	float3 color = (fetch(p) + fetch(p + int2(1, 0)) + fetch(p + int2(0, 1)) + fetch(p + int2(1, 1))) * 0.25f;
+
+	float brightness = max(color.r, max(color.g, color.b));
+	float threshold = hdr_PostParams.x;
+	float knee = threshold * hdr_PostParams.y;
+	float soft = clamp(brightness - threshold + knee, 0.0f, 2.0f * knee);
+	soft = soft * soft / (4.0f * knee + 0.00001f);
+	float contribution = max(soft, brightness - threshold) / max(brightness, 0.00001f);
+	return float4(color * contribution, 1.0f);
+}

@@ -1,0 +1,37 @@
+#pragma fragment frag
+#pragma target 4.0
+
+#define CONCATENATE(a, b) a##b
+#define TEX2D(name) Texture2D name; SamplerState CONCATENATE(sampler, name)
+#define SAMPLE(tex, uv) tex.Sample(CONCATENATE(sampler, tex), uv)
+
+// _MainTex : this level of the downsample chain, same size as the destination
+// _BloomTex : the coarser level, half size, sampled with linear filtering
+Texture2D _MainTex;
+TEX2D(_BloomTex);
+
+cbuffer HDRPostParams
+{
+	float4 hdr_PostParams;
+	float4 hdr_TexelParams;	// xy - 1 / destination size
+}
+
+struct PS_INPUT
+{
+	float4 position : SV_POSITION;
+	float2 uv : TEXCOORD0;
+};
+
+float4 frag(PS_INPUT input) : SV_Target
+{
+	float3 color = _MainTex.Load(int3(int2(input.position.xy), 0)).rgb;
+
+	// Pixel position and texel rows share the same origin on every backend, uv derived from it stays consistent
+	float2 uv = input.position.xy * hdr_TexelParams.xy;
+	float2 d = hdr_TexelParams.xy;
+	float3 bloom = SAMPLE(_BloomTex, uv + float2(-d.x, -d.y)).rgb
+		+ SAMPLE(_BloomTex, uv + float2(d.x, -d.y)).rgb
+		+ SAMPLE(_BloomTex, uv + float2(-d.x, d.y)).rgb
+		+ SAMPLE(_BloomTex, uv + float2(d.x, d.y)).rgb;
+	return float4(color + bloom * 0.25f, 1.0f);
+}

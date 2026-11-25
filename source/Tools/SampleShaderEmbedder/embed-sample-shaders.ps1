@@ -32,16 +32,22 @@
     Only process these headers (e.g. SampleShaders_gl4.h). Useful when only some
     backends were regenerated; the others keep their current contents.
 
+.PARAMETER Consts
+    Only process constants whose name starts with one of these prefixes (e.g. HDR_).
+    Useful when only one sample's shaders were regenerated.
+
 .EXAMPLE
     .\embed-sample-shaders.ps1 -Verify
     .\embed-sample-shaders.ps1
     .\embed-sample-shaders.ps1 -Headers SampleShaders_gl4.h,SampleShaders_gles3.h
+    .\embed-sample-shaders.ps1 -Consts HDR_
 #>
 param(
     [string]$Repo,
     [string]$OutputRoot,
     [switch]$Verify,
-    [string[]]$Headers
+    [string[]]$Headers,
+    [string[]]$Consts
 )
 
 $ErrorActionPreference = "Stop"
@@ -82,11 +88,35 @@ $jobs = @(
     [PSCustomObject]@{ Header = "SampleShaders_gles3.h"; Const = "INVERT_PIXEL_SHADER_GLES";     Src = "OpenGLES3\InvertEffect_fragment.essl";       Kind = "text"  }
     [PSCustomObject]@{ Header = "SampleShaders_gles3.h"; Const = "TINT_PIXEL_SHADER_GLES";       Src = "OpenGLES3\TintEffect_fragment.essl";         Kind = "text"  }
     [PSCustomObject]@{ Header = "SampleShaders_gles3.h"; Const = "GRAYSCALE_PIXEL_SHADER_GLES";  Src = "OpenGLES3\GrayscaleEffect_fragment.essl";    Kind = "text"  }
+
+    # HDRApp (desktop only for now, so no GLES3 entries)
+    [PSCustomObject]@{ Header = "SampleShaders_hlsl.h";  Const = "HDR_EMISSIVE_VERTEX_SHADER";              Src = "HLSL\HDREmissive_vertex.hlsl";                 Kind = "text"  }
+    [PSCustomObject]@{ Header = "SampleShaders_hlsl.h";  Const = "HDR_EMISSIVE_PIXEL_SHADER";               Src = "HLSL\HDREmissive_fragment.hlsl";               Kind = "text"  }
+    [PSCustomObject]@{ Header = "SampleShaders_hlsl.h";  Const = "HDR_BLOOM_PREFILTER_PIXEL_SHADER";        Src = "HLSL\HDRBloomPrefilter_fragment.hlsl";         Kind = "text"  }
+    [PSCustomObject]@{ Header = "SampleShaders_hlsl.h";  Const = "HDR_BLOOM_DOWNSAMPLE_PIXEL_SHADER";       Src = "HLSL\HDRBloomDownsample_fragment.hlsl";        Kind = "text"  }
+    [PSCustomObject]@{ Header = "SampleShaders_hlsl.h";  Const = "HDR_BLOOM_UPSAMPLE_PIXEL_SHADER";         Src = "HLSL\HDRBloomUpsample_fragment.hlsl";          Kind = "text"  }
+    [PSCustomObject]@{ Header = "SampleShaders_hlsl.h";  Const = "HDR_TONEMAP_PIXEL_SHADER";                Src = "HLSL\HDRTonemap_fragment.hlsl";                Kind = "text"  }
+    [PSCustomObject]@{ Header = "SampleShaders_gl4.h";   Const = "HDR_EMISSIVE_VERTEX_SHADER_GL";           Src = "OpenGL4\HDREmissive_vertex.glsl";              Kind = "text"  }
+    [PSCustomObject]@{ Header = "SampleShaders_gl4.h";   Const = "HDR_EMISSIVE_PIXEL_SHADER_GL";            Src = "OpenGL4\HDREmissive_fragment.glsl";            Kind = "text"  }
+    [PSCustomObject]@{ Header = "SampleShaders_gl4.h";   Const = "HDR_BLOOM_PREFILTER_PIXEL_SHADER_GL";     Src = "OpenGL4\HDRBloomPrefilter_fragment.glsl";      Kind = "text"  }
+    [PSCustomObject]@{ Header = "SampleShaders_gl4.h";   Const = "HDR_BLOOM_DOWNSAMPLE_PIXEL_SHADER_GL";    Src = "OpenGL4\HDRBloomDownsample_fragment.glsl";     Kind = "text"  }
+    [PSCustomObject]@{ Header = "SampleShaders_gl4.h";   Const = "HDR_BLOOM_UPSAMPLE_PIXEL_SHADER_GL";      Src = "OpenGL4\HDRBloomUpsample_fragment.glsl";       Kind = "text"  }
+    [PSCustomObject]@{ Header = "SampleShaders_gl4.h";   Const = "HDR_TONEMAP_PIXEL_SHADER_GL";             Src = "OpenGL4\HDRTonemap_fragment.glsl";             Kind = "text"  }
+    [PSCustomObject]@{ Header = "SampleShaders_vk.h";    Const = "HDR_EMISSIVE_VERTEX_SHADER_VK";           Src = "Vulkan\HDREmissive_vertex.spirv";              Kind = "spirv" }
+    [PSCustomObject]@{ Header = "SampleShaders_vk.h";    Const = "HDR_EMISSIVE_PIXEL_SHADER_VK";            Src = "Vulkan\HDREmissive_fragment.spirv";            Kind = "spirv" }
+    [PSCustomObject]@{ Header = "SampleShaders_vk.h";    Const = "HDR_BLOOM_PREFILTER_PIXEL_SHADER_VK";     Src = "Vulkan\HDRBloomPrefilter_fragment.spirv";      Kind = "spirv" }
+    [PSCustomObject]@{ Header = "SampleShaders_vk.h";    Const = "HDR_BLOOM_DOWNSAMPLE_PIXEL_SHADER_VK";    Src = "Vulkan\HDRBloomDownsample_fragment.spirv";     Kind = "spirv" }
+    [PSCustomObject]@{ Header = "SampleShaders_vk.h";    Const = "HDR_BLOOM_UPSAMPLE_PIXEL_SHADER_VK";      Src = "Vulkan\HDRBloomUpsample_fragment.spirv";       Kind = "spirv" }
+    [PSCustomObject]@{ Header = "SampleShaders_vk.h";    Const = "HDR_TONEMAP_PIXEL_SHADER_VK";             Src = "Vulkan\HDRTonemap_fragment.spirv";             Kind = "spirv" }
 )
 
 if ($Headers) {
     $jobs = @($jobs | Where-Object { $Headers -contains $_.Header })
     if ($jobs.Count -eq 0) { throw "no jobs match -Headers $($Headers -join ', ')" }
+}
+if ($Consts) {
+    $jobs = @($jobs | Where-Object { $name = $_.Const; @($Consts | Where-Object { $name.StartsWith($_) }).Count -gt 0 })
+    if ($jobs.Count -eq 0) { throw "no jobs match -Consts $($Consts -join ', ')" }
 }
 
 function Build-TextBlock([string]$name, [string]$path) {
