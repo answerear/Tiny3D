@@ -183,6 +183,7 @@ namespace Tiny3D
     {
         return format == PixelFormat::E_PF_B8G8R8X8
             || format == PixelFormat::E_PF_B8G8R8A8
+            || format == PixelFormat::E_PF_B8G8R8A8_SRGB
             || format == PixelFormat::E_PF_B8G8R8;
     }
 
@@ -200,6 +201,8 @@ namespace Tiny3D
         case PixelFormat::E_PF_B8G8R8A8:    return GL_RGBA;
         case PixelFormat::E_PF_R8G8B8X8:    return GL_RGBA;
         case PixelFormat::E_PF_B8G8R8X8:    return GL_RGBA;
+        case PixelFormat::E_PF_R8G8B8A8_SRGB:   return GL_RGBA;
+        case PixelFormat::E_PF_B8G8R8A8_SRGB:   return GL_RGBA;
         case PixelFormat::E_PF_B5G6R5:      return GL_RGB;
         case PixelFormat::E_PF_B5G5R5A1:    return GL_RGBA;
         case PixelFormat::E_PF_B4R4G4A4:    return GL_RGBA;
@@ -235,6 +238,8 @@ namespace Tiny3D
         case PixelFormat::E_PF_B8G8R8A8:    return GL_RGBA8;
         case PixelFormat::E_PF_R8G8B8X8:    return GL_RGBA8;
         case PixelFormat::E_PF_B8G8R8X8:    return GL_RGBA8;
+        case PixelFormat::E_PF_R8G8B8A8_SRGB:   return GL_SRGB8_ALPHA8;
+        case PixelFormat::E_PF_B8G8R8A8_SRGB:   return GL_SRGB8_ALPHA8;
         case PixelFormat::E_PF_B5G6R5:      return GL_RGB565;
         case PixelFormat::E_PF_B5G5R5A1:    return GL_RGB5_A1;
         case PixelFormat::E_PF_B4R4G4A4:    return GL_RGBA4;
@@ -274,6 +279,8 @@ namespace Tiny3D
         case PixelFormat::E_PF_B8G8R8A8:
         case PixelFormat::E_PF_R8G8B8X8:
         case PixelFormat::E_PF_B8G8R8X8:
+        case PixelFormat::E_PF_R8G8B8A8_SRGB:
+        case PixelFormat::E_PF_B8G8R8A8_SRGB:
             return GL_UNSIGNED_BYTE;
         case PixelFormat::E_PF_B5G6R5:
             return GL_UNSIGNED_SHORT_5_6_5;
@@ -333,6 +340,11 @@ namespace Tiny3D
         case PixelFormat::E_PF_R8G8B8X8:
         case PixelFormat::E_PF_B8G8R8X8:
             return kColor | kImage;
+        // sRGB 是 ES 3.0 核心格式，附件写入总是编码；image 格式表里没有它。
+        // BC 系列在 ES 上只有可选扩展，这里不报告，创建时会被 checkCompressedTextureFormat 拒绝
+        case PixelFormat::E_PF_R8G8B8A8_SRGB:
+        case PixelFormat::E_PF_B8G8R8A8_SRGB:
+            return kColor;
         case PixelFormat::E_PF_B5G6R5:
         case PixelFormat::E_PF_B5G5R5A1:
         case PixelFormat::E_PF_B4R4G4A4:

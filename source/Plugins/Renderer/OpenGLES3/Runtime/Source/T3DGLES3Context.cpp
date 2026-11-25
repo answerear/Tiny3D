@@ -1760,6 +1760,13 @@ namespace Tiny3D
 
     RHIPixelBuffer1DPtr GLES3Context::createPixelBuffer1D(PixelBuffer1D *buffer)
     {
+        if (!mCapabilities.checkCompressedTextureFormat(LOG_TAG_GLES3RENDERER, "createPixelBuffer1D",
+            buffer->getDescriptor().format, 1, buffer->getDescriptor().width, 1, 1,
+            (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
+        {
+            return nullptr;
+        }
+
         GLES3PixelBuffer1DPtr glBuffer = GLES3PixelBuffer1D::create();
 
         auto lambda = [this](const GLES3PixelBuffer1DPtr &glBuffer, const PixelBuffer1DPtr &buffer)
@@ -1830,6 +1837,13 @@ namespace Tiny3D
 
     RHIPixelBuffer2DPtr GLES3Context::createPixelBuffer2D(PixelBuffer2D *buffer)
     {
+        if (!mCapabilities.checkCompressedTextureFormat(LOG_TAG_GLES3RENDERER, "createPixelBuffer2D",
+            buffer->getDescriptor().format, 2, buffer->getDescriptor().width, buffer->getDescriptor().height,
+            buffer->getDescriptor().sampleDesc.Count, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
+        {
+            return nullptr;
+        }
+
         GLES3PixelBuffer2DPtr glBuffer = GLES3PixelBuffer2D::create();
 
         auto lambda = [this](const GLES3PixelBuffer2DPtr &glBuffer, const PixelBuffer2DPtr &buffer)
@@ -1944,6 +1958,13 @@ namespace Tiny3D
 
     RHIPixelBuffer3DPtr GLES3Context::createPixelBuffer3D(PixelBuffer3D *buffer)
     {
+        if (!mCapabilities.checkCompressedTextureFormat(LOG_TAG_GLES3RENDERER, "createPixelBuffer3D",
+            buffer->getDescriptor().format, 3, buffer->getDescriptor().width, buffer->getDescriptor().height, 1,
+            (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
+        {
+            return nullptr;
+        }
+
         GLES3PixelBuffer3DPtr glBuffer = GLES3PixelBuffer3D::create();
 
         auto lambda = [this](const GLES3PixelBuffer3DPtr &glBuffer, const PixelBuffer3DPtr &buffer)
@@ -1996,6 +2017,13 @@ namespace Tiny3D
 
     RHIPixelBufferCubemapPtr GLES3Context::createPixelBufferCubemap(PixelBufferCubemap *buffer)
     {
+        if (!mCapabilities.checkCompressedTextureFormat(LOG_TAG_GLES3RENDERER, "createPixelBufferCubemap",
+            buffer->getDescriptor().format, 2, buffer->getDescriptor().width, buffer->getDescriptor().height, 1,
+            (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
+        {
+            return nullptr;
+        }
+
         GLES3PixelBufferCubemapPtr glBuffer = GLES3PixelBufferCubemap::create();
 
         auto lambda = [this](const GLES3PixelBufferCubemapPtr &glBuffer, const PixelBufferCubemapPtr &buffer)
