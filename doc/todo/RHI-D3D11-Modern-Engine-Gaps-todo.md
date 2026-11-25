@@ -72,7 +72,8 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 
 | 项目 | 内容 |
 |---|---|
-| **状态** | ❌ 缺失 |
+| **状态** | ✅ 已完成（sRGB 后缓冲随 G-09 处理） |
+| **实现** | 1) `PixelFormat` 新增 `R8G8B8A8_SRGB`、`B8G8R8A8_SRGB` 与 `BC1`～`BC7` 族（`BC1/2/3/7` 带 `_SRGB`，`BC4/5` 带 `_SNORM`，`BC6H_UF16/SF16`）。`PixelFormatUtil` 增加 `isSRGB`、`isCompressed`、`getBlockSize`、`getBytesPerBlock`、`toLinear` / `toSRGB`，以及按块计算的 `getRowPitch`、`getRowCount`、`getSliceSize`、`getMipChainSize`。压缩格式的 bpp 为 0，凡是按像素算字节的地方都要改走这组函数；<br/>2) `RHICapabilities::checkCompressedTextureFormat()` 在各后端创建纹理的入口统一校验压缩格式：只允许 2D / Cube、mip 0 宽高是 4 的倍数、不能 MSAA、不能 UAV、能力表要有 Texture 位；<br/>3) D3D11：`D3D11Mapping::getResourceFormat()` 在 sRGB 纹理需要 UAV 时把资源建成 typeless，SRV / RTV 仍用 sRGB 视图，`getUAVFormat()` 给出线性视图格式；`buildSubresourceData` 与读回按块行距计算，读回逐行拷贝；<br/>4) GL4：sRGB 映射到 `GL_SRGB8_ALPHA8`，BC 映射到 S3TC（`EXT_texture_compression_s3tc`，sRGB 变体还要 `EXT_texture_sRGB`）、RGTC（核心）、BPTC（4.2+ 或 `ARB_texture_compression_bptc`）。压缩纹理用 `glTexStorage*` + `glCompressedTexSubImage*` 上传，读回用 `glGetCompressedTextureSubImage`。D3D11 由 RTV 格式决定是否做 sRGB 编码，GL 由 `GL_FRAMEBUFFER_SRGB` 开关，所以每次切换绘制 FBO 后同步：绑定离屏 FBO 时打开，绑定默认帧缓冲时关闭（后缓冲仍是 UNORM，保持和 D3D11 一致）。sRGB 格式不报告 UAV（GL 的 image 格式没有 sRGB）。压缩纹理不能挂到 FBO，所以 blit 只保留同格式的 `glCopyImageSubData` 路径；<br/>5) GLES3：sRGB 为核心格式，不报告 UAV；BC 暂不报告（桌面 ES 驱动才有 S3TC，移动端走 GAP-10 的 ETC2 / ASTC）；<br/>6) Vulkan：映射到 `VK_FORMAT_*_SRGB` 与 `VK_FORMAT_BC*_BLOCK`，2D / Cube 上传按 `getSliceSize` 计算每级大小；<br/>7) Metal：映射到 `*Unorm_sRGB`，BC 只在 macOS 上可用（按 `supportsBCTextureCompression` 填表），`bytesPerRow` 按块行计算；<br/>8) `imgconv` 新增 `--srgb` / `--no-srgb` 与 `--compression none\|bc1\|bc3\|bc4\|bc5\|bc7`，对应 `.meta` 的 `sRGB` / `Compression`。内置编码器 `T3DBlockCompressor` 不依赖第三方库：BC1 / BC3 / BC4 / BC5 用 PCA 端点加最小二乘迭代，BC7 只用 mode 6。输出 sRGB 时 mip 在线性空间降采样。`Compression` 为空时保持原来的 `B8G8R8A8` UNORM 输出并忽略 `sRGB`，已有资源不受影响；BC4 / BC5 总是线性。<br/>**验证**：整个解决方案 Debug 编译通过；`imgconv` 把 `blocks.png` 转成 none / BC1 / BC3 / BC4 / BC5 / BC7 以及 sRGB 变体，在 TextureApp 里替换后分别用 D3D11 与 GL4 截图：BC1 / BC3 / BC7 与原图一致、没有块错位，BC4 只剩红色、BC5 只剩红绿（说明确实走了块路径），sRGB 变体在两个后端上一致地变暗（后缓冲还是 UNORM，符合预期）。PostProcessingApp、HDRApp、ComputeApp 在 D3D11 与 GL4 上对比无回归。新增独立的 `SRGBApp`（见 7.3）做 sRGB 读回自检：D3D11 8 项全过，GL4 7 项通过、1 项（sRGB UAV）按能力表跳过。<br/>**待做**：sRGB 后缓冲（G-09）；GL4 / GLES3 / Metal 的 sRGB UAV（需要 texture view 或另建线性别名）；BC6H 编码（需要浮点源，随 `.hdr` / `.exr` 导入一起做）；GLES3 的 BC；GL4 压缩纹理的缩放 / 跨格式 blit；Vulkan 后端本身没有 UAV、1D / 3D 以及 Cube 的 mip 上传路径，压缩格式在这些路径上同样不可用；Metal 与 GLES3 的改动未在本机编译 |
 | **现状** | `PixelFormat` 没有 sRGB 与 BC 格式。`T3DD3D11Mapping.cpp:178-196` 已经有处理 `*_UNORM_SRGB` 的代码，只是引擎侧到不了这些格式 |
 | **缺少** | `R8G8B8A8_UNORM_SRGB`、`B8G8R8A8_UNORM_SRGB`、`BC1`～`BC7`（及其 sRGB 变体）。移动端对应的 ETC2 / ASTC 在 `Tiny3D-Capability-Status-todo.md` GAP-10 里已登记，建议与本条一起设计 |
 | **影响** | 1) 没有 sRGB 纹理与 sRGB 后缓冲，光照只能在伽马空间里算，或者在 shader 里手写转换，PBR 结果不正确；<br/>2) 没有 BC 压缩，纹理显存与带宽是压缩格式的 4～8 倍 |
@@ -249,6 +250,7 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 | Sample（新建） | 场景 | 覆盖条目 |
 |---|---|---|
 | `HDRApp` | 夜晚的街道，路灯、霓虹招牌、砖墙建筑 | G-01、G-02、G-05 |
+| `SRGBApp` | 静态测试图（灰阶、色条、暗部渐变、棋盘格），附读回自检 | G-02（sRGB） |
 | `PointLightShadowApp` | 地下仓库，一盏吊灯来回摆动，墙上挂着监控屏幕 | G-03、G-04 |
 | `CascadedShadowApp` | 阳光下的大片山地森林，相机低空飞越 | G-03 |
 | `ReflectionProbeApp` | 汽车展厅，转台上的汽车和金属展品 | G-02、G-03、G-04、G-14 |
@@ -276,6 +278,23 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 - **HDR 缓冲**：`Camera` 新增 `AllowHDR` 属性。开启后，窗口相机的中间 RT 依次尝试 `R16G16B16A16_FLOAT`、`R11G11B10_FLOAT`（按 `supportsFormat` 检查 Texture | RenderTarget，MSAA 时再加 Multisample），都不支持时退回 8 位并打 warning。
 - **后处理**：`HDRBloomTonemapBehaviour` 依次做半分辨率亮部提取（soft knee）、像素着色器盒式降采样 6 级、tent 升采样，最后与场景合成并做 ACES 色调映射。源格式不能作为可线性过滤的 RT 时，退回 blit 拷贝并打 warning。
 - **与最终方案的差距**：降采样链暂用像素着色器（G-05 完成后改为 Compute 写 mip），贴图暂用未压缩的 8 位 UNORM、在 gamma 空间做光照（G-02 完成后改为 sRGB + BC，并输出到 sRGB 后缓冲）。Vulkan 下 HDRApp 与 PostProcessingApp 都在后处理阶段崩溃在 NVIDIA 驱动 `nvoglv64.dll` 内（同一偏移），属于 Vulkan 后处理路径的既有问题，另行排查。
+
+#### `SRGBApp`：sRGB 测试图（G-02）
+
+独立的功能验证 Sample，只依赖 `Samples/Common` 的全屏顶点着色器，不引用其它 Sample 的代码和资源。它是静态测试图，不遵守 7.1 的「场景要动」：sRGB 的编码、解码都是逐像素的确定变换，静态画面配合读回比运动场景更容易判断。场景为空，相机上挂 `SRGBTestBehaviour`（相机特效），每帧把测试图画满整个窗口。
+
+**画面检查点**（后缓冲是 UNORM，所以测试图在 shader 里手动做最后一次线性 → sRGB 编码）：
+
+| 行 | 内容 | 正确时 | 出错时 |
+|---|---|---|---|
+| 1 | 灰阶：UNORM 参考 \| sRGB 纹理采样后编码 \| sRGB 纹理不编码 | 前两段完全接上、看不出分界；第三段明显更暗 | 前两段有明显接缝，说明采样没有解码或解码了两次 |
+| 2 | 八色条：UNORM 参考 \| `R8G8B8A8_SRGB` \| `B8G8R8A8_SRGB` | 三段颜色一致 | BGRA 段红蓝互换，或某段整体发灰 / 偏暗 |
+| 3 | 暗部线性渐变分别写进 UNORM RT（上半）和 sRGB RT（下半） | 上半有明显色带，下半平滑 | 两半一样，说明 sRGB RT 没有编码 |
+| 4 | 1 像素黑白棋盘 \| sRGB 棋盘双线性取平均后编码 \| UNORM 棋盘双线性平均 | 中段与棋盘的视觉亮度一致；右段明显偏暗 | 中段和右段一样暗，说明过滤发生在解码之前 |
+
+**读回自检**：第 3 帧对 8 项检查发起读回，结果以 `SRGBApp : PASS / FAIL / SKIP` 打到日志，最后一行汇总。检查项有：sRGB 纹理按原字节存储（两种格式）、采样解码到 UNORM RT（两种格式）、sRGB RT 编码（两种格式）、带 UAV 位的 `R8G8B8A8_SRGB` RT 编码（D3D11 走 typeless 资源）、sRGB 双线性过滤在线性空间平均（期望 128）。能力表不支持的格式记为 SKIP，不会黑屏。
+
+**当前结果**：D3D11 8 项全部 PASS；GL4 7 项 PASS、1 项 SKIP（GL 不报告 sRGB UAV，符合预期）；Vulkan 与 HDRApp 一样，在后处理阶段崩溃在 `nvoglv64.dll` 内的同一偏移，属于上面提到的既有问题。
 
 #### `PointLightShadowApp`：地下仓库（G-03、G-04）
 
