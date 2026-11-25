@@ -86,6 +86,12 @@ namespace Tiny3D
         /// 覆盖寻址模式 (--wrap repeat|clamp|mirror|border)
         ImgconvArgs &wrap(TextureAddressMode m);
 
+        /// 覆盖颜色空间 (--srgb / --no-srgb)，只在指定了 compression 时生效
+        ImgconvArgs &srgb(bool enable);
+
+        /// 覆盖输出编码 (--compression none|bc1|bc3|bc4|bc5|bc7)，空串表示不传，沿用旧的 B8G8R8A8 输出
+        ImgconvArgs &compression(const String &format);
+
         /// 强制重新生成 (-f)
         ImgconvArgs &force(bool enable = true);
 

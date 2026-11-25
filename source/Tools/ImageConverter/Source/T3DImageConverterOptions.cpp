@@ -156,6 +156,16 @@ namespace Tiny3D
             result.Sampler.AddressW = wrap;
         }
 
+        if (hasSRGB)
+        {
+            result.sRGB = sRGB;
+        }
+
+        if (hasCompression)
+        {
+            result.Compression = compression;
+        }
+
         return result;
     }
 }

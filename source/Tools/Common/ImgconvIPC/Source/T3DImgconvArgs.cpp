@@ -203,6 +203,26 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ImgconvArgs &ImgconvArgs::srgb(bool enable)
+    {
+        args.push_back(enable ? "--srgb" : "--no-srgb");
+        return *this;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ImgconvArgs &ImgconvArgs::compression(const String &format)
+    {
+        if (!format.empty())
+        {
+            args.push_back("--compression");
+            args.push_back(format);
+        }
+        return *this;
+    }
+
+    //--------------------------------------------------------------------------
+
     ImgconvArgs &ImgconvArgs::force(bool enable)
     {
         if (enable)
@@ -257,6 +277,8 @@ namespace Tiny3D
         builder.filter(settings.Sampler.MinFilter == FilterOptions::kPoint
             ? FilterOptions::kPoint : FilterOptions::kLinear);
         builder.wrap(settings.Sampler.AddressU);
+        builder.srgb(settings.sRGB);
+        builder.compression(settings.Compression);
         if (writeMeta)
         {
             builder.meta(true);

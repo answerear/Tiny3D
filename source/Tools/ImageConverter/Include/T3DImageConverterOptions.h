@@ -95,6 +95,12 @@ namespace Tiny3D
         bool                hasWrap {false};
         TextureAddressMode  wrap {TextureAddressMode::kWrap};
 
+        bool                hasSRGB {false};
+        bool                sRGB {true};
+
+        bool                hasCompression {false};
+        String              compression {};
+
         // ---- IPC 模式选项（仅进程启动命令行使用） ----
         bool                ipcMode {false};
         uint16_t            ipcPort {0};

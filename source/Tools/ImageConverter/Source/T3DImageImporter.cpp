@@ -24,7 +24,9 @@
 
 
 #include "T3DImageImporter.h"
+#include "T3DBlockCompressor.h"
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <cstring>
 #include <vector>
@@ -254,8 +256,32 @@ namespace Tiny3D
             }
         }
 
+        float srgbToLinear(uint8_t v)
+        {
+            static float sTable[256];
+            static bool sInitialized = false;
+            if (!sInitialized)
+            {
+                for (int i = 0; i < 256; ++i)
+                {
+                    const float c = static_cast<float>(i) / 255.0f;
+                    sTable[i] = (c <= 0.04045f) ? (c / 12.92f) : std::pow((c + 0.055f) / 1.055f, 2.4f);
+                }
+                sInitialized = true;
+            }
+            return sTable[v];
+        }
+
+        uint8_t linearToSrgb(float v)
+        {
+            v = std::max(0.0f, std::min(1.0f, v));
+            const float c = (v <= 0.0031308f) ? (v * 12.92f) : (1.055f * std::pow(v, 1.0f / 2.4f) - 0.055f);
+            return static_cast<uint8_t>(c * 255.0f + 0.5f);
+        }
+
         /**
          * \brief 使用 2x2 Box Filter 生成下一级 Mipmap
+         * \param [in] srgb : 颜色通道按 sRGB 解码到线性空间求平均再编码回去，alpha 始终线性
          */
         void downsampleMipBoxBGRA8(
             const uint8_t *prevMip,
@@ -263,7 +289,8 @@ namespace Tiny3D
             uint32_t prevH,
             uint8_t *nextMip,
             uint32_t nextW,
-            uint32_t nextH)
+            uint32_t nextH,
+            bool srgb)
         {
             for (uint32_t y = 0; y < nextH; ++y)
             {
@@ -281,6 +308,17 @@ namespace Tiny3D
                     const uint8_t *p11 = prevMip + (static_cast<size_t>(sy1) * prevW + sx1) * 4;
 
                     uint8_t *dst = nextMip + (static_cast<size_t>(y) * nextW + x) * 4;
+                    if (srgb)
+                    {
+                        for (int c = 0; c < 3; ++c)
+                        {
+                            const float sum = srgbToLinear(p00[c]) + srgbToLinear(p10[c])
+                                + srgbToLinear(p01[c]) + srgbToLinear(p11[c]);
+                            dst[c] = linearToSrgb(sum * 0.25f);
+                        }
+                        dst[3] = static_cast<uint8_t>((static_cast<uint32_t>(p00[3]) + p10[3] + p01[3] + p11[3] + 2u) >> 2);
+                        continue;
+                    }
                     for (int c = 0; c < 4; ++c)
                     {
                         uint32_t sum = static_cast<uint32_t>(p00[c])
@@ -291,6 +329,55 @@ namespace Tiny3D
                     }
                 }
             }
+        }
+
+        /**
+         * \brief 按导入设置决定输出像素格式
+         * \remarks Compression 为空时保持旧行为：B8G8R8A8 UNORM，忽略 sRGB；
+         *  bc4 / bc5 没有 sRGB 变体，始终按线性数据处理
+         */
+        bool resolveOutputFormat(const TextureImportSettings &settings, PixelFormat &outFormat, String *outError)
+        {
+            String comp = settings.Compression;
+            std::transform(comp.begin(), comp.end(), comp.begin(),
+                [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
+
+            const bool srgb = settings.sRGB;
+            if (comp.empty())
+            {
+                outFormat = PixelFormat::E_PF_B8G8R8A8;
+            }
+            else if (comp == "none")
+            {
+                outFormat = srgb ? PixelFormat::E_PF_B8G8R8A8_SRGB : PixelFormat::E_PF_B8G8R8A8;
+            }
+            else if (comp == "bc1")
+            {
+                outFormat = srgb ? PixelFormat::E_PF_BC1_SRGB : PixelFormat::E_PF_BC1_UNORM;
+            }
+            else if (comp == "bc3")
+            {
+                outFormat = srgb ? PixelFormat::E_PF_BC3_SRGB : PixelFormat::E_PF_BC3_UNORM;
+            }
+            else if (comp == "bc4")
+            {
+                outFormat = PixelFormat::E_PF_BC4_UNORM;
+            }
+            else if (comp == "bc5")
+            {
+                outFormat = PixelFormat::E_PF_BC5_UNORM;
+            }
+            else if (comp == "bc7")
+            {
+                outFormat = srgb ? PixelFormat::E_PF_BC7_SRGB : PixelFormat::E_PF_BC7_UNORM;
+            }
+            else
+            {
+                reportErr(outError, "Unsupported compression '" + settings.Compression
+                    + "' (expected none|bc1|bc3|bc4|bc5|bc7).");
+                return false;
+            }
+            return true;
         }
     }
 
@@ -312,6 +399,14 @@ namespace Tiny3D
         String *outError)
     {
         outTexture = nullptr;
+
+        PixelFormat outFormat = PixelFormat::E_PF_B8G8R8A8;
+        if (!resolveOutputFormat(settings, outFormat, outError))
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+        const bool isCompressed = PixelFormatUtil::isCompressed(outFormat);
+        const bool linearMips = PixelFormatUtil::isSRGB(outFormat);
 
         if (!Dir::exists(srcPath))
         {
@@ -386,6 +481,14 @@ namespace Tiny3D
             height = targetH;
         }
 
+        // 各后端都要求块压缩纹理的 mip 0 宽高是 4 的倍数，更小的 mip 不受限
+        if (isCompressed && (width % 4 != 0 || height % 4 != 0))
+        {
+            reportErr(outError, "Block compression requires width and height to be multiples of 4, got "
+                + std::to_string(width) + "x" + std::to_string(height) + ": " + srcPath);
+            return T3D_ERR_INVALID_PARAM;
+        }
+
         // 5. Premultiply Alpha（必须在 Mipmap 生成之前执行，保证下采样在预乘空间中无黑边出血）
         if (settings.PremultipliedAlpha)
         {
@@ -431,7 +534,7 @@ namespace Tiny3D
 
                 downsampleMipBoxBGRA8(
                     bufPtr + prevOffset, prevW, prevH,
-                    bufPtr + nextOffset, nextW, nextH);
+                    bufPtr + nextOffset, nextW, nextH, linearMips);
 
                 prevOffset = nextOffset;
                 nextOffset += nextBytes;
@@ -440,12 +543,34 @@ namespace Tiny3D
             }
         }
 
-        // 7. 构建 Texture2D 并填充属性（Texture2D 接管 buf.Data 所有权）
+        // 7. 块压缩：逐级把 B8G8R8A8 的 mip 链编码成块数据，布局与未压缩时相同（mip 依次紧密拼接）
+        if (isCompressed)
+        {
+            Buffer compressed;
+            compressed.DataSize = PixelFormatUtil::getMipChainSize(outFormat, width, height, 1, mipLevels);
+            compressed.Data = T3D_POD_NEW_ARRAY(uint8_t, compressed.DataSize);
+
+            size_t srcOffset = 0;
+            size_t dstOffset = 0;
+            for (uint32_t level = 0; level < mipLevels; ++level)
+            {
+                const uint32_t mipW = std::max<uint32_t>(1u, width >> level);
+                const uint32_t mipH = std::max<uint32_t>(1u, height >> level);
+                BlockCompressor::compress(buf.Data + srcOffset, mipW, mipH, outFormat, compressed.Data + dstOffset);
+                srcOffset += static_cast<size_t>(mipW) * mipH * 4;
+                dstOffset += PixelFormatUtil::getSliceSize(outFormat, mipW, mipH);
+            }
+
+            buf.release();
+            buf = compressed;
+        }
+
+        // 8. 构建 Texture2D 并填充属性（Texture2D 接管 buf.Data 所有权）
         Texture2DPtr tex = T3D_TEXTURE_MGR.createTexture2D(
             texName,
             width,
             height,
-            PixelFormat::E_PF_B8G8R8A8,
+            outFormat,
             buf,
             mipLevels,
             1,

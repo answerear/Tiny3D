@@ -335,6 +335,32 @@ namespace Tiny3D
                     return false;
                 }
             }
+            else if (arg == "--srgb")
+            {
+                options.hasSRGB = true;
+                options.sRGB = true;
+            }
+            else if (arg == "--no-srgb")
+            {
+                options.hasSRGB = true;
+                options.sRGB = false;
+            }
+            else if (arg == "--compression")
+            {
+                if (i + 1 >= args.size())
+                {
+                    setError(outError, "Missing format after --compression.");
+                    return false;
+                }
+                String val = toLowerStr(args[++i]);
+                if (val != "none" && val != "bc1" && val != "bc3" && val != "bc4" && val != "bc5" && val != "bc7")
+                {
+                    setError(outError, "Invalid compression '" + val + "' (expected none|bc1|bc3|bc4|bc5|bc7).");
+                    return false;
+                }
+                options.hasCompression = true;
+                options.compression = val;
+            }
             else if (arg == "-f")
             {
                 options.forceRebuild = true;
@@ -452,6 +478,11 @@ namespace Tiny3D
         printf("  --max-size <n>          Maximum texture dimension (default: 4096)\n");
         printf("  --filter <mode>         Sampler filter: point | linear\n");
         printf("  --wrap <mode>           Sampler address mode: repeat | clamp | mirror | border\n");
+        printf("  --compression <fmt>     Output encoding: none | bc1 | bc3 | bc4 | bc5 | bc7\n");
+        printf("                          (not set: legacy B8G8R8A8 UNORM, --srgb is ignored;\n");
+        printf("                           bc* need width and height to be multiples of 4)\n");
+        printf("  --srgb / --no-srgb      Color space when --compression is set: sRGB for none/bc1/bc3/bc7,\n");
+        printf("                          mipmaps are filtered in linear space; bc4/bc5 are always linear\n");
         printf("  -f                      Force rebuild (ignore SourceHash incremental check)\n");
         printf("  -v                      Verbose output\n");
         printf("  -? / -h                 Show this help message\n");
