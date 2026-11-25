@@ -995,16 +995,18 @@ namespace Tiny3D
             ID3D11Resource     *Staging {nullptr};
             /// 源子资源下标
             uint32_t            Subresource {0};
-            /// 每像素字节数，线性缓冲恒为 1
+            /// 每像素字节数，压缩格式为每块字节数，线性缓冲恒为 1
             uint32_t            BytesPerPixel {0};
-            /// 紧凑行距 = CopyWidth * BytesPerPixel
+            /// 紧凑行距：每行像素数（压缩格式为每行块数）* BytesPerPixel
             uint32_t            TightRowPitch {0};
-            /// 紧凑层距 = TightRowPitch * CopyHeight
+            /// 紧凑层距 = TightRowPitch * CopyRows
             uint32_t            TightSlicePitch {0};
             /// 实际拷贝的宽 / 高 / 深（纹素）
             uint32_t            CopyWidth {0};
             uint32_t            CopyHeight {1};
             uint32_t            CopyDepth {1};
+            /// 每层的行数，压缩格式按块行计，其它格式等于 CopyHeight
+            uint32_t            CopyRows {1};
             /// dst 需要的总字节数
             size_t              TotalBytes {0};
             /// Copy 命令是否已在 RHI 线程执行完

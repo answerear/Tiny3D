@@ -321,7 +321,14 @@ namespace Tiny3D
         // 能力位与 supportsUnorderedAccess / supportsStructuredBuffer 保持一致，FL 10.x 不给
         if (hasFullCompute)
         {
-            if ((support & D3D11_FORMAT_SUPPORT_TYPED_UNORDERED_ACCESS_VIEW) != 0)
+            // sRGB 格式的 UAV 走线性视图（资源建成 typeless），能力按线性格式查
+            UINT uavSupport = support;
+            if (PixelFormatUtil::isSRGB(format))
+            {
+                uavSupport = 0;
+                mD3DDevice->CheckFormatSupport(D3D11Mapping::getUAVFormat(format), &uavSupport);
+            }
+            if ((uavSupport & D3D11_FORMAT_SUPPORT_TYPED_UNORDERED_ACCESS_VIEW) != 0)
             {
                 result |= kFormatSupportUnorderedAccess;
             }
@@ -875,6 +882,11 @@ namespace Tiny3D
                     }
                 }
 
+                const PixelFormat pixelFormat = buffer->getDescriptor().format;
+                const DXGI_FORMAT viewFormat = D3D11Mapping::get(pixelFormat);
+                texDesc.Format = D3D11Mapping::getResourceFormat(pixelFormat,
+                    (texDesc.BindFlags & D3D11_BIND_UNORDERED_ACCESS) != 0);
+
                 HRESULT hr = mD3DDevice->CreateTexture2D(&texDesc, nullptr, &d3dPixelBuffer->D3DTexture);
                 if (FAILED(hr))
                 {
@@ -903,7 +915,7 @@ namespace Tiny3D
                 // 创建渲染目标视图
                 D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
                 memset(&rtvDesc, 0, sizeof(rtvDesc));
-                rtvDesc.Format = texDesc.Format;
+                rtvDesc.Format = viewFormat;
                 if (uMSAACount == 1)
                 {
                     // 没开 MSAA
@@ -927,7 +939,7 @@ namespace Tiny3D
                 // 创建着色器资源视图
                 D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
                 memset(&srvDesc, 0, sizeof(srvDesc));
-                srvDesc.Format = texDesc.Format;
+                srvDesc.Format = viewFormat;
                 srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
                 srvDesc.Texture2D.MostDetailedMip = 0;
                 srvDesc.Texture2D.MipLevels = 1;
@@ -955,7 +967,7 @@ namespace Tiny3D
                 {
                     // UAV 建在 MSAA 纹理本体上，此处 uMSAACount 必然为 1
                     ret = buildTextureUAView(d3dPixelBuffer->D3DTexture, TEXTURE_TYPE::TT_2D,
-                        texDesc.Format, texDesc.ArraySize, uMSAACount, &d3dPixelBuffer->D3DUAView);
+                        D3D11Mapping::getUAVFormat(pixelFormat), texDesc.ArraySize, uMSAACount, &d3dPixelBuffer->D3DUAView);
                     if (T3D_FAILED(ret))
                     {
                         break;
@@ -2711,8 +2723,7 @@ namespace Tiny3D
             return T3D_OK;
         }
 
-        const uint32_t bpp = Image::getBPP(format) / 8;
-        if (bpp == 0)
+        if (PixelFormatUtil::getBytesPerBlock(format) == 0)
         {
             T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "buildSubresourceData : unsupported pixel format [%d] !", format);
             return T3D_ERR_INVALID_PARAM;
@@ -2722,15 +2733,7 @@ namespace Tiny3D
         arraySize = std::max<uint32_t>(1, arraySize);
 
         // 先累加一遍需要的字节数，不足就直接拒绝，避免 D3D11 读到野内存
-        size_t required = 0;
-        for (uint32_t level = 0; level < mipLevels; ++level)
-        {
-            const size_t mipW = std::max<uint32_t>(1, width >> level);
-            const size_t mipH = std::max<uint32_t>(1, height >> level);
-            const size_t mipD = std::max<uint32_t>(1, depth >> level);
-            required += mipW * mipH * mipD * bpp;
-        }
-        required *= arraySize;
+        const size_t required = PixelFormatUtil::getMipChainSize(format, width, height, depth, mipLevels) * arraySize;
 
         if (required > dataSize)
         {
@@ -2748,8 +2751,9 @@ namespace Tiny3D
                 const uint32_t mipW = std::max<uint32_t>(1, width >> level);
                 const uint32_t mipH = std::max<uint32_t>(1, height >> level);
                 const uint32_t mipD = std::max<uint32_t>(1, depth >> level);
-                const uint32_t rowPitch = mipW * bpp;
-                const uint32_t slicePitch = rowPitch * mipH;
+                // 压缩格式的一行是一行 4x4 块，不足 4 的末级 mip 也占一整块
+                const uint32_t rowPitch = static_cast<uint32_t>(PixelFormatUtil::getRowPitch(format, mipW));
+                const uint32_t slicePitch = rowPitch * PixelFormatUtil::getRowCount(format, mipH);
 
                 // D3D11 的子资源索引恒为 arraySlice * mipLevels + mipLevel
                 D3D11_SUBRESOURCE_DATA &sub = outSubresources[static_cast<size_t>(slice) * mipLevels + level];
@@ -2802,7 +2806,9 @@ namespace Tiny3D
             T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "createPixelBuffer1D : invalid size [%u] !", desc.width);
             return nullptr;
         }
-        if (!checkCreateFormat("createPixelBuffer1D", desc.format))
+        if (!checkCreateFormat("createPixelBuffer1D", desc.format)
+            || !mCapabilities.checkCompressedTextureFormat(LOG_TAG_D3D11RENDERER, "createPixelBuffer1D", desc.format,
+                1, desc.width, 1, 1, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
         {
             return nullptr;
         }
@@ -2839,14 +2845,17 @@ namespace Tiny3D
         D3D11_TEXTURE1D_DESC d3dDesc = D3D11Mapping::get(desc);
         d3dDesc.MipLevels = mipLevels;
         d3dDesc.ArraySize = arraySize;
+        d3dDesc.Format = D3D11Mapping::getResourceFormat(desc.format, (gpuAccess & kGPUUnorderedAccess) != 0);
         d3dDesc.Usage = d3dUsage;
         d3dDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11Mapping::getBindFlags(gpuAccess);
         d3dDesc.CPUAccessFlags = d3dAccess;
         d3dDesc.MiscFlags = 0;
 
+        const DXGI_FORMAT uavFormat = D3D11Mapping::getUAVFormat(desc.format);
+
         D3D11_SHADER_RESOURCE_VIEW_DESC d3dSRVDesc;
         memset(&d3dSRVDesc, 0, sizeof(d3dSRVDesc));
-        d3dSRVDesc.Format = d3dDesc.Format;
+        d3dSRVDesc.Format = D3D11Mapping::get(desc.format);
         if (arraySize > 1)
         {
             d3dSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE1DARRAY;
@@ -2864,7 +2873,7 @@ namespace Tiny3D
 
         D3D11PixelBuffer1DPtr d3dBuffer = D3D11PixelBuffer1D::create();
 
-        auto lambda = [this](const D3D11_TEXTURE1D_DESC &d3dDesc, const D3D11_SHADER_RESOURCE_VIEW_DESC &d3dSRVDesc, const D3D11PixelBuffer1DPtr &d3dBuffer, TArray<D3D11_SUBRESOURCE_DATA> &subresources, Buffer &ownedBuffer)
+        auto lambda = [this, uavFormat](const D3D11_TEXTURE1D_DESC &d3dDesc, const D3D11_SHADER_RESOURCE_VIEW_DESC &d3dSRVDesc, const D3D11PixelBuffer1DPtr &d3dBuffer, TArray<D3D11_SUBRESOURCE_DATA> &subresources, Buffer &ownedBuffer)
         {
             TResult ret = T3D_OK;
 
@@ -2894,7 +2903,7 @@ namespace Tiny3D
 
                 if ((d3dDesc.BindFlags & D3D11_BIND_UNORDERED_ACCESS) != 0)
                 {
-                    ret = buildTextureUAView(pD3DTex1D, TEXTURE_TYPE::TT_1D, d3dDesc.Format,
+                    ret = buildTextureUAView(pD3DTex1D, TEXTURE_TYPE::TT_1D, uavFormat,
                         d3dDesc.ArraySize, 1, &d3dBuffer->D3DUAView);
                     if (T3D_FAILED(ret))
                     {
@@ -2924,7 +2933,9 @@ namespace Tiny3D
             T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "createPixelBuffer2D : invalid size [%u x %u] !", desc.width, desc.height);
             return nullptr;
         }
-        if (!checkCreateFormat("createPixelBuffer2D", desc.format))
+        if (!checkCreateFormat("createPixelBuffer2D", desc.format)
+            || !mCapabilities.checkCompressedTextureFormat(LOG_TAG_D3D11RENDERER, "createPixelBuffer2D", desc.format,
+                2, desc.width, desc.height, desc.sampleDesc.Count, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
         {
             return nullptr;
         }
@@ -2996,9 +3007,12 @@ namespace Tiny3D
                 "unordered access, ignore kGPUUnorderedAccess !");
         }
 
+        d3dDesc.Format = D3D11Mapping::getResourceFormat(desc.format, (d3dDesc.BindFlags & D3D11_BIND_UNORDERED_ACCESS) != 0);
+        const DXGI_FORMAT uavFormat = D3D11Mapping::getUAVFormat(desc.format);
+
         D3D11_SHADER_RESOURCE_VIEW_DESC d3dSRVDesc;
         memset(&d3dSRVDesc, 0, sizeof(d3dSRVDesc));
-        d3dSRVDesc.Format = d3dDesc.Format;
+        d3dSRVDesc.Format = D3D11Mapping::get(desc.format);
         if (sampleCount > 1 && arraySize > 1)
         {
             d3dSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY;
@@ -3026,7 +3040,7 @@ namespace Tiny3D
 
         D3D11PixelBuffer2DPtr d3dBuffer = D3D11PixelBuffer2D::create();
 
-        auto lambda = [this](const D3D11_TEXTURE2D_DESC &d3dDesc, const D3D11_SHADER_RESOURCE_VIEW_DESC &d3dSRVDesc, const D3D11PixelBuffer2DPtr &d3dBuffer, TArray<D3D11_SUBRESOURCE_DATA> &subresources, Buffer &ownedBuffer)
+        auto lambda = [this, uavFormat](const D3D11_TEXTURE2D_DESC &d3dDesc, const D3D11_SHADER_RESOURCE_VIEW_DESC &d3dSRVDesc, const D3D11PixelBuffer2DPtr &d3dBuffer, TArray<D3D11_SUBRESOURCE_DATA> &subresources, Buffer &ownedBuffer)
         {
             TResult ret = T3D_OK;
 
@@ -3056,7 +3070,7 @@ namespace Tiny3D
 
                 if ((d3dDesc.BindFlags & D3D11_BIND_UNORDERED_ACCESS) != 0)
                 {
-                    ret = buildTextureUAView(pD3DTex2D, TEXTURE_TYPE::TT_2D, d3dDesc.Format,
+                    ret = buildTextureUAView(pD3DTex2D, TEXTURE_TYPE::TT_2D, uavFormat,
                         d3dDesc.ArraySize, d3dDesc.SampleDesc.Count, &d3dBuffer->D3DUAView);
                     if (T3D_FAILED(ret))
                     {
@@ -3086,7 +3100,9 @@ namespace Tiny3D
             T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "createPixelBuffer3D : invalid size [%u x %u x %u] !", desc.width, desc.height, desc.depth);
             return nullptr;
         }
-        if (!checkCreateFormat("createPixelBuffer3D", desc.format))
+        if (!checkCreateFormat("createPixelBuffer3D", desc.format)
+            || !mCapabilities.checkCompressedTextureFormat(LOG_TAG_D3D11RENDERER, "createPixelBuffer3D", desc.format,
+                3, desc.width, desc.height, 1, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
         {
             return nullptr;
         }
@@ -3121,21 +3137,24 @@ namespace Tiny3D
 
         D3D11_TEXTURE3D_DESC d3dDesc = D3D11Mapping::get(desc);
         d3dDesc.MipLevels = mipLevels;
+        d3dDesc.Format = D3D11Mapping::getResourceFormat(desc.format, (gpuAccess & kGPUUnorderedAccess) != 0);
         d3dDesc.Usage = d3dUsage;
         d3dDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11Mapping::getBindFlags(gpuAccess);
         d3dDesc.CPUAccessFlags = d3dAccess;
         d3dDesc.MiscFlags = 0;
 
+        const DXGI_FORMAT uavFormat = D3D11Mapping::getUAVFormat(desc.format);
+
         D3D11_SHADER_RESOURCE_VIEW_DESC d3dSRVDesc;
         memset(&d3dSRVDesc, 0, sizeof(d3dSRVDesc));
-        d3dSRVDesc.Format = d3dDesc.Format;
+        d3dSRVDesc.Format = D3D11Mapping::get(desc.format);
         d3dSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
         d3dSRVDesc.Texture3D.MostDetailedMip = 0;
         d3dSRVDesc.Texture3D.MipLevels = mipLevels;
 
         D3D11PixelBuffer3DPtr d3dBuffer = D3D11PixelBuffer3D::create();
 
-        auto lambda = [this](const D3D11_TEXTURE3D_DESC &d3dDesc, const D3D11_SHADER_RESOURCE_VIEW_DESC &d3dSRVDesc, const D3D11PixelBuffer3DPtr &d3dBuffer, TArray<D3D11_SUBRESOURCE_DATA> &subresources, Buffer &ownedBuffer)
+        auto lambda = [this, uavFormat](const D3D11_TEXTURE3D_DESC &d3dDesc, const D3D11_SHADER_RESOURCE_VIEW_DESC &d3dSRVDesc, const D3D11PixelBuffer3DPtr &d3dBuffer, TArray<D3D11_SUBRESOURCE_DATA> &subresources, Buffer &ownedBuffer)
         {
             TResult ret = T3D_OK;
 
@@ -3165,7 +3184,7 @@ namespace Tiny3D
 
                 if ((d3dDesc.BindFlags & D3D11_BIND_UNORDERED_ACCESS) != 0)
                 {
-                    ret = buildTextureUAView(pD3DTex3D, TEXTURE_TYPE::TT_3D, d3dDesc.Format,
+                    ret = buildTextureUAView(pD3DTex3D, TEXTURE_TYPE::TT_3D, uavFormat,
                         1, 1, &d3dBuffer->D3DUAView);
                     if (T3D_FAILED(ret))
                     {
@@ -3195,7 +3214,9 @@ namespace Tiny3D
             T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "createPixelBufferCubemap : invalid size [%u x %u] !", desc.width, desc.height);
             return nullptr;
         }
-        if (!checkCreateFormat("createPixelBufferCubemap", desc.format))
+        if (!checkCreateFormat("createPixelBufferCubemap", desc.format)
+            || !mCapabilities.checkCompressedTextureFormat(LOG_TAG_D3D11RENDERER, "createPixelBufferCubemap", desc.format,
+                2, desc.width, desc.height, 1, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
         {
             return nullptr;
         }
@@ -4634,9 +4655,21 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    static size_t calcTextureBytes(DXGI_FORMAT format, uint32_t width, uint32_t height, uint32_t depth)
+    {
+        const uint32_t blockBytes = D3D11Mapping::getBytesPerBlock(format);
+        if (blockBytes != 0)
+        {
+            return size_t((width + 3) / 4) * ((height + 3) / 4) * depth * blockBytes;
+        }
+        return size_t(width) * height * depth * D3D11Mapping::getBytesPerPixel(format);
+    }
+
+    //--------------------------------------------------------------------------
+
     ID3D11Resource *D3D11Context::acquireStagingTexture(uint32_t dimension, DXGI_FORMAT format, uint32_t width, uint32_t height, uint32_t depth)
     {
-        const size_t bytes = size_t(width) * height * depth * D3D11Mapping::getBytesPerPixel(format);
+        const size_t bytes = calcTextureBytes(format, width, height, depth);
         const bool pooled = (bytes <= kStagingMaxPooledBytes);
 
         for (auto &entry : mStagingPool)
@@ -4727,7 +4760,7 @@ namespace Tiny3D
 
     ID3D11Resource *D3D11Context::acquireResolveTexture(DXGI_FORMAT format, uint32_t width, uint32_t height)
     {
-        const size_t bytes = size_t(width) * height * D3D11Mapping::getBytesPerPixel(format);
+        const size_t bytes = calcTextureBytes(format, width, height, 1);
         const bool pooled = (bytes <= kStagingMaxPooledBytes);
 
         for (auto &entry : mStagingPool)
@@ -5043,7 +5076,6 @@ namespace Tiny3D
 
             BlitEndpoint desc;
             describeD3DResource(srcResource, desc);
-
             uint32_t dimension = 2;
             uint32_t mipLevels = 1;
             uint32_t arraySize = 1;
@@ -5080,12 +5112,14 @@ namespace Tiny3D
                 return request->CopyResult;
             }
 
-            const uint32_t bpp = D3D11Mapping::getBytesPerPixel(desc.Format);
+            // 压缩格式按 4x4 块打包，一个「单元」是一块；深度模板是位域，不能读回
+            const uint32_t blockBytes = D3D11Mapping::getBytesPerBlock(desc.Format);
+            const uint32_t blockSize = (blockBytes != 0) ? 4 : 1;
+            const uint32_t bpp = (blockBytes != 0) ? blockBytes : D3D11Mapping::getBytesPerPixel(desc.Format);
             if (bpp == 0)
             {
-                // 压缩格式按块编码、深度模板是位域，都不能用「每像素 N 字节」打包
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "map : format [%d] is not supported for readback "
-                    "(compressed and depth / stencil formats are out of scope) !", desc.Format);
+                    "(depth / stencil formats are out of scope) !", desc.Format);
                 request->CopyResult = T3D_ERR_D3D11_UNSUPPORTED_OPERATION;
                 return request->CopyResult;
             }
@@ -5136,6 +5170,28 @@ namespace Tiny3D
                 return request->CopyResult;
             }
 
+            // 压缩格式只能按整块拷：起点必须对齐到块，终点要么对齐到块，要么正好落在该级 mip 的边上。
+            // 末级 mip 不足一块时按物理尺寸（整块）拷，D3D11 对 BC 的 box 就是这么要求的
+            uint32_t boxWidth = copyWidth;
+            uint32_t boxHeight = copyHeight;
+            if (blockSize > 1)
+            {
+                const bool alignedX = (offsetX % blockSize == 0)
+                    && (copyWidth % blockSize == 0 || offsetX + copyWidth == mipWidth);
+                const bool alignedY = (offsetY % blockSize == 0)
+                    && (copyHeight % blockSize == 0 || offsetY + copyHeight == mipHeight);
+                if (!alignedX || !alignedY)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "map : region of compressed texture must be aligned to "
+                        "%u x %u blocks ! offset [%u %u] size [%u %u] mip size [%u %u]",
+                        blockSize, blockSize, offsetX, offsetY, copyWidth, copyHeight, mipWidth, mipHeight);
+                    request->CopyResult = T3D_ERR_INVALID_PARAM;
+                    return request->CopyResult;
+                }
+                boxWidth = (copyWidth + blockSize - 1) / blockSize * blockSize;
+                boxHeight = (copyHeight + blockSize - 1) / blockSize * blockSize;
+            }
+
             // D3D11 的子资源索引恒为 arraySlice * mipLevels + mipLevel，与 buildSubresourceData 一致
             uint32_t srcSubresource = region.arraySlice * mipLevels + region.mipLevel;
 
@@ -5160,7 +5216,7 @@ namespace Tiny3D
                 srcSubresource = 0;
             }
 
-            ID3D11Resource *staging = acquireStagingTexture(dimension, desc.Format, copyWidth, copyHeight, copyDepth);
+            ID3D11Resource *staging = acquireStagingTexture(dimension, desc.Format, boxWidth, boxHeight, copyDepth);
             if (staging == nullptr)
             {
                 if (resolved != nullptr)
@@ -5177,15 +5233,16 @@ namespace Tiny3D
             request->CopyWidth = copyWidth;
             request->CopyHeight = copyHeight;
             request->CopyDepth = copyDepth;
-            request->TightRowPitch = copyWidth * bpp;
-            request->TightSlicePitch = request->TightRowPitch * copyHeight;
+            request->CopyRows = boxHeight / blockSize;
+            request->TightRowPitch = (boxWidth / blockSize) * bpp;
+            request->TightSlicePitch = request->TightRowPitch * request->CopyRows;
             request->TotalBytes = static_cast<size_t>(request->TightSlicePitch) * copyDepth;
 
             D3D11_BOX box;
             box.left = offsetX;
-            box.right = offsetX + copyWidth;
+            box.right = offsetX + boxWidth;
             box.top = offsetY;
-            box.bottom = offsetY + copyHeight;
+            box.bottom = offsetY + boxHeight;
             box.front = offsetZ;
             box.back = offsetZ + copyDepth;
 
@@ -5265,7 +5322,7 @@ namespace Tiny3D
                     // GPU 的 RowPitch 通常大于 width * bpp，整块 memcpy 会把 padding 当像素
                     for (uint32_t z = 0; z < request->CopyDepth; ++z)
                     {
-                        for (uint32_t y = 0; y < request->CopyHeight; ++y)
+                        for (uint32_t y = 0; y < request->CopyRows; ++y)
                         {
                             memcpy(out + z * request->TightSlicePitch + y * request->TightRowPitch,
                                 in + z * mapped.DepthPitch + y * mapped.RowPitch,

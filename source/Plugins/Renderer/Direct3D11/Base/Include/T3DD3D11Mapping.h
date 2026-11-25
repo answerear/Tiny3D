@@ -53,6 +53,16 @@ namespace Tiny3D
         /// 深度纹理的 SRV 格式；非深度格式返回 DXGI_FORMAT_UNKNOWN
         static DXGI_FORMAT getDepthSRVFormat(PixelFormat src);
 
+        /**
+         * \brief 纹理资源本身的格式
+         * \remarks sRGB 格式不能建 UAV。要 UAV 时资源建成 typeless，SRV / RTV 仍用
+         *          get(src) 的 sRGB 格式，UAV 用 getUAVFormat(src) 的线性格式
+         */
+        static DXGI_FORMAT getResourceFormat(PixelFormat src, bool wantsUAV);
+
+        /// UAV 视图格式，sRGB 格式返回对应的线性格式
+        static DXGI_FORMAT getUAVFormat(PixelFormat src);
+
         static D3D11_USAGE get(Usage src);
 
         static UINT get(uint32_t accMode);
@@ -76,10 +86,13 @@ namespace Tiny3D
          * \brief 查询 DXGI 格式每像素字节数
          * \param [in] format : DXGI 格式
          * \return 每像素字节数；压缩格式、深度模板格式与未登记格式一律返回 0
-         * \remarks 供 GPU 读回按行紧凑打包用。返回 0 即表示「本期不支持读回这种格式」，
-         *          压缩格式的「块」概念和深度模板的位域解释都不能用一个 bpp 概括。
+         * \remarks 供 GPU 读回按行紧凑打包用。压缩格式另用 getBytesPerBlock，
+         *          深度模板的位域解释不能用一个 bpp 概括，不支持读回。
          */
         static uint32_t getBytesPerPixel(DXGI_FORMAT format);
+
+        /// BC 格式（含 typeless）每个 4x4 块的字节数，其它格式返回 0
+        static uint32_t getBytesPerBlock(DXGI_FORMAT format);
         
         static D3D11_TEXTURE1D_DESC get(const PixelBuffer1DDesc &src);
         

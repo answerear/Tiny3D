@@ -76,6 +76,54 @@ namespace Tiny3D
         case PixelFormat::E_PF_B8G8R8X8:
             dst = DXGI_FORMAT_B8G8R8X8_UNORM;
             break;
+        case PixelFormat::E_PF_R8G8B8A8_SRGB:
+            dst = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+            break;
+        case PixelFormat::E_PF_B8G8R8A8_SRGB:
+            dst = DXGI_FORMAT_B8G8R8A8_UNORM_SRGB;
+            break;
+        case PixelFormat::E_PF_BC1_UNORM:
+            dst = DXGI_FORMAT_BC1_UNORM;
+            break;
+        case PixelFormat::E_PF_BC1_SRGB:
+            dst = DXGI_FORMAT_BC1_UNORM_SRGB;
+            break;
+        case PixelFormat::E_PF_BC2_UNORM:
+            dst = DXGI_FORMAT_BC2_UNORM;
+            break;
+        case PixelFormat::E_PF_BC2_SRGB:
+            dst = DXGI_FORMAT_BC2_UNORM_SRGB;
+            break;
+        case PixelFormat::E_PF_BC3_UNORM:
+            dst = DXGI_FORMAT_BC3_UNORM;
+            break;
+        case PixelFormat::E_PF_BC3_SRGB:
+            dst = DXGI_FORMAT_BC3_UNORM_SRGB;
+            break;
+        case PixelFormat::E_PF_BC4_UNORM:
+            dst = DXGI_FORMAT_BC4_UNORM;
+            break;
+        case PixelFormat::E_PF_BC4_SNORM:
+            dst = DXGI_FORMAT_BC4_SNORM;
+            break;
+        case PixelFormat::E_PF_BC5_UNORM:
+            dst = DXGI_FORMAT_BC5_UNORM;
+            break;
+        case PixelFormat::E_PF_BC5_SNORM:
+            dst = DXGI_FORMAT_BC5_SNORM;
+            break;
+        case PixelFormat::E_PF_BC6H_UF16:
+            dst = DXGI_FORMAT_BC6H_UF16;
+            break;
+        case PixelFormat::E_PF_BC6H_SF16:
+            dst = DXGI_FORMAT_BC6H_SF16;
+            break;
+        case PixelFormat::E_PF_BC7_UNORM:
+            dst = DXGI_FORMAT_BC7_UNORM;
+            break;
+        case PixelFormat::E_PF_BC7_SRGB:
+            dst = DXGI_FORMAT_BC7_UNORM_SRGB;
+            break;
         case PixelFormat::E_PF_R8_UNORM:
             dst = DXGI_FORMAT_R8_UNORM;
             break;
@@ -177,6 +225,35 @@ namespace Tiny3D
             break;
         }
         return DXGI_FORMAT_UNKNOWN;
+    }
+
+    //--------------------------------------------------------------------------
+
+    DXGI_FORMAT D3D11Mapping::getResourceFormat(PixelFormat src, bool wantsUAV)
+    {
+        if (!wantsUAV || !PixelFormatUtil::isSRGB(src))
+        {
+            return get(src);
+        }
+
+        switch (src)
+        {
+        case PixelFormat::E_PF_R8G8B8A8_SRGB:
+            return DXGI_FORMAT_R8G8B8A8_TYPELESS;
+        case PixelFormat::E_PF_B8G8R8A8_SRGB:
+            return DXGI_FORMAT_B8G8R8A8_TYPELESS;
+        default:
+            // BC 格式本身不能建 UAV，没有必要建成 typeless
+            break;
+        }
+        return get(src);
+    }
+
+    //--------------------------------------------------------------------------
+
+    DXGI_FORMAT D3D11Mapping::getUAVFormat(PixelFormat src)
+    {
+        return get(PixelFormatUtil::toLinear(src));
     }
 
     //--------------------------------------------------------------------------
@@ -305,6 +382,40 @@ namespace Tiny3D
             return 1;
         default:
             // 压缩格式（BC*）、深度模板格式与 typeless 深度格式都落到这里
+            return 0;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    uint32_t D3D11Mapping::getBytesPerBlock(DXGI_FORMAT format)
+    {
+        switch (format)
+        {
+        case DXGI_FORMAT_BC1_TYPELESS:
+        case DXGI_FORMAT_BC1_UNORM:
+        case DXGI_FORMAT_BC1_UNORM_SRGB:
+        case DXGI_FORMAT_BC4_TYPELESS:
+        case DXGI_FORMAT_BC4_UNORM:
+        case DXGI_FORMAT_BC4_SNORM:
+            return 8;
+        case DXGI_FORMAT_BC2_TYPELESS:
+        case DXGI_FORMAT_BC2_UNORM:
+        case DXGI_FORMAT_BC2_UNORM_SRGB:
+        case DXGI_FORMAT_BC3_TYPELESS:
+        case DXGI_FORMAT_BC3_UNORM:
+        case DXGI_FORMAT_BC3_UNORM_SRGB:
+        case DXGI_FORMAT_BC5_TYPELESS:
+        case DXGI_FORMAT_BC5_UNORM:
+        case DXGI_FORMAT_BC5_SNORM:
+        case DXGI_FORMAT_BC6H_TYPELESS:
+        case DXGI_FORMAT_BC6H_UF16:
+        case DXGI_FORMAT_BC6H_SF16:
+        case DXGI_FORMAT_BC7_TYPELESS:
+        case DXGI_FORMAT_BC7_UNORM:
+        case DXGI_FORMAT_BC7_UNORM_SRGB:
+            return 16;
+        default:
             return 0;
         }
     }
