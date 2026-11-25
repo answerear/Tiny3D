@@ -26,6 +26,8 @@
 #include "T3DConfig.h"
 #include "Component/T3DCamera.h"
 #include "Kernel/T3DAgent.h"
+#include "Kernel/T3DPixelFormat.h"
+#include "RHI/T3DRHIContext.h"
 #include "Render/T3DRenderTarget.h"
 #include "Render/T3DRenderTexture.h"
 #include "Kernel/T3DGameObject.h"
@@ -361,6 +363,8 @@ namespace Tiny3D
             }
 
             const Camera * other = static_cast<const Camera * const>(src);
+            // 先拷 HDR 开关，setRenderTarget 建中间纹理时才会用对格式
+            mAllowHDR = other->mAllowHDR;
             setRenderTarget(other->mRenderTarget);
 
             mOrder = other->mOrder;
@@ -386,29 +390,85 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    void Camera::setAllowHDR(bool allow)
+    {
+        if (allow == mAllowHDR)
+        {
+            return;
+        }
+
+        mAllowHDR = allow;
+
+        // 已经建好的中间纹理格式不对了，按新设置重建
+        if (mOwnsSrcRenderTarget && mRenderTarget != nullptr
+            && mRenderTarget->getType() == RenderTarget::Type::E_RT_WINDOW)
+        {
+            releaseSrcRenderTarget();
+            setupRenderTexture(mRenderTarget->getRenderWindow());
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    PixelFormat Camera::chooseColorFormat(RenderWindow *window) const
+    {
+        const RenderWindowDesc &desc = window->getDescriptor();
+
+        if (mAllowHDR)
+        {
+            RHIContextPtr ctx = T3D_AGENT.getActiveRHIContext();
+            if (ctx != nullptr)
+            {
+                const RHICapabilities &caps = ctx->getCapabilities();
+                // 后处理要采样，MSAA 时还要能 resolve
+                uint32_t required = kFormatSupportTexture | kFormatSupportRenderTarget;
+                if (desc.MSAA.Count > 1)
+                {
+                    required |= kFormatSupportMultisample;
+                }
+
+                const PixelFormat candidates[] =
+                {
+                    PixelFormat::E_PF_R16G16B16A16_FLOAT,
+                    PixelFormat::E_PF_R11G11B10_FLOAT,
+                };
+                for (PixelFormat candidate : candidates)
+                {
+                    if (caps.supportsFormat(candidate, required))
+                    {
+                        return candidate;
+                    }
+                    T3D_LOG_WARNING(LOG_TAG_COMPONENT, "Camera [%s] : HDR format %s is not usable as a %srender target, trying next.",
+                        getGameObject()->getName().c_str(), PixelFormatUtil::getName(candidate),
+                        desc.MSAA.Count > 1 ? "multisampled " : "");
+                }
+            }
+
+            T3D_LOG_WARNING(LOG_TAG_COMPONENT, "Camera [%s] : no floating-point render target available, falling back to 8-bit, brightness above 1 will be clipped.",
+                getGameObject()->getName().c_str());
+        }
+
+        switch (desc.ColorDepth)
+        {
+        case 8:
+            return PixelFormat::E_PF_PALETTE8;
+        case 16:
+            return PixelFormat::E_PF_B5G6R5;
+        case 32:
+            return PixelFormat::E_PF_B8G8R8A8;
+        case 24:
+        default:
+            return PixelFormat::E_PF_B8G8R8;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     void Camera::setupRenderTexture(RenderWindow *window)
     {
         String name = getGameObject()->getName() + "##RT";
         const RenderWindowDesc &desc = window->getDescriptor();
-        PixelFormat format;
-        switch (desc.ColorDepth)
-        {
-        case 8:
-            format = PixelFormat::E_PF_PALETTE8;
-            break;
-        case 16:
-            format = PixelFormat::E_PF_B5G6R5;
-            break;
-        case 24:
-            format = PixelFormat::E_PF_B8G8R8;
-            break;
-        case 32:
-            format = PixelFormat::E_PF_B8G8R8A8;
-            break;
-        default:
-            format = PixelFormat::E_PF_B8G8R8;
-            break;
-        }
+        const PixelFormat format = chooseColorFormat(window);
 
         // 顏色紋理。后处理要把它当 SRV 采样，必须 shaderReadable。
         RenderTexturePtr renderTexture = T3D_TEXTURE_MGR.createRenderTexture(

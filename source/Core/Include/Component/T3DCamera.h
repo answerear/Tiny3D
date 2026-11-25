@@ -27,6 +27,7 @@
 
 
 #include "Component/T3DComponent.h"
+#include "Kernel/T3DConstant.h"
 #include "Render/T3DRenderTarget.h"
 #include "Render/T3DViewport.h"
 
@@ -117,6 +118,19 @@ namespace Tiny3D
 
         /// 返回源渲染目标的颜色 RenderTexture
         RenderTexturePtr getRenderTexture() const { return mSrcRenderTarget->getRenderTexture(); }
+
+        /// 返回窗口相机是否请求浮点中间渲染纹理
+        TPROPERTY(RTTRFuncName="AllowHDR", RTTRFuncType="getter", "TOOLTIP"="Render window cameras into a floating-point buffer so brightness above 1 survives until post-processing.")
+        bool getAllowHDR() const { return mAllowHDR; }
+
+        /**
+         * \brief 设置窗口相机是否用浮点中间渲染纹理
+         * \param [in] allow : true 时依次尝试 R16G16B16A16_FLOAT、R11G11B10_FLOAT，都不支持则退回 8 位格式并打日志
+         * \remarks 只影响相机自建的中间纹理，直接渲染到 RenderTexture 的相机由调用方决定格式。
+         *          实际选用的格式通过 getRenderTexture()->getPixelFormat() 查询
+         */
+        TPROPERTY(RTTRFuncName="AllowHDR", RTTRFuncType="setter")
+        void setAllowHDR(bool allow);
 
         /// 返回相机渲染排序值
         TPROPERTY(RTTRFuncName="Order", RTTRFuncType="getter")
@@ -317,6 +331,13 @@ namespace Tiny3D
         void setupRenderTexture(RenderWindow *window);
 
         /**
+         * \brief 选中间颜色纹理的格式
+         * \param [in] window : 渲染窗口，提供色深与 MSAA
+         * \return mAllowHDR 且设备支持时返回浮点格式，否则按色深返回 8 位或 16 位格式
+         */
+        PixelFormat chooseColorFormat(RenderWindow *window) const;
+
+        /**
          * \brief 更新渲染排序并在 Scene 中重新注册
          * \param [in] newOrder : 新的排序值
          */
@@ -336,6 +357,8 @@ namespace Tiny3D
         /// 引用，附件的所有权在持有者那边，而且往往被多台相机共用，误释放会把
         /// 别人正在用的纹理一起卸载掉
         bool    mOwnsSrcRenderTarget {false};
+        /// 窗口相机是否请求浮点中间渲染纹理
+        bool    mAllowHDR {false};
         
         /// 渲染顺序
         uint32_t    mOrder {0};
