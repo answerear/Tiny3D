@@ -26,6 +26,7 @@
 #include "Resource/T3DImage.h"
 #include "ImageCodec/T3DImageCodec.h"
 #include "Kernel/T3DArchive.h"
+#include "Kernel/T3DPixelFormat.h"
 
 
 namespace Tiny3D
@@ -34,34 +35,7 @@ namespace Tiny3D
     
     uint32_t Image::getBPP(PixelFormat format)
     {
-        uint32_t bpp = 0;
-
-        switch (format)
-        {
-        case PixelFormat::E_PF_PALETTE8:
-            bpp = 8;
-            break;
-        case PixelFormat::E_PF_B5G6R5:
-        case PixelFormat::E_PF_B5G5R5A1:
-        case PixelFormat::E_PF_B4R4G4A4:
-            bpp = 16;
-            break;
-        case PixelFormat::E_PF_R8G8B8:
-        case PixelFormat::E_PF_B8G8R8:
-            bpp = 24;
-            break;
-        case PixelFormat::E_PF_R8G8B8A8:
-        case PixelFormat::E_PF_B8G8R8A8:
-        case PixelFormat::E_PF_R8G8B8X8:
-        case PixelFormat::E_PF_B8G8R8X8:
-            bpp = 32;
-            break;
-        default:
-            bpp = 0;
-            break;
-        }
-
-        return bpp;
+        return PixelFormatUtil::getBytesPerPixel(format) * 8;
     }
 
     //--------------------------------------------------------------------------

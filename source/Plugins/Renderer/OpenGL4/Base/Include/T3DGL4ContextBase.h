@@ -68,6 +68,9 @@ namespace Tiny3D
         /// 按 GL 版本与实现限制填充 mCapabilities 与 mGLSLangLimits，必须在 GLAD 加载后调用
         void fillCapabilities();
 
+        /// 查询单个格式的 PixelFormatSupportFlags，依赖 mMaxTextureSamples 已填好
+        uint32_t queryFormatSupport(PixelFormat format, bool has43) const;
+
         //-------------------------------------------------------------------
         // glslang CPU-side reflection cache
         //-------------------------------------------------------------------
@@ -215,7 +218,6 @@ namespace Tiny3D
 
         /// 各像素格式的 2D / 2D 数组多重采样纹理的最大采样数，按 PixelFormat 下标，0 表示不支持 MSAA。
         /// 开启 RHI 线程后主线程没有 GL 上下文，创建资源时的采样数校验只能查这张表
-        static constexpr uint32_t kPixelFormatCount = static_cast<uint32_t>(PixelFormat::E_PF_D16_UNORM) + 1;
         uint32_t mMaxTextureSamples[kPixelFormatCount] {};
         uint32_t mMaxArrayTextureSamples[kPixelFormatCount] {};
 

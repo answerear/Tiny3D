@@ -30,30 +30,7 @@ namespace Tiny3D
 {
     uint32_t MetalBytesPerPixel(PixelFormat format)
     {
-        switch (format)
-        {
-        case PixelFormat::E_PF_PALETTE8:
-            return 1;
-        case PixelFormat::E_PF_B5G6R5:
-        case PixelFormat::E_PF_B5G5R5A1:
-        case PixelFormat::E_PF_B4R4G4A4:
-        case PixelFormat::E_PF_D16_UNORM:
-            return 2;
-        case PixelFormat::E_PF_R8G8B8:
-        case PixelFormat::E_PF_B8G8R8:
-            return 3;
-        case PixelFormat::E_PF_R8G8B8A8:
-        case PixelFormat::E_PF_B8G8R8A8:
-        case PixelFormat::E_PF_R8G8B8X8:
-        case PixelFormat::E_PF_B8G8R8X8:
-        case PixelFormat::E_PF_D24_UNORM_S8_UINT:
-        case PixelFormat::E_PF_D32_FLOAT:
-            return 4;
-        case PixelFormat::E_PF_D32_FLOAT_S8X24_UINT:
-            return 8;
-        default:
-            return 4;
-        }
+        return PixelFormatUtil::getBytesPerPixel(format);
     }
 
     MTLPixelFormat MetalMapPixelFormat(PixelFormat format)
@@ -66,6 +43,36 @@ namespace Tiny3D
         case PixelFormat::E_PF_B8G8R8A8:
         case PixelFormat::E_PF_B8G8R8X8:
             return MTLPixelFormatBGRA8Unorm;
+        case PixelFormat::E_PF_R8_UNORM:
+            return MTLPixelFormatR8Unorm;
+        case PixelFormat::E_PF_R8G8_UNORM:
+            return MTLPixelFormatRG8Unorm;
+        case PixelFormat::E_PF_R16_UNORM:
+            return MTLPixelFormatR16Unorm;
+        case PixelFormat::E_PF_R16G16_UNORM:
+            return MTLPixelFormatRG16Unorm;
+        case PixelFormat::E_PF_R10G10B10A2_UNORM:
+            return MTLPixelFormatRGB10A2Unorm;
+        case PixelFormat::E_PF_R16_FLOAT:
+            return MTLPixelFormatR16Float;
+        case PixelFormat::E_PF_R16G16_FLOAT:
+            return MTLPixelFormatRG16Float;
+        case PixelFormat::E_PF_R16G16B16A16_FLOAT:
+            return MTLPixelFormatRGBA16Float;
+        case PixelFormat::E_PF_R32_FLOAT:
+            return MTLPixelFormatR32Float;
+        case PixelFormat::E_PF_R32G32_FLOAT:
+            return MTLPixelFormatRG32Float;
+        case PixelFormat::E_PF_R32G32B32A32_FLOAT:
+            return MTLPixelFormatRGBA32Float;
+        case PixelFormat::E_PF_R11G11B10_FLOAT:
+            return MTLPixelFormatRG11B10Float;
+        case PixelFormat::E_PF_R8G8B8A8_UINT:
+            return MTLPixelFormatRGBA8Uint;
+        case PixelFormat::E_PF_R16G16_UINT:
+            return MTLPixelFormatRG16Uint;
+        case PixelFormat::E_PF_R32_UINT:
+            return MTLPixelFormatR32Uint;
         case PixelFormat::E_PF_D16_UNORM:
             return MTLPixelFormatDepth16Unorm;
         case PixelFormat::E_PF_D32_FLOAT:

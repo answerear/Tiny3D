@@ -76,6 +76,51 @@ namespace Tiny3D
         case PixelFormat::E_PF_B8G8R8X8:
             dst = DXGI_FORMAT_B8G8R8X8_UNORM;
             break;
+        case PixelFormat::E_PF_R8_UNORM:
+            dst = DXGI_FORMAT_R8_UNORM;
+            break;
+        case PixelFormat::E_PF_R8G8_UNORM:
+            dst = DXGI_FORMAT_R8G8_UNORM;
+            break;
+        case PixelFormat::E_PF_R16_UNORM:
+            dst = DXGI_FORMAT_R16_UNORM;
+            break;
+        case PixelFormat::E_PF_R16G16_UNORM:
+            dst = DXGI_FORMAT_R16G16_UNORM;
+            break;
+        case PixelFormat::E_PF_R10G10B10A2_UNORM:
+            dst = DXGI_FORMAT_R10G10B10A2_UNORM;
+            break;
+        case PixelFormat::E_PF_R16_FLOAT:
+            dst = DXGI_FORMAT_R16_FLOAT;
+            break;
+        case PixelFormat::E_PF_R16G16_FLOAT:
+            dst = DXGI_FORMAT_R16G16_FLOAT;
+            break;
+        case PixelFormat::E_PF_R16G16B16A16_FLOAT:
+            dst = DXGI_FORMAT_R16G16B16A16_FLOAT;
+            break;
+        case PixelFormat::E_PF_R32_FLOAT:
+            dst = DXGI_FORMAT_R32_FLOAT;
+            break;
+        case PixelFormat::E_PF_R32G32_FLOAT:
+            dst = DXGI_FORMAT_R32G32_FLOAT;
+            break;
+        case PixelFormat::E_PF_R32G32B32A32_FLOAT:
+            dst = DXGI_FORMAT_R32G32B32A32_FLOAT;
+            break;
+        case PixelFormat::E_PF_R11G11B10_FLOAT:
+            dst = DXGI_FORMAT_R11G11B10_FLOAT;
+            break;
+        case PixelFormat::E_PF_R8G8B8A8_UINT:
+            dst = DXGI_FORMAT_R8G8B8A8_UINT;
+            break;
+        case PixelFormat::E_PF_R16G16_UINT:
+            dst = DXGI_FORMAT_R16G16_UINT;
+            break;
+        case PixelFormat::E_PF_R32_UINT:
+            dst = DXGI_FORMAT_R32_UINT;
+            break;
         case PixelFormat::E_PF_D24_UNORM_S8_UINT:
             dst = DXGI_FORMAT_D24_UNORM_S8_UINT;
             break;
@@ -88,8 +133,50 @@ namespace Tiny3D
         case PixelFormat::E_PF_D16_UNORM:
             dst = DXGI_FORMAT_D16_UNORM;
             break;
+        default:
+            break;
         }
         return dst;
+    }
+
+    //--------------------------------------------------------------------------
+
+    DXGI_FORMAT D3D11Mapping::getDepthTypelessFormat(PixelFormat src)
+    {
+        switch (src)
+        {
+        case PixelFormat::E_PF_D24_UNORM_S8_UINT:
+            return DXGI_FORMAT_R24G8_TYPELESS;
+        case PixelFormat::E_PF_D32_FLOAT_S8X24_UINT:
+            return DXGI_FORMAT_R32G8X24_TYPELESS;
+        case PixelFormat::E_PF_D32_FLOAT:
+            return DXGI_FORMAT_R32_TYPELESS;
+        case PixelFormat::E_PF_D16_UNORM:
+            return DXGI_FORMAT_R16_TYPELESS;
+        default:
+            break;
+        }
+        return DXGI_FORMAT_UNKNOWN;
+    }
+
+    //--------------------------------------------------------------------------
+
+    DXGI_FORMAT D3D11Mapping::getDepthSRVFormat(PixelFormat src)
+    {
+        switch (src)
+        {
+        case PixelFormat::E_PF_D24_UNORM_S8_UINT:
+            return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+        case PixelFormat::E_PF_D32_FLOAT_S8X24_UINT:
+            return DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
+        case PixelFormat::E_PF_D32_FLOAT:
+            return DXGI_FORMAT_R32_FLOAT;
+        case PixelFormat::E_PF_D16_UNORM:
+            return DXGI_FORMAT_R16_UNORM;
+        default:
+            break;
+        }
+        return DXGI_FORMAT_UNKNOWN;
     }
 
     //--------------------------------------------------------------------------

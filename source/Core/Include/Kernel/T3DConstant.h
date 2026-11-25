@@ -33,15 +33,24 @@ namespace Tiny3D
 {
     /**
      * \brief 像素 / 深度模板格式枚举
+     * \remarks 按格式族分组排列。序列化按枚举名存储，调整顺序或在组内插入新格式
+     *          不影响已有资源。判断格式属性（深度、模板、浮点、整数、字节数）
+     *          用 PixelFormatUtil，不要用枚举值区间。
      */
     TENUM()
     enum class PixelFormat : uint32_t
     {
         E_PF_UNKNOWN = 0,           ///< 未知 / 未指定格式
+
+        // 调色板与 16 位打包格式
         E_PF_PALETTE8,              ///< 8 位调色板索引
         E_PF_B5G6R5,                ///< 16 位 B5G6R5
         E_PF_B5G5R5A1,              ///< 16 位 B5G5R5A1
         E_PF_B4R4G4A4,              ///< 16 位 B4G4R4A4
+
+        // 8 位无符号归一化
+        E_PF_R8_UNORM,              ///< 8 位单通道
+        E_PF_R8G8_UNORM,            ///< 16 位双通道
         E_PF_R8G8B8,                ///< 24 位 R8G8B8
         E_PF_B8G8R8,                ///< 24 位 B8G8R8
         E_PF_R8G8B8A8,              ///< 32 位 R8G8B8A8
@@ -49,6 +58,28 @@ namespace Tiny3D
         E_PF_R8G8B8X8,              ///< 32 位 R8G8B8X8（X 通道忽略）
         E_PF_B8G8R8X8,              ///< 32 位 B8G8R8X8（X 通道忽略）
 
+        // 16 位无符号归一化
+        E_PF_R16_UNORM,             ///< 16 位单通道
+        E_PF_R16G16_UNORM,          ///< 32 位双通道
+
+        // 10 位打包
+        E_PF_R10G10B10A2_UNORM,     ///< 32 位，RGB 各 10 位 + 2 位 alpha
+
+        // 浮点
+        E_PF_R16_FLOAT,             ///< 16 位半精度单通道
+        E_PF_R16G16_FLOAT,          ///< 32 位半精度双通道
+        E_PF_R16G16B16A16_FLOAT,    ///< 64 位半精度四通道，HDR 场景缓冲
+        E_PF_R32_FLOAT,             ///< 32 位单精度单通道
+        E_PF_R32G32_FLOAT,          ///< 64 位单精度双通道
+        E_PF_R32G32B32A32_FLOAT,    ///< 128 位单精度四通道
+        E_PF_R11G11B10_FLOAT,       ///< 32 位无符号打包浮点，无 alpha
+
+        // 无符号整数（着色器里按 uint 读写，不能线性过滤，不能混合）
+        E_PF_R8G8B8A8_UINT,         ///< 32 位四通道
+        E_PF_R16G16_UINT,           ///< 32 位双通道
+        E_PF_R32_UINT,              ///< 32 位单通道
+
+        // 深度模板
         /// 24 位无符号归一化深度 + 8 位模板
         E_PF_D24_UNORM_S8_UINT,
         /// 32 位浮点深度 + 8 位模板 + 24 位未用
@@ -57,6 +88,8 @@ namespace Tiny3D
         E_PF_D32_FLOAT,
         /// 16 位无符号归一化深度，无模板
         E_PF_D16_UNORM,
+
+        E_PF_MAX                    ///< 枚举上界（非法取值哨兵）
     };
 
     /**

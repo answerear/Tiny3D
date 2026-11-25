@@ -150,6 +150,35 @@ namespace Tiny3D
             mMaxVertexShaderStorageBlocks = (uint32_t)vsStorage;
         }
 
+        // init() 时还没检测扩展，confirmDeviceVersion() 会在检测完扩展后再填一次
+        const bool hasContext = (eglGetCurrentContext() != EGL_NO_CONTEXT);
+        for (uint32_t i = 0; i < kPixelFormatCount; ++i)
+        {
+            const PixelFormat format = static_cast<PixelFormat>(i);
+            uint32_t support = GLES3Mapping::getFormatSupport(format, has31);
+
+            // 渲染纹理的 MSAA 用 glTexStorage2DMultisample（ES 3.1）；
+            // 整数格式与 D3D11 一致不给 MSAA，D3D11 的 Resolve 不支持整数格式
+            if (has31 && hasContext && !PixelFormatUtil::isIntegerFormat(format)
+                && (support & (kFormatSupportRenderTarget | kFormatSupportDepthStencil)) != 0)
+            {
+                const GLenum internalFmt = GLES3Mapping::getInternalFormat(format);
+                GLint count = 0;
+                glGetInternalformativ(GL_TEXTURE_2D_MULTISAMPLE, internalFmt, GL_NUM_SAMPLE_COUNTS, 1, &count);
+                if (count > 0)
+                {
+                    GLint samples = 0;
+                    glGetInternalformativ(GL_TEXTURE_2D_MULTISAMPLE, internalFmt, GL_SAMPLES, 1, &samples);
+                    if (samples > 1)
+                    {
+                        support |= kFormatSupportMultisample;
+                    }
+                }
+            }
+
+            mCapabilities.formatSupport[i] = support;
+        }
+
         while (glGetError() != GL_NO_ERROR) {}
     }
 
@@ -180,6 +209,7 @@ namespace Tiny3D
             mGLESMajor, mGLESMinor, mMaxTextureImageUnits);
 
         fillCapabilities();
+        mCapabilities.logFormatSupport(LOG_TAG_GLES3RENDERER);
     }
 
     //--------------------------------------------------------------------------
@@ -328,8 +358,28 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    /// 整数纹理配线性过滤是不完整纹理，没绑 sampler 时 texelFetch 也读不到数据。
+    /// 改成 GL_NEAREST 后只有 base level 参与完整性判断，texelFetch 只能读 mip 0
+    static void applyIntegerFormatFilter(GLenum target, PixelFormat format)
+    {
+        if (PixelFormatUtil::isIntegerFormat(format))
+        {
+            glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     RHIPixelBuffer2DPtr GLES3Context::createRenderTexture(PixelBuffer2D *buffer)
     {
+        const auto &desc = buffer->getDescriptor();
+        if (!mCapabilities.checkRenderTextureFormat(LOG_TAG_GLES3RENDERER, "createRenderTexture", desc.format,
+            desc.sampleDesc.Count, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
+        {
+            return nullptr;
+        }
+
         GLES3PixelBuffer2DPtr glPixelBuffer = GLES3PixelBuffer2D::create();
 
         auto lambda = [this](const PixelBuffer2DPtr &buffer, const GLES3PixelBuffer2DPtr &glPixelBuffer)
@@ -371,12 +421,7 @@ namespace Tiny3D
         do
         {
             const auto &desc = buffer->getDescriptor();
-            bool isColorRT = true;
-            if (desc.format >= PixelFormat::E_PF_D24_UNORM_S8_UINT
-                && desc.format <= PixelFormat::E_PF_D16_UNORM)
-            {
-                isColorRT = false;
-            }
+            const bool isColorRT = !PixelFormatUtil::isDepthFormat(desc.format);
 
             uint32_t msaaCount = desc.sampleDesc.Count;
             if (msaaCount < 1) msaaCount = 1;
@@ -386,8 +431,7 @@ namespace Tiny3D
             const uint32_t height = desc.height;
             const GLenum internalFmt = GLES3Mapping::getInternalFormat(desc.format);
             const GLenum pixelType = GLES3Mapping::getPixelType(desc.format);
-            const bool hasStencil = (desc.format == PixelFormat::E_PF_D24_UNORM_S8_UINT
-                || desc.format == PixelFormat::E_PF_D32_FLOAT_S8X24_UINT);
+            const bool hasStencil = PixelFormatUtil::hasStencil(desc.format);
             glPixelBuffer->GLInternalFormat = internalFmt;
 
             if (isColorRT)
@@ -420,6 +464,7 @@ namespace Tiny3D
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                    applyIntegerFormatFilter(GL_TEXTURE_2D, desc.format);
                     glBindTexture(GL_TEXTURE_2D, 0);
 
                     glGenFramebuffers(1, &glPixelBuffer->GLResolveFBO);
@@ -446,6 +491,7 @@ namespace Tiny3D
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                    applyIntegerFormatFilter(GL_TEXTURE_2D, desc.format);
                     glBindTexture(GL_TEXTURE_2D, 0);
 
                     glGenFramebuffers(1, &glPixelBuffer->GLFBO);
@@ -1764,6 +1810,7 @@ namespace Tiny3D
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                applyIntegerFormatFilter(GL_TEXTURE_2D, desc.format);
                 glBindTexture(GL_TEXTURE_2D, 0);
 
                 delete[] convertedData;
@@ -1877,6 +1924,7 @@ namespace Tiny3D
                 }
 
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                applyIntegerFormatFilter(GL_TEXTURE_2D, desc.format);
                 glBindTexture(GL_TEXTURE_2D, 0);
 
                 delete[] convertedData;
@@ -1930,6 +1978,7 @@ namespace Tiny3D
                 }
                 glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                applyIntegerFormatFilter(GL_TEXTURE_3D, desc.format);
                 glBindTexture(GL_TEXTURE_3D, 0);
 
                 GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::createPixelBuffer3D");
@@ -1994,6 +2043,7 @@ namespace Tiny3D
                 glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+                applyIntegerFormatFilter(GL_TEXTURE_CUBE_MAP, desc.format);
                 glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
                 delete[] convertedData;
@@ -3707,8 +3757,7 @@ namespace Tiny3D
 
             PixelBuffer2D *pb = static_cast<PixelBuffer2D*>(src.get());
             const auto &desc = pb->getDescriptor();
-            if (desc.format >= PixelFormat::E_PF_D24_UNORM_S8_UINT
-                && desc.format <= PixelFormat::E_PF_D16_UNORM)
+            if (PixelFormatUtil::isDepthFormat(desc.format))
             {
                 T3D_LOG_ERROR(LOG_TAG_GLES3RENDERER, "map : depth / stencil readback is not supported on GLES !");
                 request->CopyResult = T3D_ERR_GLES3_UNSUPPORTED_OPERATION;
@@ -4652,8 +4701,7 @@ namespace Tiny3D
         out.height = tex2D->getHeight();
         out.sampleCount = glPB->GLMSAACount;
         out.isWindow = false;
-        out.isDepth = (pb->getDescriptor().format >= PixelFormat::E_PF_D24_UNORM_S8_UINT
-            && pb->getDescriptor().format <= PixelFormat::E_PF_D16_UNORM);
+        out.isDepth = PixelFormatUtil::isDepthFormat(pb->getDescriptor().format);
         out.needsScratchFbo = (glPB->GLFBO == 0);
         (void)asSource;
 

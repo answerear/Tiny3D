@@ -28,10 +28,37 @@
 
 
 #include "T3DPrerequisites.h"
+#include "Kernel/T3DPixelFormat.h"
 
 
 namespace Tiny3D
 {
+    /**
+     * \brief 单个像素格式在当前后端上可用的用途位标志
+     * \remarks 组合进 RHICapabilities::formatSupport。各位相互独立，例如
+     *          整数格式通常有 kFormatSupportRenderTarget 而没有 kFormatSupportBlend。
+     */
+    enum PixelFormatSupportFlags : uint32_t
+    {
+        kFormatSupportNone              = 0,
+        /// 可创建 2D 纹理并在着色器中读取（Load / Sample）
+        kFormatSupportTexture           = (1 << 0),
+        /// 采样时支持线性过滤；没有该位时只能用点采样或 Load
+        kFormatSupportLinearFilter      = (1 << 1),
+        /// 可作为颜色渲染目标
+        kFormatSupportRenderTarget      = (1 << 2),
+        /// 作为颜色渲染目标时支持混合
+        kFormatSupportBlend             = (1 << 3),
+        /// 可作为多重采样渲染目标；颜色格式还要求能 Resolve 到单采样纹理
+        kFormatSupportMultisample       = (1 << 4),
+        /// 可作为深度模板目标
+        kFormatSupportDepthStencil      = (1 << 5),
+        /// 纹理可建 UAV 并在 compute 中写入
+        kFormatSupportUnorderedAccess   = (1 << 6),
+        /// 可作为 StructuredBufferKind::kTyped 缓冲的元素格式
+        kFormatSupportTypedBuffer       = (1 << 7),
+    };
+
     /**
      * \brief 后端能力查询结果
      * \remarks 由各后端在 init() 中填充；上层据此决定走 GPU 路径还是 CPU 降级路径。
@@ -79,6 +106,35 @@ namespace Tiny3D
         /// 带计数器或 Append/Consume 的结构化缓冲 UAV 可用的槽位数，槽号须小于该值；
         /// 不超过 maxUnorderedAccessSlots（GL 受 atomic counter 绑定点数限制，可能更小）
         uint32_t    maxCounterUnorderedAccessSlots {0};
+
+        /// 各像素格式可用的用途，按 PixelFormat 下标，取值为 PixelFormatSupportFlags 的组合
+        uint32_t    formatSupport[kPixelFormatCount] {};
+
+        uint32_t getFormatSupport(PixelFormat format) const
+        {
+            const uint32_t index = static_cast<uint32_t>(format);
+            return (index < kPixelFormatCount) ? formatSupport[index] : kFormatSupportNone;
+        }
+
+        /// flags 中的位必须全部支持才返回 true
+        bool supportsFormat(PixelFormat format, uint32_t flags) const
+        {
+            return (getFormatSupport(format) & flags) == flags;
+        }
+
+        /**
+         * \brief 按 formatSupport 校验渲染纹理的格式，不支持时打错误日志
+         * \param [in] tag : 日志 tag
+         * \param [in] func : 调用方函数名，用于日志
+         * \param [in] format : 渲染纹理格式
+         * \param [in] sampleCount : 采样数，0 和 1 都表示不开 MSAA
+         * \param [in] wantsUAV : 是否请求了 kGPUUnorderedAccess；MSAA 时不校验，由后端忽略该请求
+         */
+        bool checkRenderTextureFormat(const char *tag, const char *func, PixelFormat format,
+            uint32_t sampleCount, bool wantsUAV) const;
+
+        /// 把 formatSupport 逐格式打到日志，后端填完能力位后调用
+        void logFormatSupport(const char *tag) const;
     };
 }
 

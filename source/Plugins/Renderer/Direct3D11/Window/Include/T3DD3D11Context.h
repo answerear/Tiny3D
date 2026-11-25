@@ -744,6 +744,9 @@ namespace Tiny3D
          * \note 必须在 mFeatureLevel 确定之后、任何资源创建之前调用
          */
         void fillCapabilities();
+
+        /// 用 CheckFormatSupport 查询单个格式的 PixelFormatSupportFlags
+        uint32_t queryFormatSupport(PixelFormat format, bool hasFullCompute) const;
         
         TResult clearColor(RenderWindow *window, const ColorRGB &color);
 

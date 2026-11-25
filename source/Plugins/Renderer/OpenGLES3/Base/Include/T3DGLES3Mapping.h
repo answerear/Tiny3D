@@ -33,6 +33,14 @@ namespace Tiny3D
         static GLenum getInternalFormat(PixelFormat format);
         static GLenum getPixelType(PixelFormat format);
 
+        /**
+         * \brief 按 ES 3.x 规范的格式表与已检测到的扩展给出 PixelFormatSupportFlags
+         * \param [in] has31 : 是否 GLES 3.1+（image load/store 需要）
+         * \remarks 不含 kFormatSupportMultisample，采样数要在有上下文时查询。
+         *          GLES3 后端没有实现 kTyped 结构化缓冲，不给 kFormatSupportTypedBuffer
+         */
+        static uint32_t getFormatSupport(PixelFormat format, bool has31);
+
         static GLenum get(BlendFactor factor);
         static GLenum get(BlendOperation op);
 
@@ -64,6 +72,10 @@ namespace Tiny3D
         static bool sTessellationSupported;
         static bool sBaseVertexExtSupported;
         static bool sColorBufferFloatSupported;
+        static bool sColorBufferHalfFloatSupported;
+        static bool sTextureFloatLinearSupported;
+        static bool sFloatBlendSupported;
+        static bool sTextureNorm16Supported;
         static GLfloat sMaxAnisotropy;
     };
 }

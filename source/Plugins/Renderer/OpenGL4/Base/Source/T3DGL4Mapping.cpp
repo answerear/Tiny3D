@@ -25,6 +25,28 @@ namespace Tiny3D
         case PixelFormat::E_PF_B5G6R5:      return GL_RGB;
         case PixelFormat::E_PF_B5G5R5A1:    return GL_RGBA;
         case PixelFormat::E_PF_B4R4G4A4:    return GL_RGBA;
+        case PixelFormat::E_PF_R8_UNORM:            return GL_RED;
+        case PixelFormat::E_PF_R8G8_UNORM:          return GL_RG;
+        case PixelFormat::E_PF_R16_UNORM:           return GL_RED;
+        case PixelFormat::E_PF_R16G16_UNORM:        return GL_RG;
+        case PixelFormat::E_PF_R10G10B10A2_UNORM:   return GL_RGBA;
+        case PixelFormat::E_PF_R16_FLOAT:           return GL_RED;
+        case PixelFormat::E_PF_R16G16_FLOAT:        return GL_RG;
+        case PixelFormat::E_PF_R16G16B16A16_FLOAT:  return GL_RGBA;
+        case PixelFormat::E_PF_R32_FLOAT:           return GL_RED;
+        case PixelFormat::E_PF_R32G32_FLOAT:        return GL_RG;
+        case PixelFormat::E_PF_R32G32B32A32_FLOAT:  return GL_RGBA;
+        case PixelFormat::E_PF_R11G11B10_FLOAT:     return GL_RGB;
+        // 整数纹理的上传 / 读回必须用 *_INTEGER，否则 GL_INVALID_OPERATION
+        case PixelFormat::E_PF_R8G8B8A8_UINT:       return GL_RGBA_INTEGER;
+        case PixelFormat::E_PF_R16G16_UINT:         return GL_RG_INTEGER;
+        case PixelFormat::E_PF_R32_UINT:            return GL_RED_INTEGER;
+        case PixelFormat::E_PF_D24_UNORM_S8_UINT:
+        case PixelFormat::E_PF_D32_FLOAT_S8X24_UINT:
+            return GL_DEPTH_STENCIL;
+        case PixelFormat::E_PF_D32_FLOAT:
+        case PixelFormat::E_PF_D16_UNORM:
+            return GL_DEPTH_COMPONENT;
         default: break;
         }
         return GL_RGBA;
@@ -46,6 +68,21 @@ namespace Tiny3D
         case PixelFormat::E_PF_B5G6R5:      return GL_RGB565;
         case PixelFormat::E_PF_B5G5R5A1:    return GL_RGB5_A1;
         case PixelFormat::E_PF_B4R4G4A4:    return GL_RGBA4;
+        case PixelFormat::E_PF_R8_UNORM:            return GL_R8;
+        case PixelFormat::E_PF_R8G8_UNORM:          return GL_RG8;
+        case PixelFormat::E_PF_R16_UNORM:           return GL_R16;
+        case PixelFormat::E_PF_R16G16_UNORM:        return GL_RG16;
+        case PixelFormat::E_PF_R10G10B10A2_UNORM:   return GL_RGB10_A2;
+        case PixelFormat::E_PF_R16_FLOAT:           return GL_R16F;
+        case PixelFormat::E_PF_R16G16_FLOAT:        return GL_RG16F;
+        case PixelFormat::E_PF_R16G16B16A16_FLOAT:  return GL_RGBA16F;
+        case PixelFormat::E_PF_R32_FLOAT:           return GL_R32F;
+        case PixelFormat::E_PF_R32G32_FLOAT:        return GL_RG32F;
+        case PixelFormat::E_PF_R32G32B32A32_FLOAT:  return GL_RGBA32F;
+        case PixelFormat::E_PF_R11G11B10_FLOAT:     return GL_R11F_G11F_B10F;
+        case PixelFormat::E_PF_R8G8B8A8_UINT:       return GL_RGBA8UI;
+        case PixelFormat::E_PF_R16G16_UINT:         return GL_RG16UI;
+        case PixelFormat::E_PF_R32_UINT:            return GL_R32UI;
         case PixelFormat::E_PF_D24_UNORM_S8_UINT:       return GL_DEPTH24_STENCIL8;
         case PixelFormat::E_PF_D32_FLOAT_S8X24_UINT:    return GL_DEPTH32F_STENCIL8;
         case PixelFormat::E_PF_D32_FLOAT:                return GL_DEPTH_COMPONENT32F;
@@ -75,6 +112,28 @@ namespace Tiny3D
             return GL_UNSIGNED_SHORT_5_5_5_1;
         case PixelFormat::E_PF_B4R4G4A4:
             return GL_UNSIGNED_SHORT_4_4_4_4;
+        case PixelFormat::E_PF_R8_UNORM:
+        case PixelFormat::E_PF_R8G8_UNORM:
+        case PixelFormat::E_PF_R8G8B8A8_UINT:
+            return GL_UNSIGNED_BYTE;
+        case PixelFormat::E_PF_R16_UNORM:
+        case PixelFormat::E_PF_R16G16_UNORM:
+        case PixelFormat::E_PF_R16G16_UINT:
+            return GL_UNSIGNED_SHORT;
+        case PixelFormat::E_PF_R10G10B10A2_UNORM:
+            return GL_UNSIGNED_INT_2_10_10_10_REV;
+        case PixelFormat::E_PF_R16_FLOAT:
+        case PixelFormat::E_PF_R16G16_FLOAT:
+        case PixelFormat::E_PF_R16G16B16A16_FLOAT:
+            return GL_HALF_FLOAT;
+        case PixelFormat::E_PF_R32_FLOAT:
+        case PixelFormat::E_PF_R32G32_FLOAT:
+        case PixelFormat::E_PF_R32G32B32A32_FLOAT:
+            return GL_FLOAT;
+        case PixelFormat::E_PF_R11G11B10_FLOAT:
+            return GL_UNSIGNED_INT_10F_11F_11F_REV;
+        case PixelFormat::E_PF_R32_UINT:
+            return GL_UNSIGNED_INT;
         case PixelFormat::E_PF_D24_UNORM_S8_UINT:
             return GL_UNSIGNED_INT_24_8;
         case PixelFormat::E_PF_D32_FLOAT:
@@ -92,49 +151,21 @@ namespace Tiny3D
 
     uint32_t GL4Mapping::getBytesPerPixel(PixelFormat format)
     {
-        switch (format)
-        {
-        case PixelFormat::E_PF_PALETTE8:
-            return 1;
-        case PixelFormat::E_PF_B5G6R5:
-        case PixelFormat::E_PF_B5G5R5A1:
-        case PixelFormat::E_PF_B4R4G4A4:
-        case PixelFormat::E_PF_D16_UNORM:
-            return 2;
-        case PixelFormat::E_PF_R8G8B8:
-        case PixelFormat::E_PF_B8G8R8:
-            return 3;
-        case PixelFormat::E_PF_R8G8B8A8:
-        case PixelFormat::E_PF_B8G8R8A8:
-        case PixelFormat::E_PF_R8G8B8X8:
-        case PixelFormat::E_PF_B8G8R8X8:
-        case PixelFormat::E_PF_D24_UNORM_S8_UINT:
-        case PixelFormat::E_PF_D32_FLOAT:
-            return 4;
-        case PixelFormat::E_PF_D32_FLOAT_S8X24_UINT:
-            return 8;
-        default:
-            break;
-        }
-        return 0;
+        return PixelFormatUtil::getBytesPerPixel(format);
     }
 
     //--------------------------------------------------------------------------
 
     bool GL4Mapping::isDepthFormat(PixelFormat format)
     {
-        return format == PixelFormat::E_PF_D24_UNORM_S8_UINT
-            || format == PixelFormat::E_PF_D32_FLOAT_S8X24_UINT
-            || format == PixelFormat::E_PF_D32_FLOAT
-            || format == PixelFormat::E_PF_D16_UNORM;
+        return PixelFormatUtil::isDepthFormat(format);
     }
 
     //--------------------------------------------------------------------------
 
     bool GL4Mapping::hasStencil(PixelFormat format)
     {
-        return format == PixelFormat::E_PF_D24_UNORM_S8_UINT
-            || format == PixelFormat::E_PF_D32_FLOAT_S8X24_UINT;
+        return PixelFormatUtil::hasStencil(format);
     }
 
     //--------------------------------------------------------------------------

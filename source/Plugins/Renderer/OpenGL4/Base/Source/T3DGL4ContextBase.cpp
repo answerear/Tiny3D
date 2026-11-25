@@ -401,7 +401,115 @@ namespace Tiny3D
                 hasQuery ? "available" : "unavailable");
         }
 
+        for (uint32_t i = 0; i < kPixelFormatCount; ++i)
+        {
+            mCapabilities.formatSupport[i] = queryFormatSupport(static_cast<PixelFormat>(i), has43);
+        }
+        mCapabilities.logFormatSupport(LOG_TAG_GL4CONTEXTBASE);
+
         while (glGetError() != GL_NO_ERROR) {}
+    }
+
+    //--------------------------------------------------------------------------
+
+    uint32_t GL4ContextBase::queryFormatSupport(PixelFormat format, bool has43) const
+    {
+        const GLenum internalFmt = GL4Mapping::getInternalFormat(format);
+        if (internalFmt == GL_NONE)
+        {
+            return kFormatSupportNone;
+        }
+
+        const bool isDepth = PixelFormatUtil::isDepthFormat(format);
+        const bool isInteger = PixelFormatUtil::isIntegerFormat(format);
+        // 整数格式与 D3D11 一致不给 MSAA：D3D11 的 ResolveSubresource 不支持整数格式
+        const bool hasMSAA = mMaxTextureSamples[static_cast<uint32_t>(format)] > 1 && !isInteger;
+
+        uint32_t result = kFormatSupportNone;
+
+        if (has43)
+        {
+            // ARB_internalformat_query2 从 GL 4.3 起是核心功能
+            auto query = [internalFmt](GLenum target, GLenum pname) -> GLint
+            {
+                GLint value = GL_NONE;
+                glGetInternalformativ(target, internalFmt, pname, 1, &value);
+                return value;
+            };
+            // CAVEAT 表示能用但可能走慢路径，这里也算支持
+            auto supported = [](GLint value) -> bool
+            {
+                return value == GL_FULL_SUPPORT || value == GL_CAVEAT_SUPPORT;
+            };
+
+            if (query(GL_TEXTURE_2D, GL_INTERNALFORMAT_SUPPORTED) != GL_TRUE)
+            {
+                return kFormatSupportNone;
+            }
+
+            if (supported(query(GL_TEXTURE_2D, GL_FRAGMENT_TEXTURE)))
+            {
+                result |= kFormatSupportTexture;
+            }
+            if (supported(query(GL_TEXTURE_2D, GL_FILTER)))
+            {
+                result |= kFormatSupportLinearFilter;
+            }
+
+            if (isDepth)
+            {
+                if (query(GL_TEXTURE_2D, GL_DEPTH_RENDERABLE) == GL_TRUE)
+                {
+                    result |= kFormatSupportDepthStencil;
+                }
+            }
+            else
+            {
+                if (query(GL_TEXTURE_2D, GL_COLOR_RENDERABLE) == GL_TRUE)
+                {
+                    result |= kFormatSupportRenderTarget;
+                    if (supported(query(GL_TEXTURE_2D, GL_FRAMEBUFFER_BLEND)))
+                    {
+                        result |= kFormatSupportBlend;
+                    }
+                }
+                if (mCapabilities.supportsUnorderedAccess
+                    && supported(query(GL_TEXTURE_2D, GL_SHADER_IMAGE_STORE)))
+                {
+                    result |= kFormatSupportUnorderedAccess;
+                }
+                if (mCapabilities.supportsStructuredBuffer
+                    && query(GL_TEXTURE_BUFFER, GL_INTERNALFORMAT_SUPPORTED) == GL_TRUE)
+                {
+                    result |= kFormatSupportTypedBuffer;
+                }
+            }
+        }
+        else
+        {
+            // 没有 query2 时按 GL 规范的必选格式表估计：引擎登记的格式都是必选纹理格式，
+            // 颜色格式都可渲染；UAV 与 typed 缓冲本身就要求 4.3，不会走到这里
+            result |= kFormatSupportTexture;
+            if (isDepth)
+            {
+                result |= kFormatSupportDepthStencil;
+            }
+            else
+            {
+                result |= kFormatSupportRenderTarget;
+                if (!isInteger)
+                {
+                    result |= kFormatSupportLinearFilter | kFormatSupportBlend;
+                }
+            }
+        }
+
+        if (hasMSAA && (result & (kFormatSupportRenderTarget | kFormatSupportDepthStencil)) != 0)
+        {
+            result |= kFormatSupportMultisample;
+        }
+
+        return result;
     }
 
     //--------------------------------------------------------------------------

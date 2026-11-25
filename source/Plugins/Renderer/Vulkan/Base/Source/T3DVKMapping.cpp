@@ -76,6 +76,53 @@ namespace Tiny3D
         case PixelFormat::E_PF_B8G8R8X8:
             dst = VK_FORMAT_B8G8R8A8_UNORM;
             break;
+        case PixelFormat::E_PF_R8_UNORM:
+            dst = VK_FORMAT_R8_UNORM;
+            break;
+        case PixelFormat::E_PF_R8G8_UNORM:
+            dst = VK_FORMAT_R8G8_UNORM;
+            break;
+        case PixelFormat::E_PF_R16_UNORM:
+            dst = VK_FORMAT_R16_UNORM;
+            break;
+        case PixelFormat::E_PF_R16G16_UNORM:
+            dst = VK_FORMAT_R16G16_UNORM;
+            break;
+        case PixelFormat::E_PF_R10G10B10A2_UNORM:
+            // DXGI 的 R10G10B10A2 低位是 R，对应 Vulkan 的 A2B10G10R10 打包格式
+            dst = VK_FORMAT_A2B10G10R10_UNORM_PACK32;
+            break;
+        case PixelFormat::E_PF_R16_FLOAT:
+            dst = VK_FORMAT_R16_SFLOAT;
+            break;
+        case PixelFormat::E_PF_R16G16_FLOAT:
+            dst = VK_FORMAT_R16G16_SFLOAT;
+            break;
+        case PixelFormat::E_PF_R16G16B16A16_FLOAT:
+            dst = VK_FORMAT_R16G16B16A16_SFLOAT;
+            break;
+        case PixelFormat::E_PF_R32_FLOAT:
+            dst = VK_FORMAT_R32_SFLOAT;
+            break;
+        case PixelFormat::E_PF_R32G32_FLOAT:
+            dst = VK_FORMAT_R32G32_SFLOAT;
+            break;
+        case PixelFormat::E_PF_R32G32B32A32_FLOAT:
+            dst = VK_FORMAT_R32G32B32A32_SFLOAT;
+            break;
+        case PixelFormat::E_PF_R11G11B10_FLOAT:
+            // 同理，DXGI 的 R11G11B10 对应 Vulkan 的 B10G11R11
+            dst = VK_FORMAT_B10G11R11_UFLOAT_PACK32;
+            break;
+        case PixelFormat::E_PF_R8G8B8A8_UINT:
+            dst = VK_FORMAT_R8G8B8A8_UINT;
+            break;
+        case PixelFormat::E_PF_R16G16_UINT:
+            dst = VK_FORMAT_R16G16_UINT;
+            break;
+        case PixelFormat::E_PF_R32_UINT:
+            dst = VK_FORMAT_R32_UINT;
+            break;
         case PixelFormat::E_PF_D24_UNORM_S8_UINT:
             dst = VK_FORMAT_D24_UNORM_S8_UINT;
             break;
@@ -87,6 +134,8 @@ namespace Tiny3D
             break;
         case PixelFormat::E_PF_D16_UNORM:
             dst = VK_FORMAT_D16_UNORM;
+            break;
+        default:
             break;
         }
 

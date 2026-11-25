@@ -37,6 +37,7 @@
 #include "Component/T3DCamera.h"
 #include "Device/T3DDeviceInfo.h"
 #include "Kernel/T3DGameObject.h"
+#include "Kernel/T3DPixelFormat.h"
 #include "Render/T3DRenderTarget.h"
 #include "Render/T3DRenderTexture.h"
 #include "Render/T3DRenderWindow.h"
@@ -77,8 +78,7 @@ namespace Tiny3D
             if (depth != nullptr && depth->getPixelBuffer() != nullptr)
             {
                 const PixelFormat format = static_cast<PixelBuffer2D *>(depth->getPixelBuffer())->getDescriptor().format;
-                return format == PixelFormat::E_PF_D24_UNORM_S8_UINT
-                    || format == PixelFormat::E_PF_D32_FLOAT_S8X24_UINT;
+                return PixelFormatUtil::hasStencil(format);
             }
 
             // 窗口自带的深度不挂在 RenderTarget 上。D3D11 / GL4 / GLES3 窗口是 D24S8。

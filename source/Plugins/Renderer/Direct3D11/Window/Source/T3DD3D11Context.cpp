@@ -240,6 +240,99 @@ namespace Tiny3D
             mCapabilities.maxImageUnorderedAccessSlots = mCapabilities.maxUnorderedAccessSlots;
             mCapabilities.maxCounterUnorderedAccessSlots = mCapabilities.maxUnorderedAccessSlots;
         }
+
+        for (uint32_t i = 0; i < kPixelFormatCount; ++i)
+        {
+            mCapabilities.formatSupport[i] = queryFormatSupport(static_cast<PixelFormat>(i), hasFullCompute);
+        }
+        mCapabilities.logFormatSupport(LOG_TAG_D3D11RENDERER);
+    }
+
+    //--------------------------------------------------------------------------
+
+    uint32_t D3D11Context::queryFormatSupport(PixelFormat format, bool hasFullCompute) const
+    {
+        const DXGI_FORMAT dxgiFormat = D3D11Mapping::get(format);
+        if (dxgiFormat == DXGI_FORMAT_UNKNOWN)
+        {
+            return kFormatSupportNone;
+        }
+
+        UINT support = 0;
+        if (FAILED(mD3DDevice->CheckFormatSupport(dxgiFormat, &support)))
+        {
+            return kFormatSupportNone;
+        }
+
+        uint32_t result = kFormatSupportNone;
+
+        if (PixelFormatUtil::isDepthFormat(format))
+        {
+            // 着色器读的是 typeless 资源上的 SRV 格式，D24S8 这类 DSV 格式本身不带采样能力
+            if ((support & D3D11_FORMAT_SUPPORT_DEPTH_STENCIL) != 0)
+            {
+                result |= kFormatSupportDepthStencil;
+            }
+            if ((support & D3D11_FORMAT_SUPPORT_MULTISAMPLE_RENDERTARGET) != 0)
+            {
+                result |= kFormatSupportMultisample;
+            }
+
+            UINT srvSupport = 0;
+            const DXGI_FORMAT srvFormat = D3D11Mapping::getDepthSRVFormat(format);
+            if (SUCCEEDED(mD3DDevice->CheckFormatSupport(srvFormat, &srvSupport)))
+            {
+                if ((srvSupport & (D3D11_FORMAT_SUPPORT_SHADER_LOAD | D3D11_FORMAT_SUPPORT_SHADER_SAMPLE)) != 0)
+                {
+                    result |= kFormatSupportTexture;
+                }
+                if ((srvSupport & D3D11_FORMAT_SUPPORT_SHADER_SAMPLE) != 0)
+                {
+                    result |= kFormatSupportLinearFilter;
+                }
+            }
+            return result;
+        }
+
+        if ((support & D3D11_FORMAT_SUPPORT_TEXTURE2D) != 0
+            && (support & (D3D11_FORMAT_SUPPORT_SHADER_LOAD | D3D11_FORMAT_SUPPORT_SHADER_SAMPLE)) != 0)
+        {
+            result |= kFormatSupportTexture;
+        }
+        // SHADER_SAMPLE 即支持过滤采样，整数格式只有 SHADER_LOAD
+        if ((support & D3D11_FORMAT_SUPPORT_SHADER_SAMPLE) != 0)
+        {
+            result |= kFormatSupportLinearFilter;
+        }
+        if ((support & D3D11_FORMAT_SUPPORT_RENDER_TARGET) != 0)
+        {
+            result |= kFormatSupportRenderTarget;
+        }
+        if ((support & D3D11_FORMAT_SUPPORT_BLENDABLE) != 0)
+        {
+            result |= kFormatSupportBlend;
+        }
+        // 渲染纹理开 MSAA 后要 ResolveSubresource 才能被采样，两者缺一不可
+        if ((support & D3D11_FORMAT_SUPPORT_MULTISAMPLE_RENDERTARGET) != 0
+            && (support & D3D11_FORMAT_SUPPORT_MULTISAMPLE_RESOLVE) != 0)
+        {
+            result |= kFormatSupportMultisample;
+        }
+        // 能力位与 supportsUnorderedAccess / supportsStructuredBuffer 保持一致，FL 10.x 不给
+        if (hasFullCompute)
+        {
+            if ((support & D3D11_FORMAT_SUPPORT_TYPED_UNORDERED_ACCESS_VIEW) != 0)
+            {
+                result |= kFormatSupportUnorderedAccess;
+            }
+            if ((support & D3D11_FORMAT_SUPPORT_BUFFER) != 0
+                && (support & D3D11_FORMAT_SUPPORT_SHADER_LOAD) != 0)
+            {
+                result |= kFormatSupportTypedBuffer;
+            }
+        }
+
+        return result;
     }
 
     //--------------------------------------------------------------------------
@@ -664,7 +757,9 @@ namespace Tiny3D
             return nullptr;
         }
         if (!checkCreateFormat("createRenderTexture", desc.format)
-            || !checkCreateSamples("createRenderTexture", mD3DDevice, desc.format, desc.sampleDesc.Count))
+            || !checkCreateSamples("createRenderTexture", mD3DDevice, desc.format, desc.sampleDesc.Count)
+            || !mCapabilities.checkRenderTextureFormat(LOG_TAG_D3D11RENDERER, "createRenderTexture", desc.format,
+                desc.sampleDesc.Count, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
         {
             return nullptr;
         }
@@ -751,12 +846,7 @@ namespace Tiny3D
                 uMSAAQuality = uNumQuality - 1;
             }
             
-            bool isColorRT = true;
-            if (buffer->getDescriptor().format >= PixelFormat::E_PF_D24_UNORM_S8_UINT
-                && buffer->getDescriptor().format <= PixelFormat::E_PF_D16_UNORM)
-            {
-                isColorRT = false;
-            }
+            const bool isColorRT = !PixelFormatUtil::isDepthFormat(buffer->getDescriptor().format);
 
             if (isColorRT)
             {
@@ -886,28 +976,9 @@ namespace Tiny3D
                     // 纹理需要在 shader 中读取
                     uBindFlags |= D3D11_BIND_SHADER_RESOURCE;
 
-                    switch (buffer->getDescriptor().format)
-                    {
-                    case PixelFormat::E_PF_D24_UNORM_S8_UINT:
-                        d3dTexFormat = DXGI_FORMAT_R24G8_TYPELESS;
-                        d3dSRVFormat = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-                        break;
-                    case PixelFormat::E_PF_D32_FLOAT_S8X24_UINT:
-                        d3dTexFormat = DXGI_FORMAT_R32G8X24_TYPELESS;
-                        d3dSRVFormat = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
-                        break;
-                    case PixelFormat::E_PF_D32_FLOAT:
-                        d3dTexFormat = DXGI_FORMAT_R32_TYPELESS;
-                        d3dSRVFormat = DXGI_FORMAT_R32_FLOAT;
-                        break;
-                    case PixelFormat::E_PF_D16_UNORM:
-                        d3dTexFormat = DXGI_FORMAT_R16_TYPELESS;
-                        d3dSRVFormat = DXGI_FORMAT_R16_UNORM;
-                        break;
-                    default:
-                        T3D_ASSERT(false);
-                        break;
-                    }
+                    d3dTexFormat = D3D11Mapping::getDepthTypelessFormat(buffer->getDescriptor().format);
+                    d3dSRVFormat = D3D11Mapping::getDepthSRVFormat(buffer->getDescriptor().format);
+                    T3D_ASSERT(d3dTexFormat != DXGI_FORMAT_UNKNOWN && d3dSRVFormat != DXGI_FORMAT_UNKNOWN);
 
                     // 给后续创建 SRV 用
                     d3dDSVFormat = D3D11Mapping::get(buffer->getDescriptor().format);

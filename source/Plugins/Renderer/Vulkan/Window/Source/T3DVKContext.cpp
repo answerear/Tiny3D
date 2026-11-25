@@ -518,6 +518,68 @@ namespace Tiny3D
         }
         mCapabilities.maxComputeSharedMemory = props.limits.maxComputeSharedMemorySize;
         mCapabilities.maxUnorderedAccessSlots = props.limits.maxPerStageDescriptorStorageBuffers;
+
+        const bool colorMSAA = (props.limits.framebufferColorSampleCounts & ~VK_SAMPLE_COUNT_1_BIT) != 0;
+        const bool depthMSAA = (props.limits.framebufferDepthSampleCounts & ~VK_SAMPLE_COUNT_1_BIT) != 0;
+
+        for (uint32_t i = 0; i < kPixelFormatCount; ++i)
+        {
+            const PixelFormat format = static_cast<PixelFormat>(i);
+            const VkFormat vkFormat = VKMapping::get(format);
+            if (vkFormat == VK_FORMAT_UNDEFINED)
+            {
+                mCapabilities.formatSupport[i] = kFormatSupportNone;
+                continue;
+            }
+
+            VkFormatProperties fmtProps {};
+            vkGetPhysicalDeviceFormatProperties(mVkPhysicalDevice, vkFormat, &fmtProps);
+            const VkFormatFeatureFlags features = fmtProps.optimalTilingFeatures;
+
+            uint32_t support = kFormatSupportNone;
+            if ((features & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) != 0)
+            {
+                support |= kFormatSupportTexture;
+            }
+            if ((features & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT) != 0)
+            {
+                support |= kFormatSupportLinearFilter;
+            }
+            if ((features & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) != 0)
+            {
+                support |= kFormatSupportRenderTarget;
+                // 整数格式与 D3D11 一致不给 MSAA，D3D11 的 Resolve 不支持整数格式
+                if (colorMSAA && !PixelFormatUtil::isIntegerFormat(format))
+                {
+                    support |= kFormatSupportMultisample;
+                }
+            }
+            if ((features & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT) != 0)
+            {
+                support |= kFormatSupportBlend;
+            }
+            if ((features & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) != 0)
+            {
+                support |= kFormatSupportDepthStencil;
+                if (depthMSAA)
+                {
+                    support |= kFormatSupportMultisample;
+                }
+            }
+            // 能力位与 supportsUnorderedAccess / supportsStructuredBuffer 保持一致
+            if (mCapabilities.supportsUnorderedAccess && (features & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT) != 0)
+            {
+                support |= kFormatSupportUnorderedAccess;
+            }
+            if (mCapabilities.supportsStructuredBuffer
+                && (fmtProps.bufferFeatures & VK_FORMAT_FEATURE_UNIFORM_TEXEL_BUFFER_BIT) != 0)
+            {
+                support |= kFormatSupportTypedBuffer;
+            }
+
+            mCapabilities.formatSupport[i] = support;
+        }
+        mCapabilities.logFormatSupport(LOG_TAG_VKRENDERER);
     }
 
     //--------------------------------------------------------------------------
@@ -1357,6 +1419,12 @@ namespace Tiny3D
             }
 
             const auto &desc = buffer->getDescriptor();
+            if (!mCapabilities.checkRenderTextureFormat(LOG_TAG_VKRENDERER, "createRenderTexture", desc.format,
+                desc.sampleDesc.Count, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
+            {
+                ret = T3D_ERR_INVALID_PARAM;
+                break;
+            }
             VkFormat format = VKMapping::get(desc.format);
 
             // Determine usage and aspect based on format
@@ -1608,8 +1676,7 @@ namespace Tiny3D
             return T3D_OK;
 
         const PixelFormat format = buffer->getDescriptor().format;
-        if (format != PixelFormat::E_PF_D24_UNORM_S8_UINT
-            && format != PixelFormat::E_PF_D32_FLOAT_S8X24_UINT)
+        if (!PixelFormatUtil::hasStencil(format))
         {
             return T3D_OK;
         }

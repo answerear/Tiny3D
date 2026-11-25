@@ -62,15 +62,54 @@ namespace Tiny3D
 
         bool IsDepthFormat(PixelFormat format)
         {
+            return PixelFormatUtil::isDepthFormat(format);
+        }
+
+        /// Metal 没有 CheckFormatSupport 类查询接口，按 Metal Feature Set Tables
+        /// 中 macOS / Apple GPU 共同支持的能力保守填表
+        uint32_t GetMetalFormatSupport(id<MTLDevice> device, PixelFormat format)
+        {
+            const bool msaa = [device supportsTextureSampleCount:4];
+            bool float32Filter = false;
+            if (@available(macOS 11.0, iOS 14.0, *))
+            {
+                float32Filter = [device supports32BitFloatFiltering];
+            }
+
             switch (format)
             {
-            case PixelFormat::E_PF_D16_UNORM:
+            case PixelFormat::E_PF_R8_UNORM:
+            case PixelFormat::E_PF_R8G8_UNORM:
+            case PixelFormat::E_PF_R8G8B8A8:
+            case PixelFormat::E_PF_B8G8R8A8:
+            case PixelFormat::E_PF_R8G8B8X8:
+            case PixelFormat::E_PF_B8G8R8X8:
+            case PixelFormat::E_PF_R16_UNORM:
+            case PixelFormat::E_PF_R16G16_UNORM:
+            case PixelFormat::E_PF_R10G10B10A2_UNORM:
+            case PixelFormat::E_PF_R16_FLOAT:
+            case PixelFormat::E_PF_R16G16_FLOAT:
+            case PixelFormat::E_PF_R16G16B16A16_FLOAT:
+            case PixelFormat::E_PF_R11G11B10_FLOAT:
+                return kFormatSupportTexture | kFormatSupportLinearFilter | kFormatSupportRenderTarget
+                    | kFormatSupportBlend | (msaa ? kFormatSupportMultisample : 0u);
+            case PixelFormat::E_PF_R32_FLOAT:
+            case PixelFormat::E_PF_R32G32_FLOAT:
+            case PixelFormat::E_PF_R32G32B32A32_FLOAT:
+                return kFormatSupportTexture | kFormatSupportRenderTarget | kFormatSupportBlend
+                    | (float32Filter ? kFormatSupportLinearFilter : 0u);
+            case PixelFormat::E_PF_R8G8B8A8_UINT:
+            case PixelFormat::E_PF_R16G16_UINT:
+            case PixelFormat::E_PF_R32_UINT:
+                return kFormatSupportTexture | kFormatSupportRenderTarget;
             case PixelFormat::E_PF_D24_UNORM_S8_UINT:
-            case PixelFormat::E_PF_D32_FLOAT:
             case PixelFormat::E_PF_D32_FLOAT_S8X24_UINT:
-                return true;
+            case PixelFormat::E_PF_D32_FLOAT:
+            case PixelFormat::E_PF_D16_UNORM:
+                return kFormatSupportTexture | kFormatSupportDepthStencil | (msaa ? kFormatSupportMultisample : 0u);
             default:
-                return false;
+                // PALETTE8 / 16 位打包 / 24 位 RGB 没有对应的 MTLPixelFormat
+                return kFormatSupportNone;
             }
         }
 
@@ -256,6 +295,12 @@ namespace Tiny3D
         mCapabilities.supportsIndirectDraw = false;
         mCapabilities.supportsIndirectDispatch = false;
         mCapabilities.supportsAppendConsumeBuffer = false;
+
+        for (uint32_t i = 0; i < kPixelFormatCount; ++i)
+        {
+            mCapabilities.formatSupport[i] = GetMetalFormatSupport(mImpl->device, static_cast<PixelFormat>(i));
+        }
+        mCapabilities.logFormatSupport(LOG_TAG_METALRENDERER);
     }
 
     //--------------------------------------------------------------------------
@@ -740,6 +785,12 @@ namespace Tiny3D
         const uint32_t height = std::max(1u, desc.height);
         const uint32_t samples = ClampSampleCount(mImpl->device, desc.sampleDesc.Count);
         const bool isDepth = IsDepthFormat(desc.format);
+
+        if (!mCapabilities.checkRenderTextureFormat(LOG_TAG_METALRENDERER, "createRenderTexture", desc.format,
+            samples, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
+        {
+            return nullptr;
+        }
 
         if (samples != desc.sampleDesc.Count && desc.sampleDesc.Count > 1)
         {

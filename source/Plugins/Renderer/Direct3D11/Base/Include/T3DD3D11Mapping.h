@@ -44,6 +44,15 @@ namespace Tiny3D
         
         static DXGI_FORMAT get(PixelFormat src);
 
+        /**
+         * \brief 可被着色器读取的深度纹理要用 typeless 格式创建，DSV 用 get(src)，SRV 用 getDepthSRVFormat
+         * \return 非深度格式返回 DXGI_FORMAT_UNKNOWN
+         */
+        static DXGI_FORMAT getDepthTypelessFormat(PixelFormat src);
+
+        /// 深度纹理的 SRV 格式；非深度格式返回 DXGI_FORMAT_UNKNOWN
+        static DXGI_FORMAT getDepthSRVFormat(PixelFormat src);
+
         static D3D11_USAGE get(Usage src);
 
         static UINT get(uint32_t accMode);

@@ -41,6 +41,7 @@
 #include <Kernel/T3DSettings.h>
 #include <Kernel/T3DGameObject.h>
 #include <Kernel/T3DTransform.h>
+#include <Kernel/T3DPixelFormat.h>
 #include <Kernel/T3DTime.h>
 #include <Input/T3DInput.h>
 #include <UI/T3DUISystem.h>

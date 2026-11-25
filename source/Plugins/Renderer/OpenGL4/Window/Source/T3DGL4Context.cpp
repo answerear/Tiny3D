@@ -338,6 +338,19 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    /// 整数纹理配线性过滤是不完整纹理，没绑 sampler 时 texelFetch 也读不到数据。
+    /// 改成 GL_NEAREST 后只有 base level 参与完整性判断，texelFetch 只能读 mip 0
+    static void applyIntegerFormatFilter(GLenum target, PixelFormat format)
+    {
+        if (PixelFormatUtil::isIntegerFormat(format))
+        {
+            glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
     /// 不支持时拒绝而不是降级，与 D3D11 一致
     static bool checkCreateSamples(const char *func, const GL4ContextBase *ctx, PixelFormat format,
         uint32_t sampleCount, bool isArray)
@@ -384,7 +397,9 @@ namespace Tiny3D
         // RT 自身的 MSAA / 深度 + UAV 组合在 buildRenderTextureResources 里按 D3D11 打 warning 后忽略
         if (!checkCreateFormat("createRenderTexture", desc.format)
             || !checkCreateUsage("createRenderTexture", buffer, false)
-            || !checkCreateSamples("createRenderTexture", this, desc.format, desc.sampleDesc.Count, false))
+            || !checkCreateSamples("createRenderTexture", this, desc.format, desc.sampleDesc.Count, false)
+            || !mCapabilities.checkRenderTextureFormat(LOG_TAG_GL4RENDERER, "createRenderTexture", desc.format,
+                desc.sampleDesc.Count, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
         {
             return nullptr;
         }
@@ -943,6 +958,7 @@ namespace Tiny3D
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                    applyIntegerFormatFilter(GL_TEXTURE_2D, desc.format);
                     glBindTexture(GL_TEXTURE_2D, 0);
 
                     glGenFramebuffers(1, &glPixelBuffer->GLResolveFBO);
@@ -980,6 +996,7 @@ namespace Tiny3D
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                    applyIntegerFormatFilter(GL_TEXTURE_2D, desc.format);
                     glBindTexture(GL_TEXTURE_2D, 0);
 
                     glGenFramebuffers(1, &glPixelBuffer->GLFBO);
@@ -2297,6 +2314,7 @@ namespace Tiny3D
 
                 glPixelStorei(GL_UNPACK_ALIGNMENT, prevUnpackAlign);
                 glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                applyIntegerFormatFilter(target, desc.format);
                 glBindTexture(target, 0);
 
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createPixelBuffer1D");
@@ -2531,6 +2549,7 @@ namespace Tiny3D
 
                 glPixelStorei(GL_UNPACK_ALIGNMENT, prevUnpackAlign);
                 glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                applyIntegerFormatFilter(target, desc.format);
                 glBindTexture(target, 0);
 
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createPixelBuffer2D");
@@ -2655,6 +2674,7 @@ namespace Tiny3D
 
                 glPixelStorei(GL_UNPACK_ALIGNMENT, prevUnpackAlign);
                 glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                applyIntegerFormatFilter(GL_TEXTURE_3D, desc.format);
                 glBindTexture(GL_TEXTURE_3D, 0);
 
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createPixelBuffer3D");
@@ -2903,6 +2923,7 @@ namespace Tiny3D
                 glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
                 glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
                 glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+                applyIntegerFormatFilter(target, desc.format);
                 glBindTexture(target, 0);
 
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createPixelBufferCubemap");
