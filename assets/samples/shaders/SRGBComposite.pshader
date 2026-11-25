@@ -1,0 +1,122 @@
+#pragma fragment frag
+#pragma target 4.0
+
+#define CONCATENATE(a, b) a##b
+#define TEX2D(name) Texture2D name; SamplerState CONCATENATE(sampler, name)
+#define SAMPLE(tex, uv) tex.Sample(CONCATENATE(sampler, tex), uv)
+
+// The camera buffer and the back buffer are 8-bit UNORM, so the final linear -> sRGB
+// encode is done here by hand. Every row puts a reference next to the path under test;
+// rows 0 and 1 must show no seam between their bands when the backend is correct.
+// D3D11 has 16 sampler slots and every texture here takes a texture and a sampler register,
+// so the ramp and the colour bars share one atlas per format : v = 0.25 ramp, v = 0.75 bars.
+TEX2D(_AtlasUnorm);		// gray ramp bytes 0..255 + eight colour bars, UNORM
+TEX2D(_AtlasRgbaSrgb);	// same bytes, R8G8B8A8_SRGB
+TEX2D(_AtlasBgraSrgb);	// same colours, B8G8R8A8_SRGB
+TEX2D(_StoreUnorm);		// dark linear ramp rendered into a UNORM target
+TEX2D(_StoreSrgb);		// same ramp rendered into an sRGB target
+TEX2D(_CheckerUnorm);	// 64 x 64 one texel black / white checker, UNORM, bilinear
+TEX2D(_CheckerSrgb);	// same checker, R8G8B8A8_SRGB, bilinear
+
+struct PS_INPUT
+{
+	float4 position : SV_POSITION;
+	float2 uv : TEXCOORD0;
+};
+
+float3 linearToSrgb(float3 c)
+{
+	c = saturate(c);
+	float3 lo = c * 12.92f;
+	float3 hi = 1.055f * pow(c, 1.0f / 2.4f) - 0.055f;
+	return lerp(hi, lo, step(c, 0.0031308f));
+}
+
+float4 frag(PS_INPUT input) : SV_Target
+{
+	const float kMargin = 0.04f;
+	const float kRowPitch = 0.24f;
+	const float kRowHeight = 0.2f;
+
+	float2 uv = input.uv;
+	float2 pixel = floor(input.position.xy);
+	float lu = saturate((uv.x - kMargin) / (1.0f - 2.0f * kMargin));
+	float2 rowUV = float2(lu, 0.5f);
+	float2 rampUV = float2(lu, 0.25f);
+	float2 barsUV = float2(lu, 0.75f);
+	// Texel corners of the 64 x 64 checker : bilinear weights are 1/4 on two black and two white texels
+	float2 cornerUV = (pixel + 1.0f) / 64.0f;
+
+	float3 rampUnorm = SAMPLE(_AtlasUnorm, rampUV).rgb;
+	float3 rampSrgb = SAMPLE(_AtlasRgbaSrgb, rampUV).rgb;
+	float3 barsUnorm = SAMPLE(_AtlasUnorm, barsUV).rgb;
+	float3 barsRgba = SAMPLE(_AtlasRgbaSrgb, barsUV).rgb;
+	float3 barsBgra = SAMPLE(_AtlasBgraSrgb, barsUV).rgb;
+	float3 storeUnorm = SAMPLE(_StoreUnorm, rowUV).rgb;
+	float3 storeSrgb = SAMPLE(_StoreSrgb, rowUV).rgb;
+	float3 checkerUnorm = SAMPLE(_CheckerUnorm, cornerUV).rgb;
+	float3 checkerSrgb = SAMPLE(_CheckerSrgb, cornerUV).rgb;
+	float checker = fmod(pixel.x + pixel.y, 2.0f);
+
+	float3 color = float3(0.1f, 0.1f, 0.1f);
+
+	float rowPos = (uv.y - kMargin) / kRowPitch;
+	float row = floor(rowPos);
+	float ly = (rowPos - row) * (kRowPitch / kRowHeight);
+	bool inside = uv.x >= kMargin && uv.x <= 1.0f - kMargin && rowPos >= 0.0f && row < 4.0f && ly < 1.0f;
+	if (inside)
+	{
+		float band = floor(ly * 3.0f);
+		float column = floor(lu * 3.0f);
+		if (row < 0.5f)
+		{
+			// UNORM reference | sRGB texture, encoded | sRGB texture, not encoded (darker)
+			color = rampUnorm;
+			if (band > 0.5f)
+			{
+				color = linearToSrgb(rampSrgb);
+			}
+			if (band > 1.5f)
+			{
+				color = rampSrgb;
+			}
+		}
+		else if (row < 1.5f)
+		{
+			// UNORM reference | R8G8B8A8_SRGB | B8G8R8A8_SRGB
+			color = barsUnorm;
+			if (band > 0.5f)
+			{
+				color = linearToSrgb(barsRgba);
+			}
+			if (band > 1.5f)
+			{
+				color = linearToSrgb(barsBgra);
+			}
+		}
+		else if (row < 2.5f)
+		{
+			// Same dark linear ramp stored in 8 bits : UNORM bands, sRGB stays smooth
+			color = linearToSrgb(storeUnorm);
+			if (ly >= 0.5f)
+			{
+				color = linearToSrgb(storeSrgb);
+			}
+		}
+		else
+		{
+			// One pixel checker | sRGB bilinear average, encoded | UNORM bilinear average
+			color = float3(checker, checker, checker);
+			if (column > 0.5f)
+			{
+				color = linearToSrgb(checkerSrgb);
+			}
+			if (column > 1.5f)
+			{
+				color = checkerUnorm;
+			}
+		}
+	}
+
+	return float4(color, 1.0f);
+}

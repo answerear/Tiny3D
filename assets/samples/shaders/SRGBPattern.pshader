@@ -1,0 +1,47 @@
+#pragma fragment frag
+#pragma target 4.0
+
+#define CONCATENATE(a, b) a##b
+#define TEX2D(name) Texture2D name; SamplerState CONCATENATE(sampler, name)
+#define SAMPLE(tex, uv) tex.Sample(CONCATENATE(sampler, tex), uv)
+
+// x - mode
+//     0 : per-column test values, column c of a 256 wide target writes v = c / 255 as (v, 1 - v, v / 4)
+//     1 : dark linear gray ramp across the target, 0 at the left edge, y at the right edge
+//     2 : sample _SrcTex at uv + zw
+// y - mode 0 : 1 / (width - 1), mode 1 : ramp peak
+// zw - mode 2 : uv offset
+cbuffer SRGBPassParams
+{
+	float4 srgb_PassParams;
+}
+
+TEX2D(_SrcTex);
+
+struct PS_INPUT
+{
+	float4 position : SV_POSITION;
+	float2 uv : TEXCOORD0;
+};
+
+float4 frag(PS_INPUT input) : SV_Target
+{
+	float4 sampled = SAMPLE(_SrcTex, input.uv + srgb_PassParams.zw);
+
+	float column = floor(input.position.x) * srgb_PassParams.y;
+	float4 values = float4(column, 1.0f - column, column * 0.25f, 1.0f);
+
+	float ramp = input.uv.x * srgb_PassParams.y;
+	float4 dark = float4(ramp, ramp, ramp, 1.0f);
+
+	float4 color = sampled;
+	if (srgb_PassParams.x < 1.5f)
+	{
+		color = dark;
+	}
+	if (srgb_PassParams.x < 0.5f)
+	{
+		color = values;
+	}
+	return color;
+}

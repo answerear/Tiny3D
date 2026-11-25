@@ -108,6 +108,14 @@ $jobs = @(
     [PSCustomObject]@{ Header = "SampleShaders_vk.h";    Const = "HDR_BLOOM_DOWNSAMPLE_PIXEL_SHADER_VK";    Src = "Vulkan\HDRBloomDownsample_fragment.spirv";     Kind = "spirv" }
     [PSCustomObject]@{ Header = "SampleShaders_vk.h";    Const = "HDR_BLOOM_UPSAMPLE_PIXEL_SHADER_VK";      Src = "Vulkan\HDRBloomUpsample_fragment.spirv";       Kind = "spirv" }
     [PSCustomObject]@{ Header = "SampleShaders_vk.h";    Const = "HDR_TONEMAP_PIXEL_SHADER_VK";             Src = "Vulkan\HDRTonemap_fragment.spirv";             Kind = "spirv" }
+
+    # SRGBApp (desktop only, so no GLES3 entries)
+    [PSCustomObject]@{ Header = "SampleShaders_hlsl.h";  Const = "SRGB_PATTERN_PIXEL_SHADER";               Src = "HLSL\SRGBPattern_fragment.hlsl";               Kind = "text"  }
+    [PSCustomObject]@{ Header = "SampleShaders_hlsl.h";  Const = "SRGB_COMPOSITE_PIXEL_SHADER";             Src = "HLSL\SRGBComposite_fragment.hlsl";             Kind = "text"  }
+    [PSCustomObject]@{ Header = "SampleShaders_gl4.h";   Const = "SRGB_PATTERN_PIXEL_SHADER_GL";            Src = "OpenGL4\SRGBPattern_fragment.glsl";            Kind = "text"  }
+    [PSCustomObject]@{ Header = "SampleShaders_gl4.h";   Const = "SRGB_COMPOSITE_PIXEL_SHADER_GL";          Src = "OpenGL4\SRGBComposite_fragment.glsl";          Kind = "text"  }
+    [PSCustomObject]@{ Header = "SampleShaders_vk.h";    Const = "SRGB_PATTERN_PIXEL_SHADER_VK";            Src = "Vulkan\SRGBPattern_fragment.spirv";            Kind = "spirv" }
+    [PSCustomObject]@{ Header = "SampleShaders_vk.h";    Const = "SRGB_COMPOSITE_PIXEL_SHADER_VK";          Src = "Vulkan\SRGBComposite_fragment.spirv";          Kind = "spirv" }
 )
 
 if ($Headers) {
