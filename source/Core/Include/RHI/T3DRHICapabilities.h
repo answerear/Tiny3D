@@ -133,6 +133,23 @@ namespace Tiny3D
         bool checkRenderTextureFormat(const char *tag, const char *func, PixelFormat format,
             uint32_t sampleCount, bool wantsUAV) const;
 
+        /**
+         * \brief 校验块压缩纹理的创建参数，非压缩格式直接返回 true
+         * \param [in] tag : 日志 tag
+         * \param [in] func : 调用方函数名，用于日志
+         * \param [in] format : 纹理格式
+         * \param [in] dimension : 1 / 2 / 3，Cubemap 与 2D 数组按 2 传
+         * \param [in] width : mip 0 宽度
+         * \param [in] height : mip 0 高度
+         * \param [in] sampleCount : 采样数
+         * \param [in] wantsUAV : 是否请求了 kGPUUnorderedAccess
+         * \remarks 规则按各后端的交集定：只能是 2D / 2D 数组 / Cubemap（D3D11 没有 1D 压缩，
+         *          GL 不保证 3D 的 S3TC），mip 0 宽高必须是 4 的倍数（D3D11 的硬性要求），
+         *          不能 MSAA，不能 UAV，并且设备要报告 kFormatSupportTexture
+         */
+        bool checkCompressedTextureFormat(const char *tag, const char *func, PixelFormat format,
+            uint32_t dimension, uint32_t width, uint32_t height, uint32_t sampleCount, bool wantsUAV) const;
+
         /// 把 formatSupport 逐格式打到日志，后端填完能力位后调用
         void logFormatSupport(const char *tag) const;
     };

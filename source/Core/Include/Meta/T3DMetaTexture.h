@@ -71,11 +71,12 @@ namespace Tiny3D
         TPROPERTY()
         uint32_t            MaxSize {4096};
 
-        /// 是否为 sRGB 颜色空间（预留，本期不生效）
+        /// 是否为 sRGB 颜色空间，只在 Compression 非空时生效（none / bc1 / bc3 / bc7 输出 sRGB 格式，
+        /// mipmap 在线性空间下采样）；Compression 为空时沿用旧行为输出 B8G8R8A8 UNORM
         TPROPERTY()
         bool                sRGB {true};
 
-        /// 压缩格式标识（预留，本期不生效）
+        /// 输出编码：空串（旧行为，B8G8R8A8 UNORM）/ none / bc1 / bc3 / bc4 / bc5 / bc7
         TPROPERTY()
         String              Compression {};
 

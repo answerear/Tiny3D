@@ -68,6 +68,53 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool RHICapabilities::checkCompressedTextureFormat(const char *tag, const char *func, PixelFormat format,
+        uint32_t dimension, uint32_t width, uint32_t height, uint32_t sampleCount, bool wantsUAV) const
+    {
+        if (!PixelFormatUtil::isCompressed(format))
+        {
+            return true;
+        }
+
+        const char *name = PixelFormatUtil::getName(format);
+
+        if (dimension != 2)
+        {
+            T3D_LOG_ERROR(tag, "%s : compressed format [%s] only supports 2D, 2D array and cube textures !", func, name);
+            return false;
+        }
+
+        if ((getFormatSupport(format) & kFormatSupportTexture) == 0)
+        {
+            T3D_LOG_ERROR(tag, "%s : compressed format [%s] is not supported by this device !", func, name);
+            return false;
+        }
+
+        const uint32_t blockSize = PixelFormatUtil::getBlockSize(format);
+        if (width % blockSize != 0 || height % blockSize != 0)
+        {
+            T3D_LOG_ERROR(tag, "%s : size [%u x %u] of compressed format [%s] must be a multiple of %u !",
+                func, width, height, name, blockSize);
+            return false;
+        }
+
+        if (sampleCount > 1)
+        {
+            T3D_LOG_ERROR(tag, "%s : compressed format [%s] cannot be multisampled !", func, name);
+            return false;
+        }
+
+        if (wantsUAV)
+        {
+            T3D_LOG_ERROR(tag, "%s : compressed format [%s] cannot have unordered access !", func, name);
+            return false;
+        }
+
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
     void RHICapabilities::logFormatSupport(const char *tag) const
     {
         // 一个字母一位，不支持的位打 '-'，列宽固定方便在日志里对齐比较

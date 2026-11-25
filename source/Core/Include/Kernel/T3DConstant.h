@@ -58,6 +58,10 @@ namespace Tiny3D
         E_PF_R8G8B8X8,              ///< 32 位 R8G8B8X8（X 通道忽略）
         E_PF_B8G8R8X8,              ///< 32 位 B8G8R8X8（X 通道忽略）
 
+        // 8 位 sRGB（采样时硬件解码到线性空间，作为渲染目标时写入编码回 sRGB，alpha 始终线性）
+        E_PF_R8G8B8A8_SRGB,         ///< 32 位 R8G8B8A8，RGB 为 sRGB 编码
+        E_PF_B8G8R8A8_SRGB,         ///< 32 位 B8G8R8A8，RGB 为 sRGB 编码
+
         // 16 位无符号归一化
         E_PF_R16_UNORM,             ///< 16 位单通道
         E_PF_R16G16_UNORM,          ///< 32 位双通道
@@ -78,6 +82,22 @@ namespace Tiny3D
         E_PF_R8G8B8A8_UINT,         ///< 32 位四通道
         E_PF_R16G16_UINT,           ///< 32 位双通道
         E_PF_R32_UINT,              ///< 32 位单通道
+
+        // 块压缩（4x4 像素一块，只能作采样纹理，不能作渲染目标或 UAV）
+        E_PF_BC1_UNORM,             ///< 每块 8 字节，RGB + 1 位 alpha
+        E_PF_BC1_SRGB,              ///< BC1，RGB 为 sRGB 编码
+        E_PF_BC2_UNORM,             ///< 每块 16 字节，RGB + 4 位显式 alpha
+        E_PF_BC2_SRGB,              ///< BC2，RGB 为 sRGB 编码
+        E_PF_BC3_UNORM,             ///< 每块 16 字节，RGB + 插值 alpha
+        E_PF_BC3_SRGB,              ///< BC3，RGB 为 sRGB 编码
+        E_PF_BC4_UNORM,             ///< 每块 8 字节，单通道
+        E_PF_BC4_SNORM,             ///< BC4，有符号归一化
+        E_PF_BC5_UNORM,             ///< 每块 16 字节，双通道（常用于切线空间法线）
+        E_PF_BC5_SNORM,             ///< BC5，有符号归一化
+        E_PF_BC6H_UF16,             ///< 每块 16 字节，RGB 无符号半精度浮点（HDR）
+        E_PF_BC6H_SF16,             ///< BC6H，有符号半精度浮点
+        E_PF_BC7_UNORM,             ///< 每块 16 字节，高质量 RGBA
+        E_PF_BC7_SRGB,              ///< BC7，RGB 为 sRGB 编码
 
         // 深度模板
         /// 24 位无符号归一化深度 + 8 位模板
