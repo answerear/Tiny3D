@@ -76,6 +76,55 @@ namespace Tiny3D
         case PixelFormat::E_PF_B8G8R8X8:
             dst = VK_FORMAT_B8G8R8A8_UNORM;
             break;
+        case PixelFormat::E_PF_R8G8B8A8_SRGB:
+            dst = VK_FORMAT_R8G8B8A8_SRGB;
+            break;
+        case PixelFormat::E_PF_B8G8R8A8_SRGB:
+            dst = VK_FORMAT_B8G8R8A8_SRGB;
+            break;
+        // BC1 与 D3D11 一致按带 1 位 alpha 解码
+        case PixelFormat::E_PF_BC1_UNORM:
+            dst = VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
+            break;
+        case PixelFormat::E_PF_BC1_SRGB:
+            dst = VK_FORMAT_BC1_RGBA_SRGB_BLOCK;
+            break;
+        case PixelFormat::E_PF_BC2_UNORM:
+            dst = VK_FORMAT_BC2_UNORM_BLOCK;
+            break;
+        case PixelFormat::E_PF_BC2_SRGB:
+            dst = VK_FORMAT_BC2_SRGB_BLOCK;
+            break;
+        case PixelFormat::E_PF_BC3_UNORM:
+            dst = VK_FORMAT_BC3_UNORM_BLOCK;
+            break;
+        case PixelFormat::E_PF_BC3_SRGB:
+            dst = VK_FORMAT_BC3_SRGB_BLOCK;
+            break;
+        case PixelFormat::E_PF_BC4_UNORM:
+            dst = VK_FORMAT_BC4_UNORM_BLOCK;
+            break;
+        case PixelFormat::E_PF_BC4_SNORM:
+            dst = VK_FORMAT_BC4_SNORM_BLOCK;
+            break;
+        case PixelFormat::E_PF_BC5_UNORM:
+            dst = VK_FORMAT_BC5_UNORM_BLOCK;
+            break;
+        case PixelFormat::E_PF_BC5_SNORM:
+            dst = VK_FORMAT_BC5_SNORM_BLOCK;
+            break;
+        case PixelFormat::E_PF_BC6H_UF16:
+            dst = VK_FORMAT_BC6H_UFLOAT_BLOCK;
+            break;
+        case PixelFormat::E_PF_BC6H_SF16:
+            dst = VK_FORMAT_BC6H_SFLOAT_BLOCK;
+            break;
+        case PixelFormat::E_PF_BC7_UNORM:
+            dst = VK_FORMAT_BC7_UNORM_BLOCK;
+            break;
+        case PixelFormat::E_PF_BC7_SRGB:
+            dst = VK_FORMAT_BC7_SRGB_BLOCK;
+            break;
         case PixelFormat::E_PF_R8_UNORM:
             dst = VK_FORMAT_R8_UNORM;
             break;

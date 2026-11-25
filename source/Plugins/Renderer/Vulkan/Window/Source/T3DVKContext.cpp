@@ -2061,6 +2061,13 @@ namespace Tiny3D
 
     RHIPixelBuffer2DPtr VKContext::createPixelBuffer2D(PixelBuffer2D *buffer)
     {
+        if (!mCapabilities.checkCompressedTextureFormat(LOG_TAG_VKRENDERER, "createPixelBuffer2D",
+            buffer->getDescriptor().format, 2, buffer->getDescriptor().width, buffer->getDescriptor().height,
+            buffer->getDescriptor().sampleDesc.Count, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
+        {
+            return nullptr;
+        }
+
         VKPixelBuffer2DPtr vkBuffer = VKPixelBuffer2D::create();
 
         do
@@ -2073,7 +2080,8 @@ namespace Tiny3D
             {
                 VkFormat format = VKMapping::get(desc.format);
                 const uint32_t mipLevels = std::max<uint32_t>(1, desc.mipmaps);
-                const uint32_t bpp = Image::getBPP(desc.format) / 8;
+                const bool hasLayout = PixelFormatUtil::isCompressed(desc.format)
+                    || PixelFormatUtil::getBytesPerPixel(desc.format) > 0;
 
                 VkImageCreateInfo imageInfo {};
                 imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -2127,7 +2135,7 @@ namespace Tiny3D
                 vkCreateImageView(mVkDevice, &viewInfo, nullptr, &vkBuffer->VkTexView);
 
                 // Upload data if available
-                if (buffer->getBuffer().Data != nullptr && bpp > 0)
+                if (buffer->getBuffer().Data != nullptr && hasLayout)
                 {
                     VkDeviceSize imageSize = buffer->getBuffer().DataSize;
                     VkBuffer stagingBuffer;
@@ -2166,7 +2174,7 @@ namespace Tiny3D
                     {
                         const uint32_t mipW = std::max<uint32_t>(1, desc.width >> level);
                         const uint32_t mipH = std::max<uint32_t>(1, desc.height >> level);
-                        const VkDeviceSize levelSize = static_cast<VkDeviceSize>(mipW) * mipH * bpp;
+                        const VkDeviceSize levelSize = PixelFormatUtil::getSliceSize(desc.format, mipW, mipH);
                         if (offset + levelSize > imageSize)
                         {
                             break;
@@ -2225,6 +2233,13 @@ namespace Tiny3D
 
     RHIPixelBufferCubemapPtr VKContext::createPixelBufferCubemap(PixelBufferCubemap *buffer)
     {
+        if (!mCapabilities.checkCompressedTextureFormat(LOG_TAG_VKRENDERER, "createPixelBufferCubemap",
+            buffer->getDescriptor().format, 2, buffer->getDescriptor().width, buffer->getDescriptor().height, 1,
+            (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
+        {
+            return nullptr;
+        }
+
         VKPixelBufferCubemapPtr vkBuffer = VKPixelBufferCubemap::create();
 
         do
@@ -2300,8 +2315,7 @@ namespace Tiny3D
                 if (buffer->getBuffer().Data != nullptr)
                 {
                     VkDeviceSize imageSize = buffer->getBuffer().DataSize;
-                    const size_t bpp = Image::getBPP(desc.format) / 8;
-                    const VkDeviceSize faceSize = (VkDeviceSize)desc.width * desc.height * bpp;
+                    const VkDeviceSize faceSize = PixelFormatUtil::getSliceSize(desc.format, desc.width, desc.height);
 
                     VkBuffer stagingBuffer;
                     VkDeviceMemory stagingBufferMemory;
