@@ -375,7 +375,7 @@ namespace Tiny3D
             {
                 const PixelFormat format = static_cast<PixelFormat>(i);
                 const GLenum internalFmt = GL4Mapping::getInternalFormat(format);
-                if (internalFmt == GL_NONE)
+                if (internalFmt == GL_NONE || PixelFormatUtil::isCompressed(format))
                 {
                     continue;
                 }
@@ -420,10 +420,42 @@ namespace Tiny3D
             return kFormatSupportNone;
         }
 
+        if (PixelFormatUtil::isCompressed(format))
+        {
+            // 压缩格式只能采样，按扩展判断即可：RGTC 从 3.0、BPTC 从 4.2 起是核心功能
+            // （glad 只生成到 3.3 的版本标记，4.3 以下看扩展字符串），
+            // S3TC 始终是扩展，它的 sRGB 变体还要 GL_EXT_texture_sRGB
+            bool available = true;
+            switch (format)
+            {
+            case PixelFormat::E_PF_BC1_UNORM:
+            case PixelFormat::E_PF_BC2_UNORM:
+            case PixelFormat::E_PF_BC3_UNORM:
+                available = GLAD_GL_EXT_texture_compression_s3tc != 0;
+                break;
+            case PixelFormat::E_PF_BC1_SRGB:
+            case PixelFormat::E_PF_BC2_SRGB:
+            case PixelFormat::E_PF_BC3_SRGB:
+                available = GLAD_GL_EXT_texture_compression_s3tc != 0 && GLAD_GL_EXT_texture_sRGB != 0;
+                break;
+            case PixelFormat::E_PF_BC6H_UF16:
+            case PixelFormat::E_PF_BC6H_SF16:
+            case PixelFormat::E_PF_BC7_UNORM:
+            case PixelFormat::E_PF_BC7_SRGB:
+                available = has43 || GLAD_GL_ARB_texture_compression_bptc != 0;
+                break;
+            default:
+                break;
+            }
+            return available ? (kFormatSupportTexture | kFormatSupportLinearFilter) : kFormatSupportNone;
+        }
+
         const bool isDepth = PixelFormatUtil::isDepthFormat(format);
         const bool isInteger = PixelFormatUtil::isIntegerFormat(format);
         // 整数格式与 D3D11 一致不给 MSAA：D3D11 的 ResolveSubresource 不支持整数格式
         const bool hasMSAA = mMaxTextureSamples[static_cast<uint32_t>(format)] > 1 && !isInteger;
+        // image load / store 没有 sRGB 格式，要靠 texture view 换成线性格式，本后端未实现
+        const bool allowUAV = !PixelFormatUtil::isSRGB(format);
 
         uint32_t result = kFormatSupportNone;
 
@@ -473,12 +505,12 @@ namespace Tiny3D
                         result |= kFormatSupportBlend;
                     }
                 }
-                if (mCapabilities.supportsUnorderedAccess
+                if (mCapabilities.supportsUnorderedAccess && allowUAV
                     && supported(query(GL_TEXTURE_2D, GL_SHADER_IMAGE_STORE)))
                 {
                     result |= kFormatSupportUnorderedAccess;
                 }
-                if (mCapabilities.supportsStructuredBuffer
+                if (mCapabilities.supportsStructuredBuffer && allowUAV
                     && query(GL_TEXTURE_BUFFER, GL_INTERNALFORMAT_SUPPORTED) == GL_TRUE)
                 {
                     result |= kFormatSupportTypedBuffer;

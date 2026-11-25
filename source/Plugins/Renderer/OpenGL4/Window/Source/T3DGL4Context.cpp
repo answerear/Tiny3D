@@ -351,6 +351,123 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    /// D3D11 由 RTV 格式决定是否做 sRGB 编码，GL 由 GL_FRAMEBUFFER_SRGB 开关，它对非 sRGB 附件没有影响，
+    /// 所以绘制 FBO 非 0 时一律打开，blit 也就和 D3D11 一样读 sRGB 源时解码、写 sRGB 目标时编码。
+    /// 默认帧缓冲关掉：窗口按 UNORM 呈现，部分驱动（NVIDIA）的默认帧缓冲开着它也会编码。
+    /// 每次改动绘制 FBO 后都要调用
+    static void syncFramebufferSRGB()
+    {
+        GLint drawFBO = 0;
+        glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFBO);
+        if (drawFBO != 0)
+        {
+            glEnable(GL_FRAMEBUFFER_SRGB);
+        }
+        else
+        {
+            glDisable(GL_FRAMEBUFFER_SRGB);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    static bool isCompressedInternalFormat(GLenum internalFmt)
+    {
+        switch (internalFmt)
+        {
+        case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+        case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT:
+        case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:
+        case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT:
+        case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+        case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT:
+        case GL_COMPRESSED_RED_RGTC1:
+        case GL_COMPRESSED_SIGNED_RED_RGTC1:
+        case GL_COMPRESSED_RG_RGTC2:
+        case GL_COMPRESSED_SIGNED_RG_RGTC2:
+        case GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT_ARB:
+        case GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT_ARB:
+        case GL_COMPRESSED_RGBA_BPTC_UNORM_ARB:
+        case GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM_ARB:
+            return true;
+        default:
+            return false;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    /// 块压缩纹理没有 pixelFormat / pixelType，也不能 glGenerateMipmap：先 glTexStorage 分配整条 mip 链，
+    /// 再逐个子资源 glCompressedTexSubImage 上传。数据布局与其他路径一致（layer 在外、mip 在内）；
+    /// 数据只够每层 mip 0 时只上传 mip 0 并把 MAX_LEVEL 限制为 0。
+    /// target 只能是 GL_TEXTURE_2D / 2D_ARRAY / CUBE_MAP / CUBE_MAP_ARRAY，cubemap 的 layers 为面数
+    static void uploadCompressedTexture(GLenum target, PixelFormat format, GLenum internalFmt,
+        uint32_t width, uint32_t height, uint32_t mipLevels, uint32_t layers, const uint8_t *data, size_t dataSize)
+    {
+        if (target == GL_TEXTURE_2D || target == GL_TEXTURE_CUBE_MAP)
+        {
+            glTexStorage2D(target, mipLevels, internalFmt, width, height);
+        }
+        else
+        {
+            glTexStorage3D(target, mipLevels, internalFmt, width, height, layers);
+        }
+
+        const size_t fullSize = PixelFormatUtil::getMipChainSize(format, width, height, 1, mipLevels) * layers;
+        const size_t mip0Size = PixelFormatUtil::getSliceSize(format, width, height);
+        uint32_t uploadLevels = 0;
+        if (data != nullptr)
+        {
+            if (dataSize >= fullSize)
+            {
+                uploadLevels = mipLevels;
+            }
+            else if (dataSize >= mip0Size * layers)
+            {
+                uploadLevels = 1;
+            }
+            else
+            {
+                T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "uploadCompressedTexture : data size [%zu] is less than "
+                    "mip 0 of all layers [%zu], initial data is ignored !", dataSize, mip0Size * layers);
+            }
+        }
+
+        size_t offset = 0;
+        for (uint32_t layer = 0; layer < layers && uploadLevels > 0; ++layer)
+        {
+            for (uint32_t level = 0; level < uploadLevels; ++level)
+            {
+                const uint32_t mipW = std::max<uint32_t>(1, width >> level);
+                const uint32_t mipH = std::max<uint32_t>(1, height >> level);
+                const GLsizei levelSize = static_cast<GLsizei>(PixelFormatUtil::getSliceSize(format, mipW, mipH));
+                if (target == GL_TEXTURE_2D)
+                {
+                    glCompressedTexSubImage2D(GL_TEXTURE_2D, level, 0, 0, mipW, mipH,
+                        internalFmt, levelSize, data + offset);
+                }
+                else if (target == GL_TEXTURE_CUBE_MAP)
+                {
+                    glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer, level, 0, 0, mipW, mipH,
+                        internalFmt, levelSize, data + offset);
+                }
+                else
+                {
+                    glCompressedTexSubImage3D(target, level, 0, 0, layer, mipW, mipH, 1,
+                        internalFmt, levelSize, data + offset);
+                }
+                offset += levelSize;
+            }
+        }
+
+        const uint32_t validLevels = (uploadLevels == 1) ? 1u : mipLevels;
+        glTexParameteri(target, GL_TEXTURE_BASE_LEVEL, 0);
+        glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(validLevels - 1));
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, validLevels > 1 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+    }
+
+    //--------------------------------------------------------------------------
+
     /// 不支持时拒绝而不是降级，与 D3D11 一致
     static bool checkCreateSamples(const char *func, const GL4ContextBase *ctx, PixelFormat format,
         uint32_t sampleCount, bool isArray)
@@ -584,6 +701,7 @@ namespace Tiny3D
                     break;
                 }
 
+                syncFramebufferSRGB();
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setRenderTarget");
             } while (false);
 
@@ -776,6 +894,7 @@ namespace Tiny3D
             glReadBuffer(readFBO == 0 ? GL_BACK : GL_COLOR_ATTACHMENT0);
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, drawFBO);
             glDrawBuffer(drawFBO == 0 ? GL_BACK : GL_COLOR_ATTACHMENT0);
+            syncFramebufferSRGB();
             glBlitFramebuffer(0, 0, w, h, 0, flipY ? h : 0, w, flipY ? 0 : h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
         };
 
@@ -795,6 +914,7 @@ namespace Tiny3D
 
         glBindFramebuffer(GL_READ_FRAMEBUFFER, static_cast<GLuint>(prevReadFBO));
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, static_cast<GLuint>(prevDrawFBO));
+        syncFramebufferSRGB();
 
         if (scissorEnabled)
         {
@@ -860,6 +980,7 @@ namespace Tiny3D
             {
                 releaseWindowProxy();
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                syncFramebufferSRGB();
             } while (false);
 
             return ret;
@@ -1067,6 +1188,7 @@ namespace Tiny3D
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
             }
 
+            syncFramebufferSRGB();
             GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::buildRenderTextureResources");
         } while (false);
 
@@ -2166,7 +2288,9 @@ namespace Tiny3D
             return nullptr;
         }
         if (!checkCreateFormat("createPixelBuffer1D", srcDesc.format)
-            || !checkCreateUsage("createPixelBuffer1D", buffer, true))
+            || !checkCreateUsage("createPixelBuffer1D", buffer, true)
+            || !mCapabilities.checkCompressedTextureFormat(LOG_TAG_GL4RENDERER, "createPixelBuffer1D", srcDesc.format,
+                1, srcDesc.width, 1, 1, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
         {
             return nullptr;
         }
@@ -2339,7 +2463,10 @@ namespace Tiny3D
             return nullptr;
         }
         if (!checkCreateFormat("createPixelBuffer2D", srcDesc.format)
-            || !checkCreateUsage("createPixelBuffer2D", buffer, true))
+            || !checkCreateUsage("createPixelBuffer2D", buffer, true)
+            || !mCapabilities.checkCompressedTextureFormat(LOG_TAG_GL4RENDERER, "createPixelBuffer2D", srcDesc.format,
+                2, srcDesc.width, srcDesc.height, srcDesc.sampleDesc.Count,
+                (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
         {
             return nullptr;
         }
@@ -2417,6 +2544,16 @@ namespace Tiny3D
 
                 glGenTextures(1, &glBuffer->GLTexture);
                 glBindTexture(target, glBuffer->GLTexture);
+
+                if (PixelFormatUtil::isCompressed(desc.format))
+                {
+                    uploadCompressedTexture(target, desc.format, internalFmt, desc.width, desc.height,
+                        mipLevels, arraySize, buffer->getBuffer().Data, buffer->getBuffer().DataSize);
+                    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                    glBindTexture(target, 0);
+                    GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createPixelBuffer2D(compressed)");
+                    break;
+                }
 
                 GLint prevUnpackAlign = 4;
                 glGetIntegerv(GL_UNPACK_ALIGNMENT, &prevUnpackAlign);
@@ -2575,7 +2712,9 @@ namespace Tiny3D
             return nullptr;
         }
         if (!checkCreateFormat("createPixelBuffer3D", srcDesc.format)
-            || !checkCreateUsage("createPixelBuffer3D", buffer, true))
+            || !checkCreateUsage("createPixelBuffer3D", buffer, true)
+            || !mCapabilities.checkCompressedTextureFormat(LOG_TAG_GL4RENDERER, "createPixelBuffer3D", srcDesc.format,
+                3, srcDesc.width, srcDesc.height, 1, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
         {
             return nullptr;
         }
@@ -2699,7 +2838,9 @@ namespace Tiny3D
             return nullptr;
         }
         if (!checkCreateFormat("createPixelBufferCubemap", srcDesc.format)
-            || !checkCreateUsage("createPixelBufferCubemap", buffer, true))
+            || !checkCreateUsage("createPixelBufferCubemap", buffer, true)
+            || !mCapabilities.checkCompressedTextureFormat(LOG_TAG_GL4RENDERER, "createPixelBufferCubemap", srcDesc.format,
+                2, srcDesc.width, srcDesc.height, 1, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
         {
             return nullptr;
         }
@@ -2742,6 +2883,19 @@ namespace Tiny3D
 
                 glGenTextures(1, &glBuffer->GLTexture);
                 glBindTexture(target, glBuffer->GLTexture);
+
+                if (PixelFormatUtil::isCompressed(desc.format))
+                {
+                    uploadCompressedTexture(target, desc.format, internalFmt, desc.width, desc.height,
+                        mipLevels, faceCount, data, src.DataSize);
+                    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                    glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                    glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                    glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+                    glBindTexture(target, 0);
+                    GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createPixelBufferCubemap(compressed)");
+                    break;
+                }
 
                 GLint prevUnpackAlign = 4;
                 glGetIntegerv(GL_UNPACK_ALIGNMENT, &prevUnpackAlign);
@@ -4749,6 +4903,7 @@ namespace Tiny3D
                                 0, 0, (GLint)desc.width, (GLint)desc.height,
                                 GL_COLOR_BUFFER_BIT, GL_NEAREST);
                             glBindFramebuffer(GL_FRAMEBUFFER, static_cast<GLuint>(prevFBO));
+                            syncFramebufferSRGB();
                             tex = glPB->GLResolveTex;
                         }
                         else
@@ -4800,10 +4955,11 @@ namespace Tiny3D
                 return request->CopyResult;
             }
 
+            const bool isCompressed = PixelFormatUtil::isCompressed(format);
             const uint32_t bpp = GL4Mapping::getBytesPerPixel(format);
-            if (bpp == 0 || GL4Mapping::isDepthFormat(format))
+            if ((bpp == 0 && !isCompressed) || GL4Mapping::isDepthFormat(format))
             {
-                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "map : format [%d] is not supported for readback (compressed and depth/stencil formats are out of scope) !", (int32_t)format);
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "map : format [%d] is not supported for readback (depth/stencil formats are out of scope) !", (int32_t)format);
                 request->CopyResult = T3D_ERR_GL4_UNSUPPORTED_OPERATION;
                 return request->CopyResult;
             }
@@ -4851,11 +5007,28 @@ namespace Tiny3D
                 return request->CopyResult;
             }
 
+            // 压缩格式按 4x4 块读回：起点必须块对齐，尺寸要么块对齐要么正好到 mip 边缘，与 D3D11 一致
+            if (isCompressed)
+            {
+                const uint32_t blockSize = PixelFormatUtil::getBlockSize(format);
+                const bool alignedX = (offsetX % blockSize == 0)
+                    && (copyWidth % blockSize == 0 || offsetX + copyWidth == mipWidth);
+                const bool alignedY = (offsetY % blockSize == 0)
+                    && (copyHeight % blockSize == 0 || offsetY + copyHeight == mipHeight);
+                if (!alignedX || !alignedY)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "map : region of compressed texture must be aligned to %u x %u blocks !",
+                        blockSize, blockSize);
+                    request->CopyResult = T3D_ERR_INVALID_PARAM;
+                    return request->CopyResult;
+                }
+            }
+
             request->CopyWidth = copyWidth;
             request->CopyHeight = copyHeight;
             request->CopyDepth = copyDepth;
-            request->TightRowPitch = copyWidth * bpp;
-            request->TightSlicePitch = request->TightRowPitch * copyHeight;
+            request->TightRowPitch = static_cast<uint32_t>(PixelFormatUtil::getRowPitch(format, copyWidth));
+            request->TightSlicePitch = request->TightRowPitch * PixelFormatUtil::getRowCount(format, copyHeight);
             request->TotalBytes = static_cast<size_t>(request->TightSlicePitch) * copyDepth;
 
             GLint glYOffset = static_cast<GLint>(offsetY);
@@ -4886,11 +5059,21 @@ namespace Tiny3D
             glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
             glBindBuffer(GL_PIXEL_PACK_BUFFER, request->Staging);
-            glGetTextureSubImage(tex, (GLint)request->Region.mipLevel,
-                (GLint)offsetX, glYOffset, glZOffset,
-                (GLsizei)copyWidth, (GLsizei)copyHeight, (GLsizei)copyDepth,
-                GL4Mapping::get(format), GL4Mapping::getPixelType(format),
-                (GLsizei)request->TotalBytes, nullptr);
+            if (isCompressed)
+            {
+                glGetCompressedTextureSubImage(tex, (GLint)request->Region.mipLevel,
+                    (GLint)offsetX, glYOffset, glZOffset,
+                    (GLsizei)copyWidth, (GLsizei)copyHeight, (GLsizei)copyDepth,
+                    (GLsizei)request->TotalBytes, nullptr);
+            }
+            else
+            {
+                glGetTextureSubImage(tex, (GLint)request->Region.mipLevel,
+                    (GLint)offsetX, glYOffset, glZOffset,
+                    (GLsizei)copyWidth, (GLsizei)copyHeight, (GLsizei)copyDepth,
+                    GL4Mapping::get(format), GL4Mapping::getPixelType(format),
+                    (GLsizei)request->TotalBytes, nullptr);
+            }
             glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
             glPixelStorei(GL_PACK_ALIGNMENT, prevPackAlign);
 
@@ -7013,6 +7196,13 @@ namespace Tiny3D
             return T3D_OK;
         }
 
+        if (isCompressedInternalFormat(src.internalFormat) || isCompressedInternalFormat(dst.internalFormat))
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "blit : compressed texture can not be attached to a framebuffer, "
+                "only same-format copy without scaling is supported !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
         GLint prevFBO = 0;
         glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFBO);
 
@@ -7092,6 +7282,7 @@ namespace Tiny3D
                 glReadBuffer(GL_COLOR_ATTACHMENT0);
                 glBindFramebuffer(GL_DRAW_FRAMEBUFFER, src.resolveFbo);
                 glDrawBuffer(GL_COLOR_ATTACHMENT0);
+                syncFramebufferSRGB();
                 glBlitFramebuffer(0, 0, static_cast<GLint>(src.width), static_cast<GLint>(src.height),
                     0, 0, static_cast<GLint>(src.width), static_cast<GLint>(src.height),
                     GL_COLOR_BUFFER_BIT, GL_NEAREST);
@@ -7115,6 +7306,7 @@ namespace Tiny3D
             auto bindDraw = [](GLuint fbo, bool isWindow, bool isDepth)
             {
                 glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+                syncFramebufferSRGB();
                 if (isDepth)
                 {
                     return;
@@ -7145,6 +7337,7 @@ namespace Tiny3D
         } while (false);
 
         glBindFramebuffer(GL_FRAMEBUFFER, prevFBO);
+        syncFramebufferSRGB();
         return ret;
     }
 
