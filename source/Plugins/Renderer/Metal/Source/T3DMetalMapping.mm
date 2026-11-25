@@ -43,6 +43,26 @@ namespace Tiny3D
         case PixelFormat::E_PF_B8G8R8A8:
         case PixelFormat::E_PF_B8G8R8X8:
             return MTLPixelFormatBGRA8Unorm;
+        case PixelFormat::E_PF_R8G8B8A8_SRGB:
+            return MTLPixelFormatRGBA8Unorm_sRGB;
+        case PixelFormat::E_PF_B8G8R8A8_SRGB:
+            return MTLPixelFormatBGRA8Unorm_sRGB;
+#if TARGET_OS_OSX
+        case PixelFormat::E_PF_BC1_UNORM:   return MTLPixelFormatBC1_RGBA;
+        case PixelFormat::E_PF_BC1_SRGB:    return MTLPixelFormatBC1_RGBA_sRGB;
+        case PixelFormat::E_PF_BC2_UNORM:   return MTLPixelFormatBC2_RGBA;
+        case PixelFormat::E_PF_BC2_SRGB:    return MTLPixelFormatBC2_RGBA_sRGB;
+        case PixelFormat::E_PF_BC3_UNORM:   return MTLPixelFormatBC3_RGBA;
+        case PixelFormat::E_PF_BC3_SRGB:    return MTLPixelFormatBC3_RGBA_sRGB;
+        case PixelFormat::E_PF_BC4_UNORM:   return MTLPixelFormatBC4_RUnorm;
+        case PixelFormat::E_PF_BC4_SNORM:   return MTLPixelFormatBC4_RSnorm;
+        case PixelFormat::E_PF_BC5_UNORM:   return MTLPixelFormatBC5_RGUnorm;
+        case PixelFormat::E_PF_BC5_SNORM:   return MTLPixelFormatBC5_RGSnorm;
+        case PixelFormat::E_PF_BC6H_UF16:   return MTLPixelFormatBC6H_RGBUfloat;
+        case PixelFormat::E_PF_BC6H_SF16:   return MTLPixelFormatBC6H_RGBFloat;
+        case PixelFormat::E_PF_BC7_UNORM:   return MTLPixelFormatBC7_RGBAUnorm;
+        case PixelFormat::E_PF_BC7_SRGB:    return MTLPixelFormatBC7_RGBAUnorm_sRGB;
+#endif
         case PixelFormat::E_PF_R8_UNORM:
             return MTLPixelFormatR8Unorm;
         case PixelFormat::E_PF_R8G8_UNORM:

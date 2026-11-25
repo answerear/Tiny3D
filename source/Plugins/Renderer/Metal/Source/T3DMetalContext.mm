@@ -93,6 +93,35 @@ namespace Tiny3D
             case PixelFormat::E_PF_R11G11B10_FLOAT:
                 return kFormatSupportTexture | kFormatSupportLinearFilter | kFormatSupportRenderTarget
                     | kFormatSupportBlend | (msaa ? kFormatSupportMultisample : 0u);
+            // sRGB 纹理没有 shaderWrite，本后端也没有 UAV，不报告 UnorderedAccess
+            case PixelFormat::E_PF_R8G8B8A8_SRGB:
+            case PixelFormat::E_PF_B8G8R8A8_SRGB:
+                return kFormatSupportTexture | kFormatSupportLinearFilter | kFormatSupportRenderTarget
+                    | kFormatSupportBlend | (msaa ? kFormatSupportMultisample : 0u);
+#if TARGET_OS_OSX
+            case PixelFormat::E_PF_BC1_UNORM:
+            case PixelFormat::E_PF_BC1_SRGB:
+            case PixelFormat::E_PF_BC2_UNORM:
+            case PixelFormat::E_PF_BC2_SRGB:
+            case PixelFormat::E_PF_BC3_UNORM:
+            case PixelFormat::E_PF_BC3_SRGB:
+            case PixelFormat::E_PF_BC4_UNORM:
+            case PixelFormat::E_PF_BC4_SNORM:
+            case PixelFormat::E_PF_BC5_UNORM:
+            case PixelFormat::E_PF_BC5_SNORM:
+            case PixelFormat::E_PF_BC6H_UF16:
+            case PixelFormat::E_PF_BC6H_SF16:
+            case PixelFormat::E_PF_BC7_UNORM:
+            case PixelFormat::E_PF_BC7_SRGB:
+                {
+                    bool bc = true;
+                    if (@available(macOS 11.0, *))
+                    {
+                        bc = [device supportsBCTextureCompression];
+                    }
+                    return bc ? (kFormatSupportTexture | kFormatSupportLinearFilter) : kFormatSupportNone;
+                }
+#endif
             case PixelFormat::E_PF_R32_FLOAT:
             case PixelFormat::E_PF_R32G32_FLOAT:
             case PixelFormat::E_PF_R32G32B32A32_FLOAT:
@@ -1243,20 +1272,21 @@ namespace Tiny3D
             return;
         }
 
-        const uint32_t bpp = MetalBytesPerPixel(format);
-        if (bpp == 0)
+        if (MetalBytesPerPixel(format) == 0 && !PixelFormatUtil::isCompressed(format))
         {
             return;
         }
 
+        // 压缩格式的 bytesPerRow 是一行 4x4 块的字节数，region 仍按像素给
         const uint32_t mipLevels = std::max<uint32_t>(1, mipmaps);
         size_t offset = 0;
         for (uint32_t level = 0; level < mipLevels && level < tex.mipmapLevelCount; ++level)
         {
             const NSUInteger mipW = std::max<NSUInteger>(1, tex.width >> level);
             const NSUInteger mipH = std::max<NSUInteger>(1, tex.height >> level);
-            const NSUInteger bpr = mipW * bpp;
-            const size_t levelSize = static_cast<size_t>(bpr) * mipH;
+            const NSUInteger bpr = PixelFormatUtil::getRowPitch(format, static_cast<uint32_t>(mipW));
+            const size_t levelSize = PixelFormatUtil::getSliceSize(format,
+                static_cast<uint32_t>(mipW), static_cast<uint32_t>(mipH));
             if (offset + levelSize > buffer.DataSize)
             {
                 break;
@@ -1297,6 +1327,12 @@ namespace Tiny3D
         }
 
         const PixelBuffer2DDesc &desc = buffer->getDescriptor();
+        if (!mCapabilities.checkCompressedTextureFormat(LOG_TAG_METALRENDERER, "createPixelBuffer2D", desc.format,
+            2, desc.width, desc.height, desc.sampleDesc.Count, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
+        {
+            return nullptr;
+        }
+
         MTLTextureDescriptor *td = [MTLTextureDescriptor
             texture2DDescriptorWithPixelFormat:MetalMapPixelFormat(desc.format)
             width:std::max(1u, desc.width) height:std::max(1u, desc.height)
@@ -1355,6 +1391,12 @@ namespace Tiny3D
         }
 
         const PixelBuffer2DDesc &desc = buffer->getDescriptor();
+        if (!mCapabilities.checkCompressedTextureFormat(LOG_TAG_METALRENDERER, "createPixelBufferCubemap", desc.format,
+            2, desc.width, desc.height, 1, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
+        {
+            return nullptr;
+        }
+
         MTLTextureDescriptor *td = [MTLTextureDescriptor
             textureCubeDescriptorWithPixelFormat:MetalMapPixelFormat(desc.format)
             size:std::max(1u, desc.width) mipmapped:desc.mipmaps > 1];
