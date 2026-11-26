@@ -38,7 +38,7 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 | 点光源阴影 / CSM / 反射探针 / IBL | ❌ | G-03、G-04 |
 | SSAO / SSR / TAA / 运动模糊 | ❌ | G-01、G-03、G-05 |
 | 软粒子、贴花（边测深度边采样深度） | ❌ | G-06 |
-| GPU 性能分析、RenderDoc 分组 | ❌ | G-07、G-08 |
+| GPU 性能分析、RenderDoc 分组、遮挡剔除原语 | ✅ 可用（D3D11、GL4） | — |
 | 显存 / 带宽效率 | ⚠️ | G-02、G-13 |
 
 ---
@@ -132,7 +132,8 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 
 | 项目 | 内容 |
 |---|---|
-| **状态** | ❌ 缺失 |
+| **状态** | ✅ 已完成（D3D11、GL4 运行验证；Vulkan、GLES3 部分类型；Metal 未实现） |
+| **实现** | 1) 新资源 `RHIQuery`（`Core/Include/RHI/T3DRHIQuery.h`），类型 `kOcclusion` / `kBinaryOcclusion` / `kTimestamp` / `kPipelineStatistics`；接口 `createQuery` / `beginQuery` / `endQuery` / `resolveQuery` / `setPredication`。`kTimestamp` 只调 `endQuery`，结果统一换算成纳秒，disjoint 由后端内部处理（期间的结果返回 `kDisjoint`）；`kPipelineStatistics` 返回 `PipelineStatistics` 结构（IA 顶点 / 图元、各着色器调用次数、裁剪前后图元）；<br/>2) 读结果非阻塞：主线程 `endQuery` 时记一个序号，后端在 GPU 结果就绪后 `publish(序号, 结果)`，`resolveQuery` 只看最近一次发起的序号，返回 `kPending` / `kReady` / `kDisjoint`，从不等待。同一个查询每帧重发会一直取不到结果，所以调用方要按帧轮换（`GPUProfiler` 用 5 组，`OcclusionCullingApp` 用 4 组）；<br/>3) 能力进 `RHICapabilities`：`supportsOcclusionQuery` / `supportsBinaryOcclusionQuery` / `supportsTimestampQuery` / `supportsPipelineStatisticsQuery` / `supportsPredication`，`supportsQuery(type)` 汇总，`createQuery` 不支持时打 warning 返回空；<br/>4) 引擎侧 `GPUProfiler`（`Render/T3DGPUProfiler.h`）：按作用域嵌套记录 timestamp，延迟几帧取回后给出每段耗时与整帧 GPU 时间，`RenderPipeline::enableGPUProfiling(true)` 打开，`ForwardRenderPipeline` 的各个分组（见 G-08）同时是 profiler 作用域；<br/>5) D3D11：`ID3D11Query` / `ID3D11Predicate`，每帧第一个 timestamp 开启一个 `TIMESTAMP_DISJOINT`，帧末结束，当帧的 timestamp 共用它换算；`GetData` 带 `DONOTFLUSH` 每帧轮询；`SetPredication(pred, FALSE)`；<br/>6) GL4：`glGenQueries`，`GL_SAMPLES_PASSED` / `GL_ANY_SAMPLES_PASSED`，timestamp 用 `glQueryCounter(GL_TIMESTAMP)`，pipeline statistics 需要 `ARB_pipeline_statistics_query`（每个统计项一个 GL 查询）；用 `GL_QUERY_RESULT_AVAILABLE` 轮询；条件渲染用 `glBeginConditionalRender(GL_QUERY_WAIT)`（GPU 上等，CPU 不阻塞。`NO_WAIT` 在结果未就绪时照常绘制，紧挨着的查询几乎总是未就绪，等于不剔除）；<br/>7) Vulkan：每个查询一个 `VkQueryPool`，每帧在飞一个槽（`MAX_FRAMES_IN_FLIGHT`）；帧 fence 之后 `vkGetQueryPoolResults` 取结果，下一次复用前在命令缓冲开头 `vkCmdResetQueryPool`。begin / end 必须同在或同不在 render pass 内，同一查询每帧只能发一次。timestamp 依赖队列的 `timestampValidBits` 与 `timestampPeriod`，pipeline statistics 依赖设备特性。没有条件渲染（`supportsPredication = false`）；<br/>8) GLES3：只有 `kBinaryOcclusion`（`GL_ANY_SAMPLES_PASSED`）；timestamp 依赖 `EXT_disjoint_timer_query`，每次轮询读 `GL_GPU_DISJOINT_EXT`，出现 disjoint 时把未完成的 timestamp 都标为 `kDisjoint`；<br/>9) Metal：全部返回不支持。<br/>**验证**：`OcclusionCullingApp` 初版（见 §7.3）。D3D11 与 GL4 上 5 项能力全为 1；1180 个物件逐个「画包围盒代理 + 遮挡查询 → 条件渲染画本体」，每帧可见约 50～80 个，pending 0；pipeline statistics 的 IA 顶点约 4.6～4.8 万（1180 个代理 + 可见物件，全部绘制是 12.7 万），说明条件渲染确实跳过了绘制；`GPUProfiler` 各段耗时稳定，顶层分组之和与整帧 GPU 时间吻合（误差 < 0.01 ms），无丢帧，日志无 error / warning。<br/>**待做**：Metal 的查询（`MTLCounterSampleBuffer` / visibility result buffer）；Vulkan 条件渲染需要 `VK_EXT_conditional_rendering`；Vulkan、GLES3、Metal 只编译、未运行验证（GLES3、Metal 本机未编译）；GL 上逐物件同帧「测完就画」要在 GPU 上串行等待 1180 次，City Objects 段从 6.4 ms 涨到约 11 ms，真实引擎应改用上一帧的查询结果，Sample 后续调整；`OcclusionCullingApp` 的 RmlUi 性能面板未做 |
 | **现状** | 后端没有任何 `ID3D11Query` |
 | **缺少** | Timestamp + Disjoint（GPU 计时）、Occlusion / Occlusion Predicate（遮挡查询）、Pipeline Statistics、`SetPredication`（条件渲染） |
 | **影响** | 无法按 Pass 统计 GPU 耗时，编辑器做不了 Profiler 面板；遮挡剔除（`Tiny3D-Capability-Status-todo.md` GAP-10）缺底层原语 |
@@ -143,7 +144,8 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 
 | 项目 | 内容 |
 |---|---|
-| **状态** | ❌ 缺失 |
+| **状态** | ✅ 已完成（全部后端已实现；D3D11、GL4 运行验证，RenderDoc 截图待补） |
+| **实现** | 1) `RHIContext::beginDebugGroup(name)` / `endDebugGroup()` / `setDebugMarker(name)` / `setDebugName(RenderResource *)`，默认空实现返回 `T3D_OK`；能力位 `RHICapabilities::supportsDebugAnnotations`；<br/>2) 上层用宏 `T3D_RHI_DEBUG_GROUP`（作用域，`RHIDebugGroupScope`）/ `T3D_RHI_DEBUG_GROUP_BEGIN` / `_END` / `T3D_RHI_DEBUG_MARKER`。`T3D_ENABLE_RHI_DEBUG_ANNOTATION`（`T3DConfig.h`，默认 1）定义为 0 时宏为空，`RenderResource::setDebugName` 只记录名字不转发，Release 可在编译选项里关掉；<br/>3) `ForwardRenderPipeline` 分组：`Camera <名字>` 下依次是 `Shadow`、`PreRender Behaviours`、`Opaque`、`Skybox`、`Transparent`、`PostRender Behaviours`、`UI`、`PostProcess`、`Blit`、`UI Overlay`；连续的不透明 / 透明队列各合并成一个组。每个分组同时是 `GPUProfiler` 的计时作用域（见 G-07）；<br/>4) 资源调试名：`RenderResource::setDebugName(name)` 转发给后端；`Texture` / `RenderTexture` 的像素缓冲用资源名，`Mesh` / `SubMesh` 的顶点 / 索引缓冲用「网格名 VB0 / IB」，`RenderResourceManager` 建的常量缓冲用 cbuffer 名，`ForwardRenderPipeline` 的动态合批缓冲与全屏三角形也有名字；<br/>5) D3D11：`ID3DUserDefinedAnnotation` 的 `BeginEvent` / `EndEvent` / `SetMarker`，调试名用 `SetPrivateData(WKPDID_D3DDebugObjectName)`（同时设到 SRV / RTV / DSV / UAV 视图上）；<br/>6) GL4 / GLES3：`KHR_debug` 的 `glPushDebugGroup` / `glPopDebugGroup` / `glDebugMessageInsert`，调试名用 `glObjectLabel`；GLES3 运行时用 `eglGetProcAddress` 先取核心名（ES 3.2）、再取 `KHR` 后缀，都取不到时 `supportsDebugAnnotations = false`；<br/>7) Vulkan：`VK_EXT_debug_utils`（实例扩展可用时才开启），`vkCmdBeginDebugUtilsLabelEXT` / `End` / `Insert`，调试名用 `vkSetDebugUtilsObjectNameEXT`；不在帧命令缓冲录制期间的分组 / 标记直接忽略；<br/>8) Metal：`pushDebugGroup` / `popDebugGroup` / `insertDebugSignpost`，调试名写 `label`。<br/>**验证**：D3D11 与 GL4 上 `supportsDebugAnnotations = 1`；`OcclusionCullingApp` 的 `GPUProfiler` 输出与分组一一对应（`Camera` → `Shadow` / `PostRender Behaviours` → `City Ground` / `City Objects` …），说明分组的开闭配对正确；运行无 error / warning。<br/>**待做**：用 RenderDoc 抓帧截图作为验证记录（本机未装 RenderDoc）；Vulkan、GLES3、Metal 未运行验证（GLES3、Metal 本机未编译）；着色器、采样器和渲染状态对象还没有调试名 |
 | **现状** | 没有 `ID3DUserDefinedAnnotation`，也没有给资源设置调试名称（`SetPrivateData(WKPDID_D3DDebugObjectName)`） |
 | **影响** | RenderDoc / PIX 里看到的是一长串不分组的 draw call，资源也全是匿名的，排查渲染问题成本很高 |
 | **要做** | 1) `RHIContext::beginDebugGroup(name)` / `endDebugGroup()` / `setDebugMarker(name)`，`ForwardRenderPipeline` 在阴影、不透明、天空盒、透明、后处理各阶段打组；<br/>2) 资源创建时把引擎侧名字传给后端设为调试名。GL 用 `KHR_debug`，Vulkan 用 `VK_EXT_debug_utils`。Release 构建可编译期关闭 |
@@ -225,7 +227,7 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 |:---:|---|---|
 | 1 | G-01 + G-02 | 投入最小、解锁最多。D3D11 侧基本只是补映射表；主要工作量在枚举分组、按格式查询能力，以及其它后端同步跟进 |
 | 2 | G-03 + G-05 + G-04 | 三者共用一套「子资源视图」设计，应一次设计、分步实现。落地后才能做点光源阴影、CSM、IBL。**已完成**（D3D11、GL4），各后端剩余工作见对应条目 |
-| 3 | G-08 + G-07 | 工具链能力，越早做越省调试时间。G-08 改动小，可以插到任意阶段先做 |
+| 3 | G-08 + G-07 | 工具链能力，越早做越省调试时间。G-08 改动小，可以插到任意阶段先做。**已完成**（D3D11、GL4 运行验证，其余后端见对应条目） |
 | 4 | G-06、G-09 | 各自独立。G-09 会改变窗口 MSAA 的语义，需要单独验证 |
 | 5 | G-10～G-13 | 按需逐个补 |
 
@@ -381,6 +383,14 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 
 调试分组本身不产生画面，这一项以 RenderDoc 截图作为验证记录。
 
+**当前进度（初版，覆盖 G-07 与 G-08）**：`source/Samples/OcclusionCullingApp` 已实现，D3D11 与 GL4 上数据校验通过；人眼验收和 RenderDoc 截图还没做。
+- **场景**：8 × 8 个街区（街区 40 m、街道 14 m），226 栋高楼、768 盏路灯、186 辆车，共 1180 个物件，全部由代码生成，顶点直接是世界坐标，放在一个大顶点缓冲里（每个物件后面跟着它的包围盒代理），地面单独一个缓冲；带雾和天空色的简单光照 shader（`OcclusionCullingShaders.cpp`）。相机以 9 m/s 沿 1080 m 的环形路线行驶并转过街角，视线看向前方 10 m。
+- **G-07 遮挡剔除**：`OcclusionCullingBehaviour`（相机上的 `CameraBehaviour`，在 `onPostRender` 里用 RHI 直接绘制）每帧按距离从近到远排序，每个物件先取消条件渲染、关深度写入和颜色写入画包围盒代理并包一个 `kBinaryOcclusion` 查询，再以这个查询为谓词画本体。查询按 4 帧轮换，非阻塞地取回上几帧的结果统计可见数量。整个物件 Pass 包一个 `kPipelineStatistics` 查询。代理必须在取消谓词后画，否则会被上一个物件的谓词跳过，查询读到 0。
+- **G-07 GPU 计时**：`pipeline->enableGPUProfiling(true)` 打开 `GPUProfiler`，Sample 在管线分组下再加 `City Ground`、`City Objects` 两个作用域，每 2 秒把各段耗时、整帧 GPU 时间、可见数量和 pipeline statistics 打到日志。
+- **G-08**：管线自带分组，Sample 再加 `City` / `City Ground` / `City Objects` 分组，两个顶点缓冲设置了调试名（常量缓冲由 `RenderResourceManager` 按 cbuffer 名命名）。
+- **结果**：D3D11 与 GL4 每帧可见约 50～80 / 1180，IA 顶点约 4.6～4.8 万（全部绘制是 12.7 万），`City Objects` 在 D3D11 上约 6～8 ms、GL4 上约 11 ms（GPU 上逐物件串行等待查询结果的代价，见 G-07 待做），顶层分组耗时之和与整帧 GPU 时间吻合，无丢帧，日志无 error / warning。
+- **与最终方案的差距**：没有 RmlUi 性能面板（数据只进日志）、指示牌 / 长椅 / 电线；「遮挡剔除」用的是同帧测完就画，不会出现「穿帮」，但在 GL 上 GPU 开销偏大，后续改成用上一帧结果并对新进入视野的物件保守绘制；G-09、G-13 未做，对应检查点未验证；只带 HLSL / GLSL 源码。
+
 #### `OITApp`：酒吧吧台（G-10、G-11、G-12）
 
 **场景**：吧台上摆着一排装着不同颜色酒水的玻璃杯和酒瓶，有几只杯子放在缓慢旋转的展示托盘上，彼此前后交错。吧台后方是彩色玻璃装饰窗，一侧是玻璃展柜。相机沿吧台缓慢移动，经过展柜时会靠近。
@@ -405,7 +415,7 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 
 | 条目 | 所在 Sample | 校验内容 |
 |---|---|---|
-| G-07 | `OcclusionCullingApp` | 各 Pass 的 timestamp 之和与 CPU 侧测得的 GPU 帧时间处于同一量级 |
+| G-07 | `OcclusionCullingApp` | 各 Pass 的 timestamp 之和与 CPU 侧测得的 GPU 帧时间处于同一量级。**已实现**：顶层分组之和与整帧 GPU 时间相差 < 0.01 ms；同时打出 pipeline statistics 与可见数量 |
 | G-13 | `OcclusionCullingApp` | 同一帧中，按偏移绑定路径和旧路径的 CPU 提交耗时对比 |
 
 ### 7.5 场景资源从哪来
