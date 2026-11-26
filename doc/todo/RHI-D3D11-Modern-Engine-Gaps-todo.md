@@ -383,7 +383,7 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 
 调试分组本身不产生画面，这一项以 RenderDoc 截图作为验证记录。
 
-**当前进度（初版，覆盖 G-07 与 G-08）**：`source/Samples/OcclusionCullingApp` 已实现，D3D11 与 GL4 上数据校验通过；人眼验收和 RenderDoc 截图还没做。
+**当前进度（初版，覆盖 G-07 与 G-08）**：`source/Samples/OcclusionCullingApp` 已实现，D3D11 与 GL4 上数据校验通过；静态画面人眼验收通过（两个后端的楼群、路灯、车辆、雾效一致，没有翻转、深度穿插或远处物件缺失），转角穿帮要看运动画面，还没专门检查；RenderDoc 截图还没做。
 - **场景**：8 × 8 个街区（街区 40 m、街道 14 m），226 栋高楼、768 盏路灯、186 辆车，共 1180 个物件，全部由代码生成，顶点直接是世界坐标，放在一个大顶点缓冲里（每个物件后面跟着它的包围盒代理），地面单独一个缓冲；带雾和天空色的简单光照 shader（`OcclusionCullingShaders.cpp`）。相机以 9 m/s 沿 1080 m 的环形路线行驶并转过街角，视线看向前方 10 m。
 - **G-07 遮挡剔除**：`OcclusionCullingBehaviour`（相机上的 `CameraBehaviour`，在 `onPostRender` 里用 RHI 直接绘制）每帧按距离从近到远排序，每个物件先取消条件渲染、关深度写入和颜色写入画包围盒代理并包一个 `kBinaryOcclusion` 查询，再以这个查询为谓词画本体。查询按 4 帧轮换，非阻塞地取回上几帧的结果统计可见数量。整个物件 Pass 包一个 `kPipelineStatistics` 查询。代理必须在取消谓词后画，否则会被上一个物件的谓词跳过，查询读到 0。
 - **G-07 GPU 计时**：`pipeline->enableGPUProfiling(true)` 打开 `GPUProfiler`，Sample 在管线分组下再加 `City Ground`、`City Objects` 两个作用域，每 2 秒把各段耗时、整帧 GPU 时间、可见数量和 pipeline statistics 打到日志。
