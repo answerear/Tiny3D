@@ -84,7 +84,8 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 
 | 项目 | 内容 |
 |---|---|
-| **状态** | ❌ 缺失 |
+| **状态** | ✅ 已完成（D3D11、GL4；Vulkan 部分；GLES3 / Metal 显式拒绝） |
+| **实现** | 1) 引擎侧：`T3DRenderConstant.h` 新增 `TextureSubresource {mipLevel, mipCount, firstSlice, sliceCount}`（计数为 0 表示「到末尾」），提供 `mip()`、`slice()`、`resolve()`、`key()` 等辅助函数，和 `TextureSubresources` 数组。`TextureManager::createRenderTexture(name, dimension, w, h, arraySize, format, mipmaps, ...)` 接受 `TT_2D` / `TT_2D_ARRAY` / `TT_CUBE` / `TT_CUBE_ARRAY`，`mipmaps = 0` 表示完整 mip 链；`RenderTexture` 记录维度与层数（`getRenderTextureType`、`getArraySize`）；<br/>2) `RenderTarget::create(color, colorSub, depth, depthSub)` 与 `setColorSubresource` / `setDepthStencilSubresource` 让附件选中某一级 mip 和层范围。选中多层就是分层渲染，要由 GS 输出 `SV_RenderTargetArrayIndex`，并且后端要有 `supportsLayeredRendering`。`getAttachmentSize` 返回所选 mip 的尺寸，后端的视口、清屏和 framebuffer 尺寸都按它计算；<br/>3) `RHICapabilities::checkRenderTextureLayout` 在各后端 `createRenderTexture` 入口统一校验：Cube 宽高相等、层数是 6 的倍数，MSAA 只能配单层、单 mip 的 2D（Cube 与 MSAA 互斥），mip 数不超过完整链，带 `kGPUGenerateMips` 时不能是深度格式、格式要可作 RT 且可线性过滤；<br/>4) 视图维度规则在各后端一致：资源只有一层时用 2D 视图；选中全部层时用资源本身的维度（Cube 仍是 Cube）；选中部分层时用 2D 数组；UAV 永远不用 Cube 维度；<br/>5) D3D11：`D3D11PixelBuffer2D` 的 SRV / UAV / RTV / DSV 各有一张 `TMap<uint64_t, View*>`，按 `TextureSubresource::key()` 懒创建、随资源释放。Cube 带 `MISC_TEXTURECUBE`，默认 SRV 覆盖全部 mip（以前写死 `MipLevels = 1`）。`setRenderTarget` 按附件子资源取 RTV / DSV，`setViewport` 按所选 mip 计算像素尺寸；<br/>6) GL4：数组 / Cube / 多 mip 的渲染纹理用 `glTexStorage2D/3D` 建不可变存储（`glTextureView` 只认不可变存储）。FBO 单层用 `glFramebufferTextureLayer` 挂，Cube 单面用面 target 挂（GL 4.5 之前 `glFramebufferTextureLayer` 不接受 Cube），全部层用 `glFramebufferTexture` 做分层挂载；GL 不能挂「部分多层」，这种选择退化为全部层并打 warning。每次 `setRenderTarget` 按附件子资源重新挂载；<br/>7) Vulkan：image 按 mip 与层数创建，Cube 带 `CUBE_COMPATIBLE`；采样视图覆盖全部 mip，附件视图和子资源视图按 key 缓存（第 63 位区分附件视图），framebuffer 的哈希带上子资源，尺寸按 `getAttachmentSize` 计算；<br/>8) GLES3、Metal：`createRenderTexture` 遇到 `arraySize > 1`、Cube 或 `mipmaps > 1` 时打 error 并失败。<br/>**验证**：整个解决方案 Debug 编译通过；新建 `PointLightShadowApp`（见 7.3），六个 Cube 面各用一个 `RenderTarget` 选中对应层，颜色 Cube 和深度 Cube 同时按面挂载，D3D11 与 GL4 上阴影方向正确，日志无 error / warning。ShadowApp、ComputeApp（35 项全过）在 D3D11 与 GL4 上无回归。<br/>**待做**：Vulkan 按整张 image 追踪 layout，同一张 image 一级读、另一级写的情况没有处理，也不支持分层渲染；GLES3 与 Metal 的数组 / Cube / 多 mip 渲染纹理；还没有 Sample 用到分层渲染（GS 一次画六个面）和 `TT_2D_ARRAY`，留给 `CascadedShadowApp` |
 | **现状** | `RHIContext::createRenderTexture(PixelBuffer2D *)`（`T3DRHIContext.h:115`）只接受 2D。`buildRenderTextureResources`（`T3DD3D11Context.cpp:698`）只建一个 `TEXTURE2D` / `TEXTURE2DMS` 的 RTV / DSV，SRV 写死 `MipLevels = 1`（:843），RenderTarget 的附件也只能引用整张纹理 |
 | **缺少** | 1) 以 Cube 的单个面、Texture2DArray 的单层或某个 mip 级别作为 RTV / DSV；<br/>2) 一次绑定整个数组，配合 GS / `SV_RenderTargetArrayIndex` 做单 Pass 分层渲染；<br/>3) 带完整 mip 链的渲染纹理 |
 | **影响** | 点光源阴影（Cube 深度）、CSM（深度数组）、反射探针、IBL 辐照度 / 预过滤 Cubemap、Bloom 降采样链、Hi-Z、SSR 的 mip 链都做不了 |
@@ -95,7 +96,8 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 
 | 项目 | 内容 |
 |---|---|
-| **状态** | ❌ 缺失 |
+| **状态** | ✅ 已完成（D3D11、GL4、Vulkan；GLES3 / Metal 返回不支持） |
+| **实现** | 1) 新增 GPU 访问位 `kGPUGenerateMips`（`T3DRenderConstant.h`），渲染纹理创建时带上它才允许生成 mip；入口 `RHIContext::generateMips(PixelBuffer *)`，引擎侧包装为 `RenderTexture::generateMips()`；<br/>2) `RHICapabilities::checkGenerateMips` 统一校验：必须是已创建 RHI 资源的渲染纹理、带 `kGPUGenerateMips`、`mipmaps > 1`；创建时的格式要求见 G-03 的 `checkRenderTextureLayout`；<br/>3) D3D11：带 `kGPUGenerateMips` 时资源加 `BIND_RENDER_TARGET | BIND_SHADER_RESOURCE` 与 `MISC_GENERATE_MIPS`，`generateMips` 对默认 SRV（覆盖全部 mip 和层）调 `GenerateMips`；<br/>4) GL4：`glGenerateTextureMipmap`，MSAA 纹理直接拒绝；<br/>5) Vulkan：整张 image 先转到 `TRANSFER_DST`，逐级把上一级转成 `TRANSFER_SRC` 后 `vkCmdBlitImage`（LINEAR），再转到 `SHADER_READ_ONLY`。有当前帧时录进帧命令缓冲，否则用一次性命令缓冲；render pass 进行中调用会报错；<br/>6) GLES3、Metal：打 error，返回不支持（这两个后端也建不出多 mip 渲染纹理）；Console 等无窗口上下文是空实现，返回 `T3D_OK`。<br/>**验证**：`PointLightShadowApp` 每帧画完六个面后对 512² 的 `R32G32_FLOAT` 距离 Cube（10 级 mip）调用 `generateMips`，主 Pass 按 mip 1.5 采样做 VSM 软阴影；D3D11 与 GL4 上阴影边缘柔和、随光源移动每帧更新，日志无 error / warning。<br/>**待做**：Vulkan 的 `generateMips` 只编译通过、未运行验证（`PointLightShadowApp` 只带 HLSL / GLSL 源码，在 Vulkan 上打 error 后不画阴影）；非渲染纹理（运行时上传的普通 2D 纹理）还不能生成 mip；`ReflectionProbeApp` 的粗糙度 mip 链还没做 |
 | **现状** | D3D11 后端没有调用 `GenerateMips`，也没有设置 `D3D11_RESOURCE_MISC_GENERATE_MIPS`。运行时纹理的 mip 只能靠离线工具预先生成 |
 | **影响** | 渲染纹理、运行时生成的纹理（程序化纹理、RmlUi 动态纹理、反射探针）没有 mip，远处采样出现闪烁和锯齿，IBL 预过滤也无从谈起 |
 | **要做** | 增加 `RHIContext::generateMips(PixelBuffer *)`。D3D11 要求资源同时带 `BIND_RENDER_TARGET | BIND_SHADER_RESOURCE` 与 `MISC_GENERATE_MIPS`，所以需要在纹理描述里加「需要自动 mip」标记，创建时打上这些标志；GL 用 `glGenerateMipmap`；Vulkan 用逐级 `vkCmdBlitImage` 或 Compute。依赖 G-03 的多 mip 渲染纹理 |
@@ -109,7 +111,8 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 
 | 项目 | 内容 |
 |---|---|
-| **状态** | ⚠️ 受限 |
+| **状态** | ✅ 已完成（D3D11、GL4.3+；Vulkan 只有 PS 的 SRV 子资源） |
+| **实现** | 1) `setCSUnorderedAccessBuffers`、`setVS/HS/DS/GS/PS/CSPixelBuffers` 末尾增加可选参数 `const TextureSubresources &subresources`，长度为 0 或与 buffers 等长；为空或某项为默认值时沿用整张纹理的视图，不影响已有调用。只有 `RHICapabilities::supportsTextureSubresourceViews` 为 true 的后端接受非默认值，其它后端遇到非默认值打 error 并返回 `T3D_ERR_INVALID_PARAM`。选中部分层的数组 / Cube 在 shader 里要声明为 `Texture2DArray`；<br/>2) UAV 只能选一级 mip（`mipCount` 大于 1 时报错），层范围可选；SRV 可以选 mip 范围和层范围。视图维度规则同 G-03；<br/>3) D3D11：SRV / UAV 视图按 `TextureSubresource::key()` 缓存在 `D3D11PixelBuffer2D` 上（与 G-03 的 RTV / DSV 共用一套）。Cube 选中全部层时 SRV 仍是 `TEXTURECUBE`，UAV 用 `TEXTURE2DARRAY`；<br/>4) GL4：SRV 的子资源用 `glTextureView` 建视图纹理（需要 4.3，所以 `supportsTextureSubresourceViews = has43`），按 key 缓存在 `GL4PixelBuffer2D` / `GL4PixelBufferCubemap` 的 `GLViews` 上；UAV 用 `glBindImageTexture(unit, tex, level, layered, layer, ...)` 直接选 mip 和层。精确模式的 `uavBarrier` 匹配资源时把视图纹理也算作同一资源；<br/>5) Vulkan：PS 阶段的 SRV 子资源走 `getVkSubresourceView`；Vulkan 后端本身没有 compute 和 UAV，其余阶段不涉及；<br/>6) GLES3、Metal：`supportsTextureSubresourceViews = false`，只接受默认值。<br/>**验证**：HDRApp 的 Bloom 改为 Compute（`HDRBloomTonemapBehaviour`，kernel 源码见 `assets/samples/shaders/HDRBloomDownsample.cshader` / `HDRBloomUpsample.cshader`）：降采样链和升采样链各是一张 6 级 mip 的 `R16G16B16A16_FLOAT` 渲染纹理，降采样每次 SRV 选 mip N-1、UAV 写 mip N，升采样 SRV 选两级、UAV 写一级。D3D11 与 GL4 上日志为「6 bloom mips ... run as compute」，光晕与原来像素着色器版本一致，无新增 error / warning。后端不支持 compute、UAV、子资源视图或该格式不能作 UAV 时，自动退回像素着色器链并打日志。<br/>**待做**：Vulkan 的 compute / UAV（属于 Vulkan 后端的整体缺口）；GLES3 3.1 的 `glBindImageTexture` 也能选 mip / 层，可以单独打开 UAV 子资源；GL 4.3 以下没有 SRV 子资源 |
 | **现状** | `buildTextureUAView`（`T3DD3D11Context.cpp:2550`）只为 mip 0 建 UAV，`setCSUnorderedAccessBuffers` 的接口注释也写明了这一点。GL4 / GLES3 同样只绑 mip 0 |
 | **影响** | 用 Compute 逐级生成 mip、Hi-Z 金字塔、Bloom 降采样、体素化都做不了 |
 | **要做** | UAV / SRV 绑定接口增加子资源参数（mip、首层、层数），后端按 `(mip, slice)` 缓存视图。和 G-03 共用同一套「子资源视图」设计 |
@@ -221,7 +224,7 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 | 顺序 | 条目 | 理由 |
 |:---:|---|---|
 | 1 | G-01 + G-02 | 投入最小、解锁最多。D3D11 侧基本只是补映射表；主要工作量在枚举分组、按格式查询能力，以及其它后端同步跟进 |
-| 2 | G-03 + G-05 + G-04 | 三者共用一套「子资源视图」设计，应一次设计、分步实现。落地后才能做点光源阴影、CSM、IBL |
+| 2 | G-03 + G-05 + G-04 | 三者共用一套「子资源视图」设计，应一次设计、分步实现。落地后才能做点光源阴影、CSM、IBL。**已完成**（D3D11、GL4），各后端剩余工作见对应条目 |
 | 3 | G-08 + G-07 | 工具链能力，越早做越省调试时间。G-08 改动小，可以插到任意阶段先做 |
 | 4 | G-06、G-09 | 各自独立。G-09 会改变窗口 MSAA 的语义，需要单独验证 |
 | 5 | G-10～G-13 | 按需逐个补 |
@@ -277,7 +280,8 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 - **场景**：街道、砖墙、路灯、霓虹招牌全部由代码生成，贴图是程序生成的 8 位纹理（带 CPU 生成的 mip 链）。四块霓虹招牌的灯管贴图是 `R16G16B16A16_FLOAT`，峰值约 6；格式不可过滤时退回 8 位，并把峰值乘回自发光强度。相机沿 10 个路点做 Catmull-Rom 循环，青色招牌会周期性闪烁（招牌亮度和点光源同步变化）。
 - **HDR 缓冲**：`Camera` 新增 `AllowHDR` 属性。开启后，窗口相机的中间 RT 依次尝试 `R16G16B16A16_FLOAT`、`R11G11B10_FLOAT`（按 `supportsFormat` 检查 Texture | RenderTarget，MSAA 时再加 Multisample），都不支持时退回 8 位并打 warning。
 - **后处理**：`HDRBloomTonemapBehaviour` 依次做半分辨率亮部提取（soft knee）、像素着色器盒式降采样 6 级、tent 升采样，最后与场景合成并做 ACES 色调映射。源格式不能作为可线性过滤的 RT 时，退回 blit 拷贝并打 warning。
-- **与最终方案的差距**：降采样链暂用像素着色器（G-05 完成后改为 Compute 写 mip），贴图暂用未压缩的 8 位 UNORM、在 gamma 空间做光照（G-02 完成后改为 sRGB + BC，并输出到 sRGB 后缓冲）。Vulkan 下 HDRApp 与 PostProcessingApp 都在后处理阶段崩溃在 NVIDIA 驱动 `nvoglv64.dll` 内（同一偏移），属于 Vulkan 后处理路径的既有问题，另行排查。
+- **Bloom 改 Compute（G-05）**：后端有 compute、纹理 UAV、子资源视图，且 HDR 格式带 `kFormatSupportUnorderedAccess` 时，降采样链和升采样链各是一张 6 级 mip 的渲染纹理，kernel 每次用 SRV 读一级、UAV 写一级（源码见 `HDRBloomComputeSources.cpp`，与 `assets/samples/shaders/HDRBloom*.cshader` 同步）。D3D11 与 GL4 走 Compute，日志打出「6 bloom mips in E_PF_R16G16B16A16_FLOAT ... run as compute」；其它后端退回像素着色器链。「Bloom 降采样链」一行的检查点在两个后端上成立。
+- **与最终方案的差距**：贴图暂用未压缩的 8 位 UNORM、在 gamma 空间做光照（G-02 完成后改为 sRGB + BC，并输出到 sRGB 后缓冲）。Vulkan 下 HDRApp 与 PostProcessingApp 都在后处理阶段崩溃在 NVIDIA 驱动 `nvoglv64.dll` 内（同一偏移），属于 Vulkan 后处理路径的既有问题，另行排查。
 
 #### `SRGBApp`：sRGB 测试图（G-02）
 
@@ -308,6 +312,12 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 | 阴影在墙角的连续性 | 影子跨过墙角、从地面延伸到墙面时是连续的 | 在墙角处断开、错位，或出现一条亮缝 |
 | 监控屏幕（G-04） | 从远处或斜着看屏幕时，画面稳定、略微模糊 | 屏幕画面闪烁，出现细碎的噪点和摩尔纹，说明 mip 没生成或没用上 |
 | mip 每帧更新 | 角落里有人或物体移动时，远看屏幕也能看到同步的画面变化 | 远看时屏幕画面停住不动，近看才更新，说明 mip 只生成了一次 |
+
+**当前进度（初版，覆盖 G-03 Cube 按面渲染与 G-04）**：`source/Samples/PointLightShadowApp` 已实现，D3D11 与 GL4 人眼验收通过，「点光源阴影」一行的检查点成立（地面、墙面上的影子都从光源向外投射、随光源移动；「墙角连续性」还没有专门对着墙角检查）。
+- **场景**：一个 12 × 6 × 12 的房间（法线朝内），里面有两根柱子、几个箱子和一块悬空的搁板，全部由代码生成，顶点直接是世界坐标，不进引擎场景。点光源绕房间中心做椭圆轨道并上下浮动，位置上画一个不受光照的小方块。相机固定。
+- **G-03**：`PointLightShadowBehaviour`（相机上的 `CameraBehaviour`，在 `onPostRender` 里用 RHI 直接绘制）建一张 512² `TT_CUBE` 的距离纹理（`R32G32_FLOAT`，不支持时用 `R16G16_FLOAT`）和一张同尺寸的 `D24S8` 深度 Cube，六个 `RenderTarget` 各用 `TextureSubresource::slice(face)` 同时选中两张 Cube 的同一个面。每面按 D3D 的 Cube 朝向用 `lookAt_LH` + 90° `perspective_LH` 渲染，像素着色器写线性距离的 `(d, d²)`。GL4 渲染到 FBO 时投影会翻转 Y，所以同一套矩阵在两个后端上得到相同的面布局。
+- **G-04**：六个面画完后调用 `RenderTexture::generateMips()`，主 Pass 用 `SampleLevel` 采样 mip 1.5 做 VSM，影子边缘柔和；每帧重新生成，影子随光源连续移动。
+- **与最终方案的差距**：还没有监控屏幕（「监控屏幕」「mip 每帧更新」两行未验证）、货架 / 木箱贴图和摆动的吊灯，相机也还不动；只带 HLSL / GLSL 源码，Vulkan 等后端上打 error 后只剩清屏颜色，不满足 7.1 第 8 条「退回不带该效果的版本」。
 
 #### `CascadedShadowApp`：阳光下的山地森林（G-03）
 
