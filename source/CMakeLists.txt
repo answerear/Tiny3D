@@ -455,6 +455,7 @@ if (TINY3D_BUILD_SAMPLES)
         add_dependencies(IntersectionApp T3DMath T3DLog T3DSystem)
         add_dependencies(PrefabApp T3DCore)
         add_dependencies(PointLightShadowApp T3DCore)
+        add_dependencies(OcclusionCullingApp T3DCore)
     endif (TINY3D_OS_DESKTOP)
 endif (TINY3D_BUILD_SAMPLES)
 

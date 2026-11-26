@@ -46,6 +46,7 @@ if (TINY3D_OS_DESKTOP)
     add_subdirectory(HDRApp)
     add_subdirectory(PointLightShadowApp)
     add_subdirectory(SRGBApp)
+    add_subdirectory(OcclusionCullingApp)
 endif (TINY3D_OS_DESKTOP)
 
 if (TINY3D_OS_ANDROID AND TINY3D_BUILD_RMLUI)
