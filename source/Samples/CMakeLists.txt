@@ -44,6 +44,7 @@ if (TINY3D_OS_DESKTOP)
     add_subdirectory(IntersectionApp)
     add_subdirectory(PrefabApp)
     add_subdirectory(HDRApp)
+    add_subdirectory(PointLightShadowApp)
     add_subdirectory(SRGBApp)
 endif (TINY3D_OS_DESKTOP)
 
