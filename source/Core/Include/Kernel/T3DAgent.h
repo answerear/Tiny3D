@@ -279,6 +279,9 @@ namespace Tiny3D
          */
         RHIContextPtr getActiveRHIContext() const;
 
+        /// 返回当前渲染管线（默认是 ForwardRenderPipeline，初始化前为 nullptr）
+        RenderPipeline *getRenderPipeline() const;
+
         /// 设置应用是否在后台继续运行（转发 Application）
         void setRunInBackground(bool enable) { T3D_APPLICATION.setRunInBackground(enable); }
 

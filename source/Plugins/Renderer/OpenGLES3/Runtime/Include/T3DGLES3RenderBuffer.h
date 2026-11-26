@@ -131,6 +131,20 @@ namespace Tiny3D
     protected:
         GLES3PixelBufferCubemap() = default;
     };
+
+    class GLES3Query : public RHIQuery
+    {
+    public:
+        static GLES3QueryPtr create(QueryType type);
+        ~GLES3Query() override;
+        void *getNativeObject() const override;
+
+        GLuint GLQuery {0};
+        /// glBeginQuery 的目标；时间戳不用（走 glQueryCounterEXT）
+        GLenum GLTarget {GL_ANY_SAMPLES_PASSED};
+    protected:
+        explicit GLES3Query(QueryType type) : RHIQuery(type) {}
+    };
 }
 
 

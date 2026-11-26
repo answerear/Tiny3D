@@ -24,12 +24,29 @@
 
 
 #include "Render/T3DRenderResource.h"
+#include "RHI/T3DRHIContext.h"
+#include "Kernel/T3DAgent.h"
 
 
 namespace Tiny3D
 {
     //--------------------------------------------------------------------------
 
+    void RenderResource::setDebugName(const String &name)
+    {
+        mDebugName = name;
+
+#if (T3D_ENABLE_RHI_DEBUG_ANNOTATION)
+        if (mRHIResource != nullptr && !mDebugName.empty())
+        {
+            RHIContextPtr ctx = T3D_AGENT.getActiveRHIContext();
+            if (ctx != nullptr)
+            {
+                ctx->setDebugName(this);
+            }
+        }
+#endif
+    }
 
     //--------------------------------------------------------------------------
 }

@@ -193,6 +193,10 @@ namespace Tiny3D
     TResult RenderTexture::onCreate()
     {
         mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadRenderTexture(&mDesc, MemoryType::kVRAM, Usage::kStatic, mCPUAccessMode);
+        if (mPixelBuffer != nullptr)
+        {
+            mPixelBuffer->setDebugName(getName());
+        }
         if (mDesc.shaderReadable)
         {
             ensureDefaultSampler();
@@ -205,6 +209,10 @@ namespace Tiny3D
     TResult RenderTexture::onLoad(Archive *archive)
     {
         mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadRenderTexture(&mDesc, MemoryType::kVRAM, Usage::kStatic, mCPUAccessMode);
+        if (mPixelBuffer != nullptr)
+        {
+            mPixelBuffer->setDebugName(getName());
+        }
         if (mDesc.shaderReadable)
         {
             ensureDefaultSampler();

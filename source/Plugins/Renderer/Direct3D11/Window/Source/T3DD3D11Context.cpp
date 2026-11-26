@@ -104,6 +104,8 @@ namespace Tiny3D
         // 没被 unmap 认领的请求直接丢掉，staging 由池子统一 Release
         mPendingReadbacks.clear();
         destroyStagingPool();
+        destroyQueries();
+        D3D_SAFE_RELEASE(mAnnotation);
 
         // Unbind all pipeline state to release internal references held by
         // the DeviceContext, then flush to ensure GPU has finished processing.
@@ -192,6 +194,13 @@ namespace Tiny3D
 
             D3D_REF_COUNT("D3D11 #1", mD3DDevice);
 
+            // Win8 起随运行时提供；拿不到时调试分组接口静默空操作
+            hr = mD3DDeviceContext->QueryInterface(__uuidof(ID3DUserDefinedAnnotation), (void **)(&mAnnotation));
+            if (FAILED(hr))
+            {
+                mAnnotation = nullptr;
+            }
+
             fillCapabilities();
             
             // traceDebugInfo("D3D11 D3DObjects trace - After ", __FUNCTION__);
@@ -226,6 +235,14 @@ namespace Tiny3D
         // 任意 mip / 层范围的视图与 GS 选层（SV_RenderTargetArrayIndex）从 FL 10.0 就有
         mCapabilities.supportsTextureSubresourceViews = true;
         mCapabilities.supportsLayeredRendering = (mFeatureLevel >= D3D_FEATURE_LEVEL_10_0);
+
+        // 遮挡 / 谓词 / 时间戳 / 管线统计从 FL 10.0 起都是必备功能
+        mCapabilities.supportsOcclusionQuery = true;
+        mCapabilities.supportsBinaryOcclusionQuery = true;
+        mCapabilities.supportsTimestampQuery = true;
+        mCapabilities.supportsPipelineStatisticsQuery = true;
+        mCapabilities.supportsPredication = true;
+        mCapabilities.supportsDebugAnnotations = (mAnnotation != nullptr);
 
         if (hasFullCompute)
         {
@@ -1392,13 +1409,19 @@ namespace Tiny3D
 
         D3D11PixelBuffer2D *d3dPixelBuffer = static_cast<D3D11PixelBuffer2D *>(pixelBuffer->getRHIResource().get());
 
-        auto lambda = [this](const PixelBuffer2DPtr &pixelBuffer, const D3D11PixelBuffer2DPtr &d3dPixelBuffer)
+        auto lambda = [this](const PixelBuffer2DPtr &pixelBuffer, const D3D11PixelBuffer2DPtr &d3dPixelBuffer, const String &debugName)
         {
             releaseRenderTextureResources(d3dPixelBuffer.get());
-            return buildRenderTextureResources(pixelBuffer.get(), d3dPixelBuffer.get());
+            TResult ret = buildRenderTextureResources(pixelBuffer.get(), d3dPixelBuffer.get());
+            if (T3D_SUCCEEDED(ret) && !debugName.empty())
+            {
+                // 重建出来的是新 COM 对象，名字要重新打
+                applyDebugName(d3dPixelBuffer.get(), debugName);
+            }
+            return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, PixelBuffer2DPtr(pixelBuffer), D3D11PixelBuffer2DPtr(d3dPixelBuffer));
+        return ENQUEUE_UNIQUE_COMMAND(lambda, PixelBuffer2DPtr(pixelBuffer), D3D11PixelBuffer2DPtr(d3dPixelBuffer), pixelBuffer->getDebugName());
     }
 
     //--------------------------------------------------------------------------
@@ -4409,6 +4432,13 @@ namespace Tiny3D
 
         auto lambda = [this]()
         {
+            // 条件渲染不跨 reset 生效，否则后面的相机 / 后处理会被上一段的遮挡结果误剔
+            if (mCurrentPredicate != nullptr)
+            {
+                mD3DDeviceContext->SetPredication(nullptr, FALSE);
+                mCurrentPredicate = nullptr;
+            }
+
             // 还原裁剪状态
             mD3DDeviceContext->RSSetScissorRects(mBackupState.ScissorRectsCount, mBackupState.ScissorRects);
 
@@ -6661,6 +6691,523 @@ namespace Tiny3D
         };
 
         return ENQUEUE_UNIQUE_COMMAND(lambda, setConstantBuffers, startSlot, buffers);
+    }
+
+    //--------------------------------------------------------------------------
+
+    namespace
+    {
+        /// WKPDID_D3DDebugObjectName，自己定义一份免得链接 dxguid.lib
+        const GUID kD3DDebugObjectName = { 0x429b8c22, 0x9188, 0x4b0c, { 0x87, 0x42, 0xac, 0xb0, 0xbf, 0x85, 0xc2, 0x00 } };
+
+        std::wstring toWideString(const String &str)
+        {
+            if (str.empty())
+            {
+                return std::wstring();
+            }
+            const int len = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), static_cast<int>(str.size()), nullptr, 0);
+            std::wstring wstr(static_cast<size_t>(len), L'\0');
+            MultiByteToWideChar(CP_UTF8, 0, str.c_str(), static_cast<int>(str.size()), &wstr[0], len);
+            return wstr;
+        }
+
+        void setD3DObjectName(ID3D11DeviceChild *object, const String &name)
+        {
+            if (object == nullptr)
+            {
+                return;
+            }
+            // 先清掉旧名字，否则调试层会对改名报 SETPRIVATEDATA_CHANGINGPARAMS
+            object->SetPrivateData(kD3DDebugObjectName, 0, nullptr);
+            object->SetPrivateData(kD3DDebugObjectName, static_cast<UINT>(name.size()), name.c_str());
+        }
+
+        void setD3DObjectName(ID3D11DeviceChild *object, const String &name, const char *suffix)
+        {
+            if (object != nullptr)
+            {
+                setD3DObjectName(object, name + suffix);
+            }
+        }
+
+        uint64_t ticksToNanoseconds(uint64_t ticks, uint64_t frequency)
+        {
+            const uint64_t seconds = ticks / frequency;
+            const uint64_t remainder = ticks % frequency;
+            return seconds * 1000000000ull
+                + static_cast<uint64_t>(static_cast<double>(remainder) * 1000000000.0 / static_cast<double>(frequency));
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::beginDebugGroup(const String &name)
+    {
+        if (mAnnotation == nullptr)
+        {
+            return T3D_OK;
+        }
+
+        auto lambda = [this](const String &name)
+        {
+            mAnnotation->BeginEvent(toWideString(name).c_str());
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, name);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::endDebugGroup()
+    {
+        if (mAnnotation == nullptr)
+        {
+            return T3D_OK;
+        }
+
+        auto lambda = [this]()
+        {
+            mAnnotation->EndEvent();
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setDebugMarker(const String &name)
+    {
+        if (mAnnotation == nullptr)
+        {
+            return T3D_OK;
+        }
+
+        auto lambda = [this](const String &name)
+        {
+            mAnnotation->SetMarker(toWideString(name).c_str());
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, name);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setDebugName(RenderResource *resource)
+    {
+        if (resource == nullptr)
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        RHIResourcePtr rhiResource = resource->getRHIResource();
+        if (rhiResource == nullptr || resource->getDebugName().empty())
+        {
+            return T3D_OK;
+        }
+
+        auto lambda = [this](const RHIResourcePtr &rhiResource, const String &name)
+        {
+            applyDebugName(rhiResource.get(), name);
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, rhiResource, resource->getDebugName());
+    }
+
+    //--------------------------------------------------------------------------
+
+    void D3D11Context::applyDebugName(RHIResource *resource, const String &name)
+    {
+        if (resource == nullptr)
+        {
+            return;
+        }
+
+        switch (resource->getResourceType())
+        {
+        case RHIResource::ResourceType::kVertexBuffer:
+            {
+                D3D11VertexBuffer *buffer = static_cast<D3D11VertexBuffer *>(resource);
+                setD3DObjectName(buffer->D3DBuffer, name);
+                setD3DObjectName(buffer->D3DSRView, name, " SRV");
+                setD3DObjectName(buffer->D3DUAView, name, " UAV");
+            }
+            break;
+        case RHIResource::ResourceType::kIndexBuffer:
+            {
+                D3D11IndexBuffer *buffer = static_cast<D3D11IndexBuffer *>(resource);
+                setD3DObjectName(buffer->D3DBuffer, name);
+                setD3DObjectName(buffer->D3DSRView, name, " SRV");
+                setD3DObjectName(buffer->D3DUAView, name, " UAV");
+            }
+            break;
+        case RHIResource::ResourceType::kConstantBuffer:
+            setD3DObjectName(static_cast<D3D11ConstantBuffer *>(resource)->D3DBuffer, name);
+            break;
+        case RHIResource::ResourceType::kStructuredBuffer:
+            {
+                D3D11StructuredBuffer *buffer = static_cast<D3D11StructuredBuffer *>(resource);
+                setD3DObjectName(buffer->D3DBuffer, name);
+                setD3DObjectName(buffer->D3DSRView, name, " SRV");
+                setD3DObjectName(buffer->D3DUAView, name, " UAV");
+            }
+            break;
+        case RHIResource::ResourceType::kPixelBuffer1D:
+            {
+                D3D11PixelBuffer1D *buffer = static_cast<D3D11PixelBuffer1D *>(resource);
+                setD3DObjectName(buffer->D3DTexture, name);
+                setD3DObjectName(buffer->D3DSRView, name, " SRV");
+                setD3DObjectName(buffer->D3DUAView, name, " UAV");
+            }
+            break;
+        case RHIResource::ResourceType::kPixelBuffer2D:
+            {
+                D3D11PixelBuffer2D *buffer = static_cast<D3D11PixelBuffer2D *>(resource);
+                setD3DObjectName(buffer->D3DTexture, name);
+                setD3DObjectName(buffer->D3DSRView, name, " SRV");
+                setD3DObjectName(buffer->D3DRTView, name, " RTV");
+                setD3DObjectName(buffer->D3DDSView, name, " DSV");
+                setD3DObjectName(buffer->D3DUAView, name, " UAV");
+                setD3DObjectName(buffer->D3DResolveTex, name, " Resolve");
+            }
+            break;
+        case RHIResource::ResourceType::kPixelBuffer3D:
+            {
+                D3D11PixelBuffer3D *buffer = static_cast<D3D11PixelBuffer3D *>(resource);
+                setD3DObjectName(buffer->D3DTexture, name);
+                setD3DObjectName(buffer->D3DSRView, name, " SRV");
+                setD3DObjectName(buffer->D3DUAView, name, " UAV");
+            }
+            break;
+        case RHIResource::ResourceType::kPixelBufferCubemap:
+            {
+                D3D11PixelBufferCubemap *buffer = static_cast<D3D11PixelBufferCubemap *>(resource);
+                setD3DObjectName(buffer->D3DTexture, name);
+                setD3DObjectName(buffer->D3DSRView, name, " SRV");
+            }
+            break;
+        case RHIResource::ResourceType::kQuery:
+            setD3DObjectName(static_cast<D3D11Query *>(resource)->D3DQuery, name);
+            break;
+        default:
+            break;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    RHIQueryPtr D3D11Context::createQuery(QueryType type)
+    {
+        if (!mCapabilities.checkQueryType(LOG_TAG_D3D11RENDERER, type))
+        {
+            return nullptr;
+        }
+
+        D3D11_QUERY_DESC desc {};
+        switch (type)
+        {
+        case QueryType::kOcclusion:
+            desc.Query = D3D11_QUERY_OCCLUSION;
+            break;
+        case QueryType::kBinaryOcclusion:
+            desc.Query = D3D11_QUERY_OCCLUSION_PREDICATE;
+            break;
+        case QueryType::kTimestamp:
+            desc.Query = D3D11_QUERY_TIMESTAMP;
+            break;
+        case QueryType::kPipelineStatistics:
+            desc.Query = D3D11_QUERY_PIPELINE_STATISTICS;
+            break;
+        default:
+            return nullptr;
+        }
+
+        D3D11QueryPtr query = D3D11Query::create(type);
+        HRESULT hr = S_OK;
+        if (type == QueryType::kBinaryOcclusion)
+        {
+            ID3D11Predicate *predicate = nullptr;
+            hr = mD3DDevice->CreatePredicate(&desc, &predicate);
+            query->D3DQuery = predicate;
+        }
+        else
+        {
+            hr = mD3DDevice->CreateQuery(&desc, &query->D3DQuery);
+        }
+
+        if (FAILED(hr))
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "createQuery : create %s query failed ! DX ERROR [%d]", getQueryTypeName(type), hr);
+            return nullptr;
+        }
+
+        return query;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::beginQuery(RHIQuery *query)
+    {
+        if (query == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "beginQuery : query is null !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        if (!query->markBegin(LOG_TAG_D3D11RENDERER))
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        auto lambda = [this](const D3D11QueryPtr &query)
+        {
+            mD3DDeviceContext->Begin(query->D3DQuery);
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11QueryPtr(static_cast<D3D11Query *>(query)));
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::endQuery(RHIQuery *query)
+    {
+        if (query == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "endQuery : query is null !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        uint32_t serial = 0;
+        if (!query->markEnd(LOG_TAG_D3D11RENDERER, serial))
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        auto lambda = [this](const D3D11QueryPtr &query, uint32_t serial)
+        {
+            DisjointRecordPtr disjoint = nullptr;
+            if (query->getQueryType() == QueryType::kTimestamp)
+            {
+                // D3D11 的时间戳只有放在 Disjoint 区间里才能换算成时间
+                if (mFrameDisjoint == nullptr)
+                {
+                    DisjointRecordPtr record = std::make_shared<DisjointRecord>();
+                    D3D11_QUERY_DESC desc {};
+                    desc.Query = D3D11_QUERY_TIMESTAMP_DISJOINT;
+                    if (SUCCEEDED(mD3DDevice->CreateQuery(&desc, &record->Query)))
+                    {
+                        mD3DDeviceContext->Begin(record->Query);
+                        mFrameDisjoint = record;
+                    }
+                }
+
+                disjoint = mFrameDisjoint;
+                if (disjoint == nullptr)
+                {
+                    query->publish(serial, QueryStatus::kInvalid, QueryResult());
+                    mPendingQueries.erase(query.get());
+                    return T3D_OK;
+                }
+            }
+
+            mD3DDeviceContext->End(query->D3DQuery);
+
+            PendingQuery &pending = mPendingQueries[query.get()];
+            pending.Query = query;
+            pending.Serial = serial;
+            pending.Disjoint = disjoint;
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11QueryPtr(static_cast<D3D11Query *>(query)), serial);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setPredication(RHIQuery *query)
+    {
+        if (query != nullptr)
+        {
+            if (query->getQueryType() != QueryType::kBinaryOcclusion)
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "setPredication : only binary occlusion query can be used as predicate, got %s !",
+                    getQueryTypeName(query->getQueryType()));
+                return T3D_ERR_INVALID_PARAM;
+            }
+            if (query->isActive() || query->getIssuedSerial() == 0)
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "setPredication : predicate must be ended before use !");
+                return T3D_ERR_INVALID_PARAM;
+            }
+        }
+
+        auto lambda = [this](const D3D11QueryPtr &query)
+        {
+            if (query == nullptr)
+            {
+                if (mCurrentPredicate != nullptr)
+                {
+                    mD3DDeviceContext->SetPredication(nullptr, FALSE);
+                    mCurrentPredicate = nullptr;
+                }
+                return T3D_OK;
+            }
+
+            // PredicateValue = FALSE：谓词结果为 FALSE（没有样本通过）时跳过绘制
+            mD3DDeviceContext->SetPredication(static_cast<ID3D11Predicate *>(query->D3DQuery), FALSE);
+            mCurrentPredicate = query;
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11QueryPtr(static_cast<D3D11Query *>(query)));
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::endRender()
+    {
+        auto lambda = [this]()
+        {
+            if (mFrameDisjoint != nullptr)
+            {
+                mD3DDeviceContext->End(mFrameDisjoint->Query);
+                mFrameDisjoint->Ended = true;
+                mFrameDisjoint = nullptr;
+            }
+
+            pollQueries();
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void D3D11Context::pollQueries()
+    {
+        const UINT flags = D3D11_ASYNC_GETDATA_DONOTFLUSH;
+
+        auto itr = mPendingQueries.begin();
+        while (itr != mPendingQueries.end())
+        {
+            PendingQuery &pending = itr->second;
+            ID3D11Query *native = pending.Query->D3DQuery;
+
+            QueryResult result;
+            result.type = pending.Query->getQueryType();
+            QueryStatus status = QueryStatus::kReady;
+            HRESULT hr = S_FALSE;
+
+            switch (result.type)
+            {
+            case QueryType::kOcclusion:
+                {
+                    UINT64 samples = 0;
+                    hr = mD3DDeviceContext->GetData(native, &samples, sizeof(samples), flags);
+                    result.samplesPassed = samples;
+                }
+                break;
+            case QueryType::kBinaryOcclusion:
+                {
+                    BOOL visible = FALSE;
+                    hr = mD3DDeviceContext->GetData(native, &visible, sizeof(visible), flags);
+                    result.samplesPassed = visible ? 1 : 0;
+                }
+                break;
+            case QueryType::kPipelineStatistics:
+                {
+                    D3D11_QUERY_DATA_PIPELINE_STATISTICS stats {};
+                    hr = mD3DDeviceContext->GetData(native, &stats, sizeof(stats), flags);
+                    PipelineStatistics &out = result.pipelineStatistics;
+                    out.inputVertices = stats.IAVertices;
+                    out.inputPrimitives = stats.IAPrimitives;
+                    out.vertexShaderInvocations = stats.VSInvocations;
+                    out.hullShaderInvocations = stats.HSInvocations;
+                    out.domainShaderInvocations = stats.DSInvocations;
+                    out.geometryShaderInvocations = stats.GSInvocations;
+                    out.geometryShaderPrimitives = stats.GSPrimitives;
+                    out.clippingInvocations = stats.CInvocations;
+                    out.clippingPrimitives = stats.CPrimitives;
+                    out.pixelShaderInvocations = stats.PSInvocations;
+                    out.computeShaderInvocations = stats.CSInvocations;
+                }
+                break;
+            case QueryType::kTimestamp:
+                {
+                    DisjointRecord *disjoint = pending.Disjoint.get();
+                    if (!disjoint->Ended)
+                    {
+                        // 本帧的 Disjoint 还没 End，下一帧再看
+                        break;
+                    }
+
+                    if (!disjoint->Resolved)
+                    {
+                        D3D11_QUERY_DATA_TIMESTAMP_DISJOINT data {};
+                        HRESULT hrDisjoint = mD3DDeviceContext->GetData(disjoint->Query, &data, sizeof(data), flags);
+                        if (FAILED(hrDisjoint))
+                        {
+                            hr = hrDisjoint;
+                            break;
+                        }
+                        if (hrDisjoint != S_OK)
+                        {
+                            break;
+                        }
+                        disjoint->Resolved = true;
+                        disjoint->Disjoint = (data.Disjoint != FALSE);
+                        disjoint->Frequency = data.Frequency;
+                    }
+
+                    UINT64 ticks = 0;
+                    hr = mD3DDeviceContext->GetData(native, &ticks, sizeof(ticks), flags);
+                    if (hr == S_OK)
+                    {
+                        if (disjoint->Disjoint || disjoint->Frequency == 0)
+                        {
+                            status = QueryStatus::kDisjoint;
+                        }
+                        else
+                        {
+                            result.timestamp = ticksToNanoseconds(ticks, disjoint->Frequency);
+                        }
+                    }
+                }
+                break;
+            default:
+                hr = E_FAIL;
+                break;
+            }
+
+            if (hr == S_FALSE)
+            {
+                ++itr;
+                continue;
+            }
+
+            if (FAILED(hr))
+            {
+                status = QueryStatus::kInvalid;
+            }
+
+            pending.Query->publish(pending.Serial, status, result);
+            itr = mPendingQueries.erase(itr);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void D3D11Context::destroyQueries()
+    {
+        mPendingQueries.clear();
+        mFrameDisjoint = nullptr;
+        mCurrentPredicate = nullptr;
     }
 
     //--------------------------------------------------------------------------

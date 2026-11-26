@@ -44,6 +44,15 @@ namespace Tiny3D
     #define T3D_ENABLE_RHI_THREAD               0
 #endif
 
+#if !defined (T3D_ENABLE_RHI_DEBUG_ANNOTATION)
+    /**
+     * \brief 是否向图形 API 发送调试分组、调试标记与资源名（RenderDoc / PIX / Nsight 里可见）。
+     *        未定义时默认为 1；Release 构建可在编译选项里定义为 0，T3D_RHI_DEBUG_* 宏与
+     *        RenderResource::setDebugName 的转发都会被编译掉
+     */
+    #define T3D_ENABLE_RHI_DEBUG_ANNOTATION     1
+#endif
+
     /** \brief 坐标系手性：0 为左手系，非 0 为右手系（如 Camera::lookAt 的矩阵构造） */
     #define T3D_COORDINATION_RH                 0
 

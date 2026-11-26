@@ -41,6 +41,7 @@ namespace Tiny3D
                 case GLObjectType::kRenderbuffer:   glDeleteRenderbuffers(1, &name);    break;
                 case GLObjectType::kShader:         glDeleteShader(name);               break;
                 case GLObjectType::kProgram:        glDeleteProgram(name);              break;
+                case GLObjectType::kQuery:          glDeleteQueries(1, &name);          break;
                 }
             }
         }
@@ -281,6 +282,28 @@ namespace Tiny3D
     void *GL4StructuredBuffer::getNativeObject() const
     {
         return (void *)(uintptr_t)GLBuffer;
+    }
+
+    //--------------------------------------------------------------------------
+
+    GL4QueryPtr GL4Query::create(QueryType type)
+    {
+        return T3D_NEW GL4Query(type);
+    }
+
+    GL4Query::~GL4Query()
+    {
+        TArray<GLObjectName> objects;
+        for (uint32_t i = 0; i < GLQueryCount; ++i)
+        {
+            objects.push_back({GLObjectType::kQuery, GLQueries[i]});
+        }
+        releaseGLObjects(objects);
+    }
+
+    void *GL4Query::getNativeObject() const
+    {
+        return (void *)(uintptr_t)GLQueries[0];
     }
 
     //--------------------------------------------------------------------------

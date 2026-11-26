@@ -93,6 +93,16 @@ namespace Tiny3D
         /// 返回已创建的底层 RHI 资源；未加载时为 nullptr
         RHIResourcePtr getRHIResource() const { return mRHIResource; }
 
+        /**
+         * \brief 设置调试名，RHI 对象已存在时立即转发给后端
+         * \param [in] name : 调试名，RenderDoc / PIX 里显示的资源名
+         * \remarks 只用于调试，不参与缓存键和序列化。T3D_ENABLE_RHI_DEBUG_ANNOTATION 为 0 时只记录不转发
+         */
+        void setDebugName(const String &name);
+
+        /// 调试名，未设置时为空
+        const String &getDebugName() const { return mDebugName; }
+
     protected:
         RenderResource() = default;
 
@@ -110,6 +120,8 @@ namespace Tiny3D
         
         /// 底层 RHI 资源指针，onLoad 创建、onUnload 置空
         RHIResourcePtr mRHIResource {nullptr};
+        /// 调试名
+        String mDebugName {};
     };
     
     /**

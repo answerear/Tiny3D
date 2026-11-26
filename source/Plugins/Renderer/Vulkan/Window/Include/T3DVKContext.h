@@ -157,6 +157,22 @@ namespace Tiny3D
         TResult beginPass() override;
         TResult endPass() override;
 
+        /// VK_EXT_debug_utils 的命令缓冲 label，只在 beginRender / endRender 之间生效
+        TResult beginDebugGroup(const String &name) override;
+        TResult endDebugGroup() override;
+        TResult setDebugMarker(const String &name) override;
+
+        /// vkSetDebugUtilsObjectNameEXT
+        TResult setDebugName(RenderResource *resource) override;
+
+        /**
+         * \brief 创建查询；每个对象带 MAX_FRAMES_IN_FLIGHT 个槽，结果在同一帧槽的 fence 之后读取
+         * \remarks 不支持条件渲染；同一个查询每帧只能发起一次
+         */
+        RHIQueryPtr createQuery(QueryType type) override;
+        TResult beginQuery(RHIQuery *query) override;
+        TResult endQuery(RHIQuery *query) override;
+
         VkDevice getVkDevice() const { return mVkDevice; }
 
         VkPhysicalDevice getVkPhysicalDevice() const { return mVkPhysicalDevice; }
@@ -359,6 +375,22 @@ namespace Tiny3D
         /// 按物理设备属性填充 mCapabilities
         void fillCapabilities();
 
+        /// 查询 VK_EXT_debug_utils 的函数指针，实例没开扩展时保持为空
+        void loadDebugUtils();
+
+        /// 给 Vulkan 对象命名
+        void setVkObjectName(VkObjectType type, uint64_t handle, const String &name);
+
+        /// 读出槽 frameSlot 上已完成的查询并发布结果，再在 cmdBuf 里 reset 这些槽
+        void resolveFrameQueries(uint32_t frameSlot, VkCommandBuffer cmdBuf);
+
+        /// 一次已 end、等待本帧槽 fence 的查询
+        struct PendingQuery
+        {
+            VKQueryPtr  Query {nullptr};
+            uint32_t    Serial {0};
+        };
+
         /**
          * \brief 提交 draw call 前的公共准备：管线、动态状态、描述符集
          * \param [out] outCmdBuf : 本帧的命令缓冲
@@ -381,6 +413,28 @@ namespace Tiny3D
         /// Validation layers debug messenger
         VkDebugUtilsMessengerEXT    mVkDebugMessenger {VK_NULL_HANDLE};
 #endif
+
+        /// 实例是否开启了 VK_EXT_debug_utils
+        bool                                mDebugUtilsEnabled {false};
+        PFN_vkCmdBeginDebugUtilsLabelEXT    mVkCmdBeginDebugUtilsLabel {nullptr};
+        PFN_vkCmdEndDebugUtilsLabelEXT      mVkCmdEndDebugUtilsLabel {nullptr};
+        PFN_vkCmdInsertDebugUtilsLabelEXT   mVkCmdInsertDebugUtilsLabel {nullptr};
+        PFN_vkSetDebugUtilsObjectNameEXT    mVkSetDebugUtilsObjectName {nullptr};
+        /// 本帧已打开、尚未关闭的调试分组数，endRender 时补齐
+        uint32_t                            mDebugGroupDepth {0};
+
+        /// beginRender 成功开始录制后为 true，endRender 提交后为 false
+        bool                mFrameRecording {false};
+        /// 帧序号，每次 beginRender 加一，用来拦截同一帧重复发起的查询
+        uint64_t            mFrameCounter {0};
+        /// 时间戳的有效位掩码与每 tick 纳秒数
+        uint64_t            mTimestampMask {0};
+        double              mTimestampPeriod {0.0};
+        /// 是否开启了 pipelineStatisticsQuery / occlusionQueryPrecise 特性
+        bool                mPipelineStatisticsEnabled {false};
+        bool                mOcclusionPreciseEnabled {false};
+        /// 每个帧槽上已发起、等待 fence 的查询
+        std::vector<PendingQuery>   mFrameQueries[MAX_FRAMES_IN_FLIGHT];
     };
 }
 

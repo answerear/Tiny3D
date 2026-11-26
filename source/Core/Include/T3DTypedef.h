@@ -155,6 +155,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(RenderContext);
     T3D_DECLARE_SMART_PTR(RenderPipeline);
     T3D_DECLARE_SMART_PTR(ForwardRenderPipeline);
+    T3D_DECLARE_SMART_PTR(GPUProfiler);
 
     T3D_DECLARE_SMART_PTR(RenderResource);
     
@@ -202,6 +203,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(RHIPixelBufferCubemap);
     T3D_DECLARE_SMART_PTR(RHIConstantBuffer);
     T3D_DECLARE_SMART_PTR(RHIStructuredBuffer);
+    T3D_DECLARE_SMART_PTR(RHIQuery);
     T3D_DECLARE_SMART_PTR(RHIVertexDeclaration);
     T3D_DECLARE_SMART_PTR(RHIRenderTarget);
     T3D_DECLARE_SMART_PTR(RHIRenderWindow);

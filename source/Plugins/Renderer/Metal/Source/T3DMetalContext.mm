@@ -47,6 +47,7 @@
 
 #include <algorithm>
 #include <unordered_map>
+#include <vector>
 
 
 namespace Tiny3D
@@ -238,6 +239,19 @@ namespace Tiny3D
         MTLPixelFormat              stencilFormat {MTLPixelFormatInvalid};
 
         std::unordered_map<uint64_t, id<MTLRenderPipelineState>> psoCache;
+
+        /// 调试分组压在哪：编码器存在时压在编码器上，否则压在命令缓冲上。
+        /// 编码器上的分组必须在 endEncoding 前弹完，弹完后 encoderGen 置 0 表示已关闭
+        struct DebugGroupEntry
+        {
+            bool        onEncoder {false};
+            uint64_t    encoderGen {0};
+        };
+        std::vector<DebugGroupEntry> debugGroups;
+        /// 每创建一个渲染编码器加一，用来分辨分组属于哪个编码器
+        uint64_t                    encoderGen {0};
+        /// 编码器打开期间结束的命令缓冲分组，编码器结束后再弹
+        uint32_t                    deferredCmdPops {0};
     };
 
     //--------------------------------------------------------------------------
@@ -330,6 +344,14 @@ namespace Tiny3D
             mCapabilities.formatSupport[i] = GetMetalFormatSupport(mImpl->device, static_cast<PixelFormat>(i));
         }
         mCapabilities.logFormatSupport(LOG_TAG_METALRENDERER);
+
+        // GPU 查询（MTLCounterSampleBuffer / visibility result buffer）尚未接入
+        mCapabilities.supportsOcclusionQuery = false;
+        mCapabilities.supportsBinaryOcclusionQuery = false;
+        mCapabilities.supportsTimestampQuery = false;
+        mCapabilities.supportsPipelineStatisticsQuery = false;
+        mCapabilities.supportsPredication = false;
+        mCapabilities.supportsDebugAnnotations = true;
     }
 
     //--------------------------------------------------------------------------
@@ -409,8 +431,21 @@ namespace Tiny3D
     {
         if (mImpl != nullptr && mImpl->encoder != nil)
         {
+            for (auto itr = mImpl->debugGroups.rbegin(); itr != mImpl->debugGroups.rend(); ++itr)
+            {
+                if (itr->onEncoder && itr->encoderGen == mImpl->encoderGen)
+                {
+                    [mImpl->encoder popDebugGroup];
+                    itr->encoderGen = 0;
+                }
+            }
             [mImpl->encoder endEncoding];
             mImpl->encoder = nil;
+
+            for (; mImpl->deferredCmdPops > 0; --mImpl->deferredCmdPops)
+            {
+                [mImpl->cmd popDebugGroup];
+            }
         }
     }
 
@@ -567,6 +602,7 @@ namespace Tiny3D
         {
             return T3D_ERR_METAL_DEVICE;
         }
+        mImpl->encoderGen++;
 
         applyEncoderState();
         return T3D_OK;
@@ -1998,8 +2034,20 @@ namespace Tiny3D
 
         if (mImpl->cmd == nil)
         {
+            mImpl->debugGroups.clear();
+            mImpl->deferredCmdPops = 0;
             return T3D_ERR_INVALID_POINTER;
         }
+
+        // 没配对的命令缓冲分组在提交前补齐
+        for (auto itr = mImpl->debugGroups.rbegin(); itr != mImpl->debugGroups.rend(); ++itr)
+        {
+            if (!itr->onEncoder)
+            {
+                [mImpl->cmd popDebugGroup];
+            }
+        }
+        mImpl->debugGroups.clear();
 
         id<CAMetalDrawable> drawable = (mImpl->window != nullptr)
             ? (__bridge id<CAMetalDrawable>)mImpl->window->getDrawable() : nil;
@@ -2025,6 +2073,136 @@ namespace Tiny3D
     TResult MetalContext::endPass()
     {
         endEncoder();
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult MetalContext::beginDebugGroup(const String &name)
+    {
+        if (mImpl->cmd == nil)
+        {
+            return T3D_OK;
+        }
+
+        NSString *label = [NSString stringWithUTF8String:name.c_str()];
+        Impl::DebugGroupEntry entry;
+        if (mImpl->encoder != nil)
+        {
+            [mImpl->encoder pushDebugGroup:label];
+            entry.onEncoder = true;
+            entry.encoderGen = mImpl->encoderGen;
+        }
+        else
+        {
+            [mImpl->cmd pushDebugGroup:label];
+        }
+        mImpl->debugGroups.push_back(entry);
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult MetalContext::endDebugGroup()
+    {
+        if (mImpl->cmd == nil)
+        {
+            return T3D_OK;
+        }
+
+        if (mImpl->debugGroups.empty())
+        {
+            T3D_LOG_WARNING(LOG_TAG_METALRENDERER, "endDebugGroup without matching beginDebugGroup !");
+            return T3D_OK;
+        }
+
+        const Impl::DebugGroupEntry entry = mImpl->debugGroups.back();
+        mImpl->debugGroups.pop_back();
+        if (entry.onEncoder)
+        {
+            // 编码器已经结束的话，分组在 endEncoder 里弹过了
+            if (mImpl->encoder != nil && entry.encoderGen == mImpl->encoderGen)
+            {
+                [mImpl->encoder popDebugGroup];
+            }
+        }
+        else if (mImpl->encoder != nil)
+        {
+            // 编码器打开时不能操作命令缓冲的分组
+            mImpl->deferredCmdPops++;
+        }
+        else
+        {
+            [mImpl->cmd popDebugGroup];
+        }
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult MetalContext::setDebugMarker(const String &name)
+    {
+        // signpost 只有编码器上有，编码器之外的标记丢掉
+        if (mImpl->encoder != nil)
+        {
+            [mImpl->encoder insertDebugSignpost:[NSString stringWithUTF8String:name.c_str()]];
+        }
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult MetalContext::setDebugName(RenderResource *resource)
+    {
+        if (resource == nullptr)
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        RHIResourcePtr rhiResource = resource->getRHIResource();
+        if (rhiResource == nullptr || resource->getDebugName().empty())
+        {
+            return T3D_OK;
+        }
+
+        NSString *label = [NSString stringWithUTF8String:resource->getDebugName().c_str()];
+        void *native = rhiResource->getNativeObject();
+
+        switch (rhiResource->getResourceType())
+        {
+        case RHIResource::ResourceType::kVertexBuffer:
+        case RHIResource::ResourceType::kIndexBuffer:
+        case RHIResource::ResourceType::kConstantBuffer:
+            if (native != nullptr)
+            {
+                ((__bridge id<MTLBuffer>)native).label = label;
+            }
+            break;
+        case RHIResource::ResourceType::kPixelBuffer1D:
+        case RHIResource::ResourceType::kPixelBuffer3D:
+        case RHIResource::ResourceType::kPixelBufferCubemap:
+            if (native != nullptr)
+            {
+                ((__bridge id<MTLTexture>)native).label = label;
+            }
+            break;
+        case RHIResource::ResourceType::kPixelBuffer2D:
+            {
+                if (native != nullptr)
+                {
+                    ((__bridge id<MTLTexture>)native).label = label;
+                }
+                void *resolve = static_cast<MetalPixelBuffer2D *>(rhiResource.get())->getResolveNative();
+                if (resolve != nullptr)
+                {
+                    ((__bridge id<MTLTexture>)resolve).label = [label stringByAppendingString:@" Resolve"];
+                }
+            }
+            break;
+        default:
+            break;
+        }
+
         return T3D_OK;
     }
 

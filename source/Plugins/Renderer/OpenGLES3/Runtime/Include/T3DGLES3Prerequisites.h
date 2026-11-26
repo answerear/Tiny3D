@@ -62,6 +62,7 @@ namespace Tiny3D
     class GLES3DomainShader;
     class GLES3GeometryShader;
     class GLES3ComputeShader;
+    class GLES3Query;
 
     T3D_DECLARE_SMART_PTR(GLES3Renderer);
     T3D_DECLARE_SMART_PTR(GLES3Context);
@@ -86,6 +87,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(GLES3DomainShader);
     T3D_DECLARE_SMART_PTR(GLES3GeometryShader);
     T3D_DECLARE_SMART_PTR(GLES3ComputeShader);
+    T3D_DECLARE_SMART_PTR(GLES3Query);
 }
 
 

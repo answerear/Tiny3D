@@ -116,6 +116,10 @@ namespace Tiny3D
             }
             
             mIB = T3D_RENDER_BUFFER_MGR.loadIndexBuffer(indexType, indexCount, mIndices, MemoryType::kVRAM, Usage::kImmutable, CPUAccessMode::kCPUNone);
+            if (mIB != nullptr)
+            {
+                mIB->setDebugName(getName() + " IB");
+            }
         } while (false);
         
         return ret;

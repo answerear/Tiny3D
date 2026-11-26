@@ -167,6 +167,33 @@ namespace Tiny3D
     protected:
         VKPixelBufferCubemap() = default;
     };
+
+    /**
+     * \brief Vulkan 查询对象
+     * \remarks 每个在途帧一个查询槽：第 f 帧发起用槽 f，等到该帧槽的 fence 之后读结果并在新命令缓冲开头 reset，
+     *          所以同一个对象可以每帧都发起而不必等上一帧的结果
+     */
+    class VKQuery : public RHIQuery
+    {
+    public:
+        static VKQueryPtr create(QueryType type);
+
+        ~VKQuery() override;
+
+        void *getNativeObject() const override;
+
+        VkQueryPool     VkPool {VK_NULL_HANDLE};
+        /// 每个槽的结果占用的 uint64 个数（管线统计为启用的计数器个数）
+        uint32_t        ValueCount {1};
+        /// 最近一次 begin / end 所在的帧序号，同一帧只能发起一次
+        uint64_t        LastBeginFrame {0};
+        uint64_t        LastEndFrame {0};
+        /// begin 时是否在 render pass 内；Vulkan 要求 begin / end 在同一个 subpass 或都在 pass 外
+        bool            BeganInRenderPass {false};
+
+    protected:
+        explicit VKQuery(QueryType type) : RHIQuery(type) {}
+    };
 }
 
 

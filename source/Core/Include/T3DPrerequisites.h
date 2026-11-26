@@ -257,6 +257,7 @@ namespace Tiny3D
     class RenderContext;
     class RenderPipeline;
     class ForwardRenderPipeline;
+    class GPUProfiler;
 
     class RenderResource;
     
@@ -320,6 +321,7 @@ namespace Tiny3D
     class RHIPixelBufferCubemap;
     class RHIConstantBuffer;
     class RHIStructuredBuffer;
+    class RHIQuery;
     class RHIVertexDeclaration;
     class RHIRenderTarget;
     class RHIRenderWindow;

@@ -63,6 +63,7 @@ namespace Tiny3D
 
     GLES3Context::~GLES3Context()
     {
+        mPendingQueries.clear();
         mCurrentRenderTarget = nullptr;
         mPendingVertexDecl = nullptr;
         mCurrentVSVariant = nullptr;
@@ -177,6 +178,11 @@ namespace Tiny3D
             }
 
             mCapabilities.formatSupport[i] = support;
+        }
+
+        if (hasContext)
+        {
+            fillQueryCapabilities();
         }
 
         while (glGetError() != GL_NO_ERROR) {}
@@ -758,13 +764,19 @@ namespace Tiny3D
             }
         }
 
-        auto lambda = [this](const PixelBuffer2DPtr &pixelBuffer, const GLES3PixelBuffer2DPtr &glPixelBuffer)
+        auto lambda = [this](const PixelBuffer2DPtr &pixelBuffer, const GLES3PixelBuffer2DPtr &glPixelBuffer, const String &debugName)
         {
             releaseRenderTextureResources(glPixelBuffer.get());
-            return buildRenderTextureResources(pixelBuffer.get(), glPixelBuffer.get());
+            TResult ret = buildRenderTextureResources(pixelBuffer.get(), glPixelBuffer.get());
+            if (T3D_SUCCEEDED(ret) && !debugName.empty())
+            {
+                // 重建出来的是新 GL 对象，名字要重新打
+                applyDebugName(glPixelBuffer.get(), debugName);
+            }
+            return ret;
         };
 
-        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, PixelBuffer2DPtr(pixelBuffer), GLES3PixelBuffer2DPtr(glPixelBuffer));
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, PixelBuffer2DPtr(pixelBuffer), GLES3PixelBuffer2DPtr(glPixelBuffer), pixelBuffer->getDebugName());
         if (T3D_SUCCEEDED(ret) && needRebind)
         {
             return setRenderTarget(currentRT.get());
@@ -5076,6 +5088,401 @@ namespace Tiny3D
         }
 
         return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    namespace
+    {
+        /// KHR_debug 要求 label / message 短于 GL_MAX_LABEL_LENGTH（至少 256）
+        const size_t kMaxGLLabelLength = 255;
+
+        bool hasGLExtension(const char *name)
+        {
+            GLint numExt = 0;
+            glGetIntegerv(GL_NUM_EXTENSIONS, &numExt);
+            for (GLint i = 0; i < numExt; ++i)
+            {
+                const char *ext = reinterpret_cast<const char *>(glGetStringi(GL_EXTENSIONS, static_cast<GLuint>(i)));
+                if (ext != nullptr && strcmp(ext, name) == 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GLES3Context::fillQueryCapabilities()
+    {
+        const bool has32 = (mGLESMajor > 3) || (mGLESMajor == 3 && mGLESMinor >= 2);
+
+        // ES 3.0 核心只有 ANY_SAMPLES_PASSED，拿不到样本数
+        mCapabilities.supportsOcclusionQuery = false;
+        mCapabilities.supportsBinaryOcclusionQuery = true;
+        mCapabilities.supportsPipelineStatisticsQuery = false;
+        mCapabilities.supportsPredication = false;
+
+        mGLQueryCounter = nullptr;
+        mGLGetQueryObjectui64v = nullptr;
+        if (hasGLExtension("GL_EXT_disjoint_timer_query"))
+        {
+            mGLQueryCounter = reinterpret_cast<PFNGLQUERYCOUNTEREXTPROC>(eglGetProcAddress("glQueryCounterEXT"));
+            mGLGetQueryObjectui64v = reinterpret_cast<PFNGLGETQUERYOBJECTUI64VEXTPROC>(eglGetProcAddress("glGetQueryObjectui64vEXT"));
+        }
+        mCapabilities.supportsTimestampQuery = (mGLQueryCounter != nullptr && mGLGetQueryObjectui64v != nullptr);
+
+        // ES 3.2 核心带 KHR_debug（无后缀入口），更早的版本走 GL_KHR_debug 扩展（KHR 后缀入口）
+        mGLPushDebugGroup = nullptr;
+        mGLPopDebugGroup = nullptr;
+        mGLDebugMessageInsert = nullptr;
+        mGLObjectLabel = nullptr;
+        if (has32)
+        {
+            mGLPushDebugGroup = reinterpret_cast<PFNGLPUSHDEBUGGROUPKHRPROC>(eglGetProcAddress("glPushDebugGroup"));
+            mGLPopDebugGroup = reinterpret_cast<PFNGLPOPDEBUGGROUPKHRPROC>(eglGetProcAddress("glPopDebugGroup"));
+            mGLDebugMessageInsert = reinterpret_cast<PFNGLDEBUGMESSAGEINSERTKHRPROC>(eglGetProcAddress("glDebugMessageInsert"));
+            mGLObjectLabel = reinterpret_cast<PFNGLOBJECTLABELKHRPROC>(eglGetProcAddress("glObjectLabel"));
+        }
+        if ((mGLPushDebugGroup == nullptr || mGLPopDebugGroup == nullptr
+                || mGLDebugMessageInsert == nullptr || mGLObjectLabel == nullptr)
+            && hasGLExtension("GL_KHR_debug"))
+        {
+            mGLPushDebugGroup = reinterpret_cast<PFNGLPUSHDEBUGGROUPKHRPROC>(eglGetProcAddress("glPushDebugGroupKHR"));
+            mGLPopDebugGroup = reinterpret_cast<PFNGLPOPDEBUGGROUPKHRPROC>(eglGetProcAddress("glPopDebugGroupKHR"));
+            mGLDebugMessageInsert = reinterpret_cast<PFNGLDEBUGMESSAGEINSERTKHRPROC>(eglGetProcAddress("glDebugMessageInsertKHR"));
+            mGLObjectLabel = reinterpret_cast<PFNGLOBJECTLABELKHRPROC>(eglGetProcAddress("glObjectLabelKHR"));
+        }
+        mHasDebugAnnotation = mGLPushDebugGroup != nullptr && mGLPopDebugGroup != nullptr
+            && mGLDebugMessageInsert != nullptr && mGLObjectLabel != nullptr;
+        mCapabilities.supportsDebugAnnotations = mHasDebugAnnotation;
+
+        T3D_LOG_INFO(LOG_TAG_GLES3RENDERER, "GPU timestamp query (EXT_disjoint_timer_query): %s, debug annotation (KHR_debug): %s",
+            mCapabilities.supportsTimestampQuery ? "supported" : "not supported",
+            mHasDebugAnnotation ? "supported" : "not supported");
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GLES3Context::beginDebugGroup(const String &name)
+    {
+        if (!mHasDebugAnnotation)
+        {
+            return T3D_OK;
+        }
+
+        auto lambda = [this](const String &name)
+        {
+            const GLsizei length = static_cast<GLsizei>(std::min(name.size(), kMaxGLLabelLength));
+            mGLPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION_KHR, 0, length, name.c_str());
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, name);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GLES3Context::endDebugGroup()
+    {
+        if (!mHasDebugAnnotation)
+        {
+            return T3D_OK;
+        }
+
+        auto lambda = [this]()
+        {
+            mGLPopDebugGroup();
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GLES3Context::setDebugMarker(const String &name)
+    {
+        if (!mHasDebugAnnotation)
+        {
+            return T3D_OK;
+        }
+
+        auto lambda = [this](const String &name)
+        {
+            const GLsizei length = static_cast<GLsizei>(std::min(name.size(), kMaxGLLabelLength));
+            mGLDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION_KHR, GL_DEBUG_TYPE_MARKER_KHR, 0,
+                GL_DEBUG_SEVERITY_NOTIFICATION_KHR, length, name.c_str());
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, name);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GLES3Context::setDebugName(RenderResource *resource)
+    {
+        if (resource == nullptr)
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        RHIResourcePtr rhiResource = resource->getRHIResource();
+        if (!mHasDebugAnnotation || rhiResource == nullptr || resource->getDebugName().empty())
+        {
+            return T3D_OK;
+        }
+
+        auto lambda = [this](const RHIResourcePtr &rhiResource, const String &name)
+        {
+            applyDebugName(rhiResource.get(), name);
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, rhiResource, resource->getDebugName());
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GLES3Context::applyDebugName(RHIResource *resource, const String &name)
+    {
+        if (!mHasDebugAnnotation || resource == nullptr)
+        {
+            return;
+        }
+
+        auto label = [this](GLenum identifier, GLuint object, const String &text)
+        {
+            if (object == 0)
+            {
+                return;
+            }
+            const GLsizei length = static_cast<GLsizei>(std::min(text.size(), kMaxGLLabelLength));
+            mGLObjectLabel(identifier, object, length, text.c_str());
+        };
+
+        switch (resource->getResourceType())
+        {
+        case RHIResource::ResourceType::kVertexBuffer:
+            label(GL_BUFFER_KHR, static_cast<GLES3VertexBuffer *>(resource)->GLBuffer, name);
+            break;
+        case RHIResource::ResourceType::kIndexBuffer:
+            label(GL_BUFFER_KHR, static_cast<GLES3IndexBuffer *>(resource)->GLBuffer, name);
+            break;
+        case RHIResource::ResourceType::kConstantBuffer:
+            label(GL_BUFFER_KHR, static_cast<GLES3ConstantBuffer *>(resource)->GLBuffer, name);
+            break;
+        case RHIResource::ResourceType::kStructuredBuffer:
+            {
+                GLES3StructuredBuffer *buffer = static_cast<GLES3StructuredBuffer *>(resource);
+                label(GL_BUFFER_KHR, buffer->GLBuffer, name);
+                label(GL_BUFFER_KHR, buffer->GLCounterBuffer, name + " Counter");
+            }
+            break;
+        case RHIResource::ResourceType::kPixelBuffer1D:
+            label(GL_TEXTURE, static_cast<GLES3PixelBuffer1D *>(resource)->GLTexture, name);
+            break;
+        case RHIResource::ResourceType::kPixelBuffer2D:
+            {
+                GLES3PixelBuffer2D *buffer = static_cast<GLES3PixelBuffer2D *>(resource);
+                label(GL_TEXTURE, buffer->GLTexture, name);
+                label(GL_FRAMEBUFFER, buffer->GLFBO, name + " FBO");
+                label(GL_TEXTURE, buffer->GLResolveTex, name + " Resolve");
+                label(GL_FRAMEBUFFER, buffer->GLResolveFBO, name + " Resolve FBO");
+            }
+            break;
+        case RHIResource::ResourceType::kPixelBuffer3D:
+            label(GL_TEXTURE, static_cast<GLES3PixelBuffer3D *>(resource)->GLTexture, name);
+            break;
+        case RHIResource::ResourceType::kPixelBufferCubemap:
+            label(GL_TEXTURE, static_cast<GLES3PixelBufferCubemap *>(resource)->GLTexture, name);
+            break;
+        default:
+            // glGenQueries 出来的名字在第一次 begin 之前还不是对象，glObjectLabel 会报 INVALID_VALUE，查询不命名
+            break;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    RHIQueryPtr GLES3Context::createQuery(QueryType type)
+    {
+        if (!mCapabilities.checkQueryType(LOG_TAG_GLES3RENDERER, type))
+        {
+            return nullptr;
+        }
+
+        GLES3QueryPtr query = GLES3Query::create(type);
+        switch (type)
+        {
+        case QueryType::kBinaryOcclusion:
+            query->GLTarget = GL_ANY_SAMPLES_PASSED;
+            break;
+        case QueryType::kTimestamp:
+            query->GLTarget = GL_TIMESTAMP_EXT;
+            break;
+        default:
+            return nullptr;
+        }
+
+        auto lambda = [](const GLES3QueryPtr &query)
+        {
+            glGenQueries(1, &query->GLQuery);
+            GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::createQuery");
+            return T3D_OK;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, query);
+        if (T3D_FAILED(ret))
+        {
+            return nullptr;
+        }
+        return query;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GLES3Context::beginQuery(RHIQuery *query)
+    {
+        if (query == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GLES3RENDERER, "beginQuery : query is null !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        if (!query->markBegin(LOG_TAG_GLES3RENDERER))
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        auto lambda = [](const GLES3QueryPtr &query)
+        {
+            glBeginQuery(query->GLTarget, query->GLQuery);
+            GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::beginQuery");
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, GLES3QueryPtr(static_cast<GLES3Query *>(query)));
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GLES3Context::endQuery(RHIQuery *query)
+    {
+        if (query == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GLES3RENDERER, "endQuery : query is null !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        uint32_t serial = 0;
+        if (!query->markEnd(LOG_TAG_GLES3RENDERER, serial))
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        auto lambda = [this](const GLES3QueryPtr &query, uint32_t serial)
+        {
+            if (query->getQueryType() == QueryType::kTimestamp)
+            {
+                mGLQueryCounter(query->GLQuery, GL_TIMESTAMP_EXT);
+            }
+            else
+            {
+                glEndQuery(query->GLTarget);
+            }
+            GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::endQuery");
+
+            PendingQuery &pending = mPendingQueries[query.get()];
+            pending.Query = query;
+            pending.Serial = serial;
+            pending.Disjoint = false;
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, GLES3QueryPtr(static_cast<GLES3Query *>(query)), serial);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GLES3Context::endRender()
+    {
+        auto lambda = [this]()
+        {
+            pollQueries();
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GLES3Context::pollQueries()
+    {
+        if (mPendingQueries.empty())
+        {
+            return;
+        }
+
+        // GPU_DISJOINT 读一次清一次：置位说明从上次读到现在 GPU 计时被打断过，
+        // 这期间所有还没取回的时间戳都不可信，先全部打上作废标记
+        if (mCapabilities.supportsTimestampQuery)
+        {
+            GLint disjoint = 0;
+            glGetIntegerv(GL_GPU_DISJOINT_EXT, &disjoint);
+            if (disjoint != 0)
+            {
+                for (auto &item : mPendingQueries)
+                {
+                    if (item.second.Query->getQueryType() == QueryType::kTimestamp)
+                    {
+                        item.second.Disjoint = true;
+                    }
+                }
+            }
+        }
+
+        auto itr = mPendingQueries.begin();
+        while (itr != mPendingQueries.end())
+        {
+            GLES3Query *query = itr->second.Query.get();
+
+            GLuint ready = GL_FALSE;
+            glGetQueryObjectuiv(query->GLQuery, GL_QUERY_RESULT_AVAILABLE, &ready);
+            if (ready == GL_FALSE)
+            {
+                ++itr;
+                continue;
+            }
+
+            QueryResult result;
+            result.type = query->getQueryType();
+            QueryStatus status = QueryStatus::kReady;
+
+            if (result.type == QueryType::kTimestamp)
+            {
+                GLuint64 value = 0;
+                mGLGetQueryObjectui64v(query->GLQuery, GL_QUERY_RESULT, &value);
+                result.timestamp = value;
+                if (itr->second.Disjoint)
+                {
+                    status = QueryStatus::kDisjoint;
+                }
+            }
+            else
+            {
+                GLuint value = 0;
+                glGetQueryObjectuiv(query->GLQuery, GL_QUERY_RESULT, &value);
+                result.samplesPassed = (value != 0) ? 1 : 0;
+            }
+
+            query->publish(itr->second.Serial, status, result);
+            itr = mPendingQueries.erase(itr);
+        }
     }
 
     //--------------------------------------------------------------------------

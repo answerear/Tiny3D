@@ -28,6 +28,7 @@
 
 
 #include "T3DRenderPipeline.h"
+#include "Render/T3DGPUProfiler.h"
 #include "Kernel/T3DConstant.h"
 #include "Material/T3DPassInstance.h"
 #include "Material/T3DShaderConstantParam.h"
@@ -115,7 +116,35 @@ namespace Tiny3D
          */
         TResult drawFullscreen(RHIContext *ctx, Material *material, RenderTexture *src, RenderTexture *dst);
 
+        /**
+         * \brief 开启或关闭 GPU 分段计时；开启后每帧按相机 / 阴影 / 不透明 / 天空盒 / 透明 / 后处理 / UI 打点
+         */
+        void enableGPUProfiling(bool enabled) override;
+
+        /// GPU 分段计时器；未开启时返回 nullptr
+        GPUProfiler *getGPUProfiler() const override;
+
     protected:
+        /**
+         * \brief 同时打调试分组和 GPU 计时段的作用域对象
+         */
+        class Section
+        {
+        public:
+            Section(RHIContext *ctx, GPUProfiler *profiler, const String &name);
+            ~Section();
+
+            Section(const Section &) = delete;
+            Section &operator=(const Section &) = delete;
+
+        private:
+            RHIContext  *mContext {nullptr};
+            GPUProfiler *mProfiler {nullptr};
+        };
+
+        /// 当前生效的分析器；未开启时为 nullptr
+        GPUProfiler *activeProfiler() const { return mGPUProfilingEnabled ? mGPUProfiler.get() : nullptr; }
+
         using Lights = TUnorderedMap<UUID, Light*, UUIDHash, UUIDEqual>;
         using Renderables = TList<Renderable*>;
         using RenderGroup = TMap<Material*, Renderables>;
@@ -538,6 +567,11 @@ namespace Tiny3D
         TArray<uint8_t>         mBatchCPUertices {};
         /// CPU 侧合并索引临时缓冲区
         TArray<uint16_t>        mBatchCPUIndices {};
+
+        /// GPU 分段计时器，首次开启时创建
+        GPUProfilerPtr          mGPUProfiler {nullptr};
+        /// 是否开启 GPU 分段计时
+        bool                    mGPUProfilingEnabled {false};
     };
 }
 

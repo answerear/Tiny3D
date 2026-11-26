@@ -29,6 +29,7 @@
 
 #include "T3DPrerequisites.h"
 #include "Kernel/T3DPixelFormat.h"
+#include "RHI/T3DRHIQuery.h"
 
 
 namespace Tiny3D
@@ -97,6 +98,19 @@ namespace Tiny3D
         bool        supportsTextureSubresourceViews {false};
         /// 渲染目标可以一次绑定数组 / Cube 的多层，由 GS 输出 SV_RenderTargetArrayIndex 选层
         bool        supportsLayeredRendering {false};
+        /// 支持 QueryType::kOcclusion（样本计数）。GLES 只有布尔遮挡查询，这一位为 false
+        bool        supportsOcclusionQuery {false};
+        /// 支持 QueryType::kBinaryOcclusion（是否有样本通过）
+        bool        supportsBinaryOcclusionQuery {false};
+        /// 支持 QueryType::kTimestamp。GLES 需要 EXT_disjoint_timer_query
+        bool        supportsTimestampQuery {false};
+        /// 支持 QueryType::kPipelineStatistics。GL 需要 4.6 或 ARB_pipeline_statistics_query，
+        /// Vulkan 需要设备特性 pipelineStatisticsQuery
+        bool        supportsPipelineStatisticsQuery {false};
+        /// 支持 RHIContext::setPredication（按布尔遮挡查询的结果跳过绘制）
+        bool        supportsPredication {false};
+        /// 调试分组、调试标记与资源名会转发到图形 API。为 false 时这些接口是空操作，不影响渲染结果
+        bool        supportsDebugAnnotations {false};
 
         /// 每维最大线程组数
         uint32_t    maxDispatchGroupCount[3] {0, 0, 0};
@@ -178,6 +192,17 @@ namespace Tiny3D
          * \return 目标是带 kGPUGenerateMips、mipmaps > 1 且已创建 RHI 资源的渲染纹理时返回 true
          */
         bool checkGenerateMips(const char *tag, const char *func, PixelBuffer *buffer) const;
+
+        /// 是否支持某种查询类型
+        bool supportsQuery(QueryType type) const;
+
+        /**
+         * \brief 校验 createQuery 的类型，不支持时打警告日志
+         * \param [in] tag : 日志 tag
+         * \param [in] type : 查询类型
+         * \return 支持时返回 true
+         */
+        bool checkQueryType(const char *tag, QueryType type) const;
 
         /// 把 formatSupport 逐格式打到日志，后端填完能力位后调用
         void logFormatSupport(const char *tag) const;

@@ -34,6 +34,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <cstring>
 
 
 namespace Tiny3D
@@ -165,6 +166,20 @@ namespace Tiny3D
         {
             vkDeviceWaitIdle(mVkDevice);
 
+            // 在途查询的 pool 这里直接销毁，免得 VKQuery 析构时回头经 VK_CONTEXT 取正在析构的本对象
+            for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+            {
+                for (PendingQuery &pending : mFrameQueries[i])
+                {
+                    if (pending.Query != nullptr && pending.Query->VkPool != VK_NULL_HANDLE)
+                    {
+                        vkDestroyQueryPool(mVkDevice, pending.Query->VkPool, nullptr);
+                        pending.Query->VkPool = VK_NULL_HANDLE;
+                    }
+                }
+                mFrameQueries[i].clear();
+            }
+
             for (size_t i = 0; i < mVkInFlightFences.size(); ++i)
             {
                 vkDestroyFence(mVkDevice, mVkInFlightFences[i], nullptr);
@@ -268,8 +283,31 @@ namespace Tiny3D
 
 #if defined (T3D_DEBUG)
             validationLayers.push_back("VK_LAYER_KHRONOS_validation");
-            extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
+
+            // debug utils 不只给校验层用，RenderDoc 的 label / 对象名也靠它，可用就开
+            {
+                uint32_t extCount = 0;
+                vkEnumerateInstanceExtensionProperties(nullptr, &extCount, nullptr);
+                std::vector<VkExtensionProperties> extProps(extCount);
+                vkEnumerateInstanceExtensionProperties(nullptr, &extCount, extProps.data());
+                for (const VkExtensionProperties &prop : extProps)
+                {
+                    if (strcmp(prop.extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0)
+                    {
+                        mDebugUtilsEnabled = true;
+                        break;
+                    }
+                }
+#if defined (T3D_DEBUG)
+                // 校验层自己也提供 debug utils，枚举不到时照旧开启
+                mDebugUtilsEnabled = true;
+#endif
+                if (mDebugUtilsEnabled)
+                {
+                    extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+                }
+            }
 
             VkInstanceCreateInfo createInfo {};
             createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -286,6 +324,8 @@ namespace Tiny3D
                 T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Create VkInstance failed ! VK ERROR [%d]", vkResult);
                 break;
             }
+
+            loadDebugUtils();
 
 #if defined (T3D_DEBUG)
             // Setup debug messenger
@@ -364,6 +404,11 @@ namespace Tiny3D
             VkPhysicalDeviceFeatures deviceFeatures {};
             // Scene 线框模式需要 VK_POLYGON_MODE_LINE；未开启 fillModeNonSolid 时非法
             deviceFeatures.fillModeNonSolid = supportedFeatures.fillModeNonSolid;
+            // 管线统计查询与精确遮挡计数都是可选特性，不开就不能用
+            deviceFeatures.pipelineStatisticsQuery = supportedFeatures.pipelineStatisticsQuery;
+            deviceFeatures.occlusionQueryPrecise = supportedFeatures.occlusionQueryPrecise;
+            mPipelineStatisticsEnabled = (supportedFeatures.pipelineStatisticsQuery == VK_TRUE);
+            mOcclusionPreciseEnabled = (supportedFeatures.occlusionQueryPrecise == VK_TRUE);
 
             const char *deviceExtensions[] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
@@ -514,6 +559,25 @@ namespace Tiny3D
         mCapabilities.supportsTextureSubresourceViews = true;
         mCapabilities.supportsLayeredRendering = false;
 
+        // 遮挡查询是核心功能，非零即可见，所以二值遮挡直接复用；条件渲染要 VK_EXT_conditional_rendering，暂不接
+        mCapabilities.supportsOcclusionQuery = true;
+        mCapabilities.supportsBinaryOcclusionQuery = true;
+        mCapabilities.supportsPipelineStatisticsQuery = mPipelineStatisticsEnabled;
+        mCapabilities.supportsPredication = false;
+        mCapabilities.supportsDebugAnnotations = (mVkCmdBeginDebugUtilsLabel != nullptr);
+
+        {
+            uint32_t queueFamilyCount = 0;
+            vkGetPhysicalDeviceQueueFamilyProperties(mVkPhysicalDevice, &queueFamilyCount, nullptr);
+            std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+            vkGetPhysicalDeviceQueueFamilyProperties(mVkPhysicalDevice, &queueFamilyCount, queueFamilies.data());
+            const uint32_t validBits = (mGraphicsQueueFamily < queueFamilyCount)
+                ? queueFamilies[mGraphicsQueueFamily].timestampValidBits : 0;
+            mCapabilities.supportsTimestampQuery = (validBits > 0) && (props.limits.timestampPeriod > 0.0f);
+            mTimestampMask = (validBits >= 64) ? ~0ull : ((1ull << validBits) - 1);
+            mTimestampPeriod = static_cast<double>(props.limits.timestampPeriod);
+        }
+
         for (uint32_t i = 0; i < 3; ++i)
         {
             mCapabilities.maxDispatchGroupCount[i] = props.limits.maxComputeWorkGroupCount[i];
@@ -641,6 +705,13 @@ namespace Tiny3D
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         vkBeginCommandBuffer(cmdBuf, &beginInfo);
 
+        mFrameRecording = true;
+        mFrameCounter++;
+        mDebugGroupDepth = 0;
+
+        // 本帧槽的 fence 已经等过，上一轮在这个槽上发起的查询结果都在了
+        resolveFrameQueries(mCurrentFrame, cmdBuf);
+
         // Transition swapchain image from UNDEFINED to TRANSFER_DST
         insertImageBarrier(cmdBuf, mCurrentRenderWindow->VkSwapChainImages[mCurrentImageIndex],
             VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -660,6 +731,15 @@ namespace Tiny3D
         TResult ret = T3D_OK;
 
         VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
+
+        // 没配对的调试分组在提交前补齐，否则校验层报 label 不平衡
+        while (mDebugGroupDepth > 0 && mVkCmdEndDebugUtilsLabel != nullptr)
+        {
+            mVkCmdEndDebugUtilsLabel(cmdBuf);
+            mDebugGroupDepth--;
+        }
+        mDebugGroupDepth = 0;
+        mFrameRecording = false;
 
         // Transition swapchain image to PRESENT_SRC
         insertImageBarrier(cmdBuf, mCurrentRenderWindow->VkSwapChainImages[mCurrentImageIndex],
@@ -4054,5 +4134,416 @@ namespace Tiny3D
         return format == VK_FORMAT_D16_UNORM_S8_UINT
             || format == VK_FORMAT_D24_UNORM_S8_UINT
             || format == VK_FORMAT_D32_SFLOAT_S8_UINT;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void VKContext::loadDebugUtils()
+    {
+        if (!mDebugUtilsEnabled || mVkInstance == VK_NULL_HANDLE)
+        {
+            return;
+        }
+
+        mVkCmdBeginDebugUtilsLabel = reinterpret_cast<PFN_vkCmdBeginDebugUtilsLabelEXT>(
+            vkGetInstanceProcAddr(mVkInstance, "vkCmdBeginDebugUtilsLabelEXT"));
+        mVkCmdEndDebugUtilsLabel = reinterpret_cast<PFN_vkCmdEndDebugUtilsLabelEXT>(
+            vkGetInstanceProcAddr(mVkInstance, "vkCmdEndDebugUtilsLabelEXT"));
+        mVkCmdInsertDebugUtilsLabel = reinterpret_cast<PFN_vkCmdInsertDebugUtilsLabelEXT>(
+            vkGetInstanceProcAddr(mVkInstance, "vkCmdInsertDebugUtilsLabelEXT"));
+        mVkSetDebugUtilsObjectName = reinterpret_cast<PFN_vkSetDebugUtilsObjectNameEXT>(
+            vkGetInstanceProcAddr(mVkInstance, "vkSetDebugUtilsObjectNameEXT"));
+
+        if (mVkCmdBeginDebugUtilsLabel == nullptr || mVkCmdEndDebugUtilsLabel == nullptr
+            || mVkCmdInsertDebugUtilsLabel == nullptr)
+        {
+            mVkCmdBeginDebugUtilsLabel = nullptr;
+            mVkCmdEndDebugUtilsLabel = nullptr;
+            mVkCmdInsertDebugUtilsLabel = nullptr;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult VKContext::beginDebugGroup(const String &name)
+    {
+        if (mVkCmdBeginDebugUtilsLabel == nullptr || !mFrameRecording)
+        {
+            return T3D_OK;
+        }
+
+        VkDebugUtilsLabelEXT label {};
+        label.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+        label.pLabelName = name.c_str();
+        mVkCmdBeginDebugUtilsLabel(mVkCommandBuffers[mCurrentFrame], &label);
+        mDebugGroupDepth++;
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult VKContext::endDebugGroup()
+    {
+        if (mVkCmdEndDebugUtilsLabel == nullptr || !mFrameRecording)
+        {
+            return T3D_OK;
+        }
+
+        if (mDebugGroupDepth == 0)
+        {
+            T3D_LOG_WARNING(LOG_TAG_VKRENDERER, "endDebugGroup without matching beginDebugGroup !");
+            return T3D_OK;
+        }
+
+        mVkCmdEndDebugUtilsLabel(mVkCommandBuffers[mCurrentFrame]);
+        mDebugGroupDepth--;
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult VKContext::setDebugMarker(const String &name)
+    {
+        if (mVkCmdInsertDebugUtilsLabel == nullptr || !mFrameRecording)
+        {
+            return T3D_OK;
+        }
+
+        VkDebugUtilsLabelEXT label {};
+        label.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+        label.pLabelName = name.c_str();
+        mVkCmdInsertDebugUtilsLabel(mVkCommandBuffers[mCurrentFrame], &label);
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void VKContext::setVkObjectName(VkObjectType type, uint64_t handle, const String &name)
+    {
+        if (mVkSetDebugUtilsObjectName == nullptr || handle == 0)
+        {
+            return;
+        }
+
+        VkDebugUtilsObjectNameInfoEXT info {};
+        info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+        info.objectType = type;
+        info.objectHandle = handle;
+        info.pObjectName = name.c_str();
+        mVkSetDebugUtilsObjectName(mVkDevice, &info);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult VKContext::setDebugName(RenderResource *resource)
+    {
+        if (resource == nullptr)
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        RHIResourcePtr rhiResource = resource->getRHIResource();
+        const String &name = resource->getDebugName();
+        if (mVkSetDebugUtilsObjectName == nullptr || rhiResource == nullptr || name.empty())
+        {
+            return T3D_OK;
+        }
+
+        auto toHandle = [](auto vkHandle) { return (uint64_t)(vkHandle); };
+
+        switch (rhiResource->getResourceType())
+        {
+        case RHIResource::ResourceType::kVertexBuffer:
+            {
+                VKVertexBuffer *buffer = static_cast<VKVertexBuffer *>(rhiResource.get());
+                setVkObjectName(VK_OBJECT_TYPE_BUFFER, toHandle(buffer->VkBuf), name);
+                setVkObjectName(VK_OBJECT_TYPE_DEVICE_MEMORY, toHandle(buffer->VkBufMemory), name + " Memory");
+            }
+            break;
+        case RHIResource::ResourceType::kIndexBuffer:
+            {
+                VKIndexBuffer *buffer = static_cast<VKIndexBuffer *>(rhiResource.get());
+                setVkObjectName(VK_OBJECT_TYPE_BUFFER, toHandle(buffer->VkBuf), name);
+                setVkObjectName(VK_OBJECT_TYPE_DEVICE_MEMORY, toHandle(buffer->VkBufMemory), name + " Memory");
+            }
+            break;
+        case RHIResource::ResourceType::kConstantBuffer:
+            {
+                VKConstantBuffer *buffer = static_cast<VKConstantBuffer *>(rhiResource.get());
+                setVkObjectName(VK_OBJECT_TYPE_BUFFER, toHandle(buffer->VkBuf), name);
+                setVkObjectName(VK_OBJECT_TYPE_DEVICE_MEMORY, toHandle(buffer->VkBufMemory), name + " Memory");
+            }
+            break;
+        case RHIResource::ResourceType::kPixelBuffer1D:
+            {
+                VKPixelBuffer1D *buffer = static_cast<VKPixelBuffer1D *>(rhiResource.get());
+                setVkObjectName(VK_OBJECT_TYPE_IMAGE, toHandle(buffer->VkTex), name);
+                setVkObjectName(VK_OBJECT_TYPE_IMAGE_VIEW, toHandle(buffer->VkTexView), name + " SRV");
+            }
+            break;
+        case RHIResource::ResourceType::kPixelBuffer2D:
+            {
+                VKPixelBuffer2D *buffer = static_cast<VKPixelBuffer2D *>(rhiResource.get());
+                setVkObjectName(VK_OBJECT_TYPE_IMAGE, toHandle(buffer->VkTex), name);
+                setVkObjectName(VK_OBJECT_TYPE_IMAGE_VIEW, toHandle(buffer->VkTexView), name + " SRV");
+                setVkObjectName(VK_OBJECT_TYPE_IMAGE_VIEW, toHandle(buffer->VkRTView), name + " RTV");
+                setVkObjectName(VK_OBJECT_TYPE_IMAGE_VIEW, toHandle(buffer->VkDSView), name + " DSV");
+            }
+            break;
+        case RHIResource::ResourceType::kPixelBuffer3D:
+            {
+                VKPixelBuffer3D *buffer = static_cast<VKPixelBuffer3D *>(rhiResource.get());
+                setVkObjectName(VK_OBJECT_TYPE_IMAGE, toHandle(buffer->VkTex), name);
+                setVkObjectName(VK_OBJECT_TYPE_IMAGE_VIEW, toHandle(buffer->VkTexView), name + " SRV");
+            }
+            break;
+        case RHIResource::ResourceType::kPixelBufferCubemap:
+            {
+                VKPixelBufferCubemap *buffer = static_cast<VKPixelBufferCubemap *>(rhiResource.get());
+                setVkObjectName(VK_OBJECT_TYPE_IMAGE, toHandle(buffer->VkTex), name);
+                setVkObjectName(VK_OBJECT_TYPE_IMAGE_VIEW, toHandle(buffer->VkTexView), name + " SRV");
+            }
+            break;
+        case RHIResource::ResourceType::kQuery:
+            setVkObjectName(VK_OBJECT_TYPE_QUERY_POOL,
+                toHandle(static_cast<VKQuery *>(rhiResource.get())->VkPool), name);
+            break;
+        default:
+            break;
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    RHIQueryPtr VKContext::createQuery(QueryType type)
+    {
+        if (!mCapabilities.checkQueryType(LOG_TAG_VKRENDERER, type))
+        {
+            return nullptr;
+        }
+
+        VKQueryPtr query = VKQuery::create(type);
+
+        VkQueryPoolCreateInfo poolInfo {};
+        poolInfo.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
+        poolInfo.queryCount = MAX_FRAMES_IN_FLIGHT;
+
+        switch (type)
+        {
+        case QueryType::kOcclusion:
+        case QueryType::kBinaryOcclusion:
+            poolInfo.queryType = VK_QUERY_TYPE_OCCLUSION;
+            query->ValueCount = 1;
+            break;
+        case QueryType::kTimestamp:
+            poolInfo.queryType = VK_QUERY_TYPE_TIMESTAMP;
+            query->ValueCount = 1;
+            break;
+        case QueryType::kPipelineStatistics:
+            // 几何 / 细分着色器特性没开，对应计数器不能打开；结果按位从低到高排列
+            poolInfo.queryType = VK_QUERY_TYPE_PIPELINE_STATISTICS;
+            poolInfo.pipelineStatistics = VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_VERTICES_BIT
+                | VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_PRIMITIVES_BIT
+                | VK_QUERY_PIPELINE_STATISTIC_VERTEX_SHADER_INVOCATIONS_BIT
+                | VK_QUERY_PIPELINE_STATISTIC_CLIPPING_INVOCATIONS_BIT
+                | VK_QUERY_PIPELINE_STATISTIC_CLIPPING_PRIMITIVES_BIT
+                | VK_QUERY_PIPELINE_STATISTIC_FRAGMENT_SHADER_INVOCATIONS_BIT
+                | VK_QUERY_PIPELINE_STATISTIC_COMPUTE_SHADER_INVOCATIONS_BIT;
+            query->ValueCount = 7;
+            break;
+        }
+
+        VkResult vkResult = vkCreateQueryPool(mVkDevice, &poolInfo, nullptr, &query->VkPool);
+        if (vkResult != VK_SUCCESS)
+        {
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Create query pool failed ! VK ERROR [%d]", vkResult);
+            return nullptr;
+        }
+
+        // 查询槽在第一次使用前必须 reset，而且只能在 render pass 之外录制。帧内 pass 外直接录进
+        // 当前命令缓冲（它先于本帧任何使用执行），否则单独提交一次并等待完成
+        if (mFrameRecording && !mRenderPassActive)
+        {
+            vkCmdResetQueryPool(mVkCommandBuffers[mCurrentFrame], query->VkPool, 0, MAX_FRAMES_IN_FLIGHT);
+        }
+        else
+        {
+            VkCommandBuffer cmdBuf = beginSingleTimeCommands();
+            vkCmdResetQueryPool(cmdBuf, query->VkPool, 0, MAX_FRAMES_IN_FLIGHT);
+            endSingleTimeCommands(cmdBuf);
+        }
+
+        return query;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult VKContext::beginQuery(RHIQuery *query)
+    {
+        if (query == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "beginQuery with null query !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        if (!mFrameRecording)
+        {
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "beginQuery must be called between beginRender and endRender !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        VKQuery *vkQuery = static_cast<VKQuery *>(query);
+        if (vkQuery->LastBeginFrame == mFrameCounter || vkQuery->LastEndFrame == mFrameCounter)
+        {
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "%s query can only be issued once per frame on Vulkan !",
+                getQueryTypeName(query->getQueryType()));
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        if (!query->markBegin(LOG_TAG_VKRENDERER))
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        VkQueryControlFlags flags = 0;
+        if (query->getQueryType() == QueryType::kOcclusion && mOcclusionPreciseEnabled)
+        {
+            flags |= VK_QUERY_CONTROL_PRECISE_BIT;
+        }
+
+        vkCmdBeginQuery(mVkCommandBuffers[mCurrentFrame], vkQuery->VkPool, mCurrentFrame, flags);
+        vkQuery->LastBeginFrame = mFrameCounter;
+        vkQuery->BeganInRenderPass = mRenderPassActive;
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult VKContext::endQuery(RHIQuery *query)
+    {
+        if (query == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "endQuery with null query !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        if (!mFrameRecording)
+        {
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "endQuery must be called between beginRender and endRender !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        VKQuery *vkQuery = static_cast<VKQuery *>(query);
+        const bool isTimestamp = (query->getQueryType() == QueryType::kTimestamp);
+
+        if (isTimestamp && vkQuery->LastEndFrame == mFrameCounter)
+        {
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Timestamp query can only be issued once per frame on Vulkan !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        if (!isTimestamp && query->isActive() && vkQuery->LastBeginFrame != mFrameCounter)
+        {
+            // begin 录在上一帧的命令缓冲里，那一帧已经提交，这里没法再 end，只能作废
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "%s query must begin and end in the same frame on Vulkan !",
+                getQueryTypeName(query->getQueryType()));
+            uint32_t discarded = 0;
+            query->markEnd(LOG_TAG_VKRENDERER, discarded);
+            query->publish(discarded, QueryStatus::kInvalid, QueryResult());
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        uint32_t serial = 0;
+        if (!query->markEnd(LOG_TAG_VKRENDERER, serial))
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        VkCommandBuffer cmdBuf = mVkCommandBuffers[mCurrentFrame];
+        if (isTimestamp)
+        {
+            vkCmdWriteTimestamp(cmdBuf, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, vkQuery->VkPool, mCurrentFrame);
+        }
+        else
+        {
+            if (vkQuery->BeganInRenderPass != mRenderPassActive)
+            {
+                T3D_LOG_ERROR(LOG_TAG_VKRENDERER,
+                    "%s query must begin and end inside the same render pass (or both outside) on Vulkan !",
+                    getQueryTypeName(query->getQueryType()));
+            }
+            vkCmdEndQuery(cmdBuf, vkQuery->VkPool, mCurrentFrame);
+        }
+        vkQuery->LastEndFrame = mFrameCounter;
+
+        PendingQuery pending;
+        pending.Query = vkQuery;
+        pending.Serial = serial;
+        mFrameQueries[mCurrentFrame].push_back(pending);
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void VKContext::resolveFrameQueries(uint32_t frameSlot, VkCommandBuffer cmdBuf)
+    {
+        std::vector<PendingQuery> &pendings = mFrameQueries[frameSlot];
+
+        for (PendingQuery &pending : pendings)
+        {
+            VKQuery *query = pending.Query.get();
+            if (query == nullptr || query->VkPool == VK_NULL_HANDLE)
+            {
+                continue;
+            }
+
+            uint64_t values[8] = {0};
+            VkResult vkResult = vkGetQueryPoolResults(mVkDevice, query->VkPool, frameSlot, 1,
+                sizeof(values), values, sizeof(values), VK_QUERY_RESULT_64_BIT);
+
+            QueryResult result;
+            result.type = query->getQueryType();
+            QueryStatus status = QueryStatus::kReady;
+
+            if (vkResult != VK_SUCCESS)
+            {
+                // fence 已经等过，理论上不会还没好；设备丢失之类的情况按无效处理
+                status = QueryStatus::kInvalid;
+            }
+            else
+            {
+                switch (result.type)
+                {
+                case QueryType::kOcclusion:
+                    result.samplesPassed = values[0];
+                    break;
+                case QueryType::kBinaryOcclusion:
+                    result.samplesPassed = (values[0] != 0) ? 1 : 0;
+                    break;
+                case QueryType::kTimestamp:
+                    result.timestamp = static_cast<uint64_t>(
+                        static_cast<double>(values[0] & mTimestampMask) * mTimestampPeriod);
+                    break;
+                case QueryType::kPipelineStatistics:
+                    result.pipelineStatistics.inputVertices = values[0];
+                    result.pipelineStatistics.inputPrimitives = values[1];
+                    result.pipelineStatistics.vertexShaderInvocations = values[2];
+                    result.pipelineStatistics.clippingInvocations = values[3];
+                    result.pipelineStatistics.clippingPrimitives = values[4];
+                    result.pipelineStatistics.pixelShaderInvocations = values[5];
+                    result.pipelineStatistics.computeShaderInvocations = values[6];
+                    break;
+                }
+            }
+
+            query->publish(pending.Serial, status, result);
+
+            // 本帧会在这个槽上重新发起，reset 必须录在 render pass 之外、使用之前
+            vkCmdResetQueryPool(cmdBuf, query->VkPool, frameSlot, 1);
+        }
+
+        pendings.clear();
     }
 }

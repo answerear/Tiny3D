@@ -296,4 +296,36 @@ namespace Tiny3D
     {
         return (void *)VkTex;
     }
+
+    //--------------------------------------------------------------------------
+
+    VKQueryPtr VKQuery::create(QueryType type)
+    {
+        return T3D_NEW VKQuery(type);
+    }
+
+    //--------------------------------------------------------------------------
+
+    VKQuery::~VKQuery()
+    {
+        // 上下文析构时会先替在途查询销毁 pool 并置空，此时不能再经 VK_CONTEXT 取正在析构的上下文
+        if (VkPool == VK_NULL_HANDLE)
+        {
+            return;
+        }
+
+        VkDevice device = VK_DEVICE();
+        if (device != VK_NULL_HANDLE)
+        {
+            vkDestroyQueryPool(device, VkPool, nullptr);
+            VkPool = VK_NULL_HANDLE;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void *VKQuery::getNativeObject() const
+    {
+        return (void *)VkPool;
+    }
 }

@@ -170,8 +170,24 @@ namespace Tiny3D
         void* getNativeContext() const override;
         void restoreNativeContext() override;
 
+        /// KHR_debug：glPushDebugGroup / glPopDebugGroup / glDebugMessageInsert / glObjectLabel
+        TResult beginDebugGroup(const String &name) override;
+        TResult endDebugGroup() override;
+        TResult setDebugMarker(const String &name) override;
+        TResult setDebugName(RenderResource *resource) override;
+
+        /// 查询：GL_SAMPLES_PASSED / GL_ANY_SAMPLES_PASSED / GL_TIMESTAMP / ARB_pipeline_statistics_query
+        RHIQueryPtr createQuery(QueryType type) override;
+        TResult beginQuery(RHIQuery *query) override;
+        TResult endQuery(RHIQuery *query) override;
+
+        /// glBeginConditionalRender(GL_QUERY_WAIT)，在 GPU 上等结果，CPU 不阻塞
+        TResult setPredication(RHIQuery *query) override;
+
         TResult beginRender() override { return T3D_OK; }
-        TResult endRender() override { return T3D_OK; }
+
+        /// 轮询已完成的查询结果
+        TResult endRender() override;
 
         TResult beginPass() override { return T3D_OK; }
         TResult endPass() override { return T3D_OK; }
@@ -179,6 +195,25 @@ namespace Tiny3D
     protected:
         GL4Context();
         ~GL4Context() override;
+
+        /// 按 GL 版本与扩展填写查询 / 调试能力位
+        void fillQueryCapabilities();
+
+        /// 给 RHI 资源的 GL 对象打 label，只能在 RHI 线程调用
+        void applyDebugName(RHIResource *resource, const String &name);
+
+        /// 非阻塞地取回已完成的查询结果，只能在 RHI 线程调用
+        void pollQueries();
+
+        /// 结束当前的条件渲染，只能在 RHI 线程调用
+        void endConditionalRender();
+
+        /// 一次已 End、尚未取回结果的查询
+        struct PendingQuery
+        {
+            GL4QueryPtr Query {nullptr};
+            uint32_t    Serial {0};
+        };
 
         TResult stageConstantBuffers(TextureUnitStage stage, uint32_t startSlot, const ConstantBuffers &buffers);
         TResult bindPixelBuffers(TextureUnitStage stage, uint32_t startSlot, const PixelBuffers &buffers,
@@ -609,6 +644,13 @@ namespace Tiny3D
         uint32_t mReadbackGeneration {1};
         TMap<uint32_t, ReadbackRequest> mPendingReadbacks;
         TArray<StagingEntry> mStagingPool;
+
+        /// KHR_debug 可用，init 时确定
+        bool mHasDebugAnnotation {false};
+        /// RHI 线程：每个查询只保留最近一次发起
+        TMap<GL4Query*, PendingQuery> mPendingQueries;
+        /// RHI 线程：当前条件渲染使用的查询，空表示没有条件渲染
+        GL4QueryPtr mCurrentPredicate {nullptr};
 
         /// 主窗口 GL context 句柄（用于 multi-viewport 恢复）
 #if defined(T3D_OS_WINDOWS)

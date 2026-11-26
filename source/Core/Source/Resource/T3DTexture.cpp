@@ -214,6 +214,10 @@ namespace Tiny3D
             }
 
             mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer1D(&mDesc, MemoryType::kVRAM, Usage::kImmutable, CPUAccessMode::kCPUNone);
+            if (mPixelBuffer != nullptr)
+            {
+                mPixelBuffer->setDebugName(getName());
+            }
         } while (false);
         return ret;
     }
@@ -232,6 +236,10 @@ namespace Tiny3D
                 break;
             }
             mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer1D(&mDesc, MemoryType::kVRAM, Usage::kImmutable, CPUAccessMode::kCPUNone);
+            if (mPixelBuffer != nullptr)
+            {
+                mPixelBuffer->setDebugName(getName());
+            }
         } while (false);
         
         return ret;
@@ -352,6 +360,10 @@ namespace Tiny3D
             }
 
             mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&mDesc, MemoryType::kVRAM, Usage::kImmutable, mCPUAccessMode);
+            if (mPixelBuffer != nullptr)
+            {
+                mPixelBuffer->setDebugName(getName());
+            }
 
             // 可采样 RT / 纹理必须带 SamplerState，否则 PS 绑定的是空采样器
             if (mDesc.shaderReadable)
@@ -377,6 +389,10 @@ namespace Tiny3D
                 break;
             }
             mPixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBuffer2D(&mDesc, MemoryType::kVRAM, Usage::kImmutable, mCPUAccessMode);
+            if (mPixelBuffer != nullptr)
+            {
+                mPixelBuffer->setDebugName(getName());
+            }
         } while (false);
         
         return ret;
@@ -648,6 +664,10 @@ namespace Tiny3D
         }
 
         mCubePixelBuffer = T3D_RENDER_BUFFER_MGR.loadPixelBufferCubemap(&mDesc, MemoryType::kVRAM, Usage::kImmutable, CPUAccessMode::kCPUNone);
+        if (mCubePixelBuffer != nullptr)
+        {
+            mCubePixelBuffer->setDebugName(getName());
+        }
 
         return T3D_OK;
     }

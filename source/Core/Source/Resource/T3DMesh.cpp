@@ -333,6 +333,10 @@ namespace Tiny3D
                     }
                 }
                 mVBuffers[i] = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(vertexSize, vertexCount, buffer, memType, usage, access);
+                if (mVBuffers[i] != nullptr)
+                {
+                    mVBuffers[i]->setDebugName(getName() + " VB" + std::to_string(i));
+                }
             }
         } while (false);
         

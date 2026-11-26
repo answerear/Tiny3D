@@ -1571,6 +1571,13 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    RenderPipeline *Agent::getRenderPipeline() const
+    {
+        return mRenderPipeline.get();
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult Agent::setUISystem(UISystemPtr system)
     {
         if (system == nullptr)

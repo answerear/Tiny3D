@@ -180,6 +180,27 @@ namespace Tiny3D
     protected:
         GL4StructuredBuffer() = default;
     };
+
+    /**
+     * \brief GL4 查询对象
+     * \remarks 管线统计在 GL 里是每个计数一个查询目标，所以一个对象最多持有 kMaxGLQueries 个 GL 查询
+     */
+    class GL4Query : public RHIQuery
+    {
+    public:
+        static constexpr uint32_t kMaxGLQueries = 11;
+
+        static GL4QueryPtr create(QueryType type);
+        ~GL4Query() override;
+        void *getNativeObject() const override;
+
+        /// 以下成员只在 RHI 线程访问
+        GLuint GLQueries[kMaxGLQueries] {0};
+        GLenum GLTargets[kMaxGLQueries] {0};
+        uint32_t GLQueryCount {0};
+    protected:
+        explicit GL4Query(QueryType type) : RHIQuery(type) {}
+    };
 }
 
 

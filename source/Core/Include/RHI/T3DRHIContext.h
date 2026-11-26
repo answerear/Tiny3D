@@ -29,9 +29,11 @@
 
 #include "T3DPrerequisites.h"
 #include "T3DTypedef.h"
+#include "T3DConfig.h"
 #include "Material/T3DShaderBinding.h"
 #include "Render/T3DRenderConstant.h"
 #include "RHI/T3DRHICapabilities.h"
+#include "RHI/T3DRHIQuery.h"
 
 
 namespace Tiny3D
@@ -912,6 +914,84 @@ namespace Tiny3D
         virtual TResult unmap(ReadbackHandle handle, Buffer &dst) = 0;
 
         /**
+         * \brief 开始一个调试分组，RenderDoc / PIX 等工具的事件树按分组折叠
+         * \param [in] name : 分组名
+         * \return 调用成功返回 T3D_OK；后端不支持时是空操作，同样返回 T3D_OK
+         * \note 必须与 endDebugGroup 成对调用，可以嵌套。上层用 T3D_RHI_DEBUG_GROUP，
+         *       T3D_ENABLE_RHI_DEBUG_ANNOTATION 为 0 时整段调用被编译掉
+         */
+        virtual TResult beginDebugGroup(const String &name) { return T3D_OK; }
+
+        /**
+         * \brief 结束最近一个调试分组
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult endDebugGroup() { return T3D_OK; }
+
+        /**
+         * \brief 在命令流里插入一个调试标记（单个事件，不成组）
+         * \param [in] name : 标记名
+         * \return 调用成功返回 T3D_OK
+         */
+        virtual TResult setDebugMarker(const String &name) { return T3D_OK; }
+
+        /**
+         * \brief 把渲染资源的调试名设置到底层 API 对象上
+         * \param [in] resource : 渲染资源，名字取 resource->getDebugName()
+         * \return 调用成功返回 T3D_OK；资源还没有 RHI 对象时什么也不做
+         * \note 由 RenderResource::setDebugName 转发，上层一般不直接调用。
+         *       后端重建资源（如 resizeRenderTexture）后要自己重新设置一次
+         */
+        virtual TResult setDebugName(RenderResource *resource) { return T3D_OK; }
+
+        /**
+         * \brief 创建 GPU 查询对象
+         * \param [in] type : 查询类型，须 getCapabilities().supportsQuery(type)
+         * \return 成功返回新建的查询；类型不支持时打警告并返回 nullptr
+         */
+        virtual RHIQueryPtr createQuery(QueryType type);
+
+        /**
+         * \brief 开始一次遮挡 / 管线统计查询
+         * \param [in] query : 查询对象，不能是时间戳查询
+         * \return 调用成功返回 T3D_OK；参数非法返回 T3D_ERR_INVALID_PARAM
+         * \note 规则按各后端的交集定：
+         *       - begin 与 end 要在同一个渲染目标的同一个 Pass 里（Vulkan 不允许跨 render pass）；
+         *       - 同类型的查询不能嵌套或交叠（GL 每个 target 同时只能有一个活动查询）；
+         *       - 同一个查询对象每帧最多发起一次（Vulkan 的查询要在帧末统一复位），
+         *         需要每帧都取结果时按「帧延迟数」准备多个对象轮流使用
+         */
+        virtual TResult beginQuery(RHIQuery *query);
+
+        /**
+         * \brief 结束一次查询；对时间戳查询则是在命令流的当前位置写入时间戳
+         * \param [in] query : 查询对象
+         * \return 调用成功返回 T3D_OK；参数非法返回 T3D_ERR_INVALID_PARAM
+         * \note 时间戳必须在 beginRender / endRender 之间写入，D3D11 后端用这段区间建 Disjoint 查询
+         */
+        virtual TResult endQuery(RHIQuery *query);
+
+        /**
+         * \brief 读取最近一次发起的结果，不等待 GPU
+         * \param [in] query : 查询对象
+         * \param [out] result : 查询结果，返回 kReady 时有效
+         * \return 见 QueryStatus。结果通常要延迟 2～3 帧才就绪，返回 kPending 时下一帧再查
+         * \remarks 结果由后端在 GPU 完成后发布，主线程只读不等，所以可以放在每帧的热路径上。
+         *          同一个查询在取到结果之前再次发起，上一次的结果会被丢弃
+         */
+        virtual QueryStatus resolveQuery(RHIQuery *query, QueryResult &result);
+
+        /**
+         * \brief 设置条件渲染：之后的绘制只在 query 统计到样本时执行
+         * \param [in] query : kBinaryOcclusion 查询，传 nullptr 取消条件渲染
+         * \return 调用成功返回 T3D_OK；不支持时返回 T3D_ERR_NOT_IMPLEMENT
+         * \remarks 判断在 GPU 上完成，CPU 不等结果。GL 用 GL_QUERY_WAIT 在 GPU 上等结果，D3D11 由驱动
+         *          选择等待或照常绘制。D3D11 的条件渲染还会作用于 clear / copy，
+         *          所以画完被测物体后应立即取消
+         */
+        virtual TResult setPredication(RHIQuery *query);
+
+        /**
          * \brief 获取主渲染 context 的原生句柄
          * \return GL 后端返回 HGLRC/GLXContext，D3D11 等返回 nullptr
          */
@@ -972,6 +1052,52 @@ namespace Tiny3D
         /// 后端能力集，由派生类在 init() 中填充
         RHICapabilities mCapabilities {};
     };
+
+    /**
+     * \brief 作用域内的调试分组：构造时 beginDebugGroup，析构时 endDebugGroup
+     */
+    class RHIDebugGroupScope : public Noncopyable
+    {
+    public:
+        RHIDebugGroupScope(RHIContext *ctx, const String &name)
+            : mContext(ctx)
+        {
+            if (mContext != nullptr)
+            {
+                mContext->beginDebugGroup(name);
+            }
+        }
+
+        ~RHIDebugGroupScope()
+        {
+            if (mContext != nullptr)
+            {
+                mContext->endDebugGroup();
+            }
+        }
+
+    private:
+        RHIContext *mContext {nullptr};
+    };
+
+    #define T3D_RHI_DEBUG_CONCAT_IMPL(a, b)     a##b
+    #define T3D_RHI_DEBUG_CONCAT(a, b)          T3D_RHI_DEBUG_CONCAT_IMPL(a, b)
+
+#if (T3D_ENABLE_RHI_DEBUG_ANNOTATION)
+    /// 在当前作用域内打一个调试分组
+    #define T3D_RHI_DEBUG_GROUP(ctx, name)      ::Tiny3D::RHIDebugGroupScope T3D_RHI_DEBUG_CONCAT(_t3dDebugGroup_, __LINE__)((ctx), (name))
+    /// 开始一个调试分组，须与 T3D_RHI_DEBUG_GROUP_END 成对
+    #define T3D_RHI_DEBUG_GROUP_BEGIN(ctx, name)    (ctx)->beginDebugGroup(name)
+    /// 结束 T3D_RHI_DEBUG_GROUP_BEGIN 开始的分组
+    #define T3D_RHI_DEBUG_GROUP_END(ctx)        (ctx)->endDebugGroup()
+    /// 插入一个调试标记
+    #define T3D_RHI_DEBUG_MARKER(ctx, name)     (ctx)->setDebugMarker(name)
+#else
+    #define T3D_RHI_DEBUG_GROUP(ctx, name)
+    #define T3D_RHI_DEBUG_GROUP_BEGIN(ctx, name)
+    #define T3D_RHI_DEBUG_GROUP_END(ctx)
+    #define T3D_RHI_DEBUG_MARKER(ctx, name)
+#endif
 }
 
 

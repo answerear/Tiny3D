@@ -629,7 +629,15 @@ namespace Tiny3D
 
         TResult beginPass() override;
         TResult endPass() override;
-        
+
+        /// 渲染编码器存在时压在编码器上，否则压在命令缓冲上；只在 beginRender / endRender 之间生效
+        TResult beginDebugGroup(const String &name) override;
+        TResult endDebugGroup() override;
+        /// insertDebugSignpost 只有编码器有，编码器之外的标记会被丢弃
+        TResult setDebugMarker(const String &name) override;
+        /// 设置 MTLBuffer / MTLTexture 的 label
+        TResult setDebugName(RenderResource *resource) override;
+
     protected:
         MetalContext();
 

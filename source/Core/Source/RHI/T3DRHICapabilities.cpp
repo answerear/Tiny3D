@@ -206,6 +206,32 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool RHICapabilities::supportsQuery(QueryType type) const
+    {
+        switch (type)
+        {
+        case QueryType::kOcclusion:             return supportsOcclusionQuery;
+        case QueryType::kBinaryOcclusion:       return supportsBinaryOcclusionQuery;
+        case QueryType::kTimestamp:             return supportsTimestampQuery;
+        case QueryType::kPipelineStatistics:    return supportsPipelineStatisticsQuery;
+        default:                                return false;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool RHICapabilities::checkQueryType(const char *tag, QueryType type) const
+    {
+        if (!supportsQuery(type))
+        {
+            T3D_LOG_WARNING(tag, "createQuery : %s query is not supported by this RHI backend !", getQueryTypeName(type));
+            return false;
+        }
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
     void RHICapabilities::logFormatSupport(const char *tag) const
     {
         // 一个字母一位，不支持的位打 '-'，列宽固定方便在日志里对齐比较

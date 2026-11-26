@@ -55,6 +55,7 @@ namespace Tiny3D
     class VKPixelBuffer2D;
     class VKPixelBuffer3D;
     class VKPixelBufferCubemap;
+    class VKQuery;
     class VKShader;
     class VKVertexShader;
     class VKPixelShader;
@@ -78,6 +79,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(VKPixelBuffer2D);
     T3D_DECLARE_SMART_PTR(VKPixelBuffer3D);
     T3D_DECLARE_SMART_PTR(VKPixelBufferCubemap);
+    T3D_DECLARE_SMART_PTR(VKQuery);
     T3D_DECLARE_SMART_PTR(VKShader);
     T3D_DECLARE_SMART_PTR(VKVertexShader);
     T3D_DECLARE_SMART_PTR(VKPixelShader);

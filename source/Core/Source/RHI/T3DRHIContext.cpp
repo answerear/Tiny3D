@@ -64,4 +64,53 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    RHIQueryPtr RHIContext::createQuery(QueryType type)
+    {
+        T3D_ASSERT(!mCapabilities.supportsQuery(type));
+        T3D_LOG_WARNING(LOG_TAG_RENDER, "createQuery : %s query is not supported by this RHI backend", getQueryTypeName(type));
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult RHIContext::beginQuery(RHIQuery *query)
+    {
+        // 后端不支持时 createQuery 不会返回对象，走到这里说明传了别的后端的查询
+        T3D_LOG_ERROR(LOG_TAG_RENDER, "beginQuery is not supported by this RHI backend");
+        return query == nullptr ? T3D_ERR_INVALID_PARAM : T3D_ERR_NOT_IMPLEMENT;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult RHIContext::endQuery(RHIQuery *query)
+    {
+        T3D_LOG_ERROR(LOG_TAG_RENDER, "endQuery is not supported by this RHI backend");
+        return query == nullptr ? T3D_ERR_INVALID_PARAM : T3D_ERR_NOT_IMPLEMENT;
+    }
+
+    //--------------------------------------------------------------------------
+
+    QueryStatus RHIContext::resolveQuery(RHIQuery *query, QueryResult &result)
+    {
+        if (query == nullptr)
+        {
+            return QueryStatus::kInvalid;
+        }
+        return query->resolve(result);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult RHIContext::setPredication(RHIQuery *query)
+    {
+        if (query == nullptr)
+        {
+            // 取消条件渲染在任何后端都是合法的空操作
+            return T3D_OK;
+        }
+        T3D_RHI_UNSUPPORTED(supportsPredication);
+    }
+
+    //--------------------------------------------------------------------------
 }

@@ -142,13 +142,21 @@ namespace Tiny3D
         // 未完成请求的 Staging 都是池里的条目，随池一起删除
         mPendingReadbacks.clear();
         destroyStagingPool();
+
+        mPendingQueries.clear();
+        mCurrentPredicate = nullptr;
     }
 
     //--------------------------------------------------------------------------
 
     TResult GL4Context::init()
     {
-        return GL4ContextBase::init();
+        TResult ret = GL4ContextBase::init();
+        if (T3D_SUCCEEDED(ret))
+        {
+            fillQueryCapabilities();
+        }
+        return ret;
     }
 
     //--------------------------------------------------------------------------
@@ -1344,13 +1352,19 @@ namespace Tiny3D
 
         GL4PixelBuffer2D *glPixelBuffer = static_cast<GL4PixelBuffer2D *>(pixelBuffer->getRHIResource().get());
 
-        auto lambda = [this](const PixelBuffer2DPtr &pixelBuffer, const GL4PixelBuffer2DPtr &glPixelBuffer)
+        auto lambda = [this](const PixelBuffer2DPtr &pixelBuffer, const GL4PixelBuffer2DPtr &glPixelBuffer, const String &debugName)
         {
             releaseRenderTextureResources(glPixelBuffer.get());
-            return buildRenderTextureResources(pixelBuffer.get(), glPixelBuffer.get());
+            TResult ret = buildRenderTextureResources(pixelBuffer.get(), glPixelBuffer.get());
+            if (T3D_SUCCEEDED(ret) && !debugName.empty())
+            {
+                // 重建出来的是新 GL 对象，名字要重新打
+                applyDebugName(glPixelBuffer.get(), debugName);
+            }
+            return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, PixelBuffer2DPtr(pixelBuffer), GL4PixelBuffer2DPtr(glPixelBuffer));
+        return ENQUEUE_UNIQUE_COMMAND(lambda, PixelBuffer2DPtr(pixelBuffer), GL4PixelBuffer2DPtr(glPixelBuffer), pixelBuffer->getDebugName());
     }
 
     //--------------------------------------------------------------------------
@@ -4657,6 +4671,9 @@ namespace Tiny3D
 
             do
             {
+                // 条件渲染不跨 reset 生效，否则后面的相机 / 后处理会被上一段的遮挡结果误剔
+                endConditionalRender();
+
                 mCurrentVSVariant = nullptr;
                 mCurrentPSVariant = nullptr;
                 mCurrentHSVariant = nullptr;
@@ -8056,6 +8073,436 @@ namespace Tiny3D
         }
 
         mStagingPool.clear();
+    }
+
+    //--------------------------------------------------------------------------
+
+    namespace
+    {
+        /// KHR_debug 要求 label / message 短于 GL_MAX_LABEL_LENGTH（至少 256）
+        const size_t kMaxGLLabelLength = 255;
+
+        void setGLObjectLabel(GLenum identifier, GLuint name, const String &label)
+        {
+            if (name == 0)
+            {
+                return;
+            }
+            const GLsizei length = static_cast<GLsizei>(std::min(label.size(), kMaxGLLabelLength));
+            glObjectLabel(identifier, name, length, label.c_str());
+        }
+
+        /// ARB_pipeline_statistics_query 的查询目标，顺序与 PipelineStatistics 字段一致
+        const GLenum kPipelineStatisticsTargets[GL4Query::kMaxGLQueries] =
+        {
+            GL_VERTICES_SUBMITTED_ARB,
+            GL_PRIMITIVES_SUBMITTED_ARB,
+            GL_VERTEX_SHADER_INVOCATIONS_ARB,
+            GL_TESS_CONTROL_SHADER_PATCHES_ARB,
+            GL_TESS_EVALUATION_SHADER_INVOCATIONS_ARB,
+            GL_GEOMETRY_SHADER_INVOCATIONS,
+            GL_GEOMETRY_SHADER_PRIMITIVES_EMITTED_ARB,
+            GL_CLIPPING_INPUT_PRIMITIVES_ARB,
+            GL_CLIPPING_OUTPUT_PRIMITIVES_ARB,
+            GL_FRAGMENT_SHADER_INVOCATIONS_ARB,
+            GL_COMPUTE_SHADER_INVOCATIONS_ARB,
+        };
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::fillQueryCapabilities()
+    {
+        // 遮挡、ANY_SAMPLES_PASSED、时间戳、条件渲染都是 GL 3.3 核心功能
+        mCapabilities.supportsOcclusionQuery = true;
+        mCapabilities.supportsBinaryOcclusionQuery = true;
+        mCapabilities.supportsTimestampQuery = true;
+        mCapabilities.supportsPredication = true;
+        mCapabilities.supportsPipelineStatisticsQuery = (GLAD_GL_ARB_pipeline_statistics_query != 0);
+
+        mHasDebugAnnotation = (GLAD_GL_KHR_debug != 0)
+            && glPushDebugGroup != nullptr && glPopDebugGroup != nullptr
+            && glDebugMessageInsert != nullptr && glObjectLabel != nullptr;
+        mCapabilities.supportsDebugAnnotations = mHasDebugAnnotation;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Context::beginDebugGroup(const String &name)
+    {
+        if (!mHasDebugAnnotation)
+        {
+            return T3D_OK;
+        }
+
+        auto lambda = [](const String &name)
+        {
+            const GLsizei length = static_cast<GLsizei>(std::min(name.size(), kMaxGLLabelLength));
+            glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, length, name.c_str());
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, name);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Context::endDebugGroup()
+    {
+        if (!mHasDebugAnnotation)
+        {
+            return T3D_OK;
+        }
+
+        auto lambda = []()
+        {
+            glPopDebugGroup();
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Context::setDebugMarker(const String &name)
+    {
+        if (!mHasDebugAnnotation)
+        {
+            return T3D_OK;
+        }
+
+        auto lambda = [](const String &name)
+        {
+            const GLsizei length = static_cast<GLsizei>(std::min(name.size(), kMaxGLLabelLength));
+            glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, 0,
+                GL_DEBUG_SEVERITY_NOTIFICATION, length, name.c_str());
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, name);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Context::setDebugName(RenderResource *resource)
+    {
+        if (resource == nullptr)
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        RHIResourcePtr rhiResource = resource->getRHIResource();
+        if (!mHasDebugAnnotation || rhiResource == nullptr || resource->getDebugName().empty())
+        {
+            return T3D_OK;
+        }
+
+        auto lambda = [this](const RHIResourcePtr &rhiResource, const String &name)
+        {
+            applyDebugName(rhiResource.get(), name);
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, rhiResource, resource->getDebugName());
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::applyDebugName(RHIResource *resource, const String &name)
+    {
+        if (!mHasDebugAnnotation || resource == nullptr)
+        {
+            return;
+        }
+
+        switch (resource->getResourceType())
+        {
+        case RHIResource::ResourceType::kVertexBuffer:
+            setGLObjectLabel(GL_BUFFER, static_cast<GL4VertexBuffer *>(resource)->GLBuffer, name);
+            break;
+        case RHIResource::ResourceType::kIndexBuffer:
+            setGLObjectLabel(GL_BUFFER, static_cast<GL4IndexBuffer *>(resource)->GLBuffer, name);
+            break;
+        case RHIResource::ResourceType::kConstantBuffer:
+            setGLObjectLabel(GL_BUFFER, static_cast<GL4ConstantBuffer *>(resource)->GLBuffer, name);
+            break;
+        case RHIResource::ResourceType::kStructuredBuffer:
+            {
+                GL4StructuredBuffer *buffer = static_cast<GL4StructuredBuffer *>(resource);
+                setGLObjectLabel(GL_BUFFER, buffer->GLBuffer, name);
+                setGLObjectLabel(GL_BUFFER, buffer->GLCounterBuffer, name + " Counter");
+                setGLObjectLabel(GL_TEXTURE, buffer->GLTextureBuffer, name + " TBO");
+            }
+            break;
+        case RHIResource::ResourceType::kPixelBuffer1D:
+            setGLObjectLabel(GL_TEXTURE, static_cast<GL4PixelBuffer1D *>(resource)->GLTexture, name);
+            break;
+        case RHIResource::ResourceType::kPixelBuffer2D:
+            {
+                GL4PixelBuffer2D *buffer = static_cast<GL4PixelBuffer2D *>(resource);
+                setGLObjectLabel(GL_TEXTURE, buffer->GLTexture, name);
+                setGLObjectLabel(GL_FRAMEBUFFER, buffer->GLFBO, name + " FBO");
+                setGLObjectLabel(GL_TEXTURE, buffer->GLResolveTex, name + " Resolve");
+                setGLObjectLabel(GL_FRAMEBUFFER, buffer->GLResolveFBO, name + " Resolve FBO");
+            }
+            break;
+        case RHIResource::ResourceType::kPixelBuffer3D:
+            setGLObjectLabel(GL_TEXTURE, static_cast<GL4PixelBuffer3D *>(resource)->GLTexture, name);
+            break;
+        case RHIResource::ResourceType::kPixelBufferCubemap:
+            setGLObjectLabel(GL_TEXTURE, static_cast<GL4PixelBufferCubemap *>(resource)->GLTexture, name);
+            break;
+        default:
+            // glGenQueries 出来的名字在第一次 begin 之前还不是对象，glObjectLabel 会报 INVALID_VALUE，查询不命名
+            break;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    RHIQueryPtr GL4Context::createQuery(QueryType type)
+    {
+        if (!mCapabilities.checkQueryType(LOG_TAG_GL4RENDERER, type))
+        {
+            return nullptr;
+        }
+
+        GL4QueryPtr query = GL4Query::create(type);
+        switch (type)
+        {
+        case QueryType::kOcclusion:
+            query->GLTargets[0] = GL_SAMPLES_PASSED;
+            query->GLQueryCount = 1;
+            break;
+        case QueryType::kBinaryOcclusion:
+            query->GLTargets[0] = GL_ANY_SAMPLES_PASSED;
+            query->GLQueryCount = 1;
+            break;
+        case QueryType::kTimestamp:
+            query->GLTargets[0] = GL_TIMESTAMP;
+            query->GLQueryCount = 1;
+            break;
+        case QueryType::kPipelineStatistics:
+            for (uint32_t i = 0; i < GL4Query::kMaxGLQueries; ++i)
+            {
+                query->GLTargets[i] = kPipelineStatisticsTargets[i];
+            }
+            query->GLQueryCount = GL4Query::kMaxGLQueries;
+            break;
+        default:
+            return nullptr;
+        }
+
+        auto lambda = [](const GL4QueryPtr &query)
+        {
+            glGenQueries((GLsizei)query->GLQueryCount, query->GLQueries);
+            GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::createQuery");
+            return T3D_OK;
+        };
+
+        TResult ret = ENQUEUE_UNIQUE_COMMAND(lambda, query);
+        if (T3D_FAILED(ret))
+        {
+            return nullptr;
+        }
+        return query;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Context::beginQuery(RHIQuery *query)
+    {
+        if (query == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "beginQuery : query is null !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        if (!query->markBegin(LOG_TAG_GL4RENDERER))
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        auto lambda = [](const GL4QueryPtr &query)
+        {
+            for (uint32_t i = 0; i < query->GLQueryCount; ++i)
+            {
+                glBeginQuery(query->GLTargets[i], query->GLQueries[i]);
+            }
+            GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::beginQuery");
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, GL4QueryPtr(static_cast<GL4Query *>(query)));
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Context::endQuery(RHIQuery *query)
+    {
+        if (query == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "endQuery : query is null !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        uint32_t serial = 0;
+        if (!query->markEnd(LOG_TAG_GL4RENDERER, serial))
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        auto lambda = [this](const GL4QueryPtr &query, uint32_t serial)
+        {
+            if (query->getQueryType() == QueryType::kTimestamp)
+            {
+                glQueryCounter(query->GLQueries[0], GL_TIMESTAMP);
+            }
+            else
+            {
+                for (uint32_t i = 0; i < query->GLQueryCount; ++i)
+                {
+                    glEndQuery(query->GLTargets[i]);
+                }
+            }
+            GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::endQuery");
+
+            PendingQuery &pending = mPendingQueries[query.get()];
+            pending.Query = query;
+            pending.Serial = serial;
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, GL4QueryPtr(static_cast<GL4Query *>(query)), serial);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Context::setPredication(RHIQuery *query)
+    {
+        if (query != nullptr)
+        {
+            if (query->getQueryType() != QueryType::kBinaryOcclusion)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "setPredication : only binary occlusion query can be used as predicate, got %s !",
+                    getQueryTypeName(query->getQueryType()));
+                return T3D_ERR_INVALID_PARAM;
+            }
+            if (query->isActive() || query->getIssuedSerial() == 0)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "setPredication : predicate must be ended before use !");
+                return T3D_ERR_INVALID_PARAM;
+            }
+        }
+
+        auto lambda = [this](const GL4QueryPtr &query)
+        {
+            // 条件渲染不能嵌套，换谓词前先结束上一段
+            endConditionalRender();
+            if (query != nullptr)
+            {
+                // NO_WAIT 在结果未就绪时照常绘制，而紧挨着上一次绘制的查询几乎总是未就绪，等于不剔除
+                glBeginConditionalRender(query->GLQueries[0], GL_QUERY_WAIT);
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setPredication");
+                mCurrentPredicate = query;
+            }
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, GL4QueryPtr(static_cast<GL4Query *>(query)));
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::endConditionalRender()
+    {
+        if (mCurrentPredicate != nullptr)
+        {
+            glEndConditionalRender();
+            mCurrentPredicate = nullptr;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Context::endRender()
+    {
+        auto lambda = [this]()
+        {
+            pollQueries();
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::pollQueries()
+    {
+        auto itr = mPendingQueries.begin();
+        while (itr != mPendingQueries.end())
+        {
+            GL4Query *query = itr->second.Query.get();
+
+            // GL_QUERY_RESULT_AVAILABLE 不会阻塞；管线统计要每个目标都好了才算好
+            bool available = true;
+            for (uint32_t i = 0; i < query->GLQueryCount && available; ++i)
+            {
+                GLuint ready = GL_FALSE;
+                glGetQueryObjectuiv(query->GLQueries[i], GL_QUERY_RESULT_AVAILABLE, &ready);
+                available = (ready != GL_FALSE);
+            }
+
+            if (!available)
+            {
+                ++itr;
+                continue;
+            }
+
+            GLuint64 values[GL4Query::kMaxGLQueries] = {0};
+            for (uint32_t i = 0; i < query->GLQueryCount; ++i)
+            {
+                glGetQueryObjectui64v(query->GLQueries[i], GL_QUERY_RESULT, &values[i]);
+            }
+
+            QueryResult result;
+            result.type = query->getQueryType();
+            switch (result.type)
+            {
+            case QueryType::kOcclusion:
+                result.samplesPassed = values[0];
+                break;
+            case QueryType::kBinaryOcclusion:
+                result.samplesPassed = values[0] != 0 ? 1 : 0;
+                break;
+            case QueryType::kTimestamp:
+                result.timestamp = values[0];
+                break;
+            case QueryType::kPipelineStatistics:
+                {
+                    PipelineStatistics &out = result.pipelineStatistics;
+                    out.inputVertices = values[0];
+                    out.inputPrimitives = values[1];
+                    out.vertexShaderInvocations = values[2];
+                    out.hullShaderInvocations = values[3];
+                    out.domainShaderInvocations = values[4];
+                    out.geometryShaderInvocations = values[5];
+                    out.geometryShaderPrimitives = values[6];
+                    out.clippingInvocations = values[7];
+                    out.clippingPrimitives = values[8];
+                    out.pixelShaderInvocations = values[9];
+                    out.computeShaderInvocations = values[10];
+                }
+                break;
+            default:
+                break;
+            }
+
+            query->publish(itr->second.Serial, QueryStatus::kReady, result);
+            itr = mPendingQueries.erase(itr);
+        }
     }
 
     //--------------------------------------------------------------------------

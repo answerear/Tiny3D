@@ -68,6 +68,7 @@ namespace Tiny3D
             kShader,                ///< 着色器
             // 新增类型一律追加在末尾，避免既有日志里已出现过的数值含义漂移
             kStructuredBuffer,      ///< 结构化缓冲（Structured / ByteAddress / Typed）
+            kQuery,                 ///< GPU 查询（遮挡 / 时间戳 / 管线统计）
         };
 
         /**

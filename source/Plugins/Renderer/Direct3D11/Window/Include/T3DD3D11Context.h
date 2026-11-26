@@ -29,6 +29,7 @@
 
 #include "T3DD3D11Prerequisites.h"
 #include "T3DD3D11ContextBase.h"
+#include "T3DD3D11Query.h"
 
 
 namespace Tiny3D
@@ -724,8 +725,42 @@ namespace Tiny3D
          */
         TResult unmap(ReadbackHandle handle, Buffer &dst) override;
 
+        /// 用 ID3DUserDefinedAnnotation::BeginEvent 开始一个调试分组
+        TResult beginDebugGroup(const String &name) override;
+
+        /// 用 ID3DUserDefinedAnnotation::EndEvent 结束调试分组
+        TResult endDebugGroup() override;
+
+        /// 用 ID3DUserDefinedAnnotation::SetMarker 插入调试标记
+        TResult setDebugMarker(const String &name) override;
+
+        /// 用 WKPDID_D3DDebugObjectName 给底层资源及其视图命名
+        TResult setDebugName(RenderResource *resource) override;
+
+        /**
+         * \brief 创建查询；kBinaryOcclusion 建成 ID3D11Predicate
+         */
+        RHIQueryPtr createQuery(QueryType type) override;
+
+        TResult beginQuery(RHIQuery *query) override;
+
+        /**
+         * \brief 结束查询；时间戳查询会挂到本帧的 Disjoint 查询上
+         */
+        TResult endQuery(RHIQuery *query) override;
+
+        /**
+         * \brief 以 SetPredication(predicate, FALSE) 设置条件渲染
+         * \remarks D3D11 的条件渲染同样会跳过 Clear / Copy / ResolveSubresource
+         */
+        TResult setPredication(RHIQuery *query) override;
+
         TResult beginRender() override { return T3D_OK; }
-        TResult endRender() override { return T3D_OK; }
+
+        /**
+         * \brief 结束本帧的 Disjoint 查询并轮询已完成的查询结果
+         */
+        TResult endRender() override;
 
         TResult beginPass() override { return T3D_OK; }
         TResult endPass() override { return T3D_OK; }
@@ -1161,7 +1196,54 @@ namespace Tiny3D
          * \return 校验通过返回有效票据，否则返回 ReadbackHandle::invalid()
          */
         ReadbackHandle allocReadbackRequest(RenderBuffer *src, bool isTexture, ReadbackRequest *&outRequest);
-        
+
+        /**
+         * \brief 给 RHI 资源的底层对象及其视图命名
+         * \note 只能在 RHI 线程调用
+         */
+        void applyDebugName(RHIResource *resource, const String &name);
+
+        /**
+         * \brief 非阻塞地取回已完成的查询结果并发布
+         * \note 只能在 RHI 线程调用
+         */
+        void pollQueries();
+
+        /// 释放全部未完成的查询记录与 Disjoint 查询，析构时调用
+        void destroyQueries();
+
+    protected:
+        /**
+         * \brief 一帧的 Disjoint 查询，本帧所有时间戳共享
+         */
+        struct DisjointRecord
+        {
+            ~DisjointRecord() { D3D_SAFE_RELEASE(Query); }
+
+            ID3D11Query *Query {nullptr};
+            /// 已调用 End，可以 GetData
+            bool        Ended {false};
+            /// GetData 已返回
+            bool        Resolved {false};
+            /// 本帧时钟是否不连续
+            bool        Disjoint {false};
+            /// 时间戳频率（Hz）
+            uint64_t    Frequency {0};
+        };
+
+        using DisjointRecordPtr = std::shared_ptr<DisjointRecord>;
+
+        /**
+         * \brief 一次已 End、尚未取回结果的查询
+         */
+        struct PendingQuery
+        {
+            D3D11QueryPtr       Query {nullptr};
+            uint32_t            Serial {0};
+            /// 仅时间戳查询有值
+            DisjointRecordPtr   Disjoint {nullptr};
+        };
+
     protected:
         /**
          * \brief 用于 blit 的 quad 顶点结构
@@ -1286,6 +1368,16 @@ namespace Tiny3D
         uint32_t                        mNextReadbackIndex {0};
         /// 票据世代号，index 复用时靠它区分新旧
         uint32_t                        mReadbackGeneration {1};
+
+        /// 调试分组接口，系统不支持时为 nullptr
+        ID3DUserDefinedAnnotation      *mAnnotation {nullptr};
+
+        /// RHI 线程：每个查询只保留最近一次发起，重新发起会顶掉旧记录
+        TMap<D3D11Query*, PendingQuery> mPendingQueries;
+        /// RHI 线程：本帧的 Disjoint 查询，第一次打时间戳时创建
+        DisjointRecordPtr               mFrameDisjoint {nullptr};
+        /// RHI 线程：当前生效的条件渲染谓词
+        D3D11QueryPtr                   mCurrentPredicate {nullptr};
     };
 }
 

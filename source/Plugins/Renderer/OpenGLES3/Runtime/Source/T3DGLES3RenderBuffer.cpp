@@ -184,4 +184,27 @@ namespace Tiny3D
     {
         return (void *)(intptr_t)GLTexture;
     }
+
+    //--------------------------------------------------------------------------
+    // GLES3Query
+    //--------------------------------------------------------------------------
+
+    GLES3QueryPtr GLES3Query::create(QueryType type)
+    {
+        return T3D_NEW GLES3Query(type);
+    }
+
+    GLES3Query::~GLES3Query()
+    {
+        if (GLQuery != 0)
+        {
+            glDeleteQueries(1, &GLQuery);
+            GLQuery = 0;
+        }
+    }
+
+    void *GLES3Query::getNativeObject() const
+    {
+        return (void *)(intptr_t)GLQuery;
+    }
 }

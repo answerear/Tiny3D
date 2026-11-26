@@ -371,11 +371,62 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    ForwardRenderPipeline::Section::Section(RHIContext *ctx, GPUProfiler *profiler, const String &name)
+        : mContext(ctx)
+        , mProfiler(profiler)
+    {
+        T3D_RHI_DEBUG_GROUP_BEGIN(mContext, name);
+        if (mProfiler != nullptr)
+        {
+            mProfiler->beginScope(mContext, name);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    ForwardRenderPipeline::Section::~Section()
+    {
+        if (mProfiler != nullptr)
+        {
+            mProfiler->endScope(mContext);
+        }
+        T3D_RHI_DEBUG_GROUP_END(mContext);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void ForwardRenderPipeline::enableGPUProfiling(bool enabled)
+    {
+        if (enabled && mGPUProfiler == nullptr)
+        {
+            mGPUProfiler = GPUProfiler::create();
+        }
+        mGPUProfilingEnabled = enabled;
+    }
+
+    //--------------------------------------------------------------------------
+
+    GPUProfiler *ForwardRenderPipeline::getGPUProfiler() const
+    {
+        return activeProfiler();
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult ForwardRenderPipeline::render(RHIContext *ctx)
     {
+        GPUProfiler *profiler = activeProfiler();
+        if (profiler != nullptr)
+        {
+            profiler->beginFrame(ctx);
+        }
+
         TResult ret = T3D_OK;
         for (const auto &camera : mCameras)
         {
+            const GameObject *go = camera->getGameObject();
+            Section cameraSection(ctx, profiler, (go != nullptr && !go->getName().empty()) ? "Camera " + go->getName() : String("Camera"));
+
 #if defined(T3D_EDITOR)
             const bool skipShadow = (camera == mEditorCamera
                 && mEditorDrawMode == static_cast<uint32_t>(SceneDrawMode::kWireframe));
@@ -383,6 +434,7 @@ namespace Tiny3D
 #endif
             {
                 // 渲染阴影贴图
+                Section shadowSection(ctx, profiler, "Shadow");
                 ret = renderShadowMap(ctx, camera);
                 if (T3D_FAILED(ret))
                 {
@@ -396,6 +448,11 @@ namespace Tiny3D
             {
                 continue;
             }
+        }
+
+        if (profiler != nullptr)
+        {
+            profiler->endFrame(ctx);
         }
 
         return ret;
@@ -545,8 +602,13 @@ namespace Tiny3D
             rt = camera->getRenderTarget();
         }
 
+        GPUProfiler *profiler = activeProfiler();
+
         // 清屏之前：此时尚未绑 srcRT，回调可以改 viewport / clear，不要自己 setRenderTarget
-        invokeCameraBehaviours(ctx, camera, true);
+        {
+            Section section(ctx, profiler, "PreRender Behaviours");
+            invokeCameraBehaviours(ctx, camera, true);
+        }
 
         ctx->setRenderTarget(rt);
         
@@ -604,10 +666,14 @@ namespace Tiny3D
 
         ctx->endPass();
 
-        invokeCameraBehaviours(ctx, camera, false);
+        {
+            Section section(ctx, profiler, "PostRender Behaviours");
+            invokeCameraBehaviours(ctx, camera, false);
+        }
 
         if (UISystem *uiSystem = T3D_AGENT.getUISystem())
         {
+            Section section(ctx, profiler, "UI");
             uiSystem->render(ctx, camera, rt, UIRenderPhase::kBeforePostProcess);
         }
 
@@ -620,11 +686,13 @@ namespace Tiny3D
         // 只对「源 RT ≠ 最终目标」的相机跑效果链；直接画到纹理的相机第一期不偷建中间 RT
         if (srcColor != nullptr && finalColor != srcColor)
         {
+            Section section(ctx, profiler, "PostProcess");
             result = runCameraPostprocessing(ctx, camera, srcColor);
         }
 
         if (result != nullptr && finalColor != result)
         {
+            Section section(ctx, profiler, "Blit");
             T3D_ASSERT(rt->getType() == RenderTarget::Type::E_RT_TEXTURE);
             const Viewport &vp = camera->getViewport();
             Real left = Real(result->getWidth()) * vp.Left;
@@ -639,6 +707,7 @@ namespace Tiny3D
 
         if (UISystem *uiSystem = T3D_AGENT.getUISystem())
         {
+            Section section(ctx, profiler, "UI Overlay");
             uiSystem->render(ctx, camera, camera->getRenderTarget(), UIRenderPhase::kOverlay);
         }
 
@@ -661,6 +730,38 @@ namespace Tiny3D
         bool skyboxDrawn = false;
         const Vector3 camPos(cameraWorldPos.x(), cameraWorldPos.y(), cameraWorldPos.z());
 
+        GPUProfiler *profiler = activeProfiler();
+        // 连续的不透明队列共用一个分组，透明队列同理；Section 不能跨循环迭代，所以手工开关
+        enum class QueueSection { kNone, kOpaque, kTransparent };
+        QueueSection openSection = QueueSection::kNone;
+        auto closeSection = [&]()
+        {
+            if (openSection != QueueSection::kNone)
+            {
+                if (profiler != nullptr)
+                {
+                    profiler->endScope(ctx);
+                }
+                T3D_RHI_DEBUG_GROUP_END(ctx);
+                openSection = QueueSection::kNone;
+            }
+        };
+        auto openQueueSection = [&](QueueSection section)
+        {
+            if (section == openSection)
+            {
+                return;
+            }
+            closeSection();
+            const String name = (section == QueueSection::kOpaque) ? "Opaque" : "Transparent";
+            T3D_RHI_DEBUG_GROUP_BEGIN(ctx, name);
+            if (profiler != nullptr)
+            {
+                profiler->beginScope(ctx, name);
+            }
+            openSection = section;
+        };
+
         const auto itr = mRenderQueue.find(camera);
 
         if (itr != mRenderQueue.end())
@@ -674,9 +775,13 @@ namespace Tiny3D
                     && queue >= ShaderLab::kBuiltinQueueTransparent)
                 {
                     // 不透明物体已经写好深度，此时画天空盒能把被挡住的像素剔掉
+                    closeSection();
                     renderSkybox(ctx, camera, skyboxMaterial);
                     skyboxDrawn = true;
                 }
+
+                openQueueSection(queue < ShaderLab::kBuiltinQueueTransparent
+                    ? QueueSection::kOpaque : QueueSection::kTransparent);
 
                 if (queue < ShaderLab::kBuiltinQueueTransparent)
                 {
@@ -897,6 +1002,8 @@ namespace Tiny3D
             }
         }
 
+        closeSection();
+
         if (drawSkybox && !skyboxDrawn)
         {
             // 场景里一个透明队列的物体都没有（包括空场景），天空盒仍要画出来
@@ -935,6 +1042,8 @@ namespace Tiny3D
         {
             return T3D_OK;
         }
+
+        Section skyboxSection(ctx, activeProfiler(), "Skybox");
 
         TechniqueInstancePtr tech = skyboxMaterial->getCurrentTechnique();
         if (tech == nullptr)
@@ -1736,6 +1845,10 @@ namespace Tiny3D
                 batchVB = T3D_RENDER_BUFFER_MGR.loadVertexBuffer(
                     stride, allocVerts, initVB, MemoryType::kBoth, Usage::kDynamic, kCPUWrite);
                 initVB.release();
+                if (batchVB != nullptr)
+                {
+                    batchVB->setDebugName("Dynamic Batch VB " + std::to_string(slotIdx));
+                }
             }
             else
             {
@@ -1762,6 +1875,10 @@ namespace Tiny3D
                 batchIB = T3D_RENDER_BUFFER_MGR.loadIndexBuffer(
                     IndexType::E_IT_16BITS, allocIndices, initIB, MemoryType::kBoth, Usage::kDynamic, kCPUWrite);
                 initIB.release();
+                if (batchIB != nullptr)
+                {
+                    batchIB->setDebugName("Dynamic Batch IB " + std::to_string(slotIdx));
+                }
             }
             else
             {
@@ -2323,6 +2440,7 @@ namespace Tiny3D
             T3D_LOG_ERROR(LOG_TAG_RENDER, "Failed to create fullscreen vertex buffer !");
             return T3D_ERR_RES_LOAD_FAILED;
         }
+        mSkyboxVB->setDebugName("Fullscreen Triangle VB");
 
         return T3D_OK;
     }

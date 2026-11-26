@@ -131,6 +131,15 @@ namespace Tiny3D
 
         /// 获取最近一帧的渲染统计信息
         const FrameStats &getFrameStats() const { return mFrameStats; }
+
+        /**
+         * \brief 开启或关闭 GPU 分段计时
+         * \remarks 默认关闭；后端不支持时间戳查询时开启也拿不到结果
+         */
+        virtual void enableGPUProfiling(bool enabled) { (void)enabled; }
+
+        /// GPU 分段计时器；未开启或管线不支持时返回 nullptr
+        virtual GPUProfiler *getGPUProfiler() const { return nullptr; }
         
 
     protected:

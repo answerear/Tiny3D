@@ -28,6 +28,8 @@
 
 
 #include "T3DD3D11PrerequisitesBase.h"
+#include <d3d11_1.h>
+#include <memory>
 
 
 #if defined D3D11RENDERER_EXPORT
@@ -59,6 +61,7 @@ namespace Tiny3D
     struct D3D11SubresourceViews;
     class D3D11ConstantBuffer;
     class D3D11StructuredBuffer;
+    class D3D11Query;
     class D3D11VertexDeclaration;
     class D3D11Shader;
     class D3D11VertexShader;
@@ -90,6 +93,7 @@ namespace Tiny3D
     T3D_DECLARE_SMART_PTR(D3D11PixelBufferCubemap);
     T3D_DECLARE_SMART_PTR(D3D11ConstantBuffer);
     T3D_DECLARE_SMART_PTR(D3D11StructuredBuffer);
+    T3D_DECLARE_SMART_PTR(D3D11Query);
     T3D_DECLARE_SMART_PTR(D3D11VertexDeclaration);
     T3D_DECLARE_SMART_PTR(D3D11Shader);
     T3D_DECLARE_SMART_PTR(D3D11VertexShader);

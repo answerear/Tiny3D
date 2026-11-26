@@ -424,12 +424,17 @@ namespace  Tiny3D
             uid = UUID::generate();
         }
 
-        return loadBuffer<ConstantBuffer>(mCBufferCache, uid,
+        ConstantBufferPtr cbuffer = loadBuffer<ConstantBuffer>(mCBufferCache, uid,
             [](const String &name, uint32_t binding, const Buffer &buffer, MemoryType memType, Usage usage, uint32_t accMode)
             {
                 return ConstantBuffer::create(name, binding, buffer, memType, usage, accMode);
             },
             name, binding, buffer, memType, usage, accMode);
+        if (cbuffer != nullptr && cbuffer->getDebugName().empty())
+        {
+            cbuffer->setDebugName(name);
+        }
+        return cbuffer;
     }
 
     //--------------------------------------------------------------------------

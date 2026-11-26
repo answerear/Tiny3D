@@ -161,10 +161,25 @@ namespace Tiny3D
         void restoreNativeContext() override;
 
         TResult beginRender() override { return T3D_OK; }
-        TResult endRender() override { return T3D_OK; }
+        /// 非阻塞轮询已 end 的查询
+        TResult endRender() override;
 
         TResult beginPass() override { return T3D_OK; }
         TResult endPass() override { return T3D_OK; }
+
+        /// KHR_debug（ES 3.2 核心或 GL_KHR_debug 扩展）
+        TResult beginDebugGroup(const String &name) override;
+        TResult endDebugGroup() override;
+        TResult setDebugMarker(const String &name) override;
+        TResult setDebugName(RenderResource *resource) override;
+
+        /**
+         * \brief ES 只有 ANY_SAMPLES_PASSED，所以只支持 kBinaryOcclusion，不支持计数型 kOcclusion；
+         *        时间戳要 GL_EXT_disjoint_timer_query；没有管线统计与条件渲染
+         */
+        RHIQueryPtr createQuery(QueryType type) override;
+        TResult beginQuery(RHIQuery *query) override;
+        TResult endQuery(RHIQuery *query) override;
 
     protected:
         GLES3Context();
@@ -197,6 +212,24 @@ namespace Tiny3D
 
         /// 按 GLES 版本填充 mCapabilities，必须在 GL 上下文就绪后调用
         void fillCapabilities();
+
+        /// 检测 KHR_debug / EXT_disjoint_timer_query 并取函数指针，填查询与调试能力位
+        void fillQueryCapabilities();
+
+        /// RHI 线程：给资源对应的 GL 对象打 label
+        void applyDebugName(RHIResource *resource, const String &name);
+
+        /// RHI 线程：非阻塞取回已完成的查询并发布
+        void pollQueries();
+
+        /// 一次已 end、等待 GPU 的查询
+        struct PendingQuery
+        {
+            GLES3QueryPtr   Query {nullptr};
+            uint32_t        Serial {0};
+            /// 等待期间检测到过 GPU_DISJOINT，时间戳结果作废
+            bool            Disjoint {false};
+        };
 
         /**
          * \brief draw call 之前确保当前 graphics program 已链接并激活
@@ -300,6 +333,20 @@ namespace Tiny3D
         uint32_t mMaxTextureImageUnits {32};
         uint32_t mMaxVertexShaderStorageBlocks {0};
         bool    mSupportsIndexedBlend {false};
+
+        /// KHR_debug 入口，ES 3.2 取核心名，否则取 KHR 后缀名；任一为空则不启用
+        PFNGLPUSHDEBUGGROUPKHRPROC      mGLPushDebugGroup {nullptr};
+        PFNGLPOPDEBUGGROUPKHRPROC       mGLPopDebugGroup {nullptr};
+        PFNGLDEBUGMESSAGEINSERTKHRPROC  mGLDebugMessageInsert {nullptr};
+        PFNGLOBJECTLABELKHRPROC         mGLObjectLabel {nullptr};
+        bool    mHasDebugAnnotation {false};
+
+        /// EXT_disjoint_timer_query 入口
+        PFNGLQUERYCOUNTEREXTPROC        mGLQueryCounter {nullptr};
+        PFNGLGETQUERYOBJECTUI64VEXTPROC mGLGetQueryObjectui64v {nullptr};
+
+        /// RHI 线程：每个查询只保留最近一次发起
+        TMap<GLES3Query*, PendingQuery> mPendingQueries;
     };
 }
 

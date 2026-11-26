@@ -153,6 +153,7 @@
 #include <Render/T3DRenderTexture.h>
 #include <Render/T3DRenderWindow.h>
 #include <Render/T3DViewport.h>
+#include <Render/T3DGPUProfiler.h>
 
 // RHI
 #include <RHI/T3DRHIRenderer.h>
@@ -168,6 +169,7 @@
 #include <RHI/T3DRHIPixelBuffer.h>
 #include <RHI/T3DRHIConstantBuffer.h>
 #include <RHI/T3DRHIStructuredBuffer.h>
+#include <RHI/T3DRHIQuery.h>
 #include <RHI/T3DRHICapabilities.h>
 #include <RHI/T3DRHIRenderTarget.h>
 #include <RHI/T3DRHIRenderWindow.h>
