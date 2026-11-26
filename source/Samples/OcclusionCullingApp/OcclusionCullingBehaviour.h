@@ -105,7 +105,10 @@ namespace Tiny3D
         void buildCity(TArray<Vertex> &ground, TArray<Vertex> &objects);
         void buildRoute();
         Vector3 routePoint(Real distance) const;
+        /// Slows down near corners so the buildings revealed by a turn can be watched
+        Real routeSpeed(Real distance) const;
         void collectStats(uint32_t slot);
+        void renderCullingCheck(RHIContext *ctx, uint32_t slot);
         void logStats();
         void packMatrix(float *dst, const Matrix4 &m) const;
         void bindGeometry(RHIContext *ctx, VertexBuffer *vb);
@@ -128,6 +131,8 @@ namespace Tiny3D
         RasterizerStatePtr mRasterizer {nullptr};
         DepthStencilStatePtr mDepthState {nullptr};
         DepthStencilStatePtr mProxyDepthState {nullptr};
+        /// Strict less, no writes: a drawn object fails everywhere against its own depth
+        DepthStencilStatePtr mCheckDepthState {nullptr};
         BlendStatePtr mBlendState {nullptr};
         BlendStatePtr mProxyBlendState {nullptr};
 
@@ -141,6 +146,10 @@ namespace Tiny3D
         TArray<uint8_t> mQueryIssued[kQueryRing];
         RHIQueryPtr mStatsQueries[kQueryRing] {};
         bool mStatsIssued[kQueryRing] {};
+        /// mCheckQueries[slot][object]: samples of the real mesh in front of the final depth.
+        /// Anything above zero is an object that was visible but got culled
+        TArray<RHIQueryPtr> mCheckQueries[kQueryRing];
+        bool mCheckIssued[kQueryRing] {};
         uint64_t mFrameIndex {0};
 
         TArray<Vector3> mRoute;
@@ -152,7 +161,11 @@ namespace Tiny3D
         bool mGLFamily {false};
         bool mUsePredication {false};
 
-        Real mElapsed {0.0f};
+        bool mCheckCulling {false};
+        /// kOcclusion gives a sample count to tell depth precision hits from real misses
+        bool mCheckCountsSamples {false};
+
+        Real mDistance {0.0f};
         Real mSpeed {9.0f};
         Vector3 mEye {};
 
@@ -164,6 +177,14 @@ namespace Tiny3D
         uint64_t mTestedSum {0};
         uint64_t mPendingSum {0};
         uint32_t mStatsFrames {0};
+        uint32_t mCheckFrames {0};
+        uint32_t mCheckBadFrames {0};
+        uint64_t mCheckErrorSum {0};
+        uint32_t mCheckErrorMax {0};
+        uint64_t mCheckSamplesMax {0};
+        uint64_t mCheckMinorSum {0};
+        uint64_t mCheckTotalFrames {0};
+        uint64_t mCheckTotalBadFrames {0};
         PipelineStatistics mLastPipelineStats {};
         bool mHasPipelineStats {false};
     };

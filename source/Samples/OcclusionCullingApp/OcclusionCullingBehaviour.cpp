@@ -92,6 +92,10 @@ namespace Tiny3D
 
         const Real kEyeHeight = 2.2f;
         const Real kLookAhead = 10.0f;
+        const Real kCornerSpeed = 2.5f;
+        const Real kCornerSlowRadius = 22.0f;
+        /// A culled object that should have been seen covers far more than this
+        const uint64_t kCheckSampleTolerance = 16;
         const Real kLogInterval = 2.0f;
     }
 
@@ -123,13 +127,14 @@ namespace Tiny3D
     {
         // Time::deltaTime() is milliseconds
         const Real dtMs = static_cast<Real>(Time::deltaTime());
-        mElapsed += dtMs / 1000.0f;
 
         if (mCamera != nullptr && mRouteLength > REAL_ZERO)
         {
-            const Real distance = mElapsed * mSpeed;
-            mEye = routePoint(distance) + Vector3(0.0f, kEyeHeight, 0.0f);
-            const Vector3 target = routePoint(distance + kLookAhead) + Vector3(0.0f, kEyeHeight - 0.2f, 0.0f);
+            // Clamped so a loading hitch does not jump the camera past a corner
+            const Real dt = std::min(dtMs / 1000.0f, 0.1f);
+            mDistance = std::fmod(mDistance + routeSpeed(mDistance) * dt, mRouteLength);
+            mEye = routePoint(mDistance) + Vector3(0.0f, kEyeHeight, 0.0f);
+            const Vector3 target = routePoint(mDistance + kLookAhead) + Vector3(0.0f, kEyeHeight - 0.2f, 0.0f);
             mCamera->lookAt(mEye, target, Vector3::UP);
         }
 
@@ -201,6 +206,25 @@ namespace Tiny3D
             }
         }
         return mRoute.front();
+    }
+
+    //--------------------------------------------------------------------------
+
+    Real OcclusionCullingBehaviour::routeSpeed(Real distance) const
+    {
+        Real nearest = mRouteLength;
+        for (Real corner : mRouteDistances)
+        {
+            const Real gap = std::fabs(distance - corner);
+            nearest = std::min(nearest, std::min(gap, mRouteLength - gap));
+        }
+
+        // The view swings while the look-ahead point is past the corner and the eye is not,
+        // so the slow zone has to cover kLookAhead before the corner
+        Real t = std::min(nearest / kCornerSlowRadius, 1.0f);
+        t = t * t * (3.0f - 2.0f * t);
+        const Real cornerSpeed = std::min(kCornerSpeed, mSpeed);
+        return cornerSpeed + (mSpeed - cornerSpeed) * t;
     }
 
     //--------------------------------------------------------------------------
@@ -483,6 +507,10 @@ namespace Tiny3D
         proxyDepth.DepthWriteEnable = false;
         proxyDepth.DepthFunc = CompareFunction::kLessEqual;
         mProxyDepthState = T3D_RENDER_STATE_MGR.loadDepthStencilState(proxyDepth);
+        DepthStencilDesc checkDepth;
+        checkDepth.DepthWriteEnable = false;
+        checkDepth.DepthFunc = CompareFunction::kLess;
+        mCheckDepthState = T3D_RENDER_STATE_MGR.loadDepthStencilState(checkDepth);
 
         BlendDesc blend;
         mBlendState = T3D_RENDER_STATE_MGR.loadBlendState(blend);
@@ -492,7 +520,7 @@ namespace Tiny3D
 
         const bool ok = (mDecl != nullptr && mGroundVB != nullptr && mObjectVB != nullptr && mCityCB != nullptr
             && mRasterizer != nullptr && mDepthState != nullptr && mProxyDepthState != nullptr
-            && mBlendState != nullptr && mProxyBlendState != nullptr);
+            && mCheckDepthState != nullptr && mBlendState != nullptr && mProxyBlendState != nullptr);
         if (!ok)
         {
             T3D_LOG_ERROR(LOG_TAG_APP, "OcclusionCulling : failed to create buffers or render states.");
@@ -525,6 +553,22 @@ namespace Tiny3D
                 "every object is drawn.", rendererName.c_str());
         }
 
+        // Only meaningful when something is actually culled
+        mCheckCulling = mUsePredication;
+        if (mCheckCulling)
+        {
+            mCheckCountsSamples = caps.supportsOcclusionQuery;
+            const QueryType checkType = mCheckCountsSamples ? QueryType::kOcclusion : QueryType::kBinaryOcclusion;
+            for (uint32_t slot = 0; slot < kQueryRing; ++slot)
+            {
+                mCheckQueries[slot].resize(objectCount);
+                for (uint32_t i = 0; i < objectCount; ++i)
+                {
+                    mCheckQueries[slot][i] = ctx->createQuery(checkType);
+                }
+            }
+        }
+
         if (caps.supportsPipelineStatisticsQuery)
         {
             for (uint32_t slot = 0; slot < kQueryRing; ++slot)
@@ -545,9 +589,9 @@ namespace Tiny3D
             counts[static_cast<uint32_t>(obj.kind)]++;
         }
         T3D_LOG_INFO(LOG_TAG_APP, "OcclusionCulling : %u objects (%u buildings, %u lamps, %u cars), %u vertices, "
-            "route %.0f m, culling %s.",
+            "route %.0f m, culling %s, culling check %s.",
             objectCount, counts[0], counts[1], counts[2], static_cast<uint32_t>(objects.size()), mRouteLength,
-            mUsePredication ? "occlusion query + predication" : "off");
+            mUsePredication ? "occlusion query + predication" : "off", mCheckCulling ? "on" : "off");
 
         mDrawOrder.resize(objectCount);
         std::iota(mDrawOrder.begin(), mDrawOrder.end(), 0u);
@@ -566,9 +610,14 @@ namespace Tiny3D
             mQueryIssued[slot].clear();
             mStatsQueries[slot] = nullptr;
             mStatsIssued[slot] = false;
+            mCheckQueries[slot].clear();
+            mCheckIssued[slot] = false;
         }
+        mCheckCulling = false;
+        mCheckCountsSamples = false;
         mProxyBlendState = nullptr;
         mBlendState = nullptr;
+        mCheckDepthState = nullptr;
         mProxyDepthState = nullptr;
         mDepthState = nullptr;
         mRasterizer = nullptr;
@@ -658,6 +707,76 @@ namespace Tiny3D
                 mHasPipelineStats = true;
             }
         }
+
+        if (mCheckIssued[slot])
+        {
+            mCheckIssued[slot] = false;
+            uint32_t errors = 0;
+            uint32_t ready = 0;
+            for (const RHIQueryPtr &query : mCheckQueries[slot])
+            {
+                QueryResult result;
+                if (query != nullptr && query->resolve(result) == QueryStatus::kReady)
+                {
+                    ready++;
+                    if (result.samplesPassed == 0)
+                    {
+                        continue;
+                    }
+                    mCheckSamplesMax = std::max(mCheckSamplesMax, result.samplesPassed);
+                    // Walls coplanar with a neighbour's, or a proxy face triangulated differently from
+                    // the mesh face it encloses, can land one ULP either side of the stored depth.
+                    // A binary query has no count, so every hit is an error there
+                    if (mCheckCountsSamples && result.samplesPassed <= kCheckSampleTolerance)
+                    {
+                        mCheckMinorSum++;
+                    }
+                    else
+                    {
+                        errors++;
+                    }
+                }
+            }
+            // A frame with pending results is skipped rather than counted as clean
+            if (ready == mCheckQueries[slot].size())
+            {
+                mCheckFrames++;
+                mCheckBadFrames += (errors > 0) ? 1 : 0;
+                mCheckErrorSum += errors;
+                mCheckErrorMax = std::max(mCheckErrorMax, errors);
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    void OcclusionCullingBehaviour::renderCullingCheck(RHIContext *ctx, uint32_t slot)
+    {
+        // Every object's real mesh against the final depth with a strict less test. A drawn
+        // object has exactly its own depth wherever it won and lies behind elsewhere, so it
+        // passes nowhere; any sample means an object that should have been seen was skipped
+        T3D_RHI_DEBUG_GROUP(ctx, "Culling Check");
+
+        ctx->setPredication(nullptr);
+        ctx->setDepthStencilState(mCheckDepthState.get());
+        ctx->setBlendState(mProxyBlendState.get());
+
+        bool issued = false;
+        TArray<RHIQueryPtr> &queries = mCheckQueries[slot];
+        for (size_t i = 0; i < queries.size(); ++i)
+        {
+            RHIQuery *query = queries[i].get();
+            if (query == nullptr || T3D_FAILED(ctx->beginQuery(query)))
+            {
+                continue;
+            }
+            ctx->render(mObjects[i].count, mObjects[i].start);
+            issued = T3D_SUCCEEDED(ctx->endQuery(query)) || issued;
+        }
+        mCheckIssued[slot] = issued;
+
+        ctx->setDepthStencilState(mDepthState.get());
+        ctx->setBlendState(mBlendState.get());
     }
 
     //--------------------------------------------------------------------------
@@ -711,6 +830,26 @@ namespace Tiny3D
                 static_cast<unsigned long long>(mLastPipelineStats.pixelShaderInvocations));
         }
 
+        if (mCheckCulling)
+        {
+            mCheckTotalFrames += mCheckFrames;
+            mCheckTotalBadFrames += mCheckBadFrames;
+            T3D_LOG_INFO(LOG_TAG_APP, "OcclusionCulling :   culling check - %u frames checked, %u with visible objects culled "
+                "(%.2f objects per frame, worst %u objects), %llu hits within %llu samples of depth precision, "
+                "worst %llu samples; since start %llu / %llu frames bad",
+                mCheckFrames, mCheckBadFrames,
+                (mCheckFrames > 0) ? static_cast<double>(mCheckErrorSum) / mCheckFrames : 0.0,
+                mCheckErrorMax, static_cast<unsigned long long>(mCheckMinorSum),
+                static_cast<unsigned long long>(kCheckSampleTolerance), static_cast<unsigned long long>(mCheckSamplesMax),
+                static_cast<unsigned long long>(mCheckTotalBadFrames), static_cast<unsigned long long>(mCheckTotalFrames));
+        }
+
+        mCheckFrames = 0;
+        mCheckBadFrames = 0;
+        mCheckErrorSum = 0;
+        mCheckErrorMax = 0;
+        mCheckSamplesMax = 0;
+        mCheckMinorSum = 0;
         mCpuFrameMs = 0.0;
         mLogFrames = 0;
         mVisibleSum = 0;
@@ -878,6 +1017,19 @@ namespace Tiny3D
             {
                 ctx->endQuery(statsQuery);
             }
+            if (profiler != nullptr)
+            {
+                profiler->endScope(ctx);
+            }
+        }
+
+        if (mCheckCulling)
+        {
+            if (profiler != nullptr)
+            {
+                profiler->beginScope(ctx, "Culling Check");
+            }
+            renderCullingCheck(ctx, slot);
             if (profiler != nullptr)
             {
                 profiler->endScope(ctx);
