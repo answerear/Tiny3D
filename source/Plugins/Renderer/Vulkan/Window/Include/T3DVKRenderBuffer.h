@@ -127,6 +127,13 @@ namespace Tiny3D
         VkImageView     VkDSView {VK_NULL_HANDLE};
         /// Current image layout (tracked for correct barrier transitions)
         VkImageLayout   VkCurrentLayout {VK_IMAGE_LAYOUT_UNDEFINED};
+        /// 渲染纹理的 mip 层数、数组层数（Cube 为 6 的倍数）
+        uint32_t        VkMipLevels {1};
+        uint32_t        VkLayers {1};
+        bool            VkCubemap {false};
+        VkFormat        VkPixelFormat {VK_FORMAT_UNDEFINED};
+        /// 按子资源缓存的附件 / 采样视图
+        TMap<uint64_t, VkImageView> VkSubViews;
 
     protected:
         VKPixelBuffer2D() = default;

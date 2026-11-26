@@ -274,7 +274,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult VKConsoleContext::setVSPixelBuffers(uint32_t startSlot,
-        const PixelBuffers &buffers)
+        const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         return T3D_OK;
     }
@@ -311,7 +311,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult VKConsoleContext::setPSPixelBuffers(uint32_t startSlot,
-        const PixelBuffers &buffers)
+        const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         return T3D_OK;
     }
@@ -348,7 +348,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult VKConsoleContext::setHSPixelBuffers(uint32_t startSlot,
-        const PixelBuffers &buffers)
+        const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         return T3D_OK;
     }
@@ -385,7 +385,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult VKConsoleContext::setDSPixelBuffers(uint32_t startSlot,
-        const PixelBuffers &buffers)
+        const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         return T3D_OK;
     }
@@ -422,7 +422,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult VKConsoleContext::setGSPixelBuffers(uint32_t startSlot,
-        const PixelBuffers &buffers)
+        const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         return T3D_OK;
     }
@@ -459,7 +459,7 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult VKConsoleContext::setCSPixelBuffers(uint32_t startSlot,
-        const PixelBuffers &buffers)
+        const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         return T3D_OK;
     }
@@ -497,7 +497,7 @@ namespace Tiny3D
     TResult VKConsoleContext::setVSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
     TResult VKConsoleContext::setPSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
     TResult VKConsoleContext::setCSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
-    TResult VKConsoleContext::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
+    TResult VKConsoleContext::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts, const TextureSubresources &subresources) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
     TResult VKConsoleContext::dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) { T3D_RHI_UNSUPPORTED(supportsCompute); }
     TResult VKConsoleContext::dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset) { T3D_RHI_UNSUPPORTED(supportsIndirectDispatch); }
     TResult VKConsoleContext::uavBarrier(const UnorderedAccessBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
@@ -550,6 +550,13 @@ namespace Tiny3D
 
     TResult VKConsoleContext::copyBuffer(RenderBuffer *src, RenderBuffer *dst,
         size_t srcOffset, size_t size, size_t dstOffset)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult VKConsoleContext::generateMips(PixelBuffer *buffer)
     {
         return T3D_OK;
     }

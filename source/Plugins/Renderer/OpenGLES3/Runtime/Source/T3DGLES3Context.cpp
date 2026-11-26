@@ -380,6 +380,13 @@ namespace Tiny3D
             return nullptr;
         }
 
+        if (desc.arraySize > 1 || desc.cubemap || desc.mipmaps > 1)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GLES3RENDERER, "createRenderTexture : array / cube / multi-mip render textures "
+                "are not supported on GLES3 yet (layers %u, cube %d, mips %u) !", desc.arraySize, desc.cubemap ? 1 : 0, desc.mipmaps);
+            return nullptr;
+        }
+
         GLES3PixelBuffer2DPtr glPixelBuffer = GLES3PixelBuffer2D::create();
 
         auto lambda = [this](const PixelBuffer2DPtr &buffer, const GLES3PixelBuffer2DPtr &glPixelBuffer)
@@ -2172,7 +2179,7 @@ namespace Tiny3D
         return stageConstantBuffers(buffers);
     }
 
-    TResult GLES3Context::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult GLES3Context::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         return bindPixelBuffers(startSlot, buffers);
     }
@@ -2250,7 +2257,7 @@ namespace Tiny3D
         return stageConstantBuffers(buffers);
     }
 
-    TResult GLES3Context::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult GLES3Context::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         return bindPixelBuffers(startSlot, buffers);
     }
@@ -2323,7 +2330,7 @@ namespace Tiny3D
         return stageConstantBuffers(buffers);
     }
 
-    TResult GLES3Context::setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult GLES3Context::setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         if (!supportsTessellation())
         {
@@ -2416,7 +2423,7 @@ namespace Tiny3D
         return stageConstantBuffers(buffers);
     }
 
-    TResult GLES3Context::setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult GLES3Context::setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         if (!supportsTessellation())
         {
@@ -2531,7 +2538,7 @@ namespace Tiny3D
         return stageConstantBuffers(buffers);
     }
 
-    TResult GLES3Context::setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult GLES3Context::setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         return bindPixelBuffers(startSlot, buffers);
     }
@@ -2664,7 +2671,7 @@ namespace Tiny3D
         return stageConstantBuffers(buffers);
     }
 
-    TResult GLES3Context::setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult GLES3Context::setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         return bindPixelBuffers(startSlot, buffers);
     }
@@ -2995,7 +3002,7 @@ namespace Tiny3D
         return bindStructuredBuffers(startSlot, buffers);
     }
 
-    TResult GLES3Context::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts)
+    TResult GLES3Context::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts, const TextureSubresources &subresources)
     {
         if (!mCapabilities.supportsUnorderedAccess)
         {
@@ -3609,6 +3616,15 @@ namespace Tiny3D
         };
 
         return ENQUEUE_UNIQUE_COMMAND(lambda, TexturePtr(src), TexturePtr(dst), srcOffset, size, dstOffset);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GLES3Context::generateMips(PixelBuffer *buffer)
+    {
+        // 渲染纹理目前只有单级 mip，createRenderTexture 已拒绝 mipmaps > 1
+        T3D_LOG_ERROR(LOG_TAG_GLES3RENDERER, "generateMips : multi-mip render textures are not supported on GLES3 yet !");
+        return T3D_ERR_GLES3_UNSUPPORTED_OPERATION;
     }
 
     //--------------------------------------------------------------------------

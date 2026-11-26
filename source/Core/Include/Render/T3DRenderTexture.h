@@ -71,10 +71,46 @@ namespace Tiny3D
         static RenderTexturePtr create(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data, bool shaderReadable);
 
         /**
+         * \brief 创建数组、立方体贴图或多 mip 的渲染纹理（不支持 MSAA）
+         * \param [in] name : 纹理名称
+         * \param [in] dimension : 维度，只接受 TT_2D、TT_2D_ARRAY、TT_CUBE、TT_CUBE_ARRAY
+         * \param [in] width : 宽度，立方体贴图须与 height 相等
+         * \param [in] height : 高度
+         * \param [in] arraySize : TT_2D_ARRAY 为层数，TT_CUBE_ARRAY 为立方体个数，其它维度忽略
+         * \param [in] format : 像素格式
+         * \param [in] mipmaps : mip 级数，0 表示完整 mip 链
+         * \param [in] shaderReadable : 是否允许着色器采样读取
+         * \param [in] accMode : CPU 访问许可
+         * \param [in] gpuAccess : GPU 侧附加访问权限，kGPUGenerateMips 允许 generateMips，
+         *                         kGPUUnorderedAccess 允许逐 mip / 逐层绑定为 UAV
+         * \return 新创建的 RenderTexture 指针；dimension 非法时返回 nullptr
+         * \note 渲染到某个面 / 层 / mip 用 RenderTarget::setColorSubresource 选择
+         */
+        static RenderTexturePtr create(const String &name, TEXTURE_TYPE dimension, uint32_t width, uint32_t height, uint32_t arraySize, PixelFormat format, uint32_t mipmaps, bool shaderReadable, uint32_t accMode = kCPUNone, uint32_t gpuAccess = kGPUNone);
+
+        /**
          * \brief 返回纹理类型标识
          * \return TEXTURE_TYPE::TT_RENDER_TEXTURE
          */
         TEXTURE_TYPE getTextureType() const override;
+
+        /**
+         * \brief 返回渲染纹理的实际维度
+         * \return TT_2D、TT_2D_ARRAY、TT_CUBE 或 TT_CUBE_ARRAY
+         */
+        TEXTURE_TYPE getRenderTextureType() const;
+
+        /// 返回数组层数，立方体贴图为 6 * 立方体个数，普通 2D 为 1
+        uint32_t getArraySize() const { return mDesc.arraySize == 0 ? 1 : mDesc.arraySize; }
+
+        /// 是否为立方体贴图（含立方体贴图数组）
+        bool isCubemap() const { return mDesc.cubemap; }
+
+        /**
+         * \brief 以 mip 0 为源在 GPU 上生成其余 mip，转发到 RHIContext::generateMips
+         * \return 调用成功返回 T3D_OK；创建时没带 kGPUGenerateMips 或只有一级 mip 时返回 T3D_ERR_INVALID_PARAM
+         */
+        TResult generateMips();
 
         /**
          * \brief 改变渲染纹理尺寸，先更新描述再让后端按新描述重建 GPU 资源
@@ -114,6 +150,13 @@ namespace Tiny3D
          * \param [in] shaderReadable : 是否允许着色器采样读取
          */
         RenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps, uint32_t MSAACount, uint32_t MSAAQuality, const Buffer &data, bool shaderReadable);
+
+        /**
+         * \brief 构造数组 / 立方体贴图 / 多 mip 渲染纹理，参数含义见对应的 create
+         * \param [in] layers : 展开后的层数（立方体贴图已乘 6）
+         * \param [in] cubemap : 是否为立方体贴图
+         */
+        RenderTexture(const String &name, uint32_t width, uint32_t height, uint32_t layers, bool cubemap, PixelFormat format, uint32_t mipmaps, bool shaderReadable, uint32_t accMode, uint32_t gpuAccess);
 
         ~RenderTexture() override;
 

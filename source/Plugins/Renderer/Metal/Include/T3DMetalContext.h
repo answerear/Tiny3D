@@ -270,7 +270,7 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
 
         /**
          * \brief 设置 vs 纹理采样器
@@ -308,7 +308,7 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
 
         /**
          * \brief 设置 ps 纹理采样器
@@ -346,7 +346,7 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
 
         /**
          * \brief 设置 hs 纹理采样器
@@ -384,7 +384,7 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
 
         /**
          * \brief 设置 ds 纹理采样器
@@ -422,7 +422,7 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
 
         /**
          * \brief 设置 gs 纹理采样器
@@ -460,7 +460,7 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
 
         /**
          * \brief 设置 cs 纹理采样器
@@ -474,7 +474,7 @@ namespace Tiny3D
         TResult setVSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
         TResult setPSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
         TResult setCSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
-        TResult setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts = UAVInitialCounts()) override;
+        TResult setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts = UAVInitialCounts(), const TextureSubresources &subresources = TextureSubresources()) override;
         TResult dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) override;
         TResult dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) override;
         TResult uavBarrier(const UnorderedAccessBuffers &buffers) override;
@@ -607,6 +607,8 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         TResult copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset = 0, size_t size = 0, size_t dstOffset = 0) override;
+
+        TResult generateMips(PixelBuffer *buffer) override;
 
         /**
          * \brief 写 GPU 缓冲区，在写完之前 buffer 不能释放，写完之后，内部会去释放 buffer 空间。 调用本接口，renderBuffer 必须绑定 CPUAccessWrite

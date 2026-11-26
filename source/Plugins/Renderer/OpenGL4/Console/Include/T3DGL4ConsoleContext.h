@@ -64,33 +64,33 @@ namespace Tiny3D
         RHIPixelBufferCubemapPtr createPixelBufferCubemap(PixelBufferCubemap *buffer) override;
         TResult setVertexShader(ShaderVariant *shader) override;
         TResult setVSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
-        TResult setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
         TResult setVSSamplers(uint32_t startSlot, const Samplers &samplers) override;
         TResult setPixelShader(ShaderVariant *shader) override;
         TResult setPSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
-        TResult setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
         TResult setPSSamplers(uint32_t startSlot, const Samplers &samplers) override;
         TResult setHullShader(ShaderVariant *shader) override;
         TResult setHSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
-        TResult setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
         TResult setHSSamplers(uint32_t startSlot, const Samplers &samplers) override;
         TResult setDomainShader(ShaderVariant *shader) override;
         TResult setDSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
-        TResult setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
         TResult setDSSamplers(uint32_t startSlot, const Samplers &samplers) override;
         TResult setGeometryShader(ShaderVariant *shader) override;
         TResult setGSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
-        TResult setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
         TResult setGSSamplers(uint32_t startSlot, const Samplers &samplers) override;
         TResult setComputeShader(ShaderVariant *shader) override;
         TResult setCSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
-        TResult setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
         TResult setCSSamplers(uint32_t startSlot, const Samplers &samplers) override;
         RHIStructuredBufferPtr createStructuredBuffer(StructuredBuffer *buffer) override;
         TResult setVSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
         TResult setPSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
         TResult setCSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
-        TResult setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts = UAVInitialCounts()) override;
+        TResult setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts = UAVInitialCounts(), const TextureSubresources &subresources = TextureSubresources()) override;
         TResult dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) override;
         TResult dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) override;
         TResult uavBarrier(const UnorderedAccessBuffers &buffers) override;
@@ -108,6 +108,8 @@ namespace Tiny3D
         TResult blit(RenderTarget *src, Texture *dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) override;
         TResult blit(Texture *src, Texture *dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) override;
         TResult copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset = 0, size_t size = 0, size_t dstOffset = 0) override;
+
+        TResult generateMips(PixelBuffer *buffer) override;
         TResult writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer = false) override;
 
         /// GPU 读回（Console null backend 不支持）

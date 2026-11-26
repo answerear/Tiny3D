@@ -56,6 +56,7 @@ namespace Tiny3D
     class D3D11PixelBuffer2D;
     class D3D11PixelBuffer3D;
     class D3D11PixelBufferCubemap;
+    struct D3D11SubresourceViews;
     class D3D11ConstantBuffer;
     class D3D11StructuredBuffer;
     class D3D11VertexDeclaration;

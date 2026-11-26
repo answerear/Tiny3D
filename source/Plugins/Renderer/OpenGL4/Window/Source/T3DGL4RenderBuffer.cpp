@@ -48,6 +48,13 @@ namespace Tiny3D
 
     void releaseGLObjects(std::initializer_list<GLObjectName> objects)
     {
+        releaseGLObjects(TArray<GLObjectName>(objects));
+    }
+
+    //--------------------------------------------------------------------------
+
+    void releaseGLObjects(const TArray<GLObjectName> &objects)
+    {
         TArray<GLObjectName> names;
         names.reserve(objects.size());
         for (const GLObjectName &obj : objects)
@@ -198,12 +205,16 @@ namespace Tiny3D
 
     GL4PixelBuffer2D::~GL4PixelBuffer2D()
     {
-        releaseGLObjects({
-            {GLObjectType::kFramebuffer, GLResolveFBO},
-            {GLObjectType::kTexture, GLResolveTex},
-            {GLObjectType::kFramebuffer, GLFBO},
-            {GLObjectType::kTexture, GLTexture},
-        });
+        TArray<GLObjectName> objects;
+        for (const auto &item : GLViews)
+        {
+            objects.push_back({GLObjectType::kTexture, item.second});
+        }
+        objects.push_back({GLObjectType::kFramebuffer, GLResolveFBO});
+        objects.push_back({GLObjectType::kTexture, GLResolveTex});
+        objects.push_back({GLObjectType::kFramebuffer, GLFBO});
+        objects.push_back({GLObjectType::kTexture, GLTexture});
+        releaseGLObjects(objects);
     }
 
     void *GL4PixelBuffer2D::getNativeObject() const
@@ -237,7 +248,13 @@ namespace Tiny3D
 
     GL4PixelBufferCubemap::~GL4PixelBufferCubemap()
     {
-        releaseGLObjects({{GLObjectType::kTexture, GLTexture}});
+        TArray<GLObjectName> objects;
+        for (const auto &item : GLViews)
+        {
+            objects.push_back({GLObjectType::kTexture, item.second});
+        }
+        objects.push_back({GLObjectType::kTexture, GLTexture});
+        releaseGLObjects(objects);
     }
 
     void *GL4PixelBufferCubemap::getNativeObject() const

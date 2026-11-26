@@ -93,6 +93,9 @@ namespace Tiny3D
      */
     void releaseGLObjects(std::initializer_list<GLObjectName> objects);
 
+    /// 同上，供个数在运行时才确定的对象集合（如子资源纹理视图）使用
+    void releaseGLObjects(const TArray<GLObjectName> &objects);
+
     //-------------------------------------------------------------------------
     // 前置声明
     //-------------------------------------------------------------------------

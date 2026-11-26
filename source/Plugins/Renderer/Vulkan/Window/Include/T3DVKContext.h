@@ -93,38 +93,38 @@ namespace Tiny3D
         RHIShaderPtr createVertexShader(ShaderVariant *shader) override;
         TResult setVertexShader(ShaderVariant *shader) override;
         TResult setVSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
-        TResult setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
         TResult setVSSamplers(uint32_t startSlot, const Samplers &samplers) override;
         RHIShaderPtr createPixelShader(ShaderVariant *shader) override;
         TResult setPixelShader(ShaderVariant *shader) override;
         TResult setPSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
-        TResult setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
         TResult setPSSamplers(uint32_t startSlot, const Samplers &samplers) override;
         RHIShaderPtr createHullShader(ShaderVariant *shader) override;
         TResult setHullShader(ShaderVariant *shader) override;
         TResult setHSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
-        TResult setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
         TResult setHSSamplers(uint32_t startSlot, const Samplers &samplers) override;
         RHIShaderPtr createDomainShader(ShaderVariant *shader) override;
         TResult setDomainShader(ShaderVariant *shader) override;
         TResult setDSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
-        TResult setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
         TResult setDSSamplers(uint32_t startSlot, const Samplers &samplers) override;
         RHIShaderPtr createGeometryShader(ShaderVariant *shader) override;
         TResult setGeometryShader(ShaderVariant *shader) override;
         TResult setGSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
-        TResult setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
         TResult setGSSamplers(uint32_t startSlot, const Samplers &samplers) override;
         RHIShaderPtr createComputeShader(ShaderVariant *shader) override;
         TResult setComputeShader(ShaderVariant *shader) override;
         TResult setCSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
-        TResult setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
         TResult setCSSamplers(uint32_t startSlot, const Samplers &samplers) override;
         RHIStructuredBufferPtr createStructuredBuffer(StructuredBuffer *buffer) override;
         TResult setVSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
         TResult setPSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
         TResult setCSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
-        TResult setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts = UAVInitialCounts()) override;
+        TResult setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts = UAVInitialCounts(), const TextureSubresources &subresources = TextureSubresources()) override;
         TResult dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) override;
         TResult dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) override;
         TResult uavBarrier(const UnorderedAccessBuffers &buffers) override;
@@ -142,6 +142,8 @@ namespace Tiny3D
         TResult blit(RenderTarget *src, Texture *dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) override;
         TResult blit(Texture *src, Texture *dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) override;
         TResult copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset = 0, size_t size = 0, size_t dstOffset = 0) override;
+
+        TResult generateMips(PixelBuffer *buffer) override;
         TResult writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer = false) override;
 
         /// GPU 读回未实现。落地时 Copy 进 host-visible 资源，endRender 的 fence 即完成信号
@@ -176,9 +178,16 @@ namespace Tiny3D
 
         TResult createVkBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory);
 
-        TResult createVkImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory);
+        TResult createVkImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory,
+            uint32_t mipLevels = 1, uint32_t arrayLayers = 1, VkImageCreateFlags flags = 0);
 
-        VkImageView createVkImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+        VkImageView createVkImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags,
+            VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D, uint32_t baseMip = 0, uint32_t mipCount = 1,
+            uint32_t baseLayer = 0, uint32_t layerCount = 1);
+
+        /// 取渲染纹理某个子资源的视图（附件视图只取单个 mip），按子资源缓存
+        VkImageView getVkSubresourceView(VKPixelBuffer2D *pb, const TextureSubresource &sub, bool attachment,
+            uint32_t *outLayers = nullptr);
 
         VkCommandBuffer beginSingleTimeCommands();
 

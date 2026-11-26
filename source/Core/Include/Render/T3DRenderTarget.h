@@ -78,6 +78,17 @@ namespace Tiny3D
          */
         static RenderTargetPtr create(const RenderTextures &renderTextures, RenderTexture *depthStencil = nullptr);
 
+        /**
+         * \brief 创建只渲染到纹理某个子资源的渲染目标，如 Cube 的一个面、数组的一层或某一级 mip
+         * \param [in] renderTexture : 颜色附件纹理，可为 nullptr（只有深度）
+         * \param [in] colorSubresource : 颜色附件的子资源
+         * \param [in] depthStencil : 深度/模板纹理，可为 nullptr
+         * \param [in] depthSubresource : 深度附件的子资源
+         * \return 新创建的 RenderTarget 指针
+         */
+        static RenderTargetPtr create(RenderTexture *renderTexture, const TextureSubresource &colorSubresource,
+            RenderTexture *depthStencil, const TextureSubresource &depthSubresource);
+
         ~RenderTarget() override;
         
         /**
@@ -103,6 +114,37 @@ namespace Tiny3D
 
         /// 返回颜色附件纹理数组首指针
         const RenderTexturePtr *getRenderTextures() const { return mRenderTextures; }
+
+        /**
+         * \brief 设置颜色附件要渲染的子资源
+         * \param [in] index : 颜色附件索引
+         * \param [in] subresource : 渲染的 mip 与层范围，只用 mipLevel 一级；默认值是 mip 0 的全部层
+         * \remarks 选中多层时是分层渲染，要由 GS 输出 SV_RenderTargetArrayIndex，
+         *          且后端须有 RHICapabilities::supportsLayeredRendering。
+         *          后端在 RHIContext::setRenderTarget 时读取子资源，之后再修改要重新 setRenderTarget 才生效。
+         *          所有附件选中的 mip 尺寸与层数须一致。
+         */
+        void setColorSubresource(uint32_t index, const TextureSubresource &subresource) { mColorSubresources[index] = subresource; }
+
+        /// 返回颜色附件的子资源
+        const TextureSubresource &getColorSubresource(uint32_t index) const { return mColorSubresources[index]; }
+
+        /// 设置深度/模板附件要渲染的子资源，规则同 setColorSubresource
+        void setDepthStencilSubresource(const TextureSubresource &subresource) { mDepthSubresource = subresource; }
+
+        /// 返回深度/模板附件的子资源
+        const TextureSubresource &getDepthStencilSubresource() const { return mDepthSubresource; }
+
+        /// 是否有任一附件用了非默认子资源，后端据此决定能否走原有的默认视图
+        bool hasSubresources() const;
+
+        /**
+         * \brief 获取实际渲染区域的大小，即首个颜色附件（没有时取深度附件）在所选 mip 的尺寸
+         * \param [out] width : 宽度
+         * \param [out] height : 高度
+         * \return 纹理型渲染目标且有附件时返回 true；窗口型返回 false
+         */
+        bool getAttachmentSize(uint32_t &width, uint32_t &height) const;
 
         /**
          * \brief 通过 TextureManager 卸载全部颜色附件与深度/模板纹理并置空
@@ -137,6 +179,10 @@ namespace Tiny3D
         RenderTexturePtr    mRenderTextures[T3D_MAX_RENDER_TARGET] {nullptr};
         /// 深度/模板附件纹理
         RenderTexturePtr    mDepthStencil {nullptr};
+        /// 颜色附件的子资源，与 mRenderTextures 一一对应
+        TextureSubresource  mColorSubresources[T3D_MAX_RENDER_TARGET] {};
+        /// 深度/模板附件的子资源
+        TextureSubresource  mDepthSubresource {};
         /// 实际使用的颜色附件数量
         uint32_t mNumOfTextures {0};
     };

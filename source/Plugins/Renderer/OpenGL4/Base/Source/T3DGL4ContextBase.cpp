@@ -255,6 +255,9 @@ namespace Tiny3D
         mCapabilities.supportsIndirectDispatch = has43;
         mCapabilities.supportsAppendConsumeBuffer = has43;
         mCapabilities.supportsReadback = true;
+        // 子资源 SRV 靠 glTextureView（4.3）；分层渲染（glFramebufferTexture + gl_Layer）3.2 就有
+        mCapabilities.supportsTextureSubresourceViews = has43;
+        mCapabilities.supportsLayeredRendering = true;
 
         if (has43)
         {

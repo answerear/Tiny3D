@@ -292,33 +292,33 @@ namespace Tiny3D
     RHIPixelBufferCubemapPtr GL4ConsoleContext::createPixelBufferCubemap(PixelBufferCubemap *buffer) { return GL4ConsolePixelBufferCubemap::create(); }
     TResult GL4ConsoleContext::setVertexShader(ShaderVariant *shader) { return T3D_OK; }
     TResult GL4ConsoleContext::setVSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) { return T3D_OK; }
-    TResult GL4ConsoleContext::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) { return T3D_OK; }
+    TResult GL4ConsoleContext::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources) { return T3D_OK; }
     TResult GL4ConsoleContext::setVSSamplers(uint32_t startSlot, const Samplers &samplers) { return T3D_OK; }
     TResult GL4ConsoleContext::setPixelShader(ShaderVariant *shader) { return T3D_OK; }
     TResult GL4ConsoleContext::setPSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) { return T3D_OK; }
-    TResult GL4ConsoleContext::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) { return T3D_OK; }
+    TResult GL4ConsoleContext::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources) { return T3D_OK; }
     TResult GL4ConsoleContext::setPSSamplers(uint32_t startSlot, const Samplers &samplers) { return T3D_OK; }
     TResult GL4ConsoleContext::setHullShader(ShaderVariant *shader) { return T3D_OK; }
     TResult GL4ConsoleContext::setHSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) { return T3D_OK; }
-    TResult GL4ConsoleContext::setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) { return T3D_OK; }
+    TResult GL4ConsoleContext::setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources) { return T3D_OK; }
     TResult GL4ConsoleContext::setHSSamplers(uint32_t startSlot, const Samplers &samplers) { return T3D_OK; }
     TResult GL4ConsoleContext::setDomainShader(ShaderVariant *shader) { return T3D_OK; }
     TResult GL4ConsoleContext::setDSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) { return T3D_OK; }
-    TResult GL4ConsoleContext::setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) { return T3D_OK; }
+    TResult GL4ConsoleContext::setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources) { return T3D_OK; }
     TResult GL4ConsoleContext::setDSSamplers(uint32_t startSlot, const Samplers &samplers) { return T3D_OK; }
     TResult GL4ConsoleContext::setGeometryShader(ShaderVariant *shader) { return T3D_OK; }
     TResult GL4ConsoleContext::setGSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) { return T3D_OK; }
-    TResult GL4ConsoleContext::setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) { return T3D_OK; }
+    TResult GL4ConsoleContext::setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources) { return T3D_OK; }
     TResult GL4ConsoleContext::setGSSamplers(uint32_t startSlot, const Samplers &samplers) { return T3D_OK; }
     TResult GL4ConsoleContext::setComputeShader(ShaderVariant *shader) { return T3D_OK; }
     TResult GL4ConsoleContext::setCSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) { return T3D_OK; }
-    TResult GL4ConsoleContext::setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) { return T3D_OK; }
+    TResult GL4ConsoleContext::setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources) { return T3D_OK; }
     TResult GL4ConsoleContext::setCSSamplers(uint32_t startSlot, const Samplers &samplers) { return T3D_OK; }
     RHIStructuredBufferPtr GL4ConsoleContext::createStructuredBuffer(StructuredBuffer *buffer) { T3D_RHI_UNSUPPORTED_PTR(supportsStructuredBuffer); }
     TResult GL4ConsoleContext::setVSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
     TResult GL4ConsoleContext::setPSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
     TResult GL4ConsoleContext::setCSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
-    TResult GL4ConsoleContext::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
+    TResult GL4ConsoleContext::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts, const TextureSubresources &subresources) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
     TResult GL4ConsoleContext::dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) { T3D_RHI_UNSUPPORTED(supportsCompute); }
     TResult GL4ConsoleContext::dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset) { T3D_RHI_UNSUPPORTED(supportsIndirectDispatch); }
     TResult GL4ConsoleContext::uavBarrier(const UnorderedAccessBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
@@ -336,6 +336,7 @@ namespace Tiny3D
     TResult GL4ConsoleContext::blit(RenderTarget *src, Texture *dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset) { return T3D_OK; }
     TResult GL4ConsoleContext::blit(Texture *src, Texture *dst, const Vector3 &srcOffset, const Vector3 &size, const Vector3 dstOffset) { return T3D_OK; }
     TResult GL4ConsoleContext::copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset, size_t size, size_t dstOffset) { return T3D_OK; }
+    TResult GL4ConsoleContext::generateMips(PixelBuffer *buffer) { return T3D_OK; }
     TResult GL4ConsoleContext::writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer) { return T3D_OK; }
     ReadbackHandle GL4ConsoleContext::map(RenderBuffer *src, size_t offset, size_t size) { T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, ReadbackHandle::invalid()); }
     ReadbackHandle GL4ConsoleContext::map(RenderBuffer *src, const ReadbackRegion &region) { T3D_RHI_UNSUPPORTED_VALUE(supportsReadback, ReadbackHandle::invalid()); }

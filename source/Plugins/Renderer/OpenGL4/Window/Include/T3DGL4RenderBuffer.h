@@ -110,6 +110,7 @@ namespace Tiny3D
 
         GLuint GLTexture {0};
         GLenum GLInternalFormat {GL_RGBA8};
+        /// GL_TEXTURE_2D / 2D_MULTISAMPLE / 2D_ARRAY / CUBE_MAP / CUBE_MAP_ARRAY
         GLenum GLTarget {GL_TEXTURE_2D};
         bool GLHasStencil {false};
         uint32_t GLAttachedColorCount {1};
@@ -120,6 +121,12 @@ namespace Tiny3D
         GLuint GLResolveFBO {0};
         /// MSAA 采样数（1 = 无 MSAA）
         uint32_t GLMSAACount {1};
+        /// mip 级数
+        uint32_t GLMipLevels {1};
+        /// 数组层数，Cube 为 6 * 立方体个数
+        uint32_t GLLayers {1};
+        /// 按 TextureSubresource::key() 缓存的 glTextureView，只在 RHI 线程访问
+        TMap<uint64_t, GLuint> GLViews;
     protected:
         GL4PixelBuffer2D() = default;
     };
@@ -147,6 +154,8 @@ namespace Tiny3D
         GLuint GLTexture {0};
         GLenum GLInternalFormat {GL_RGBA8};
         GLenum GLTarget {GL_TEXTURE_CUBE_MAP};
+        /// 按 TextureSubresource::key() 缓存的 glTextureView，只在 RHI 线程访问
+        TMap<uint64_t, GLuint> GLViews;
     protected:
         GL4PixelBufferCubemap() = default;
     };

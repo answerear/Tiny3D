@@ -55,6 +55,17 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
+    RenderTargetPtr RenderTarget::create(RenderTexture *renderTexture, const TextureSubresource &colorSubresource,
+        RenderTexture *depthStencil, const TextureSubresource &depthSubresource)
+    {
+        RenderTargetPtr rt = T3D_NEW RenderTarget(renderTexture, depthStencil);
+        rt->mColorSubresources[0] = colorSubresource;
+        rt->mDepthSubresource = depthSubresource;
+        return rt;
+    }
+    
+    //--------------------------------------------------------------------------
+    
     RenderTarget::RenderTarget(RenderWindow *renderWindow, RenderTexture *depthStencil)
         : mRenderWindow(renderWindow)
         , mDepthStencil(depthStencil)
@@ -96,6 +107,47 @@ namespace Tiny3D
     RenderTarget::~RenderTarget()
     {
 
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool RenderTarget::hasSubresources() const
+    {
+        for (uint32_t i = 0; i < mNumOfTextures; ++i)
+        {
+            if (!mColorSubresources[i].isDefault())
+            {
+                return true;
+            }
+        }
+        return !mDepthSubresource.isDefault();
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool RenderTarget::getAttachmentSize(uint32_t &width, uint32_t &height) const
+    {
+        const RenderTexture *texture = nullptr;
+        uint32_t mipLevel = 0;
+        if (mNumOfTextures > 0 && mRenderTextures[0] != nullptr)
+        {
+            texture = mRenderTextures[0];
+            mipLevel = mColorSubresources[0].mipLevel;
+        }
+        else if (mDepthStencil != nullptr)
+        {
+            texture = mDepthStencil;
+            mipLevel = mDepthSubresource.mipLevel;
+        }
+
+        if (texture == nullptr)
+        {
+            return false;
+        }
+
+        width = TextureSubresource::getMipSize(texture->getWidth(), mipLevel);
+        height = TextureSubresource::getMipSize(texture->getHeight(), mipLevel);
+        return true;
     }
 
     //--------------------------------------------------------------------------

@@ -364,9 +364,16 @@ namespace Tiny3D
          * \brief 设置 vs 的像素缓冲区
          * \param [in] startSlot : 像素缓冲区的插槽，对应 shader 中像素寄存器索引
          * \param [in] buffers : 像素缓冲区对象数组
-         * \return 调用成功返回 T3D_OK
+         * \param [in] subresources : 每个元素要采样的 mip / 数组层范围，长度须为 0 或与 buffers 等长；
+         *                            长度为 0 或元素为默认值时采样整个资源
+         * \return 调用成功返回 T3D_OK；子资源越界或后端不支持子资源视图时返回 T3D_ERR_INVALID_PARAM
+         * \note 子资源视图的维度规则见 TextureSubresource。选中部分层的数组 / 立方体贴图在 shader 中
+         *       须声明为 Texture2DArray，只选一层的单层纹理仍是 Texture2D。
+         *       没有 getCapabilities().supportsTextureSubresourceViews 的后端只接受默认值。
+         * \note 其它阶段的 set*PixelBuffers 的 subresources 参数语义与此相同
          */
-        virtual TResult setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) = 0;
+        virtual TResult setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers,
+            const TextureSubresources &subresources = TextureSubresources()) = 0;
 
         /**
          * \brief 设置 vs 纹理采样器
@@ -419,7 +426,8 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) = 0;
+        virtual TResult setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers,
+            const TextureSubresources &subresources = TextureSubresources()) = 0;
         
         /**
          * \brief 设置 ps 纹理采样器
@@ -471,7 +479,8 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) = 0;
+        virtual TResult setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers,
+            const TextureSubresources &subresources = TextureSubresources()) = 0;
         
         /**
          * \brief 设置 hs 纹理采样器
@@ -511,7 +520,8 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) = 0;
+        virtual TResult setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers,
+            const TextureSubresources &subresources = TextureSubresources()) = 0;
         
         /**
          * \brief 设置 ds 纹理采样器
@@ -551,7 +561,8 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) = 0;
+        virtual TResult setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers,
+            const TextureSubresources &subresources = TextureSubresources()) = 0;
         
         /**
          * \brief 设置 gs 纹理采样器
@@ -591,7 +602,8 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 T3D_OK
          */
-        virtual TResult setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) = 0;
+        virtual TResult setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers,
+            const TextureSubresources &subresources = TextureSubresources()) = 0;
         
         /**
          * \brief 设置 cs 纹理采样器
@@ -622,12 +634,17 @@ namespace Tiny3D
          *                             长度须为 0 或与 buffers 等长；
          *                             取 kKeepUAVCounter 表示保持当前计数；
          *                             长度为 0 时等价于全部 kKeepUAVCounter
-         * \return 调用成功返回 T3D_OK；资源未带 kGPUUnorderedAccess 或槽位越界时
+         * \param [in] subresources : 像素缓冲 UAV 要写入的子资源，长度须为 0 或与 buffers 等长；
+         *                            UAV 只能指向一个 mip，mipCount 须为 0 或 1，默认值为 mip 0 的全部层；
+         *                            对非像素缓冲的元素必须是默认值
+         * \return 调用成功返回 T3D_OK；资源未带 kGPUUnorderedAccess、槽位或子资源越界时
          *         返回 T3D_ERR_INVALID_PARAM
          * \note 同一资源不能同时绑定为 UAV 与 SRV。切换用途前须调用 uavBarrier，
          *       否则 D3D11 会静默解除 SRV 绑定，其它后端行为未定义。
-         * \note 纹理资源当前只提供 mip 0 的 UAV。需要逐 mip 写入（GPU 生成 mip 链、
-         *       Hi-Z、体素化）时须先扩展后端的视图数组与本接口的 mip 参数。
+         *       同一纹理的不同 mip 之间没有这个限制：逐级生成 mip 链时可以把 mip N 绑为 SRV、
+         *       mip N+1 绑为 UAV（SRV 须用 TextureSubresource::mip(N) 只选中那一级）。
+         * \note UAV 没有 Cube 维度：单层纹理在 shader 中声明为 RWTexture2D，
+         *       数组 / 立方体贴图无论选中几层都声明为 RWTexture2DArray。
          * \note GL 后端的 SSBO 绑定点：scc 生成的 GLSL（块名带 T3D_Buffer_ 前缀）由后端在链接后
          *       按 t# / u# 重新分配绑定点，SRV 与 UAV 的插槽直接取 HLSL 寄存器号即可。
          *       手写 GLSL 的 SSBO 没有 t# / u# 之分，插槽就是 shader 中的 binding，
@@ -637,7 +654,8 @@ namespace Tiny3D
          */
         virtual TResult setCSUnorderedAccessBuffers(uint32_t startSlot,
             const UnorderedAccessBuffers &buffers,
-            const UAVInitialCounts &initialCounts = UAVInitialCounts()) = 0;
+            const UAVInitialCounts &initialCounts = UAVInitialCounts(),
+            const TextureSubresources &subresources = TextureSubresources()) = 0;
 
         /**
          * \brief 派发 compute shader
@@ -839,6 +857,17 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset = 0, size_t size = 0, size_t dstOffset = 0) = 0;
+
+        /**
+         * \brief 以 mip 0 为源，在 GPU 上逐级下采样生成其余 mip
+         * \param [in] buffer : 目标渲染纹理的像素缓冲，创建时须带 kGPUGenerateMips 且 mipmaps > 1
+         * \return 调用成功返回 T3D_OK；参数不满足 RHICapabilities::checkGenerateMips 时
+         *         返回 T3D_ERR_INVALID_PARAM；后端不支持时返回 T3D_ERR_NOT_IMPLEMENT
+         * \remarks 数组 / Cube 的每一层各自生成，层间不混合。滤波由驱动决定（通常是 2x2 box），
+         *          需要自定义滤波（如 Bloom 的 13-tap 下采样）时用 compute 逐级写 UAV。
+         *          调用时该纹理不能仍绑定为当前渲染目标，切换渲染目标后再调用。
+         */
+        virtual TResult generateMips(PixelBuffer *buffer) = 0;
 
         /**
          * \brief 将 CPU 侧 Buffer 数据写入 GPU RenderBuffer

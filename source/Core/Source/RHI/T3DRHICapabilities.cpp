@@ -23,6 +23,7 @@
  ******************************************************************************/
 
 #include "RHI/T3DRHICapabilities.h"
+#include "Render/T3DPixelBuffer.h"
 
 
 namespace Tiny3D
@@ -107,6 +108,96 @@ namespace Tiny3D
         if (wantsUAV)
         {
             T3D_LOG_ERROR(tag, "%s : compressed format [%s] cannot have unordered access !", func, name);
+            return false;
+        }
+
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool RHICapabilities::checkRenderTextureLayout(const char *tag, const char *func, const PixelBuffer2DDesc &desc,
+        uint32_t gpuAccess) const
+    {
+        const char *name = PixelFormatUtil::getName(desc.format);
+        const uint32_t arraySize = desc.arraySize == 0 ? 1 : desc.arraySize;
+        const uint32_t mipmaps = desc.mipmaps == 0 ? 1 : desc.mipmaps;
+        const uint32_t sampleCount = desc.sampleDesc.Count;
+
+        if (desc.cubemap)
+        {
+            if (arraySize % 6 != 0)
+            {
+                T3D_LOG_ERROR(tag, "%s : cube render texture needs an array size of 6 * N, got %u !", func, arraySize);
+                return false;
+            }
+            if (desc.width != desc.height)
+            {
+                T3D_LOG_ERROR(tag, "%s : cube render texture must be square, got [%u x %u] !", func, desc.width, desc.height);
+                return false;
+            }
+        }
+
+        if (sampleCount > 1 && (arraySize > 1 || desc.cubemap || mipmaps > 1))
+        {
+            T3D_LOG_ERROR(tag, "%s : MSAA render texture must be a single 2D layer with one mip "
+                "(array size %u, cube %d, mipmaps %u) !", func, arraySize, desc.cubemap ? 1 : 0, mipmaps);
+            return false;
+        }
+
+        const uint32_t fullMips = TextureSubresource::getFullMipCount(desc.width, desc.height);
+        if (mipmaps > fullMips)
+        {
+            T3D_LOG_ERROR(tag, "%s : mipmaps %u exceeds the full mip chain %u of [%u x %u] !",
+                func, mipmaps, fullMips, desc.width, desc.height);
+            return false;
+        }
+
+        if ((gpuAccess & kGPUGenerateMips) != 0)
+        {
+            if (PixelFormatUtil::isDepthFormat(desc.format))
+            {
+                T3D_LOG_ERROR(tag, "%s : depth format [%s] cannot generate mips !", func, name);
+                return false;
+            }
+            if (!supportsFormat(desc.format, kFormatSupportRenderTarget | kFormatSupportLinearFilter))
+            {
+                T3D_LOG_ERROR(tag, "%s : format [%s] must be a filterable render target to generate mips !", func, name);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool RHICapabilities::checkGenerateMips(const char *tag, const char *func, PixelBuffer *buffer) const
+    {
+        if (buffer == nullptr || buffer->getRHIResource() == nullptr)
+        {
+            T3D_LOG_ERROR(tag, "%s : pixel buffer is null or has no RHI resource !", func);
+            return false;
+        }
+
+        if (buffer->getType() != RenderResource::Type::kPixelBuffer2D
+            || !static_cast<PixelBuffer2D *>(buffer)->isRenderTexture())
+        {
+            T3D_LOG_ERROR(tag, "%s : only render textures can generate mips, got resource type %u !",
+                func, static_cast<uint32_t>(buffer->getType()));
+            return false;
+        }
+
+        if ((buffer->getGPUAccess() & kGPUGenerateMips) == 0)
+        {
+            T3D_LOG_ERROR(tag, "%s : render texture was not created with kGPUGenerateMips !", func);
+            return false;
+        }
+
+        const PixelBuffer2DDesc &desc = static_cast<PixelBuffer2D *>(buffer)->getDescriptor();
+        if (desc.mipmaps <= 1)
+        {
+            T3D_LOG_WARNING(tag, "%s : render texture has only one mip, nothing to generate !", func);
             return false;
         }
 

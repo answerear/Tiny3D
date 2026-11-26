@@ -510,6 +510,9 @@ namespace Tiny3D
         mCapabilities.supportsIndirectDraw = false;
         mCapabilities.supportsIndirectDispatch = false;
         mCapabilities.supportsAppendConsumeBuffer = false;
+        // 子资源视图是核心功能；GS 尚未接入，分层渲染保持 false
+        mCapabilities.supportsTextureSubresourceViews = true;
+        mCapabilities.supportsLayeredRendering = false;
 
         for (uint32_t i = 0; i < 3; ++i)
         {
@@ -788,9 +791,15 @@ namespace Tiny3D
         if (mCurrentRenderTarget == nullptr)
             return VK_NULL_HANDLE;
 
-        // Use render target pointer as cache key
+        bool depthOnly = (mCurrentRenderTarget->getNumOfRenderTextures() == 0);
+        const TextureSubresource &colorSub = mCurrentRenderTarget->getColorSubresource(0);
+        const TextureSubresource &depthSub = mCurrentRenderTarget->getDepthStencilSubresource();
+
+        // 渲染目标指针 + 附件子资源作为缓存键：同一 RT 切换 Cube 面 / mip 会得到不同的帧缓冲
         size_t hash = std::hash<uintptr_t>{}((uintptr_t)mCurrentRenderTarget.get());
         hash ^= std::hash<uint64_t>{}((uint64_t)renderPass) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint64_t>{}(colorSub.key()) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint64_t>{}(depthSub.key()) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
 
         auto it = mFramebufferCache.find(hash);
         if (it != mFramebufferCache.end())
@@ -801,19 +810,19 @@ namespace Tiny3D
 
         std::vector<VkImageView> attachments;
         uint32_t width = 0, height = 0;
-
-        bool depthOnly = (mCurrentRenderTarget->getNumOfRenderTextures() == 0);
+        uint32_t layers = 0;
 
         if (!depthOnly)
         {
             // Color attachment
             const RenderTexturePtr &colorRT = mCurrentRenderTarget->getRenderTexture();
             VKPixelBuffer2D *vkColorPB = static_cast<VKPixelBuffer2D *>(colorRT->getPixelBuffer()->getRHIResource().get());
-            attachments.push_back(vkColorPB->VkRTView);
-
-            PixelBuffer2D *pb2d = static_cast<PixelBuffer2D *>(colorRT->getPixelBuffer());
-            width = pb2d->getDescriptor().width;
-            height = pb2d->getDescriptor().height;
+            uint32_t colorLayers = 1;
+            VkImageView view = getVkSubresourceView(vkColorPB, colorSub, true, &colorLayers);
+            if (view == VK_NULL_HANDLE)
+                return VK_NULL_HANDLE;
+            attachments.push_back(view);
+            layers = colorLayers;
         }
 
         // Depth attachment
@@ -821,15 +830,16 @@ namespace Tiny3D
         if (depthStencilRT != nullptr)
         {
             VKPixelBuffer2D *vkDSPB = static_cast<VKPixelBuffer2D *>(depthStencilRT->getPixelBuffer()->getRHIResource().get());
-            attachments.push_back(vkDSPB->VkDSView);
-
-            if (depthOnly)
-            {
-                PixelBuffer2D *pb2d = static_cast<PixelBuffer2D *>(depthStencilRT->getPixelBuffer());
-                width = pb2d->getDescriptor().width;
-                height = pb2d->getDescriptor().height;
-            }
+            uint32_t depthLayers = 1;
+            VkImageView view = getVkSubresourceView(vkDSPB, depthSub, true, &depthLayers);
+            if (view == VK_NULL_HANDLE)
+                return VK_NULL_HANDLE;
+            attachments.push_back(view);
+            layers = (layers == 0 || depthLayers < layers) ? depthLayers : layers;
         }
+
+        if (!mCurrentRenderTarget->getAttachmentSize(width, height))
+            return VK_NULL_HANDLE;
 
         if (attachments.empty() || width == 0 || height == 0)
             return VK_NULL_HANDLE;
@@ -841,7 +851,7 @@ namespace Tiny3D
         fbInfo.pAttachments = attachments.data();
         fbInfo.width = width;
         fbInfo.height = height;
-        fbInfo.layers = 1;
+        fbInfo.layers = layers > 0 ? layers : 1;
 
         VkFramebuffer framebuffer = VK_NULL_HANDLE;
         VkResult result = vkCreateFramebuffer(mVkDevice, &fbInfo, nullptr, &framebuffer);
@@ -1099,10 +1109,11 @@ namespace Tiny3D
         barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.image = image;
         barrier.subresourceRange.aspectMask = aspect;
+        // 布局按整张图像跟踪，因此屏障覆盖全部 mip / 层
         barrier.subresourceRange.baseMipLevel = 0;
-        barrier.subresourceRange.levelCount = 1;
+        barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
         barrier.subresourceRange.baseArrayLayer = 0;
-        barrier.subresourceRange.layerCount = 1;
+        barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
         barrier.srcAccessMask = srcAccess;
         barrier.dstAccessMask = dstAccess;
 
@@ -1420,12 +1431,30 @@ namespace Tiny3D
 
             const auto &desc = buffer->getDescriptor();
             if (!mCapabilities.checkRenderTextureFormat(LOG_TAG_VKRENDERER, "createRenderTexture", desc.format,
-                desc.sampleDesc.Count, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
+                desc.sampleDesc.Count, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0)
+                || !mCapabilities.checkRenderTextureLayout(LOG_TAG_VKRENDERER, "createRenderTexture", desc, buffer->getGPUAccess()))
             {
                 ret = T3D_ERR_INVALID_PARAM;
                 break;
             }
             VkFormat format = VKMapping::get(desc.format);
+            const uint32_t mipLevels = desc.mipmaps > 0 ? desc.mipmaps : 1;
+            const uint32_t layers = desc.arraySize > 0 ? desc.arraySize : 1;
+            const bool cubemap = desc.cubemap;
+            VkImageViewType sampleViewType = VK_IMAGE_VIEW_TYPE_2D;
+            if (cubemap)
+            {
+                sampleViewType = (layers == 6) ? VK_IMAGE_VIEW_TYPE_CUBE : VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
+            }
+            else if (layers > 1)
+            {
+                sampleViewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+            }
+            const VkImageViewType attachViewType = (layers > 1) ? VK_IMAGE_VIEW_TYPE_2D_ARRAY : VK_IMAGE_VIEW_TYPE_2D;
+            vkPixelBuffer->VkMipLevels = mipLevels;
+            vkPixelBuffer->VkLayers = layers;
+            vkPixelBuffer->VkCubemap = cubemap;
+            vkPixelBuffer->VkPixelFormat = format;
 
             // Determine usage and aspect based on format
             VkImageUsageFlags usage;
@@ -1447,7 +1476,8 @@ namespace Tiny3D
             // Create image for render texture
             ret = createVkImage(desc.width, desc.height, format, VK_IMAGE_TILING_OPTIMAL,
                 usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                vkPixelBuffer->VkTex, vkPixelBuffer->VkTexMemory);
+                vkPixelBuffer->VkTex, vkPixelBuffer->VkTexMemory,
+                mipLevels, layers, cubemap ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0);
             if (T3D_FAILED(ret))
                 break;
 
@@ -1455,14 +1485,25 @@ namespace Tiny3D
             if (isDepthFormat(format))
             {
                 // Attachment view: full depth+stencil aspect for framebuffer
-                vkPixelBuffer->VkDSView = createVkImageView(vkPixelBuffer->VkTex, format, aspect);
+                vkPixelBuffer->VkDSView = createVkImageView(vkPixelBuffer->VkTex, format, aspect,
+                    attachViewType, 0, 1, 0, layers);
                 // Sampling view: depth-only aspect (Vulkan spec requires single aspect for descriptor sampling)
-                vkPixelBuffer->VkTexView = createVkImageView(vkPixelBuffer->VkTex, format, VK_IMAGE_ASPECT_DEPTH_BIT);
+                vkPixelBuffer->VkTexView = createVkImageView(vkPixelBuffer->VkTex, format, VK_IMAGE_ASPECT_DEPTH_BIT,
+                    sampleViewType, 0, mipLevels, 0, layers);
             }
             else
             {
-                vkPixelBuffer->VkTexView = createVkImageView(vkPixelBuffer->VkTex, format, aspect);
-                vkPixelBuffer->VkRTView = vkPixelBuffer->VkTexView;
+                vkPixelBuffer->VkTexView = createVkImageView(vkPixelBuffer->VkTex, format, aspect,
+                    sampleViewType, 0, mipLevels, 0, layers);
+                if (mipLevels == 1 && sampleViewType == attachViewType)
+                {
+                    vkPixelBuffer->VkRTView = vkPixelBuffer->VkTexView;
+                }
+                else
+                {
+                    vkPixelBuffer->VkRTView = createVkImageView(vkPixelBuffer->VkTex, format, aspect,
+                        attachViewType, 0, 1, 0, layers);
+                }
             }
         } while (false);
 
@@ -1472,6 +1513,83 @@ namespace Tiny3D
         }
 
         return vkPixelBuffer;
+    }
+
+    //--------------------------------------------------------------------------
+
+    VkImageView VKContext::getVkSubresourceView(VKPixelBuffer2D *pb, const TextureSubresource &sub, bool attachment,
+        uint32_t *outLayers)
+    {
+        if (pb == nullptr || pb->VkTex == VK_NULL_HANDLE || pb->VkPixelFormat == VK_FORMAT_UNDEFINED)
+        {
+            return VK_NULL_HANDLE;
+        }
+
+        TextureSubresource r;
+        if (!sub.resolve(pb->VkMipLevels, pb->VkLayers, r))
+        {
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "Texture subresource (mip %u, slice %u) is out of range (mips %u, layers %u) !",
+                sub.mipLevel, sub.firstSlice, pb->VkMipLevels, pb->VkLayers);
+            return VK_NULL_HANDLE;
+        }
+        if (attachment)
+        {
+            r.mipCount = 1;
+        }
+
+        if (outLayers != nullptr)
+        {
+            *outLayers = r.sliceCount;
+        }
+
+        const bool allLayers = (r.firstSlice == 0 && r.sliceCount == pb->VkLayers);
+        if (allLayers && r.mipLevel == 0)
+        {
+            if (attachment)
+            {
+                return isDepthFormat(pb->VkPixelFormat) ? pb->VkDSView : pb->VkRTView;
+            }
+            if (r.mipCount == pb->VkMipLevels)
+            {
+                return pb->VkTexView;
+            }
+        }
+
+        const uint64_t key = r.key() | (attachment ? (1ull << 63) : 0ull);
+        auto it = pb->VkSubViews.find(key);
+        if (it != pb->VkSubViews.end())
+        {
+            return it->second;
+        }
+
+        VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT;
+        if (isDepthFormat(pb->VkPixelFormat))
+        {
+            aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
+            if (attachment && hasStencilComponent(pb->VkPixelFormat))
+            {
+                aspect |= VK_IMAGE_ASPECT_STENCIL_BIT;
+            }
+        }
+
+        // 与 D3D11 一致：单层资源用 2D；数组 / Cube 全选保留原维度；部分层一律 2D 数组
+        VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D;
+        if (pb->VkLayers > 1)
+        {
+            viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+            if (!attachment && allLayers && pb->VkCubemap)
+            {
+                viewType = (pb->VkLayers == 6) ? VK_IMAGE_VIEW_TYPE_CUBE : VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
+            }
+        }
+
+        VkImageView view = createVkImageView(pb->VkTex, pb->VkPixelFormat, aspect, viewType,
+            r.mipLevel, r.mipCount, r.firstSlice, r.sliceCount);
+        if (view != VK_NULL_HANDLE)
+        {
+            pb->VkSubViews.emplace(key, view);
+        }
+        return view;
     }
 
     //--------------------------------------------------------------------------
@@ -2545,7 +2663,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult VKContext::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult VKContext::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         // VS texture bindings not commonly used, but store for completeness
         return T3D_OK;
@@ -2706,7 +2824,7 @@ namespace Tiny3D
         return T3D_OK;
     }
 
-    TResult VKContext::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult VKContext::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         mCurrentPSTexStartSlot = startSlot;
         mCurrentPSImageViews.clear();
@@ -2714,10 +2832,19 @@ namespace Tiny3D
         for (size_t i = 0; i < buffers.size(); ++i)
         {
             RHIResource *rhiResource = buffers[i] != nullptr ? buffers[i]->getRHIResource().get() : nullptr;
+            const bool hasSub = i < subresources.size() && !subresources[i].isDefault();
             if (rhiResource != nullptr
                 && rhiResource->getResourceType() == RHIResource::ResourceType::kPixelBufferCubemap)
             {
                 mCurrentPSImageViews.push_back(static_cast<VKPixelBufferCubemap *>(rhiResource)->VkTexView);
+            }
+            else if (rhiResource != nullptr && hasSub
+                && rhiResource->getResourceType() == RHIResource::ResourceType::kPixelBuffer2D)
+            {
+                // 只有渲染纹理记录了 mip / 层数，普通纹理的子资源视图暂不支持
+                VKPixelBuffer2D *pb = static_cast<VKPixelBuffer2D *>(rhiResource);
+                VkImageView view = getVkSubresourceView(pb, subresources[i], false);
+                mCurrentPSImageViews.push_back(view != VK_NULL_HANDLE ? view : pb->VkTexView);
             }
             else if (rhiResource != nullptr)
             {
@@ -2766,7 +2893,7 @@ namespace Tiny3D
 
     TResult VKContext::setHullShader(ShaderVariant *shader) { return T3D_OK; }
     TResult VKContext::setHSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) { return T3D_OK; }
-    TResult VKContext::setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) { return T3D_OK; }
+    TResult VKContext::setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources) { return T3D_OK; }
     TResult VKContext::setHSSamplers(uint32_t startSlot, const Samplers &samplers) { return T3D_OK; }
 
     //--------------------------------------------------------------------------
@@ -2781,7 +2908,7 @@ namespace Tiny3D
 
     TResult VKContext::setDomainShader(ShaderVariant *shader) { return T3D_OK; }
     TResult VKContext::setDSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) { return T3D_OK; }
-    TResult VKContext::setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) { return T3D_OK; }
+    TResult VKContext::setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources) { return T3D_OK; }
     TResult VKContext::setDSSamplers(uint32_t startSlot, const Samplers &samplers) { return T3D_OK; }
 
     //--------------------------------------------------------------------------
@@ -2796,7 +2923,7 @@ namespace Tiny3D
 
     TResult VKContext::setGeometryShader(ShaderVariant *shader) { return T3D_OK; }
     TResult VKContext::setGSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) { return T3D_OK; }
-    TResult VKContext::setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) { return T3D_OK; }
+    TResult VKContext::setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources) { return T3D_OK; }
     TResult VKContext::setGSSamplers(uint32_t startSlot, const Samplers &samplers) { return T3D_OK; }
 
     //--------------------------------------------------------------------------
@@ -2811,7 +2938,7 @@ namespace Tiny3D
 
     TResult VKContext::setComputeShader(ShaderVariant *shader) { return T3D_OK; }
     TResult VKContext::setCSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) { return T3D_OK; }
-    TResult VKContext::setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) { return T3D_OK; }
+    TResult VKContext::setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources) { return T3D_OK; }
     TResult VKContext::setCSSamplers(uint32_t startSlot, const Samplers &samplers) { return T3D_OK; }
 
     //--------------------------------------------------------------------------
@@ -3380,7 +3507,7 @@ namespace Tiny3D
     TResult VKContext::setVSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
     TResult VKContext::setPSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
     TResult VKContext::setCSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
-    TResult VKContext::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
+    TResult VKContext::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts, const TextureSubresources &subresources) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
     TResult VKContext::dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) { T3D_RHI_UNSUPPORTED(supportsCompute); }
     TResult VKContext::dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset) { T3D_RHI_UNSUPPORTED(supportsIndirectDispatch); }
     TResult VKContext::uavBarrier(const UnorderedAccessBuffers &buffers) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
@@ -3534,6 +3661,91 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    TResult VKContext::generateMips(PixelBuffer *buffer)
+    {
+        if (!mCapabilities.checkGenerateMips(LOG_TAG_VKRENDERER, "generateMips", buffer))
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        if (mRenderPassActive)
+        {
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "generateMips : can not blit inside an active render pass !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        VKPixelBuffer2D *pb = static_cast<VKPixelBuffer2D *>(buffer->getRHIResource().get());
+        const PixelBuffer2DDesc &desc = static_cast<PixelBuffer2D *>(buffer)->getDescriptor();
+
+        // 帧内录制到当前命令缓冲，保证排在之前的渲染之后；没有窗口时退回一次性命令
+        const bool inFrame = (mCurrentRenderWindow != nullptr);
+        VkCommandBuffer cmdBuf = inFrame ? mVkCommandBuffers[mCurrentFrame] : beginSingleTimeCommands();
+
+        auto levelBarrier = [cmdBuf, pb](uint32_t level, VkImageLayout oldLayout, VkImageLayout newLayout,
+            VkAccessFlags srcAccess, VkAccessFlags dstAccess, VkPipelineStageFlags srcStage, VkPipelineStageFlags dstStage)
+        {
+            VkImageMemoryBarrier barrier {};
+            barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            barrier.oldLayout = oldLayout;
+            barrier.newLayout = newLayout;
+            barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.image = pb->VkTex;
+            barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            barrier.subresourceRange.baseMipLevel = level;
+            barrier.subresourceRange.levelCount = 1;
+            barrier.subresourceRange.baseArrayLayer = 0;
+            barrier.subresourceRange.layerCount = pb->VkLayers;
+            barrier.srcAccessMask = srcAccess;
+            barrier.dstAccessMask = dstAccess;
+            vkCmdPipelineBarrier(cmdBuf, srcStage, dstStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+        };
+
+        // 整张图先转成 TRANSFER_DST，然后逐级：上一级转 TRANSFER_SRC，blit 到下一级
+        insertImageBarrier(cmdBuf, pb->VkTex, pb->VkCurrentLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_SHADER_WRITE_BIT, VK_ACCESS_TRANSFER_WRITE_BIT,
+            VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
+
+        for (uint32_t level = 1; level < pb->VkMipLevels; ++level)
+        {
+            levelBarrier(level - 1, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_TRANSFER_READ_BIT,
+                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
+
+            VkImageBlit blit {};
+            blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            blit.srcSubresource.mipLevel = level - 1;
+            blit.srcSubresource.baseArrayLayer = 0;
+            blit.srcSubresource.layerCount = pb->VkLayers;
+            blit.srcOffsets[1] = { (int32_t)TextureSubresource::getMipSize(desc.width, level - 1),
+                (int32_t)TextureSubresource::getMipSize(desc.height, level - 1), 1 };
+            blit.dstSubresource = blit.srcSubresource;
+            blit.dstSubresource.mipLevel = level;
+            blit.dstOffsets[1] = { (int32_t)TextureSubresource::getMipSize(desc.width, level),
+                (int32_t)TextureSubresource::getMipSize(desc.height, level), 1 };
+            vkCmdBlitImage(cmdBuf, pb->VkTex, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                pb->VkTex, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
+
+            levelBarrier(level - 1, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                VK_ACCESS_TRANSFER_READ_BIT, VK_ACCESS_SHADER_READ_BIT,
+                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+        }
+
+        levelBarrier(pb->VkMipLevels - 1, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
+            VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+        pb->VkCurrentLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+        if (!inFrame)
+        {
+            endSingleTimeCommands(cmdBuf);
+        }
+
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
     TResult VKContext::copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset, size_t size, size_t dstOffset)
     {
         VkBuffer srcBuf = (VkBuffer)src->getRHIResource()->getNativeObject();
@@ -3671,16 +3883,18 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult VKContext::createVkImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory)
+    TResult VKContext::createVkImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory,
+        uint32_t mipLevels, uint32_t arrayLayers, VkImageCreateFlags flags)
     {
         VkImageCreateInfo imageInfo {};
         imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        imageInfo.flags = flags;
         imageInfo.imageType = VK_IMAGE_TYPE_2D;
         imageInfo.extent.width = width;
         imageInfo.extent.height = height;
         imageInfo.extent.depth = 1;
-        imageInfo.mipLevels = 1;
-        imageInfo.arrayLayers = 1;
+        imageInfo.mipLevels = mipLevels;
+        imageInfo.arrayLayers = arrayLayers;
         imageInfo.format = format;
         imageInfo.tiling = tiling;
         imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -3716,18 +3930,19 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    VkImageView VKContext::createVkImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
+    VkImageView VKContext::createVkImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags,
+        VkImageViewType viewType, uint32_t baseMip, uint32_t mipCount, uint32_t baseLayer, uint32_t layerCount)
     {
         VkImageViewCreateInfo viewInfo {};
         viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         viewInfo.image = image;
-        viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        viewInfo.viewType = viewType;
         viewInfo.format = format;
         viewInfo.subresourceRange.aspectMask = aspectFlags;
-        viewInfo.subresourceRange.baseMipLevel = 0;
-        viewInfo.subresourceRange.levelCount = 1;
-        viewInfo.subresourceRange.baseArrayLayer = 0;
-        viewInfo.subresourceRange.layerCount = 1;
+        viewInfo.subresourceRange.baseMipLevel = baseMip;
+        viewInfo.subresourceRange.levelCount = mipCount;
+        viewInfo.subresourceRange.baseArrayLayer = baseLayer;
+        viewInfo.subresourceRange.layerCount = layerCount;
 
         VkImageView imageView = VK_NULL_HANDLE;
         vkCreateImageView(mVkDevice, &viewInfo, nullptr, &imageView);

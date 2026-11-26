@@ -65,6 +65,22 @@ namespace Tiny3D
         RenderTexturePtr createRenderTexture(const String &name, uint32_t width, uint32_t height, PixelFormat format, uint32_t mipmaps = 1, uint32_t MSAACount = 1, uint32_t MSAAQuality = 0, bool shaderReadable = false, uint32_t accMode = kCPUNone, uint32_t gpuAccess = kGPUNone);
 
         /**
+         * \brief 创建数组、立方体贴图或多 mip 的渲染目标纹理（不支持 MSAA）
+         * \param [in] name : 纹理名称
+         * \param [in] dimension : 维度，只接受 TT_2D、TT_2D_ARRAY、TT_CUBE、TT_CUBE_ARRAY
+         * \param [in] width : 宽度（像素），立方体贴图须与 height 相等
+         * \param [in] height : 高度（像素）
+         * \param [in] arraySize : TT_2D_ARRAY 为层数，TT_CUBE_ARRAY 为立方体个数，其它维度忽略
+         * \param [in] format : 像素格式
+         * \param [in] mipmaps : mip 级数，0 表示完整 mip 链
+         * \param [in] shaderReadable : 是否允许着色器读取
+         * \param [in] accMode : CPU 访问许可
+         * \param [in] gpuAccess : GPU 侧附加访问权限，kGPUGenerateMips 才能调用 RenderTexture::generateMips
+         * \return 成功返回 RenderTexture 智能指针，失败返回 nullptr
+         */
+        RenderTexturePtr createRenderTexture(const String &name, TEXTURE_TYPE dimension, uint32_t width, uint32_t height, uint32_t arraySize, PixelFormat format, uint32_t mipmaps = 1, bool shaderReadable = true, uint32_t accMode = kCPUNone, uint32_t gpuAccess = kGPUNone);
+
+        /**
          * \brief 创建 1D 纹理
          * \param [in] name : 纹理名称
          * \param [in] width : 宽度（像素）

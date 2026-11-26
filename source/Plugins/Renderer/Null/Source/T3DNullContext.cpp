@@ -278,7 +278,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult NullContext::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         return T3D_OK;
     }
@@ -313,7 +313,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult NullContext::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         return T3D_OK;
     }
@@ -347,7 +347,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult NullContext::setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         return T3D_OK;
     }
@@ -382,7 +382,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult NullContext::setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         return T3D_OK;
     }
@@ -417,7 +417,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult NullContext::setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         return T3D_OK;
     }
@@ -452,7 +452,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult NullContext::setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         return T3D_OK;
     }
@@ -537,7 +537,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult NullContext::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts)
+    TResult NullContext::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts, const TextureSubresources &subresources)
     {
         T3D_RHI_UNSUPPORTED(supportsUnorderedAccess);
     }
@@ -636,6 +636,13 @@ namespace Tiny3D
     //--------------------------------------------------------------------------
 
     TResult NullContext::copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset, size_t size, size_t dstOffset)
+    {
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult NullContext::generateMips(PixelBuffer *buffer)
     {
         return T3D_OK;
     }

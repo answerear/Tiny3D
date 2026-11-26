@@ -163,9 +163,13 @@ namespace Tiny3D
         /// mipmap 层数
         TPROPERTY()
         uint32_t    mipmaps {1};
-        /// 数组层数（立方体贴图复用时固定为 6）
+        /// 数组层数（立方体贴图为 6 * 立方体个数）
         TPROPERTY()
         uint32_t    arraySize {1};
+        /// 是否为立方体贴图，此时 arraySize 是 6 的倍数。只有渲染纹理靠它区分 Cube 与 2D 数组，
+        /// 普通纹理的维度由 PixelBuffer 类型决定
+        TPROPERTY()
+        bool        cubemap {false};
         /// 像素格式
         TPROPERTY()
         PixelFormat format {PixelFormat::E_PF_B8G8R8A8};

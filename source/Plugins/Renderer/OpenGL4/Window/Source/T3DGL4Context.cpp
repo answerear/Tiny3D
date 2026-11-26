@@ -106,6 +106,7 @@ namespace Tiny3D
         for (uint32_t stage = 0; stage < kTexStageCount; ++stage)
         {
             mStageTextures[stage].clear();
+            mStageTextureSubs[stage].clear();
             mStageSamplers[stage].clear();
             mStageSRVs[stage].clear();
         }
@@ -502,6 +503,84 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    /// 为当前绑定到 target 的纹理分配不可变存储，2D / Cube 用 glTexStorage2D，数组用 glTexStorage3D
+    static void allocTextureStorage(GLenum target, uint32_t mipLevels, GLenum internalFmt, uint32_t width, uint32_t height, uint32_t layers)
+    {
+        if (target == GL_TEXTURE_2D_ARRAY || target == GL_TEXTURE_CUBE_MAP_ARRAY)
+        {
+            glTexStorage3D(target, mipLevels, internalFmt, width, height, layers);
+        }
+        else
+        {
+            glTexStorage2D(target, mipLevels, internalFmt, width, height);
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    /**
+     * \brief 把渲染纹理按子资源挂到当前绑定 FBO 的 attachment 上，pb 为空时卸掉该 attachment
+     * \remarks GL 只能挂单层（glFramebufferTexture2D / glFramebufferTextureLayer）或全部层
+     *          （glFramebufferTexture，分层渲染），选中部分多层时退化为全部层并打 warning
+     */
+    static bool attachRenderTexture(GLenum attachment, const GL4PixelBuffer2D *pb, const TextureSubresource &sub, const char *func)
+    {
+        if (pb == nullptr || pb->GLTexture == 0)
+        {
+            glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, 0, 0);
+            return true;
+        }
+
+        if (pb->GLTarget == GL_TEXTURE_2D_MULTISAMPLE)
+        {
+            if (!sub.isDefault())
+            {
+                T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "%s : MSAA render texture has no subresources, ignore it !", func);
+            }
+            glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D_MULTISAMPLE, pb->GLTexture, 0);
+            return true;
+        }
+
+        TextureSubresource r;
+        if (!sub.resolve(pb->GLMipLevels, pb->GLLayers, r))
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "%s : subresource [mip %u, slice %u x %u] is out of range [%u mips, %u slices] !",
+                func, sub.mipLevel, sub.firstSlice, sub.sliceCount, pb->GLMipLevels, pb->GLLayers);
+            return false;
+        }
+
+        const GLint level = static_cast<GLint>(r.mipLevel);
+        if (pb->GLTarget == GL_TEXTURE_2D)
+        {
+            glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, pb->GLTexture, level);
+        }
+        else if (r.sliceCount == 1)
+        {
+            if (pb->GLTarget == GL_TEXTURE_CUBE_MAP)
+            {
+                // GL 4.5 之前 glFramebufferTextureLayer 不接受 Cube，单面用面 target 挂
+                glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_CUBE_MAP_POSITIVE_X + r.firstSlice,
+                    pb->GLTexture, level);
+            }
+            else
+            {
+                glFramebufferTextureLayer(GL_FRAMEBUFFER, attachment, pb->GLTexture, level, static_cast<GLint>(r.firstSlice));
+            }
+        }
+        else
+        {
+            if (r.firstSlice != 0 || r.sliceCount != pb->GLLayers)
+            {
+                T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "%s : GL can only render to one layer or all layers, "
+                    "slice range [%u x %u] falls back to all %u layers !", func, r.firstSlice, r.sliceCount, pb->GLLayers);
+            }
+            glFramebufferTexture(GL_FRAMEBUFFER, attachment, pb->GLTexture, level);
+        }
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
     RHIPixelBuffer2DPtr GL4Context::createRenderTexture(PixelBuffer2D *buffer)
     {
         const auto &desc = buffer->getDescriptor();
@@ -516,7 +595,8 @@ namespace Tiny3D
             || !checkCreateUsage("createRenderTexture", buffer, false)
             || !checkCreateSamples("createRenderTexture", this, desc.format, desc.sampleDesc.Count, false)
             || !mCapabilities.checkRenderTextureFormat(LOG_TAG_GL4RENDERER, "createRenderTexture", desc.format,
-                desc.sampleDesc.Count, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
+                desc.sampleDesc.Count, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0)
+            || !mCapabilities.checkRenderTextureLayout(LOG_TAG_GL4RENDERER, "createRenderTexture", desc, buffer->getGPUAccess()))
         {
             return nullptr;
         }
@@ -567,7 +647,16 @@ namespace Tiny3D
             windowHeight = renderTarget->getRenderWindow()->getDescriptor().Height;
         }
 
-        auto lambda = [this](RenderTargetPtr renderTarget, uint32_t windowWidth, uint32_t windowHeight)
+        // 子资源在入队时拷贝，调用方之后改 RenderTarget 上的子资源不会影响这次绑定
+        TextureSubresources colorSubs(renderTarget->getNumOfRenderTextures());
+        for (uint32_t i = 0; i < renderTarget->getNumOfRenderTextures(); ++i)
+        {
+            colorSubs[i] = renderTarget->getColorSubresource(i);
+        }
+        const TextureSubresource depthSub = renderTarget->getDepthStencilSubresource();
+
+        auto lambda = [this](RenderTargetPtr renderTarget, uint32_t windowWidth, uint32_t windowHeight,
+            const TextureSubresources &colorSubs, const TextureSubresource &depthSub)
         {
             TResult ret = T3D_OK;
 
@@ -619,6 +708,9 @@ namespace Tiny3D
                                 glBindFramebuffer(GL_FRAMEBUFFER, glPB->GLFBO);
                                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget: glBindFramebuffer(color FBO)");
 
+                                // FBO 随颜色纹理复用，attachment 0 每次按本次的子资源重挂
+                                attachRenderTexture(GL_COLOR_ATTACHMENT0, glPB, colorSubs[0], "setRenderTarget");
+
                                 if (renderTarget->getDepthStencil() != nullptr)
                                 {
                                     GL4PixelBuffer2D *glDS = static_cast<GL4PixelBuffer2D*>(
@@ -627,11 +719,9 @@ namespace Tiny3D
                                     {
                                         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
                                             GL_TEXTURE_2D, 0, 0);
-                                        GLenum dsTexTarget = (glDS->GLMSAACount > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
                                         GLenum dsAttachment = glDS->GLHasStencil ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
-                                        glFramebufferTexture2D(GL_FRAMEBUFFER, dsAttachment,
-                                            dsTexTarget, glDS->GLTexture, 0);
-                                        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget: glFramebufferTexture2D(depth texture)");
+                                        attachRenderTexture(dsAttachment, glDS, depthSub, "setRenderTarget");
+                                        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget: attach depth texture");
                                     }
                                 }
                                 else
@@ -654,9 +744,7 @@ namespace Tiny3D
                                             renderTarget->getRenderTexture(i)->getPixelBuffer()->getRHIResource().get());
                                         if (pb != nullptr)
                                         {
-                                            GLenum rtTarget = (pb->GLMSAACount > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
-                                            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i,
-                                                rtTarget, pb->GLTexture, 0);
+                                            attachRenderTexture(GL_COLOR_ATTACHMENT0 + i, pb, colorSubs[i], "setRenderTarget");
                                         }
                                     }
                                 }
@@ -685,10 +773,8 @@ namespace Tiny3D
                                 glBindFramebuffer(GL_FRAMEBUFFER, mDepthOnlyFBO);
                                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
                                     GL_TEXTURE_2D, 0, 0);
-                                GLenum dsTexTarget = (glDS->GLMSAACount > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
                                 GLenum dsAttachment = glDS->GLHasStencil ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
-                                glFramebufferTexture2D(GL_FRAMEBUFFER, dsAttachment,
-                                    dsTexTarget, glDS->GLTexture, 0);
+                                attachRenderTexture(dsAttachment, glDS, depthSub, "setRenderTarget");
                                 glDrawBuffer(GL_NONE);
                                 glReadBuffer(GL_NONE);
                                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget: depth-only FBO");
@@ -708,7 +794,7 @@ namespace Tiny3D
             return ret;
         };
 
-        ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderTargetPtr(renderTarget), windowWidth, windowHeight);
+        ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderTargetPtr(renderTarget), windowWidth, windowHeight, colorSubs, depthSub);
 
         if (T3D_SUCCEEDED(ret))
         {
@@ -998,6 +1084,11 @@ namespace Tiny3D
             return;
         }
 
+        for (auto &item : pb->GLViews)
+        {
+            GL_SAFE_DELETE_TEXTURE(item.second);
+        }
+        pb->GLViews.clear();
         GL_SAFE_DELETE_FBO(pb->GLResolveFBO);
         GL_SAFE_DELETE_TEXTURE(pb->GLResolveTex);
         GL_SAFE_DELETE_FBO(pb->GLFBO);
@@ -1005,6 +1096,8 @@ namespace Tiny3D
         pb->GLMSAACount = 1;
         pb->GLHasStencil = false;
         pb->GLAttachedColorCount = 1;
+        pb->GLMipLevels = 1;
+        pb->GLLayers = 1;
     }
 
     //--------------------------------------------------------------------------
@@ -1033,10 +1126,31 @@ namespace Tiny3D
             const GLenum pixelFmt = GL4Mapping::get(desc.format);
             const GLenum pixelType = GL4Mapping::getPixelType(desc.format);
             const bool hasStencil = GL4Mapping::hasStencil(desc.format);
+            const uint32_t mipLevels = desc.mipmaps == 0 ? 1 : desc.mipmaps;
+            const uint32_t layers = desc.arraySize == 0 ? 1 : desc.arraySize;
+            GLenum texTarget = GL_TEXTURE_2D;
+            if (msaaCount > 1)
+            {
+                texTarget = GL_TEXTURE_2D_MULTISAMPLE;
+            }
+            else if (desc.cubemap)
+            {
+                texTarget = (layers == PixelBufferCubemap::FACE_COUNT) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_CUBE_MAP_ARRAY;
+            }
+            else if (layers > 1)
+            {
+                texTarget = GL_TEXTURE_2D_ARRAY;
+            }
+            // 数组 / Cube / 多 mip 要不可变存储：glTextureView 只认不可变存储，mip 链也一次分配完整
+            const bool isLayered = (texTarget != GL_TEXTURE_2D && texTarget != GL_TEXTURE_2D_MULTISAMPLE);
+            const bool useStorage = isLayered || mipLevels > 1;
+
             glPixelBuffer->GLInternalFormat = internalFmt;
-            glPixelBuffer->GLTarget = (msaaCount > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+            glPixelBuffer->GLTarget = texTarget;
             glPixelBuffer->GLHasStencil = hasStencil;
             glPixelBuffer->GLAttachedColorCount = 1;
+            glPixelBuffer->GLMipLevels = mipLevels;
+            glPixelBuffer->GLLayers = layers;
 
             bool wantsUAV = (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0;
             if (wantsUAV && (!isColorRT || msaaCount > 1))
@@ -1100,29 +1214,30 @@ namespace Tiny3D
                 else
                 {
                     glGenTextures(1, &glPixelBuffer->GLTexture);
-                    glBindTexture(GL_TEXTURE_2D, glPixelBuffer->GLTexture);
-                    if (wantsUAV)
+                    glBindTexture(texTarget, glPixelBuffer->GLTexture);
+                    if (wantsUAV || useStorage)
                     {
-                        // 与 createPixelBuffer2D 的 UAV 分支一致，用不可变存储供 glBindImageTexture 使用
-                        glTexStorage2D(GL_TEXTURE_2D, 1, internalFmt, width, height);
+                        // 与 createPixelBuffer2D 的 UAV 分支一致，用不可变存储供 glBindImageTexture / glTextureView 使用
+                        allocTextureStorage(texTarget, mipLevels, internalFmt, width, height, layers);
                     }
                     else
                     {
                         glTexImage2D(GL_TEXTURE_2D, 0, internalFmt,
                             width, height, 0, pixelFmt, pixelType, nullptr);
                     }
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                    // RT 只有 mip 0，不封顶的话 MIPMAP 类过滤会因 mip 链不完整恒采到黑
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                    applyIntegerFormatFilter(GL_TEXTURE_2D, desc.format);
-                    glBindTexture(GL_TEXTURE_2D, 0);
+                    glTexParameteri(texTarget, GL_TEXTURE_MIN_FILTER, mipLevels > 1 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+                    glTexParameteri(texTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                    // 封顶到实际 mip 数，否则 MIPMAP 类过滤会因 mip 链不完整恒采到黑
+                    glTexParameteri(texTarget, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(mipLevels - 1));
+                    glTexParameteri(texTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                    glTexParameteri(texTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                    glTexParameteri(texTarget, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+                    applyIntegerFormatFilter(texTarget, desc.format);
+                    glBindTexture(texTarget, 0);
 
                     glGenFramebuffers(1, &glPixelBuffer->GLFBO);
                     glBindFramebuffer(GL_FRAMEBUFFER, glPixelBuffer->GLFBO);
-                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, glPixelBuffer->GLTexture, 0);
+                    attachRenderTexture(GL_COLOR_ATTACHMENT0, glPixelBuffer, TextureSubresource(), "buildRenderTextureResources");
 
                     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
                     {
@@ -1136,7 +1251,6 @@ namespace Tiny3D
             else
             {
                 GLenum texFormat = hasStencil ? GL_DEPTH_STENCIL : GL_DEPTH_COMPONENT;
-                GLenum texTarget = (msaaCount > 1) ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 
                 glGenTextures(1, &glPixelBuffer->GLTexture);
                 glBindTexture(texTarget, glPixelBuffer->GLTexture);
@@ -1149,15 +1263,24 @@ namespace Tiny3D
                 }
                 else
                 {
-                    glTexImage2D(GL_TEXTURE_2D, 0, internalFmt,
-                        width, height, 0, texFormat, pixelType, nullptr);
-                    GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "Depth: glTexImage2D");
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                    if (useStorage)
+                    {
+                        allocTextureStorage(texTarget, mipLevels, internalFmt, width, height, layers);
+                        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "Depth: glTexStorage");
+                    }
+                    else
+                    {
+                        glTexImage2D(GL_TEXTURE_2D, 0, internalFmt,
+                            width, height, 0, texFormat, pixelType, nullptr);
+                        GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "Depth: glTexImage2D");
+                    }
+                    glTexParameteri(texTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                    glTexParameteri(texTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                     // 同颜色 RT：sampler object 带 MIPMAP 类过滤时，不封顶会因 mip 链不完整恒采到 0
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                    glTexParameteri(texTarget, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(mipLevels - 1));
+                    glTexParameteri(texTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                    glTexParameteri(texTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                    glTexParameteri(texTarget, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
                 }
 
                 glBindTexture(texTarget, 0);
@@ -1166,8 +1289,8 @@ namespace Tiny3D
                 glBindFramebuffer(GL_FRAMEBUFFER, glPixelBuffer->GLFBO);
 
                 GLenum attachment = hasStencil ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT;
-                glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, texTarget, glPixelBuffer->GLTexture, 0);
-                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "Depth: glFramebufferTexture2D");
+                attachRenderTexture(attachment, glPixelBuffer, TextureSubresource(), "buildRenderTextureResources");
+                GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "Depth: attach depth texture");
 
                 glDrawBuffer(GL_NONE);
                 glReadBuffer(GL_NONE);
@@ -1290,21 +1413,15 @@ namespace Tiny3D
             }
             else
             {
-                if (mCurrentRenderTarget->getNumOfRenderTextures() > 0)
-                {
-                    width = static_cast<Real>(mCurrentRenderTarget->getRenderTexture()->getWidth());
-                    height = static_cast<Real>(mCurrentRenderTarget->getRenderTexture()->getHeight());
-                }
-                else if (mCurrentRenderTarget->getDepthStencil() != nullptr)
-                {
-                    width = static_cast<Real>(mCurrentRenderTarget->getDepthStencil()->getWidth());
-                    height = static_cast<Real>(mCurrentRenderTarget->getDepthStencil()->getHeight());
-                }
-                else
+                // 渲染纹理，尺寸取所选 mip 的尺寸
+                uint32_t w = 0, h = 0;
+                if (!mCurrentRenderTarget->getAttachmentSize(w, h))
                 {
                     T3D_LOG_WARNING(LOG_TAG_GL4RENDERER, "GL4Context::setViewport: no color texture and depth stencil texture !");
                     return T3D_OK;
                 }
+                width = static_cast<Real>(w);
+                height = static_cast<Real>(h);
             }
         }
         else
@@ -1991,17 +2108,10 @@ namespace Tiny3D
                     glDisable(GL_POLYGON_OFFSET_LINE);
                 }
 
-                if (d.multisampleEnabled)
-                    glEnable(GL_MULTISAMPLE);
-                else
-                    glDisable(GL_MULTISAMPLE);
-
-                // D3D11 只在 MultisampleEnable 为 false 时才按 AntialiasedLineEnable 做 alpha 抗锯齿线；
-                // GL 开启多重采样时同样忽略 GL_LINE_SMOOTH，这里显式按 D3D11 的组合关闭
-                if (d.antialiasedLineEnabled && !d.multisampleEnabled)
-                    glEnable(GL_LINE_SMOOTH);
-                else
-                    glDisable(GL_LINE_SMOOTH);
+                mRasterFillMode = d.fillMode;
+                mRasterMultisample = d.multisampleEnabled;
+                mRasterAntialiasedLine = d.antialiasedLineEnabled;
+                applyMultisampleState();
 
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setRasterizerState");
             } while (false);
@@ -3177,9 +3287,9 @@ namespace Tiny3D
         return stageConstantBuffers(kTexStageVS, startSlot, buffers);
     }
 
-    TResult GL4Context::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult GL4Context::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
-        return bindPixelBuffers(kTexStageVS, startSlot, buffers);
+        return bindPixelBuffers(kTexStageVS, startSlot, buffers, subresources, "setVSPixelBuffers");
     }
 
     TResult GL4Context::setVSSamplers(uint32_t startSlot, const Samplers &samplers)
@@ -3255,9 +3365,9 @@ namespace Tiny3D
         return stageConstantBuffers(kTexStagePS, startSlot, buffers);
     }
 
-    TResult GL4Context::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult GL4Context::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
-        return bindPixelBuffers(kTexStagePS, startSlot, buffers);
+        return bindPixelBuffers(kTexStagePS, startSlot, buffers, subresources, "setPSPixelBuffers");
     }
 
     TResult GL4Context::setPSSamplers(uint32_t startSlot, const Samplers &samplers)
@@ -3297,9 +3407,9 @@ namespace Tiny3D
         return stageConstantBuffers(kTexStageHS, startSlot, buffers);
     }
 
-    TResult GL4Context::setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult GL4Context::setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
-        return bindPixelBuffers(kTexStageHS, startSlot, buffers);
+        return bindPixelBuffers(kTexStageHS, startSlot, buffers, subresources, "setHSPixelBuffers");
     }
 
     TResult GL4Context::setHSSamplers(uint32_t startSlot, const Samplers &samplers)
@@ -3339,9 +3449,9 @@ namespace Tiny3D
         return stageConstantBuffers(kTexStageDS, startSlot, buffers);
     }
 
-    TResult GL4Context::setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult GL4Context::setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
-        return bindPixelBuffers(kTexStageDS, startSlot, buffers);
+        return bindPixelBuffers(kTexStageDS, startSlot, buffers, subresources, "setDSPixelBuffers");
     }
 
     TResult GL4Context::setDSSamplers(uint32_t startSlot, const Samplers &samplers)
@@ -3417,9 +3527,9 @@ namespace Tiny3D
         return stageConstantBuffers(kTexStageGS, startSlot, buffers);
     }
 
-    TResult GL4Context::setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult GL4Context::setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
-        return bindPixelBuffers(kTexStageGS, startSlot, buffers);
+        return bindPixelBuffers(kTexStageGS, startSlot, buffers, subresources, "setGSPixelBuffers");
     }
 
     TResult GL4Context::setGSSamplers(uint32_t startSlot, const Samplers &samplers)
@@ -3491,9 +3601,9 @@ namespace Tiny3D
         return stageConstantBuffers(kTexStageCS, startSlot, buffers);
     }
 
-    TResult GL4Context::setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult GL4Context::setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
-        return bindPixelBuffers(kTexStageCS, startSlot, buffers);
+        return bindPixelBuffers(kTexStageCS, startSlot, buffers, subresources, "setCSPixelBuffers");
     }
 
     TResult GL4Context::setCSSamplers(uint32_t startSlot, const Samplers &samplers)
@@ -3514,12 +3624,44 @@ namespace Tiny3D
             do
             {
                 mPrimitiveType = glPrimitive;
+                applyMultisampleState();
             } while (false);
 
             return ret;
         };
 
         return ENQUEUE_UNIQUE_COMMAND(lambda, glPrimitive);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::applyMultisampleState()
+    {
+        bool isLine = (mRasterFillMode == GL_LINE);
+        switch (mPrimitiveType)
+        {
+        case GL_LINES:
+        case GL_LINE_STRIP:
+        case GL_LINE_LOOP:
+        case GL_LINES_ADJACENCY:
+        case GL_LINE_STRIP_ADJACENCY:
+            isLine = true;
+            break;
+        default:
+            break;
+        }
+
+        // GL 开着 GL_MULTISAMPLE 时会忽略 GL_LINE_SMOOTH，所以 alpha 抗锯齿线和走样线都要关掉多重采样
+        const bool singleSampleLine = isLine && !mRasterMultisample;
+        if (singleSampleLine)
+            glDisable(GL_MULTISAMPLE);
+        else
+            glEnable(GL_MULTISAMPLE);
+
+        if (singleSampleLine && mRasterAntialiasedLine)
+            glEnable(GL_LINE_SMOOTH);
+        else
+            glDisable(GL_LINE_SMOOTH);
     }
 
     //--------------------------------------------------------------------------
@@ -3987,7 +4129,7 @@ namespace Tiny3D
         return bindStructuredBuffers(kTexStageCS, startSlot, buffers);
     }
 
-    TResult GL4Context::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts)
+    TResult GL4Context::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts, const TextureSubresources &subresources)
     {
         if (!mCapabilities.supportsUnorderedAccess)
         {
@@ -4066,7 +4208,15 @@ namespace Tiny3D
             }
         }
 
-        auto lambda = [this, maxImageUnits, maxCounterBindings](uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts)
+        if (!subresources.empty() && subresources.size() != buffers.size())
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "setCSUnorderedAccessBuffers : subresource array "
+                "size [%zu] does not match buffer count [%zu] !", subresources.size(), buffers.size());
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        auto lambda = [this, maxImageUnits, maxCounterBindings](uint32_t startSlot, const UnorderedAccessBuffers &buffers,
+            const UAVInitialCounts &initialCounts, const TextureSubresources &subresources)
         {
             TResult ret = T3D_OK;
 
@@ -4124,9 +4274,23 @@ namespace Tiny3D
                             break;
                         }
 
+                        GLint imgLevel = 0;
+                        if (!subresources.empty() && !subresources[i].isDefault())
+                        {
+                            // 部分层走纹理视图并整体绑定，shader 侧维度与 D3D11 的 RWTexture2DArray 一致
+                            GLenum viewTarget = GL_TEXTURE_2D;
+                            if (!getGLSubresourceTexture(rb, subresources[i], true, imgTex, viewTarget, imgLevel,
+                                "setCSUnorderedAccessBuffers"))
+                            {
+                                ret = T3D_ERR_INVALID_PARAM;
+                                break;
+                            }
+                            imgLayered = (viewTarget != GL_TEXTURE_2D && viewTarget != GL_TEXTURE_1D) ? GL_TRUE : GL_FALSE;
+                        }
+
                         setLegacyStorageBuffer(slot, nullptr);
                         unbindCounter(slot);
-                        glBindImageTexture(slot, imgTex, 0, imgLayered, 0, GL_READ_WRITE, imgFmt);
+                        glBindImageTexture(slot, imgTex, imgLevel, imgLayered, 0, GL_READ_WRITE, imgFmt);
                         mBoundCSImages[slot] = imgTex;
                         continue;
                     }
@@ -4167,7 +4331,7 @@ namespace Tiny3D
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, buffers, initialCounts);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, buffers, initialCounts, subresources);
     }
 
     TResult GL4Context::dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ)
@@ -4298,9 +4462,39 @@ namespace Tiny3D
                         continue;
                     }
 
+                    // 子资源 UAV 绑的是纹理视图，也算同一资源
+                    const TMap<uint64_t, GLuint> *views = nullptr;
+                    const RHIResource *rhiResource = buf->getRHIResource().get();
+                    if (rhiResource->getResourceType() == RHIResource::ResourceType::kPixelBuffer2D)
+                    {
+                        views = &static_cast<const GL4PixelBuffer2D *>(rhiResource)->GLViews;
+                    }
+                    else if (rhiResource->getResourceType() == RHIResource::ResourceType::kPixelBufferCubemap)
+                    {
+                        views = &static_cast<const GL4PixelBufferCubemap *>(rhiResource)->GLViews;
+                    }
+                    auto isSameResource = [imgTex, views](GLuint name)
+                    {
+                        if (name == imgTex)
+                        {
+                            return true;
+                        }
+                        if (views != nullptr)
+                        {
+                            for (const auto &view : *views)
+                            {
+                                if (view.second == name)
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                        return false;
+                    };
+
                     for (auto it = mBoundCSImages.begin(); it != mBoundCSImages.end(); )
                     {
-                        if (it->second == imgTex)
+                        if (isSameResource(it->second))
                         {
                             glBindImageTexture(it->first, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA8);
                             it = mBoundCSImages.erase(it);
@@ -4489,6 +4683,7 @@ namespace Tiny3D
                 for (uint32_t stage = 0; stage < kTexStageCount; ++stage)
                 {
                     mStageTextures[stage].clear();
+                    mStageTextureSubs[stage].clear();
                     mStageSamplers[stage].clear();
                     mStageSRVs[stage].clear();
                 }
@@ -4694,6 +4889,32 @@ namespace Tiny3D
         };
 
         return ENQUEUE_UNIQUE_COMMAND(lambda, TexturePtr(src), TexturePtr(dst), srcOffset, size, dstOffset);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Context::generateMips(PixelBuffer *buffer)
+    {
+        if (!mCapabilities.checkGenerateMips(LOG_TAG_GL4RENDERER, "generateMips", buffer))
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        auto lambda = [this](const PixelBufferPtr &buffer)
+        {
+            GL4PixelBuffer2D *pb = static_cast<GL4PixelBuffer2D *>(buffer->getRHIResource().get());
+            if (pb == nullptr || pb->GLTexture == 0 || pb->GLTarget == GL_TEXTURE_2D_MULTISAMPLE)
+            {
+                T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "generateMips : render texture has no single-sample GL texture !");
+                return T3D_ERR_INVALID_POINTER;
+            }
+            // 数组 / Cube 的每一层各自生成，与 D3D11 GenerateMips 一致
+            glGenerateTextureMipmap(pb->GLTexture);
+            GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::generateMips");
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, PixelBufferPtr(buffer));
     }
 
     //--------------------------------------------------------------------------
@@ -5863,9 +6084,23 @@ namespace Tiny3D
             GLuint texHandle = 0;
             GLenum texTarget = su.target;
             const PixelBuffers &textures = mStageTextures[su.stage];
+            const TextureSubresources &subs = mStageTextureSubs[su.stage];
             if (su.texSlot < textures.size())
             {
-                getGLTextureBinding(textures[su.texSlot].get(), texHandle, texTarget);
+                if (su.texSlot < subs.size() && !subs[su.texSlot].isDefault())
+                {
+                    GLint level = 0;
+                    if (!getGLSubresourceTexture(textures[su.texSlot].get(), subs[su.texSlot], false,
+                        texHandle, texTarget, level, "bindPendingTextures"))
+                    {
+                        texHandle = 0;
+                        texTarget = su.target;
+                    }
+                }
+                else
+                {
+                    getGLTextureBinding(textures[su.texSlot].get(), texHandle, texTarget);
+                }
             }
 
             GLuint samplerHandle = 0;
@@ -6556,7 +6791,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult GL4Context::bindPixelBuffers(TextureUnitStage stage, uint32_t startSlot, const PixelBuffers &buffers)
+    TResult GL4Context::bindPixelBuffers(TextureUnitStage stage, uint32_t startSlot, const PixelBuffers &buffers,
+        const TextureSubresources &subresources, const char *func)
     {
         TResult ret = checkTextureSlots(stage, startSlot, buffers.size(), "bindPixelBuffers");
         if (T3D_FAILED(ret))
@@ -6564,21 +6800,34 @@ namespace Tiny3D
             return ret;
         }
 
-        auto lambda = [this](TextureUnitStage stage, uint32_t startSlot, const PixelBuffers &buffers)
+        if (!subresources.empty() && subresources.size() != buffers.size())
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "%s : subresources size %zu must be 0 or equal to buffers size %zu !",
+                func, subresources.size(), buffers.size());
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        auto lambda = [this](TextureUnitStage stage, uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
         {
             PixelBuffers &textures = mStageTextures[stage];
+            TextureSubresources &subs = mStageTextureSubs[stage];
             if (textures.size() < startSlot + buffers.size())
             {
                 textures.resize(startSlot + buffers.size());
             }
+            if (subs.size() < textures.size())
+            {
+                subs.resize(textures.size());
+            }
             for (uint32_t i = 0; i < buffers.size(); ++i)
             {
                 textures[startSlot + i] = buffers[i];
+                subs[startSlot + i] = subresources.empty() ? TextureSubresource() : subresources[i];
             }
             return T3D_OK;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, stage, startSlot, buffers);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, stage, startSlot, buffers, subresources);
     }
 
     //--------------------------------------------------------------------------
@@ -6791,7 +7040,8 @@ namespace Tiny3D
                     outTex = pb->GLTexture;
                 }
                 outFormat = pb->GLInternalFormat;
-                outLayered = (pb->GLTarget == GL_TEXTURE_2D_ARRAY) ? GL_TRUE : GL_FALSE;
+                // Cube / Cube 数组 / 2D 数组都要整体绑定，shader 里按 image2DArray 访问
+                outLayered = (pb->GLTarget != GL_TEXTURE_2D && pb->GLTarget != GL_TEXTURE_2D_MULTISAMPLE) ? GL_TRUE : GL_FALSE;
                 return true;
             }
         case RHIResource::ResourceType::kPixelBuffer3D:
@@ -6827,6 +7077,193 @@ namespace Tiny3D
         }
 
         return false;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool GL4Context::getGLSubresourceTexture(RenderBuffer *buffer, const TextureSubresource &sub, bool forImage,
+        GLuint &outTex, GLenum &outTarget, GLint &outLevel, const char *func)
+    {
+        outTex = 0;
+        outTarget = GL_TEXTURE_2D;
+        outLevel = 0;
+
+        if (buffer == nullptr || buffer->getRHIResource() == nullptr)
+        {
+            return false;
+        }
+
+        GLuint tex = 0;
+        GLenum target = GL_TEXTURE_2D;
+        GLenum internalFmt = GL_RGBA8;
+        TMap<uint64_t, GLuint> *views = nullptr;
+        RHIResource *rhiResource = buffer->getRHIResource().get();
+
+        switch (rhiResource->getResourceType())
+        {
+        case RHIResource::ResourceType::kPixelBuffer1D:
+            {
+                GL4PixelBuffer1D *pb = static_cast<GL4PixelBuffer1D *>(rhiResource);
+                tex = pb->GLTexture;
+                target = pb->GLTarget;
+                internalFmt = pb->GLInternalFormat;
+            }
+            break;
+        case RHIResource::ResourceType::kPixelBuffer2D:
+            {
+                GL4PixelBuffer2D *pb = static_cast<GL4PixelBuffer2D *>(rhiResource);
+                if (pb->GLTarget == GL_TEXTURE_2D_MULTISAMPLE)
+                {
+                    T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "%s : MSAA texture has no subresource views !", func);
+                    return false;
+                }
+                tex = pb->GLTexture;
+                target = pb->GLTarget;
+                internalFmt = pb->GLInternalFormat;
+                views = &pb->GLViews;
+            }
+            break;
+        case RHIResource::ResourceType::kPixelBuffer3D:
+            {
+                GL4PixelBuffer3D *pb = static_cast<GL4PixelBuffer3D *>(rhiResource);
+                tex = pb->GLTexture;
+                target = GL_TEXTURE_3D;
+                internalFmt = pb->GLInternalFormat;
+            }
+            break;
+        case RHIResource::ResourceType::kPixelBufferCubemap:
+            {
+                GL4PixelBufferCubemap *pb = static_cast<GL4PixelBufferCubemap *>(rhiResource);
+                tex = pb->GLTexture;
+                target = pb->GLTarget;
+                internalFmt = pb->GLInternalFormat;
+                views = &pb->GLViews;
+            }
+            break;
+        default:
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "%s : subresources are only available on textures !", func);
+            return false;
+        }
+
+        if (tex == 0)
+        {
+            return false;
+        }
+
+        // mip 数：不可变存储直接查 IMMUTABLE_LEVELS，可变存储按 mip 宽度逐级探测
+        GLint immutableLevels = 0;
+        glGetTextureParameteriv(tex, GL_TEXTURE_IMMUTABLE_LEVELS, &immutableLevels);
+        uint32_t mipLevels = static_cast<uint32_t>(immutableLevels);
+        if (mipLevels == 0)
+        {
+            const GLenum levelTarget = (target == GL_TEXTURE_CUBE_MAP) ? GL_TEXTURE_CUBE_MAP_POSITIVE_X : target;
+            glBindTexture(target, tex);
+            GLint w = 0;
+            for (mipLevels = 0; mipLevels < 16; ++mipLevels)
+            {
+                glGetTexLevelParameteriv(levelTarget, static_cast<GLint>(mipLevels), GL_TEXTURE_WIDTH, &w);
+                if (w == 0)
+                {
+                    break;
+                }
+            }
+            glBindTexture(target, 0);
+        }
+
+        uint32_t layers = 1;
+        GLint depth = 1;
+        switch (target)
+        {
+        case GL_TEXTURE_1D_ARRAY:
+            glGetTextureLevelParameteriv(tex, 0, GL_TEXTURE_HEIGHT, &depth);
+            layers = static_cast<uint32_t>(depth);
+            break;
+        case GL_TEXTURE_2D_ARRAY:
+        case GL_TEXTURE_CUBE_MAP_ARRAY:
+            glGetTextureLevelParameteriv(tex, 0, GL_TEXTURE_DEPTH, &depth);
+            layers = static_cast<uint32_t>(depth);
+            break;
+        case GL_TEXTURE_CUBE_MAP:
+            layers = PixelBufferCubemap::FACE_COUNT;
+            break;
+        default:
+            break;
+        }
+
+        if (forImage && sub.mipCount > 1)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "%s : UAV can only cover one mip, got mip count %u !", func, sub.mipCount);
+            return false;
+        }
+
+        TextureSubresource r;
+        if (!sub.resolve(mipLevels, layers, r))
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "%s : subresource [mip %u x %u, slice %u x %u] is out of range "
+                "[%u mips, %u slices] !", func, sub.mipLevel, sub.mipCount, sub.firstSlice, sub.sliceCount, mipLevels, layers);
+            return false;
+        }
+        if (forImage)
+        {
+            r.mipCount = 1;
+        }
+
+        const bool allSlices = (r.firstSlice == 0 && r.sliceCount == layers);
+        if (allSlices && (forImage || (r.mipLevel == 0 && r.mipCount == mipLevels)))
+        {
+            // image 绑定本身就能选 mip；SRV 选中整张纹理时也不需要视图
+            outTex = tex;
+            outTarget = target;
+            outLevel = forImage ? static_cast<GLint>(r.mipLevel) : 0;
+            return true;
+        }
+
+        if (views == nullptr || target == GL_TEXTURE_3D)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "%s : this texture type cannot create subresource views !", func);
+            return false;
+        }
+
+        if (!mCapabilities.supportsTextureSubresourceViews || immutableLevels == 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "%s : subresource view needs GL 4.3 texture views on an immutable texture !", func);
+            return false;
+        }
+
+        // 视图维度与 D3D11 一致：选中全部层保持原维度，部分层一律是 2D 数组
+        GLenum viewTarget = target;
+        if (!allSlices && target != GL_TEXTURE_2D && target != GL_TEXTURE_1D_ARRAY)
+        {
+            viewTarget = GL_TEXTURE_2D_ARRAY;
+        }
+
+        const uint64_t key = r.key();
+        auto itr = views->find(key);
+        if (itr != views->end())
+        {
+            outTex = itr->second;
+            outTarget = viewTarget;
+            outLevel = 0;
+            return true;
+        }
+
+        GLuint view = 0;
+        glGenTextures(1, &view);
+        glTextureView(view, viewTarget, tex, internalFmt, r.mipLevel, r.mipCount, r.firstSlice, r.sliceCount);
+        const GLenum err = glGetError();
+        if (err != GL_NO_ERROR)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "%s : glTextureView [mip %u x %u, slice %u x %u] failed ! GL ERROR [0x%04X]",
+                func, r.mipLevel, r.mipCount, r.firstSlice, r.sliceCount, err);
+            glDeleteTextures(1, &view);
+            return false;
+        }
+
+        (*views)[key] = view;
+        outTex = view;
+        outTarget = viewTarget;
+        outLevel = 0;
+        return true;
     }
 
     //--------------------------------------------------------------------------

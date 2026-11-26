@@ -223,6 +223,10 @@ namespace Tiny3D
         // STAGING 资源 + CopyResource + Map(READ) 从 FL 9.1 就有
         mCapabilities.supportsReadback = true;
 
+        // 任意 mip / 层范围的视图与 GS 选层（SV_RenderTargetArrayIndex）从 FL 10.0 就有
+        mCapabilities.supportsTextureSubresourceViews = true;
+        mCapabilities.supportsLayeredRendering = (mFeatureLevel >= D3D_FEATURE_LEVEL_10_0);
+
         if (hasFullCompute)
         {
             // 派发组数与单组线程数是两套上限，THREAD_GROUP_MAX_* 只约束后者
@@ -755,6 +759,111 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    // 渲染纹理的默认 SRV 覆盖全部 mip 与全部层，Cube 保持 Cube 维度
+    static void fillTexture2DSRVDesc(D3D11_SHADER_RESOURCE_VIEW_DESC &desc, UINT mipLevels, UINT layers, bool isCube, bool isMS)
+    {
+        if (isMS)
+        {
+            desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
+        }
+        else if (isCube && layers == PixelBufferCubemap::FACE_COUNT)
+        {
+            desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+            desc.TextureCube.MostDetailedMip = 0;
+            desc.TextureCube.MipLevels = mipLevels;
+        }
+        else if (isCube)
+        {
+            desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBEARRAY;
+            desc.TextureCubeArray.MostDetailedMip = 0;
+            desc.TextureCubeArray.MipLevels = mipLevels;
+            desc.TextureCubeArray.First2DArrayFace = 0;
+            desc.TextureCubeArray.NumCubes = layers / PixelBufferCubemap::FACE_COUNT;
+        }
+        else if (layers > 1)
+        {
+            desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+            desc.Texture2DArray.MostDetailedMip = 0;
+            desc.Texture2DArray.MipLevels = mipLevels;
+            desc.Texture2DArray.FirstArraySlice = 0;
+            desc.Texture2DArray.ArraySize = layers;
+        }
+        else
+        {
+            desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+            desc.Texture2D.MostDetailedMip = 0;
+            desc.Texture2D.MipLevels = mipLevels;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    // 纹理资源的 mip 数与层数，3D 纹理的层数记为 1
+    static bool getTextureExtent(ID3D11Resource *resource, UINT &mipLevels, UINT &layers)
+    {
+        D3D11_RESOURCE_DIMENSION dimension = D3D11_RESOURCE_DIMENSION_UNKNOWN;
+        resource->GetType(&dimension);
+        switch (dimension)
+        {
+        case D3D11_RESOURCE_DIMENSION_TEXTURE1D:
+            {
+                D3D11_TEXTURE1D_DESC desc;
+                static_cast<ID3D11Texture1D *>(resource)->GetDesc(&desc);
+                mipLevels = desc.MipLevels;
+                layers = desc.ArraySize;
+            }
+            return true;
+        case D3D11_RESOURCE_DIMENSION_TEXTURE2D:
+            {
+                D3D11_TEXTURE2D_DESC desc;
+                static_cast<ID3D11Texture2D *>(resource)->GetDesc(&desc);
+                mipLevels = desc.MipLevels;
+                layers = desc.ArraySize;
+            }
+            return true;
+        case D3D11_RESOURCE_DIMENSION_TEXTURE3D:
+            {
+                D3D11_TEXTURE3D_DESC desc;
+                static_cast<ID3D11Texture3D *>(resource)->GetDesc(&desc);
+                mipLevels = desc.MipLevels;
+                layers = 1;
+            }
+            return true;
+        default:
+            return false;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    // 按视图取出所属资源的 mip 数与层数，并展开子资源；越界时打日志
+    template <typename View_t>
+    static bool resolveViewSubresource(View_t *view, const TextureSubresource &sub, const char *func,
+        TextureSubresource &resolved, UINT &mipLevels, UINT &layers)
+    {
+        ID3D11Resource *resource = nullptr;
+        view->GetResource(&resource);
+        const bool isTexture = getTextureExtent(resource, mipLevels, layers);
+        D3D_SAFE_RELEASE(resource);
+
+        if (!isTexture)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : subresource views are only available on textures !", func);
+            return false;
+        }
+
+        if (!sub.resolve(mipLevels, layers, resolved))
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : subresource [mip %u x %u, slice %u x %u] is out of range "
+                "[%u mips, %u slices] !", func, sub.mipLevel, sub.mipCount, sub.firstSlice, sub.sliceCount, mipLevels, layers);
+            return false;
+        }
+
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
     RHIPixelBuffer2DPtr D3D11Context::createRenderTexture(PixelBuffer2D *buffer)
     {
         const auto &desc = buffer->getDescriptor();
@@ -766,7 +875,8 @@ namespace Tiny3D
         if (!checkCreateFormat("createRenderTexture", desc.format)
             || !checkCreateSamples("createRenderTexture", mD3DDevice, desc.format, desc.sampleDesc.Count)
             || !mCapabilities.checkRenderTextureFormat(LOG_TAG_D3D11RENDERER, "createRenderTexture", desc.format,
-                desc.sampleDesc.Count, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0))
+                desc.sampleDesc.Count, (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0)
+            || !mCapabilities.checkRenderTextureLayout(LOG_TAG_D3D11RENDERER, "createRenderTexture", desc, buffer->getGPUAccess()))
         {
             return nullptr;
         }
@@ -855,18 +965,28 @@ namespace Tiny3D
             
             const bool isColorRT = !PixelFormatUtil::isDepthFormat(buffer->getDescriptor().format);
 
+            const PixelBuffer2DDesc &rtDesc = buffer->getDescriptor();
+            const UINT uMipLevels = rtDesc.mipmaps == 0 ? 1 : rtDesc.mipmaps;
+            const UINT uLayers = rtDesc.arraySize == 0 ? 1 : rtDesc.arraySize;
+            const bool isCube = rtDesc.cubemap;
+
             if (isColorRT)
             {
                 // 创建颜色纹理资源
-                
-                // 创建颜色纹理资源
-                D3D11_TEXTURE2D_DESC texDesc = D3D11Mapping::get(buffer->getDescriptor());  
+                D3D11_TEXTURE2D_DESC texDesc = D3D11Mapping::get(rtDesc);
+                texDesc.MipLevels = uMipLevels;
+                texDesc.ArraySize = uLayers;
                 texDesc.SampleDesc.Count = uMSAACount;
                 texDesc.SampleDesc.Quality = uMSAAQuality;
                 texDesc.Usage = d3dUsage; // 设置纹理用途
                 texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE; // 设置纹理绑定标志
                 texDesc.CPUAccessFlags = d3dAccess; // 设置 CPU 访问标志
-                texDesc.MiscFlags = 0; // 设置其他标志
+                texDesc.MiscFlags = isCube ? D3D11_RESOURCE_MISC_TEXTURECUBE : 0;
+                if ((buffer->getGPUAccess() & kGPUGenerateMips) != 0 && uMipLevels > 1)
+                {
+                    // GenerateMips 要求资源同时带 RT 与 SRV 绑定，上面已经有了
+                    texDesc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
+                }
 
                 const bool wantsUAV = (buffer->getGPUAccess() & kGPUUnorderedAccess) != 0;
                 if (wantsUAV)
@@ -916,15 +1036,21 @@ namespace Tiny3D
                 D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
                 memset(&rtvDesc, 0, sizeof(rtvDesc));
                 rtvDesc.Format = viewFormat;
-                if (uMSAACount == 1)
+                if (uMSAACount > 1)
                 {
-                    // 没开 MSAA
-                    rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+                    rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
+                }
+                else if (uLayers > 1)
+                {
+                    // 数组 / Cube 的默认 RTV 是 mip 0 的全部层（分层渲染），单层用子资源 RTV
+                    rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
+                    rtvDesc.Texture2DArray.MipSlice = 0;
+                    rtvDesc.Texture2DArray.FirstArraySlice = 0;
+                    rtvDesc.Texture2DArray.ArraySize = uLayers;
                 }
                 else
                 {
-                    // 开了 MSAA
-                    rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
+                    rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
                 }
                 
                 hr = mD3DDevice->CreateRenderTargetView(d3dPixelBuffer->D3DTexture, &rtvDesc, &d3dPixelBuffer->D3DRTView);
@@ -940,9 +1066,7 @@ namespace Tiny3D
                 D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
                 memset(&srvDesc, 0, sizeof(srvDesc));
                 srvDesc.Format = viewFormat;
-                srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-                srvDesc.Texture2D.MostDetailedMip = 0;
-                srvDesc.Texture2D.MipLevels = 1;
+                fillTexture2DSRVDesc(srvDesc, uMSAACount > 1 ? 1 : uMipLevels, uLayers, isCube, false);
                 ID3D11Texture2D *pD3DTex = nullptr;
                 if (uMSAACount == 1)
                 {
@@ -966,7 +1090,7 @@ namespace Tiny3D
                 if ((texDesc.BindFlags & D3D11_BIND_UNORDERED_ACCESS) != 0)
                 {
                     // UAV 建在 MSAA 纹理本体上，此处 uMSAACount 必然为 1
-                    ret = buildTextureUAView(d3dPixelBuffer->D3DTexture, TEXTURE_TYPE::TT_2D,
+                    ret = buildTextureUAView(d3dPixelBuffer->D3DTexture, isCube ? TEXTURE_TYPE::TT_CUBE : TEXTURE_TYPE::TT_2D,
                         D3D11Mapping::getUAVFormat(pixelFormat), texDesc.ArraySize, uMSAACount, &d3dPixelBuffer->D3DUAView);
                     if (T3D_FAILED(ret))
                     {
@@ -1012,14 +1136,17 @@ namespace Tiny3D
                 }
                 
                 // 创建 depth & stencil 纹理
-                D3D11_TEXTURE2D_DESC depthStencilDesc = D3D11Mapping::get(buffer->getDescriptor());
+                D3D11_TEXTURE2D_DESC depthStencilDesc = D3D11Mapping::get(rtDesc);
+                depthStencilDesc.MipLevels = uMipLevels;
+                depthStencilDesc.ArraySize = uLayers;
                 depthStencilDesc.SampleDesc.Count = uMSAACount;
                 depthStencilDesc.SampleDesc.Quality = uMSAAQuality;
                 depthStencilDesc.Format = d3dTexFormat;
                 depthStencilDesc.Usage = d3dUsage;
                 depthStencilDesc.BindFlags = uBindFlags;
                 depthStencilDesc.CPUAccessFlags = d3dAccess;
-                depthStencilDesc.MiscFlags = 0;
+                depthStencilDesc.MiscFlags = (isCube && (uBindFlags & D3D11_BIND_SHADER_RESOURCE) != 0)
+                    ? D3D11_RESOURCE_MISC_TEXTURECUBE : 0;
                 
                 HRESULT hr = mD3DDevice->CreateTexture2D(&depthStencilDesc, nullptr, &d3dPixelBuffer->D3DTexture);
                 if (FAILED(hr))
@@ -1030,18 +1157,26 @@ namespace Tiny3D
                     break;
                 }
 
-                D3D11_DSV_DIMENSION dsvDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-                if (uMSAACount > 1)
-                {
-                    dsvDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
-                }
-   
-                // 创建 DSV
+                // 创建 DSV，数组 / Cube 的默认 DSV 是 mip 0 的全部层
                 D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
                 memset(&dsvDesc, 0, sizeof(dsvDesc));
                 dsvDesc.Format = d3dDSVFormat;
-                dsvDesc.ViewDimension = dsvDimension;
-                dsvDesc.Texture2D.MipSlice = 0;
+                if (uMSAACount > 1)
+                {
+                    dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+                }
+                else if (uLayers > 1)
+                {
+                    dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+                    dsvDesc.Texture2DArray.MipSlice = 0;
+                    dsvDesc.Texture2DArray.FirstArraySlice = 0;
+                    dsvDesc.Texture2DArray.ArraySize = uLayers;
+                }
+                else
+                {
+                    dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+                    dsvDesc.Texture2D.MipSlice = 0;
+                }
                 hr = mD3DDevice->CreateDepthStencilView(d3dPixelBuffer->D3DTexture, &dsvDesc, &d3dPixelBuffer->D3DDSView);
                 if (FAILED(hr))
                 {
@@ -1057,9 +1192,7 @@ namespace Tiny3D
                     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
                     memset(&srvDesc, 0, sizeof(srvDesc));
                     srvDesc.Format = d3dSRVFormat;
-                    srvDesc.ViewDimension = srvDimension;
-                    srvDesc.Texture2D.MostDetailedMip = 0;
-                    srvDesc.Texture2D.MipLevels = 1;
+                    fillTexture2DSRVDesc(srvDesc, uMipLevels, uLayers, isCube, srvDimension == D3D11_SRV_DIMENSION_TEXTURE2DMS);
                     hr = mD3DDevice->CreateShaderResourceView(d3dPixelBuffer->D3DTexture, &srvDesc, &d3dPixelBuffer->D3DSRView);
                     if (FAILED(hr))
                     {
@@ -1076,6 +1209,7 @@ namespace Tiny3D
         if (T3D_FAILED(ret) && d3dPixelBuffer != nullptr)
         {
             // 半成品资源不能留给上层，否则后面无从判断哪些视图是有效的
+            d3dPixelBuffer->SubViews.release();
             D3D_SAFE_RELEASE(d3dPixelBuffer->D3DUAView);
             D3D_SAFE_RELEASE(d3dPixelBuffer->D3DSRView);
             D3D_SAFE_RELEASE(d3dPixelBuffer->D3DRTView);
@@ -1106,7 +1240,7 @@ namespace Tiny3D
         mD3DDeviceContext->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRViews);
         mD3DDeviceContext->CSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRViews);
 
-        if (d3dBuffer->D3DUAView != nullptr)
+        if (d3dBuffer->D3DUAView != nullptr || !d3dBuffer->SubViews.UAViews.empty())
         {
             ID3D11UnorderedAccessView *nullUAViews[D3D11_1_UAV_SLOT_COUNT] = {};
             mD3DDeviceContext->CSSetUnorderedAccessViews(0, D3D11_1_UAV_SLOT_COUNT, nullUAViews, nullptr);
@@ -1114,6 +1248,7 @@ namespace Tiny3D
             mBoundCSUAVCount = 0;
         }
 
+        d3dBuffer->SubViews.release();
         D3D_SAFE_RELEASE(d3dBuffer->D3DUAView);
         D3D_SAFE_RELEASE(d3dBuffer->D3DSRView);
         D3D_SAFE_RELEASE(d3dBuffer->D3DRTView);
@@ -1456,7 +1591,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setRenderTarget(RenderWindow *renderWindow, RenderTexture *depthStencil)
+    TResult D3D11Context::setRenderTarget(RenderWindow *renderWindow, RenderTexture *depthStencil, const TextureSubresource &depthSub)
     {
         D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(renderWindow->getRHIRenderWindow());
         D3D11PixelBuffer2D *pD3DDepthStencil = nullptr;
@@ -1464,41 +1599,49 @@ namespace Tiny3D
         {
             pD3DDepthStencil = static_cast<D3D11PixelBuffer2D*>(depthStencil->getPixelBuffer()->getRHIResource().get());
         }
-        auto lambda = [this](const D3D11RenderWindowPtr &pD3DRenderWindow, const D3D11PixelBuffer2DPtr &pD3DDepthStencil)
+        auto lambda = [this](const D3D11RenderWindowPtr &pD3DRenderWindow, const D3D11PixelBuffer2DPtr &pD3DDepthStencil, const TextureSubresource &depthSub)
         {
             backupRenderState();
             // 外挂的 RenderTexture 优先，没有时退回窗口自带的深度模板附件
-            ID3D11DepthStencilView *pD3DDSView = (pD3DDepthStencil != nullptr) ? pD3DDepthStencil->D3DDSView : pD3DRenderWindow->D3DDSView;
+            ID3D11DepthStencilView *pD3DDSView = (pD3DDepthStencil != nullptr)
+                ? getD3DDSView(pD3DDepthStencil.get(), depthSub, "setRenderTarget") : pD3DRenderWindow->D3DDSView;
             mD3DDeviceContext->OMSetRenderTargets(1, &pD3DRenderWindow->D3DRTView, pD3DDSView);
 
             return T3D_OK;
         };
         
-        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowPtr(pD3DRenderWindow), D3D11PixelBuffer2DPtr(pD3DDepthStencil));
+        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowPtr(pD3DRenderWindow), D3D11PixelBuffer2DPtr(pD3DDepthStencil), depthSub);
     }
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setRenderTarget(const RenderTexturePtr *renderTextures, uint32_t numOfTextures, RenderTexture *depthStencil)
+    TResult D3D11Context::setRenderTarget(const RenderTexturePtr *renderTextures, uint32_t numOfTextures, RenderTexture *depthStencil,
+        const TextureSubresource *colorSubs, const TextureSubresource &depthSub)
     {
-        RenderTextures textures(numOfTextures, nullptr);
+        using D3D11PixelBuffers = TArray<D3D11PixelBuffer2DPtr>;
+        D3D11PixelBuffers colorBuffers(numOfTextures, nullptr);
+        TextureSubresources subs(numOfTextures);
         for (uint32_t i = 0; i < numOfTextures; ++i)
         {
-            textures[i] = renderTextures[i];
+            colorBuffers[i] = smart_pointer_cast<D3D11PixelBuffer2D>(renderTextures[i]->getPixelBuffer()->getRHIResource());
+            subs[i] = colorSubs[i];
         }
         D3D11PixelBuffer2D *pD3DDepthStencil = nullptr;
         if (depthStencil != nullptr)
         {
             pD3DDepthStencil = static_cast<D3D11PixelBuffer2D*>(depthStencil->getPixelBuffer()->getRHIResource().get());
         }
-        auto lambda = [this](const RenderTextures &textures, const D3D11PixelBuffer2DPtr &pD3DDepthStencil)
+
+        // 子资源在入队时拷贝，调用方之后改 RenderTarget 上的子资源不会影响这次绑定
+        auto lambda = [this](const D3D11PixelBuffers &colorBuffers, const TextureSubresources &subs,
+            const D3D11PixelBuffer2DPtr &pD3DDepthStencil, const TextureSubresource &depthSub)
         {
             backupRenderState();
-            TArray<ID3D11RenderTargetView*> pD3DRTViews(textures.size());
+            TArray<ID3D11RenderTargetView*> pD3DRTViews(colorBuffers.size(), nullptr);
    
-            for (size_t i = 0; i < textures.size(); ++i)
+            for (size_t i = 0; i < colorBuffers.size(); ++i)
             {
-                pD3DRTViews[i] = static_cast<D3D11PixelBuffer2D*>(textures[i]->getPixelBuffer()->getRHIResource().get())->D3DRTView;
+                pD3DRTViews[i] = getD3DRTView(colorBuffers[i].get(), subs[i], "setRenderTarget");
             }
             
             UINT uNumOfRTViews = static_cast<UINT>(pD3DRTViews.size());
@@ -1507,20 +1650,18 @@ namespace Tiny3D
             {
                 ppD3DRTViews = &pD3DRTViews[0];
             }
-            
+
+            ID3D11DepthStencilView *pD3DDSView = nullptr;
             if (pD3DDepthStencil != nullptr)
             {
-                mD3DDeviceContext->OMSetRenderTargets(uNumOfRTViews, ppD3DRTViews, pD3DDepthStencil->D3DDSView);
+                pD3DDSView = getD3DDSView(pD3DDepthStencil.get(), depthSub, "setRenderTarget");
             }
-            else
-            {
-                mD3DDeviceContext->OMSetRenderTargets(uNumOfRTViews, ppD3DRTViews, nullptr);
-            }
+            mD3DDeviceContext->OMSetRenderTargets(uNumOfRTViews, ppD3DRTViews, pD3DDSView);
             
             return T3D_OK;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, textures, D3D11PixelBuffer2DPtr(pD3DDepthStencil));
+        return ENQUEUE_UNIQUE_COMMAND(lambda, colorBuffers, subs, D3D11PixelBuffer2DPtr(pD3DDepthStencil), depthSub);
     }
 
     //--------------------------------------------------------------------------
@@ -1533,12 +1674,19 @@ namespace Tiny3D
         {
         case RenderTarget::Type::E_RT_WINDOW:
             {
-                ret = setRenderTarget(renderTarget->getRenderWindow(), renderTarget->getDepthStencil());
+                ret = setRenderTarget(renderTarget->getRenderWindow(), renderTarget->getDepthStencil(),
+                    renderTarget->getDepthStencilSubresource());
             }
             break;
         case RenderTarget::Type::E_RT_TEXTURE:
             {
-                ret = setRenderTarget(renderTarget->getRenderTextures(), renderTarget->getNumOfRenderTextures(), renderTarget->getDepthStencil());
+                TextureSubresource colorSubs[T3D_MAX_RENDER_TARGET];
+                for (uint32_t i = 0; i < renderTarget->getNumOfRenderTextures(); ++i)
+                {
+                    colorSubs[i] = renderTarget->getColorSubresource(i);
+                }
+                ret = setRenderTarget(renderTarget->getRenderTextures(), renderTarget->getNumOfRenderTextures(),
+                    renderTarget->getDepthStencil(), colorSubs, renderTarget->getDepthStencilSubresource());
             }
             break;
         default:
@@ -1585,24 +1733,15 @@ namespace Tiny3D
             }
             else
             {
-                // 渲染纹理
-                if (mCurrentRenderTarget->getNumOfRenderTextures() > 0)
-                {
-                    // 获取颜色纹理大小
-                    width = static_cast<Real>(mCurrentRenderTarget->getRenderTexture()->getWidth());
-                    height = static_cast<Real>(mCurrentRenderTarget->getRenderTexture()->getHeight());
-                }
-                else if (mCurrentRenderTarget->getDepthStencil() != nullptr)
-                {
-                    // 只有深度纹理
-                    width = static_cast<Real>(mCurrentRenderTarget->getDepthStencil()->getWidth());
-                    height = static_cast<Real>(mCurrentRenderTarget->getDepthStencil()->getHeight());
-                }
-                else
+                // 渲染纹理，尺寸取所选 mip 的尺寸
+                uint32_t w = 0, h = 0;
+                if (!mCurrentRenderTarget->getAttachmentSize(w, h))
                 {
                     T3D_LOG_WARNING(LOG_TAG_D3D11RENDERER, "D3D11Context::setViewport: no color texture and depth stencil texture !");
                     return T3D_OK;
                 }
+                width = static_cast<Real>(w);
+                height = static_cast<Real>(h);
             }
         }
         else
@@ -1662,7 +1801,7 @@ namespace Tiny3D
         {
             if (mCurrentRenderTarget->getNumOfRenderTextures() > 0)
             {
-                ret = clearColor(mCurrentRenderTarget->getRenderTextures(), mCurrentRenderTarget->getNumOfRenderTextures(), color);
+                ret = clearColor(mCurrentRenderTarget.get(), color);
             }
         }
 
@@ -1689,29 +1828,37 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::clearColor(const RenderTexturePtr *textures, uint32_t numOfTextures, const ColorRGB &color)
+    TResult D3D11Context::clearColor(RenderTarget *renderTarget, const ColorRGB &color)
     {
         using D3D11PixelBuffers = TArray<D3D11PixelBuffer2DPtr>;
-        D3D11PixelBuffers pixelBuffers(T3D_MAX_RENDER_TARGET);
+        const uint32_t numOfTextures = renderTarget->getNumOfRenderTextures();
+        D3D11PixelBuffers pixelBuffers(numOfTextures, nullptr);
+        TextureSubresources subs(numOfTextures);
         for (uint32_t i = 0; i < numOfTextures; ++i)
         {
-            pixelBuffers[i] = smart_pointer_cast<D3D11PixelBuffer2D>(textures[i]->getPixelBuffer()->getRHIResource());
+            pixelBuffers[i] = smart_pointer_cast<D3D11PixelBuffer2D>(renderTarget->getRenderTexture(i)->getPixelBuffer()->getRHIResource());
+            subs[i] = renderTarget->getColorSubresource(i);
         }
         
-        auto lambda = [this](const D3D11PixelBuffers &pD3DPixelBuffers, uint32_t numOfTextures, const ColorRGB &color)
+        auto lambda = [this](const D3D11PixelBuffers &pD3DPixelBuffers, const TextureSubresources &subs, const ColorRGB &color)
         {
             float clr[4];
             clr[0] = color.red();
             clr[1] = color.green();
             clr[2] = color.blue();
             clr[3] = 1.0f;
-            for (uint32_t i = 0; i < numOfTextures; ++i)
+            for (size_t i = 0; i < pD3DPixelBuffers.size(); ++i)
             {
-                mD3DDeviceContext->ClearRenderTargetView(pD3DPixelBuffers[i]->D3DRTView, clr);
+                // 与绑定时同一个视图，只清所选的 mip / 层
+                ID3D11RenderTargetView *rtv = getD3DRTView(pD3DPixelBuffers[i].get(), subs[i], "clearColor");
+                if (rtv != nullptr)
+                {
+                    mD3DDeviceContext->ClearRenderTargetView(rtv, clr);
+                }
             }
             return T3D_OK;
         };
-        return ENQUEUE_UNIQUE_COMMAND(lambda, pixelBuffers, numOfTextures, color);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, pixelBuffers, subs, color);
     }
 
     //--------------------------------------------------------------------------
@@ -1747,12 +1894,17 @@ namespace Tiny3D
         if (mCurrentRenderTarget->getDepthStencil() != nullptr)
         {
             D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(mCurrentRenderTarget->getDepthStencil()->getPixelBuffer()->getRHIResource().get());
-            auto lambda = [this](const D3D11PixelBuffer2DPtr &pD3DPixelBuffer, uint32_t clearFlags, const Real &depth, uint8_t stencil)
+            auto lambda = [this](const D3D11PixelBuffer2DPtr &pD3DPixelBuffer, const TextureSubresource &sub, uint32_t clearFlags, const Real &depth, uint8_t stencil)
             {
-                mD3DDeviceContext->ClearDepthStencilView(pD3DPixelBuffer->D3DDSView, clearFlags, depth, stencil);
+                ID3D11DepthStencilView *dsv = getD3DDSView(pD3DPixelBuffer.get(), sub, "clearDepthStencil");
+                if (dsv != nullptr)
+                {
+                    mD3DDeviceContext->ClearDepthStencilView(dsv, clearFlags, depth, stencil);
+                }
                 return T3D_OK;
             };
-            return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DPtr(pD3DPixelBuffer), clearFlags, depth, stencil);
+            return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DPtr(pD3DPixelBuffer), mCurrentRenderTarget->getDepthStencilSubresource(),
+                clearFlags, depth, stencil);
         }
 
         if (mCurrentRenderTarget->getType() == RenderTarget::Type::E_RT_WINDOW)
@@ -1775,19 +1927,6 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::clearDepthStencil(RenderTexture *texture, const Real &depth, uint8_t stencil)
-    {
-        D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(texture->getPixelBuffer()->getRHIResource().get());
-        auto lambda = [this](const D3D11PixelBuffer2DPtr &pD3DPixelBuffer, const Real &depth, uint8_t stencil)
-        {
-            mD3DDeviceContext->ClearDepthStencilView(pD3DPixelBuffer->D3DDSView, D3D11_CLEAR_DEPTH|D3D11_CLEAR_STENCIL, depth, stencil);
-            return T3D_OK;
-        };
-        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11PixelBuffer2DPtr(pD3DPixelBuffer), depth, stencil);
-    }
-
-    //--------------------------------------------------------------------------
-    
     RHIBlendStatePtr D3D11Context::createBlendState(BlendState *state)
     {
         D3D11BlendStatePtr d3dState = D3D11BlendState::create();
@@ -3395,9 +3534,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult D3D11Context::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
-        return setPixelBuffers(&ID3D11DeviceContext::VSSetShaderResources, startSlot, buffers);
+        return setPixelBuffers(&ID3D11DeviceContext::VSSetShaderResources, startSlot, buffers, subresources, "setVSPixelBuffers");
     }
 
     //--------------------------------------------------------------------------
@@ -3490,9 +3629,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult D3D11Context::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
-        return setPixelBuffers(&ID3D11DeviceContext::PSSetShaderResources, startSlot, buffers);
+        return setPixelBuffers(&ID3D11DeviceContext::PSSetShaderResources, startSlot, buffers, subresources, "setPSPixelBuffers");
     }
 
     //--------------------------------------------------------------------------
@@ -3584,9 +3723,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult D3D11Context::setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
-        return setPixelBuffers(&ID3D11DeviceContext::HSSetShaderResources, startSlot, buffers);
+        return setPixelBuffers(&ID3D11DeviceContext::HSSetShaderResources, startSlot, buffers, subresources, "setHSPixelBuffers");
     }
     
     //--------------------------------------------------------------------------
@@ -3672,9 +3811,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult D3D11Context::setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
-        return setPixelBuffers(&ID3D11DeviceContext::DSSetShaderResources, startSlot, buffers);
+        return setPixelBuffers(&ID3D11DeviceContext::DSSetShaderResources, startSlot, buffers, subresources, "setDSPixelBuffers");
     }
     
     //--------------------------------------------------------------------------
@@ -3760,9 +3899,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult D3D11Context::setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
-        return setPixelBuffers(&ID3D11DeviceContext::GSSetShaderResources, startSlot, buffers);
+        return setPixelBuffers(&ID3D11DeviceContext::GSSetShaderResources, startSlot, buffers, subresources, "setGSPixelBuffers");
     }
     
     //--------------------------------------------------------------------------
@@ -3848,9 +3987,9 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult D3D11Context::setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
-        return setPixelBuffers(&ID3D11DeviceContext::CSSetShaderResources, startSlot, buffers);
+        return setPixelBuffers(&ID3D11DeviceContext::CSSetShaderResources, startSlot, buffers, subresources, "setCSPixelBuffers");
     }
     
     //--------------------------------------------------------------------------
@@ -3869,7 +4008,7 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts)
+    TResult D3D11Context::setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts, const TextureSubresources &subresources)
     {
         if (!initialCounts.empty() && initialCounts.size() != buffers.size())
         {
@@ -3887,7 +4026,15 @@ namespace Tiny3D
             return T3D_ERR_INVALID_PARAM;
         }
 
-        auto lambda = [this](uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts)
+        if (!subresources.empty() && subresources.size() != buffers.size())
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "setCSUnorderedAccessBuffers : subresource array "
+                "size [%zu] does not match buffer count [%zu] !", subresources.size(), buffers.size());
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        auto lambda = [this](uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts,
+            const TextureSubresources &subresources)
         {
             TArray<ID3D11UnorderedAccessView*> d3dUAViews(buffers.size(), nullptr);
 
@@ -3900,7 +4047,9 @@ namespace Tiny3D
                     continue;
                 }
 
-                d3dUAViews[i] = getD3DUAView(buffer);
+                d3dUAViews[i] = subresources.empty()
+                    ? getD3DUAView(buffer)
+                    : getD3DUAView(buffer, subresources[i], "setCSUnorderedAccessBuffers");
                 if (d3dUAViews[i] == nullptr)
                 {
                     T3D_LOG_WARNING(LOG_TAG_D3D11RENDERER, "setCSUnorderedAccessBuffers : buffer at "
@@ -3924,7 +4073,7 @@ namespace Tiny3D
             return T3D_OK;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, buffers, initialCounts);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, startSlot, buffers, initialCounts, subresources);
     }
 
     //--------------------------------------------------------------------------
@@ -3998,18 +4147,29 @@ namespace Tiny3D
                 return T3D_OK;
             }
 
-            // 精确路径：只对指定资源所在的槽位做一次解绑再绑回
+            // 精确路径：只对指定资源所在的槽位做一次解绑再绑回。
+            // 按底层资源比较，纹理的不同 mip / 层的子资源 UAV 都算同一资源
             for (const auto &buffer : buffers)
             {
-                ID3D11UnorderedAccessView *pD3DUAView = getD3DUAView(buffer.get());
-                if (pD3DUAView == nullptr)
+                ID3D11Resource *pD3DResource = getD3DResource(buffer.get());
+                if (pD3DResource == nullptr)
                 {
                     continue;
                 }
 
                 for (uint32_t slot = 0; slot < mBoundCSUAVCount; ++slot)
                 {
-                    if (mBoundCSUAVs[slot] != pD3DUAView)
+                    ID3D11UnorderedAccessView *pD3DUAView = mBoundCSUAVs[slot];
+                    if (pD3DUAView == nullptr)
+                    {
+                        continue;
+                    }
+
+                    ID3D11Resource *pBound = nullptr;
+                    pD3DUAView->GetResource(&pBound);
+                    const bool same = (pBound == pD3DResource);
+                    D3D_SAFE_RELEASE(pBound);
+                    if (!same)
                     {
                         continue;
                     }
@@ -4486,6 +4646,31 @@ namespace Tiny3D
         };
 
         return ENQUEUE_UNIQUE_COMMAND(lambda, TexturePtr(src), TexturePtr(dst), srcOffset, size, dstOffset);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::generateMips(PixelBuffer *buffer)
+    {
+        if (!mCapabilities.checkGenerateMips(LOG_TAG_D3D11RENDERER, "generateMips", buffer))
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        auto lambda = [this](const PixelBufferPtr &buffer)
+        {
+            // 整张纹理的 SRV 覆盖全部 mip 与层，GenerateMips 按层各自从 mip 0 生成
+            ID3D11ShaderResourceView *srv = getD3DSRView(buffer.get());
+            if (srv == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "generateMips : render texture has no shader resource view !");
+                return T3D_ERR_INVALID_POINTER;
+            }
+            mD3DDeviceContext->GenerateMips(srv);
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, PixelBufferPtr(buffer));
     }
 
     //--------------------------------------------------------------------------
@@ -5996,6 +6181,367 @@ namespace Tiny3D
     }
 
     //--------------------------------------------------------------------------
+
+    D3D11SubresourceViews *D3D11Context::getSubresourceViews(RenderBuffer *buffer)
+    {
+        if (buffer == nullptr || buffer->getRHIResource() == nullptr)
+        {
+            return nullptr;
+        }
+
+        RHIResource *rhiResource = buffer->getRHIResource().get();
+
+        switch (rhiResource->getResourceType())
+        {
+        case RHIResource::ResourceType::kPixelBuffer1D:
+            return &static_cast<D3D11PixelBuffer1D *>(rhiResource)->SubViews;
+        case RHIResource::ResourceType::kPixelBuffer2D:
+            return &static_cast<D3D11PixelBuffer2D *>(rhiResource)->SubViews;
+        case RHIResource::ResourceType::kPixelBuffer3D:
+            return &static_cast<D3D11PixelBuffer3D *>(rhiResource)->SubViews;
+        case RHIResource::ResourceType::kPixelBufferCubemap:
+            return &static_cast<D3D11PixelBufferCubemap *>(rhiResource)->SubViews;
+        default:
+            return nullptr;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    ID3D11ShaderResourceView *D3D11Context::getD3DSRView(RenderBuffer *buffer, const TextureSubresource &sub, const char *func)
+    {
+        ID3D11ShaderResourceView *base = getD3DSRView(buffer);
+        if (sub.isDefault() || base == nullptr)
+        {
+            return base;
+        }
+
+        D3D11SubresourceViews *views = getSubresourceViews(buffer);
+        if (views == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : only textures can bind a subresource SRV !", func);
+            return nullptr;
+        }
+
+        TextureSubresource r;
+        UINT mipLevels = 0, layers = 0;
+        if (!resolveViewSubresource(base, sub, func, r, mipLevels, layers))
+        {
+            return nullptr;
+        }
+
+        if (r.mipLevel == 0 && r.mipCount == mipLevels && r.firstSlice == 0 && r.sliceCount == layers)
+        {
+            return base;
+        }
+
+        const uint64_t key = r.key();
+        auto itr = views->SRViews.find(key);
+        if (itr != views->SRViews.end())
+        {
+            return itr->second;
+        }
+
+        D3D11_SHADER_RESOURCE_VIEW_DESC desc;
+        base->GetDesc(&desc);
+        const bool allSlices = (r.firstSlice == 0 && r.sliceCount == layers);
+
+        switch (desc.ViewDimension)
+        {
+        case D3D11_SRV_DIMENSION_TEXTURE1D:
+            desc.Texture1D.MostDetailedMip = r.mipLevel;
+            desc.Texture1D.MipLevels = r.mipCount;
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE1DARRAY:
+            desc.Texture1DArray.MostDetailedMip = r.mipLevel;
+            desc.Texture1DArray.MipLevels = r.mipCount;
+            desc.Texture1DArray.FirstArraySlice = r.firstSlice;
+            desc.Texture1DArray.ArraySize = r.sliceCount;
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2D:
+            desc.Texture2D.MostDetailedMip = r.mipLevel;
+            desc.Texture2D.MipLevels = r.mipCount;
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2DARRAY:
+            desc.Texture2DArray.MostDetailedMip = r.mipLevel;
+            desc.Texture2DArray.MipLevels = r.mipCount;
+            desc.Texture2DArray.FirstArraySlice = r.firstSlice;
+            desc.Texture2DArray.ArraySize = r.sliceCount;
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURECUBE:
+        case D3D11_SRV_DIMENSION_TEXTURECUBEARRAY:
+            if (allSlices && desc.ViewDimension == D3D11_SRV_DIMENSION_TEXTURECUBE)
+            {
+                desc.TextureCube.MostDetailedMip = r.mipLevel;
+                desc.TextureCube.MipLevels = r.mipCount;
+            }
+            else if (allSlices)
+            {
+                desc.TextureCubeArray.MostDetailedMip = r.mipLevel;
+                desc.TextureCubeArray.MipLevels = r.mipCount;
+            }
+            else
+            {
+                // 只选部分面时退化成 2D 数组
+                desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+                desc.Texture2DArray.MostDetailedMip = r.mipLevel;
+                desc.Texture2DArray.MipLevels = r.mipCount;
+                desc.Texture2DArray.FirstArraySlice = r.firstSlice;
+                desc.Texture2DArray.ArraySize = r.sliceCount;
+            }
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE3D:
+            desc.Texture3D.MostDetailedMip = r.mipLevel;
+            desc.Texture3D.MipLevels = r.mipCount;
+            break;
+        default:
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : SRV dimension [%d] does not support subresources (MSAA ?) !",
+                func, (int32_t)desc.ViewDimension);
+            return nullptr;
+        }
+
+        ID3D11Resource *resource = nullptr;
+        base->GetResource(&resource);
+        ID3D11ShaderResourceView *view = nullptr;
+        HRESULT hr = mD3DDevice->CreateShaderResourceView(resource, &desc, &view);
+        D3D_SAFE_RELEASE(resource);
+        if (FAILED(hr))
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : failed to create subresource SRV [mip %u x %u, slice %u x %u] ! DX ERROR [%d]",
+                func, r.mipLevel, r.mipCount, r.firstSlice, r.sliceCount, hr);
+            return nullptr;
+        }
+
+        views->SRViews[key] = view;
+        return view;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ID3D11UnorderedAccessView *D3D11Context::getD3DUAView(RenderBuffer *buffer, const TextureSubresource &sub, const char *func)
+    {
+        ID3D11UnorderedAccessView *base = getD3DUAView(buffer);
+        if (sub.isDefault() || base == nullptr)
+        {
+            return base;
+        }
+
+        D3D11SubresourceViews *views = getSubresourceViews(buffer);
+        if (views == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : only textures can bind a subresource UAV !", func);
+            return nullptr;
+        }
+
+        if (sub.mipCount > 1)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : UAV can only cover one mip, got mip count %u !", func, sub.mipCount);
+            return nullptr;
+        }
+
+        TextureSubresource r;
+        UINT mipLevels = 0, layers = 0;
+        if (!resolveViewSubresource(base, sub, func, r, mipLevels, layers))
+        {
+            return nullptr;
+        }
+        r.mipCount = 1;
+
+        if (r.mipLevel == 0 && r.firstSlice == 0 && r.sliceCount == layers)
+        {
+            return base;
+        }
+
+        const uint64_t key = r.key();
+        auto itr = views->UAViews.find(key);
+        if (itr != views->UAViews.end())
+        {
+            return itr->second;
+        }
+
+        D3D11_UNORDERED_ACCESS_VIEW_DESC desc;
+        base->GetDesc(&desc);
+
+        switch (desc.ViewDimension)
+        {
+        case D3D11_UAV_DIMENSION_TEXTURE1D:
+            desc.Texture1D.MipSlice = r.mipLevel;
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE1DARRAY:
+            desc.Texture1DArray.MipSlice = r.mipLevel;
+            desc.Texture1DArray.FirstArraySlice = r.firstSlice;
+            desc.Texture1DArray.ArraySize = r.sliceCount;
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE2D:
+            desc.Texture2D.MipSlice = r.mipLevel;
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE2DARRAY:
+            desc.Texture2DArray.MipSlice = r.mipLevel;
+            desc.Texture2DArray.FirstArraySlice = r.firstSlice;
+            desc.Texture2DArray.ArraySize = r.sliceCount;
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE3D:
+            desc.Texture3D.MipSlice = r.mipLevel;
+            desc.Texture3D.FirstWSlice = 0;
+            desc.Texture3D.WSize = (UINT)-1;
+            break;
+        default:
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : UAV dimension [%d] does not support subresources !",
+                func, (int32_t)desc.ViewDimension);
+            return nullptr;
+        }
+
+        ID3D11Resource *resource = nullptr;
+        base->GetResource(&resource);
+        ID3D11UnorderedAccessView *view = nullptr;
+        HRESULT hr = mD3DDevice->CreateUnorderedAccessView(resource, &desc, &view);
+        D3D_SAFE_RELEASE(resource);
+        if (FAILED(hr))
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : failed to create subresource UAV [mip %u, slice %u x %u] ! DX ERROR [%d]",
+                func, r.mipLevel, r.firstSlice, r.sliceCount, hr);
+            return nullptr;
+        }
+
+        views->UAViews[key] = view;
+        return view;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ID3D11RenderTargetView *D3D11Context::getD3DRTView(D3D11PixelBuffer2D *buffer, const TextureSubresource &sub, const char *func)
+    {
+        if (buffer == nullptr)
+        {
+            return nullptr;
+        }
+
+        ID3D11RenderTargetView *base = buffer->D3DRTView;
+        if (sub.isDefault() || base == nullptr)
+        {
+            return base;
+        }
+
+        TextureSubresource r;
+        UINT mipLevels = 0, layers = 0;
+        if (!resolveViewSubresource(base, sub, func, r, mipLevels, layers))
+        {
+            return nullptr;
+        }
+        r.mipCount = 1;
+
+        if (r.mipLevel == 0 && r.firstSlice == 0 && r.sliceCount == layers)
+        {
+            return base;
+        }
+
+        const uint64_t key = r.key();
+        auto itr = buffer->SubViews.RTViews.find(key);
+        if (itr != buffer->SubViews.RTViews.end())
+        {
+            return itr->second;
+        }
+
+        D3D11_RENDER_TARGET_VIEW_DESC desc;
+        base->GetDesc(&desc);
+
+        switch (desc.ViewDimension)
+        {
+        case D3D11_RTV_DIMENSION_TEXTURE2D:
+            desc.Texture2D.MipSlice = r.mipLevel;
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2DARRAY:
+            desc.Texture2DArray.MipSlice = r.mipLevel;
+            desc.Texture2DArray.FirstArraySlice = r.firstSlice;
+            desc.Texture2DArray.ArraySize = r.sliceCount;
+            break;
+        default:
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : RTV dimension [%d] does not support subresources (MSAA ?) !",
+                func, (int32_t)desc.ViewDimension);
+            return nullptr;
+        }
+
+        ID3D11RenderTargetView *view = nullptr;
+        HRESULT hr = mD3DDevice->CreateRenderTargetView(buffer->D3DTexture, &desc, &view);
+        if (FAILED(hr))
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : failed to create subresource RTV [mip %u, slice %u x %u] ! DX ERROR [%d]",
+                func, r.mipLevel, r.firstSlice, r.sliceCount, hr);
+            return nullptr;
+        }
+
+        buffer->SubViews.RTViews[key] = view;
+        return view;
+    }
+
+    //--------------------------------------------------------------------------
+
+    ID3D11DepthStencilView *D3D11Context::getD3DDSView(D3D11PixelBuffer2D *buffer, const TextureSubresource &sub, const char *func)
+    {
+        if (buffer == nullptr)
+        {
+            return nullptr;
+        }
+
+        ID3D11DepthStencilView *base = buffer->D3DDSView;
+        if (sub.isDefault() || base == nullptr)
+        {
+            return base;
+        }
+
+        TextureSubresource r;
+        UINT mipLevels = 0, layers = 0;
+        if (!resolveViewSubresource(base, sub, func, r, mipLevels, layers))
+        {
+            return nullptr;
+        }
+        r.mipCount = 1;
+
+        if (r.mipLevel == 0 && r.firstSlice == 0 && r.sliceCount == layers)
+        {
+            return base;
+        }
+
+        const uint64_t key = r.key();
+        auto itr = buffer->SubViews.DSViews.find(key);
+        if (itr != buffer->SubViews.DSViews.end())
+        {
+            return itr->second;
+        }
+
+        D3D11_DEPTH_STENCIL_VIEW_DESC desc;
+        base->GetDesc(&desc);
+
+        switch (desc.ViewDimension)
+        {
+        case D3D11_DSV_DIMENSION_TEXTURE2D:
+            desc.Texture2D.MipSlice = r.mipLevel;
+            break;
+        case D3D11_DSV_DIMENSION_TEXTURE2DARRAY:
+            desc.Texture2DArray.MipSlice = r.mipLevel;
+            desc.Texture2DArray.FirstArraySlice = r.firstSlice;
+            desc.Texture2DArray.ArraySize = r.sliceCount;
+            break;
+        default:
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : DSV dimension [%d] does not support subresources (MSAA ?) !",
+                func, (int32_t)desc.ViewDimension);
+            return nullptr;
+        }
+
+        ID3D11DepthStencilView *view = nullptr;
+        HRESULT hr = mD3DDevice->CreateDepthStencilView(buffer->D3DTexture, &desc, &view);
+        if (FAILED(hr))
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : failed to create subresource DSV [mip %u, slice %u x %u] ! DX ERROR [%d]",
+                func, r.mipLevel, r.firstSlice, r.sliceCount, hr);
+            return nullptr;
+        }
+
+        buffer->SubViews.DSViews[key] = view;
+        return view;
+    }
+
+    //--------------------------------------------------------------------------
     
     TResult D3D11Context::setSamplers(SetSamplerState setSamplerState, uint32_t startSlot, const Samplers &samplers)
     {
@@ -6020,22 +6566,38 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
-    TResult D3D11Context::setPixelBuffers(SetShaderResources setShaderResources, uint32_t startSlot, const PixelBuffers &buffers)
+    TResult D3D11Context::setPixelBuffers(SetShaderResources setShaderResources, uint32_t startSlot, const PixelBuffers &buffers,
+        const TextureSubresources &subresources, const char *func)
     {
-        auto lambda = [this](SetShaderResources setShaderResources, uint32_t startSlot, const PixelBuffers &buffers)
+        if (!subresources.empty() && subresources.size() != buffers.size())
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : subresources size %zu must be 0 or equal to buffers size %zu !",
+                func, subresources.size(), buffers.size());
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        auto lambda = [this](SetShaderResources setShaderResources, uint32_t startSlot, const PixelBuffers &buffers,
+            const TextureSubresources &subresources, const char *func)
         {
             TArray<ID3D11ShaderResourceView*> d3dSRViews(buffers.size(), nullptr);
         
             for (uint32_t i = 0 ; i < buffers.size(); ++i)
             {
-                d3dSRViews[i] = getD3DSRView(buffers[i].get());
+                if (subresources.empty())
+                {
+                    d3dSRViews[i] = getD3DSRView(buffers[i].get());
+                }
+                else
+                {
+                    d3dSRViews[i] = getD3DSRView(buffers[i].get(), subresources[i], func);
+                }
             }
             
             (mD3DDeviceContext->*setShaderResources)(startSlot, (UINT)d3dSRViews.size(), d3dSRViews.data());
             return T3D_OK;
         };
         
-        return ENQUEUE_UNIQUE_COMMAND(lambda, setShaderResources, startSlot, buffers);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, setShaderResources, startSlot, buffers, subresources, func);
     }
 
     //--------------------------------------------------------------------------

@@ -57,6 +57,57 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
     
+    RenderTexturePtr RenderTexture::create(const String &name, TEXTURE_TYPE dimension, uint32_t width, uint32_t height, uint32_t arraySize, PixelFormat format, uint32_t mipmaps, bool shaderReadable, uint32_t accMode, uint32_t gpuAccess)
+    {
+        uint32_t layers = 1;
+        bool cubemap = false;
+        switch (dimension)
+        {
+        case TEXTURE_TYPE::TT_2D:
+            break;
+        case TEXTURE_TYPE::TT_2D_ARRAY:
+            layers = arraySize;
+            break;
+        case TEXTURE_TYPE::TT_CUBE:
+            layers = PixelBufferCubemap::FACE_COUNT;
+            cubemap = true;
+            break;
+        case TEXTURE_TYPE::TT_CUBE_ARRAY:
+            layers = arraySize * PixelBufferCubemap::FACE_COUNT;
+            cubemap = true;
+            break;
+        default:
+            T3D_LOG_ERROR(LOG_TAG_ENGINE, "RenderTexture::create : unsupported dimension %u for render texture [%s] !",
+                static_cast<uint32_t>(dimension), name.c_str());
+            return nullptr;
+        }
+
+        if (layers == 0)
+        {
+            T3D_LOG_ERROR(LOG_TAG_ENGINE, "RenderTexture::create : array size of render texture [%s] is 0 !", name.c_str());
+            return nullptr;
+        }
+
+        if (mipmaps == 0)
+        {
+            mipmaps = TextureSubresource::getFullMipCount(width, height);
+        }
+
+        return T3D_NEW RenderTexture(name, width, height, layers, cubemap, format, mipmaps, shaderReadable, accMode, gpuAccess);
+    }
+
+    //--------------------------------------------------------------------------
+
+    RenderTexture::RenderTexture(const String &name, uint32_t width, uint32_t height, uint32_t layers, bool cubemap, PixelFormat format, uint32_t mipmaps, bool shaderReadable, uint32_t accMode, uint32_t gpuAccess)
+        : Texture2D(name, width, height, format, mipmaps, 1, 0, Buffer{}, shaderReadable, accMode)
+    {
+        mDesc.arraySize = layers;
+        mDesc.cubemap = cubemap;
+        mDesc.gpuAccess = gpuAccess;
+    }
+
+    //--------------------------------------------------------------------------
+    
     RenderTexture::~RenderTexture()
     {
 
@@ -67,6 +118,29 @@ namespace Tiny3D
     TEXTURE_TYPE RenderTexture::getTextureType() const
     {
         return TEXTURE_TYPE::TT_RENDER_TEXTURE;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TEXTURE_TYPE RenderTexture::getRenderTextureType() const
+    {
+        if (mDesc.cubemap)
+        {
+            return getArraySize() > PixelBufferCubemap::FACE_COUNT ? TEXTURE_TYPE::TT_CUBE_ARRAY : TEXTURE_TYPE::TT_CUBE;
+        }
+        return getArraySize() > 1 ? TEXTURE_TYPE::TT_2D_ARRAY : TEXTURE_TYPE::TT_2D;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult RenderTexture::generateMips()
+    {
+        if (mPixelBuffer == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_ENGINE, "RenderTexture::generateMips : render texture [%s] has no pixel buffer !", getName().c_str());
+            return T3D_ERR_INVALID_PARAM;
+        }
+        return T3D_AGENT.getActiveRHIContext()->generateMips(mPixelBuffer);
     }
 
     //--------------------------------------------------------------------------
@@ -101,6 +175,8 @@ namespace Tiny3D
     ResourcePtr RenderTexture::clone() const
     {
         RenderTexturePtr texture = create(getName(), mDesc.width, mDesc.height, mDesc.format, mDesc.mipmaps, mDesc.sampleDesc.Count, mDesc.sampleDesc.Quality, mDesc.shaderReadable, mCPUAccessMode, mDesc.gpuAccess);
+        texture->mDesc.arraySize = mDesc.arraySize;
+        texture->mDesc.cubemap = mDesc.cubemap;
         texture->cloneProperties(this);
         return texture;
     }

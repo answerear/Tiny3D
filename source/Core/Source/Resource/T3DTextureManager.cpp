@@ -50,6 +50,17 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    RenderTexturePtr TextureManager::createRenderTexture(const String &name, TEXTURE_TYPE dimension, uint32_t width, uint32_t height, uint32_t arraySize, PixelFormat format, uint32_t mipmaps, bool shaderReadable, uint32_t accMode, uint32_t gpuAccess)
+    {
+        uint32_t MSAACount = 1;
+        uint32_t MSAAQuality = 0;
+        return smart_pointer_cast<RenderTexture>(createResource(name, 12,
+            TEXTURE_TYPE::TT_RENDER_TEXTURE, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable, accMode, gpuAccess,
+            dimension, arraySize));
+    }
+
+    //--------------------------------------------------------------------------
+
     Texture1DPtr TextureManager::createTexture1D(const String &name, uint32_t width,
         PixelFormat format, const Buffer &data, uint32_t mipmaps/* = 0*/)
     {
@@ -314,7 +325,7 @@ namespace Tiny3D
             break;
         case TEXTURE_TYPE::TT_RENDER_TEXTURE:
             {
-                T3D_ASSERT(argc == 10);
+                T3D_ASSERT(argc == 10 || argc == 12);
                 uint32_t width = va_arg(args, uint32_t);
                 uint32_t height = va_arg(args, uint32_t);
                 PixelFormat format = va_arg(args, PixelFormat);
@@ -324,7 +335,16 @@ namespace Tiny3D
                 bool shaderReadable = static_cast<bool>(va_arg(args, int));
                 uint32_t accMode = va_arg(args, uint32_t);
                 uint32_t gpuAccess = va_arg(args, uint32_t);
-                texture = RenderTexture::create(name, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable, accMode, gpuAccess);
+                if (argc == 12)
+                {
+                    TEXTURE_TYPE dimension = va_arg(args, TEXTURE_TYPE);
+                    uint32_t arraySize = va_arg(args, uint32_t);
+                    texture = RenderTexture::create(name, dimension, width, height, arraySize, format, mipmaps, shaderReadable, accMode, gpuAccess);
+                }
+                else
+                {
+                    texture = RenderTexture::create(name, width, height, format, mipmaps, MSAACount, MSAAQuality, shaderReadable, accMode, gpuAccess);
+                }
             }
             break;
         }

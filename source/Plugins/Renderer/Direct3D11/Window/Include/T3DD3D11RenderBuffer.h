@@ -117,6 +117,23 @@ namespace Tiny3D
         D3D11ConstantBuffer() = default;
     };
 
+    /**
+     * \brief 纹理的子资源视图缓存，键为展开后的 TextureSubresource::key()
+     * \remarks 只缓存与默认视图不同的范围，默认范围直接用各像素缓冲上的 D3D*View。
+     *          只在渲染线程访问。
+     */
+    struct D3D11SubresourceViews
+    {
+        TMap<uint64_t, ID3D11ShaderResourceView*>   SRViews;
+        TMap<uint64_t, ID3D11UnorderedAccessView*>  UAViews;
+        TMap<uint64_t, ID3D11RenderTargetView*>     RTViews;
+        TMap<uint64_t, ID3D11DepthStencilView*>     DSViews;
+
+        ~D3D11SubresourceViews() { release(); }
+
+        void release();
+    };
+
     class D3D11PixelBuffer1D : public RHIPixelBuffer1D
     {
     public:
@@ -128,8 +145,10 @@ namespace Tiny3D
         
         ID3D11Texture1D             *D3DTexture {nullptr};
         ID3D11ShaderResourceView    *D3DSRView {nullptr};
-        /// 只在 kGPUUnorderedAccess 时创建；当前只覆盖 mip 0
+        /// 只在 kGPUUnorderedAccess 时创建，覆盖 mip 0 的全部层；其它 mip 见 SubViews
         ID3D11UnorderedAccessView   *D3DUAView {nullptr};
+        /// 按子资源创建的视图
+        D3D11SubresourceViews       SubViews;
         
     protected:
         D3D11PixelBuffer1D() = default;
@@ -154,8 +173,10 @@ namespace Tiny3D
         ID3D11Texture2D             *D3DResolveTex {nullptr};
         /// 只有用於 depth stencil 的時候才有值
         ID3D11DepthStencilView      *D3DDSView {nullptr};
-        /// 只在 kGPUUnorderedAccess 时创建；当前只覆盖 mip 0
+        /// 只在 kGPUUnorderedAccess 时创建，覆盖 mip 0 的全部层；其它 mip 见 SubViews
         ID3D11UnorderedAccessView   *D3DUAView {nullptr};
+        /// 按子资源创建的视图（单个 mip / 面 / 层的 RTV、DSV、SRV、UAV）
+        D3D11SubresourceViews       SubViews;
     protected:
         D3D11PixelBuffer2D() = default;
     };
@@ -173,8 +194,10 @@ namespace Tiny3D
         ID3D11Texture3D             *D3DTexture {nullptr};
         /// 紋理資源對象，方便 shader 訪問
         ID3D11ShaderResourceView    *D3DSRView {nullptr};
-        /// 只在 kGPUUnorderedAccess 时创建；当前只覆盖 mip 0
+        /// 只在 kGPUUnorderedAccess 时创建，覆盖 mip 0；其它 mip 见 SubViews
         ID3D11UnorderedAccessView   *D3DUAView {nullptr};
+        /// 按子资源创建的视图
+        D3D11SubresourceViews       SubViews;
 
     protected:
         D3D11PixelBuffer3D() = default;
@@ -193,6 +216,8 @@ namespace Tiny3D
         ID3D11Texture2D             *D3DTexture {nullptr};
         /// 紋理資源對象，方便 shader 訪問
         ID3D11ShaderResourceView    *D3DSRView {nullptr};
+        /// 按子资源创建的视图
+        D3D11SubresourceViews       SubViews;
 
     protected:
         D3D11PixelBufferCubemap() = default;

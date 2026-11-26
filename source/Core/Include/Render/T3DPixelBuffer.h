@@ -173,6 +173,9 @@ namespace Tiny3D
          * \return Type::kPixelBuffer2D
          */
         Type getType() const override;
+
+        /// 是否为渲染纹理（可绑定为渲染目标）
+        bool isRenderTexture() const { return mIsRenderTexture; }
         
     protected:
         ~PixelBuffer2D() override = default;

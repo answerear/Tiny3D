@@ -297,7 +297,7 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
 
         /**
          * \brief 设置 vs 的结构化缓冲或原始缓冲（只读 SRV 路径）
@@ -343,7 +343,7 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
 
         /**
          * \brief 设置 ps 的结构化缓冲或原始缓冲（只读 SRV 路径）
@@ -389,7 +389,7 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
 
         /**
          * \brief 设置 hs 纹理采样器
@@ -427,7 +427,7 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
 
         /**
          * \brief 设置 ds 纹理采样器
@@ -465,7 +465,7 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
 
         /**
          * \brief 设置 gs 纹理采样器
@@ -503,7 +503,7 @@ namespace Tiny3D
          * \param [in] buffers : 像素缓冲区对象数组
          * \return 调用成功返回 3D_OK
          */
-        TResult setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
 
         /**
          * \brief 设置 cs 纹理采样器
@@ -528,7 +528,7 @@ namespace Tiny3D
          * \param [in] initialCounts : Append/Consume 或带计数器缓冲的初始计数；空数组表示全部保持原值
          * \return 调用成功返回 T3D_OK
          */
-        TResult setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts = UAVInitialCounts()) override;
+        TResult setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts = UAVInitialCounts(), const TextureSubresources &subresources = TextureSubresources()) override;
 
         /**
          * \brief 派发计算任务
@@ -685,6 +685,8 @@ namespace Tiny3D
          */
         TResult copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset = 0, size_t size = 0, size_t dstOffset = 0) override;
 
+        TResult generateMips(PixelBuffer *buffer) override;
+
         /**
          * \brief 写 GPU 缓冲区，在写完之前 buffer 不能释放，写完之后，内部会去释放 buffer 空间。 调用本接口，renderBuffer 必须绑定 CPUAccessWrite
          * \param [in] renderBuffer : GPU 缓冲区 
@@ -750,9 +752,8 @@ namespace Tiny3D
         
         TResult clearColor(RenderWindow *window, const ColorRGB &color);
 
-        TResult clearColor(const RenderTexturePtr *textures, uint32_t numOfTextures, const ColorRGB &color);
-
-        TResult clearDepthStencil(RenderTexture *texture, const Real &depth, uint8_t stencil);
+        /// 清除纹理型渲染目标的颜色附件，用当前渲染目标上各附件所选的子资源
+        TResult clearColor(RenderTarget *renderTarget, const ColorRGB &color);
 
         /**
          * \brief 清除当前渲染目标的深度模板附件，clearDepth 与 clearDepthStencil 共用
@@ -877,7 +878,7 @@ namespace Tiny3D
          * \brief 从渲染缓冲区取出 UAV
          * \param [in] buffer : 渲染缓冲区
          * \return 资源未带 kGPUUnorderedAccess、类型不支持或 RHI 资源未创建时返回 nullptr
-         * \note 纹理类资源当前只有 mip 0 的 UAV
+         * \note 纹理类资源返回 mip 0 的 UAV，其它 mip 用带子资源的重载
          */
         ID3D11UnorderedAccessView *getD3DUAView(RenderBuffer *buffer);
 
@@ -887,6 +888,27 @@ namespace Tiny3D
          * \return 不可采样、类型不支持或 RHI 资源未创建时返回 nullptr
          */
         ID3D11ShaderResourceView *getD3DSRView(RenderBuffer *buffer);
+
+        /**
+         * \brief 取出纹理指定子资源的 SRV，默认范围返回默认视图，其它范围按需创建并缓存
+         * \param [in] buffer : 渲染缓冲区
+         * \param [in] sub : 子资源范围
+         * \param [in] func : 出错日志里的调用方名字
+         * \return 子资源越界、资源不是纹理或创建失败时返回 nullptr；只在渲染线程调用
+         */
+        ID3D11ShaderResourceView *getD3DSRView(RenderBuffer *buffer, const TextureSubresource &sub, const char *func);
+
+        /// 取出纹理指定 mip / 层的 UAV，规则同 SRV 重载，mipCount 须为 0 或 1
+        ID3D11UnorderedAccessView *getD3DUAView(RenderBuffer *buffer, const TextureSubresource &sub, const char *func);
+
+        /// 取出渲染纹理指定 mip / 层的 RTV
+        ID3D11RenderTargetView *getD3DRTView(D3D11PixelBuffer2D *buffer, const TextureSubresource &sub, const char *func);
+
+        /// 取出深度渲染纹理指定 mip / 层的 DSV
+        ID3D11DepthStencilView *getD3DDSView(D3D11PixelBuffer2D *buffer, const TextureSubresource &sub, const char *func);
+
+        /// 取出 D3D11 纹理资源上的子资源视图缓存，非纹理返回 nullptr
+        D3D11SubresourceViews *getSubresourceViews(RenderBuffer *buffer);
 
         /**
          * \brief 为缓冲创建 SRV / UAV，createStructuredBuffer 与 VB / IB 的 UAV 补齐共用
@@ -946,7 +968,7 @@ namespace Tiny3D
 
         using SetShaderResources = void (ID3D11DeviceContext::*)(UINT, UINT, ID3D11ShaderResourceView * const *);
         
-        TResult setPixelBuffers(SetShaderResources setShaderResources, uint32_t startSlot, const PixelBuffers &buffers);
+        TResult setPixelBuffers(SetShaderResources setShaderResources, uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources, const char *func);
 
         TResult setStructuredBuffers(SetShaderResources setShaderResources, uint32_t startSlot, const ShaderResourceBuffers &buffers);
 
@@ -956,9 +978,19 @@ namespace Tiny3D
 
         TResult createRenderWindow(D3D11RenderWindow *pD3DRenderWindow, uint32_t w, uint32_t h, uint32_t MSAACount, uint32_t MSAAQuality);
 
-        TResult setRenderTarget(RenderWindow *renderWindow, RenderTexture *depthStencil);
+        /**
+         * \brief 窗口 + 可选外挂深度的渲染目标
+         * \param [in] depthSub : 外挂深度附件的子资源
+         */
+        TResult setRenderTarget(RenderWindow *renderWindow, RenderTexture *depthStencil, const TextureSubresource &depthSub);
 
-        TResult setRenderTarget(const RenderTexturePtr *renderTexture, uint32_t numOfTextures, RenderTexture *depthStencil);
+        /**
+         * \brief 纹理型渲染目标，各附件用对应的子资源
+         * \param [in] colorSubs : 与 renderTextures 一一对应的子资源
+         * \param [in] depthSub : 深度附件的子资源
+         */
+        TResult setRenderTarget(const RenderTexturePtr *renderTextures, uint32_t numOfTextures, RenderTexture *depthStencil,
+            const TextureSubresource *colorSubs, const TextureSubresource &depthSub);
 
         void backupRenderState();
 

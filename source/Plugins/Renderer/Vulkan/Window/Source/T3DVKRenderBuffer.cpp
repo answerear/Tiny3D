@@ -207,6 +207,11 @@ namespace Tiny3D
         VkDevice device = VK_DEVICE();
         if (device != VK_NULL_HANDLE)
         {
+            for (const auto &view : VkSubViews)
+            {
+                vkDestroyImageView(device, view.second, nullptr);
+            }
+            VkSubViews.clear();
             if (VkDSView != VK_NULL_HANDLE)
             {
                 vkDestroyImageView(device, VkDSView, nullptr);

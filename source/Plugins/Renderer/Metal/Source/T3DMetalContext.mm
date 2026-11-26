@@ -821,6 +821,13 @@ namespace Tiny3D
             return nullptr;
         }
 
+        if (desc.arraySize > 1 || desc.cubemap || desc.mipmaps > 1)
+        {
+            T3D_LOG_ERROR(LOG_TAG_METALRENDERER, "createRenderTexture : array / cube / multi-mip render textures "
+                "are not supported on Metal yet (layers %u, cube %d, mips %u) !", desc.arraySize, desc.cubemap ? 1 : 0, desc.mipmaps);
+            return nullptr;
+        }
+
         if (samples != desc.sampleDesc.Count && desc.sampleDesc.Count > 1)
         {
             T3D_LOG_WARNING(LOG_TAG_METALRENDERER,
@@ -1525,7 +1532,7 @@ namespace Tiny3D
         return T3D_OK;
     }
 
-    TResult MetalContext::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult MetalContext::setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         bindTextures(mImpl->encoder, true, startSlot, buffers);
         return T3D_OK;
@@ -1565,7 +1572,7 @@ namespace Tiny3D
         return T3D_OK;
     }
 
-    TResult MetalContext::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers)
+    TResult MetalContext::setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources)
     {
         bindTextures(mImpl->encoder, false, startSlot, buffers);
         return T3D_OK;
@@ -1582,19 +1589,19 @@ namespace Tiny3D
     RHIShaderPtr MetalContext::createHullShader(ShaderVariant *) { return MetalHullShader::create(); }
     TResult MetalContext::setHullShader(ShaderVariant *) { return T3D_OK; }
     TResult MetalContext::setHSConstantBuffers(uint32_t, const ConstantBuffers &) { return T3D_OK; }
-    TResult MetalContext::setHSPixelBuffers(uint32_t, const PixelBuffers &) { return T3D_OK; }
+    TResult MetalContext::setHSPixelBuffers(uint32_t, const PixelBuffers &, const TextureSubresources &) { return T3D_OK; }
     TResult MetalContext::setHSSamplers(uint32_t, const Samplers &) { return T3D_OK; }
 
     RHIShaderPtr MetalContext::createDomainShader(ShaderVariant *) { return MetalDomainShader::create(); }
     TResult MetalContext::setDomainShader(ShaderVariant *) { return T3D_OK; }
     TResult MetalContext::setDSConstantBuffers(uint32_t, const ConstantBuffers &) { return T3D_OK; }
-    TResult MetalContext::setDSPixelBuffers(uint32_t, const PixelBuffers &) { return T3D_OK; }
+    TResult MetalContext::setDSPixelBuffers(uint32_t, const PixelBuffers &, const TextureSubresources &) { return T3D_OK; }
     TResult MetalContext::setDSSamplers(uint32_t, const Samplers &) { return T3D_OK; }
 
     RHIShaderPtr MetalContext::createGeometryShader(ShaderVariant *) { return MetalGeometryShader::create(); }
     TResult MetalContext::setGeometryShader(ShaderVariant *) { return T3D_OK; }
     TResult MetalContext::setGSConstantBuffers(uint32_t, const ConstantBuffers &) { return T3D_OK; }
-    TResult MetalContext::setGSPixelBuffers(uint32_t, const PixelBuffers &) { return T3D_OK; }
+    TResult MetalContext::setGSPixelBuffers(uint32_t, const PixelBuffers &, const TextureSubresources &) { return T3D_OK; }
     TResult MetalContext::setGSSamplers(uint32_t, const Samplers &) { return T3D_OK; }
 
     RHIShaderPtr MetalContext::createComputeShader(ShaderVariant *shader)
@@ -1612,14 +1619,14 @@ namespace Tiny3D
     // Metal 的 compute encoder 链路尚未接入，改为显式声明不支持，避免继续假成功。
     TResult MetalContext::setComputeShader(ShaderVariant *) { T3D_RHI_UNSUPPORTED(supportsCompute); }
     TResult MetalContext::setCSConstantBuffers(uint32_t, const ConstantBuffers &) { T3D_RHI_UNSUPPORTED(supportsCompute); }
-    TResult MetalContext::setCSPixelBuffers(uint32_t, const PixelBuffers &) { T3D_RHI_UNSUPPORTED(supportsCompute); }
+    TResult MetalContext::setCSPixelBuffers(uint32_t, const PixelBuffers &, const TextureSubresources &) { T3D_RHI_UNSUPPORTED(supportsCompute); }
     TResult MetalContext::setCSSamplers(uint32_t, const Samplers &) { T3D_RHI_UNSUPPORTED(supportsCompute); }
 
     RHIStructuredBufferPtr MetalContext::createStructuredBuffer(StructuredBuffer *) { T3D_RHI_UNSUPPORTED_PTR(supportsStructuredBuffer); }
     TResult MetalContext::setVSStructuredBuffers(uint32_t, const ShaderResourceBuffers &) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
     TResult MetalContext::setPSStructuredBuffers(uint32_t, const ShaderResourceBuffers &) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
     TResult MetalContext::setCSStructuredBuffers(uint32_t, const ShaderResourceBuffers &) { T3D_RHI_UNSUPPORTED(supportsStructuredBuffer); }
-    TResult MetalContext::setCSUnorderedAccessBuffers(uint32_t, const UnorderedAccessBuffers &, const UAVInitialCounts &) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
+    TResult MetalContext::setCSUnorderedAccessBuffers(uint32_t, const UnorderedAccessBuffers &, const UAVInitialCounts &, const TextureSubresources &) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
     TResult MetalContext::dispatch(uint32_t, uint32_t, uint32_t) { T3D_RHI_UNSUPPORTED(supportsCompute); }
     TResult MetalContext::dispatchIndirect(RenderBuffer *, size_t) { T3D_RHI_UNSUPPORTED(supportsIndirectDispatch); }
     TResult MetalContext::uavBarrier(const UnorderedAccessBuffers &) { T3D_RHI_UNSUPPORTED(supportsUnorderedAccess); }
@@ -1883,6 +1890,15 @@ namespace Tiny3D
     {
         return T3D_OK;
     }
+
+    TResult MetalContext::generateMips(PixelBuffer *)
+    {
+        // 渲染纹理目前只有单级 mip，createRenderTexture 已拒绝 mipmaps > 1
+        T3D_LOG_ERROR(LOG_TAG_METALRENDERER, "generateMips : multi-mip render textures are not supported on Metal yet !");
+        return T3D_ERR_INVALID_PARAM;
+    }
+
+    //--------------------------------------------------------------------------
 
     TResult MetalContext::copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset, size_t size, size_t dstOffset)
     {

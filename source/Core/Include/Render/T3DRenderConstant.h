@@ -286,7 +286,116 @@ namespace Tiny3D
         kGPUUnorderedAccess = (1 << 1),
         /// 可作为 indirect draw / dispatch 的参数缓冲
         kGPUIndirectArgs    = (1 << 2),
+        /// 允许 RHIContext::generateMips 在 GPU 上生成 mip 链。只对 mipmaps > 1 的颜色渲染纹理生效，
+        /// 格式须同时可作渲染目标并支持线性过滤（D3D11 要据此加 MISC_GENERATE_MIPS）
+        kGPUGenerateMips    = (1 << 3),
     };
+
+    /**
+     * \brief 纹理的子资源范围，用于渲染目标附件与 SRV / UAV 绑定
+     * \remarks mipCount / sliceCount 为 0 表示「从起点到末尾」，所以默认值选中整张纹理，
+     *          与引入子资源之前的绑定行为一致。Cubemap 的层号是 cubeIndex * 6 + face，
+     *          face 顺序为 +X、-X、+Y、-Y、+Z、-Z。
+     *          - 渲染目标（RTV / DSV）与 UAV 只用 mipLevel 这一级，忽略 mipCount；
+     *          - SRV 用 [mipLevel, mipLevel + mipCount) 的 mip 范围。
+     *
+     *          视图维度在各后端一致：单层资源是 2D 视图；数组 / Cube 资源选中全部层时
+     *          保持原维度（Cube 的 SRV 仍是 Cube），只选部分层时一律是 2D 数组视图，
+     *          即使只选一层，shader 也要声明成 Texture2DArray / RWTexture2DArray。
+     *          渲染目标选中多层时是分层渲染，由 GS 输出 SV_RenderTargetArrayIndex 选层。
+     */
+    struct TextureSubresource
+    {
+        /// 起始 mip
+        uint32_t mipLevel {0};
+        /// mip 个数，0 表示到最后一级；只对 SRV 有效
+        uint32_t mipCount {0};
+        /// 起始数组层
+        uint32_t firstSlice {0};
+        /// 层数，0 表示到最后一层
+        uint32_t sliceCount {0};
+
+        /// 选中单个 mip 的全部层
+        static TextureSubresource mip(uint32_t level)
+        {
+            return TextureSubresource{level, 1, 0, 0};
+        }
+
+        /// 选中某一层的单个 mip，常用于渲染 Cube 的一个面或数组的一层
+        static TextureSubresource slice(uint32_t slice, uint32_t level = 0)
+        {
+            return TextureSubresource{level, 1, slice, 1};
+        }
+
+        /// 完整 mip 链的级数（直到 1x1）
+        static uint32_t getFullMipCount(uint32_t width, uint32_t height)
+        {
+            uint32_t size = width > height ? width : height;
+            uint32_t count = 1;
+            while (size > 1)
+            {
+                size >>= 1;
+                ++count;
+            }
+            return count;
+        }
+
+        /// 第 level 级 mip 的边长，最小为 1
+        static uint32_t getMipSize(uint32_t size, uint32_t level)
+        {
+            const uint32_t s = (level < 32) ? (size >> level) : 0;
+            return s == 0 ? 1 : s;
+        }
+
+        /// 是否为默认值（整张纹理）
+        bool isDefault() const
+        {
+            return mipLevel == 0 && mipCount == 0 && firstSlice == 0 && sliceCount == 0;
+        }
+
+        /**
+         * \brief 按纹理的实际 mip 数与层数展开 0 值并校验范围
+         * \param [in] totalMips : 纹理的 mip 总数
+         * \param [in] totalSlices : 纹理的层数（Cube 为 6 * 立方体个数，非数组为 1）
+         * \param [out] out : 展开后的范围，mipCount / sliceCount 都不为 0
+         * \return 范围合法返回 true
+         */
+        bool resolve(uint32_t totalMips, uint32_t totalSlices, TextureSubresource &out) const
+        {
+            totalMips = totalMips == 0 ? 1 : totalMips;
+            totalSlices = totalSlices == 0 ? 1 : totalSlices;
+            if (mipLevel >= totalMips || firstSlice >= totalSlices)
+            {
+                return false;
+            }
+            out.mipLevel = mipLevel;
+            out.mipCount = (mipCount == 0) ? (totalMips - mipLevel) : mipCount;
+            out.firstSlice = firstSlice;
+            out.sliceCount = (sliceCount == 0) ? (totalSlices - firstSlice) : sliceCount;
+            return out.mipLevel + out.mipCount <= totalMips && out.firstSlice + out.sliceCount <= totalSlices;
+        }
+
+        /// 展开后的范围打包成视图缓存的键
+        uint64_t key() const
+        {
+            return (uint64_t)(mipLevel & 0xFFu) | ((uint64_t)(mipCount & 0xFFu) << 8)
+                | ((uint64_t)(firstSlice & 0xFFFFu) << 16) | ((uint64_t)(sliceCount & 0xFFFFu) << 32);
+        }
+
+        bool operator ==(const TextureSubresource &other) const
+        {
+            return mipLevel == other.mipLevel && mipCount == other.mipCount
+                && firstSlice == other.firstSlice && sliceCount == other.sliceCount;
+        }
+
+        bool operator !=(const TextureSubresource &other) const
+        {
+            return !(*this == other);
+        }
+    };
+
+    /// 与 PixelBuffers / UnorderedAccessBuffers 按下标一一对应的子资源数组，为空表示全部取默认值
+    using TextureSubresources = TArray<TextureSubresource>;
 
     /// UAVInitialCounts 中表示「不修改计数器」的哨兵值，对应 D3D11 的 (UINT)-1
     const uint32_t kKeepUAVCounter = 0xFFFFFFFFu;

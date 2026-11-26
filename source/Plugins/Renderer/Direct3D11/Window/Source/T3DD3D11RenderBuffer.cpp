@@ -142,6 +142,32 @@ namespace Tiny3D
     
     //--------------------------------------------------------------------------
 
+    void D3D11SubresourceViews::release()
+    {
+        for (auto &item : SRViews)
+        {
+            D3D_SAFE_RELEASE(item.second);
+        }
+        for (auto &item : UAViews)
+        {
+            D3D_SAFE_RELEASE(item.second);
+        }
+        for (auto &item : RTViews)
+        {
+            D3D_SAFE_RELEASE(item.second);
+        }
+        for (auto &item : DSViews)
+        {
+            D3D_SAFE_RELEASE(item.second);
+        }
+        SRViews.clear();
+        UAViews.clear();
+        RTViews.clear();
+        DSViews.clear();
+    }
+
+    //--------------------------------------------------------------------------
+
     D3D11PixelBuffer1DPtr D3D11PixelBuffer1D::create()
     {
         return T3D_NEW D3D11PixelBuffer1D();

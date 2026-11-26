@@ -100,44 +100,44 @@ namespace Tiny3D
         RHIShaderPtr createVertexShader(ShaderVariant *shader) override;
         TResult setVertexShader(ShaderVariant *shader) override;
         TResult setVSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
-        TResult setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setVSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
         TResult setVSSamplers(uint32_t startSlot, const Samplers &samplers) override;
 
         RHIShaderPtr createPixelShader(ShaderVariant *shader) override;
         TResult setPixelShader(ShaderVariant *shader) override;
         TResult setPSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
-        TResult setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setPSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
         TResult setPSSamplers(uint32_t startSlot, const Samplers &samplers) override;
 
         RHIShaderPtr createHullShader(ShaderVariant *shader) override;
         TResult setHullShader(ShaderVariant *shader) override;
         TResult setHSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
-        TResult setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setHSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
         TResult setHSSamplers(uint32_t startSlot, const Samplers &samplers) override;
 
         RHIShaderPtr createDomainShader(ShaderVariant *shader) override;
         TResult setDomainShader(ShaderVariant *shader) override;
         TResult setDSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
-        TResult setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setDSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
         TResult setDSSamplers(uint32_t startSlot, const Samplers &samplers) override;
 
         RHIShaderPtr createGeometryShader(ShaderVariant *shader) override;
         TResult setGeometryShader(ShaderVariant *shader) override;
         TResult setGSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
-        TResult setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setGSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
         TResult setGSSamplers(uint32_t startSlot, const Samplers &samplers) override;
 
         RHIShaderPtr createComputeShader(ShaderVariant *shader) override;
         TResult setComputeShader(ShaderVariant *shader) override;
         TResult setCSConstantBuffers(uint32_t startSlot, const ConstantBuffers &buffers) override;
-        TResult setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers) override;
+        TResult setCSPixelBuffers(uint32_t startSlot, const PixelBuffers &buffers, const TextureSubresources &subresources = TextureSubresources()) override;
         TResult setCSSamplers(uint32_t startSlot, const Samplers &samplers) override;
 
         RHIStructuredBufferPtr createStructuredBuffer(StructuredBuffer *buffer) override;
         TResult setVSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
         TResult setPSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
         TResult setCSStructuredBuffers(uint32_t startSlot, const ShaderResourceBuffers &buffers) override;
-        TResult setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts = UAVInitialCounts()) override;
+        TResult setCSUnorderedAccessBuffers(uint32_t startSlot, const UnorderedAccessBuffers &buffers, const UAVInitialCounts &initialCounts = UAVInitialCounts(), const TextureSubresources &subresources = TextureSubresources()) override;
         TResult dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) override;
         TResult dispatchIndirect(RenderBuffer *argsBuffer, size_t argsOffset = 0) override;
         TResult uavBarrier(const UnorderedAccessBuffers &buffers) override;
@@ -158,6 +158,8 @@ namespace Tiny3D
         TResult blit(Texture *src, Texture *dst, const Vector3 &srcOffset = Vector3::ZERO, const Vector3 &size = Vector3::ZERO, const Vector3 dstOffset = Vector3::ZERO) override;
 
         TResult copyBuffer(RenderBuffer *src, RenderBuffer *dst, size_t srcOffset = 0, size_t size = 0, size_t dstOffset = 0) override;
+
+        TResult generateMips(PixelBuffer *buffer) override;
         TResult writeBuffer(RenderBuffer *renderBuffer, const Buffer &buffer, bool discardWholeBuffer = false) override;
 
         /// GPU → CPU 读回
@@ -179,7 +181,8 @@ namespace Tiny3D
         ~GL4Context() override;
 
         TResult stageConstantBuffers(TextureUnitStage stage, uint32_t startSlot, const ConstantBuffers &buffers);
-        TResult bindPixelBuffers(TextureUnitStage stage, uint32_t startSlot, const PixelBuffers &buffers);
+        TResult bindPixelBuffers(TextureUnitStage stage, uint32_t startSlot, const PixelBuffers &buffers,
+            const TextureSubresources &subresources, const char *func);
         TResult bindSamplers(TextureUnitStage stage, uint32_t startSlot, const Samplers &samplers);
         TResult bindStructuredBuffers(TextureUnitStage stage, uint32_t startSlot, const ShaderResourceBuffers &buffers);
 
@@ -269,8 +272,26 @@ namespace Tiny3D
         /// 把中间 FBO 的内容拷回窗口并停用中间 FBO
         void releaseWindowProxy();
 
+        /// 按 D3D11（FL 10.1+）语义设置 GL_MULTISAMPLE / GL_LINE_SMOOTH，只在 RHI 线程调用：
+        /// MultisampleEnable 只影响线段（含线框），三角形与点在 MSAA 目标上始终多重采样
+        void applyMultisampleState();
+
         GLuint getGLBufferHandle(RenderBuffer *buffer) const;
         bool getGLImageInfo(RenderBuffer *buffer, GLuint &outTex, GLenum &outFormat, GLboolean &outLayered) const;
+
+        /**
+         * \brief 取出纹理子资源对应的 GL 纹理，按需创建并缓存 glTextureView，只在 RHI 线程调用
+         * \param [in] buffer : 像素缓冲
+         * \param [in] sub : 子资源范围
+         * \param [in] forImage : true 表示给 glBindImageTexture 用，只取 sub.mipLevel 一级
+         * \param [out] outTex : 纹理名；覆盖整张纹理（image 为全部层）时是原纹理，否则是视图
+         * \param [out] outTarget : outTex 的 target
+         * \param [out] outLevel : image 绑定时传给 glBindImageTexture 的 level（视图恒为 0）
+         * \param [in] func : 出错日志里的调用方名字
+         * \return 越界、资源不支持子资源或建视图失败时返回 false
+         */
+        bool getGLSubresourceTexture(RenderBuffer *buffer, const TextureSubresource &sub, bool forImage,
+            GLuint &outTex, GLenum &outTarget, GLint &outLevel, const char *func);
         TResult validateIndirectArgs(RenderBuffer *argsBuffer, size_t argsOffset, size_t argsSize);
 
         struct BlitEndpoint
@@ -419,6 +440,10 @@ namespace Tiny3D
         TMap<GLuint, TArray<ProgramUBO>> mProgramUBONames;
         /// 当前图元类型
         GLenum  mPrimitiveType {GL_TRIANGLES};
+        /// 当前光栅化状态的填充模式与 MultisampleEnable / AntialiasedLineEnable，只在 RHI 线程访问
+        GLenum  mRasterFillMode {GL_FILL};
+        bool    mRasterMultisample {false};
+        bool    mRasterAntialiasedLine {false};
         /// 当前索引类型
         GLenum  mIndexType {GL_UNSIGNED_SHORT};
         /// 当前索引大小
@@ -509,6 +534,8 @@ namespace Tiny3D
         /// 只有一个 sampler object，所以 set*PixelBuffers / set*Samplers 只记录，draw / dispatch 时
         /// 再按当前 program 的 mProgramSamplerUnits 绑定。持有引用与 D3D11 一致，绑定期间资源不会被释放
         PixelBuffers mStageTextures[kTexStageCount];
+        /// 与 mStageTextures 一一对应的子资源，元素为默认值时绑整张纹理
+        TextureSubresources mStageTextureSubs[kTexStageCount];
         Samplers mStageSamplers[kTexStageCount];
 
         /// 一个 sampler uniform 占用的纹理单元，以及它读取的纹理槽位与采样器槽位

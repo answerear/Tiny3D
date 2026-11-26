@@ -91,6 +91,12 @@ namespace Tiny3D
         bool        supportsAppendConsumeBuffer {false};
         /// 支持 GPU→CPU 读回（map / unmap）
         bool        supportsReadback {false};
+        /// SRV 绑定可以只选纹理的部分 mip / 层（TextureSubresource）。
+        /// 不支持时 SRV 的子资源参数会被忽略并打 warning，仍绑定整张纹理；
+        /// 渲染目标附件与 UAV 的子资源不受此位影响
+        bool        supportsTextureSubresourceViews {false};
+        /// 渲染目标可以一次绑定数组 / Cube 的多层，由 GS 输出 SV_RenderTargetArrayIndex 选层
+        bool        supportsLayeredRendering {false};
 
         /// 每维最大线程组数
         uint32_t    maxDispatchGroupCount[3] {0, 0, 0};
@@ -149,6 +155,29 @@ namespace Tiny3D
          */
         bool checkCompressedTextureFormat(const char *tag, const char *func, PixelFormat format,
             uint32_t dimension, uint32_t width, uint32_t height, uint32_t sampleCount, bool wantsUAV) const;
+
+        /**
+         * \brief 校验渲染纹理的维度、层数与 mip 数，不合法时打错误日志
+         * \param [in] tag : 日志 tag
+         * \param [in] func : 调用方函数名，用于日志
+         * \param [in] desc : 渲染纹理描述
+         * \param [in] gpuAccess : 渲染纹理的 GPUAccessFlags
+         * \remarks 规则按各后端的交集定：Cube 要求宽高相等、arraySize 是 6 的倍数；
+         *          MSAA 只能是单层单 mip 的 2D（D3D11 的 Cube 不能 MSAA，多 mip 的 MSAA 纹理也不存在）；
+         *          mipmaps 不能超过完整 mip 链；带 kGPUGenerateMips 时格式须可作渲染目标并支持线性过滤，
+         *          深度格式不能带
+         */
+        bool checkRenderTextureLayout(const char *tag, const char *func, const PixelBuffer2DDesc &desc,
+            uint32_t gpuAccess) const;
+
+        /**
+         * \brief 校验 generateMips 的目标，不合法时打错误日志
+         * \param [in] tag : 日志 tag
+         * \param [in] func : 调用方函数名，用于日志
+         * \param [in] buffer : 目标像素缓冲
+         * \return 目标是带 kGPUGenerateMips、mipmaps > 1 且已创建 RHI 资源的渲染纹理时返回 true
+         */
+        bool checkGenerateMips(const char *tag, const char *func, PixelBuffer *buffer) const;
 
         /// 把 formatSupport 逐格式打到日志，后端填完能力位后调用
         void logFormatSupport(const char *tag) const;

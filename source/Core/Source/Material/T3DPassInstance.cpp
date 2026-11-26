@@ -253,7 +253,7 @@ namespace Tiny3D
     {
         using SetCBuffer = TResult (RHIContext::*)(uint32_t, const ConstantBuffers &);
         using SetSamplerState = TResult (RHIContext::*)(uint32_t, const Samplers &);
-        using SetPixelBuffer = TResult (RHIContext::*)(uint32_t, const PixelBuffers &);
+        using SetPixelBuffer = TResult (RHIContext::*)(uint32_t, const PixelBuffers &, const TextureSubresources &);
 
         TResult bindConstants(RHIContext *ctx, SetCBuffer setCBuffer, Material *material, ShaderVariantInstance *shader)
         {
@@ -286,7 +286,7 @@ namespace Tiny3D
             }
             if (!shader->getPixelBuffers().empty())
             {
-                (ctx->*setPixelBuffer)(shader->getPixelBufferStartSlot(), shader->getPixelBuffers());
+                (ctx->*setPixelBuffer)(shader->getPixelBufferStartSlot(), shader->getPixelBuffers(), TextureSubresources());
             }
             return T3D_OK;
         }
