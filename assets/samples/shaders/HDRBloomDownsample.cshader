@@ -1,0 +1,24 @@
+#pragma compute main
+#pragma target 5.0
+
+// HDRApp Bloom 下采样：SRV 选 mip N-1，UAV 写 mip N（G-05 子资源绑定）。
+// SRV 只露出一级 mip，所以着色器里的 mip 0 就是被选中的那一级。
+// 源码内嵌在 source/Samples/HDRApp/HDRBloomComputeSources.cpp，改动需两边同步。
+
+Texture2D<float4> _MainTex : register(t0);
+RWTexture2D<float4> _Output : register(u0);
+
+[numthreads(8, 8, 1)]
+void main(uint3 id : SV_DispatchThreadID)
+{
+    uint w, h;
+    _Output.GetDimensions(w, h);
+    if (id.x >= w || id.y >= h)
+        return;
+
+    // Destination is floor(src / 2), so p + 1 never leaves the source
+    int2 p = int2(id.xy) * 2;
+    float3 color = (_MainTex.Load(int3(p, 0)).rgb + _MainTex.Load(int3(p + int2(1, 0), 0)).rgb
+        + _MainTex.Load(int3(p + int2(0, 1), 0)).rgb + _MainTex.Load(int3(p + int2(1, 1), 0)).rgb) * 0.25f;
+    _Output[id.xy] = float4(color, 1.0f);
+}

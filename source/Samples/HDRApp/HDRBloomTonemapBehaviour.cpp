@@ -24,6 +24,7 @@
 
 
 #include "HDRBloomTonemapBehaviour.h"
+#include "HDRBloomComputeSources.h"
 #include "Kernel/T3DAgent.h"
 #include "Kernel/T3DPixelFormat.h"
 #include "Material/T3DPass.h"
@@ -192,6 +193,23 @@ namespace Tiny3D
         samplerDesc.AddressV = TextureAddressMode::kClamp;
         samplerDesc.AddressW = TextureAddressMode::kClamp;
 
+        uint32_t levels = 0;
+        for (uint32_t lw = width / 2, lh = height / 2; levels < kMaxLevels && lw >= 8 && lh >= 8; lw /= 2, lh /= 2)
+        {
+            ++levels;
+        }
+
+        if (levels >= 2 && ensureComputeChains(width / 2, height / 2, format, levels))
+        {
+            mDownChain->setSamplerDesc(samplerDesc);
+            mUpChain->setSamplerDesc(samplerDesc);
+            mLevelCount = levels;
+            mUseCompute = true;
+            T3D_LOG_INFO(LOG_TAG_APP, "HDRBloomTonemap : %u bloom mips in %s for a %ux%u source, downsample / upsample run as compute.",
+                mLevelCount, PixelFormatUtil::getName(format), width, height);
+            return true;
+        }
+
         uint32_t w = width / 2;
         uint32_t h = height / 2;
         while (mLevelCount < kMaxLevels && w >= 8 && h >= 8)
@@ -227,8 +245,58 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
+    bool HDRBloomTonemapBehaviour::ensureComputeChains(uint32_t width, uint32_t height, PixelFormat format, uint32_t levels)
+    {
+        RHIContext *ctx = T3D_AGENT.getActiveRHIContext();
+        const RHICapabilities &caps = ctx->getCapabilities();
+        if (!caps.supportsCompute || !caps.supportsUnorderedAccess || !caps.supportsTextureSubresourceViews
+            || !caps.supportsFormat(format, kFormatSupportUnorderedAccess))
+        {
+            return false;
+        }
+
+        if (mKernelFormat != format)
+        {
+            mDownsampleKernel = createHDRBloomKernel(HDRBloomKernel::kDownsample, format, mKernelShaders[0]);
+            mUpsampleKernel = createHDRBloomKernel(HDRBloomKernel::kUpsample, format, mKernelShaders[1]);
+            mKernelFormat = format;
+        }
+        if (mDownsampleKernel == nullptr || mUpsampleKernel == nullptr)
+        {
+            return false;
+        }
+
+        const String suffix = getUUID().toString();
+        mDownChain = T3D_TEXTURE_MGR.createRenderTexture("HDR-BloomDownChain-" + suffix, TEXTURE_TYPE::TT_2D,
+            width, height, 1, format, levels, true, kCPUNone, kGPUUnorderedAccess);
+        mUpChain = T3D_TEXTURE_MGR.createRenderTexture("HDR-BloomUpChain-" + suffix, TEXTURE_TYPE::TT_2D,
+            width, height, 1, format, levels, true, kCPUNone, kGPUUnorderedAccess);
+        if (mDownChain == nullptr || mUpChain == nullptr)
+        {
+            T3D_LOG_WARNING(LOG_TAG_APP, "HDRBloomTonemap : failed to create %ux%u %s mip chains, using pixel shader levels.",
+                width, height, PixelFormatUtil::getName(format));
+            releaseLevels();
+            return false;
+        }
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
     void HDRBloomTonemapBehaviour::releaseLevels()
     {
+        if (mDownChain != nullptr)
+        {
+            T3D_TEXTURE_MGR.unload(mDownChain);
+            mDownChain = nullptr;
+        }
+        if (mUpChain != nullptr)
+        {
+            T3D_TEXTURE_MGR.unload(mUpChain);
+            mUpChain = nullptr;
+        }
+        mUseCompute = false;
+
         for (uint32_t i = 0; i < mLevelCount; ++i)
         {
             if (mLevels[i] != nullptr)
@@ -280,6 +348,21 @@ namespace Tiny3D
 
         ForwardRenderPipeline &pipeline = static_cast<ForwardRenderPipeline &>(T3D_RENDER_PIPELINE);
 
+        if (mUseCompute)
+        {
+            // Bright pass writes mip 0 (the default render target subresource), compute fills the rest
+            setPassParams(mPrefilterMaterial, mDownChain, Vector4(mThreshold, 0.5f, REAL_ZERO, REAL_ZERO));
+            pipeline.drawFullscreen(ctx, mPrefilterMaterial, src, mDownChain);
+
+            runComputeChain(ctx);
+
+            // The tone map samples mUpChain with MipFilter none, i.e. only mip 0
+            setPassParams(mTonemapMaterial, dst, Vector4(mExposure, mBloomIntensity, REAL_ZERO, REAL_ZERO));
+            bindBloom(mTonemapMaterial, mUpChain);
+            pipeline.drawFullscreen(ctx, mTonemapMaterial, src, dst);
+            return;
+        }
+
         // Bright pass : scene -> level 0
         setPassParams(mPrefilterMaterial, mLevels[0], Vector4(mThreshold, 0.5f, REAL_ZERO, REAL_ZERO));
         pipeline.drawFullscreen(ctx, mPrefilterMaterial, src, mLevels[0]);
@@ -306,6 +389,84 @@ namespace Tiny3D
         setPassParams(mTonemapMaterial, dst, Vector4(mExposure, mBloomIntensity, REAL_ZERO, REAL_ZERO));
         bindBloom(mTonemapMaterial, coarser);
         pipeline.drawFullscreen(ctx, mTonemapMaterial, src, dst);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult HDRBloomTonemapBehaviour::dispatchKernel(RHIContext *ctx, ShaderVariant *kernel, const PixelBuffers &srvs,
+        const TextureSubresources &srvSubs, RenderTexture *uav, uint32_t uavMip)
+    {
+        TResult ret = ctx->setComputeShader(kernel);
+        if (T3D_SUCCEEDED(ret))
+        {
+            ret = ctx->setCSPixelBuffers(0, srvs, srvSubs);
+        }
+
+        UnorderedAccessBuffers uavs;
+        uavs.push_back(uav->getPixelBuffer());
+        TextureSubresources uavSubs;
+        uavSubs.push_back(TextureSubresource::mip(uavMip));
+        if (T3D_SUCCEEDED(ret))
+        {
+            ret = ctx->setCSUnorderedAccessBuffers(0, uavs, UAVInitialCounts(), uavSubs);
+        }
+
+        if (T3D_SUCCEEDED(ret))
+        {
+            uint32_t gx = 8, gy = 8, gz = 1;
+            kernel->getThreadGroupSize(gx, gy, gz);
+            gx = gx == 0 ? 8 : gx;
+            gy = gy == 0 ? 8 : gy;
+            const uint32_t w = TextureSubresource::getMipSize(uav->getWidth(), uavMip);
+            const uint32_t h = TextureSubresource::getMipSize(uav->getHeight(), uavMip);
+            ret = ctx->dispatch((w + gx - 1) / gx, (h + gy - 1) / gy, 1);
+        }
+
+        // The next dispatch reads this mip as an SRV : clear the slots instead of a plain
+        // uavBarrier, which rebinds the UAV and keeps the hazard alive on D3D11
+        ctx->uavBarrier(uavs);
+        ctx->setCSUnorderedAccessBuffers(0, UnorderedAccessBuffers(1, nullptr));
+        ctx->setCSPixelBuffers(0, PixelBuffers(srvs.size(), nullptr));
+        return ret;
+    }
+
+    //--------------------------------------------------------------------------
+
+    void HDRBloomTonemapBehaviour::runComputeChain(RHIContext *ctx)
+    {
+        PixelBuffer *down = mDownChain->getPixelBuffer();
+        PixelBuffer *up = mUpChain->getPixelBuffer();
+
+        // Downsample : down mip i - 1 -> down mip i, read and write views never overlap
+        for (uint32_t i = 1; i < mLevelCount; ++i)
+        {
+            PixelBuffers srvs;
+            srvs.push_back(down);
+            TextureSubresources subs;
+            subs.push_back(TextureSubresource::mip(i - 1));
+            if (T3D_FAILED(dispatchKernel(ctx, mDownsampleKernel.get(), srvs, subs, mDownChain, i)))
+            {
+                break;
+            }
+        }
+
+        // Upsample : down mip i + blurred coarser level -> up mip i
+        for (int32_t i = static_cast<int32_t>(mLevelCount) - 2; i >= 0; --i)
+        {
+            const bool coarsestStep = (i == static_cast<int32_t>(mLevelCount) - 2);
+            PixelBuffers srvs;
+            srvs.push_back(down);
+            srvs.push_back(coarsestStep ? down : up);
+            TextureSubresources subs;
+            subs.push_back(TextureSubresource::mip(i));
+            subs.push_back(TextureSubresource::mip(i + 1));
+            if (T3D_FAILED(dispatchKernel(ctx, mUpsampleKernel.get(), srvs, subs, mUpChain, i)))
+            {
+                break;
+            }
+        }
+
+        ctx->setComputeShader(nullptr);
     }
 
     //--------------------------------------------------------------------------

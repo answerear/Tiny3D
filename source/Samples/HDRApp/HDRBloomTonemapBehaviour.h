@@ -40,6 +40,9 @@ namespace Tiny3D
      *   Each draw has its own material so per-pass constants never overwrite each other.
      *   Bloom levels keep the source format; when that format cannot be linearly
      *   filtered as a render target, the effect falls back to a plain copy.
+     *   With compute, UAVs and subresource views the levels live in the mips of two
+     *   render textures and compute kernels read mip N (SRV) while writing mip N + 1 (UAV);
+     *   otherwise every level is its own render texture drawn by pixel shaders.
      */
     TCLASS()
     class HDRBloomTonemapBehaviour : public CameraEffectBehaviour
@@ -86,9 +89,13 @@ namespace Tiny3D
         ShaderPtr buildShader(const String &name, HDRShader pixelShader);
         MaterialPtr buildMaterial(Shader *shader, const String &name);
         bool ensureLevels(RenderTexture *src);
+        bool ensureComputeChains(uint32_t width, uint32_t height, PixelFormat format, uint32_t levels);
         void releaseLevels();
         void setPassParams(Material *material, RenderTexture *dst, const Vector4 &params);
         void bindBloom(Material *material, RenderTexture *bloom);
+        void runComputeChain(RHIContext *ctx);
+        TResult dispatchKernel(RHIContext *ctx, ShaderVariant *kernel, const PixelBuffers &srvs,
+            const TextureSubresources &srvSubs, RenderTexture *uav, uint32_t uavMip);
 
         ShaderPtr mPrefilterShader {nullptr};
         ShaderPtr mDownsampleShader {nullptr};
@@ -105,6 +112,16 @@ namespace Tiny3D
         /// mUpsampled[i] = mLevels[i] + blurred coarser level, same size as mLevels[i]
         RenderTexturePtr mUpsampled[kMaxLevels] {};
         uint32_t mLevelCount {0};
+
+        /// Compute path : mip i of mDownChain / mUpChain plays the role of mLevels[i] / mUpsampled[i]
+        bool mUseCompute {false};
+        RenderTexturePtr mDownChain {nullptr};
+        RenderTexturePtr mUpChain {nullptr};
+        ShaderVariantPtr mDownsampleKernel {nullptr};
+        ShaderVariantPtr mUpsampleKernel {nullptr};
+        ShaderPtr mKernelShaders[2] {};
+        PixelFormat mKernelFormat {PixelFormat::E_PF_UNKNOWN};
+
         uint32_t mSrcWidth {0};
         uint32_t mSrcHeight {0};
         PixelFormat mSrcFormat {PixelFormat::E_PF_UNKNOWN};
