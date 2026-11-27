@@ -48,6 +48,7 @@ if (TINY3D_OS_DESKTOP)
     add_subdirectory(SoftParticleApp)
     add_subdirectory(SRGBApp)
     add_subdirectory(OcclusionCullingApp)
+    add_subdirectory(OITApp)
 endif (TINY3D_OS_DESKTOP)
 
 if (TINY3D_OS_ANDROID AND TINY3D_BUILD_RMLUI)
