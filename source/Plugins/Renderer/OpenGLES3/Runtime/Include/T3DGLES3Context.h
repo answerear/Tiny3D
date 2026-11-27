@@ -65,6 +65,8 @@ namespace Tiny3D
         RHISamplerStatePtr createSamplerState(SamplerState *state) override;
 
         TResult setBlendState(BlendState *state) override;
+
+        TResult setBlendConstant(const ColorRGBA &color) override;
         TResult setDepthStencilState(DepthStencilState *state) override;
         TResult setRasterizerState(RasterizerState *state) override;
 

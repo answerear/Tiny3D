@@ -114,6 +114,9 @@ namespace Tiny3D
         bool        supportsPredication {false};
         /// 调试分组、调试标记与资源名会转发到图形 API。为 false 时这些接口是空操作，不影响渲染结果
         bool        supportsDebugAnnotations {false};
+        /// 混合因子可以用 BlendFactor::kSrc1Color 等双源因子。GLES 需要 EXT_blend_func_extended，
+        /// Vulkan 需要设备特性 dualSrcBlend
+        bool        supportsDualSourceBlend {false};
 
         /// 每维最大线程组数
         uint32_t    maxDispatchGroupCount[3] {0, 0, 0};
@@ -215,6 +218,18 @@ namespace Tiny3D
          */
         static uint32_t filterDepthStencilClear(const char *tag, const char *func, const RenderTarget *renderTarget,
             uint32_t parts);
+
+        /**
+         * \brief 校验混合状态描述，不合法时打错误日志
+         * \param [in] tag : 日志 tag
+         * \param [in] func : 调用方函数名，用于日志
+         * \param [in] desc : 混合状态描述
+         * \return 没有用双源因子，或后端支持且只有 RT 0 用到时返回 true
+         * \remarks 规则按各后端的交集定：双源因子只能出现在 RT 0 上（D3D11 与 GL 的双源混合都只有
+         *          一个输出槽）。用到双源因子时，渲染目标也只能有一个颜色附件，这一条在绑定时才能确定，
+         *          由调用方保证
+         */
+        bool checkBlendDesc(const char *tag, const char *func, const BlendDesc &desc) const;
 
         /// 是否支持某种查询类型
         bool supportsQuery(QueryType type) const;

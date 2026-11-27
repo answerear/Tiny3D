@@ -226,6 +226,8 @@ namespace Tiny3D
         Viewport                    viewport {};
         MTLScissorRect              scissor {};
         bool                        hasScissor {false};
+        /// setBlendConstant 设置的混合常量，每个新 encoder 都要重新设置
+        float                       blendConstant[4] {0.0f, 0.0f, 0.0f, 0.0f};
 
         MTLClearColor               clearColor {0.0, 0.0, 0.0, 1.0};
         double                      clearDepth {1.0};
@@ -352,6 +354,8 @@ namespace Tiny3D
         mCapabilities.supportsPipelineStatisticsQuery = false;
         mCapabilities.supportsPredication = false;
         mCapabilities.supportsDebugAnnotations = true;
+        // Source1Color 等双源因子在引擎支持的 macOS 10.12 / iOS 11 以上都可用
+        mCapabilities.supportsDualSourceBlend = true;
     }
 
     //--------------------------------------------------------------------------
@@ -657,6 +661,8 @@ namespace Tiny3D
         }
         [mImpl->encoder setDepthStencilState:dss];
         [mImpl->encoder setStencilReferenceValue:stencilRef];
+        [mImpl->encoder setBlendColorRed:mImpl->blendConstant[0] green:mImpl->blendConstant[1]
+            blue:mImpl->blendConstant[2] alpha:mImpl->blendConstant[3]];
     }
 
     //--------------------------------------------------------------------------
@@ -1062,6 +1068,12 @@ namespace Tiny3D
 
     RHIBlendStatePtr MetalContext::createBlendState(BlendState *state)
     {
+        if (state != nullptr
+            && !mCapabilities.checkBlendDesc(LOG_TAG_METALRENDERER, "createBlendState", state->getStateDesc()))
+        {
+            return nullptr;
+        }
+
         MetalBlendStatePtr metalState = MetalBlendState::create();
         if (state != nullptr)
         {
@@ -1160,6 +1172,21 @@ namespace Tiny3D
         mImpl->blendState = (state != nullptr)
             ? smart_pointer_cast<MetalBlendState>(state->getRHIResource())
             : nullptr;
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult MetalContext::setBlendConstant(const ColorRGBA &color)
+    {
+        mImpl->blendConstant[0] = color.red();
+        mImpl->blendConstant[1] = color.green();
+        mImpl->blendConstant[2] = color.blue();
+        mImpl->blendConstant[3] = color.alpha();
+        if (mImpl->encoder != nil)
+        {
+            [mImpl->encoder setBlendColorRed:color.red() green:color.green() blue:color.blue() alpha:color.alpha()];
+        }
         return T3D_OK;
     }
 

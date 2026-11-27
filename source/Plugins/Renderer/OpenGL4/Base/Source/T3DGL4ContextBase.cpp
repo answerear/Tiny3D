@@ -261,6 +261,8 @@ namespace Tiny3D
         // GL 没有只读深度视图，后端在只读目标上强制关闭深度 / 模板写掩码，
         // 深度纹理可以同时挂在 FBO 上并被采样
         mCapabilities.supportsReadOnlyDepthStencil = true;
+        // 双源混合（GL_SRC1_COLOR 与 layout(index = 1)）是 GL 3.3 核心功能
+        mCapabilities.supportsDualSourceBlend = true;
 
         if (has43)
         {

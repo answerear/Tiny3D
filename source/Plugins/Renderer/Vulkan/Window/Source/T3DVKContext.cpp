@@ -95,6 +95,13 @@ namespace Tiny3D
         case BlendFactor::kSrcAlpha:         return VK_BLEND_FACTOR_SRC_ALPHA;
         case BlendFactor::kOneMinusDstAlpha: return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
         case BlendFactor::kOneMinusSrcAlpha: return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        case BlendFactor::kSrcAlphaSaturate: return VK_BLEND_FACTOR_SRC_ALPHA_SATURATE;
+        case BlendFactor::kBlendConstant:    return VK_BLEND_FACTOR_CONSTANT_COLOR;
+        case BlendFactor::kOneMinusBlendConstant: return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
+        case BlendFactor::kSrc1Color:        return VK_BLEND_FACTOR_SRC1_COLOR;
+        case BlendFactor::kOneMinusSrc1Color: return VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR;
+        case BlendFactor::kSrc1Alpha:        return VK_BLEND_FACTOR_SRC1_ALPHA;
+        case BlendFactor::kOneMinusSrc1Alpha: return VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA;
         default:                             return VK_BLEND_FACTOR_ONE;
         }
     }
@@ -407,7 +414,10 @@ namespace Tiny3D
             // 管线统计查询与精确遮挡计数都是可选特性，不开就不能用
             deviceFeatures.pipelineStatisticsQuery = supportedFeatures.pipelineStatisticsQuery;
             deviceFeatures.occlusionQueryPrecise = supportedFeatures.occlusionQueryPrecise;
+            // SRC1_* 混合因子要求开启 dualSrcBlend
+            deviceFeatures.dualSrcBlend = supportedFeatures.dualSrcBlend;
             mPipelineStatisticsEnabled = (supportedFeatures.pipelineStatisticsQuery == VK_TRUE);
+            mDualSrcBlendEnabled = (supportedFeatures.dualSrcBlend == VK_TRUE);
             mOcclusionPreciseEnabled = (supportedFeatures.occlusionQueryPrecise == VK_TRUE);
 
             const char *deviceExtensions[] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
@@ -567,6 +577,7 @@ namespace Tiny3D
         mCapabilities.supportsPipelineStatisticsQuery = mPipelineStatisticsEnabled;
         mCapabilities.supportsPredication = false;
         mCapabilities.supportsDebugAnnotations = (mVkCmdBeginDebugUtilsLabel != nullptr);
+        mCapabilities.supportsDualSourceBlend = mDualSrcBlendEnabled;
 
         {
             uint32_t queueFamilyCount = 0;
@@ -2006,6 +2017,11 @@ namespace Tiny3D
 
     RHIBlendStatePtr VKContext::createBlendState(BlendState *state)
     {
+        if (!mCapabilities.checkBlendDesc(LOG_TAG_VKRENDERER, "createBlendState", state->getStateDesc()))
+        {
+            return nullptr;
+        }
+
         // Vulkan blend state is part of pipeline creation, store desc for later
         VKBlendStatePtr vkState = VKBlendState::create();
         return vkState;
@@ -2073,8 +2089,25 @@ namespace Tiny3D
     {
         if (state != nullptr)
         {
+            // createBlendState rejected the desc, it must not reach pipeline creation
+            if (state->getRHIState() == nullptr)
+            {
+                T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "setBlendState : blend state was rejected by createBlendState !");
+                return T3D_ERR_INVALID_PARAM;
+            }
             mCurrentBlendDesc = state->getStateDesc();
         }
+        return T3D_OK;
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult VKContext::setBlendConstant(const ColorRGBA &color)
+    {
+        mBlendConstant[0] = color.red();
+        mBlendConstant[1] = color.green();
+        mBlendConstant[2] = color.blue();
+        mBlendConstant[3] = color.alpha();
         return T3D_OK;
     }
 
@@ -3253,6 +3286,9 @@ namespace Tiny3D
         hash ^= std::hash<uint32_t>{}((uint32_t)rt0Blend.SrcBlend) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
         hash ^= std::hash<uint32_t>{}((uint32_t)rt0Blend.DestBlend) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
         hash ^= std::hash<uint32_t>{}((uint32_t)rt0Blend.BlendOp) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint32_t>{}((uint32_t)rt0Blend.SrcBlendAlpha) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint32_t>{}((uint32_t)rt0Blend.DstBlendAlpha) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint32_t>{}((uint32_t)rt0Blend.BlendOpAlpha) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
         hash ^= std::hash<uint32_t>{}((uint32_t)rt0Blend.ColorMask) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
 
         // Check cache
@@ -3394,11 +3430,12 @@ namespace Tiny3D
             colorBlending.pAttachments = &colorBlendAttachment;
         }
 
-        // Dynamic state — viewport, scissor, and depth bias
-        VkDynamicState dynamicStates[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_DEPTH_BIAS };
+        // Dynamic state — viewport, scissor, depth bias and blend constants (RHIContext::setBlendConstant)
+        VkDynamicState dynamicStates[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_DEPTH_BIAS,
+            VK_DYNAMIC_STATE_BLEND_CONSTANTS };
         VkPipelineDynamicStateCreateInfo dynamicState {};
         dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-        dynamicState.dynamicStateCount = 3;
+        dynamicState.dynamicStateCount = 4;
         dynamicState.pDynamicStates = dynamicStates;
 
         // Create pipeline
@@ -3651,6 +3688,9 @@ namespace Tiny3D
             mCurrentRasterizerDesc.DepthBias,
             mCurrentRasterizerDesc.DepthBiasClamp,
             mCurrentRasterizerDesc.SlopeScaledDepthBias);
+
+        // 每次绘制都下发：blit 等内部管线不带这个动态状态，绑定它们之后命令缓冲里的值会失效
+        vkCmdSetBlendConstants(cmdBuf, mBlendConstant);
 
         if (mPendingScissorValid)
         {

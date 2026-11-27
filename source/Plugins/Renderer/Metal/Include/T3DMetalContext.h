@@ -148,6 +148,8 @@ namespace Tiny3D
          */
         TResult setBlendState(BlendState *state) override;
 
+        TResult setBlendConstant(const ColorRGBA &color) override;
+
         /**
          * \brief 设置深度模板状态
          * \param [in] state : 深度模板状态

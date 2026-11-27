@@ -202,7 +202,8 @@ namespace Tiny3D
         /**
          * \brief 创建 RHI 颜色混合状态对象
          * \param [in] state : 引擎颜色混合状态对象
-         * \return 调用成功返回新建的 RHI 对象
+         * \return 调用成功返回新建的 RHI 对象。用到后端不支持的混合因子（见 RHICapabilities::checkBlendDesc）
+         *         时返回 nullptr，之后对这个混合状态调用 setBlendState 会返回错误
          */
         virtual RHIBlendStatePtr createBlendState(BlendState *state) = 0;
 
@@ -233,6 +234,16 @@ namespace Tiny3D
          * \return 调用成功返回 T3D_OK
          */
         virtual TResult setBlendState(BlendState *state) = 0;
+
+        /**
+         * \brief 设置混合常量，供 BlendFactor::kBlendConstant / kOneMinusBlendConstant 使用
+         * \param [in] color : 常量颜色，RGB 因子取 rgb，Alpha 因子取 a
+         * \return 调用成功返回 T3D_OK；无窗口的上下文是空操作，同样返回 T3D_OK
+         * \remarks 混合常量是上下文状态，不属于 BlendState：同一个混合状态可以配不同的常量逐次绘制，
+         *          不用为每个常量建一个混合状态。设置后一直有效，setBlendState、setRenderTarget、
+         *          reset 都不会改变它，初始值为 (0, 0, 0, 0)
+         */
+        virtual TResult setBlendConstant(const ColorRGBA &color) { return T3D_OK; }
 
         /**
          * \brief 设置深度模板状态

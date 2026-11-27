@@ -255,6 +255,9 @@ namespace Tiny3D
         mCapabilities.supportsPredication = true;
         mCapabilities.supportsDebugAnnotations = (mAnnotation != nullptr);
 
+        // SRC1_COLOR 等双源因子从 FL 10.0 起可用
+        mCapabilities.supportsDualSourceBlend = (mFeatureLevel >= D3D_FEATURE_LEVEL_10_0);
+
         if (hasFullCompute)
         {
             // 派发组数与单组线程数是两套上限，THREAD_GROUP_MAX_* 只约束后者
@@ -2102,9 +2105,13 @@ namespace Tiny3D
 
     RHIBlendStatePtr D3D11Context::createBlendState(BlendState *state)
     {
-        D3D11BlendStatePtr d3dState = D3D11BlendState::create();
-
         const BlendDesc &desc = state->getStateDesc();
+        if (!mCapabilities.checkBlendDesc(LOG_TAG_D3D11RENDERER, "createBlendState", desc))
+        {
+            return nullptr;
+        }
+
+        D3D11BlendStatePtr d3dState = D3D11BlendState::create();
         D3D11_BLEND_DESC d3dDesc;
         memset(&d3dDesc, 0, sizeof(d3dDesc));
         d3dDesc.AlphaToCoverageEnable = desc.AlphaToCoverageEnable;
@@ -2117,8 +2124,8 @@ namespace Tiny3D
             dst.SrcBlend = D3D11Mapping::get(src.SrcBlend);
             dst.DestBlend = D3D11Mapping::get(src.DestBlend);
             dst.BlendOp = D3D11Mapping::get(src.BlendOp);
-            dst.SrcBlendAlpha = D3D11Mapping::get(src.SrcBlendAlpha);
-            dst.DestBlendAlpha = D3D11Mapping::get(src.DstBlendAlpha);
+            dst.SrcBlendAlpha = D3D11Mapping::getAlphaBlend(src.SrcBlendAlpha);
+            dst.DestBlendAlpha = D3D11Mapping::getAlphaBlend(src.DstBlendAlpha);
             dst.BlendOpAlpha = D3D11Mapping::get(src.BlendOpAlpha);
             dst.RenderTargetWriteMask = D3D11Mapping::get(static_cast<BlendColorWriteMask>(src.ColorMask));
         }
@@ -2315,13 +2322,42 @@ namespace Tiny3D
     
     TResult D3D11Context::setBlendState(BlendState *state)
     {
+        if (state == nullptr || state->getRHIState() == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "setBlendState : blend state has no D3D11 object !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
         auto lambda = [this](const D3D11BlendStatePtr &d3dState)
         {
-            mD3DDeviceContext->OMSetBlendState(d3dState->D3DBlendState, nullptr, -1);
+            mD3DDeviceContext->OMSetBlendState(d3dState->D3DBlendState, mBlendConstant, 0xFFFFFFFF);
             return T3D_OK;
         };
 
         return ENQUEUE_UNIQUE_COMMAND(lambda, smart_pointer_cast<D3D11BlendState>(state->getRHIState()));
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult D3D11Context::setBlendConstant(const ColorRGBA &color)
+    {
+        auto lambda = [this](const ColorRGBA &color)
+        {
+            mBlendConstant[0] = color.red();
+            mBlendConstant[1] = color.green();
+            mBlendConstant[2] = color.blue();
+            mBlendConstant[3] = color.alpha();
+
+            // D3D11 的混合常量和混合状态是一起设置的，换常量时沿用当前的混合状态
+            ID3D11BlendState *pCurState = nullptr;
+            UINT sampleMask = 0xFFFFFFFF;
+            mD3DDeviceContext->OMGetBlendState(&pCurState, nullptr, &sampleMask);
+            mD3DDeviceContext->OMSetBlendState(pCurState, mBlendConstant, sampleMask);
+            D3D_SAFE_RELEASE(pCurState);
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, color);
     }
 
     //--------------------------------------------------------------------------
@@ -4689,7 +4725,8 @@ namespace Tiny3D
             // 还原光栅化状态、混合状态、深度模板状态为默认（如果你有默认状态对象）
             mD3DDeviceContext->RSSetState(mBackupState.RasterizerState);
             D3D_SAFE_RELEASE(mBackupState.RasterizerState);
-            mD3DDeviceContext->OMSetBlendState(mBackupState.BlendState, mBackupState.BlendFactor, mBackupState.SampleMask);
+            // 混合常量不随 reset 还原，与 GL / Vulkan / Metal 一致
+            mD3DDeviceContext->OMSetBlendState(mBackupState.BlendState, mBlendConstant, mBackupState.SampleMask);
             D3D_SAFE_RELEASE(mBackupState.BlendState);
             mD3DDeviceContext->OMSetDepthStencilState(mBackupState.DepthStencilState, mBackupState.StencilRef);
             D3D_SAFE_RELEASE(mBackupState.DepthStencilState);

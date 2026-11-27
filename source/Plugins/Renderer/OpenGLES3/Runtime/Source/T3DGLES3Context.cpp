@@ -1174,9 +1174,13 @@ namespace Tiny3D
 
     RHIBlendStatePtr GLES3Context::createBlendState(BlendState *state)
     {
-        GLES3BlendStatePtr glState = GLES3BlendState::create();
-
         const BlendDesc &desc = state->getStateDesc();
+        if (!mCapabilities.checkBlendDesc(LOG_TAG_GLES3RENDERER, "createBlendState", desc))
+        {
+            return nullptr;
+        }
+
+        GLES3BlendStatePtr glState = GLES3BlendState::create();
 
         GLES3BlendStateData d {};
         d.independentBlend = desc.IndependentBlendEnable;
@@ -1373,6 +1377,12 @@ namespace Tiny3D
 
     TResult GLES3Context::setBlendState(BlendState *state)
     {
+        if (state == nullptr || state->getRHIState() == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GLES3RENDERER, "setBlendState : blend state has no GL object !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
         GLES3BlendState *glState = static_cast<GLES3BlendState*>(state->getRHIState().get());
         const auto &d = glState->data;
 
@@ -1445,6 +1455,20 @@ namespace Tiny3D
         };
 
         return ENQUEUE_UNIQUE_COMMAND(lambda, d);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GLES3Context::setBlendConstant(const ColorRGBA &color)
+    {
+        auto lambda = [this](const ColorRGBA &color)
+        {
+            glBlendColor(color.red(), color.green(), color.blue(), color.alpha());
+            GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::setBlendConstant");
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, color);
     }
 
     //--------------------------------------------------------------------------
@@ -5195,9 +5219,14 @@ namespace Tiny3D
         // 与 GL4 一样没有只读深度视图，只读目标上强制关闭深度 / 模板写掩码
         mCapabilities.supportsReadOnlyDepthStencil = true;
 
-        T3D_LOG_INFO(LOG_TAG_GLES3RENDERER, "GPU timestamp query (EXT_disjoint_timer_query): %s, debug annotation (KHR_debug): %s",
+        // ES 核心没有双源混合，着色器里还要 #extension GL_EXT_blend_func_extended 并声明 index = 1 的输出
+        mCapabilities.supportsDualSourceBlend = hasGLExtension("GL_EXT_blend_func_extended");
+
+        T3D_LOG_INFO(LOG_TAG_GLES3RENDERER, "GPU timestamp query (EXT_disjoint_timer_query): %s, debug annotation (KHR_debug): %s, "
+            "dual source blend (EXT_blend_func_extended): %s",
             mCapabilities.supportsTimestampQuery ? "supported" : "not supported",
-            mHasDebugAnnotation ? "supported" : "not supported");
+            mHasDebugAnnotation ? "supported" : "not supported",
+            mCapabilities.supportsDualSourceBlend ? "supported" : "not supported");
     }
 
     //--------------------------------------------------------------------------

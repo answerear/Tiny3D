@@ -33,6 +33,23 @@
 #define GL_RG16_EXT 0x822C
 #endif
 
+// GL_EXT_blend_func_extended
+#ifndef GL_SRC1_COLOR_EXT
+#define GL_SRC1_COLOR_EXT 0x88F9
+#endif
+
+#ifndef GL_SRC1_ALPHA_EXT
+#define GL_SRC1_ALPHA_EXT 0x8589
+#endif
+
+#ifndef GL_ONE_MINUS_SRC1_COLOR_EXT
+#define GL_ONE_MINUS_SRC1_COLOR_EXT 0x88FA
+#endif
+
+#ifndef GL_ONE_MINUS_SRC1_ALPHA_EXT
+#define GL_ONE_MINUS_SRC1_ALPHA_EXT 0x88FB
+#endif
+
 
 namespace Tiny3D
 {
@@ -444,6 +461,13 @@ namespace Tiny3D
         case BlendFactor::kSrcAlpha:           return GL_SRC_ALPHA;
         case BlendFactor::kOneMinusDstAlpha:   return GL_ONE_MINUS_DST_ALPHA;
         case BlendFactor::kOneMinusSrcAlpha:   return GL_ONE_MINUS_SRC_ALPHA;
+        case BlendFactor::kSrcAlphaSaturate:   return GL_SRC_ALPHA_SATURATE;
+        case BlendFactor::kBlendConstant:      return GL_CONSTANT_COLOR;
+        case BlendFactor::kOneMinusBlendConstant:  return GL_ONE_MINUS_CONSTANT_COLOR;
+        case BlendFactor::kSrc1Color:          return GL_SRC1_COLOR_EXT;
+        case BlendFactor::kOneMinusSrc1Color:  return GL_ONE_MINUS_SRC1_COLOR_EXT;
+        case BlendFactor::kSrc1Alpha:          return GL_SRC1_ALPHA_EXT;
+        case BlendFactor::kOneMinusSrc1Alpha:  return GL_ONE_MINUS_SRC1_ALPHA_EXT;
         }
         return GL_ONE;
     }

@@ -77,6 +77,8 @@ namespace Tiny3D
         RHIRasterizerStatePtr createRasterizerState(RasterizerState *state) override;
         RHISamplerStatePtr createSamplerState(SamplerState *state) override;
         TResult setBlendState(BlendState *state) override;
+
+        TResult setBlendConstant(const ColorRGBA &color) override;
         TResult setDepthStencilState(DepthStencilState *state) override;
         TResult setRasterizerState(RasterizerState *state) override;
         RHIVertexDeclarationPtr createVertexDeclaration(VertexDeclaration *decl) override;
@@ -290,6 +292,8 @@ namespace Tiny3D
         RasterizerDesc      mCurrentRasterizerDesc {};
         /// Current blend state (used in pipeline creation)
         BlendDesc           mCurrentBlendDesc {};
+        /// setBlendConstant 设置的混合常量，prepareDrawCall 每次绘制都下发
+        float               mBlendConstant[4] {0.0f, 0.0f, 0.0f, 0.0f};
         /// Current depth/stencil state (used in pipeline creation)
         DepthStencilDesc    mCurrentDepthStencilDesc {};
 
@@ -450,6 +454,8 @@ namespace Tiny3D
         /// 是否开启了 pipelineStatisticsQuery / occlusionQueryPrecise 特性
         bool                mPipelineStatisticsEnabled {false};
         bool                mOcclusionPreciseEnabled {false};
+        /// 是否开启了 dualSrcBlend 特性
+        bool                mDualSrcBlendEnabled {false};
         /// 每个帧槽上已发起、等待 fence 的查询
         std::vector<PendingQuery>   mFrameQueries[MAX_FRAMES_IN_FLIGHT];
     };

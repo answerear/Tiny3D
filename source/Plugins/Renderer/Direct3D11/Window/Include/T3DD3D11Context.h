@@ -169,6 +169,8 @@ namespace Tiny3D
          */
         TResult setBlendState(BlendState *state) override;
 
+        TResult setBlendConstant(const ColorRGBA &color) override;
+
         /**
          * \brief 设置深度模板状态
          * \param [in] state : 深度模板状态
@@ -1371,6 +1373,9 @@ namespace Tiny3D
         RenderTargetPtr     mCurrentRenderTarget {nullptr};
 
         BackUpDX11State     mBackupState {};
+
+        /// setBlendConstant 设置的混合常量，只在 RHI 线程读写，每次 OMSetBlendState 都带上它
+        FLOAT               mBlendConstant[4] {0.0f, 0.0f, 0.0f, 0.0f};
 
         /// 当前绑定到 CS 的 UAV 槽位，uavBarrier 的全量路径靠它做「解绑再绑回」
         ID3D11UnorderedAccessView   *mBoundCSUAVs[D3D11_1_UAV_SLOT_COUNT] {nullptr};

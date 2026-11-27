@@ -1760,9 +1760,13 @@ namespace Tiny3D
 
     RHIBlendStatePtr GL4Context::createBlendState(BlendState *state)
     {
-        GL4BlendStatePtr glState = GL4BlendState::create();
-
         const BlendDesc &desc = state->getStateDesc();
+        if (!mCapabilities.checkBlendDesc(LOG_TAG_GL4RENDERER, "createBlendState", desc))
+        {
+            return nullptr;
+        }
+
+        GL4BlendStatePtr glState = GL4BlendState::create();
 
         GL4BlendStateData d {};
         d.independentBlend = desc.IndependentBlendEnable;
@@ -1961,6 +1965,12 @@ namespace Tiny3D
 
     TResult GL4Context::setBlendState(BlendState *state)
     {
+        if (state == nullptr || state->getRHIState() == nullptr)
+        {
+            T3D_LOG_ERROR(LOG_TAG_GL4RENDERER, "setBlendState : blend state has no GL object !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
         GL4BlendState *glState = static_cast<GL4BlendState*>(state->getRHIState().get());
         const auto &d = glState->data;
 
@@ -2022,6 +2032,20 @@ namespace Tiny3D
         };
 
         return ENQUEUE_UNIQUE_COMMAND(lambda, d);
+    }
+
+    //--------------------------------------------------------------------------
+
+    TResult GL4Context::setBlendConstant(const ColorRGBA &color)
+    {
+        auto lambda = [this](const ColorRGBA &color)
+        {
+            glBlendColor(color.red(), color.green(), color.blue(), color.alpha());
+            GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setBlendConstant");
+            return T3D_OK;
+        };
+
+        return ENQUEUE_UNIQUE_COMMAND(lambda, color);
     }
 
     //--------------------------------------------------------------------------

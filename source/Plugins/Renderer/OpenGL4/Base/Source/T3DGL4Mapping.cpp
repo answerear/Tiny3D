@@ -205,6 +205,13 @@ namespace Tiny3D
         case BlendFactor::kSrcAlpha:           return GL_SRC_ALPHA;
         case BlendFactor::kOneMinusDstAlpha:   return GL_ONE_MINUS_DST_ALPHA;
         case BlendFactor::kOneMinusSrcAlpha:   return GL_ONE_MINUS_SRC_ALPHA;
+        case BlendFactor::kSrcAlphaSaturate:   return GL_SRC_ALPHA_SATURATE;
+        case BlendFactor::kBlendConstant:      return GL_CONSTANT_COLOR;
+        case BlendFactor::kOneMinusBlendConstant:  return GL_ONE_MINUS_CONSTANT_COLOR;
+        case BlendFactor::kSrc1Color:          return GL_SRC1_COLOR;
+        case BlendFactor::kOneMinusSrc1Color:  return GL_ONE_MINUS_SRC1_COLOR;
+        case BlendFactor::kSrc1Alpha:          return GL_SRC1_ALPHA;
+        case BlendFactor::kOneMinusSrc1Alpha:  return GL_ONE_MINUS_SRC1_ALPHA;
         }
         return GL_ONE;
     }

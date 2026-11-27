@@ -106,6 +106,9 @@ namespace Tiny3D
 
         static D3D11_BLEND get(BlendFactor factor);
 
+        /// 用于 SrcBlendAlpha / DestBlendAlpha，颜色因子换成对应的 Alpha 因子
+        static D3D11_BLEND getAlphaBlend(BlendFactor factor);
+
         static D3D11_BLEND_OP get(BlendOperation op);
 
         static uint8_t get(BlendColorWriteMask mask);

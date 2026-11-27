@@ -625,9 +625,47 @@ namespace Tiny3D
         case BlendFactor::kOneMinusSrcAlpha:    /// 1 - A_src
             d3dFactor = D3D11_BLEND_INV_SRC_ALPHA;
             break;
+        case BlendFactor::kSrcAlphaSaturate:    /// min(A_src, 1 - A_dst)
+            d3dFactor = D3D11_BLEND_SRC_ALPHA_SAT;
+            break;
+        case BlendFactor::kBlendConstant:       /// C_const
+            d3dFactor = D3D11_BLEND_BLEND_FACTOR;
+            break;
+        case BlendFactor::kOneMinusBlendConstant:   /// 1 - C_const
+            d3dFactor = D3D11_BLEND_INV_BLEND_FACTOR;
+            break;
+        case BlendFactor::kSrc1Color:           /// C_src1
+            d3dFactor = D3D11_BLEND_SRC1_COLOR;
+            break;
+        case BlendFactor::kOneMinusSrc1Color:   /// 1 - C_src1
+            d3dFactor = D3D11_BLEND_INV_SRC1_COLOR;
+            break;
+        case BlendFactor::kSrc1Alpha:           /// A_src1
+            d3dFactor = D3D11_BLEND_SRC1_ALPHA;
+            break;
+        case BlendFactor::kOneMinusSrc1Alpha:   /// 1 - A_src1
+            d3dFactor = D3D11_BLEND_INV_SRC1_ALPHA;
+            break;
         }
         
         return d3dFactor;
+    }
+
+    //--------------------------------------------------------------------------
+
+    D3D11_BLEND D3D11Mapping::getAlphaBlend(BlendFactor factor)
+    {
+        // D3D11 的 Alpha 因子不接受 *_COLOR，其它 API 把颜色因子用在 Alpha 上时取的就是它的 Alpha 分量
+        switch (factor)
+        {
+        case BlendFactor::kSrcColor:            return D3D11_BLEND_SRC_ALPHA;
+        case BlendFactor::kOneMinusSrcColor:    return D3D11_BLEND_INV_SRC_ALPHA;
+        case BlendFactor::kDstColor:            return D3D11_BLEND_DEST_ALPHA;
+        case BlendFactor::kOneMinusDstColor:    return D3D11_BLEND_INV_DEST_ALPHA;
+        case BlendFactor::kSrc1Color:           return D3D11_BLEND_SRC1_ALPHA;
+        case BlendFactor::kOneMinusSrc1Color:   return D3D11_BLEND_INV_SRC1_ALPHA;
+        default:                                return get(factor);
+        }
     }
 
     //--------------------------------------------------------------------------

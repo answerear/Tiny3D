@@ -23,6 +23,7 @@
  ******************************************************************************/
 
 #include "RHI/T3DRHICapabilities.h"
+#include "Render/T3DBlendState.h"
 #include "Render/T3DPixelBuffer.h"
 #include "Render/T3DRenderTarget.h"
 #include "Render/T3DRenderTexture.h"
@@ -257,6 +258,49 @@ namespace Tiny3D
                 (skipped & kReadOnlyDepth) != 0 ? "depth " : "", (skipped & kReadOnlyStencil) != 0 ? "stencil" : "");
         }
         return parts & ~skipped;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool RHICapabilities::checkBlendDesc(const char *tag, const char *func, const BlendDesc &desc) const
+    {
+        auto isDualSource = [](BlendFactor factor)
+        {
+            return factor == BlendFactor::kSrc1Color || factor == BlendFactor::kOneMinusSrc1Color
+                || factor == BlendFactor::kSrc1Alpha || factor == BlendFactor::kOneMinusSrc1Alpha;
+        };
+
+        // 不开独立混合时后端只读 RT 0，关掉混合的 RT 不读因子
+        const uint32_t count = desc.IndependentBlendEnable ? BlendDesc::kMaxRenderTarget : 1;
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            const BlendDesc::RTBlendDesc &rt = desc.RenderTargetStates[i];
+            if (!rt.BlendEnable)
+            {
+                continue;
+            }
+
+            if (!isDualSource(rt.SrcBlend) && !isDualSource(rt.DestBlend)
+                && !isDualSource(rt.SrcBlendAlpha) && !isDualSource(rt.DstBlendAlpha))
+            {
+                continue;
+            }
+
+            if (!supportsDualSourceBlend)
+            {
+                T3D_LOG_ERROR(tag, "%s : dual source blending is not supported by this RHI backend !", func);
+                return false;
+            }
+
+            if (i != 0)
+            {
+                T3D_LOG_ERROR(tag, "%s : dual source blend factors can only be used on render target 0, got render target %u !",
+                    func, i);
+                return false;
+            }
+        }
+
+        return true;
     }
 
     //--------------------------------------------------------------------------

@@ -104,6 +104,13 @@ namespace Tiny3D
         kSrcAlpha,              /// 源 Alpha A_src
         kOneMinusDstAlpha,      /// 1 - A_dst
         kOneMinusSrcAlpha,      /// 1 - A_src
+        kSrcAlphaSaturate,      /// RGB 为 min(A_src, 1 - A_dst)，Alpha 为 1
+        kBlendConstant,         /// RHIContext::setBlendConstant 设置的常量 C_const，用作 Alpha 因子时取 A_const
+        kOneMinusBlendConstant, /// 1 - C_const
+        kSrc1Color,             /// 像素着色器第二个颜色输出 C_src1（双源混合，见 RHICapabilities::checkBlendDesc）
+        kOneMinusSrc1Color,     /// 1 - C_src1
+        kSrc1Alpha,             /// A_src1
+        kOneMinusSrc1Alpha,     /// 1 - A_src1
     };
 
     /**

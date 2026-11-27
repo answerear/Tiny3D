@@ -310,6 +310,27 @@ namespace Tiny3D
         case BlendFactor::kOneMinusSrcAlpha:
             vkFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
             break;
+        case BlendFactor::kSrcAlphaSaturate:
+            vkFactor = VK_BLEND_FACTOR_SRC_ALPHA_SATURATE;
+            break;
+        case BlendFactor::kBlendConstant:
+            vkFactor = VK_BLEND_FACTOR_CONSTANT_COLOR;
+            break;
+        case BlendFactor::kOneMinusBlendConstant:
+            vkFactor = VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
+            break;
+        case BlendFactor::kSrc1Color:
+            vkFactor = VK_BLEND_FACTOR_SRC1_COLOR;
+            break;
+        case BlendFactor::kOneMinusSrc1Color:
+            vkFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR;
+            break;
+        case BlendFactor::kSrc1Alpha:
+            vkFactor = VK_BLEND_FACTOR_SRC1_ALPHA;
+            break;
+        case BlendFactor::kOneMinusSrc1Alpha:
+            vkFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA;
+            break;
         }
 
         return vkFactor;
