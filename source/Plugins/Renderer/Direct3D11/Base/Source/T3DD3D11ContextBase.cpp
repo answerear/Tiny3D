@@ -154,24 +154,27 @@ namespace Tiny3D
                     return false;
                 }
 
-                String::size_type offset = 0, count = 0;
-                
-                if (cbufferName == "type_Globals")
+                // 交叉编译出来的 HLSL 是 type_<CB> / <CB>_<member>；手写 HLSL 不带这些前缀，名字原样保留
+                static const String kTypePrefix = "type_";
+                if (cbufferName.compare(0, kTypePrefix.size(), kTypePrefix) != 0)
                 {
-                    offset = 4;
-                    count =  cbufferName.size() - offset;
+                    originalCBufferName = cbufferName;
+                    originalCName = cname;
+                    return true;
+                }
+
+                const String::size_type offset = (cbufferName == "type_Globals") ? 4 : kTypePrefix.size();
+                originalCBufferName = cbufferName.substr(offset);
+
+                const String::size_type memberOffset = originalCBufferName.size() + 1;
+                if (cname.size() > memberOffset && cname.compare(0, originalCBufferName.size(), originalCBufferName) == 0)
+                {
+                    originalCName = cname.substr(memberOffset);
                 }
                 else
                 {
-                    offset = 5;
-                    count =  cbufferName.size() - offset;
+                    originalCName = cname;
                 }
-
-                originalCBufferName = cbufferName.substr(offset, count);
-
-                offset = originalCBufferName.size() + 1;
-                count = cname.size() - offset;
-                originalCName = cname.substr(offset, count);
 
                 return true;
             };
