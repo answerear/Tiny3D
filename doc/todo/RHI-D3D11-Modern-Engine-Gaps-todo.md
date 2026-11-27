@@ -37,7 +37,7 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 | 延迟渲染 G-Buffer | ⚠️ 勉强 | G-01 |
 | 点光源阴影 / CSM / 反射探针 / IBL | ❌ | G-03、G-04 |
 | SSAO / SSR / TAA / 运动模糊 | ❌ | G-01、G-03、G-05 |
-| 软粒子、贴花（边测深度边采样深度） | ❌ | G-06 |
+| 软粒子、贴花（边测深度边采样深度） | ✅ 可用（D3D11、GL4） | — |
 | GPU 性能分析、RenderDoc 分组、遮挡剔除原语 | ✅ 可用（D3D11、GL4） | — |
 | 显存 / 带宽效率 | ⚠️ | G-02、G-13 |
 
@@ -122,7 +122,8 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 
 | 项目 | 内容 |
 |---|---|
-| **状态** | ❌ 缺失 |
+| **状态** | ✅ 已完成（D3D11、GL4 运行验证；Vulkan 只编译；GLES3 本机未编译；Metal 不支持） |
+| **实现** | 1) `T3DRenderConstant.h` 新增 `DepthStencilReadOnlyFlags`（`kDepthStencilWritable` / `kReadOnlyDepth` / `kReadOnlyStencil` / `kReadOnlyDepthStencil`）。`RenderTarget::setDepthStencilReadOnly(flags)` 标记深度 / 模板的哪些部分只读，后端在 `setRenderTarget` 时读取。典型用法是对同一组颜色与深度纹理建两个 `RenderTarget`：不透明 pass 用可写的那个，软粒子 pass 用只读的那个，同时把深度纹理作为 SRV 采样；<br/>2) 能力位 `RHICapabilities::supportsReadOnlyDepthStencil`。`checkReadOnlyDepthStencil` 在各后端 `setRenderTarget` 入口统一校验：没有只读位时直接通过；有只读位时要求后端支持、深度附件是外挂的深度纹理（窗口自带的深度不行）、格式是深度格式，否则打 error 并返回 `T3D_ERR_INVALID_PARAM`；<br/>3) 只读部分不能清除：`filterDepthStencilClear` 从 `clearDepth` / `clearDepthStencil` / `clearStencil` 中去掉只读的部分并打 warning，剩下的部分照常清除。各后端共用这一个函数；<br/>4) D3D11：DSV 按「子资源 + 只读位」懒创建并缓存（缓存键的 48 位以上放 `D3D11_DSV_READ_ONLY_DEPTH` / `READ_ONLY_STENCIL`），`READ_ONLY_STENCIL` 只对带模板的格式生效。clear 始终用可写的 DSV。需要 FL 11.0；<br/>5) GL4 / GLES3：GL 没有只读视图，改为强制关掉写掩码：`glDepthMask` / `glStencilMask` 由「深度模板状态要求的写入」与「渲染目标的只读位」合并后统一下发，`setDepthStencilState` 与 `setRenderTarget` / `resetRenderTarget` 都会重新下发。按 GL 规范，采样一张仍挂在当前 FBO 上的纹理算反馈环路，即使关掉了写入也是如此，只是主流驱动上的实际行为是正确的；<br/>6) Vulkan：render pass 的哈希带上只读位，只读部分用 `LOAD` / `STORE`，initial / subpass / final layout 都用 `DEPTH_STENCIL_READ_ONLY_OPTIMAL`（只读一半时用 `DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL` 或 `DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL`），`beginPass` 前插 barrier 转到这个布局。管线的 `depthWriteEnable` / 模板写掩码按只读位强制关掉，同一 pass 里采样这张深度时，描述符也用同一个布局。只支持纹理型渲染目标；<br/>7) Metal：能力位为 false，带只读位的请求会被校验拒绝；<br/>8) 顺带修复：D3D11 Debug 构建每帧把 `ID3D11InfoQueue` 里 warning 及以上的消息转到引擎日志（以前只进调试器输出，日志里看不到 hazard）；D3D11 shader 反射默认 cbuffer 都是交叉编译出来的 `type_Xxx` 命名，手写 HLSL 成员名比 cbuffer 名短时会越界抛异常（`SoftParticleApp` 首次运行时崩溃），改为只在名字带这些前缀时才去前缀；`RenderBuffer::writeData` 写入后把 CPU 镜像缩成这次写入的长度，下一次写满时会被判越界，改为按偏移写回镜像、不改变容量。<br/>**验证**：整个解决方案 Debug 编译通过；新建 `SoftParticleApp`（见 7.3）。D3D11 与 GL4 上烟雾和火焰在贴近柴堆、地面、树干处柔和淡出，同一时刻关掉软粒子后交界处出现生硬的切边；烟雾被帐篷和树干正确挡住。D3D11 debug layer 无任何消息；作为对照，粒子 pass 改用可写 DSV 并照样绑定深度 SRV 时，debug layer 每帧报「Resource being set to PS shader resource slot 0 is still bound on output! Forcing to NULL」。PointLightShadowApp、SRGBApp 在 D3D11 与 GL4 上无回归。<br/>**待做**：Vulkan 只编译、未运行验证（`SoftParticleApp` 只带 HLSL / GLSL 源码）；GLES3 与 Metal 的改动本机未编译；Metal 的只读深度；窗口自带的深度不支持只读 |
 | **现状** | 深度纹理已经用 typeless 格式（`R24G8_TYPELESS` / `R32_TYPELESS`，`T3DD3D11Context.cpp:892-900`）创建，可以被 shader 采样，但 DSV 没有 `D3D11_DSV_READ_ONLY_DEPTH` / `READ_ONLY_STENCIL` 版本 |
 | **影响** | 同一张深度不能同时用于深度测试和 shader 采样，软粒子、贴花、体积雾必须先拷贝一份深度 |
 | **要做** | 深度渲染纹理额外建一个只读 DSV，RenderTarget 绑定时可选「只读深度」，此时允许同一资源作为 SRV 绑定。GL / Vulkan 对应的是关闭深度写入 + `DEPTH_STENCIL_READ_ONLY_OPTIMAL` 布局 |
@@ -228,7 +229,7 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 | 1 | G-01 + G-02 | 投入最小、解锁最多。D3D11 侧基本只是补映射表；主要工作量在枚举分组、按格式查询能力，以及其它后端同步跟进 |
 | 2 | G-03 + G-05 + G-04 | 三者共用一套「子资源视图」设计，应一次设计、分步实现。落地后才能做点光源阴影、CSM、IBL。**已完成**（D3D11、GL4），各后端剩余工作见对应条目 |
 | 3 | G-08 + G-07 | 工具链能力，越早做越省调试时间。G-08 改动小，可以插到任意阶段先做。**已完成**（D3D11、GL4 运行验证，其余后端见对应条目） |
-| 4 | G-06、G-09 | 各自独立。G-09 会改变窗口 MSAA 的语义，需要单独验证 |
+| 4 | G-06、G-09 | 各自独立。G-09 会改变窗口 MSAA 的语义，需要单独验证。**G-06 已完成**（D3D11、GL4 运行验证，其余后端见对应条目） |
 | 5 | G-10～G-13 | 按需逐个补 |
 
 验证方案见 §7。
@@ -359,6 +360,12 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 | 软粒子 | 烟雾贴近地面、穿过帐篷边缘和树干的地方是柔和的过渡 | 烟雾与地面、树干相交处有一条生硬的直线，说明深度没读到 |
 | 遮挡关系 | 从帐篷后面看，烟雾被帐篷正确挡住 | 烟雾画在了帐篷前面，说明为了读深度把深度测试关掉了 |
 | 没有资源冲突 | D3D11 debug layer 没有深度同时作为 SRV 和 DSV 的警告 | 日志里出现 hazard 警告，或烟雾整片消失 |
+
+**当前进度（初版，覆盖 G-06）**：`source/Samples/SoftParticleApp` 已实现，D3D11 与 GL4 人眼验收通过，三行检查点都成立。
+- **场景**：地面、三棱柱帐篷、松树（圆台树干 + 两层圆锥树冠）、石圈、柴堆、发光的炭床和两根坐人的原木全部由代码生成，不进引擎场景。火光按几组正弦叠加闪烁，另有一道冷色月光和距离雾。相机绕营地做半径、高度都在变化的环绕，大约 6 秒时以及之后每一圈都会经过「帐篷挡在相机和火堆之间」的位置；风向在帐篷和两侧的树之间缓慢摆动。
+- **粒子**：150 个烟雾粒子与 80 个火焰粒子在 CPU 上模拟（烟雾受浮力和风、带扰动，火焰上升加速并向火心收拢），每帧展开成面向相机的公告板写进动态顶点缓冲。烟雾由远到近排序后做 alpha 混合，火焰做加法混合。启动时先预跑 10 秒，第一帧就有完整的烟柱。
+- **G-06**：`SoftParticleBehaviour` 自建一张颜色 RT 和一张可采样的 `D24S8` 深度 RT，用这两张纹理建两个 `RenderTarget`。不透明 pass 用可写的那个，粒子 pass 用 `setDepthStencilReadOnly(kReadOnlyDepthStencil)` 的那个：深度测试开、写入关，像素着色器在当前像素处 `Load` / `texelFetch` 深度，把非线性深度还原成视空间距离后，按「场景距离 − 粒子距离」淡出（烟雾 0.9 m、火焰 0.3 m）。最后把颜色 blit 到相机的目标。后端没有 `supportsReadOnlyDepthStencil` 时打 warning，粒子 pass 不绑深度 SRV，画成硬粒子。
+- **与最终方案的差距**：粒子是 shader 里算的柔边圆形，没有噪声贴图；只带 HLSL / GLSL 源码，Vulkan 等后端上打 error 后只剩清屏颜色，与 `PointLightShadowApp` 一样不满足 7.1 第 8 条。
 
 #### `OcclusionCullingApp`：城市街区（G-07、G-08、G-09、G-13）
 
