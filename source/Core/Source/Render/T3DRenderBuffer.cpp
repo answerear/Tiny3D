@@ -214,7 +214,11 @@ namespace Tiny3D
                 break;
             }
 
-            mBuffer.setData(buffer.Data, buffer.DataSize);
+            // CPU 镜像按容量保留：只写了一部分时不能把 DataSize 缩成这次的长度，否则下次写满会被判越界
+            if (mBuffer.Data != nullptr && buffer.DataSize > 0)
+            {
+                memcpy(mBuffer.Data + offset, buffer.Data, buffer.DataSize);
+            }
             bytesOfWritten = buffer.DataSize;
         } while (false);
         
