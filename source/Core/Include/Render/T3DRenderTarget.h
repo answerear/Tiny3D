@@ -135,6 +135,22 @@ namespace Tiny3D
         /// 返回深度/模板附件的子资源
         const TextureSubresource &getDepthStencilSubresource() const { return mDepthSubresource; }
 
+        /**
+         * \brief 设置深度/模板附件的只读部分
+         * \param [in] flags : DepthStencilReadOnlyFlags 的组合，默认 kDepthStencilWritable
+         * \remarks 只读部分仍做深度 / 模板测试，但后端保证不写入：D3D11 绑定带
+         *          D3D11_DSV_READ_ONLY_* 的 DSV，GL 强制关闭深度 / 模板写掩码，
+         *          Vulkan 使用 DEPTH_STENCIL_READ_ONLY_OPTIMAL 布局。此时深度纹理可以同时
+         *          作为 SRV 绑定采样，纹理须以 shaderReadable 创建。
+         *          需要 RHICapabilities::supportsReadOnlyDepthStencil，且要有外挂的深度/模板纹理；
+         *          只读部分的 clearDepth / clearStencil 会被忽略并打 warning。
+         *          与子资源一样，在 RHIContext::setRenderTarget 时读取。
+         */
+        void setDepthStencilReadOnly(uint32_t flags) { mDepthStencilReadOnly = flags; }
+
+        /// 返回深度/模板附件的只读部分，DepthStencilReadOnlyFlags 的组合
+        uint32_t getDepthStencilReadOnly() const { return mDepthStencilReadOnly; }
+
         /// 是否有任一附件用了非默认子资源，后端据此决定能否走原有的默认视图
         bool hasSubresources() const;
 
@@ -183,6 +199,8 @@ namespace Tiny3D
         TextureSubresource  mColorSubresources[T3D_MAX_RENDER_TARGET] {};
         /// 深度/模板附件的子资源
         TextureSubresource  mDepthSubresource {};
+        /// 深度/模板附件的只读部分，DepthStencilReadOnlyFlags 的组合
+        uint32_t mDepthStencilReadOnly {kDepthStencilWritable};
         /// 实际使用的颜色附件数量
         uint32_t mNumOfTextures {0};
     };

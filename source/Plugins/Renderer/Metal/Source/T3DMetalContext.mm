@@ -933,6 +933,12 @@ namespace Tiny3D
 
     TResult MetalContext::setRenderTarget(RenderTarget *renderTarget)
     {
+        // Metal 后端没有实现只读深度（supportsReadOnlyDepthStencil = false），这里统一拒绝
+        if (!mCapabilities.checkReadOnlyDepthStencil(LOG_TAG_METALRENDERER, "setRenderTarget", renderTarget))
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
         endEncoder();
 
         mImpl->currentRT = renderTarget;

@@ -939,8 +939,12 @@ namespace Tiny3D
         /// 取出渲染纹理指定 mip / 层的 RTV
         ID3D11RenderTargetView *getD3DRTView(D3D11PixelBuffer2D *buffer, const TextureSubresource &sub, const char *func);
 
-        /// 取出深度渲染纹理指定 mip / 层的 DSV
-        ID3D11DepthStencilView *getD3DDSView(D3D11PixelBuffer2D *buffer, const TextureSubresource &sub, const char *func);
+        /**
+         * \brief 取出深度渲染纹理指定 mip / 层的 DSV
+         * \param [in] readOnly : DepthStencilReadOnlyFlags，非 0 时取带 D3D11_DSV_READ_ONLY_* 的视图；
+         *          没有模板的格式忽略 kReadOnlyStencil
+         */
+        ID3D11DepthStencilView *getD3DDSView(D3D11PixelBuffer2D *buffer, const TextureSubresource &sub, uint32_t readOnly, const char *func);
 
         /// 取出 D3D11 纹理资源上的子资源视图缓存，非纹理返回 nullptr
         D3D11SubresourceViews *getSubresourceViews(RenderBuffer *buffer);
@@ -1016,16 +1020,19 @@ namespace Tiny3D
         /**
          * \brief 窗口 + 可选外挂深度的渲染目标
          * \param [in] depthSub : 外挂深度附件的子资源
+         * \param [in] depthReadOnly : 外挂深度附件的只读位
          */
-        TResult setRenderTarget(RenderWindow *renderWindow, RenderTexture *depthStencil, const TextureSubresource &depthSub);
+        TResult setRenderTarget(RenderWindow *renderWindow, RenderTexture *depthStencil, const TextureSubresource &depthSub,
+            uint32_t depthReadOnly);
 
         /**
          * \brief 纹理型渲染目标，各附件用对应的子资源
          * \param [in] colorSubs : 与 renderTextures 一一对应的子资源
          * \param [in] depthSub : 深度附件的子资源
+         * \param [in] depthReadOnly : 深度附件的只读位
          */
         TResult setRenderTarget(const RenderTexturePtr *renderTextures, uint32_t numOfTextures, RenderTexture *depthStencil,
-            const TextureSubresource *colorSubs, const TextureSubresource &depthSub);
+            const TextureSubresource *colorSubs, const TextureSubresource &depthSub, uint32_t depthReadOnly);
 
         void backupRenderState();
 
@@ -1209,6 +1216,12 @@ namespace Tiny3D
          */
         void pollQueries();
 
+        /**
+         * \brief 把 debug layer 队列里 warning 及以上的消息写进引擎日志并清空队列，只在 Debug 构建生效
+         * \note 只能在 RHI 线程调用
+         */
+        void flushDebugMessages();
+
         /// 释放全部未完成的查询记录与 Disjoint 查询，析构时调用
         void destroyQueries();
 
@@ -1327,6 +1340,10 @@ namespace Tiny3D
         /// 用于调试的设备对象
 #if defined (T3D_DEBUG)
         ID3D11Debug         *mDebugDevice {nullptr};
+        /// debug layer 的消息队列，每帧把 warning 及以上转到引擎日志；拿不到时为 nullptr
+        ID3D11InfoQueue     *mInfoQueue {nullptr};
+        /// 已转到日志的消息数，超过上限后不再转，避免每帧重复的消息刷屏
+        uint32_t            mInfoQueueLogged {0};
 #endif
         /// D3D11 上下文对象
         ID3D11DeviceContext *mD3DDeviceContext {nullptr};

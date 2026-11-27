@@ -553,6 +553,15 @@ namespace Tiny3D
         /// 当前是否渲染到 FBO（非 backbuffer），用于 Y 翻转判断
         bool    mRenderingToFBO {false};
 
+        /// 当前渲染目标深度/模板的只读位，RHI 线程访问。GL 没有只读视图，靠写掩码保证不写入
+        uint32_t mDepthStencilReadOnly {kDepthStencilWritable};
+        /// 最近一次 setDepthStencilState 要求的深度写入与模板写掩码，RHI 线程访问
+        GLboolean mStateDepthWrite {GL_TRUE};
+        GLuint  mStateStencilWriteMask {~0u};
+
+        /// 按深度模板状态与渲染目标的只读位下发深度 / 模板写掩码，RHI 线程调用
+        void applyDepthStencilWriteMasks();
+
         /// 当前绑定的各阶段 ShaderVariant（用于 setupSamplerBindings 查找 slot）
         ShaderVariantPtr mCurrentVSVariant {nullptr};
         ShaderVariantPtr mCurrentPSVariant {nullptr};

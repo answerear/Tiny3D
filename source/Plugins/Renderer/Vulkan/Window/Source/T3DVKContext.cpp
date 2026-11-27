@@ -558,6 +558,8 @@ namespace Tiny3D
         // 子资源视图是核心功能；GS 尚未接入，分层渲染保持 false
         mCapabilities.supportsTextureSubresourceViews = true;
         mCapabilities.supportsLayeredRendering = false;
+        // 纹理目标的深度附件用只读布局 + LOAD；深度与模板分开只读的布局要 Vulkan 1.1
+        mCapabilities.supportsReadOnlyDepthStencil = true;
 
         // 遮挡查询是核心功能，非零即可见，所以二值遮挡直接复用；条件渲染要 VK_EXT_conditional_rendering，暂不接
         mCapabilities.supportsOcclusionQuery = true;
@@ -772,7 +774,22 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    VkRenderPass VKContext::getOrCreateRenderPass(VkFormat colorFormat, VkFormat depthFormat, bool hasColor, bool depthOnly)
+    VkImageLayout VKContext::getDepthAttachmentLayout(uint32_t depthReadOnly)
+    {
+        // 深度与模板分开只读的两种布局是 Vulkan 1.1 核心（VK_KHR_maintenance2）
+        switch (depthReadOnly & kReadOnlyDepthStencil)
+        {
+        case kReadOnlyDepthStencil: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+        case kReadOnlyDepth:        return VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL;
+        case kReadOnlyStencil:      return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL;
+        default:                    return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        }
+    }
+
+    //--------------------------------------------------------------------------
+
+    VkRenderPass VKContext::getOrCreateRenderPass(VkFormat colorFormat, VkFormat depthFormat, bool hasColor, bool depthOnly,
+        uint32_t depthReadOnly)
     {
         // Compute a hash from the parameters
         size_t hash = 0;
@@ -780,6 +797,7 @@ namespace Tiny3D
         hash ^= std::hash<uint32_t>{}((uint32_t)depthFormat) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
         hash ^= std::hash<uint32_t>{}((uint32_t)hasColor) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
         hash ^= std::hash<uint32_t>{}((uint32_t)depthOnly) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        hash ^= std::hash<uint32_t>{}(depthReadOnly) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
 
         auto it = mRenderPassCache.find(hash);
         if (it != mRenderPassCache.end())
@@ -821,11 +839,27 @@ namespace Tiny3D
             depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
             depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            // 只读的部分必须保留进入 pass 前的内容，pass 结束后也不能丢弃
+            if ((depthReadOnly & kReadOnlyDepth) != 0)
+            {
+                depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+                depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+            }
+            if ((depthReadOnly & kReadOnlyStencil) != 0)
+            {
+                depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+                depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+            }
+            const VkImageLayout depthLayout = getDepthAttachmentLayout(depthReadOnly);
+            if (depthReadOnly != kDepthStencilWritable)
+            {
+                depthAttachment.initialLayout = depthLayout;
+            }
+            depthAttachment.finalLayout = depthLayout;
             attachments.push_back(depthAttachment);
 
             depthAttachmentRef.attachment = (uint32_t)(attachments.size() - 1);
-            depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            depthAttachmentRef.layout = depthLayout;
             subpass.pDepthStencilAttachment = &depthAttachmentRef;
         }
 
@@ -842,6 +876,10 @@ namespace Tiny3D
         dependency.srcAccessMask = 0;
         dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
         dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        if (depthReadOnly != kDepthStencilWritable)
+        {
+            dependency.dstAccessMask |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+        }
 
         VkRenderPassCreateInfo renderPassInfo {};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -1034,6 +1072,10 @@ namespace Tiny3D
                 vkColorPB->VkCurrentLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
             }
 
+            mCurrentPassDepthReadOnly = kDepthStencilWritable;
+            mCurrentPassReadOnlyDepthImage = VK_NULL_HANDLE;
+            mCurrentPassReadOnlyDepthLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
             RenderTexturePtr depthStencilRT = mCurrentRenderTarget->getDepthStencil();
             if (depthStencilRT != nullptr)
             {
@@ -1045,17 +1087,44 @@ namespace Tiny3D
                 if (hasStencilComponent(depthFormat))
                     dsAspect |= VK_IMAGE_ASPECT_STENCIL_BIT;
 
-                // Transition depth to DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-                insertImageBarrier(cmdBuf, vkDSPB->VkTex,
-                    vkDSPB->VkCurrentLayout, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                    0, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-                    dsAspect);
-                vkDSPB->VkCurrentLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+                uint32_t readOnly = mCurrentRenderTarget->getDepthStencilReadOnly();
+                if (!hasStencilComponent(depthFormat))
+                {
+                    readOnly &= ~kReadOnlyStencil;
+                }
+                const VkImageLayout depthLayout = getDepthAttachmentLayout(readOnly);
+
+                if (readOnly == kDepthStencilWritable)
+                {
+                    // Transition depth to DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+                    insertImageBarrier(cmdBuf, vkDSPB->VkTex,
+                        vkDSPB->VkCurrentLayout, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                        0, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+                        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+                        dsAspect);
+                }
+                else
+                {
+                    // 只读 pass 会边测试边采样，等之前对这张深度的读写都完成后再换布局
+                    insertImageBarrier(cmdBuf, vkDSPB->VkTex,
+                        vkDSPB->VkCurrentLayout, depthLayout,
+                        VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+                        VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT,
+                        VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                        VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                        dsAspect);
+                    mCurrentPassDepthReadOnly = readOnly;
+                    if ((readOnly & kReadOnlyDepth) != 0)
+                    {
+                        mCurrentPassReadOnlyDepthImage = vkDSPB->VkTex;
+                        mCurrentPassReadOnlyDepthLayout = depthLayout;
+                    }
+                }
+                vkDSPB->VkCurrentLayout = depthLayout;
             }
 
             // Get or create render pass and framebuffer
-            VkRenderPass renderPass = getOrCreateRenderPass(colorFormat, depthFormat, hasColor, depthOnly);
+            VkRenderPass renderPass = getOrCreateRenderPass(colorFormat, depthFormat, hasColor, depthOnly, mCurrentPassDepthReadOnly);
             if (renderPass == VK_NULL_HANDLE)
                 return T3D_ERR_VK_CREATE_RENDER_PASS;
 
@@ -1162,14 +1231,19 @@ namespace Tiny3D
                 if (hasStencilComponent(depthFormat))
                     dsAspect |= VK_IMAGE_ASPECT_STENCIL_BIT;
 
+                // 只读 pass 里深度还在被采样，换布局前要等片元着色器读完
                 insertImageBarrier(cmdBuf, vkDSPB->VkTex,
-                    VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                    vkDSPB->VkCurrentLayout, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                     VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
-                    VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                    VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                     dsAspect);
                 vkDSPB->VkCurrentLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             }
         }
+
+        mCurrentPassDepthReadOnly = kDepthStencilWritable;
+        mCurrentPassReadOnlyDepthImage = VK_NULL_HANDLE;
+        mCurrentPassReadOnlyDepthLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
         mRenderPassActive = false;
         mVkCurrentPipeline = VK_NULL_HANDLE;
@@ -1676,6 +1750,19 @@ namespace Tiny3D
 
     TResult VKContext::setRenderTarget(RenderTarget *renderTarget)
     {
+        if (!mCapabilities.checkReadOnlyDepthStencil(LOG_TAG_VKRENDERER, "setRenderTarget", renderTarget))
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        // 窗口 pass 只用交换链自带的深度，外挂深度在这里不生效，只读也就无从谈起
+        if (renderTarget != nullptr && renderTarget->getType() == RenderTarget::Type::E_RT_WINDOW
+            && renderTarget->getDepthStencilReadOnly() != kDepthStencilWritable)
+        {
+            T3D_LOG_ERROR(LOG_TAG_VKRENDERER, "setRenderTarget : read-only depth stencil is only supported on render texture targets !");
+            return T3D_ERR_INVALID_PARAM;
+        }
+
         mCurrentRenderTarget = renderTarget;
         return T3D_OK;
     }
@@ -1798,6 +1885,9 @@ namespace Tiny3D
         if (mCurrentRenderTarget->getDepthStencil() == nullptr)
             return T3D_OK;
 
+        if (RHICapabilities::filterDepthStencilClear(LOG_TAG_VKRENDERER, "clearDepth", mCurrentRenderTarget.get(), kReadOnlyDepth) == 0)
+            return T3D_OK;
+
         RenderTexturePtr depthStencil = mCurrentRenderTarget->getDepthStencil();
 
         if (depthStencil == nullptr)
@@ -1816,9 +1906,10 @@ namespace Tiny3D
             aspect);
         vkDS->VkCurrentLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 
+        // 与 D3D11_CLEAR_DEPTH 一致只清深度，模板可能是只读的
         VkClearDepthStencilValue clearValue = {depth, 0};
         VkImageSubresourceRange range {};
-        range.aspectMask = aspect;
+        range.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
         range.levelCount = 1;
         range.layerCount = 1;
         vkCmdClearDepthStencilImage(cmdBuf, vkDS->VkTex, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clearValue, 1, &range);
@@ -1834,6 +1925,15 @@ namespace Tiny3D
             return T3D_OK;
 
         if (mCurrentRenderTarget->getDepthStencil() == nullptr)
+            return T3D_OK;
+
+        const uint32_t parts = RHICapabilities::filterDepthStencilClear(LOG_TAG_VKRENDERER, "clearDepthStencil",
+            mCurrentRenderTarget.get(), kReadOnlyDepthStencil);
+        if (parts == kReadOnlyDepth)
+            return clearDepth(depth);
+        if (parts == kReadOnlyStencil)
+            return clearStencil(stencil);
+        if (parts == 0)
             return T3D_OK;
 
         RenderTexturePtr depthStencilRT = mCurrentRenderTarget->getDepthStencil();
@@ -1866,6 +1966,9 @@ namespace Tiny3D
     TResult VKContext::clearStencil(uint32_t stencil)
     {
         if (mCurrentRenderTarget == nullptr || mCurrentRenderTarget->getDepthStencil() == nullptr)
+            return T3D_OK;
+
+        if (RHICapabilities::filterDepthStencilClear(LOG_TAG_VKRENDERER, "clearStencil", mCurrentRenderTarget.get(), kReadOnlyStencil) == 0)
             return T3D_OK;
 
         RenderTexturePtr depthStencilRT = mCurrentRenderTarget->getDepthStencil();
@@ -2908,6 +3011,7 @@ namespace Tiny3D
     {
         mCurrentPSTexStartSlot = startSlot;
         mCurrentPSImageViews.clear();
+        mCurrentPSImages.clear();
 
         for (size_t i = 0; i < buffers.size(); ++i)
         {
@@ -2917,6 +3021,7 @@ namespace Tiny3D
                 && rhiResource->getResourceType() == RHIResource::ResourceType::kPixelBufferCubemap)
             {
                 mCurrentPSImageViews.push_back(static_cast<VKPixelBufferCubemap *>(rhiResource)->VkTexView);
+                mCurrentPSImages.push_back(VK_NULL_HANDLE);
             }
             else if (rhiResource != nullptr && hasSub
                 && rhiResource->getResourceType() == RHIResource::ResourceType::kPixelBuffer2D)
@@ -2925,14 +3030,17 @@ namespace Tiny3D
                 VKPixelBuffer2D *pb = static_cast<VKPixelBuffer2D *>(rhiResource);
                 VkImageView view = getVkSubresourceView(pb, subresources[i], false);
                 mCurrentPSImageViews.push_back(view != VK_NULL_HANDLE ? view : pb->VkTexView);
+                mCurrentPSImages.push_back(pb->VkTex);
             }
             else if (rhiResource != nullptr)
             {
                 mCurrentPSImageViews.push_back(static_cast<VKPixelBuffer2D *>(rhiResource)->VkTexView);
+                mCurrentPSImages.push_back(static_cast<VKPixelBuffer2D *>(rhiResource)->VkTex);
             }
             else
             {
                 mCurrentPSImageViews.push_back(VK_NULL_HANDLE);
+                mCurrentPSImages.push_back(VK_NULL_HANDLE);
             }
         }
 
@@ -3241,6 +3349,17 @@ namespace Tiny3D
             depthStencil.back.reference = mCurrentDepthStencilDesc.StencilRef;
         }
 
+        // 只读布局下写深度 / 模板是未定义行为。currentRP 已按只读位区分，管线缓存不会混用
+        if ((mCurrentPassDepthReadOnly & kReadOnlyDepth) != 0)
+        {
+            depthStencil.depthWriteEnable = VK_FALSE;
+        }
+        if ((mCurrentPassDepthReadOnly & kReadOnlyStencil) != 0)
+        {
+            depthStencil.front.writeMask = 0;
+            depthStencil.back.writeMask = 0;
+        }
+
         // Color blending — read from cached desc
         VkPipelineColorBlendAttachmentState colorBlendAttachment {};
         colorBlendAttachment.colorWriteMask = toVkColorWriteMask(rt0Blend.ColorMask);
@@ -3316,6 +3435,18 @@ namespace Tiny3D
 
         mPipelineCache[hash] = pipeline;
         return pipeline;
+    }
+
+    //--------------------------------------------------------------------------
+
+    VkImageLayout VKContext::getPSImageLayout(size_t index) const
+    {
+        if (mCurrentPassReadOnlyDepthImage != VK_NULL_HANDLE && index < mCurrentPSImages.size()
+            && mCurrentPSImages[index] == mCurrentPassReadOnlyDepthImage)
+        {
+            return mCurrentPassReadOnlyDepthLayout;
+        }
+        return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     }
 
     //--------------------------------------------------------------------------
@@ -3413,7 +3544,7 @@ namespace Tiny3D
                 {
                     VkDescriptorImageInfo imgInfo {};
                     imgInfo.imageView = mCurrentPSImageViews[texIdx];
-                    imgInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    imgInfo.imageLayout = getPSImageLayout(texIdx);
                     imgInfo.sampler = VK_NULL_HANDLE;
                     imageInfos.push_back(imgInfo);
 
@@ -3460,7 +3591,7 @@ namespace Tiny3D
                 {
                     VkDescriptorImageInfo imgInfo {};
                     imgInfo.imageView = mCurrentPSImageViews[texIdx];
-                    imgInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    imgInfo.imageLayout = getPSImageLayout(texIdx);
                     imgInfo.sampler = (sampIdx < mCurrentPSSamplers.size()) ? mCurrentPSSamplers[sampIdx] : VK_NULL_HANDLE;
                     imageInfos.push_back(imgInfo);
 

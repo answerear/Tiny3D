@@ -292,6 +292,23 @@ namespace Tiny3D
     };
 
     /**
+     * \brief 渲染目标深度 / 模板附件的只读位，见 RenderTarget::setDepthStencilReadOnly
+     * \remarks 只读的部分仍参与深度 / 模板测试，但不会被写入，所以同一张深度纹理
+     *          可以同时作为 SRV 采样（软粒子、贴花、体积雾）。没有模板的格式忽略 kReadOnlyStencil。
+     */
+    enum DepthStencilReadOnlyFlags : uint32_t
+    {
+        /// 深度与模板都可写，即普通的深度模板附件
+        kDepthStencilWritable   = 0,
+        /// 深度只读
+        kReadOnlyDepth          = (1 << 0),
+        /// 模板只读
+        kReadOnlyStencil        = (1 << 1),
+        /// 深度与模板都只读
+        kReadOnlyDepthStencil   = kReadOnlyDepth | kReadOnlyStencil,
+    };
+
+    /**
      * \brief 纹理的子资源范围，用于渲染目标附件与 SRV / UAV 绑定
      * \remarks mipCount / sliceCount 为 0 表示「从起点到末尾」，所以默认值选中整张纹理，
      *          与引入子资源之前的绑定行为一致。Cubemap 的层号是 cubeIndex * 6 + face，

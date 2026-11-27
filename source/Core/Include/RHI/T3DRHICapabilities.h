@@ -98,6 +98,9 @@ namespace Tiny3D
         bool        supportsTextureSubresourceViews {false};
         /// 渲染目标可以一次绑定数组 / Cube 的多层，由 GS 输出 SV_RenderTargetArrayIndex 选层
         bool        supportsLayeredRendering {false};
+        /// 渲染目标的深度/模板附件可以只读（RenderTarget::setDepthStencilReadOnly），
+        /// 同一张深度纹理可以边做深度测试边作为 SRV 采样
+        bool        supportsReadOnlyDepthStencil {false};
         /// 支持 QueryType::kOcclusion（样本计数）。GLES 只有布尔遮挡查询，这一位为 false
         bool        supportsOcclusionQuery {false};
         /// 支持 QueryType::kBinaryOcclusion（是否有样本通过）
@@ -192,6 +195,26 @@ namespace Tiny3D
          * \return 目标是带 kGPUGenerateMips、mipmaps > 1 且已创建 RHI 资源的渲染纹理时返回 true
          */
         bool checkGenerateMips(const char *tag, const char *func, PixelBuffer *buffer) const;
+
+        /**
+         * \brief 校验渲染目标的只读深度/模板设置，不合法时打错误日志
+         * \param [in] tag : 日志 tag
+         * \param [in] func : 调用方函数名，用于日志
+         * \param [in] renderTarget : 要绑定的渲染目标
+         * \return 没有只读位，或后端支持且有外挂的深度格式纹理时返回 true
+         */
+        bool checkReadOnlyDepthStencil(const char *tag, const char *func, const RenderTarget *renderTarget) const;
+
+        /**
+         * \brief 从要清除的部分里去掉渲染目标只读的部分，有去掉时打警告日志
+         * \param [in] tag : 日志 tag
+         * \param [in] func : 调用方函数名，用于日志
+         * \param [in] renderTarget : 当前渲染目标，可为 nullptr
+         * \param [in] parts : 要清除的部分，kReadOnlyDepth 表示深度、kReadOnlyStencil 表示模板
+         * \return 仍然可以清除的部分，编码同 parts
+         */
+        static uint32_t filterDepthStencilClear(const char *tag, const char *func, const RenderTarget *renderTarget,
+            uint32_t parts);
 
         /// 是否支持某种查询类型
         bool supportsQuery(QueryType type) const;

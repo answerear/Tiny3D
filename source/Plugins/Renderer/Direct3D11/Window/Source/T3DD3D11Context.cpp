@@ -133,6 +133,7 @@ namespace Tiny3D
         traceDebugInfo();
         
 #if defined (T3D_DEBUG)
+        D3D_SAFE_RELEASE(mInfoQueue);
         D3D_SAFE_RELEASE(mDebugDevice);
 #endif
     }
@@ -190,6 +191,12 @@ namespace Tiny3D
                     "Create ID3D11Debug object failed ! DX ERROR [%d]", hr);
                 break;
             }
+
+            hr = mD3DDevice->QueryInterface(__uuidof(ID3D11InfoQueue), (void **)(&mInfoQueue));
+            if (FAILED(hr))
+            {
+                mInfoQueue = nullptr;
+            }
 #endif
 
             D3D_REF_COUNT("D3D11 #1", mD3DDevice);
@@ -235,6 +242,9 @@ namespace Tiny3D
         // 任意 mip / 层范围的视图与 GS 选层（SV_RenderTargetArrayIndex）从 FL 10.0 就有
         mCapabilities.supportsTextureSubresourceViews = true;
         mCapabilities.supportsLayeredRendering = (mFeatureLevel >= D3D_FEATURE_LEVEL_10_0);
+
+        // D3D11_DSV_READ_ONLY_DEPTH / STENCIL 要 FL 11.0
+        mCapabilities.supportsReadOnlyDepthStencil = (mFeatureLevel >= D3D_FEATURE_LEVEL_11_0);
 
         // 遮挡 / 谓词 / 时间戳 / 管线统计从 FL 10.0 起都是必备功能
         mCapabilities.supportsOcclusionQuery = true;
@@ -1614,7 +1624,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
     
-    TResult D3D11Context::setRenderTarget(RenderWindow *renderWindow, RenderTexture *depthStencil, const TextureSubresource &depthSub)
+    TResult D3D11Context::setRenderTarget(RenderWindow *renderWindow, RenderTexture *depthStencil, const TextureSubresource &depthSub,
+        uint32_t depthReadOnly)
     {
         D3D11RenderWindow *pD3DRenderWindow = static_cast<D3D11RenderWindow*>(renderWindow->getRHIRenderWindow());
         D3D11PixelBuffer2D *pD3DDepthStencil = nullptr;
@@ -1622,24 +1633,26 @@ namespace Tiny3D
         {
             pD3DDepthStencil = static_cast<D3D11PixelBuffer2D*>(depthStencil->getPixelBuffer()->getRHIResource().get());
         }
-        auto lambda = [this](const D3D11RenderWindowPtr &pD3DRenderWindow, const D3D11PixelBuffer2DPtr &pD3DDepthStencil, const TextureSubresource &depthSub)
+        auto lambda = [this](const D3D11RenderWindowPtr &pD3DRenderWindow, const D3D11PixelBuffer2DPtr &pD3DDepthStencil,
+            const TextureSubresource &depthSub, uint32_t depthReadOnly)
         {
             backupRenderState();
             // 外挂的 RenderTexture 优先，没有时退回窗口自带的深度模板附件
             ID3D11DepthStencilView *pD3DDSView = (pD3DDepthStencil != nullptr)
-                ? getD3DDSView(pD3DDepthStencil.get(), depthSub, "setRenderTarget") : pD3DRenderWindow->D3DDSView;
+                ? getD3DDSView(pD3DDepthStencil.get(), depthSub, depthReadOnly, "setRenderTarget") : pD3DRenderWindow->D3DDSView;
             mD3DDeviceContext->OMSetRenderTargets(1, &pD3DRenderWindow->D3DRTView, pD3DDSView);
 
             return T3D_OK;
         };
         
-        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowPtr(pD3DRenderWindow), D3D11PixelBuffer2DPtr(pD3DDepthStencil), depthSub);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, D3D11RenderWindowPtr(pD3DRenderWindow), D3D11PixelBuffer2DPtr(pD3DDepthStencil),
+            depthSub, depthReadOnly);
     }
 
     //--------------------------------------------------------------------------
 
     TResult D3D11Context::setRenderTarget(const RenderTexturePtr *renderTextures, uint32_t numOfTextures, RenderTexture *depthStencil,
-        const TextureSubresource *colorSubs, const TextureSubresource &depthSub)
+        const TextureSubresource *colorSubs, const TextureSubresource &depthSub, uint32_t depthReadOnly)
     {
         using D3D11PixelBuffers = TArray<D3D11PixelBuffer2DPtr>;
         D3D11PixelBuffers colorBuffers(numOfTextures, nullptr);
@@ -1657,7 +1670,7 @@ namespace Tiny3D
 
         // 子资源在入队时拷贝，调用方之后改 RenderTarget 上的子资源不会影响这次绑定
         auto lambda = [this](const D3D11PixelBuffers &colorBuffers, const TextureSubresources &subs,
-            const D3D11PixelBuffer2DPtr &pD3DDepthStencil, const TextureSubresource &depthSub)
+            const D3D11PixelBuffer2DPtr &pD3DDepthStencil, const TextureSubresource &depthSub, uint32_t depthReadOnly)
         {
             backupRenderState();
             TArray<ID3D11RenderTargetView*> pD3DRTViews(colorBuffers.size(), nullptr);
@@ -1677,14 +1690,14 @@ namespace Tiny3D
             ID3D11DepthStencilView *pD3DDSView = nullptr;
             if (pD3DDepthStencil != nullptr)
             {
-                pD3DDSView = getD3DDSView(pD3DDepthStencil.get(), depthSub, "setRenderTarget");
+                pD3DDSView = getD3DDSView(pD3DDepthStencil.get(), depthSub, depthReadOnly, "setRenderTarget");
             }
             mD3DDeviceContext->OMSetRenderTargets(uNumOfRTViews, ppD3DRTViews, pD3DDSView);
             
             return T3D_OK;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, colorBuffers, subs, D3D11PixelBuffer2DPtr(pD3DDepthStencil), depthSub);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, colorBuffers, subs, D3D11PixelBuffer2DPtr(pD3DDepthStencil), depthSub, depthReadOnly);
     }
 
     //--------------------------------------------------------------------------
@@ -1693,12 +1706,17 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
+        if (!mCapabilities.checkReadOnlyDepthStencil(LOG_TAG_D3D11RENDERER, "setRenderTarget", renderTarget))
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
         switch (renderTarget->getType())
         {
         case RenderTarget::Type::E_RT_WINDOW:
             {
                 ret = setRenderTarget(renderTarget->getRenderWindow(), renderTarget->getDepthStencil(),
-                    renderTarget->getDepthStencilSubresource());
+                    renderTarget->getDepthStencilSubresource(), renderTarget->getDepthStencilReadOnly());
             }
             break;
         case RenderTarget::Type::E_RT_TEXTURE:
@@ -1709,7 +1727,8 @@ namespace Tiny3D
                     colorSubs[i] = renderTarget->getColorSubresource(i);
                 }
                 ret = setRenderTarget(renderTarget->getRenderTextures(), renderTarget->getNumOfRenderTextures(),
-                    renderTarget->getDepthStencil(), colorSubs, renderTarget->getDepthStencilSubresource());
+                    renderTarget->getDepthStencil(), colorSubs, renderTarget->getDepthStencilSubresource(),
+                    renderTarget->getDepthStencilReadOnly());
             }
             break;
         default:
@@ -1914,12 +1933,21 @@ namespace Tiny3D
             return T3D_OK;
         }
 
+        const uint32_t parts = RHICapabilities::filterDepthStencilClear(LOG_TAG_D3D11RENDERER, "clearDepthStencil",
+            mCurrentRenderTarget.get(),
+            ((clearFlags & D3D11_CLEAR_DEPTH) != 0 ? kReadOnlyDepth : 0) | ((clearFlags & D3D11_CLEAR_STENCIL) != 0 ? kReadOnlyStencil : 0));
+        clearFlags = ((parts & kReadOnlyDepth) != 0 ? D3D11_CLEAR_DEPTH : 0) | ((parts & kReadOnlyStencil) != 0 ? D3D11_CLEAR_STENCIL : 0);
+        if (clearFlags == 0)
+        {
+            return T3D_OK;
+        }
+
         if (mCurrentRenderTarget->getDepthStencil() != nullptr)
         {
             D3D11PixelBuffer2D *pD3DPixelBuffer = static_cast<D3D11PixelBuffer2D*>(mCurrentRenderTarget->getDepthStencil()->getPixelBuffer()->getRHIResource().get());
             auto lambda = [this](const D3D11PixelBuffer2DPtr &pD3DPixelBuffer, const TextureSubresource &sub, uint32_t clearFlags, const Real &depth, uint8_t stencil)
             {
-                ID3D11DepthStencilView *dsv = getD3DDSView(pD3DPixelBuffer.get(), sub, "clearDepthStencil");
+                ID3D11DepthStencilView *dsv = getD3DDSView(pD3DPixelBuffer.get(), sub, kDepthStencilWritable, "clearDepthStencil");
                 if (dsv != nullptr)
                 {
                     mD3DDeviceContext->ClearDepthStencilView(dsv, clearFlags, depth, stencil);
@@ -6506,7 +6534,8 @@ namespace Tiny3D
 
     //--------------------------------------------------------------------------
 
-    ID3D11DepthStencilView *D3D11Context::getD3DDSView(D3D11PixelBuffer2D *buffer, const TextureSubresource &sub, const char *func)
+    ID3D11DepthStencilView *D3D11Context::getD3DDSView(D3D11PixelBuffer2D *buffer, const TextureSubresource &sub, uint32_t readOnly,
+        const char *func)
     {
         if (buffer == nullptr)
         {
@@ -6514,56 +6543,83 @@ namespace Tiny3D
         }
 
         ID3D11DepthStencilView *base = buffer->D3DDSView;
-        if (sub.isDefault() || base == nullptr)
+        if (base == nullptr || (sub.isDefault() && readOnly == kDepthStencilWritable))
         {
             return base;
+        }
+
+        D3D11_DEPTH_STENCIL_VIEW_DESC desc;
+        base->GetDesc(&desc);
+
+        // READ_ONLY_STENCIL 用在没有模板的格式上会创建失败
+        UINT dsvFlags = (readOnly & kReadOnlyDepth) != 0 ? D3D11_DSV_READ_ONLY_DEPTH : 0;
+        if ((readOnly & kReadOnlyStencil) != 0
+            && (desc.Format == DXGI_FORMAT_D24_UNORM_S8_UINT || desc.Format == DXGI_FORMAT_D32_FLOAT_S8X24_UINT))
+        {
+            dsvFlags |= D3D11_DSV_READ_ONLY_STENCIL;
         }
 
         TextureSubresource r;
         UINT mipLevels = 0, layers = 0;
-        if (!resolveViewSubresource(base, sub, func, r, mipLevels, layers))
+        if (sub.isDefault())
         {
-            return nullptr;
+            // 默认 DSV 是 mip 0 的全部层，MSAA 视图也走这里
+            r = TextureSubresource{0, 1, 0, 0};
         }
-        r.mipCount = 1;
+        else
+        {
+            if (!resolveViewSubresource(base, sub, func, r, mipLevels, layers))
+            {
+                return nullptr;
+            }
+            r.mipCount = 1;
 
-        if (r.mipLevel == 0 && r.firstSlice == 0 && r.sliceCount == layers)
+            if (r.mipLevel == 0 && r.firstSlice == 0 && r.sliceCount == layers)
+            {
+                r.sliceCount = 0;
+            }
+        }
+
+        if (dsvFlags == 0 && r.mipLevel == 0 && r.firstSlice == 0 && r.sliceCount == 0)
         {
             return base;
         }
 
-        const uint64_t key = r.key();
+        // 子资源键只用到低 48 位，只读位放在 48 位以上
+        const uint64_t key = r.key() | ((uint64_t)dsvFlags << 48);
         auto itr = buffer->SubViews.DSViews.find(key);
         if (itr != buffer->SubViews.DSViews.end())
         {
             return itr->second;
         }
 
-        D3D11_DEPTH_STENCIL_VIEW_DESC desc;
-        base->GetDesc(&desc);
-
-        switch (desc.ViewDimension)
+        desc.Flags = dsvFlags;
+        const bool fullRange = (r.mipLevel == 0 && r.firstSlice == 0 && r.sliceCount == 0);
+        if (!fullRange)
         {
-        case D3D11_DSV_DIMENSION_TEXTURE2D:
-            desc.Texture2D.MipSlice = r.mipLevel;
-            break;
-        case D3D11_DSV_DIMENSION_TEXTURE2DARRAY:
-            desc.Texture2DArray.MipSlice = r.mipLevel;
-            desc.Texture2DArray.FirstArraySlice = r.firstSlice;
-            desc.Texture2DArray.ArraySize = r.sliceCount;
-            break;
-        default:
-            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : DSV dimension [%d] does not support subresources (MSAA ?) !",
-                func, (int32_t)desc.ViewDimension);
-            return nullptr;
+            switch (desc.ViewDimension)
+            {
+            case D3D11_DSV_DIMENSION_TEXTURE2D:
+                desc.Texture2D.MipSlice = r.mipLevel;
+                break;
+            case D3D11_DSV_DIMENSION_TEXTURE2DARRAY:
+                desc.Texture2DArray.MipSlice = r.mipLevel;
+                desc.Texture2DArray.FirstArraySlice = r.firstSlice;
+                desc.Texture2DArray.ArraySize = r.sliceCount;
+                break;
+            default:
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : DSV dimension [%d] does not support subresources (MSAA ?) !",
+                    func, (int32_t)desc.ViewDimension);
+                return nullptr;
+            }
         }
 
         ID3D11DepthStencilView *view = nullptr;
         HRESULT hr = mD3DDevice->CreateDepthStencilView(buffer->D3DTexture, &desc, &view);
         if (FAILED(hr))
         {
-            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : failed to create subresource DSV [mip %u, slice %u x %u] ! DX ERROR [%d]",
-                func, r.mipLevel, r.firstSlice, r.sliceCount, hr);
+            T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "%s : failed to create DSV [mip %u, slice %u x %u, read-only flags 0x%x] ! DX ERROR [%d]",
+                func, r.mipLevel, r.firstSlice, r.sliceCount, dsvFlags, hr);
             return nullptr;
         }
 
@@ -7081,10 +7137,56 @@ namespace Tiny3D
             }
 
             pollQueries();
+            flushDebugMessages();
             return T3D_OK;
         };
 
         return ENQUEUE_UNIQUE_COMMAND(lambda);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void D3D11Context::flushDebugMessages()
+    {
+#if defined (T3D_DEBUG)
+        if (mInfoQueue == nullptr)
+        {
+            return;
+        }
+
+        constexpr uint32_t kMaxLogged = 200;
+        const UINT64 count = mInfoQueue->GetNumStoredMessages();
+        for (UINT64 i = 0; i < count && mInfoQueueLogged < kMaxLogged; ++i)
+        {
+            SIZE_T length = 0;
+            if (FAILED(mInfoQueue->GetMessage(i, nullptr, &length)) || length == 0)
+            {
+                continue;
+            }
+
+            TArray<uint8_t> storage(length);
+            D3D11_MESSAGE *message = reinterpret_cast<D3D11_MESSAGE *>(storage.data());
+            if (FAILED(mInfoQueue->GetMessage(i, message, &length)) || message->Severity > D3D11_MESSAGE_SEVERITY_WARNING)
+            {
+                continue;
+            }
+
+            if (message->Severity == D3D11_MESSAGE_SEVERITY_WARNING)
+            {
+                T3D_LOG_WARNING(LOG_TAG_D3D11RENDERER, "D3D11 debug layer : %s", message->pDescription);
+            }
+            else
+            {
+                T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "D3D11 debug layer : %s", message->pDescription);
+            }
+
+            if (++mInfoQueueLogged == kMaxLogged)
+            {
+                T3D_LOG_WARNING(LOG_TAG_D3D11RENDERER, "D3D11 debug layer : %u messages logged, the rest are dropped.", kMaxLogged);
+            }
+        }
+        mInfoQueue->ClearStoredMessages();
+#endif
     }
 
     //--------------------------------------------------------------------------

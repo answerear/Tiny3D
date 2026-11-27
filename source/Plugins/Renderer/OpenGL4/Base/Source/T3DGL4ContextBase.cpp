@@ -258,6 +258,9 @@ namespace Tiny3D
         // 子资源 SRV 靠 glTextureView（4.3）；分层渲染（glFramebufferTexture + gl_Layer）3.2 就有
         mCapabilities.supportsTextureSubresourceViews = has43;
         mCapabilities.supportsLayeredRendering = true;
+        // GL 没有只读深度视图，后端在只读目标上强制关闭深度 / 模板写掩码，
+        // 深度纹理可以同时挂在 FBO 上并被采样
+        mCapabilities.supportsReadOnlyDepthStencil = true;
 
         if (has43)
         {

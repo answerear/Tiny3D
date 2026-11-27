@@ -338,6 +338,8 @@ namespace Tiny3D
         uint32_t                mCurrentPSCBStartSlot {0};
         /// Current pixel buffers (textures, PS stage)
         std::vector<VkImageView> mCurrentPSImageViews;
+        /// 与 mCurrentPSImageViews 一一对应的 image，用来识别正作为只读深度附件的纹理
+        std::vector<VkImage>    mCurrentPSImages;
         uint32_t                mCurrentPSTexStartSlot {0};
         /// Current samplers (PS stage)
         std::vector<VkSampler>  mCurrentPSSamplers;
@@ -364,6 +366,11 @@ namespace Tiny3D
         VkRenderPass        mCurrentPassRenderPass {VK_NULL_HANDLE};
         /// Current framebuffer extent for this pass
         VkExtent2D          mCurrentPassExtent {0, 0};
+        /// 本 pass 深度附件实际生效的只读位（没有模板的格式已去掉 kReadOnlyStencil）
+        uint32_t            mCurrentPassDepthReadOnly {kDepthStencilWritable};
+        /// 本 pass 的只读深度 image 及其布局，描述符采样这张 image 时要用同一布局
+        VkImage             mCurrentPassReadOnlyDepthImage {VK_NULL_HANDLE};
+        VkImageLayout       mCurrentPassReadOnlyDepthLayout {VK_IMAGE_LAYOUT_UNDEFINED};
 
         /// Pending scissor rect (top-left origin, Y-down). Applied in render() before draw.
         VkRect2D            mPendingScissor {};
@@ -371,6 +378,9 @@ namespace Tiny3D
 
         /// Bind descriptor set with reflection-driven resource matching
         TResult bindDescriptorSet(VkCommandBuffer cmdBuf, VkPipelineLayout pipelineLayout);
+
+        /// PS 第 index 个纹理在描述符里的布局：本 pass 的只读深度附件用附件布局，其余是 SHADER_READ_ONLY_OPTIMAL
+        VkImageLayout getPSImageLayout(size_t index) const;
 
         /// 按物理设备属性填充 mCapabilities
         void fillCapabilities();
@@ -404,8 +414,15 @@ namespace Tiny3D
         VkDescriptorSetLayout getOrCreateDescriptorSetLayout(size_t &outHash);
         /// Get or create pipeline layout from descriptor set layout
         VkPipelineLayout getOrCreatePipelineLayout(VkDescriptorSetLayout dsl, size_t dslHash);
-        /// Get or create render pass for given attachment formats
-        VkRenderPass getOrCreateRenderPass(VkFormat colorFormat, VkFormat depthFormat, bool hasColor, bool depthOnly);
+        /**
+         * \brief Get or create render pass for given attachment formats
+         * \param [in] depthReadOnly : 深度附件的只读位，只读部分改为 LOAD / STORE 并使用只读布局
+         */
+        VkRenderPass getOrCreateRenderPass(VkFormat colorFormat, VkFormat depthFormat, bool hasColor, bool depthOnly,
+            uint32_t depthReadOnly);
+
+        /// 只读位对应的深度附件布局，只读位为 0 时是 DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+        static VkImageLayout getDepthAttachmentLayout(uint32_t depthReadOnly);
         /// Get or create framebuffer for current render target
         VkFramebuffer getOrCreateFramebuffer(VkRenderPass renderPass, VkExtent2D &outExtent);
 

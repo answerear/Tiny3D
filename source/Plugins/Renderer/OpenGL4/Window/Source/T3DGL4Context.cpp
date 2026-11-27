@@ -639,6 +639,11 @@ namespace Tiny3D
 
         TResult ret = T3D_OK;
 
+        if (!mCapabilities.checkReadOnlyDepthStencil(LOG_TAG_GL4RENDERER, "setRenderTarget", renderTarget))
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
         if (useWindowProxy)
         {
             ret = checkWindowDepthStencil(renderTarget);
@@ -662,9 +667,10 @@ namespace Tiny3D
             colorSubs[i] = renderTarget->getColorSubresource(i);
         }
         const TextureSubresource depthSub = renderTarget->getDepthStencilSubresource();
+        const uint32_t depthReadOnly = renderTarget->getDepthStencilReadOnly();
 
         auto lambda = [this](RenderTargetPtr renderTarget, uint32_t windowWidth, uint32_t windowHeight,
-            const TextureSubresources &colorSubs, const TextureSubresource &depthSub)
+            const TextureSubresources &colorSubs, const TextureSubresource &depthSub, uint32_t depthReadOnly)
         {
             TResult ret = T3D_OK;
 
@@ -672,6 +678,9 @@ namespace Tiny3D
             {
                 // 入口处清空残留 GL error
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "setRenderTarget: ENTRY (stale error from outside)");
+
+                mDepthStencilReadOnly = depthReadOnly;
+                applyDepthStencilWriteMasks();
 
                 const bool isWindow = (renderTarget->getType() == RenderTarget::Type::E_RT_WINDOW);
                 if (!isWindow || renderTarget->getDepthStencil() == nullptr)
@@ -802,7 +811,8 @@ namespace Tiny3D
             return ret;
         };
 
-        ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderTargetPtr(renderTarget), windowWidth, windowHeight, colorSubs, depthSub);
+        ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderTargetPtr(renderTarget), windowWidth, windowHeight, colorSubs, depthSub,
+            depthReadOnly);
 
         if (T3D_SUCCEEDED(ret))
         {
@@ -1075,12 +1085,23 @@ namespace Tiny3D
                 releaseWindowProxy();
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
                 syncFramebufferSRGB();
+                mDepthStencilReadOnly = kDepthStencilWritable;
+                applyDepthStencilWriteMasks();
             } while (false);
 
             return ret;
         };
 
         return ENQUEUE_UNIQUE_COMMAND(lambda);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GL4Context::applyDepthStencilWriteMasks()
+    {
+        // 只读的部分覆盖状态里的写掩码；切回可写目标时恢复状态要求的值
+        glDepthMask((mDepthStencilReadOnly & kReadOnlyDepth) != 0 ? GL_FALSE : mStateDepthWrite);
+        glStencilMask((mDepthStencilReadOnly & kReadOnlyStencil) != 0 ? 0u : mStateStencilWriteMask);
     }
 
     //--------------------------------------------------------------------------
@@ -1653,6 +1674,9 @@ namespace Tiny3D
         if (mCurrentRenderTarget == nullptr)
             return T3D_OK;
 
+        if (RHICapabilities::filterDepthStencilClear(LOG_TAG_GL4RENDERER, "clearDepth", mCurrentRenderTarget.get(), kReadOnlyDepth) == 0)
+            return T3D_OK;
+
         auto lambda = [this](Real depth)
         {
             TResult ret = T3D_OK;
@@ -1678,23 +1702,30 @@ namespace Tiny3D
         if (mCurrentRenderTarget == nullptr)
             return T3D_OK;
 
-        auto lambda = [this](Real depth, uint32_t stencil)
+        const uint32_t parts = RHICapabilities::filterDepthStencilClear(LOG_TAG_GL4RENDERER, "clearDepthStencil",
+            mCurrentRenderTarget.get(), kReadOnlyDepthStencil);
+        const GLbitfield mask = ((parts & kReadOnlyDepth) != 0 ? GL_DEPTH_BUFFER_BIT : 0)
+            | ((parts & kReadOnlyStencil) != 0 ? GL_STENCIL_BUFFER_BIT : 0);
+        if (mask == 0)
+            return T3D_OK;
+
+        auto lambda = [this](Real depth, uint32_t stencil, GLbitfield mask)
         {
             TResult ret = T3D_OK;
 
             do
             {
-                ClearMaskGuard guard(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+                ClearMaskGuard guard(mask);
                 glClearDepth((GLdouble)depth);
                 glClearStencil((GLint)stencil);
-                glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+                glClear(mask);
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::clearDepthStencil");
             } while (false);
 
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, depth, stencil);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, depth, stencil, mask);
     }
 
     //--------------------------------------------------------------------------
@@ -1702,6 +1733,9 @@ namespace Tiny3D
     TResult GL4Context::clearStencil(uint32_t stencil)
     {
         if (mCurrentRenderTarget == nullptr)
+            return T3D_OK;
+
+        if (RHICapabilities::filterDepthStencilClear(LOG_TAG_GL4RENDERER, "clearStencil", mCurrentRenderTarget.get(), kReadOnlyStencil) == 0)
             return T3D_OK;
 
         auto lambda = [this](uint32_t stencil)
@@ -2013,13 +2047,12 @@ namespace Tiny3D
                     glDisable(GL_DEPTH_TEST);
                 }
 
-                glDepthMask(d.depthWriteEnabled ? GL_TRUE : GL_FALSE);
+                mStateDepthWrite = d.depthWriteEnabled ? GL_TRUE : GL_FALSE;
 
                 if (d.stencilEnabled)
                 {
                     glEnable(GL_STENCIL_TEST);
-                    glStencilMaskSeparate(GL_FRONT, d.stencilWriteMask);
-                    glStencilMaskSeparate(GL_BACK, d.stencilWriteMask);
+                    mStateStencilWriteMask = d.stencilWriteMask;
                     glStencilFuncSeparate(GL_FRONT, d.frontStencilFunc, d.stencilRef, d.stencilReadMask);
                     glStencilFuncSeparate(GL_BACK, d.backStencilFunc, d.stencilRef, d.stencilReadMask);
                     glStencilOpSeparate(GL_FRONT, d.frontStencilFail, d.frontDepthFail, d.frontStencilPass);
@@ -2029,6 +2062,8 @@ namespace Tiny3D
                 {
                     glDisable(GL_STENCIL_TEST);
                 }
+
+                applyDepthStencilWriteMasks();
 
                 GL_CHECK_ERROR(LOG_TAG_GL4RENDERER, "GL4Context::setDepthStencilState");
             } while (false);

@@ -24,6 +24,8 @@
 
 #include "RHI/T3DRHICapabilities.h"
 #include "Render/T3DPixelBuffer.h"
+#include "Render/T3DRenderTarget.h"
+#include "Render/T3DRenderTexture.h"
 
 
 namespace Tiny3D
@@ -202,6 +204,59 @@ namespace Tiny3D
         }
 
         return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    bool RHICapabilities::checkReadOnlyDepthStencil(const char *tag, const char *func, const RenderTarget *renderTarget) const
+    {
+        if (renderTarget == nullptr || renderTarget->getDepthStencilReadOnly() == kDepthStencilWritable)
+        {
+            return true;
+        }
+
+        if (!supportsReadOnlyDepthStencil)
+        {
+            T3D_LOG_ERROR(tag, "%s : read-only depth stencil is not supported by this RHI backend !", func);
+            return false;
+        }
+
+        // 窗口自带的深度不能被采样，只读没有意义，所以只接受外挂的深度纹理
+        RenderTexturePtr depthStencil = renderTarget->getDepthStencil();
+        if (depthStencil == nullptr || depthStencil->getPixelBuffer() == nullptr)
+        {
+            T3D_LOG_ERROR(tag, "%s : read-only depth stencil needs a depth stencil render texture attached !", func);
+            return false;
+        }
+
+        const PixelFormat format = depthStencil->getPixelFormat();
+        if (!PixelFormatUtil::isDepthFormat(format))
+        {
+            T3D_LOG_ERROR(tag, "%s : read-only depth stencil attachment has non-depth format [%s] !",
+                func, PixelFormatUtil::getName(format));
+            return false;
+        }
+
+        return true;
+    }
+
+    //--------------------------------------------------------------------------
+
+    uint32_t RHICapabilities::filterDepthStencilClear(const char *tag, const char *func, const RenderTarget *renderTarget,
+        uint32_t parts)
+    {
+        if (renderTarget == nullptr)
+        {
+            return parts;
+        }
+
+        const uint32_t skipped = parts & renderTarget->getDepthStencilReadOnly();
+        if (skipped != 0)
+        {
+            T3D_LOG_WARNING(tag, "%s : skip clearing the read-only %s%s of the render target !", func,
+                (skipped & kReadOnlyDepth) != 0 ? "depth " : "", (skipped & kReadOnlyStencil) != 0 ? "stencil" : "");
+        }
+        return parts & ~skipped;
     }
 
     //--------------------------------------------------------------------------

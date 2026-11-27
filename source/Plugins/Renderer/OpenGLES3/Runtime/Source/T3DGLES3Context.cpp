@@ -586,13 +586,21 @@ namespace Tiny3D
     {
         TResult ret = T3D_OK;
 
-        auto lambda = [this](RenderTargetPtr renderTarget)
+        if (!mCapabilities.checkReadOnlyDepthStencil(LOG_TAG_GLES3RENDERER, "setRenderTarget", renderTarget))
+        {
+            return T3D_ERR_INVALID_PARAM;
+        }
+
+        auto lambda = [this](RenderTargetPtr renderTarget, uint32_t depthReadOnly)
         {
             TResult ret = T3D_OK;
 
             do
             {
                 GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "setRenderTarget: ENTRY (stale error from outside)");
+
+                mDepthStencilReadOnly = depthReadOnly;
+                applyDepthStencilWriteMasks();
 
                 switch (renderTarget->getType())
                 {
@@ -686,7 +694,7 @@ namespace Tiny3D
             return ret;
         };
 
-        ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderTargetPtr(renderTarget));
+        ret = ENQUEUE_UNIQUE_COMMAND(lambda, RenderTargetPtr(renderTarget), renderTarget->getDepthStencilReadOnly());
 
         if (T3D_SUCCEEDED(ret))
         {
@@ -712,12 +720,23 @@ namespace Tiny3D
             {
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
                 mRenderingToFBO = false;
+                mDepthStencilReadOnly = kDepthStencilWritable;
+                applyDepthStencilWriteMasks();
             } while (false);
 
             return ret;
         };
 
         return ENQUEUE_UNIQUE_COMMAND(lambda);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void GLES3Context::applyDepthStencilWriteMasks()
+    {
+        // 只读的部分覆盖状态里的写掩码；切回可写目标时恢复状态要求的值
+        glDepthMask((mDepthStencilReadOnly & kReadOnlyDepth) != 0 ? GL_FALSE : mStateDepthWrite);
+        glStencilMask((mDepthStencilReadOnly & kReadOnlyStencil) != 0 ? 0u : mStateStencilWriteMask);
     }
 
     //--------------------------------------------------------------------------
@@ -1069,6 +1088,9 @@ namespace Tiny3D
         if (mCurrentRenderTarget == nullptr)
             return T3D_OK;
 
+        if (RHICapabilities::filterDepthStencilClear(LOG_TAG_GLES3RENDERER, "clearDepth", mCurrentRenderTarget.get(), kReadOnlyDepth) == 0)
+            return T3D_OK;
+
         auto lambda = [this](Real depth)
         {
             TResult ret = T3D_OK;
@@ -1094,23 +1116,30 @@ namespace Tiny3D
         if (mCurrentRenderTarget == nullptr)
             return T3D_OK;
 
-        auto lambda = [this](Real depth, uint32_t stencil)
+        const uint32_t parts = RHICapabilities::filterDepthStencilClear(LOG_TAG_GLES3RENDERER, "clearDepthStencil",
+            mCurrentRenderTarget.get(), kReadOnlyDepthStencil);
+        const GLbitfield mask = ((parts & kReadOnlyDepth) != 0 ? GL_DEPTH_BUFFER_BIT : 0)
+            | ((parts & kReadOnlyStencil) != 0 ? GL_STENCIL_BUFFER_BIT : 0);
+        if (mask == 0)
+            return T3D_OK;
+
+        auto lambda = [this](Real depth, uint32_t stencil, GLbitfield mask)
         {
             TResult ret = T3D_OK;
 
             do
             {
-                ClearMaskGuard guard(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+                ClearMaskGuard guard(mask);
                 glClearDepthf((GLfloat)depth);
                 glClearStencil((GLint)stencil);
-                glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+                glClear(mask);
                 GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::clearDepthStencil");
             } while (false);
 
             return ret;
         };
 
-        return ENQUEUE_UNIQUE_COMMAND(lambda, depth, stencil);
+        return ENQUEUE_UNIQUE_COMMAND(lambda, depth, stencil, mask);
     }
 
     //--------------------------------------------------------------------------
@@ -1118,6 +1147,9 @@ namespace Tiny3D
     TResult GLES3Context::clearStencil(uint32_t stencil)
     {
         if (mCurrentRenderTarget == nullptr)
+            return T3D_OK;
+
+        if (RHICapabilities::filterDepthStencilClear(LOG_TAG_GLES3RENDERER, "clearStencil", mCurrentRenderTarget.get(), kReadOnlyStencil) == 0)
             return T3D_OK;
 
         auto lambda = [this](uint32_t stencil)
@@ -1438,13 +1470,12 @@ namespace Tiny3D
                     glDisable(GL_DEPTH_TEST);
                 }
 
-                glDepthMask(d.depthWriteEnabled ? GL_TRUE : GL_FALSE);
+                mStateDepthWrite = d.depthWriteEnabled ? GL_TRUE : GL_FALSE;
 
                 if (d.stencilEnabled)
                 {
                     glEnable(GL_STENCIL_TEST);
-                    glStencilMaskSeparate(GL_FRONT, d.stencilWriteMask);
-                    glStencilMaskSeparate(GL_BACK, d.stencilWriteMask);
+                    mStateStencilWriteMask = d.stencilWriteMask;
                     glStencilFuncSeparate(GL_FRONT, d.frontStencilFunc, d.stencilRef, d.stencilReadMask);
                     glStencilFuncSeparate(GL_BACK, d.backStencilFunc, d.stencilRef, d.stencilReadMask);
                     glStencilOpSeparate(GL_FRONT, d.frontStencilFail, d.frontDepthFail, d.frontStencilPass);
@@ -1454,6 +1485,8 @@ namespace Tiny3D
                 {
                     glDisable(GL_STENCIL_TEST);
                 }
+
+                applyDepthStencilWriteMasks();
 
                 GL_CHECK_ERROR(LOG_TAG_GLES3RENDERER, "GLES3Context::setDepthStencilState");
             } while (false);
@@ -5158,6 +5191,9 @@ namespace Tiny3D
         mHasDebugAnnotation = mGLPushDebugGroup != nullptr && mGLPopDebugGroup != nullptr
             && mGLDebugMessageInsert != nullptr && mGLObjectLabel != nullptr;
         mCapabilities.supportsDebugAnnotations = mHasDebugAnnotation;
+
+        // 与 GL4 一样没有只读深度视图，只读目标上强制关闭深度 / 模板写掩码
+        mCapabilities.supportsReadOnlyDepthStencil = true;
 
         T3D_LOG_INFO(LOG_TAG_GLES3RENDERER, "GPU timestamp query (EXT_disjoint_timer_query): %s, debug annotation (KHR_debug): %s",
             mCapabilities.supportsTimestampQuery ? "supported" : "not supported",
