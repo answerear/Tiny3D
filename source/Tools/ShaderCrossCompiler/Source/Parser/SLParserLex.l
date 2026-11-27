@@ -434,6 +434,36 @@ SrcAlphaSaturate		{
 							return VAL_BLEND_FACTOR;
 						}
 
+BlendConstant			{
+							shaderlablval.enumval = kBlendConstant;
+							return VAL_BLEND_FACTOR;
+						}
+
+OneMinusBlendConstant	{
+							shaderlablval.enumval = kBlendOneMinusConstant;
+							return VAL_BLEND_FACTOR;
+						}
+
+Src1Color				{
+							shaderlablval.enumval = kBlendSrc1Color;
+							return VAL_BLEND_FACTOR;
+						}
+
+OneMinusSrc1Color		{
+							shaderlablval.enumval = kBlendOneMinusSrc1Color;
+							return VAL_BLEND_FACTOR;
+						}
+
+Src1Alpha				{
+							shaderlablval.enumval = kBlendSrc1Alpha;
+							return VAL_BLEND_FACTOR;
+						}
+
+OneMinusSrc1Alpha		{
+							shaderlablval.enumval = kBlendOneMinusSrc1Alpha;
+							return VAL_BLEND_FACTOR;
+						}
+
 blendop					{
 							return TOKEN_BLEND_OP;
 						}

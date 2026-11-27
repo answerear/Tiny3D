@@ -59,6 +59,12 @@ namespace shaderlab
         kBlendOneMinusDstAlpha,
         kBlendSrcAlphaSaturate,
         kBlendOneMinusSrcAlpha,
+        kBlendConstant,
+        kBlendOneMinusConstant,
+        kBlendSrc1Color,
+        kBlendOneMinusSrc1Color,
+        kBlendSrc1Alpha,
+        kBlendOneMinusSrc1Alpha,
         kBlendCount
     };
 

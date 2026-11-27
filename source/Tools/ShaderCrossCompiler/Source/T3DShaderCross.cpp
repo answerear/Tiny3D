@@ -630,6 +630,17 @@ namespace Tiny3D
         // blend op
         // dst->set_blend_op(getBlendOp(src.blendOp));
         blend.RenderTargetStates[0].BlendOp = getBlendOp(src.blendOp);
+        blend.RenderTargetStates[0].BlendOpAlpha = getBlendOp(src.blendOpAlpha);
+
+        // shaderlab 没有单独的开关：Blend Off 与缺省都是 One Zero + Add，其余组合都要打开混合
+        const auto isValue = [](const shaderlab::SLFloat &v, int32_t value)
+        {
+            return (int32_t)v.val == value;
+        };
+        blend.RenderTargetStates[0].BlendEnable =
+            !isValue(src.srcBlend, shaderlab::kBlendOne) || !isValue(src.destBlend, shaderlab::kBlendZero)
+            || !isValue(src.srcBlendAlpha, shaderlab::kBlendOne) || !isValue(src.destBlendAlpha, shaderlab::kBlendZero)
+            || !isValue(src.blendOp, shaderlab::kBlendOpAdd) || !isValue(src.blendOpAlpha, shaderlab::kBlendOpAdd);
 
         // color mask
         // auto colorMask = dst->mutable_color_mask();
@@ -749,9 +760,28 @@ namespace Tiny3D
             factor = BlendFactor::kOneMinusDstAlpha;
             break;
         case shaderlab::BlendMode::kBlendSrcAlphaSaturate:
+            factor = BlendFactor::kSrcAlphaSaturate;
             break;
         case shaderlab::BlendMode::kBlendOneMinusSrcAlpha:
             factor = BlendFactor::kOneMinusSrcAlpha;
+            break;
+        case shaderlab::BlendMode::kBlendConstant:
+            factor = BlendFactor::kBlendConstant;
+            break;
+        case shaderlab::BlendMode::kBlendOneMinusConstant:
+            factor = BlendFactor::kOneMinusBlendConstant;
+            break;
+        case shaderlab::BlendMode::kBlendSrc1Color:
+            factor = BlendFactor::kSrc1Color;
+            break;
+        case shaderlab::BlendMode::kBlendOneMinusSrc1Color:
+            factor = BlendFactor::kOneMinusSrc1Color;
+            break;
+        case shaderlab::BlendMode::kBlendSrc1Alpha:
+            factor = BlendFactor::kSrc1Alpha;
+            break;
+        case shaderlab::BlendMode::kBlendOneMinusSrc1Alpha:
+            factor = BlendFactor::kOneMinusSrc1Alpha;
             break;
         default:
             break;
