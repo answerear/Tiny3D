@@ -62,19 +62,30 @@ namespace Tiny3D
 
         /// 由 D3D11Context::createRenderWindow 在主线程确定采样数后写入
         void setMSAADesc(const MultisamplerDesc &desc) { mMSAA = desc; }
+
+        /// 释放交换链缓冲上的全部引用与窗口自带的附件，ResizeBuffers 之前必须调用
+        void releaseBuffers();
         
-        /// The d 3D swap chain
         IDXGISwapChain          *D3DSwapChain {nullptr};
+        /// 交换链当前的后缓冲，Flip 模型下永远是单采样
         ID3D11Texture2D         *D3DBackBuffer {nullptr};
-        /// The d 3D right view
+        /// 后缓冲的 SRV，交换链带 DXGI_USAGE_SHADER_INPUT，创建失败时为 nullptr
+        ID3D11ShaderResourceView *D3DBackBufferSRView {nullptr};
+        /// 窗口开 MSAA 时实际绘制的离屏颜色缓冲，Present 前 Resolve 到后缓冲；不开 MSAA 时为 nullptr
+        ID3D11Texture2D         *D3DMSAAColorBuffer {nullptr};
+        /// 窗口绘制用的 RTV：开 MSAA 时指向 D3DMSAAColorBuffer，否则指向后缓冲
         ID3D11RenderTargetView  *D3DRTView {nullptr};
+        /// 窗口自带的深度模板缓冲，采样数与 D3DRTView 一致
         ID3D11Texture2D         *D3DDSBuffer {nullptr};
-        ///The d 3D ds view
         ID3D11DepthStencilView  *D3DDSView {nullptr};
         /// 窗口自带深度模板缓冲的像素格式，创建与 resize 时都按该格式重建
         PixelFormat             DepthStencilFormat {PixelFormat::E_PF_D24_UNORM_S8_UINT};
         /// Present 的 SyncInterval，由 RenderWindowDesc::IsVsync 决定，1 为开启垂直同步
         UINT                    PresentSyncInterval {0};
+        /// 创建交换链时的 Flags，ResizeBuffers 必须传同样的值
+        UINT                    SwapChainFlags {0};
+        /// 交换链带 DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING，关闭垂直同步且非独占全屏时 Present 带 DXGI_PRESENT_ALLOW_TEARING
+        bool                    AllowTearing {false};
         
     protected:
         /**

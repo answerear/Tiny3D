@@ -55,11 +55,30 @@ namespace Tiny3D
 
     D3D11RenderWindow::~D3D11RenderWindow()
     {
+        releaseBuffers();
+
+        if (D3DSwapChain != nullptr)
+        {
+            // 独占全屏状态下释放交换链会被 DXGI 拒绝并留下泄漏
+            BOOL isFullscreen = FALSE;
+            if (SUCCEEDED(D3DSwapChain->GetFullscreenState(&isFullscreen, nullptr)) && isFullscreen)
+            {
+                D3DSwapChain->SetFullscreenState(FALSE, nullptr);
+            }
+        }
+        D3D_SAFE_RELEASE(D3DSwapChain);
+    }
+
+    //--------------------------------------------------------------------------
+
+    void D3D11RenderWindow::releaseBuffers()
+    {
         D3D_SAFE_RELEASE(D3DDSView);
         D3D_SAFE_RELEASE(D3DDSBuffer);
         D3D_SAFE_RELEASE(D3DRTView);
+        D3D_SAFE_RELEASE(D3DMSAAColorBuffer);
+        D3D_SAFE_RELEASE(D3DBackBufferSRView);
         D3D_SAFE_RELEASE(D3DBackBuffer);
-        D3D_SAFE_RELEASE(D3DSwapChain);
     }
 
     //--------------------------------------------------------------------------

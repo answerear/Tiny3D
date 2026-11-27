@@ -33,6 +33,7 @@
 #include "Kernel/T3DAgent.h"
 
 #include <chrono>
+#include <dxgi1_5.h>
 
 
 namespace Tiny3D
@@ -564,8 +565,26 @@ namespace Tiny3D
             TResult ret = T3D_OK;
             do
             {
-                HRESULT hr = S_OK;
-                hr = renderWindow->D3DSwapChain->Present(renderWindow->PresentSyncInterval, 0);
+                if (renderWindow->D3DMSAAColorBuffer != nullptr)
+                {
+                    D3D11_TEXTURE2D_DESC desc;
+                    renderWindow->D3DBackBuffer->GetDesc(&desc);
+                    mD3DDeviceContext->ResolveSubresource(renderWindow->D3DBackBuffer, 0, renderWindow->D3DMSAAColorBuffer, 0, desc.Format);
+                }
+
+                UINT presentFlags = 0;
+                if (renderWindow->AllowTearing && renderWindow->PresentSyncInterval == 0)
+                {
+                    // 独占全屏下带 ALLOW_TEARING 会返回 DXGI_ERROR_INVALID_CALL，用户可能用 Alt+Enter 切过去
+                    BOOL isFullscreen = FALSE;
+                    renderWindow->D3DSwapChain->GetFullscreenState(&isFullscreen, nullptr);
+                    if (!isFullscreen)
+                    {
+                        presentFlags |= DXGI_PRESENT_ALLOW_TEARING;
+                    }
+                }
+
+                HRESULT hr = renderWindow->D3DSwapChain->Present(renderWindow->PresentSyncInterval, presentFlags);
                 if (FAILED(hr))
                 {
                     ret = T3D_ERR_D3D11_PRESENT;
@@ -656,6 +675,8 @@ namespace Tiny3D
                 SysWMInfo info;
                 pRenderWindow->getSystemInfo(info);
 
+                // Flip 模型的交换链不能带 MSAA，窗口 MSAA 由 createRenderWindow 建离屏缓冲实现；
+                // 也不能是 _SRGB 格式，sRGB 输出只能靠 RTV 的视图格式
                 DXGI_SWAP_CHAIN_DESC d3dSwapChainDesc;
                 memset(&d3dSwapChainDesc, 0, sizeof(d3dSwapChainDesc));
                 d3dSwapChainDesc.BufferDesc.Width = desc.Width;
@@ -665,14 +686,12 @@ namespace Tiny3D
                 d3dSwapChainDesc.BufferDesc.Format = format;
                 d3dSwapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
                 d3dSwapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-                d3dSwapChainDesc.SampleDesc.Count = uMSAACount;
-                d3dSwapChainDesc.SampleDesc.Quality = uMSAAQuality;
-                d3dSwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-                d3dSwapChainDesc.BufferCount = 1;
+                d3dSwapChainDesc.SampleDesc.Count = 1;
+                d3dSwapChainDesc.SampleDesc.Quality = 0;
+                d3dSwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
                 d3dSwapChainDesc.OutputWindow = (HWND)info.hWnd;
-                d3dSwapChainDesc.Windowed = !desc.IsFullscreen;
-                d3dSwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-                d3dSwapChainDesc.Flags = 0;
+                // Flip 模型推荐窗口模式创建、再切独占全屏
+                d3dSwapChainDesc.Windowed = TRUE;
 
                 // Present 的 SyncInterval：1 表示等一次垂直回扫，0 表示立即呈现
                 pD3DRenderWindow->PresentSyncInterval = desc.IsVsync ? 1 : 0;
@@ -707,12 +726,73 @@ namespace Tiny3D
 
                 // traceDebugInfo("D3D11 D3DObjects trace - #5 ", __FUNCTION__);
                 
-                hr = pDXGIFactory->CreateSwapChain(mD3DDevice, &d3dSwapChainDesc, &pD3DRenderWindow->D3DSwapChain);
-                if (FAILED(hr))
+                // 撕裂要 DXGI 1.5（Win10 1607+）且只对 Flip 模型有效，关闭垂直同步时才需要
+                bool tearingSupported = false;
+                if (!desc.IsVsync)
+                {
+                    IDXGIFactory5 *pDXGIFactory5 = nullptr;
+                    if (SUCCEEDED(pDXGIFactory->QueryInterface(__uuidof(IDXGIFactory5), (void **)&pDXGIFactory5)))
+                    {
+                        BOOL allowTearing = FALSE;
+                        if (SUCCEEDED(pDXGIFactory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing))))
+                        {
+                            tearingSupported = (allowTearing != FALSE);
+                        }
+                        D3D_SAFE_RELEASE(pDXGIFactory5);
+                    }
+                }
+
+                // FLIP_DISCARD 要 Win10，FLIP_SEQUENTIAL 要 Win8，再老的系统只能用 Blt 模型
+                struct SwapChainAttempt
+                {
+                    DXGI_SWAP_EFFECT    effect;
+                    UINT                bufferCount;
+                    bool                isFlip;
+                    const char          *name;
+                };
+                const SwapChainAttempt attempts[] =
+                {
+                    { DXGI_SWAP_EFFECT_FLIP_DISCARD, 2, true, "FLIP_DISCARD" },
+                    { DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL, 2, true, "FLIP_SEQUENTIAL" },
+                    { DXGI_SWAP_EFFECT_DISCARD, 1, false, "DISCARD" },
+                };
+
+                const SwapChainAttempt *used = nullptr;
+                for (const SwapChainAttempt &attempt : attempts)
+                {
+                    const bool allowTearing = attempt.isFlip && tearingSupported;
+                    d3dSwapChainDesc.SwapEffect = attempt.effect;
+                    d3dSwapChainDesc.BufferCount = attempt.bufferCount;
+                    d3dSwapChainDesc.Flags = allowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
+                    hr = pDXGIFactory->CreateSwapChain(mD3DDevice, &d3dSwapChainDesc, &pD3DRenderWindow->D3DSwapChain);
+                    if (SUCCEEDED(hr))
+                    {
+                        used = &attempt;
+                        pD3DRenderWindow->SwapChainFlags = d3dSwapChainDesc.Flags;
+                        pD3DRenderWindow->AllowTearing = allowTearing;
+                        break;
+                    }
+                    T3D_LOG_WARNING(LOG_TAG_D3D11RENDERER, "Create swap chain with %s failed, DX ERROR [%d], try next swap effect.", attempt.name, hr);
+                }
+
+                if (used == nullptr)
                 {
                     ret = T3D_ERR_D3D11_CREATE_FAILED;
                     T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create swap chain failed ! DX ERROR [%d]", hr);
                     break;
+                }
+
+                T3D_LOG_INFO(LOG_TAG_D3D11RENDERER, "Swap chain : %s, %u buffers, MSAA %ux (%s), vsync %d, tearing %d",
+                    used->name, used->bufferCount, uMSAACount, uMSAACount > 1 ? "offscreen + resolve" : "none",
+                    desc.IsVsync ? 1 : 0, pD3DRenderWindow->AllowTearing ? 1 : 0);
+
+                if (desc.IsFullscreen)
+                {
+                    hr = pD3DRenderWindow->D3DSwapChain->SetFullscreenState(TRUE, nullptr);
+                    if (FAILED(hr))
+                    {
+                        T3D_LOG_WARNING(LOG_TAG_D3D11RENDERER, "Switch swap chain to fullscreen failed, stay windowed ! DX ERROR [%d]", hr);
+                    }
                 }
 
                 // traceDebugInfo("D3D11 D3DObjects trace - #6 ", __FUNCTION__);
@@ -1292,7 +1372,7 @@ namespace Tiny3D
 
         do
         {
-            // 创建 RenderTargetView
+            // D3D11 下 buffer 0 永远是当前后缓冲，Flip 模型轮换后缓冲时这个引用和它的视图仍然有效
             HRESULT hr = pD3DRenderWindow->D3DSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void **>(&pD3DRenderWindow->D3DBackBuffer));
             if (FAILED(hr))
             {
@@ -1300,8 +1380,45 @@ namespace Tiny3D
                 T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Get COM for ID3D11Texture2D failed ! DX ERROR [%d]", hr);
                 break;
             }
+
+            // ResizeBuffers(0, 0, 0, ...) 让 DXGI 自己取窗口客户区尺寸，
+            // 实际尺寸可能与传入的 w/h 不同，所以这里从 BackBuffer 反查而不是信参数。
+            D3D11_TEXTURE2D_DESC backBufferDesc;
+            pD3DRenderWindow->D3DBackBuffer->GetDesc(&backBufferDesc);
+
+            // 后缓冲可采样后，blit 以窗口为源时可以走缩放 / 跨格式的全屏四边形路径
+            hr = mD3DDevice->CreateShaderResourceView(pD3DRenderWindow->D3DBackBuffer, nullptr, &pD3DRenderWindow->D3DBackBufferSRView);
+            if (FAILED(hr))
+            {
+                pD3DRenderWindow->D3DBackBufferSRView = nullptr;
+                T3D_LOG_WARNING(LOG_TAG_D3D11RENDERER, "Create back buffer SRV failed, blit from window only supports direct copy ! DX ERROR [%d]", hr);
+            }
+
+            ID3D11Texture2D *pColorBuffer = pD3DRenderWindow->D3DBackBuffer;
+            if (MSAACount > 1)
+            {
+                D3D11_TEXTURE2D_DESC msaaDesc;
+                memset(&msaaDesc, 0, sizeof(msaaDesc));
+                msaaDesc.Width = backBufferDesc.Width;
+                msaaDesc.Height = backBufferDesc.Height;
+                msaaDesc.MipLevels = 1;
+                msaaDesc.ArraySize = 1;
+                msaaDesc.Format = backBufferDesc.Format;
+                msaaDesc.SampleDesc.Count = MSAACount;
+                msaaDesc.SampleDesc.Quality = MSAAQuality;
+                msaaDesc.Usage = D3D11_USAGE_DEFAULT;
+                msaaDesc.BindFlags = D3D11_BIND_RENDER_TARGET;
+                hr = mD3DDevice->CreateTexture2D(&msaaDesc, nullptr, &pD3DRenderWindow->D3DMSAAColorBuffer);
+                if (FAILED(hr))
+                {
+                    ret = T3D_ERR_D3D11_CREATE_TEXTURE2D;
+                    T3D_LOG_ERROR(LOG_TAG_D3D11RENDERER, "Create window MSAA color buffer failed ! DX ERROR [%d]", hr);
+                    break;
+                }
+                pColorBuffer = pD3DRenderWindow->D3DMSAAColorBuffer;
+            }
             
-            hr = mD3DDevice->CreateRenderTargetView(pD3DRenderWindow->D3DBackBuffer, nullptr, &pD3DRenderWindow->D3DRTView);
+            hr = mD3DDevice->CreateRenderTargetView(pColorBuffer, nullptr, &pD3DRenderWindow->D3DRTView);
             if (FAILED(hr))
             {
                 ret = T3D_ERR_D3D11_CREATE_FAILED;
@@ -1309,13 +1426,8 @@ namespace Tiny3D
                 break;
             }
             
-            // 深度模板缓冲的尺寸与采样数必须和 BackBuffer 完全一致，否则
+            // 深度模板缓冲的尺寸与采样数必须和窗口的颜色缓冲完全一致，否则
             // OMSetRenderTargets 会因 RTV/DSV 不匹配被 D3D11 拒绝。
-            // ResizeBuffers(0, 0, 0, ...) 让 DXGI 自己取窗口客户区尺寸，
-            // 实际尺寸可能与传入的 w/h 不同，所以这里从 BackBuffer 反查而不是信参数。
-            D3D11_TEXTURE2D_DESC backBufferDesc;
-            pD3DRenderWindow->D3DBackBuffer->GetDesc(&backBufferDesc);
-
             D3D11_TEXTURE2D_DESC d3dTexDesc;
             memset(&d3dTexDesc, 0, sizeof(d3dTexDesc));
             d3dTexDesc.Width = backBufferDesc.Width;
@@ -1323,7 +1435,8 @@ namespace Tiny3D
             d3dTexDesc.MipLevels = 1;
             d3dTexDesc.ArraySize = 1;
             d3dTexDesc.Format = D3D11Mapping::get(pD3DRenderWindow->DepthStencilFormat);
-            d3dTexDesc.SampleDesc = backBufferDesc.SampleDesc;
+            d3dTexDesc.SampleDesc.Count = MSAACount > 1 ? MSAACount : 1;
+            d3dTexDesc.SampleDesc.Quality = MSAACount > 1 ? MSAAQuality : 0;
             d3dTexDesc.Usage = D3D11_USAGE_DEFAULT;
             d3dTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
             d3dTexDesc.CPUAccessFlags = 0;
@@ -1353,6 +1466,12 @@ namespace Tiny3D
             }
         } while (false);
 
+        if (T3D_FAILED(ret))
+        {
+            // 留着后缓冲引用会让下一次 ResizeBuffers 失败
+            pD3DRenderWindow->releaseBuffers();
+        }
+
         return ret;
     }
 
@@ -1367,15 +1486,16 @@ namespace Tiny3D
 
             do
             {
-                D3D11_TEXTURE2D_DESC desc;
-                pD3DRenderWindow->D3DBackBuffer->GetDesc(&desc);
-            
-                D3D_SAFE_RELEASE(pD3DRenderWindow->D3DRTView);
-                D3D_SAFE_RELEASE(pD3DRenderWindow->D3DBackBuffer);
-                D3D_SAFE_RELEASE(pD3DRenderWindow->D3DDSView);
-                D3D_SAFE_RELEASE(pD3DRenderWindow->D3DDSBuffer);
+                // ResizeBuffers 要求交换链缓冲上没有任何引用：管线上的绑定、setRenderTarget 的备份、
+                // blit 可能挂在 PS slot 上的后缓冲 SRV 都算。D3D11 延迟销毁对象，解绑后要 Flush。
+                releaseBackupState();
+                mD3DDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
+                ID3D11ShaderResourceView *nullSRViews[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {};
+                mD3DDeviceContext->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, nullSRViews);
+                pD3DRenderWindow->releaseBuffers();
+                mD3DDeviceContext->Flush();
 
-                HRESULT hr = pD3DRenderWindow->D3DSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+                HRESULT hr = pD3DRenderWindow->D3DSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, pD3DRenderWindow->SwapChainFlags);
                 if (FAILED(hr))
                 {
                     ret = T3D_ERR_D3D11_RESIZE_BUFFERS;
@@ -1383,7 +1503,9 @@ namespace Tiny3D
                     break;
                 }
 
-                ret = createRenderWindow(pD3DRenderWindow, w, h, desc.SampleDesc.Count, desc.SampleDesc.Quality);
+                // 后缓冲恒为单采样，窗口 MSAA 以创建时确定的值为准
+                const MultisamplerDesc &msaa = pD3DRenderWindow->getMSAADesc();
+                ret = createRenderWindow(pD3DRenderWindow, w, h, msaa.Count > 1 ? msaa.Count : 1, msaa.Count > 1 ? msaa.Quality : 0);
             } while (false);
 
             return ret;
@@ -6018,12 +6140,28 @@ namespace Tiny3D
                 return T3D_ERR_INVALID_POINTER;
             }
 
-            out.Resource = pD3DRenderWindow->D3DBackBuffer;
             out.RTView = pD3DRenderWindow->D3DRTView;
             out.DSView = pD3DRenderWindow->D3DDSView;
-            // SwapChain 的 BufferUsage 只带 DXGI_USAGE_RENDER_TARGET_OUTPUT，
-            // 没有 DXGI_USAGE_SHADER_INPUT，因此 BackBuffer 拿不到 SRV
-            out.SRView = nullptr;
+            if (pD3DRenderWindow->D3DMSAAColorBuffer == nullptr)
+            {
+                out.Resource = pD3DRenderWindow->D3DBackBuffer;
+                out.SRView = pD3DRenderWindow->D3DBackBufferSRView;
+            }
+            else if (asSource)
+            {
+                // 与 MSAA 渲染纹理一样先解析，后缓冲正好是现成的单采样副本，Present 前还会再解析一次
+                D3D11_TEXTURE2D_DESC desc;
+                pD3DRenderWindow->D3DBackBuffer->GetDesc(&desc);
+                mD3DDeviceContext->ResolveSubresource(pD3DRenderWindow->D3DBackBuffer, 0, pD3DRenderWindow->D3DMSAAColorBuffer, 0, desc.Format);
+                out.Resource = pD3DRenderWindow->D3DBackBuffer;
+                out.SRView = pD3DRenderWindow->D3DBackBufferSRView;
+            }
+            else
+            {
+                // 写进后缓冲的内容会被 Present 前的解析覆盖，目标必须是实际绘制的 MSAA 缓冲
+                out.Resource = pD3DRenderWindow->D3DMSAAColorBuffer;
+                out.SRView = nullptr;
+            }
 
             describeD3DResource(out.Resource, out);
 
