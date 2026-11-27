@@ -83,6 +83,11 @@ namespace Tiny3D
             kBuilding = 0,
             kLamp,
             kCar,
+            /// Utility poles and the sagging power lines between them, thinner than a pixel far away
+            kWire,
+            /// Corner signposts and overhead gantry signs, thin plates with hard contrast edges
+            kSign,
+            kCount,
         };
 
         /// One independently culled and drawn object

@@ -260,28 +260,61 @@ namespace Tiny3D
             }
         };
 
+        // Square prism from a to b without end caps, for wires that run at any angle
+        auto addBeam = [](TArray<Vertex> &vertices, const Vector3 &a, const Vector3 &b, Real radius, const Vector3 &color)
+        {
+            Vector3 dir = b - a;
+            dir.normalize();
+            const Vector3 ref = (std::fabs(dir.y()) < 0.9f) ? Vector3::UNIT_Y : Vector3::UNIT_X;
+            Vector3 side = dir.cross(ref);
+            side.normalize();
+            Vector3 up = side.cross(dir);
+            up.normalize();
+            const Vector3 offsets[4] = { side + up, up - side, -side - up, side - up };
+            const Vector3 normals[4] = { up, -side, -up, side };
+            for (int f = 0; f < 4; ++f)
+            {
+                const Vector3 o0 = offsets[f] * radius;
+                const Vector3 o1 = offsets[(f + 1) % 4] * radius;
+                const Vector3 quad[6] = { a + o0, b + o0, b + o1, a + o0, b + o1, a + o1 };
+                for (const Vector3 &p : quad)
+                {
+                    vertices.push_back({ p, normals[f], color });
+                }
+            }
+        };
+
         Random rng;
         mObjects.clear();
 
-        // Each object is a few boxes; the union of them is its bounding box
-        struct Part { Vector3 minPos; Vector3 maxPos; Vector3 color; };
-        auto addObject = [&](Kind kind, std::initializer_list<Part> parts)
+        // An object is everything appended between begin and end; its bounding box encloses those vertices
+        auto beginObject = [&]() { return static_cast<uint32_t>(objects.size()); };
+        auto endObject = [&](Kind kind, uint32_t start)
         {
             CityObject obj;
             obj.kind = kind;
-            obj.start = static_cast<uint32_t>(objects.size());
-            obj.minPos = parts.begin()->minPos;
-            obj.maxPos = parts.begin()->maxPos;
+            obj.start = start;
+            obj.count = static_cast<uint32_t>(objects.size()) - start;
+            obj.minPos = objects[start].position;
+            obj.maxPos = objects[start].position;
+            for (uint32_t v = start; v < start + obj.count; ++v)
+            {
+                const Vector3 &p = objects[v].position;
+                obj.minPos = Vector3(std::min(obj.minPos.x(), p.x()), std::min(obj.minPos.y(), p.y()), std::min(obj.minPos.z(), p.z()));
+                obj.maxPos = Vector3(std::max(obj.maxPos.x(), p.x()), std::max(obj.maxPos.y(), p.y()), std::max(obj.maxPos.z(), p.z()));
+            }
+            mObjects.push_back(obj);
+        };
+
+        struct Part { Vector3 minPos; Vector3 maxPos; Vector3 color; };
+        auto addObject = [&](Kind kind, std::initializer_list<Part> parts)
+        {
+            const uint32_t start = beginObject();
             for (const Part &p : parts)
             {
                 addBox(objects, p.minPos, p.maxPos, p.color);
-                obj.minPos = Vector3(std::min(obj.minPos.x(), p.minPos.x()), std::min(obj.minPos.y(), p.minPos.y()),
-                    std::min(obj.minPos.z(), p.minPos.z()));
-                obj.maxPos = Vector3(std::max(obj.maxPos.x(), p.maxPos.x()), std::max(obj.maxPos.y(), p.maxPos.y()),
-                    std::max(obj.maxPos.z(), p.maxPos.z()));
             }
-            obj.count = static_cast<uint32_t>(objects.size()) - obj.start;
-            mObjects.push_back(obj);
+            endObject(kind, start);
         };
 
         // Asphalt under the whole city, a raised concrete slab per block
@@ -420,6 +453,142 @@ namespace Tiny3D
                                 part(along - 1.1f, along + 0.9f, 1.15f, 1.75f, across - 0.8f, across + 0.8f, color * 0.55f) });
                         }
                     }
+                }
+            }
+        }
+
+        // Box in street space: a runs along the street, c across it; axis 1 streets run along Z.
+        // Callers pass a0 < a1 and c0 < c1
+        auto streetBox = [&](int axis, Real a0, Real a1, Real y0, Real y1, Real c0, Real c1, const Vector3 &color)
+        {
+            if (axis == 0)
+            {
+                addBox(objects, Vector3(a0, y0, c0), Vector3(a1, y1, c1), color);
+            }
+            else
+            {
+                addBox(objects, Vector3(c0, y0, a0), Vector3(c1, y1, a1), color);
+            }
+        };
+
+        // Power lines over the + curb of every street: a pole near each end of the block, three
+        // sagging wires between them and three more hopping over the cross street to the next
+        // block. Lines along X hang lower than lines along Z, so the two never touch at a crossing,
+        // and the poles stand at different distances from the corner
+        const Vector3 utilityPoleColor(0.36f, 0.28f, 0.20f);
+        const Vector3 wireColor(0.04f, 0.04f, 0.05f);
+        const uint32_t kWireSegments = 10;
+        const Real kWireRadius = 0.02f;
+        const Real wireAcross[3] = { -0.55f, 0.0f, 0.55f };
+        const Real wireLift[3] = { 0.0f, 0.35f, 0.0f };
+        for (uint32_t s = 0; s < kBlocks; ++s)
+        {
+            for (int axis = 0; axis < 2; ++axis)
+            {
+                auto pt = [axis](Real a, Real y, Real c) { return (axis == 0) ? Vector3(a, y, c) : Vector3(c, y, a); };
+                const Real across = blockMin(s) + 0.6f;
+                const Real armY = (axis == 0) ? 8.5f : 9.5f;
+                const Real inset = (axis == 0) ? 1.0f : 2.5f;
+
+                auto addPole = [&](Real a)
+                {
+                    streetBox(axis, a - 0.11f, a + 0.11f, kCurbHeight, armY + 0.4f, across - 0.11f, across + 0.11f, utilityPoleColor);
+                    streetBox(axis, a - 0.06f, a + 0.06f, armY - 0.12f, armY, across - 0.7f, across + 0.7f, utilityPoleColor);
+                };
+                auto addWires = [&](Real a0, Real a1, Real sag)
+                {
+                    for (int w = 0; w < 3; ++w)
+                    {
+                        const Real c = across + wireAcross[w];
+                        const Real y = armY + wireLift[w];
+                        Vector3 prev = pt(a0, y, c);
+                        for (uint32_t k = 1; k <= kWireSegments; ++k)
+                        {
+                            const Real t = static_cast<Real>(k) / static_cast<Real>(kWireSegments);
+                            const Vector3 cur = pt(a0 + (a1 - a0) * t, y - 4.0f * sag * t * (1.0f - t), c);
+                            addBeam(objects, prev, cur, kWireRadius, wireColor);
+                            prev = cur;
+                        }
+                    }
+                };
+
+                for (uint32_t seg = 0; seg < kBlocks; ++seg)
+                {
+                    const Real a0 = blockMin(seg) + inset;
+                    const Real a1 = blockMax(seg) - inset;
+                    uint32_t start = beginObject();
+                    addPole(a0);
+                    addPole(a1);
+                    addWires(a0, a1, 1.1f);
+                    endObject(Kind::kWire, start);
+
+                    if (seg + 1 < kBlocks)
+                    {
+                        start = beginObject();
+                        addWires(a1, blockMin(seg + 1) + inset, 0.35f);
+                        endObject(Kind::kWire, start);
+                    }
+                }
+            }
+        }
+
+        // One signpost per intersection on the corner of the block after it: two crossed street
+        // name plates on top and a stop sign facing the cross traffic
+        const Vector3 signPoleColor(0.55f, 0.56f, 0.58f);
+        const Vector3 nameColor(0.05f, 0.42f, 0.18f);
+        const Vector3 stopColor(0.78f, 0.06f, 0.05f);
+        const Vector3 white(0.95f, 0.95f, 0.95f);
+        for (uint32_t i = 0; i < kBlocks; ++i)
+        {
+            for (uint32_t j = 0; j < kBlocks; ++j)
+            {
+                const Real px = blockMin(i) + 2.2f;
+                const Real pz = blockMin(j) + 2.2f;
+                const uint32_t start = beginObject();
+                addBox(objects, Vector3(px - 0.04f, kCurbHeight, pz - 0.04f), Vector3(px + 0.04f, 3.7f, pz + 0.04f), signPoleColor);
+                addBox(objects, Vector3(px - 0.6f, 3.15f, pz - 0.015f), Vector3(px + 0.6f, 3.4f, pz + 0.015f), nameColor);
+                addBox(objects, Vector3(px - 0.015f, 3.45f, pz - 0.6f), Vector3(px + 0.015f, 3.7f, pz + 0.6f), nameColor);
+                addBox(objects, Vector3(px - 0.3f, 2.0f, pz - 0.07f), Vector3(px + 0.3f, 2.6f, pz - 0.04f), stopColor);
+                addBox(objects, Vector3(px - 0.22f, 2.25f, pz - 0.08f), Vector3(px + 0.22f, 2.35f, pz - 0.07f), white);
+                endObject(Kind::kSign, start);
+            }
+        }
+
+        // Overhead gantry signs every few blocks, one board per lane; the camera drives right under
+        // them. Below the power lines and clear of the lamps, which stand at 6, 20 and 34 m
+        const Vector3 gantryColor(0.50f, 0.51f, 0.53f);
+        const Vector3 boardColor(0.06f, 0.30f, 0.62f);
+        for (uint32_t s = 1; s < kBlocks; ++s)
+        {
+            for (uint32_t seg = 0; seg < kBlocks; ++seg)
+            {
+                for (int axis = 0; axis < 2; ++axis)
+                {
+                    if ((s + seg * 2 + static_cast<uint32_t>(axis)) % 3 != 0)
+                    {
+                        continue;
+                    }
+                    const Real along = blockMin(seg) + 27.0f;
+                    const Real c0 = streetMin(s) - 0.6f;
+                    const Real c1 = blockMin(s) + 0.6f;
+                    const uint32_t start = beginObject();
+                    streetBox(axis, along - 0.12f, along + 0.12f, kCurbHeight, 6.5f, c0 - 0.12f, c0 + 0.12f, gantryColor);
+                    streetBox(axis, along - 0.12f, along + 0.12f, kCurbHeight, 6.5f, c1 - 0.12f, c1 + 0.12f, gantryColor);
+                    streetBox(axis, along - 0.1f, along + 0.1f, 6.2f, 6.45f, c0, c1, gantryColor);
+                    for (int lane = 0; lane < 2; ++lane)
+                    {
+                        const Real center = streetCenter(s) + ((lane == 0) ? -3.5f : 3.5f);
+                        streetBox(axis, along - 0.04f, along + 0.04f, 4.9f, 6.2f, center - 1.6f, center + 1.6f, boardColor);
+                        for (int face = 0; face < 2; ++face)
+                        {
+                            const Real f0 = (face == 0) ? along - 0.05f : along + 0.04f;
+                            const Real f1 = f0 + 0.01f;
+                            streetBox(axis, f0, f1, 5.75f, 5.85f, center - 1.3f, center + 1.0f, white);
+                            streetBox(axis, f0, f1, 5.35f, 5.45f, center - 1.3f, center + 0.6f, white);
+                            streetBox(axis, f0, f1, 5.0f, 5.04f, center - 1.5f, center + 1.5f, white);
+                        }
+                    }
+                    endObject(Kind::kSign, start);
                 }
             }
         }
@@ -583,14 +752,14 @@ namespace Tiny3D
             T3D_LOG_WARNING(LOG_TAG_APP, "OcclusionCulling : GPU timings unavailable on %s.", rendererName.c_str());
         }
 
-        uint32_t counts[3] = { 0, 0, 0 };
+        uint32_t counts[static_cast<uint32_t>(Kind::kCount)] = {};
         for (const CityObject &obj : mObjects)
         {
             counts[static_cast<uint32_t>(obj.kind)]++;
         }
-        T3D_LOG_INFO(LOG_TAG_APP, "OcclusionCulling : %u objects (%u buildings, %u lamps, %u cars), %u vertices, "
-            "route %.0f m, culling %s, culling check %s.",
-            objectCount, counts[0], counts[1], counts[2], static_cast<uint32_t>(objects.size()), mRouteLength,
+        T3D_LOG_INFO(LOG_TAG_APP, "OcclusionCulling : %u objects (%u buildings, %u lamps, %u cars, %u power line spans, "
+            "%u signs), %u vertices, route %.0f m, culling %s, culling check %s.",
+            objectCount, counts[0], counts[1], counts[2], counts[3], counts[4], static_cast<uint32_t>(objects.size()), mRouteLength,
             mUsePredication ? "occlusion query + predication" : "off", mCheckCulling ? "on" : "off");
 
         mDrawOrder.resize(objectCount);
