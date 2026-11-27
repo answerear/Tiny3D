@@ -171,7 +171,8 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 
 | 项目 | 内容 |
 |---|---|
-| **状态** | ❌ 缺失 |
+| **状态** | ✅ 已完成（D3D11、GL4 运行验证；Vulkan 只编译；GLES3 / Metal 本机未编译；SampleMask 未做） |
+| **实现** | 1) `BlendFactor` 末尾追加 `kSrcAlphaSaturate`、`kBlendConstant` / `kOneMinusBlendConstant`、`kSrc1Color` / `kOneMinusSrc1Color` / `kSrc1Alpha` / `kOneMinusSrc1Alpha`。枚举按名字序列化，追加不影响已有资源。常量因子叫 `kBlendConstant` 而不是上面写的 `kBlendFactor`，和 `setBlendConstant` 对应；<br/>2) 按推荐方案，混合常量走 `RHIContext::setBlendConstant(const ColorRGBA &)`，不放进 `BlendDesc`：同一个 `BlendState` 可以配不同的常量逐次绘制。常量是上下文状态，设置后一直有效，`setBlendState`、`setRenderTarget`、`reset` 都不改变它，初始值为 (0, 0, 0, 0)。基类默认是空操作，Console / Null 上下文不用实现；<br/>3) 能力位 `RHICapabilities::supportsDualSourceBlend`，`checkBlendDesc` 按各后端的交集校验：用到 `kSrc1*` 时后端必须支持，且只能出现在 RT 0 上（D3D11 与 GL 的双源混合都只有一个输出槽；只检查启用了混合的 RT，`IndependentBlendEnable` 为 false 时只看 RT 0）。各后端在 `createBlendState` 入口校验，不通过时打 error 并返回 nullptr；之后对这个混合状态调用 `setBlendState` 返回 `T3D_ERR_INVALID_PARAM`（D3D11、GL4、GLES3 以前会对空的 RHI 对象解引用）。校验不放在 `BlendState::onLoad`：`scc` 和编辑器用的离线 Console 上下文不声明任何能力，但仍要能编译带双源混合的 shader；<br/>4) D3D11：补齐映射；Alpha 槽位不接受 `*_COLOR` 因子，`createBlendState` 的 Alpha 槽位把它们换成对应的 `*_ALPHA`。混合常量存在上下文里，`setBlendState` 与 `reset` 恢复状态时都带上它；`setBlendConstant` 用 `OMGetBlendState` 取当前混合状态和 sample mask 后重新设置。双源混合要求 FL 10.0+；<br/>5) GL4：`glBlendColor`，`GL_SRC1_COLOR` 等因子（GL 3.3 core 起都有），双源混合恒为支持；<br/>6) GLES3：`glBlendColor`；双源因子要 `GL_EXT_blend_func_extended`，按扩展填能力位，头文件缺的 `GL_*_SRC1_*_EXT` 枚举值自行定义；<br/>7) Vulkan：管线动态状态加 `VK_DYNAMIC_STATE_BLEND_CONSTANTS`，每次 draw 前 `vkCmdSetBlendConstants`；物理设备有 `dualSrcBlend` 时打开这个特性并据此填能力位。顺带修复：管线哈希以前不含 Alpha 的混合因子和运算，只有 Alpha 混合不同的两个状态会错用同一条管线；<br/>8) Metal：映射到 `MTLBlendFactorBlendColor`、`MTLBlendFactorSource1Color` 等；混合常量在每个新建的 render encoder 上重新 `setBlendColorRed:green:blue:alpha:`，能力位为 true；<br/>9) `ShaderCrossCompiler` 的 shaderlab `Blend` 指令新增 `BlendConstant`、`OneMinusBlendConstant`、`Src1Color`、`OneMinusSrc1Color`、`Src1Alpha`、`OneMinusSrc1Alpha` 六个关键字。`SLParserLex.cpp` 用 win_flex 2.6.4 重新生成（先用 HEAD 的 `.l` 生成，与仓库里的文件逐字节一致，确认版本相同）。顺带修复三个既有问题：`SrcAlphaSaturate` 被映射成 `kZero`；Alpha 的 `BlendOp` 没有传到 `BlendOpAlpha`；`BlendEnable` 从来没有置位，`Blend` 指令实际不生效（`Tiny3DStandard` ForwardAdd 的 `Blend One One` 靠渲染管线强制叠加才正确，`Test.shader` 的 `Blend DstColor One` 没有效果）。现在 RGB 与 Alpha 都是 `One, Zero` 且运算都是 Add 时不开混合，其余情况打开。只影响之后用 `scc` 编译的 shader（编辑器打开工程时现编译；Sample 入库的 `.tshader` 要重新烘焙才会变）。<br/>**验证**：T3DCore、D3D11Renderer、GL4Renderer、VKRenderer、ShaderCrossCompiler 与 OITApp、SoftParticleApp、ShadowApp Debug 编译通过，无新增警告。新建 `OITApp` 初版（见 7.3）：D3D11 与 GL4 上彩色玻璃窗按通道透光，红玻璃后的白墙变红、绿篱几乎变黑，绿玻璃后的绿篱保持明亮，透明玻璃后的天空和石柱保持原色，两个后端画面一致；展柜玻璃随相机距离淡出淡入，日志里的混合常量依次为 0.500（3.6 m）→ 0.478（2.84 m）→ 0.152（2.18 m）→ 0.000（≤ 1.64 m）→ 0.147 → 0.500，截图与之一致，没有跳变。日志无 error / warning，D3D11 debug layer 无消息。shaderlab：在 Console 上下文里校验还放在 `onLoad` 时，`Blend One Src1Color` 触发了「不支持双源混合」，说明关键字已解析并翻译成 `kSrc1Color`；完整的烘焙流程本机跑不通（见待做）。SoftParticleApp、ShadowApp 在 D3D11 与 GL4 上无回归。**注意**：`RHIContext` 新增了虚函数，所有 Sample 和插件都要重新编译，旧的 exe 会因虚表错位在启动时崩溃。<br/>**待做**：SampleMask 未做（D3D11 仍固定为 `0xFFFFFFFF`，跨后端要对应 `glSampleMaski` 和 Vulkan 管线的 `pSampleMask`）；Vulkan 只编译、未运行验证，GLES3 与 Metal 本机未编译；shaderlab 里 HLSL 的 `SV_Target1` 经 SPIR-V 交叉编译成 GLSL `layout(index = 1)` / MSL `[[color(0), index(1)]]` 这一段未验证：本机 `scc` 对内置的 `Skybox-Cubemap.shader` 也跑不通（HLSL 目标在 `D3DReflect` 处失败，GLSL 目标在片元变体编译完后访问冲突退出），撤掉本条对 `ShaderCrossCompiler` 的改动后现象相同，属于既有问题，另行排查；双源混合要求渲染目标只有一个颜色附件，这一条要到绑定时才能确定，目前没有校验 |
 | **现状** | `BlendFactor`（`T3DRenderConstant.h:95`）只有 10 个基础因子，没有 `kBlendFactor` / `kOneMinusBlendFactor`、`kSrcAlphaSaturate`、`kSrc1Color` / `kSrc1Alpha`（双源混合）。D3D11 的 `setBlendState` 把 blend factor 写死为 `nullptr`、sample mask 写死为 `-1`（`T3DD3D11Context.cpp:1925`） |
 | **影响** | 无法用常量系数做淡入淡出与过渡混合；双源混合常用于次表面散射近似与某些 OIT 方案 |
 | **要做** | 扩 `BlendFactor`；`BlendDesc` 增加 `BlendConstant` 与 `SampleMask`，或者 `RHIContext` 增加 `setBlendConstant`。后者更接近 Vulkan 的动态状态，推荐后者 |
@@ -231,7 +232,7 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 | 2 | G-03 + G-05 + G-04 | 三者共用一套「子资源视图」设计，应一次设计、分步实现。落地后才能做点光源阴影、CSM、IBL。**已完成**（D3D11、GL4），各后端剩余工作见对应条目 |
 | 3 | G-08 + G-07 | 工具链能力，越早做越省调试时间。G-08 改动小，可以插到任意阶段先做。**已完成**（D3D11、GL4 运行验证，其余后端见对应条目） |
 | 4 | G-06、G-09 | 各自独立。G-09 会改变窗口 MSAA 的语义，需要单独验证。**已完成**：G-06（D3D11、GL4 运行验证，其余后端见对应条目）；G-09（D3D11 运行验证，窗口 MSAA 改为离屏 + Resolve 后对上层语义不变，sRGB 后缓冲见 G-09 待做） |
-| 5 | G-10～G-13 | 按需逐个补 |
+| 5 | G-10～G-13 | 按需逐个补。**G-10 已完成**（D3D11、GL4 运行验证，SampleMask 与其余后端见 G-10 待做） |
 
 验证方案见 §7。
 
@@ -418,6 +419,12 @@ D3D11 本身全部支持这些能力，瓶颈在引擎侧的枚举与描述结�
 | 与不透明物体共存 | 吧台、酒瓶标签等不透明部分正常显示 | 不透明部分消失，说明 PS 的 UAV 与 RTV 槽位冲突 |
 | 彩色玻璃窗（G-10） | 透过红色玻璃看到的后方物体偏红，透过蓝色玻璃偏蓝 | 所有玻璃只是整体变暗，没有颜色倾向，说明双源混合没生效 |
 | 展柜淡出（G-10） | 相机靠近时展柜玻璃平滑淡出，离开时淡入 | 展柜玻璃突然出现或消失，或者始终不变 |
+
+**当前进度（初版，只覆盖 G-10）**：`source/Samples/OITApp` 已实现，D3D11 与 GL4 人眼验收通过，「彩色玻璃窗」「展柜淡出」两行检查点成立。
+- **场景**：酒吧房间（木地板、墙裙、深色天花板）、吧台与黄铜脚踏杆、5 张高脚凳、吧台后的酒柜和一排酒瓶、3 盏吊灯（灯罩 + 发光灯泡）、带黄铜框的玻璃展柜（里面是奖杯、醒酒瓶和一瓶酒），全部由代码生成，酒瓶、凳子、灯罩、奖杯用旋转体生成，顶点直接是世界坐标，不进引擎场景。3 盏吊灯加展柜顶灯共 4 个点光源。后墙窗洞外是不受光照的明亮庭院：蓝天、白色院墙、绿篱和一排灰色石柱。相机沿 8 个路点做 Catmull-Rom 循环（每段 4.5 秒）：全景 → 走向窗户 → 窗户占满画面 → 远看展柜 → 走近展柜 → 贴近玻璃（约 0.4 m）→ 离开。
+- **彩色玻璃窗**：4 × 2 块玻璃嵌在铅条里，红、琥珀、透明、蓝、绿、紫各色，透明那块作对照。`OITBehaviour`（相机上的 `CameraBehaviour`，在 `onPostRender` 里用 RHI 直接绘制）对玻璃用 `(One, Src1Color)` 混合：像素着色器的 `SV_Target0`（GLSL `layout(location = 0, index = 0)`）输出玻璃自身散射的光，`SV_Target1`（`index = 1`）输出按通道的透过率，结果是 `散射 + 背景 × 透过率`。透过率带一点按位置变化的起伏，模拟手工玻璃的厚薄不均。后端没有 `supportsDualSourceBlend` 时打 warning，改用 `(Zero, SrcColor)` 只把透过率乘进背景，没有散射光。
+- **展柜淡出**：展柜玻璃用 `(BlendConstant, OneMinusBlendConstant)` 混合，`BlendState` 始终不变。每帧按相机到展柜中心的距离算不透明度 `0.5 × smoothstep(1.7, 3.0, d)`，先 `setBlendConstant` 再 `setBlendState`（顺带验证切换混合状态不会重置常量）；玻璃着色带掠射角反光，远看能看出玻璃的存在。每 2 秒把距离和混合常量打到日志。
+- **与最终方案的差距**：杯子、酒瓶都是不透明的，还没有逐像素链表 OIT、旋转托盘（G-11、G-12）；吧台木材是纯色，没有 ambientCG 贴图；只带 HLSL / GLSL 源码，Vulkan 等后端上打 error 后只剩清屏颜色，与 `PointLightShadowApp` 一样不满足 7.1 第 8 条。
 
 ### 7.4 补充的数据校验
 
